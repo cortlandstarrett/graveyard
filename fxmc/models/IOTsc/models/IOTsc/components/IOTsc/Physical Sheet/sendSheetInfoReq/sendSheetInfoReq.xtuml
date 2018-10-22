@@ -1,0 +1,242 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("0e42d0d6-7173-4d37-aebb-31ba790ef9e2",
+	'sendSheetInfoReq',
+	431,
+	'P_SSIR',
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("58eb9d77-6b7b-47e3-9a5c-3d7cbba252f9",
+	"0e42d0d6-7173-4d37-aebb-31ba790ef9e2",
+	'create',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'create object instance aSendSheetINfoReq of P_SSIR;
+aSendSheetINfoReq.sheetID = param.sheetID;
+
+docInfoReqID = P_SDIR::create();
+select any aSendDocInfo from instances of P_SDIR
+    where( selected.requestID == docInfoReqID );
+FER::assert( expression : not_empty aSendDocInfo );
+
+relate aSendSheetINfoReq to aSendDocInfo across R467;
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("59db3bab-1c9c-4841-855e-f6f9246d2088",
+	"58eb9d77-6b7b-47e3-9a5c-3d7cbba252f9",
+	'sheetID',
+	"c8447be4-d01e-4fe9-93f9-1b14504795d9",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("c8447be4-d01e-4fe9-93f9-1b14504795d9",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_SheetID',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("d7ff8e9a-1ba4-43a3-a903-7e815bf61ca3",
+	"0e42d0d6-7173-4d37-aebb-31ba790ef9e2",
+	'send',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'IOTD::sendSheetInfo( sheetID : self.sheetID );
+
+//-- 14599:20130806 Add Start (ikegaya)
+// IOT動作状況をJIS登録
+select one aSendDocInfo related by self->P_SDIR[R467];
+FER::assert( expression : not_empty aSendDocInfo );
+
+select any aJob from instances of J_JOB
+	where ( selected.jobID == aSendDocInfo.getJobID() );
+FER::assert( expression : not_empty aJob );
+
+existPauseJob = FALSE;
+select one aPrevJob related by aJob->J_JOB[R101.''is previous to''];
+while ( not_empty aPrevJob )
+	aTempJob = aPrevJob;
+	select one aJobPause related by aTempJob->J_JPR[R106];
+	if ( not_empty aJobPause )
+		existPauseJob = TRUE;
+		break;
+	end if;
+	select one aPrevJob related by aTempJob ->J_JOB[R101.''is previous to''];
+end while;
+
+// 先行ジョブにPause中ジョブがなしの場合、プリント動作中をセット
+if ( existPauseJob == FALSE )
+	JIS::setPrintStatus( jobID : aJob.jobID, status : IotSc_PrintStatus::eSheetExist );
+else
+	JIS::setPrintStatus( jobID : aJob.jobID, status : IotSc_PrintStatus::eWaiting );
+end if;
+
+return;
+//-- 14599:20130806 Add End (ikegaya)
+',
+	1,
+	'',
+	"dc7c6d7b-a639-4d0c-9b11-050751d00702");
+INSERT INTO O_TFR
+	VALUES ("dc7c6d7b-a639-4d0c-9b11-050751d00702",
+	"0e42d0d6-7173-4d37-aebb-31ba790ef9e2",
+	'getJobID',
+	'',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	1,
+	'// SheetIDからSetIDを、SetIDからJobIDを得る
+jobID = 0;
+
+shtHandle = TYPE::IotDoc_SheetHandle();
+docResult = DDB::getSheetHandle( sheetID : self.sheetID, r_sheetHandle : shtHandle );
+FER::assert( expression : docResult == "IOTDOC_OK" );
+setID = TYPE::Iot_SetID();
+docResult = DDB::getSheetSetID( sheetHandle : shtHandle, r_data : setID );
+FER::assert( expression : docResult == "IOTDOC_OK" );
+setHandle = TYPE::IotDoc_SetHandle();
+docResult = DDB::getSetHandle( setID : setID, r_setHandle : setHandle );
+FER::assert( expression : docResult == "IOTDOC_OK" );
+docResult = DDB::getSetJobID( setHandle : setHandle, r_data : jobID );
+FER::assert( expression : docResult == "IOTDOC_OK" );
+
+return jobID ;
+',
+	1,
+	'',
+	"58eb9d77-6b7b-47e3-9a5c-3d7cbba252f9");
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("d23432a6-89b4-47a9-a238-48ed34472a9b",
+	"0e42d0d6-7173-4d37-aebb-31ba790ef9e2");
+INSERT INTO O_BATTR
+	VALUES ("d23432a6-89b4-47a9-a238-48ed34472a9b",
+	"0e42d0d6-7173-4d37-aebb-31ba790ef9e2");
+INSERT INTO O_ATTR
+	VALUES ("d23432a6-89b4-47a9-a238-48ed34472a9b",
+	"0e42d0d6-7173-4d37-aebb-31ba790ef9e2",
+	"00000000-0000-0000-0000-000000000000",
+	'sheetID',
+	'',
+	'',
+	'sheetID',
+	0,
+	"c8447be4-d01e-4fe9-93f9-1b14504795d9",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("0e42d0d6-7173-4d37-aebb-31ba790ef9e2",
+	"184b6ef4-c512-41c2-894b-52517cb996fd",
+	0,
+	"0072ba0c-444d-4457-8474-5750cd0c74b4",
+	"5a7a9592-4574-4c36-8d98-deac178bb4c7",
+	"da7ac204-3dba-4dcf-8eca-ab8e505210eb",
+	"a47e6c95-87a7-4dd0-b4a3-67eefb51f1bb",
+	"75ffdaee-4d20-41cb-95dc-7d90d63ccdd0",
+	"0c7de8b8-0c70-4126-b386-7cb1bfc5ac91",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'sendDocInfoReq',
+	'requestID',
+	'R467');
+INSERT INTO R_RGO_PROXY
+	VALUES ("0e42d0d6-7173-4d37-aebb-31ba790ef9e2",
+	"5a7a9592-4574-4c36-8d98-deac178bb4c7",
+	"da7ac204-3dba-4dcf-8eca-ab8e505210eb",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("0072ba0c-444d-4457-8474-5750cd0c74b4",
+	"184b6ef4-c512-41c2-894b-52517cb996fd",
+	0,
+	"5a7a9592-4574-4c36-8d98-deac178bb4c7",
+	"a47e6c95-87a7-4dd0-b4a3-67eefb51f1bb",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("75ffdaee-4d20-41cb-95dc-7d90d63ccdd0",
+	"0e42d0d6-7173-4d37-aebb-31ba790ef9e2",
+	"0072ba0c-444d-4457-8474-5750cd0c74b4",
+	"184b6ef4-c512-41c2-894b-52517cb996fd",
+	1,
+	'requestID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("0072ba0c-444d-4457-8474-5750cd0c74b4",
+	"184b6ef4-c512-41c2-894b-52517cb996fd",
+	'../sendDocInfoReq/sendDocInfoReq.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("75ffdaee-4d20-41cb-95dc-7d90d63ccdd0",
+	"0e42d0d6-7173-4d37-aebb-31ba790ef9e2",
+	"d23432a6-89b4-47a9-a238-48ed34472a9b",
+	'requestID',
+	'',
+	'',
+	'requestID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"0e42d0d6-7173-4d37-aebb-31ba790ef9e2");
+INSERT INTO O_OIDA
+	VALUES ("75ffdaee-4d20-41cb-95dc-7d90d63ccdd0",
+	"0e42d0d6-7173-4d37-aebb-31ba790ef9e2",
+	0,
+	'requestID');
+INSERT INTO O_ID
+	VALUES (1,
+	"0e42d0d6-7173-4d37-aebb-31ba790ef9e2");
+INSERT INTO O_ID
+	VALUES (2,
+	"0e42d0d6-7173-4d37-aebb-31ba790ef9e2");
+INSERT INTO PE_PE
+	VALUES ("0e42d0d6-7173-4d37-aebb-31ba790ef9e2",
+	1,
+	"28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Physical Sheet',
+	'このサブシステムは実際の出力を行うためのDMとのI/Fおよび論理シートだけでは
+表現できない出力に関する概念を抽象化したものです。
+
+このサブシステムで表現されるものには以下の項目があります。
+1. DMとのI/Fを実現する内部キュー
+2.キューが処理対象となった実シートおよび実イメージ
+3.バナー、合紙などの論理シート以外で表現されるシート（表紙は論理シートで表現される）
+
+DMとのI/Fといっても表現されるのは以下のものです。
+SC→DM
+SET_START_INFO
+SHEET_INFO
+SET_END_INFO
+JOB_END_INFO
+
+DM→SC
+NEXT_SHEET_REQ
+IMAGE_REQ
+SHEET_END
+
+JOB_START_INFOも当初含まれていましたが（モデルにもまだ存在するが）キューに
+おくことにより不具合が生じたため、現状ではJ_EJOBから直接ブリッジのコールが行われています。
+
+',
+	400,
+	'../Physical Sheet.xtuml');

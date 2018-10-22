@@ -1,0 +1,923 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	'Set Recovery Facade',
+	701,
+	'SR_SRF',
+	'//-- 627:20100907 Add Start (kanda)
+// セットリカバリーのフロントエンド
+Modify:Add
+Modify_No:627
+Modifier:kanda
+Modify_Date:20100907
+//-- 627:20100907 Add End (kanda)
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("fd10155d-bf65-4d89-8cb6-d1a3ed976caa",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	'jobCancelAns',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+// セットリカバリー処理中に受信したJobCancelAns処理
+select any aSetRecoveryRequest from instances of SR_SRR;
+FER::assert(expression : not_empty aSetRecoveryRequest);
+generate SR_SRR2:JobCanceled(jobID : param.jobID) to aSetRecoveryRequest;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"aca974cf-f0a4-4801-8bdf-1f0678f227e9");
+INSERT INTO O_TPARM
+	VALUES ("59d6eca0-27c1-4c8f-966b-70588b299563",
+	"fd10155d-bf65-4d89-8cb6-d1a3ed976caa",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("c36c1267-42fa-45b8-bea8-ab998f5d2c8f",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	'reOpened',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+// システムリソース再取得待ちにシーケンスにreopenを通知する
+//-- 629:20101104 Add End (kanda)
+
+',
+	1,
+	'',
+	"69478755-98ef-4a8c-bcdf-22b501514aa2");
+INSERT INTO O_TFR
+	VALUES ("b9366b3f-d3e7-4e0e-9276-47b2c9733009",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	'sendSheetInfoStart',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+// システムリソースを解放して再取得処理を開始する
+SR_SRC::allSystemResourceFree();
+
+// 存在するEJOBごとにシステムリソースリカバリーを生成する
+// システムリソース再取得開始する
+select many jobs from instances of J_JOB;
+for each aJob in jobs
+	select one anExecutingJob related by aJob->J_EJOB[R104];
+	if (not_empty anExecutingJob)
+		SR_SRC::createInstance(jobID : anExecutingJob.jobID);
+		SR_PSR::createInstance(jobID : anExecutingJob.jobID);
+	end if;
+end for;
+
+// システムリソースの再取得とシート情報再通知を開始
+// システムリソースは無条件に再開可能
+SR_SRC::nextSystemResourceRecovery();
+
+//-- 0106953:20150306 Deleted Start (ikegaya)
+// シート情報の再通知はJobAcceptableを受信してから再開
+//select any aJobRequestAccepter from instances of J_JRA;
+//FER::assert(expression : not_empty aJobRequestAccepter);
+
+//if (aJobRequestAccepter.isJobAcceptableRecived)
+//	SR_PSR::nextPhysicalSheetRecovery();
+//end if;
+//-- 0106953:20150306 Deleted End (ikegaya)
+//-- 0106953:20150306 Add Start (ikegaya)
+// シート情報の再通知を再開
+SR_PSR::nextPhysicalSheetRecovery();
+//-- 0106953:20150306 Add End (ikegaya)
+
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"806b369f-47e9-449c-9794-f4e5a236f0b3");
+INSERT INTO O_TFR
+	VALUES ("4a5ab992-11c6-4826-822e-eaaca4e12a4f",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	'recoveryProcessEnd',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+// リカバリー処理が終了していればSRFを削除してシート生成を再開する
+select many systemResourceRecoveries from instances of SR_SRC
+	where (selected.isProcessEnd == FALSE);
+
+select many physicalSheetRecoveries from instances of SR_PSR
+	where (selected.isProcessEnd == FALSE);
+
+if ((empty systemResourceRecoveries) and (empty physicalSheetRecoveries))
+	select any aSheetProvider from instances of S_SHTP where (selected.isPaused);
+	if (not_empty aSheetProvider)
+		select one aSheetAccepter related by aSheetProvider->S_SGA[R244];
+		generate S_SGA2:relieved to aSheetAccepter;
+		generate S_SHTP13:sheetProvideResume to aSheetProvider;
+	end if;
+
+	select any aSetAccepter from instances of P_RCSA where (selected.isSheetProvideStopped);
+	if (not_empty aSetAccepter)
+		generate P_RCSA11:sheetProvideResume(
+			requestID:aSetAccepter.waitingSendRequestID) to aSetAccepter;
+	end if;
+
+	select any aSetRecoveryFacade from instances of SR_SRF;
+	FER::assert(expression : not_empty aSetRecoveryFacade);
+	SR_SRF::deleteInstance(ID : aSetRecoveryFacade.ID);
+end if;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"c36c1267-42fa-45b8-bea8-ab998f5d2c8f");
+INSERT INTO O_TFR
+	VALUES ("e6f1c63d-d75a-44da-9d6d-dea9b4fe89af",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	'docDelivered',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+select any aDoc from instances of D_DOC
+	where (selected.ID == param.id);
+FER::assert(expression : not_empty aDoc);
+
+aDoc.documentID = param.documentID;
+aDoc.isKeep = FALSE;
+//-- 787:20120810 Add Start (saitou) 
+select one anElement related by aDoc->D_TEL[R306];
+anElement.instID = PF::getDocInstID( docID : aDoc.documentID );
+//-- 787:20120810 Add End (saitou) 
+
+select one aDJob related by aDoc->D_RDOC[R302]->D_DJOB[R301];
+//-- 848:20140424 Add Start (saitou)
+FER::assert( expression : not_empty aDJob );
+//-- 848:20140424 Add End (saitou)
+select any aSystemResourceRecovery from instances of SR_SRC
+	where(selected.jobID == aDJob.jobID);
+if (not_empty aSystemResourceRecovery)
+	generate SR_SRC5:systemResourceDelivered to aSystemResourceRecovery;
+end if;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"576ff59e-1e67-46f4-9ba4-07a8ff482edd");
+INSERT INTO O_TPARM
+	VALUES ("df05fdde-3b3d-44db-bdc3-04eb96c3d9c3",
+	"e6f1c63d-d75a-44da-9d6d-dea9b4fe89af",
+	'id',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"18ab0cd4-5391-4e24-90b7-b956b15410f9",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("18ab0cd4-5391-4e24-90b7-b956b15410f9",
+	"e6f1c63d-d75a-44da-9d6d-dea9b4fe89af",
+	'documentID',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("806b369f-47e9-449c-9794-f4e5a236f0b3",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	'secDelivered',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+select any aSec from instances of D_SEC
+	where (selected.ID == param.id);
+FER::assert(expression : not_empty aSec);
+
+aSec.sectionID = param.sectionID;
+aSec.isKeep = FALSE;
+//-- 787:20120810 Add Start (saitou) 
+select one anElement related by aSec->D_TEL[R306];
+anElement.instID = PF::getSecInstID( secID : aSec.sectionID );
+//-- 787:20120810 Add End (saitou) 
+
+select one aDJob related by aSec->D_DOC[R303]->D_RDOC[R302]->D_DJOB[R301];
+//-- 848:20140424 Add Start (saitou)
+FER::assert( expression : not_empty aDJob );
+//-- 848:20140424 Add End (saitou)
+select any aSystemResourceRecovery from instances of SR_SRC
+	where(selected.jobID == aDJob.jobID);
+if (not_empty aSystemResourceRecovery)
+	generate SR_SRC5:systemResourceDelivered to aSystemResourceRecovery;
+end if;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"ad2f0c30-ac0e-4cbd-810e-cc597747f175");
+INSERT INTO O_TPARM
+	VALUES ("7ed34365-8cd7-40fc-8ccd-c11b3aee0bb1",
+	"806b369f-47e9-449c-9794-f4e5a236f0b3",
+	'id',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("50a78516-0b37-40fd-9873-375c99f1c183",
+	"806b369f-47e9-449c-9794-f4e5a236f0b3",
+	'sectionID',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"7ed34365-8cd7-40fc-8ccd-c11b3aee0bb1",
+	'');
+INSERT INTO O_TFR
+	VALUES ("4a604413-38a7-4657-895b-6bd81e25438a",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	'pageDelivered',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+select any aPage from instances of D_PAGE
+	where (selected.ID == param.id);
+FER::assert(expression : not_empty aPage);
+
+//-- 733:20110928 Add Start (ikegaya)
+// PfPageOpenをrequestしているS_IMSIのみ、
+// keepの関連をきり、refers toの関連をはり、
+// requestingの関連は切る(=後始末する)
+select one aRequestImageSpace related by aPage->S_IMSI[R283];
+if (not_empty aRequestImageSpace)
+	unrelate aPage from aRequestImageSpace across R279;
+	relate aPage to aRequestImageSpace across R218;
+
+	unrelate aPage from aRequestImageSpace across R283;
+end if;
+//-- 733:20110928 Add End (ikegaya)
+
+//-- 733:20110928 Deleted Start (ikegaya)
+//select many imageSpaces related by aPage->S_IMSI[R279];
+//for each aImageSpace in imageSpaces
+//	unrelate aPage from aImageSpace across R279;
+//end for;
+//-- 733:20110928 Deleted End (ikegaya)
+
+aPage.pageID = param.pageID;
+aPage.isKeep = FALSE;
+//-- 787:20120810 Add Start (saitou) 
+select one anElement related by aPage->D_TEL[R306];
+anElement.instID = PF::getPageInstID( pageID : aPage.pageID );
+//-- 787:20120810 Add End (saitou) 
+
+//-- 733:20110928 Deleted Start (ikegaya)
+//for each aImageSpace in imageSpaces
+//	relate aPage to aImageSpace across R218;
+//end for;
+//-- 733:20110928 Deleted End (ikegaya)
+
+select one aDJob related by aPage->D_SEC[R304]->D_DOC[R303]->D_RDOC[R302]->D_DJOB[R301];
+//-- 848:20140424 Add Start (saitou)
+FER::assert( expression : not_empty aDJob );
+//-- 848:20140424 Add End (saitou)
+select any aSystemResourceRecovery from instances of SR_SRC
+	where(selected.jobID == aDJob.jobID);
+if (not_empty aSystemResourceRecovery)
+	generate SR_SRC5:systemResourceDelivered to aSystemResourceRecovery;
+end if;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"fc517cef-75b5-46ca-a1cf-fc7d473441dd");
+INSERT INTO O_TPARM
+	VALUES ("b0679589-e3e9-4d17-8181-cfbed2aad193",
+	"4a604413-38a7-4657-895b-6bd81e25438a",
+	'id',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("36985e22-9e1d-4b8f-8d7c-e4c03182a522",
+	"4a604413-38a7-4657-895b-6bd81e25438a",
+	'pageID',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"b0679589-e3e9-4d17-8181-cfbed2aad193",
+	'');
+INSERT INTO O_TFR
+	VALUES ("69478755-98ef-4a8c-bcdf-22b501514aa2",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	'rDocDelivered',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+select any aRDoc from instances of D_RDOC
+	where (selected.ID == param.id);
+FER::assert(expression : not_empty aRDoc);
+
+aRDoc.rootDocID = param.rootDocID;
+aRDoc.isKeep = FALSE;
+
+select one aDJob related by aRDoc->D_DJOB[R301];
+select any aSystemResourceRecovery from instances of SR_SRC
+	where(selected.jobID == aDJob.jobID);
+if (not_empty aSystemResourceRecovery)
+	generate SR_SRC5:systemResourceDelivered to aSystemResourceRecovery;
+end if;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"4a604413-38a7-4657-895b-6bd81e25438a");
+INSERT INTO O_TPARM
+	VALUES ("7130f454-17d1-4a4b-92f2-dc2089c5c3e9",
+	"69478755-98ef-4a8c-bcdf-22b501514aa2",
+	'id',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("5d783d20-21ba-46d3-90bc-651f8908d9dc",
+	"69478755-98ef-4a8c-bcdf-22b501514aa2",
+	'rootDocID',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"7130f454-17d1-4a4b-92f2-dc2089c5c3e9",
+	'');
+INSERT INTO O_TFR
+	VALUES ("6ac4e2e3-eb86-48a4-8945-d04fa0550c53",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	'jobCancelRequest',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+// 後段とのSetRecoveryシーケンス中はキャンセル処理を保留
+select any aSetRecoveryRequest from instances of SR_SRR;
+if (not_empty aSetRecoveryRequest)
+	J_JCR::createInstance(jobID : param.jobID, reason : param.reason);
+	select any aCancelRequest from instances of J_JCR
+		where (selected.jobID == param.jobID);
+	FER::assert(expression : not_empty aCancelRequest);
+else
+	J_JCR::jobCancelRequest( jobID : param.jobID, reason : param.reason );
+end if;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"fd10155d-bf65-4d89-8cb6-d1a3ed976caa");
+INSERT INTO O_TPARM
+	VALUES ("b2eea8ad-a0e6-4009-87ef-b6e1d8313566",
+	"6ac4e2e3-eb86-48a4-8945-d04fa0550c53",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("ae27893b-f527-46a1-a21e-e24bd63404aa",
+	"6ac4e2e3-eb86-48a4-8945-d04fa0550c53",
+	'reason',
+	"62ba2517-632c-4c09-a31e-69ad42a15e37",
+	0,
+	'',
+	"b2eea8ad-a0e6-4009-87ef-b6e1d8313566",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("62ba2517-632c-4c09-a31e-69ad42a15e37",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_CancelReason',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("0efef97a-4328-48ee-9e1a-64ce1e064fb0",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	'jobPauseRequest',
+	'//-- 11394:20130325 Deleted Start (ikegaya)
+// パラメータstopLevelを削除
+//-- 11394:20130325 Deleted End (ikegaya)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+//-- 11394:20130325 Modified Start (ikegaya)
+J_JPR::createInstance(jobID : param.jobID ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+select any aJobPauseRequest from instances of J_JPR
+	where (selected.jobID == param.jobID);
+FER::assert(expression : not_empty aJobPauseRequest);
+
+// 後段とのSetRecoveryシーケンス中はキャンセル処理を保留
+select any aSetRecoveryRequest from instances of SR_SRR;
+if (not_empty aSetRecoveryRequest)
+	// 後段とのSetRecoveryシーケンス中はキャンセル処理を保留
+	// 何もしない
+else
+	// 後段とのSetRecoveryシーケンスが終わっていれば発火させる
+	generate J_JPR6:pauseEnableCheck to aJobPauseRequest;
+end if;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"14f59765-3777-4362-9123-7775ec3b06a1");
+INSERT INTO O_TPARM
+	VALUES ("af7e5501-2d05-494f-9908-26a501470b21",
+	"0efef97a-4328-48ee-9e1a-64ce1e064fb0",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("14f59765-3777-4362-9123-7775ec3b06a1",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	'jobHoldRequest',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+J_JHR::createInstance(jobID : param.jobID, reason : param.reason);
+select any aJobHoldRequest from instances of J_JHR
+	where (selected.jobID == param.jobID);
+FER::assert(expression : not_empty aJobHoldRequest);
+
+// 後段とのSetRecoveryシーケンス中はキャンセル処理を保留
+select any aSetRecoveryRequest from instances of SR_SRR;
+if (not_empty aSetRecoveryRequest)
+	// 後段とのSetRecoveryシーケンス中はキャンセル処理を保留
+	// 何もしない
+else
+	// 後段とのSetRecoveryシーケンスが終わっていれば発火させる
+	generate J_JHR1:printPauseRequest to aJobHoldRequest;
+end if;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"6ac4e2e3-eb86-48a4-8945-d04fa0550c53");
+INSERT INTO O_TPARM
+	VALUES ("fa4003f7-17d6-440f-8380-545f57c03fc7",
+	"14f59765-3777-4362-9123-7775ec3b06a1",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("1c77045a-e1eb-4a7f-9d0d-fc2514ce7661",
+	"14f59765-3777-4362-9123-7775ec3b06a1",
+	'reason',
+	"43bca094-b1f8-475b-869c-d863a5498679",
+	0,
+	'',
+	"fa4003f7-17d6-440f-8380-545f57c03fc7",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("43bca094-b1f8-475b-869c-d863a5498679",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_HoldReason',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("aca974cf-f0a4-4801-8bdf-1f0678f227e9",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	'isSheetInfoSendable',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+// セットリカバリーの再送処理を開始できるか判断する
+// 再送可能条件は以下の通り
+//   - セットリカバリー要求がある
+//   - 未発火のジョブ操作が無い(JobPause/JobCancel/JobHold)
+//   - 実行中のジョブ操作が無い 
+//   - 論理シートの生成が完了している
+
+// セットリカバリー要求がある
+select any aSetRecoveryFacade from instances of SR_SRF;
+if (empty aSetRecoveryFacade)
+	return FALSE;
+end if;
+
+// ジョブ操作に関する確認
+select many jobCancelRequests from instances of J_JCR
+	where (not selected.isProcessEnd);
+if (not_empty jobCancelRequests)
+	return FALSE;
+end if;
+
+select many jobHoldRequests from instances of J_JHR
+	where (not selected.isProcessEnd);
+if (not_empty jobHoldRequests)
+	return FALSE;
+end if;
+
+select many jobPauseRequests from instances of J_JPR
+	where (not selected.isPauseEndNotified);
+if (not_empty jobPauseRequests)
+	return FALSE;
+end if;
+
+// 論理シート生成が完了したことの確認
+select any aCollateSetAccepter from instances of P_RCSA
+	where (not selected.isSheetProvideStopped);
+if (not_empty aCollateSetAccepter)
+//-- 718:20110830 Add Start (ikegaya)
+	// 論理シート数MAX到達で
+	// 論理シート生成が完了しない場合は、
+	// セットリカバリーの再送可能とする
+	select many sheets from instances of S_SHT;
+	select any aSheetAccepter from instances of S_SGA;
+//-- 848:20140424 Add Start (saitou)
+	FER::assert_with_return_zero( expression : not_empty aSheetAccepter );
+//-- 848:20140424 Add End (saitou)
+	if (cardinality sheets > aSheetAccepter.numOfMaxSheets)
+		return TRUE;
+	end if;
+//-- 718:20110830 Add End (ikegaya)
+
+//-- 713:20110912 Add Start (ikegaya)
+	// ページ空き待ちのため
+	// 論理シート生成が完了しない場合は、
+	// 論理シート供給の停止まで実施されるよう先にページを解放する
+	select any aWaitingPage from instances of D_PAGE
+		where (selected.isPageOpenWaited or
+		             selected.isSystemResourceRequesting);
+	if (not_empty aWaitingPage)
+		// P_PSHTがブランクシートの場合もあるため、
+		// SheetEnd未受信のP_PSHTに対応するページを全て解放する
+		// P_PSHTに対してkeepするのは、P_PSHT＝論理シート生成終了のため
+		select many physicalSheets from instances of P_PSHT
+			where (selected.isSheetEndReceived == FALSE);
+		for each aPhysicalSheet in physicalSheets
+			aPhysicalSheet.keep();
+		end for;
+		return FALSE;
+	end if;
+//-- 713:20110912 Add End (ikegaya)
+
+	return FALSE;
+end if;
+
+return TRUE;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"e6f1c63d-d75a-44da-9d6d-dea9b4fe89af");
+INSERT INTO O_TFR
+	VALUES ("ad2f0c30-ac0e-4cbd-810e-cc597747f175",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	'restartSetRecovery',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+// システムリソースリカバリーを削除
+select many systemResourceRecoveries from instances of SR_SRC;
+for each aSystemResourceRecovery in systemResourceRecoveries
+	select one anExecutingJob
+		related by aSystemResourceRecovery->J_EJOB[R701];
+	unrelate aSystemResourceRecovery from anExecutingJob across R701;
+	delete object instance aSystemResourceRecovery;
+end for;
+
+// 物理シートの再送を削除
+select many physicalSheetRecoveries from instances of SR_PSR;
+for each aPhysicalSheetReocvery in physicalSheetRecoveries
+	select many setRecoveryUnits related by aPhysicalSheetReocvery->SR_SRU[R711];
+	for each aSetRecoveryUnit in setRecoveryUnits
+		unrelate aSetRecoveryUnit from aPhysicalSheetReocvery across R711;
+	end for;
+	select one aSetRecoveryUnit related by aPhysicalSheetReocvery->SR_SRU[R713];
+	if (not_empty aSetRecoveryUnit)
+		unrelate aSetRecoveryUnit from aPhysicalSheetReocvery across R713;
+	end if;
+
+	select one aRecoverySheet related by aPhysicalSheetReocvery->SR_RSHT[R715];
+	if (not_empty aRecoverySheet)
+		unrelate aRecoverySheet from aPhysicalSheetReocvery across R715;
+	end if;
+
+	select one anExecutingJob related by aPhysicalSheetReocvery->J_EJOB[R710];
+	if (not_empty anExecutingJob)
+		unrelate anExecutingJob from aPhysicalSheetReocvery across R710;
+	end if;
+	delete object instance aPhysicalSheetReocvery;
+end for;
+
+// SetRecoveryFacadeを削除
+select any aSetRecoveryFacade from instances of SR_SRF;
+FER::assert(expression : not_empty aSetRecoveryFacade);
+SR_SRF::deleteInstance(ID : aSetRecoveryFacade.ID);
+
+select any anExecutingJob from instances of J_EJOB;
+topExecutingJob = anExecutingJob;
+
+// 持っている先頭のジョブにセットリカバリーを通知する
+while (not_empty anExecutingJob)
+	select one anExecutingJob
+		related by topExecutingJob->J_JOB[R104]->J_JOB[R101.''is previous to'']->J_EJOB[R104];
+	if (not_empty anExecutingJob)
+		topExecutingJob = anExecutingJob;
+	end if;
+end while;
+
+if (not_empty topExecutingJob)
+	create object instance aSetRecoveryFacade of SR_SRF;
+	generate SR_SRR1:Create to SR_SRR creator;
+end if;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"4a5ab992-11c6-4826-822e-eaaca4e12a4f");
+INSERT INTO O_TFR
+	VALUES ("fa9cb8d7-c366-4977-99ee-a04b7a08a578",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	'startPenddingJobOperation',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+// Pennding中のジョブ操作を開始させる
+// システムに応答を返していないものを処理する
+select many jobCancelRequests from instances of J_JCR
+	where (not selected.isProcessEnd);
+for each aJobCancelRequest in jobCancelRequests
+	if (not aJobCancelRequest.isCancelNotified)
+		generate J_JCR3:cancelProcess to aJobCancelRequest;
+	end if;
+end for;
+
+select many jobHoldRequests from instances of J_JHR
+	where (not selected.isProcessEnd);
+for each aJobHoldRequest in jobHoldRequests
+	if (not aJobHoldRequest.isHoldNotified)
+		generate J_JHR1:printPauseRequest to aJobHoldRequest;
+	end if;
+end for;
+
+select many jobPauseRequests from instances of J_JPR
+	where (not selected.isPauseEndNotified);
+for each aJobPauseRequest in jobPauseRequests
+	generate J_JPR6:pauseEnableCheck to aJobPauseRequest;
+end for;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"b9366b3f-d3e7-4e0e-9276-47b2c9733009");
+INSERT INTO O_TFR
+	VALUES ("fc517cef-75b5-46ca-a1cf-fc7d473441dd",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	'notifyEndJobOperation',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+// ジョブ操作の終了を通知する
+// ただし、ジョブ操作の結果、リカバリー対象が消滅したらインスタンスを削除する
+select any aSetRecoveryUnit from instances of SR_SRU;
+select any aSetRecoveryRequest from instances of SR_SRR;
+select any aSetRecoveryFacade from instances of SR_SRF;
+if (not_empty aSetRecoveryUnit)
+	if (not_empty aSetRecoveryRequest)
+		generate SR_SRR4:JobOperationEnd to aSetRecoveryRequest;
+	end if;
+else
+	if (not_empty aSetRecoveryFacade)
+		SR_SRF::deleteInstance(ID : aSetRecoveryFacade.ID);
+	end if;
+	if (not_empty aSetRecoveryRequest)
+		delete object instance aSetRecoveryRequest;
+	end if;
+end if;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"8e00c3e4-ca6a-48f1-8adb-3779fcefa344");
+INSERT INTO O_TFR
+	VALUES ("8e00c3e4-ca6a-48f1-8adb-3779fcefa344",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	'jobResumed',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+// パラメーターで指定されたJOBが先頭だったら再送処理を開始する
+select any firstPhysicalSheetRecovery from instances of SR_PSR
+	where (selected.isProcessEnd == FALSE);
+
+if (not_empty firstPhysicalSheetRecovery)
+	prevPhysicalSheetRecovery = firstPhysicalSheetRecovery;
+	while (not_empty prevPhysicalSheetRecovery)
+		select one aJob related by firstPhysicalSheetRecovery->J_EJOB[R710]->J_JOB[R104];
+		select one prevPhysicalSheetRecovery
+			related by aJob->J_JOB[R101.''is previous to'']->J_EJOB[R104]->SR_PSR[R710];
+		if (not_empty prevPhysicalSheetRecovery)
+			firstPhysicalSheetRecovery = prevPhysicalSheetRecovery;
+		end if;
+	end while;
+
+	if (firstPhysicalSheetRecovery.jobID == param.jobID)
+		generate SR_PSR6:start to firstPhysicalSheetRecovery;
+	end if;
+end if;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"0efef97a-4328-48ee-9e1a-64ce1e064fb0");
+INSERT INTO O_TPARM
+	VALUES ("6e1678d1-47ab-4d9d-9f25-7f6b87314276",
+	"8e00c3e4-ca6a-48f1-8adb-3779fcefa344",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("576ff59e-1e67-46f4-9ba4-07a8ff482edd",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	'deleteInstance',
+	'//-- 627:20101109 Add Start (kanda)
+Modify:Add
+Modify_No:627
+Modifier:kanda
+Modify_Date:20101109
+//-- 627:20101109 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101116 Add Start (kanda)
+// 指定されたインスタンスを削除する
+// セットリカバリーで処理待ちだったEJOBに起動をかける
+select any aJobRequestAccepter from instances of J_JRA;
+FER::assert(expression : not_empty aJobRequestAccepter);
+
+select any anExecutingJob from instances of J_EJOB;
+if (not_empty anExecutingJob)
+
+//-- 675:20110425 Modified Start (ikegaya)
+	// セットリカバリー終了待ちを終了へ
+	if (anExecutingJob.isWaitingSetRecoveryProcessEnd and
+		anExecutingJob.isJobStartNotified)
+		generate J_EJOB3:jobStartCheck to anExecutingJob;
+	end if;
+	// セットリカバリー中に通知されたJOBを起動する
+//	if (anExecutingJob.isWaitingSetRecoveryProcessEnd and
+//		aJobRequestAccepter.isJobAcceptableRecived)
+//		generate J_EJOB3:jobStartCheck to anExecutingJob;
+//	end if;
+
+	// セットリカバリー中に確定したジョブの確定処理を行う
+//	if (anExecutingJob.isJobStartNotified and
+//		anExecutingJob.isRecivedSetNotExist)
+//		generate J_EJOB3:jobStartCheck to anExecutingJob;
+//	end if;
+//-- 675:20110425 Modified End (ikegaya)
+
+//-- 801:20121211 Add Start (ikegaya)
+	// SR_SRFインスタンス有無で設定しているフラグは落とす
+	// 修正履歴No.673から移動
+	anExecutingJob.isWaitingSetRecoveryProcessEnd = FALSE;
+//-- 801:20121211 Add End (ikegaya)
+
+//-- 672:20110420 Add Start (ikegaya)
+else
+	// セットリカバリー中に次ジョブ受付可能通知されたことを通知する
+//-- 0106953:20150306 Deleted Start (ikegaya)
+//	if (aJobRequestAccepter.isJobAcceptableRecived)
+//-- 0106953:20150306 Deleted End (ikegaya)
+	generate J_JRA1:jobAcceptable to aJobRequestAccepter;
+//-- 0106953:20150306 Deleted Start (ikegaya)
+//	end if;
+//-- 0106953:20150306 Deleted End (ikegaya)
+//-- 672:20110420 Add End (ikegaya)
+end if;
+
+select any aSetRecoveryFacade from instances of SR_SRF
+	where (selected.ID == param.ID);
+FER::assert(expression : not_empty aSetRecoveryFacade);
+delete object instance aSetRecoveryFacade;
+
+//-- 669:20110420 Add Start (ikegaya)
+select many executingOrigins from instances of S_EOS;
+for each anExecutingOrigin in executingOrigins
+	// SetEnd待ちのEOSを起動する
+	generate S_EOS10:checkSetEndEnable to anExecutingOrigin;
+end for;
+//-- 669:20110420 Add End (ikegaya)
+
+//-- 629:20101116 Add End (kanda)
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("e7e53f2d-9a11-49e7-8290-9fdc712321a1",
+	"576ff59e-1e67-46f4-9ba4-07a8ff482edd",
+	'ID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("cd3ddd49-04ed-49e0-9a34-e2039b3c9a55",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0");
+INSERT INTO O_BATTR
+	VALUES ("cd3ddd49-04ed-49e0-9a34-e2039b3c9a55",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0");
+INSERT INTO O_ATTR
+	VALUES ("cd3ddd49-04ed-49e0-9a34-e2039b3c9a55",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("75155004-dad3-49b3-b530-9fbd5d73eb79",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0");
+INSERT INTO O_BATTR
+	VALUES ("75155004-dad3-49b3-b530-9fbd5d73eb79",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0");
+INSERT INTO O_ATTR
+	VALUES ("75155004-dad3-49b3-b530-9fbd5d73eb79",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	"cd3ddd49-04ed-49e0-9a34-e2039b3c9a55",
+	'isRetryRequested',
+	'',
+	'',
+	'isRetryRequested',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0");
+INSERT INTO O_OIDA
+	VALUES ("cd3ddd49-04ed-49e0-9a34-e2039b3c9a55",
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0");
+INSERT INTO O_ID
+	VALUES (2,
+	"cdf0df7c-22e6-4405-a72d-f7c020e2ddc0");
+INSERT INTO PE_PE
+	VALUES ("cdf0df7c-22e6-4405-a72d-f7c020e2ddc0",
+	1,
+	"012246fa-449f-4e4a-8011-94451c5e3d32",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("012246fa-449f-4e4a-8011-94451c5e3d32",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'SetRecovery',
+	'',
+	700,
+	'../SetRecovery.xtuml');

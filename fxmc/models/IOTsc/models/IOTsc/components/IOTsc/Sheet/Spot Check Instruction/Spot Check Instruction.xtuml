@@ -1,0 +1,354 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("f4945ca0-de27-49fc-9f77-b89cd260432e",
+	'Spot Check Instruction',
+	231,
+	'S_SCI',
+	'//-- 353:20061120 Add Start (kanda)
+ジョブで指定された位置指定サンプルの位置をあらわす.
+先頭のisAdditionalだけで内数/外数を判断する。(S_SCI::isSpotCheckAdditional())
+//-- 353:20061120 Add End (kanda)
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("5f15a3b4-fe42-4863-9635-6f1aca9637a0",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e",
+	'addSpotCheckInstruction',
+	'//-- 353:20061120 Add Start (kanda)
+jobIDで指定したジョブに位置指定サンプル位置(抜取り検査位置)を追加する。
+//-- 353:20061120 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 353:20061120 Add Start (kanda)
+// 無効なサンプル指定位置はモデルには通知されない前提
+FER::assert( expression : param.position > 0 );
+
+select any anExecutingJob from instances of J_EJOB
+	where ( selected.jobID == param.jobID );
+FER::assert( expression : not_empty anExecutingJob );
+
+select any aSpotCheckInstruction related by anExecutingJob->S_SCI[R275]
+	where ( selected.logicalPosition == param.position );
+
+if ( empty aSpotCheckInstruction )
+	create object instance newSpotCheckInstruction of S_SCI;
+	newSpotCheckInstruction.logicalPosition = param.position;
+	newSpotCheckInstruction.isAdditional = param.isAdditional;
+
+	relate newSpotCheckInstruction to anExecutingJob across R275;
+
+	select one aSpotCheckInstrution related by anExecutingJob->S_SCI[R266];
+	if ( not_empty aSpotCheckInstrution )
+		select one nextSpotCheckInstrution related by aSpotCheckInstrution->S_SCI[R267.''next''];
+		while ( not_empty nextSpotCheckInstrution )
+			aSpotCheckInstrution = nextSpotCheckInstrution;
+			select one nextSpotCheckInstrution related by nextSpotCheckInstrution->S_SCI[R267.''next''];
+		end while;
+		relate aSpotCheckInstrution to newSpotCheckInstruction across R267.''next'';
+	else
+		relate anExecutingJob to newSpotCheckInstruction across R266;
+	end if;
+end if;
+//-- 353:20061120 Add End (kanda)
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("321f9bee-3159-46e1-a34b-12f8f5950996",
+	"5f15a3b4-fe42-4863-9635-6f1aca9637a0",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"ac5ea7ec-cdec-4de8-8ea7-5757e8b4fc3f",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("d4dbd87e-a63f-45f1-aa3f-8ab9ec339257",
+	"5f15a3b4-fe42-4863-9635-6f1aca9637a0",
+	'position',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"321f9bee-3159-46e1-a34b-12f8f5950996",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("ac5ea7ec-cdec-4de8-8ea7-5757e8b4fc3f",
+	"5f15a3b4-fe42-4863-9635-6f1aca9637a0",
+	'isAdditional',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("39a4229a-8457-4920-aa4c-8f0f3954ab7c",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e",
+	'deleteAllSpotCheckInstructions',
+	'//-- 353:20061121 Add Start (kanda)
+jobIDで指定したジョブに関連付いたSCIをすべて削除する
+//-- 353:20061121 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 353:20061121 Add Start (kanda)
+select any anExecutingJob from instances of J_EJOB
+	where ( selected.jobID == param.jobID );
+FER::assert( expression : not_empty anExecutingJob );
+
+select one aSpotCheckInstrution related by anExecutingJob->S_SCI[R266];
+if ( not_empty aSpotCheckInstrution )
+	unrelate anExecutingJob from aSpotCheckInstrution across R266;
+end if;
+
+select many spotCheckInstructions related by anExecutingJob->S_SCI[R275];
+for each aSpotCheckInstrution in spotCheckInstructions
+	unrelate anExecutingJob from aSpotCheckInstrution across R275;
+	delete object instance aSpotCheckInstrution;
+end for;
+//-- 353:20061121 Add End (kanda)
+
+',
+	1,
+	'',
+	"5f15a3b4-fe42-4863-9635-6f1aca9637a0");
+INSERT INTO O_TPARM
+	VALUES ("69980ee5-82bf-47e5-95e4-49c242ffec27",
+	"39a4229a-8457-4920-aa4c-8f0f3954ab7c",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("61808020-1736-45ee-8e32-42710d7fab6b",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e",
+	'isSpotCheckAdditional',
+	'//-- 353:20061122 Add Start (kanda)
+抜き取り検査(位置指定サンプル)が内数か外数か確認する
+//-- 353:20061122 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'//-- 353:20061122 Add Start (kanda)
+// isAdditionalはすべてのS_SCIに同じ値が入っているはず
+select any aSpotCheckInstruction from instances of S_SCI
+	where ( selected.jobID == param.jobID );
+if ( not_empty aSpotCheckInstruction )
+	return aSpotCheckInstruction.isAdditional;
+end if;
+return FALSE;
+//-- 353:20061122 Add End (kanda)
+',
+	1,
+	'',
+	"39a4229a-8457-4920-aa4c-8f0f3954ab7c");
+INSERT INTO O_TPARM
+	VALUES ("d5d3c294-d5dc-49bd-afc0-cc91edc9dec6",
+	"61808020-1736-45ee-8e32-42710d7fab6b",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("8b76331e-6032-4a22-9257-46cfeb142d19",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e");
+INSERT INTO O_BATTR
+	VALUES ("8b76331e-6032-4a22-9257-46cfeb142d19",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e");
+INSERT INTO O_ATTR
+	VALUES ("8b76331e-6032-4a22-9257-46cfeb142d19",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("cb18147f-0bf3-4cda-9fbf-8fa84c8cde7a",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e");
+INSERT INTO O_BATTR
+	VALUES ("cb18147f-0bf3-4cda-9fbf-8fa84c8cde7a",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e");
+INSERT INTO O_ATTR
+	VALUES ("cb18147f-0bf3-4cda-9fbf-8fa84c8cde7a",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e",
+	"8b76331e-6032-4a22-9257-46cfeb142d19",
+	'logicalPosition',
+	'//-- 353:20061122 Add Start (kanda)
+ジョブで指定された位置
+たとえば、2ページ目, 3ページ目, 10ページ目。
+または3部目, 4部目, 10部目など。
+//-- 353:20061120 Add End (kanda)
+',
+	'',
+	'logicalPosition',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("775f2a58-79bf-415d-ba18-d1f2e3ad431e",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e");
+INSERT INTO O_BATTR
+	VALUES ("775f2a58-79bf-415d-ba18-d1f2e3ad431e",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e");
+INSERT INTO O_ATTR
+	VALUES ("775f2a58-79bf-415d-ba18-d1f2e3ad431e",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e",
+	"cb18147f-0bf3-4cda-9fbf-8fa84c8cde7a",
+	'isAdditional',
+	'//-- 353:20061120 Add Start (kanda)
+外数である場合TRUEが設定される。
+内数である場合はFALSEが設定される
+(先頭のSCIのisAdditionalがTRUEの場合、ジョブ全体に外数が適用される)
+//-- 353:20061120 Add End (kanda)
+',
+	'',
+	'isAdditional',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("f4945ca0-de27-49fc-9f77-b89cd260432e",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e",
+	0,
+	"8b76331e-6032-4a22-9257-46cfeb142d19",
+	"28093981-368d-4c99-a691-f73fd63d51bd",
+	"0d9a7892-95a9-4937-8dcd-e2a0477d4bd4",
+	"1849bac1-399d-4e7f-b7e8-74c7ce60a73b",
+	"e9922266-870b-4476-8de7-3fe2606b9d3d",
+	"3e8229f3-c4f2-4b32-a88c-326d65b72b50",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Spot Check Instruction',
+	'ID',
+	'R267.''next''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("f4945ca0-de27-49fc-9f77-b89cd260432e",
+	"28093981-368d-4c99-a691-f73fd63d51bd",
+	"0d9a7892-95a9-4937-8dcd-e2a0477d4bd4",
+	'../Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("8b76331e-6032-4a22-9257-46cfeb142d19",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e",
+	0,
+	"28093981-368d-4c99-a691-f73fd63d51bd",
+	"1849bac1-399d-4e7f-b7e8-74c7ce60a73b",
+	'../Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("e9922266-870b-4476-8de7-3fe2606b9d3d",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e",
+	"8b76331e-6032-4a22-9257-46cfeb142d19",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e",
+	0,
+	'ID');
+INSERT INTO O_ATTR
+	VALUES ("e9922266-870b-4476-8de7-3fe2606b9d3d",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e",
+	"775f2a58-79bf-415d-ba18-d1f2e3ad431e",
+	'nextSpotCheckInstructionID',
+	'',
+	'',
+	'nextSpotCheckInstructionID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("f4945ca0-de27-49fc-9f77-b89cd260432e",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	0,
+	"4827bd93-1cdd-4255-84c1-3d508e127ad1",
+	"89c2f216-958a-4999-b813-b86d42770fd6",
+	"55890d96-151c-43ed-bfd2-016ef2ff8f57",
+	"942774ec-4e70-4216-8ab4-85a8b640d0bb",
+	"218187fd-4357-46c2-aa09-169b3940ebe3",
+	"99c638c6-0efe-438e-9cd0-e7803a772ade",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Executing Job',
+	'jobID',
+	'R275');
+INSERT INTO R_RGO_PROXY
+	VALUES ("f4945ca0-de27-49fc-9f77-b89cd260432e",
+	"89c2f216-958a-4999-b813-b86d42770fd6",
+	"55890d96-151c-43ed-bfd2-016ef2ff8f57",
+	'../Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("4827bd93-1cdd-4255-84c1-3d508e127ad1",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	0,
+	"89c2f216-958a-4999-b813-b86d42770fd6",
+	"942774ec-4e70-4216-8ab4-85a8b640d0bb",
+	'../Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("218187fd-4357-46c2-aa09-169b3940ebe3",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e",
+	"47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	1,
+	'jobID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	'../../Job/Job/Job.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("218187fd-4357-46c2-aa09-169b3940ebe3",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e",
+	"e9922266-870b-4476-8de7-3fe2606b9d3d",
+	'jobID',
+	'',
+	'',
+	'jobID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"f4945ca0-de27-49fc-9f77-b89cd260432e");
+INSERT INTO O_OIDA
+	VALUES ("8b76331e-6032-4a22-9257-46cfeb142d19",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"f4945ca0-de27-49fc-9f77-b89cd260432e");
+INSERT INTO O_ID
+	VALUES (2,
+	"f4945ca0-de27-49fc-9f77-b89cd260432e");
+INSERT INTO PE_PE
+	VALUES ("f4945ca0-de27-49fc-9f77-b89cd260432e",
+	1,
+	"3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Sheet',
+	'',
+	200,
+	'../Sheet.xtuml');

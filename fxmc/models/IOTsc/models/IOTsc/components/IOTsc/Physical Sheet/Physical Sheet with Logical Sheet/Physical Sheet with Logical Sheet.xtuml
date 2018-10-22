@@ -1,0 +1,771 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("a90a9ff6-0693-4993-98ba-babf3b8f841f",
+	'Physical Sheet with Logical Sheet',
+	411,
+	'P_PSLS',
+	'論理シートを情報元としてもつ実シートを抽象化したものです。
+論理シートを持つシートとして統一的に扱いたい場合に使用します。
+
+論理シートを持つのはS_NPSとS_SBPSです。
+S_SHTとの関連がこのクラスではなく、サブクラスに直接関連づいているのは
+S_NPSの場合、S_SHTに対して複数存在することがあり、S_SBPSは１つしか
+つかないためです（ただし、この区別はそれほど強調しなくてもいいため、
+関係を統合しても良い）。
+
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("a36d1618-97bc-4275-b872-ac9eed79d9d1",
+	"a90a9ff6-0693-4993-98ba-babf3b8f841f",
+	'setSheetInformation',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'handle = param.handle;
+
+//-- 11394:20130325 Add Start (ikegaya)
+jobHandle = 0 ;
+ret = DDB::getJobHandle( jobID : param.jobID , r_jobHandle : jobHandle ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Add End (ikegaya)
+
+select any aSheet from instances of S_SHT
+	where ( selected.ID == param.sheetID );
+FER::assert( expression : not_empty aSheet );
+
+select any aPhysicalSheet from instances of P_PSHT
+	where ( selected.ID == param.physicalSheetID );
+FER::assert( expression : not_empty aPhysicalSheet );
+
+select any aJob from instances of J_JOB
+	where ( selected.jobID == param.jobID );
+FER::assert( expression : not_empty aJob );
+
+select one aTraySelect related by aSheet->S_TSP[R224];
+
+//-- 11394:20130403 Modified Start (saitou)
+aPhysicalSheet.setSheetInfo( handle : handle , traySelectID : aTraySelect.ID );
+//-- 11394:20130403 Modified End (saitou)
+
+//-- 11394:20130325 Deleted Start (ikegaya)
+//ret = DDB::setPageCopies( handle : handle , copies : aPhysicalSheet.outputRunLength ) ;
+//ret = DDB::setOriginalPageCopies( handle : handle , pageCopies : aSheet.runLength ) ;
+//-- 11394:20130325 Deleted End (ikegaya)
+//-- 11394:20130325 Modified Start (ikegaya)
+ret = DDB::setSheetBlankPage( sheetHandle : handle , data : aSheet.blankPageMode ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+
+// カラーモードの設定
+// カラーのSheet FaceがあればOriginalのカラーモードをカラーに変更
+// (これにより以降はカラーモードの動きとなる）
+// Originalがカラーで、出力が白黒の場合はMixの白黒とする（Imariのみ？）
+select one aSurface related by aSheet->S_SHF[R247];
+select one aBackface related by aSheet->S_SHF[R248];
+select one aCollateSet related by aSheet->S_CS[R213];
+select one aSetParam related by aCollateSet->S_OSP[R256];
+select one anExecutingOrigin related by aCollateSet->S_EOS[R232];
+select one anOriginUniqueParam related by anExecutingOrigin->D_OOS[R215]->S_OUP[R259];
+// このtrans formerはSheetとSet Unitが関連するものだけ呼ばれるはず
+FER::assert( expression : not_empty aSetParam );
+
+select any aPhysicalSurface related by aPhysicalSheet->P_PSHF[R404] 
+	where ( selected.sheetSide == "IOT_SHEET_SIDE_1" );
+select any aPhysicalBackface related by aPhysicalSheet->P_PSHF[R404]
+	where ( selected.sheetSide == "IOT_SHEET_SIDE_2" );
+//-- 848:20140501 Add Start (ikegaya)
+FER::assert( expression : not_empty aPhysicalSurface );
+FER::assert( expression : not_empty aPhysicalBackface );
+//-- 848:20140501 Add End (ikegaya)
+
+surfaceColor = aSurface.color ;
+//-- 11394:20130325 Modified Start (ikegaya)
+if ( aPhysicalSurface.resultColorType == "IOTDOC_COLOR_TYPE_MIX" )
+//-- 11394:20130325 Modified End (ikegaya)
+	surfaceColor = aPhysicalSurface.resultColorType;
+end if;
+backfaceColor = aBackface.color ;
+//-- 11394:20130325 Modified Start (ikegaya)
+if ( aPhysicalBackface.resultColorType == "IOTDOC_COLOR_TYPE_MIX" )
+//-- 11394:20130325 Modified End (ikegaya)
+	backfaceColor = aPhysicalBackface.resultColorType;
+end if;
+
+//-- 225:20050613 Add Start (kanda)
+select any anExecutingJob from instances of J_EJOB where ( selected.jobID == param.jobID );
+//-- 225:20050613 Add End (kanda)
+
+//-- 848:20140501 Add Start (ikegaya)
+FER::assert( expression : not_empty anExecutingJob );
+//-- 848:20140501 Add End (ikegaya)
+
+// プロセスモードはJobのカラーモードを使用
+processColor = anExecutingOrigin.outputColorMode ;
+
+//-- 225:20050613 Modified Start
+// if ( processColor == "IOTDOC_COLOR_TYPE_MIX"  )
+//-- 11394:20130325 Modified Start (ikegaya)
+if ( processColor == "IOTDOC_COLOR_TYPE_MIX"  and
+//-- 11394:20130325 Modified End (ikegaya)
+     not anExecutingJob.isBlackSpeedPromoteOn )
+//-- 225:20050613 Modified End
+//-- 11394:20130325 Modified Start (ikegaya)
+	if ( surfaceColor == "IOTDOC_COLOR_TYPE_BW" )
+		surfaceColor = "IOTDOC_COLOR_TYPE_MIX_BW" ;
+//-- 11394:20130325 Modified End (ikegaya)
+	end if ;
+//-- 11394:20130325 Modified Start (ikegaya)
+	if ( backfaceColor == "IOTDOC_COLOR_TYPE_BW" )
+		backfaceColor = "IOTDOC_COLOR_TYPE_MIX_BW" ;
+//-- 11394:20130325 Modified End (ikegaya)
+	end if ;
+end if ;
+
+//-- 11394:20130325 Modified Start (ikegaya)
+if ( aSheet.blankPageMode == "IOTDOC_BLANK_PAGE_ON" )
+//-- 11394:20130325 Modified End (ikegaya)
+//-- 185:20041109 Modified Start(kanda)
+//-- 225:20050613 Modified Start
+//	if (processColor == "IOTDOC_COLOR_TYPE_MIX")
+//-- 11394:20130325 Modified Start (ikegaya)
+	if ( processColor == "IOTDOC_COLOR_TYPE_MIX" and
+//-- 11394:20130325 Modified End (ikegaya)
+	     not anExecutingJob.isBlackSpeedPromoteOn )
+//-- 225:20050613 Modified End
+//-- 11394:20130325 Modified Start (ikegaya)
+		surfaceColor = "IOTDOC_COLOR_TYPE_MIX_WHITE";
+		backfaceColor = "IOTDOC_COLOR_TYPE_MIX_WHITE";
+//-- 11394:20130325 Modified End (ikegaya)
+	else
+//-- 11394:20130325 Modified Start (ikegaya)
+		surfaceColor = "IOTDOC_COLOR_TYPE_WHITE" ;
+		backfaceColor = "IOTDOC_COLOR_TYPE_WHITE" ;
+//-- 11394:20130325 Modified End (ikegaya)
+	end if;
+//-- 185:20041109 Modified End(kanda)
+end if ;
+
+//-- 11394:20130325 Modified Start (ikegaya)
+ret = DDB::setSideColorType( sheetHandle : handle , side : "IOT_SHEET_SIDE_1" , data : surfaceColor ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+ret = DDB::setSideColorType( sheetHandle : handle , side : "IOT_SHEET_SIDE_2" , data : backfaceColor ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+ret = DDB::setSideImageDepth ( sheetHandle : handle , side : "IOT_SHEET_SIDE_1" ,data : 	aSurface.imageDepth ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+ret = DDB::setSideImageDepth ( sheetHandle : handle , side : "IOT_SHEET_SIDE_2" ,data : 	aBackface.imageDepth ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+imageEnhance = aSheet.imageEnhance;
+ret = DDB::setSideImageEnhance ( sheetHandle : handle , side : "IOT_SHEET_SIDE_BOTH" , data : imageEnhance ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+resolution =  aSheet.resolution;
+ret = DDB::setSideResolution ( sheetHandle : handle , side : "IOT_SHEET_SIDE_1" ,data : resolution ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+ret = DDB::setSideResolution ( sheetHandle : handle , side : "IOT_SHEET_SIDE_2" ,data : resolution ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+ret = DDB::setSideOrgType ( sheetHandle : handle , side : "IOT_SHEET_SIDE_1" ,data : aSurface.orgType ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+ret = DDB::setSideOrgType ( sheetHandle : handle , side : "IOT_SHEET_SIDE_2" ,data : aBackface.orgType ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+ret = DDB::setSideOrgSubType ( sheetHandle : handle , side : "IOT_SHEET_SIDE_1" ,data : aSurface.orgSubType ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+ret =  DDB::setSideOrgSubType ( sheetHandle : handle , side : "IOT_SHEET_SIDE_2" ,data : aBackface.orgSubType ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+//-- 20:20040405 Add Start
+ret = DDB::setSheetPaperColorAttr( sheetHandle : handle , data : aSheet.paperColorAttr ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 20:20040405 Add End
+//-- 11394:20130325 Modified End (ikegaya)
+
+// 00.05.23 Added ( Reference = Sheet Lib Spec 1.06 )
+// 2in1が追加された場合は処理を変更する必要あり。
+
+select one anImageSpace related by aSurface->S_IMS[R222] ;
+select one aNextImageSpace related by anImageSpace->S_IMS[R220.''is next to''];
+
+if ( not_empty anImageSpace )
+	select one aPageSide1_1 related by anImageSpace->S_IMSI[R219]->D_PAGE[R218] ;
+//-- 11394:20130325 Modified Start (ikegaya)
+	if ( not_empty aPageSide1_1 and aSheet.blankPageMode != "IOTDOC_BLANK_PAGE_ON" )
+		ret = DDB::setSidePfPageID( sheetHandle : handle ,  side : "IOT_SHEET_SIDE_1" , data : aPageSide1_1.pageID ) ;
+		FER::assert( expression : ret == "IOTDOC_OK" ) ;
+		// Free SizeはDup不可なので、小冊子がない。したがって
+		// Free Size OffsetはPage 1_1でのみチェックする
+		ret = DDB::setSheetFreeSizeOffset( sheetHandle : handle , data : aPageSide1_1.freeSizeOffset ) ;
+		FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+	else
+//-- 11394:20130325 Modified Start (ikegaya)
+		ret = DDB::setSidePfPageID( sheetHandle : handle ,  side : "IOT_SHEET_SIDE_1" , data : 0 ) ;
+		FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+	end if;
+else
+//-- 11394:20130325 Modified Start (ikegaya)
+	ret = DDB::setSidePfPageID( sheetHandle : handle ,  side : "IOT_SHEET_SIDE_1" , data : 0 ) ;
+	FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+end if ;
+if ( not_empty aNextImageSpace )
+	select one aPageSide1_2 related by aNextImageSpace->S_IMSI[R219]->D_PAGE[R218];
+//-- 11394:20130325 Modified Start (ikegaya)
+	if ( not_empty aPageSide1_2 and aSheet.blankPageMode != "IOTDOC_BLANK_PAGE_ON")
+		ret = DDB::setSidePfSecondPageID( sheetHandle : handle ,  side : "IOT_SHEET_SIDE_1" , data : aPageSide1_2.pageID ) ;
+		FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+	else
+//-- 11394:20130325 Modified Start (ikegaya)
+		ret = DDB::setSidePfSecondPageID( sheetHandle : handle ,  side : "IOT_SHEET_SIDE_1" , data : 0 ) ;
+		FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+	end if ;
+else
+//-- 11394:20130325 Modified Start (ikegaya)
+		ret = DDB::setSidePfSecondPageID( sheetHandle : handle ,  side : "IOT_SHEET_SIDE_1" , data : 0 ) ;
+		FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+end if ;
+
+select one anImageSpace related by aBackface->S_IMS[R222] ;
+select one aNextImageSpace related by anImageSpace->S_IMS[R220.''is next to''];
+
+if ( not_empty anImageSpace )
+	select one aPageSide2_1 related by anImageSpace->S_IMSI[R219]->D_PAGE[R218] ;
+//-- 11394:20130325 Modified Start (ikegaya)
+	if ( not_empty aPageSide2_1 and aSheet.blankPageMode != "IOTDOC_BLANK_PAGE_ON" )
+		ret = DDB::setSidePfPageID( sheetHandle : handle ,  side : "IOT_SHEET_SIDE_2" , data : aPageSide2_1.pageID ) ;
+		FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+	else
+//-- 11394:20130325 Modified Start (ikegaya)
+		ret = DDB::setSidePfPageID( sheetHandle : handle ,  side : "IOT_SHEET_SIDE_2" , data : 0 ) ;
+		FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+	end if;
+else
+//-- 11394:20130325 Modified Start (ikegaya)
+	ret = DDB::setSidePfPageID( sheetHandle : handle ,  side : "IOT_SHEET_SIDE_2" , data : 0 ) ;
+	FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+end if ;
+
+if ( not_empty aNextImageSpace )
+	select one aPageSide2_2 related by aNextImageSpace->S_IMSI[R219]->D_PAGE[R218];
+//-- 11394:20130325 Modified Start (ikegaya)
+	if ( not_empty aPageSide2_2 and aSheet.blankPageMode != "IOTDOC_BLANK_PAGE_ON")
+		ret = DDB::setSidePfSecondPageID( sheetHandle : handle ,  side : "IOT_SHEET_SIDE_2" , data : aPageSide2_2.pageID ) ;
+		FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+	else
+//-- 11394:20130325 Modified Start (ikegaya)
+		ret = DDB::setSidePfSecondPageID( sheetHandle : handle ,  side : "IOT_SHEET_SIDE_2" , data : 0 ) ;
+		FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+	end if ;
+else
+//-- 11394:20130325 Modified Start (ikegaya)
+		ret = DDB::setSidePfSecondPageID( sheetHandle : handle ,  side : "IOT_SHEET_SIDE_2" , data : 0 ) ;
+		FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+end if ;
+
+tonerSave = aSheet.tonerSave;
+//-- 11394:20130325 Modified Start (ikegaya)
+ret = DDB::setSideTonerSave( sheetHandle : handle , side : "IOT_SHEET_SIDE_BOTH" ,
+			data : tonerSave );
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+ret = DDB::setJobServiceType( jobHandle  : jobHandle , data : aJob.serviceType ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+
+//-- 137:20040716 Modified Start
+// AR56110バナーではScreenの設定をしない
+if ( aSheet.sectionID != 0 and  param.sheetType !=  IotSc_SheetType::eStartBanner)
+//-- 137:20040716 Modified End
+	PF::setScreenInfoToSheet( sheetHandle : handle ,
+				sectionID : aSheet.sectionID );
+end if ;
+
+//-- 28:20040402 Add Start
+PF::setSheetInfoFromPage( handle : handle , sheetSide : "IOT_SHEET_SIDE_1" );
+PF::setSheetInfoFromPage( handle : handle , sheetSide : "IOT_SHEET_SIDE_2" );
+//-- 28:20040402 Add End
+
+				
+
+outTray = aSetParam.outtray ;
+//-- 11394:20130325 Modified Start (ikegaya)
+ret = DDB::setSheetPlex( sheetHandle : handle , data : aSheet.plex ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+ret = DDB::setSheetExitFace( sheetHandle : handle ,  data : aSheet.exitFace ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+ret = DDB::setSheetInvert( sheetHandle : handle , data : aSheet.invert ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+ret = DDB::setSheetOutputTray( sheetHandle : handle , data : aSheet.outtray ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+//-- 11394:20130325 Modified End (ikegaya)
+//-- 11394:20130325 Deleted Start (ikegaya)
+//DDB::setJobID( handle : handle ,  jobID : aJob.jobID );
+//-- 11394:20130325 Deleted End (ikegaya)
+
+// Copyの場合、カバートレイが指定されていれば外す
+//-- 231:20050708 Add Start (kanda)
+// アンコレートセパレータシートのトレイも外す
+//-- 231:20050708 Add End (kanda)
+//-- 11394:20130325 Modified Start (ikegaya)
+if ( aJob.serviceType == "IOTDOC_SERVICE_TYPE_COPY" )
+//-- 11394:20130325 Modified End (ikegaya)
+	excludeTray1 = anOriginUniqueParam.frontCoverTray;
+	excludeTray2 = anOriginUniqueParam.backCoverTray;
+
+//-- 231:20050708 Add Start (kanda)
+	excludeTray3 = anOriginUniqueParam.separatorTray; // 型あわせ
+	excludeTray3 = "0";
+//-- 350:20061018 Modified Start (kanda)
+	if ( anOriginUniqueParam.doInsertSeparator )
+//-- 350:20061018 Modified End  (kanda)
+		excludeTray3 = anOriginUniqueParam.separatorTray;
+	end if;
+//-- 231:20050708 Add End (kanda)
+
+	if ( excludeTray1 == aTraySelect.inputTray )
+		excludeTray1 = "0";
+	end if;
+	if ( excludeTray2 == aTraySelect.inputTray )
+		excludeTray2 = "0";
+	end if;	
+//-- 231:20050708 Modified Start (kanda)
+	if ( excludeTray3 == aTraySelect.inputTray )
+		excludeTray3 = "0";
+	end if;	
+//-- 231:20050708 Modified End (kanda)
+//-- 231:20050708 Modified Start (kanda)
+	if ( excludeTray1 != "0" or excludeTray2 != "0" or excludeTray3 != "0" )
+//-- 231:20050708 Modified End (kanda)
+		PF::setExcludeFeederPermission( handle : handle ,
+					excludeTray1 : excludeTray1,
+					excludeTray2 : excludeTray2,
+//-- 231:20050708 Modified Start (kanda)
+					excludeTray3 : excludeTray3 );
+//-- 231:20050708 Modified End (kanda)
+	end if;
+end if;
+
+select any aSurfacePage related by aPhysicalSurface->EI_MP[R600]->EI_MIRPFP[R606]
+	where ( selected.isPageNumPrint );
+if ( not_empty aSurfacePage )
+	V_DP::showAnnotationPage(page1 :aSurfacePage.pageNo1,
+				page2 : aSurfacePage.pageNo2,
+				total : aSurfacePage.totalPageNum,
+				side : "IOT_SHEET_SIDE1" );
+end if;
+select any aBackfacePage related by aPhysicalBackface->EI_MP[R600]->EI_MIRPFP[R606]
+	where ( selected.isPageNumPrint );
+if ( not_empty aBackfacePage )
+	V_DP::showAnnotationPage(page1 :aBackfacePage.pageNo1,
+				page2 : aBackfacePage.pageNo2,
+				total : aBackfacePage.totalPageNum,
+				side : "IOT_SHEET_SIDE2" );
+end if;
+
+type = param.sheetType;
+if ( type ==  IotSc_SheetType::eOHP )
+//-- 11394:20130325 Modified Start (ikegaya)
+	ret = DDB::setSheetType( sheetHandle : handle , data : "IOTDOC_SHEET_TYPE_OHP" ) ;
+	FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+elif ( type ==  IotSc_SheetType::eOHPInserterAfterOHP or 
+	type == IotSc_SheetType::eOHPInserterBeforeOHP or
+	type == IotSc_SheetType::eOHPInserterWithImageAfterOHP or 
+	type == IotSc_SheetType::eOHPInserterWithImageBeforeOHP )
+//-- 11394:20130325 Modified Start (ikegaya)
+	ret = DDB::setSheetType( sheetHandle : handle , data : "IOTDOC_SHEET_TYPE_OHP_INSERTER" ) ;
+	FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+	if ( type == IotSc_SheetType::eOHPInserterWithImageAfterOHP or 
+	    type == IotSc_SheetType::eOHPInserterWithImageBeforeOHP )
+		//この場合、トレイをInterleafに変更（他で変更できなかったため）
+//-- 11394:20130325 Modified Start (ikegaya)
+		ret = DDB::setSheetInputTray( sheetHandle : handle ,
+				data : anOriginUniqueParam.interleafTray ) ;
+		FER::assert( expression : ret == "IOTDOC_OK" ) ;
+		ret = DDB::setSheetMediumType( sheetHandle : handle ,
+				data : anOriginUniqueParam.interleafMediumType ) ;
+		FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 441:20071009 Add Start (kanda)
+		ret = DDB::setSheetPaperColorType( sheetHandle : handle, data : anOriginUniqueParam.interleafPaperColorType ) ;
+		FER::assert( expression : ret == "IOTDOC_OK" ) ;
+		ret = DDB::setSheetPaperPrePunchedType( sheetHandle : handle, data : anOriginUniqueParam.interleafPaperPrePunched ) ;
+		FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 441:20071009 Add End (kanda)
+//-- 446:20071102 Add Start (kanda)
+		ret = DDB::setSheetMediumWeight( sheetHandle : handle, data : anOriginUniqueParam.interleafMediumWeight ) ;
+		FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 446:20071102 Add End (kanda)
+//-- 11394:20130325 Modified End (ikegaya)
+
+//-- 41:20040412 Add Start
+// OHPの合紙のtraySwitchはSystem Dataに従う動きとする
+//
+//-- 335:200601106 Deleted Start  (kanda)
+//		mode = PF::getSystemTraySwitchMode();
+//		isAPS = FALSE;
+//		traySwitch = aTraySelect.traySwitch;
+//		if ( anOriginUniqueParam.interleafTray == "IOTDOC_INTRAY_AUTO" or
+//		     anOriginUniqueParam.interleafTray == "IOTDOC_INTRAY_CLUSTER" )
+//			isAPS = TRUE;
+//		end if;
+//		if ( mode != IotSc_ATSExecMode::eAlways and not isAPS )
+//			traySwitch = "IOTDOC_TRAY_SWITCH_OFF" ;
+//		else
+//			traySwitch = "IOTDOC_TRAY_SWITCH_ON" ;
+//		end if;		
+//		SHL::setTraySwitch( handle : handle , 
+//				 traySwitch : traySwitch );
+//-- 335:20061106 Deleted End (kanda)
+//-- 335:20061106 Add Start (kanda)
+		create object instance tmpTraySelect of S_TSP;
+		tmpTraySelect.init();
+		tmpTraySelect.inputTray =  anOriginUniqueParam.interleafTray;
+		tmpTraySelect.paperType = anOriginUniqueParam.interleafMediumType;
+//-- 11394:20130325 Modified Start (ikegaya)
+		tmpTraySelect.traySwitch = "IOTDOC_TRAY_SWITCH_ON_BY_SYSTEM";
+//-- 11394:20130325 Modified End (ikegaya)
+		tmpTraySelect.arrangementTraySwitch();
+//-- 11394:20130325 Modified Start (ikegaya)
+		ret = DDB::setSheetTraySwitch( sheetHandle : handle, data : tmpTraySelect.traySwitch ) ;
+		FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+		delete object instance tmpTraySelect;
+//-- 335:20061106 Add End(kanda)
+
+//-- 41:20040412 Add End
+
+	end if;
+
+elif ( type ==  IotSc_SheetType::eNSet)
+//-- 11394:20130325 Modified Start (ikegaya)
+	ret = DDB::setSheetType( sheetHandle : handle , data : "IOTDOC_SHEET_TYPE_NSET" ) ;
+	FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+
+elif ( type ==  IotSc_SheetType::eStartBanner )
+//-- 11394:20130325 Modified Start (ikegaya)
+	ret = DDB::setSheetType( sheetHandle : handle , data : "IOTDOC_SHEET_TYPE_START_BANNER" ) ;
+	FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+
+elif ( type ==  IotSc_SheetType::eEndBanner )
+//-- 11394:20130325 Modified Start (ikegaya)
+	ret = DDB::setSheetType( sheetHandle : handle , data : "IOTDOC_SHEET_TYPE_END_BANNER" ) ;
+	FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+
+elif ( type ==  IotSc_SheetType::eBackCoverWithImage or
+        type ==  IotSc_SheetType::eBackCoverWithNoImage )
+//-- 91:20040601 Delete Start
+//	bridge SHL::setTraySwitch( handle : handle , traySwitch : "IOTDOC_TRAY_SWITCH_OFF" ) ;
+//-- 91:20040601 Delete End
+//-- 11394:20130325 Modified Start (ikegaya)
+	ret =  DDB::setSheetType( sheetHandle : handle , data : "IOTDOC_SHEET_TYPE_COVER_BACK" ) ;
+	FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+
+elif ( type ==  IotSc_SheetType::eFrontCoverWithImage or
+        type ==  IotSc_SheetType::eFrontCoverWithNoImage )
+//-- 91:20040601 Delete Start
+//	bridge SHL::setTraySwitch( handle : handle , traySwitch : "IOTDOC_TRAY_SWITCH_OFF" ) ;
+//-- 91:20040601 Delete End
+//-- 11394:20130325 Modified Start (ikegaya)
+	ret = DDB::setSheetType( sheetHandle : handle , data :
+		 "IOTDOC_SHEET_TYPE_COVER_FRONT");
+	FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+
+elif ( type == IotSc_SheetType::eInserterWithImage or 
+        type == IotSc_SheetType::eInserterWithNoImage )
+//-- 11394:20130325 Modified Start (ikegaya)
+	ret = DDB::setSheetType( sheetHandle : handle , data :
+		 "IOTDOC_SHEET_TYPE_INTERLEAF" ) ;
+	FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+
+//-- 748:20120314 Add Start (saitou) 
+elif ( type == IotSc_SheetType::ePBCover )
+//-- 11394:20130325 Modified Start (ikegaya)
+	ret = DDB::setSheetType( sheetHandle : handle , data :
+		 "IOTDOC_SHEET_TYPE_PB_COVER" ) ;
+	FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+//-- 748:20120314 Add End (saitou) 
+
+else
+//-- 11394:20130325 Modified Start (ikegaya)
+	ret = DDB::setSheetType( sheetHandle : handle , data : "IOTDOC_SHEET_TYPE_NORMAL" ) ;
+	FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+end if ;
+
+
+// Sheet単位のFold指定
+//foldMode = aSetParam.foldMode;
+//foldBindNum = aSetParam.foldBindNum;
+//if ( foldBindNum > 1 and foldMode == "IOT_FOLD_BI_FOLD" )
+//	// Set指定のため、OFFする
+//	foldMode = "IOT_FOLD_OFF";
+//end if;
+foldMode = aSheet.fold;
+
+//-- 32:20040406 Add Start
+// シートのFoldが0ならセットの値を入れる
+if ( foldMode == "0" )
+	foldMode = aSetParam.foldMode;
+end if;
+//-- 32:20040406 Add End
+//-- 11394:20130325 Modified Start (ikegaya)
+ret = DDB::setSheetFold( sheetHandle : handle , data : foldMode ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+
+//-- 504:20080627 Add Start (kanda)
+//-- 11394:20130325 Modified Start (ikegaya)
+// Trimmerの接続状態はdmBridgeで実施する
+ret = DDB::setSheetBookletTrimming( sheetHandle : handle, data : aSetParam.bookletTrimming ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+ret = DDB::setSheetBookletTrimmedWidth( sheetHandle : handle, data : aSetParam.bookletTrimmedWidth ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+//-- 504:20080627 Add End (kanda)
+
+// Punch指定
+// 最初のサイズのみやるかどうか、InvertするかどうかでOFF/ONする
+//-- 0103793:20140912 Add Start (saitou) 
+ret = DDB::setSheetPunch( sheetHandle : handle , data : aSheet.punch );
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 0103793:20140912 Add End (saitou) 
+
+//-- 242:20050810 Add Start (kanda)
+//-- 11394:20130325 Modified Start (ikegaya)
+ret = DDB::setSheetStampSelect( sheetHandle : handle , data : "IOTDOC_OFFICIAL_STAMP_OFF" ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+ret = DDB::setSheetStampShift( sheetHandle : handle , data : 0 ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+//-- 242:20050810 Add End (kanda)
+
+//-- 629:20101220 Add Start (kanda)
+//-- 11394:20130325 Modified Start (ikegaya)
+ret = DDB::setSheetDfaProfileNo( sheetHandle : handle, data : anExecutingJob.dfaProfileNo ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+//-- 629:20101220 Add End (kanda)
+
+return ;
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("a772fffd-6bfb-49c6-b35e-e264a8c55845",
+	"a36d1618-97bc-4275-b872-ac9eed79d9d1",
+	'handle',
+	"ccf68ca8-f581-4f94-91e9-7a3ee7d0b94a",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("ccf68ca8-f581-4f94-91e9-7a3ee7d0b94a",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_SheetHandle',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("7fc79eb6-d44b-42b5-a42a-5428ae3bc4cd",
+	"a36d1618-97bc-4275-b872-ac9eed79d9d1",
+	'sheetID',
+	"c8447be4-d01e-4fe9-93f9-1b14504795d9",
+	0,
+	'',
+	"a68b9b7c-db47-49b3-9536-ae1fb7cd1abe",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("c8447be4-d01e-4fe9-93f9-1b14504795d9",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_SheetID',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("a68b9b7c-db47-49b3-9536-ae1fb7cd1abe",
+	"a36d1618-97bc-4275-b872-ac9eed79d9d1",
+	'physicalSheetID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"be67a18b-4545-4155-af72-9f17660d7137",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("be67a18b-4545-4155-af72-9f17660d7137",
+	"a36d1618-97bc-4275-b872-ac9eed79d9d1",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"a772fffd-6bfb-49c6-b35e-e264a8c55845",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("2e0356c5-3468-4212-92a0-27e69ee2c203",
+	"a36d1618-97bc-4275-b872-ac9eed79d9d1",
+	'sheetType',
+	"100f8c84-e289-4a5c-93e8-d9859dad5bba",
+	0,
+	'',
+	"7fc79eb6-d44b-42b5-a42a-5428ae3bc4cd",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("100f8c84-e289-4a5c-93e8-d9859dad5bba",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_SheetType',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_REF
+	VALUES ("a90a9ff6-0693-4993-98ba-babf3b8f841f",
+	"7b9c9367-5986-4a3c-b523-e86fdfa77e3c",
+	0,
+	"07539041-6fee-440c-ac65-2d45595ac518",
+	"34c886a8-28d3-4725-8a3f-339e337e8378",
+	"1de82b2f-8a62-4c74-a30f-44c10010f80e",
+	"3ed93c46-a0c9-4fff-b2f9-0865acbb39ee",
+	"ec5e11b4-7259-448b-85c9-dd7bac48eeb1",
+	"9910da0b-fe73-407a-ab82-23d63dd214b4",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Physical Sheet',
+	'ID',
+	'R423');
+INSERT INTO R_RGO_PROXY
+	VALUES ("a90a9ff6-0693-4993-98ba-babf3b8f841f",
+	"34c886a8-28d3-4725-8a3f-339e337e8378",
+	"1de82b2f-8a62-4c74-a30f-44c10010f80e",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("07539041-6fee-440c-ac65-2d45595ac518",
+	"7b9c9367-5986-4a3c-b523-e86fdfa77e3c",
+	0,
+	"34c886a8-28d3-4725-8a3f-339e337e8378",
+	"3ed93c46-a0c9-4fff-b2f9-0865acbb39ee",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("ec5e11b4-7259-448b-85c9-dd7bac48eeb1",
+	"a90a9ff6-0693-4993-98ba-babf3b8f841f",
+	"07539041-6fee-440c-ac65-2d45595ac518",
+	"7b9c9367-5986-4a3c-b523-e86fdfa77e3c",
+	1,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("07539041-6fee-440c-ac65-2d45595ac518",
+	"7b9c9367-5986-4a3c-b523-e86fdfa77e3c",
+	'../Physical Sheet/Physical Sheet.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("ec5e11b4-7259-448b-85c9-dd7bac48eeb1",
+	"a90a9ff6-0693-4993-98ba-babf3b8f841f",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("86845f2d-678c-40cc-9960-ac9461330de5",
+	"a90a9ff6-0693-4993-98ba-babf3b8f841f");
+INSERT INTO O_BATTR
+	VALUES ("86845f2d-678c-40cc-9960-ac9461330de5",
+	"a90a9ff6-0693-4993-98ba-babf3b8f841f");
+INSERT INTO O_ATTR
+	VALUES ("86845f2d-678c-40cc-9960-ac9461330de5",
+	"a90a9ff6-0693-4993-98ba-babf3b8f841f",
+	"ec5e11b4-7259-448b-85c9-dd7bac48eeb1",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"a90a9ff6-0693-4993-98ba-babf3b8f841f");
+INSERT INTO O_OIDA
+	VALUES ("ec5e11b4-7259-448b-85c9-dd7bac48eeb1",
+	"a90a9ff6-0693-4993-98ba-babf3b8f841f",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"a90a9ff6-0693-4993-98ba-babf3b8f841f");
+INSERT INTO O_ID
+	VALUES (2,
+	"a90a9ff6-0693-4993-98ba-babf3b8f841f");
+INSERT INTO PE_PE
+	VALUES ("a90a9ff6-0693-4993-98ba-babf3b8f841f",
+	1,
+	"28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Physical Sheet',
+	'このサブシステムは実際の出力を行うためのDMとのI/Fおよび論理シートだけでは
+表現できない出力に関する概念を抽象化したものです。
+
+このサブシステムで表現されるものには以下の項目があります。
+1. DMとのI/Fを実現する内部キュー
+2.キューが処理対象となった実シートおよび実イメージ
+3.バナー、合紙などの論理シート以外で表現されるシート（表紙は論理シートで表現される）
+
+DMとのI/Fといっても表現されるのは以下のものです。
+SC→DM
+SET_START_INFO
+SHEET_INFO
+SET_END_INFO
+JOB_END_INFO
+
+DM→SC
+NEXT_SHEET_REQ
+IMAGE_REQ
+SHEET_END
+
+JOB_START_INFOも当初含まれていましたが（モデルにもまだ存在するが）キューに
+おくことにより不具合が生じたため、現状ではJ_EJOBから直接ブリッジのコールが行われています。
+
+',
+	400,
+	'../Physical Sheet.xtuml');

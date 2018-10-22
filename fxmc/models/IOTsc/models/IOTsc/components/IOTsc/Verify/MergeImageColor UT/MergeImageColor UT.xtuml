@@ -1,0 +1,415 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("c2a3af0e-5666-4cbe-b038-2d2366acd063",
+	'MergeImageColor UT',
+	524,
+	'V_MIC',
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("95d17fd2-a86f-46a6-90cf-eeca6cc4e2d9",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063",
+	'prepareTest',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	1,
+	'no = self.no;
+
+select any aFace from instances of P_PSHF;
+if ( not_empty aFace )
+	select many tmpElements related by aFace->EI_CL[R608];
+	for each aTmpElement in tmpElements 
+		unrelate aFace  from aTmpElement across R608;
+		delete object instance aTmpElement;
+	end for;
+	delete object instance aFace;
+end if;
+
+create object instance aFace of P_PSHF;
+num = PF::getConfigValue( config : IotSc_Config::eMergeImage_Plane_Num );
+colorEnabe = true;
+if (PF::getConfigValue( config : IotSc_Config::eMergeImage_Color_Enable) == 0 )
+	colorEnabe = false;
+end if;
+
+i = 1;
+while  ( i <= num )
+	create object instance aColorElement of EI_CL;
+	aColorElement.no = i;
+	aColorElement.color = "0";
+	relate aFace to aColorElement across R608;
+	i = i+1;
+end while;
+
+select many params related by self->V_MP[R500];
+for each aParam in params
+	delete object instance aParam;
+end for;
+
+c1 = param.r_expectedColor1;
+c2 = param.r_expectedColor2;
+
+c1 = "0";
+c2 = "0";
+
+// no = 1 - 10は単独の処理
+i = 1;
+if ( no == 1 )
+	i = self.addParam(type : IotSc_AnnotationType::eStamp,
+		color : "IOT_IMAGE_COLOR_K",
+		no : i );
+	if ( num == 2 )
+		param.r_expectedColor2 = "IOT_IMAGE_COLOR_K";
+	elif ( num == 1 )
+		param.r_expectedColor1 = "IOT_IMAGE_COLOR_K";
+	end if;
+	return 1;
+elif ( no == 2 )
+	i = self.addParam(type : IotSc_AnnotationType::eStamp,
+		color : "IOT_IMAGE_COLOR_K",
+		no : i );
+	i = self.addParam(type : IotSc_AnnotationType::ePageNo,
+		color : "IOT_IMAGE_COLOR_K",
+		no : i );
+
+	if ( num == 2 )
+		param.r_expectedColor2 = "IOT_IMAGE_COLOR_K";
+	elif ( num == 1 )
+		param.r_expectedColor1 = "IOT_IMAGE_COLOR_K";
+	end if;
+
+
+	return 1;
+elif ( no == 3 )
+	i = self.addParam(type : IotSc_AnnotationType::eStamp,
+		color : "IOT_IMAGE_COLOR_K",
+		no : i );
+	i = self.addParam(type : IotSc_AnnotationType::eWaterMark,
+		color : "IOT_IMAGE_COLOR_Y",
+		no : i );
+
+	if ( num == 2 )
+		param.r_expectedColor1 = "IOT_IMAGE_COLOR_Y";
+		param.r_expectedColor2 = "IOT_IMAGE_COLOR_K";
+	elif ( num == 1 )
+		return -1;
+	end if;
+
+
+	return 1;
+
+elif ( no == 4 )
+	i = self.addParam(type : IotSc_AnnotationType::eForm,
+		color : "IOT_IMAGE_COLOR_K",
+		no : i );
+	i = self.addParam(type : IotSc_AnnotationType::eWaterMark,
+		color : "IOT_IMAGE_COLOR_Y",
+		no : i );
+
+	if ( num == 2 )
+		param.r_expectedColor1 = "IOT_IMAGE_COLOR_Y";
+		param.r_expectedColor2 = "IOT_IMAGE_COLOR_K";
+	elif ( num == 1 )
+		return -1;
+	end if;
+
+
+	return 1;
+elif ( no == 5 )
+	i = self.addParam(type : IotSc_AnnotationType::eStamp,
+		color : "IOT_IMAGE_COLOR_R",
+		no : i );
+	i = self.addParam(type : IotSc_AnnotationType::ePageNo,
+		color : "IOT_IMAGE_COLOR_R",
+		no : i );
+
+	if ( num == 2 )
+		param.r_expectedColor1 = "IOT_IMAGE_COLOR_Y";
+		param.r_expectedColor2 = "IOT_IMAGE_COLOR_M";
+	elif ( num == 1 )
+		return -1;
+	end if;
+
+
+	return 1;
+
+elif ( no == 6 )
+	i = self.addParam(type : IotSc_AnnotationType::eStamp,
+		color : "IOT_IMAGE_COLOR_G",
+		no : i );
+	i = self.addParam(type : IotSc_AnnotationType::ePageNo,
+		color : "IOT_IMAGE_COLOR_G",
+		no : i );
+
+	i = self.addParam(type : IotSc_AnnotationType::eBatesNo,
+		color : "IOT_IMAGE_COLOR_G",
+		no : i );
+
+	i = self.addParam(type : IotSc_AnnotationType::eDate,
+		color : "IOT_IMAGE_COLOR_G",
+		no : i );
+
+	if ( num == 2 )
+		param.r_expectedColor1 = "IOT_IMAGE_COLOR_Y";
+		param.r_expectedColor2 = "IOT_IMAGE_COLOR_C";
+	elif ( num == 1 )
+		return -1;
+	end if;
+
+
+	return 1;
+
+elif ( no == 7 )
+	i = self.addParam(type : IotSc_AnnotationType::eStamp,
+		color : "IOT_IMAGE_COLOR_K",
+		no : i );
+	i = self.addParam(type : IotSc_AnnotationType::ePageNo,
+		color : "IOT_IMAGE_COLOR_K",
+		no : i );
+
+	i = self.addParam(type : IotSc_AnnotationType::eBatesNo,
+		color : "IOT_IMAGE_COLOR_K",
+		no : i );
+
+	i = self.addParam(type : IotSc_AnnotationType::eDate,
+		color : "IOT_IMAGE_COLOR_K",
+		no : i );
+
+	i = self.addParam(type : IotSc_AnnotationType::eWaterMark,
+		color : "IOT_IMAGE_COLOR_M",
+		no : i );
+
+	i = self.addParam(type : IotSc_AnnotationType::eUuid,
+		color : "IOT_IMAGE_COLOR_K",
+		no : i );
+
+	if ( num == 2 )
+		param.r_expectedColor1 = "IOT_IMAGE_COLOR_M";
+		param.r_expectedColor2 = "IOT_IMAGE_COLOR_K";
+	elif ( num == 1 )
+		return -1;
+	end if;
+
+
+	return 1;
+
+
+end if;
+
+return -2;',
+	1,
+	'',
+	"cb6e7ef5-097f-4dd0-8f1c-2f6d701d15a8");
+INSERT INTO O_TPARM
+	VALUES ("d4d8c274-1d62-4ba6-b0d7-bb63d2952dc5",
+	"95d17fd2-a86f-46a6-90cf-eeca6cc4e2d9",
+	'r_expectedColor1',
+	"155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_ImageColor',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("f1f4d09c-8297-4187-a426-6d0e94944b09",
+	"95d17fd2-a86f-46a6-90cf-eeca6cc4e2d9",
+	'r_expectedColor2',
+	"155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	1,
+	'',
+	"d4d8c274-1d62-4ba6-b0d7-bb63d2952dc5",
+	'');
+INSERT INTO O_TFR
+	VALUES ("cb6e7ef5-097f-4dd0-8f1c-2f6d701d15a8",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063",
+	'addParam',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	1,
+	'create object instance aParam of V_MP;
+aParam.color = param.color;
+aParam.no = param.no;
+aParam.type = param.type;
+relate self to aParam across R500;
+return param.no+1;
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("77204195-7a93-4f35-bc5b-b438a7285f5c",
+	"cb6e7ef5-097f-4dd0-8f1c-2f6d701d15a8",
+	'type',
+	"eafd651c-a3c8-4ac5-8bbd-235b59080e4b",
+	0,
+	'',
+	"3c548944-1c37-494b-ad14-2fdad6cf8cfd",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("eafd651c-a3c8-4ac5-8bbd-235b59080e4b",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_AnnotationType',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("cc922e4e-0025-478f-b8a1-828e3d74f682",
+	"cb6e7ef5-097f-4dd0-8f1c-2f6d701d15a8",
+	'color',
+	"155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("3c548944-1c37-494b-ad14-2fdad6cf8cfd",
+	"cb6e7ef5-097f-4dd0-8f1c-2f6d701d15a8",
+	'no',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"cc922e4e-0025-478f-b8a1-828e3d74f682",
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("5036e272-bd07-48a5-b333-2aa8e1ff79b0",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063");
+INSERT INTO O_BATTR
+	VALUES ("5036e272-bd07-48a5-b333-2aa8e1ff79b0",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063");
+INSERT INTO O_ATTR
+	VALUES ("5036e272-bd07-48a5-b333-2aa8e1ff79b0",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("94288b4d-c76e-4ffc-a7a6-73c6b28101b3",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063");
+INSERT INTO O_BATTR
+	VALUES ("94288b4d-c76e-4ffc-a7a6-73c6b28101b3",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063");
+INSERT INTO O_ATTR
+	VALUES ("94288b4d-c76e-4ffc-a7a6-73c6b28101b3",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063",
+	"5036e272-bd07-48a5-b333-2aa8e1ff79b0",
+	'no',
+	'',
+	'',
+	'no',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("efc099d1-c1ea-4093-93d9-d2c89756b4f4",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063");
+INSERT INTO O_BATTR
+	VALUES ("efc099d1-c1ea-4093-93d9-d2c89756b4f4",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063");
+INSERT INTO O_ATTR
+	VALUES ("efc099d1-c1ea-4093-93d9-d2c89756b4f4",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063",
+	"94288b4d-c76e-4ffc-a7a6-73c6b28101b3",
+	'total',
+	'',
+	'',
+	'total',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("74d61e31-09bd-4442-92b8-6a7dde97685e",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063");
+INSERT INTO O_BATTR
+	VALUES ("74d61e31-09bd-4442-92b8-6a7dde97685e",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063");
+INSERT INTO O_ATTR
+	VALUES ("74d61e31-09bd-4442-92b8-6a7dde97685e",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063",
+	"efc099d1-c1ea-4093-93d9-d2c89756b4f4",
+	'success',
+	'',
+	'',
+	'success',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("e4c003a6-0984-42a5-81ef-839ca546c3a4",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063");
+INSERT INTO O_BATTR
+	VALUES ("e4c003a6-0984-42a5-81ef-839ca546c3a4",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063");
+INSERT INTO O_ATTR
+	VALUES ("e4c003a6-0984-42a5-81ef-839ca546c3a4",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063",
+	"74d61e31-09bd-4442-92b8-6a7dde97685e",
+	'failed',
+	'',
+	'',
+	'failed',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("28556dec-0221-489a-bf0c-0309446852f8",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063");
+INSERT INTO O_BATTR
+	VALUES ("28556dec-0221-489a-bf0c-0309446852f8",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063");
+INSERT INTO O_ATTR
+	VALUES ("28556dec-0221-489a-bf0c-0309446852f8",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063",
+	"e4c003a6-0984-42a5-81ef-839ca546c3a4",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063");
+INSERT INTO O_OIDA
+	VALUES ("5036e272-bd07-48a5-b333-2aa8e1ff79b0",
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063");
+INSERT INTO O_ID
+	VALUES (2,
+	"c2a3af0e-5666-4cbe-b038-2d2366acd063");
+INSERT INTO PE_PE
+	VALUES ("c2a3af0e-5666-4cbe-b038-2d2366acd063",
+	1,
+	"f249cc43-4e9f-46e0-a3e8-3e11ce7e2ee3",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("f249cc43-4e9f-46e0-a3e8-3e11ce7e2ee3",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Verify',
+	'',
+	500,
+	'../Verify.xtuml');

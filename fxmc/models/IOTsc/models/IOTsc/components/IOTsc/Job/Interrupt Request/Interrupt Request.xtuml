@@ -1,0 +1,189 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("54d94328-7c5c-4d98-8cf0-927ba2632d62",
+	'Interrupt Request',
+	107,
+	'J_ITR',
+	'Interrupt Requestは割り込み要求を抽象化したクラスです。
+
+このオブジェクトはR108で関連するJob Hold Requestのheld処理が
+すべて終了した時点で割り込みに入ったことを通知するとともに、
+割り込み復帰時も割り込み解除応答を行います。',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("924a990f-fc6c-4261-8aec-23657bbadcb8",
+	"54d94328-7c5c-4d98-8cf0-927ba2632d62",
+	'deleteWaitForHeldJobList',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 846:20140414  Add Start (ikegaya)
+// JobHold処理待ちジョブリストを削除する
+select many jobs related by self->J_JOB[R119];
+for each aJob in jobs
+	unrelate aJob from self across R119;
+end for;
+return;
+//-- 846:20140414  Add End (ikegaya)
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("3d6f001d-b581-4d2a-8115-cf6ad27c427e",
+	"54d94328-7c5c-4d98-8cf0-927ba2632d62",
+	'listWaitForHeldJob',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 846:20140414  Add Start (ikegaya)
+// JobOrderGo受信済みジョブをJobOrderHoldされるジョブとしてリスト（記憶）する
+
+doList = FALSE;
+if (param.isFixedListWaitForHeldJob == TRUE)
+	if (self.isFixedListWaitForHeldJob == FALSE)
+		// リスト確定（1stJobOrderHold受信）で、リストする
+		doList = TRUE;
+	else
+		// リスト確定後（2ndJobOrderHold受信以降）で、リストしない
+		// NA
+	end if;
+else
+	// リスト未確定（SysInst(InterruptEntry)受信)で、仮リストする
+	doList = TRUE;
+end if;
+
+// リスト確定か否かフラグを更新
+self.isFixedListWaitForHeldJob = param.isFixedListWaitForHeldJob;
+
+if (doList == TRUE)
+	select many jobs from instances of J_JOB;
+	for each aJob in jobs
+		select one anInterrupt related by aJob->J_ITR[R119];
+		if (not_empty anInterrupt)
+			// 2重関連張り防止
+		else
+			relate aJob to self across R119;
+		end if;
+	end for;
+end if;
+return;
+//-- 846:20140414  Add End (ikegaya)
+',
+	1,
+	'',
+	"924a990f-fc6c-4261-8aec-23657bbadcb8");
+INSERT INTO O_TPARM
+	VALUES ("8e6095fb-b0c4-4b07-a9af-9fc77f1ced5b",
+	"3d6f001d-b581-4d2a-8115-cf6ad27c427e",
+	'isFixedListWaitForHeldJob',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("4f27e8bb-a587-4b95-b2cb-413930a68467",
+	"54d94328-7c5c-4d98-8cf0-927ba2632d62");
+INSERT INTO O_BATTR
+	VALUES ("4f27e8bb-a587-4b95-b2cb-413930a68467",
+	"54d94328-7c5c-4d98-8cf0-927ba2632d62");
+INSERT INTO O_ATTR
+	VALUES ("4f27e8bb-a587-4b95-b2cb-413930a68467",
+	"54d94328-7c5c-4d98-8cf0-927ba2632d62",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("84d8d2b5-a2a2-41df-98f2-b65099b292d3",
+	"54d94328-7c5c-4d98-8cf0-927ba2632d62");
+INSERT INTO O_BATTR
+	VALUES ("84d8d2b5-a2a2-41df-98f2-b65099b292d3",
+	"54d94328-7c5c-4d98-8cf0-927ba2632d62");
+INSERT INTO O_ATTR
+	VALUES ("84d8d2b5-a2a2-41df-98f2-b65099b292d3",
+	"54d94328-7c5c-4d98-8cf0-927ba2632d62",
+	"4f27e8bb-a587-4b95-b2cb-413930a68467",
+	'isInterruptCancelEnable',
+	'',
+	'',
+	'isInterruptCancelEnable',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("d5183161-ab75-42db-9c81-4638b2b2bb9e",
+	"54d94328-7c5c-4d98-8cf0-927ba2632d62");
+INSERT INTO O_BATTR
+	VALUES ("d5183161-ab75-42db-9c81-4638b2b2bb9e",
+	"54d94328-7c5c-4d98-8cf0-927ba2632d62");
+INSERT INTO O_ATTR
+	VALUES ("d5183161-ab75-42db-9c81-4638b2b2bb9e",
+	"54d94328-7c5c-4d98-8cf0-927ba2632d62",
+	"84d8d2b5-a2a2-41df-98f2-b65099b292d3",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("9cf5e524-8da6-489a-9ba7-ce1691b2189d",
+	"54d94328-7c5c-4d98-8cf0-927ba2632d62");
+INSERT INTO O_BATTR
+	VALUES ("9cf5e524-8da6-489a-9ba7-ce1691b2189d",
+	"54d94328-7c5c-4d98-8cf0-927ba2632d62");
+INSERT INTO O_ATTR
+	VALUES ("9cf5e524-8da6-489a-9ba7-ce1691b2189d",
+	"54d94328-7c5c-4d98-8cf0-927ba2632d62",
+	"d5183161-ab75-42db-9c81-4638b2b2bb9e",
+	'isFixedListWaitForHeldJob',
+	'//-- 846:20140414 Add Start (ikegaya)
+JobOrderGo受信済みのジョブをJobOrderHoldされるジョブとしてリスト(記憶)することが
+確定か未確定かを表す
+//-- 846:20140414 Add End (ikegaya)
+',
+	'',
+	'isFixedListWaitForHeldJob',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"54d94328-7c5c-4d98-8cf0-927ba2632d62");
+INSERT INTO O_OIDA
+	VALUES ("4f27e8bb-a587-4b95-b2cb-413930a68467",
+	"54d94328-7c5c-4d98-8cf0-927ba2632d62",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"54d94328-7c5c-4d98-8cf0-927ba2632d62");
+INSERT INTO O_ID
+	VALUES (2,
+	"54d94328-7c5c-4d98-8cf0-927ba2632d62");
+INSERT INTO PE_PE
+	VALUES ("54d94328-7c5c-4d98-8cf0-927ba2632d62",
+	1,
+	"1ef61a85-d4bb-4a75-8902-08208261e3ec",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("1ef61a85-d4bb-4a75-8902-08208261e3ec",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Job',
+	'',
+	100,
+	'../Job.xtuml');

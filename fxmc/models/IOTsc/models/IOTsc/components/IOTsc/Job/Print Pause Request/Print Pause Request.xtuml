@@ -1,0 +1,271 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("bf94d7b0-eeb8-4617-aa52-f4e38694e8b8",
+	'Print Pause Request',
+	112,
+	'J_PPR',
+	'Print Pause Requestはdmに対しするPrint一時停止要求(PRINT_PAUSE)を
+抽象化したクラスです。
+
+PRINT_PAUSEが発行されるのは次の要因があります。
+SYS_INST(PAUSE)を受けた場合
+held指示を受けた場合
+サンプルコピーで１部目の出力を終えた場合。
+
+以下の属性を持ちます。
+
+pauseReason : PRINT_PAUSEを発行した要因が入ります。
+
+isPauseNotified : PRINT_PAUSE_REQを発行したかどうかが設定されます。
+
+isResumeNotified : PRINT_RESUME_REQを発行したかどうかが設定されます。
+
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("4223239a-6f04-4069-b7b9-f3ca41392f6e",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8",
+	'resumeForce',
+	'このOperationはPAUSE_REQを発行していて、
+ RESUME_REQを発行していないJ_PPRに対して
+強制的にPRINT_RESUME_REQを発行するOperationです。
+キャンセルの時などに利用します。',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'if ( self.isPauseNotified and not self.isResumeNotified )
+//-- 0105127:20140924 Add Start (saitou) 
+	// DV側にもPauseをかけているのでResumeをかける
+	// 本来であれば、DV_JOBの同期をとらずにDMにResumeをかけるのはまずいが、、、
+	// キャンセルの時だけのはずなので、同期をとるべき先頭Jobは居ないはず、
+	// 後続Jobが先頭Jobに切り替わった時にも改めてNotifyStopしないはずなので、、問題無しとする。
+	select one aDVPause related by self->DV_PAUSE[R822];
+	if( not_empty aDVPause )
+	  aDVPause.resume();
+	end if;
+//-- 0105127:20140924 Add End (saitou) 
+	IOTD::sendPrintResume( pauseID : self.printPauseID );
+end if;',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_NBATTR
+	VALUES ("c2104437-652f-4c47-aa14-ce24243f3c08",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8");
+INSERT INTO O_BATTR
+	VALUES ("c2104437-652f-4c47-aa14-ce24243f3c08",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8");
+INSERT INTO O_ATTR
+	VALUES ("c2104437-652f-4c47-aa14-ce24243f3c08",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8",
+	"00000000-0000-0000-0000-000000000000",
+	'printPauseID',
+	'//-- 410:20070626 Modified Start (kanda)
+AUTOINC:TRUE
+AUTOINC_DATASIZE:4
+AUTOINC_LLIMIT:1
+AUTOINC_HLIMIT:0x7fffffff
+AUTOINC_DIR:UP
+AUTOINC_UNDEF:0
+//-- 410:20070626 Modified End (kanda)
+',
+	'',
+	'printPauseID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("db6c9cd4-14ae-40aa-8888-7ddc43e6445e",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8");
+INSERT INTO O_BATTR
+	VALUES ("db6c9cd4-14ae-40aa-8888-7ddc43e6445e",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8");
+INSERT INTO O_ATTR
+	VALUES ("db6c9cd4-14ae-40aa-8888-7ddc43e6445e",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8",
+	"c2104437-652f-4c47-aa14-ce24243f3c08",
+	'pauseReason',
+	'',
+	'',
+	'pauseReason',
+	0,
+	"f171ad13-3964-4504-bfeb-7ac3af02153c",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("f171ad13-3964-4504-bfeb-7ac3af02153c",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_PauseReason',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("3d7ad1bf-e92a-4eb5-a8df-c4af80778ed3",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8");
+INSERT INTO O_BATTR
+	VALUES ("3d7ad1bf-e92a-4eb5-a8df-c4af80778ed3",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8");
+INSERT INTO O_ATTR
+	VALUES ("3d7ad1bf-e92a-4eb5-a8df-c4af80778ed3",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8",
+	"db6c9cd4-14ae-40aa-8888-7ddc43e6445e",
+	'isPauseNotified',
+	'',
+	'',
+	'isPauseNotified',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("412b994d-6923-4470-ae58-46d45a70c0b4",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8");
+INSERT INTO O_BATTR
+	VALUES ("412b994d-6923-4470-ae58-46d45a70c0b4",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8");
+INSERT INTO O_ATTR
+	VALUES ("412b994d-6923-4470-ae58-46d45a70c0b4",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8",
+	"3d7ad1bf-e92a-4eb5-a8df-c4af80778ed3",
+	'isResumeNotified',
+	'',
+	'',
+	'isResumeNotified',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("41aeea39-d8bb-45d8-b755-238dc8f19798",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8");
+INSERT INTO O_BATTR
+	VALUES ("41aeea39-d8bb-45d8-b755-238dc8f19798",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8");
+INSERT INTO O_ATTR
+	VALUES ("41aeea39-d8bb-45d8-b755-238dc8f19798",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8",
+	"412b994d-6923-4470-ae58-46d45a70c0b4",
+	'isImageAbortNeeded',
+	'',
+	'',
+	'isImageAbortNeeded',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("f180bbbc-a0c7-4550-ad59-9ba240cddac6",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8");
+INSERT INTO O_BATTR
+	VALUES ("f180bbbc-a0c7-4550-ad59-9ba240cddac6",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8");
+INSERT INTO O_ATTR
+	VALUES ("f180bbbc-a0c7-4550-ad59-9ba240cddac6",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8",
+	"41aeea39-d8bb-45d8-b755-238dc8f19798",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("19f1914a-ff4c-4b42-8257-f55e3cc1551d",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8");
+INSERT INTO O_BATTR
+	VALUES ("19f1914a-ff4c-4b42-8257-f55e3cc1551d",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8");
+INSERT INTO O_ATTR
+	VALUES ("19f1914a-ff4c-4b42-8257-f55e3cc1551d",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8",
+	"f180bbbc-a0c7-4550-ad59-9ba240cddac6",
+	'isPauseProcessEnd',
+	'',
+	'',
+	'isPauseProcessEnd',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("bf94d7b0-eeb8-4617-aa52-f4e38694e8b8",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	0,
+	"deb13f6a-fd22-4721-810b-2c62b7d22769",
+	"4019b12d-f33a-411c-a48c-4c9ac9708d32",
+	"25f8ecb6-f640-47aa-8f4a-e6242d295e17",
+	"47d22442-4908-4e67-90f3-ea1498f27d79",
+	"6d20e951-03ba-468f-9a03-cb6549e5db5d",
+	"768e5399-8935-41c9-b845-004fedc5fceb",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Pause',
+	'ID',
+	'R822');
+INSERT INTO R_RGO_PROXY
+	VALUES ("bf94d7b0-eeb8-4617-aa52-f4e38694e8b8",
+	"4019b12d-f33a-411c-a48c-4c9ac9708d32",
+	"25f8ecb6-f640-47aa-8f4a-e6242d295e17",
+	'../../DVM_EP/DVM_EP.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("deb13f6a-fd22-4721-810b-2c62b7d22769",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	0,
+	"4019b12d-f33a-411c-a48c-4c9ac9708d32",
+	"47d22442-4908-4e67-90f3-ea1498f27d79",
+	'../../DVM_EP/DVM_EP.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("6d20e951-03ba-468f-9a03-cb6549e5db5d",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8",
+	"deb13f6a-fd22-4721-810b-2c62b7d22769",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	1,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("deb13f6a-fd22-4721-810b-2c62b7d22769",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	'../../DVM_EP/Pause/Pause.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("6d20e951-03ba-468f-9a03-cb6549e5db5d",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8",
+	"19f1914a-ff4c-4b42-8257-f55e3cc1551d",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8");
+INSERT INTO O_OIDA
+	VALUES ("c2104437-652f-4c47-aa14-ce24243f3c08",
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8",
+	0,
+	'printPauseID');
+INSERT INTO O_ID
+	VALUES (1,
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8");
+INSERT INTO O_ID
+	VALUES (2,
+	"bf94d7b0-eeb8-4617-aa52-f4e38694e8b8");
+INSERT INTO PE_PE
+	VALUES ("bf94d7b0-eeb8-4617-aa52-f4e38694e8b8",
+	1,
+	"1ef61a85-d4bb-4a75-8902-08208261e3ec",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("1ef61a85-d4bb-4a75-8902-08208261e3ec",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Job',
+	'',
+	100,
+	'../Job.xtuml');

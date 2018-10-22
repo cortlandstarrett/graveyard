@@ -1,0 +1,397 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("910d9061-497a-4c73-932f-e0d52f4912f8",
+	'Job Pause Request',
+	105,
+	'J_JPR',
+	'Job Pause Requestはジョブの一時停止要求を抽象化したクラスです。
+
+Job Pauseには以下の２種類があります。
+
+Job Pause With Image Abort : 
+	ジョブ一時停止に伴なってImageを削除する必要があるタイプの
+	Pauseです。Buffer Bridgeにおける一時停止がこれにあたります。
+	Job Type Specにおいて、IsNeedRecoveryNoifyがTRUEの場合は
+	このオブジェクトとなります。
+
+Job Pause Normal :
+	通常のJob Pause処理を抽象化したクラスです。
+
+
+どちらのPauseも、他のジョブ制御に関して以下の優先順位関係があります。
+Pause要求中にジョブが正常終了した場合にはPauseはキャンセルされます。
+Pause要求中にジョブがキャンセルされた場合はPauseはキャンセルされます。
+Pause要求中にHeld要求は起きないことになっています。
+Pause中にheld要求はheld処理がされます。
+held処理中で、IOTがCycle Down前にPause要求がされた場合はheldをキャンセルします。
+
+
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("06bdd5da-2a2d-4522-a0dc-d9bfccc20599",
+	"910d9061-497a-4c73-932f-e0d52f4912f8",
+	'clear',
+	'このOperationは自分自身の削除は行いません。
+消すのを忘れないで下さい。',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'select one aPauseWithImageAbort related by self->J_PIA[R109];
+select one aPauseNormal related by self->J_JPN[R109];
+
+if ( not_empty aPauseWithImageAbort )
+	select one aPauseProcess related by aPauseWithImageAbort->J_NPP[R110];
+	select one aPrintPause related by aPauseProcess->J_PPR[R111];
+
+	if ( not_empty aPrintPause )
+//-- 08:20040310 Modified Start
+// AR47380 J_PPRを削除する前に他のJ_NIPが削除するかを判定
+		select any aOtherProcess related by aPrintPause->J_NPP[R111]
+			where ( selected.ID != aPauseProcess.ID );
+		if  ( empty aOtherProcess )
+			aPrintPause.resumeForce();
+			unrelate aPrintPause from aPauseProcess across R111;
+			delete object instance aPrintPause;
+		end if;
+//-- 08:20040310 Modified End
+	end if;
+
+	unrelate aPauseProcess from aPauseWithImageAbort across R110;
+	unrelate aPauseWithImageAbort from self across R109;
+	delete object instance aPauseProcess;
+	delete object instance aPauseWithImageAbort;
+elif ( not_empty aPauseNormal )
+	unrelate aPauseNormal from self across R109;
+	delete object instance aPauseNormal;
+else
+	FER::assert( expression : FALSE );
+end if;
+
+//-- 14599:20130606 Add Start (ikegaya)
+// 正常終了またはキャンセルによるJobPauseの削除は、
+// JobResumeする
+//-- 0105127:20140924 Add Start (saitou) 
+// DV_PAUSEもResumeする。
+	select one aDVPause related by self->DV_PAUSE[R821];
+	if( not_empty aDVPause )
+	  aDVPause.resume();
+	end if;
+//-- 0105127:20140924 Add End (saitou) 
+
+IOTD::sendJobResume( jobID : self.jobID );
+// JIS「IOT動作状況」を更新
+JIS::setPrintStatus( jobID : self.jobID, status : IotSc_PrintStatus::eFinishedInPause );
+return;
+//-- 14599:20130606 Add End (ikegaya)',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("cd563579-6185-4af4-9a4c-c46e71469fac",
+	"910d9061-497a-4c73-932f-e0d52f4912f8",
+	'createInstance',
+	'//-- 11394:20130325 Deleted Start (ikegaya)
+// パラメータstopLevelを削除
+//-- 11394:20130325 Deleted End (ikegaya)
+
+//-- 627:20100915 Add Start (kanda)
+Modify:Add
+Modify_No:627
+Modifier:kanda
+Modify_Date:20100915
+//-- 627:20100915 Add End (kanda)',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+select any aJob from instances of J_JOB
+	where (selected.jobID == param.jobID);
+FER::assert(expression : not_empty aJob);
+
+create object instance this of J_JPR;
+relate this to aJob across R106;
+//-- 11394:20130325 Deleted Start (ikegaya)
+//this.pauseLevel = param.stopLevel;
+//-- 11394:20130325 Deleted End (ikegaya)
+this.isPauseNotified = FALSE;
+this.isPauseEndNotified = FALSE;
+
+// サブタイプの作成
+// Job Typeのスペックを見て作る
+select one aJobTypeSpec related by aJob->J_JTS[R100];
+if (aJobTypeSpec.isJobPauseNeedImageAbort)
+	create object instance aPauseWithImageAbort of J_PIA;
+	create object instance aPrintPauseProcess of J_NPP;
+	relate this to aPauseWithImageAbort across R109;
+	relate aPauseWithImageAbort to aPrintPauseProcess across R110;
+else
+	create object instance aPauseNormal of J_JPN;
+	relate this to aPauseNormal across R109;
+end if;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"06bdd5da-2a2d-4522-a0dc-d9bfccc20599");
+INSERT INTO O_TPARM
+	VALUES ("717f205c-488d-4257-962f-ac2ec08e3c55",
+	"cd563579-6185-4af4-9a4c-c46e71469fac",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("90fd6909-b9d0-4bf1-a08e-7a00b7fb8ae7",
+	"910d9061-497a-4c73-932f-e0d52f4912f8",
+	'jobPauseRequest',
+	'//-- 11394:20130325 Deleted Start (ikegaya)
+// パラメータstopLevelを削除
+//-- 11394:20130325 Deleted End (ikegaya)
+
+//-- 627:20100915 Add Start (kanda)
+Modify:Add
+Modify_No:627
+Modifier:kanda
+Modify_Date:20100915
+//-- 627:20100915 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'select any aJobPause from instances of J_JPR
+	where ( param.jobID == selected.jobID ) ;
+
+if ( empty aJobPause )
+//-- 11394:20130325 Modified Start (ikegaya)
+	J_JPR::createInstance( jobID : param.jobID ) ;
+//-- 11394:20130325 Modified End (ikegaya)
+	select any aJobPauseRequest from instances of J_JPR
+		where (selected.jobID == param.jobID);
+	FER::assert(expression : not_empty aJobPauseRequest);
+	generate J_JPR6:pauseEnableCheck to aJobPauseRequest;
+else
+	generate J_JPR7:jobPauseRequest to aJobPause ;
+end if ;
+',
+	1,
+	'',
+	"cd563579-6185-4af4-9a4c-c46e71469fac");
+INSERT INTO O_TPARM
+	VALUES ("fc8bc26e-7f67-4904-969e-1e89ffb4cd20",
+	"90fd6909-b9d0-4bf1-a08e-7a00b7fb8ae7",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_REF
+	VALUES ("910d9061-497a-4c73-932f-e0d52f4912f8",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	0,
+	"47673d6f-a3be-45e6-8453-46bc9a597882",
+	"4f8cb19c-3480-42fe-8733-63c2cdc07347",
+	"c965a898-7817-44aa-9e15-91d84eeac856",
+	"71d6e589-e4ae-40a8-a5fa-7dd731ad3621",
+	"97b5c604-65b1-423c-8a02-398ce773cac4",
+	"e0449083-c302-494e-a013-3a103465cb65",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Job',
+	'jobID',
+	'R106.''request to pause''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("910d9061-497a-4c73-932f-e0d52f4912f8",
+	"4f8cb19c-3480-42fe-8733-63c2cdc07347",
+	"c965a898-7817-44aa-9e15-91d84eeac856",
+	'../Job.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	0,
+	"4f8cb19c-3480-42fe-8733-63c2cdc07347",
+	"71d6e589-e4ae-40a8-a5fa-7dd731ad3621",
+	'../Job.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("97b5c604-65b1-423c-8a02-398ce773cac4",
+	"910d9061-497a-4c73-932f-e0d52f4912f8",
+	"47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	1,
+	'jobID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	'../Job/Job.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("97b5c604-65b1-423c-8a02-398ce773cac4",
+	"910d9061-497a-4c73-932f-e0d52f4912f8",
+	"00000000-0000-0000-0000-000000000000",
+	'jobID',
+	'',
+	'',
+	'jobID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("e03f5ad2-93a2-4ef7-b98b-188a47696f2c",
+	"910d9061-497a-4c73-932f-e0d52f4912f8");
+INSERT INTO O_BATTR
+	VALUES ("e03f5ad2-93a2-4ef7-b98b-188a47696f2c",
+	"910d9061-497a-4c73-932f-e0d52f4912f8");
+INSERT INTO O_ATTR
+	VALUES ("e03f5ad2-93a2-4ef7-b98b-188a47696f2c",
+	"910d9061-497a-4c73-932f-e0d52f4912f8",
+	"97b5c604-65b1-423c-8a02-398ce773cac4",
+	'pauseLevel',
+	'',
+	'',
+	'pauseLevel',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("383d0079-a84d-487a-bd32-da7e0c119680",
+	"910d9061-497a-4c73-932f-e0d52f4912f8");
+INSERT INTO O_BATTR
+	VALUES ("383d0079-a84d-487a-bd32-da7e0c119680",
+	"910d9061-497a-4c73-932f-e0d52f4912f8");
+INSERT INTO O_ATTR
+	VALUES ("383d0079-a84d-487a-bd32-da7e0c119680",
+	"910d9061-497a-4c73-932f-e0d52f4912f8",
+	"e03f5ad2-93a2-4ef7-b98b-188a47696f2c",
+	'isPauseNotified',
+	'',
+	'',
+	'isPauseNotified',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("e9cb9f2b-bf9b-46c1-92f5-eb32b6effe8a",
+	"910d9061-497a-4c73-932f-e0d52f4912f8");
+INSERT INTO O_BATTR
+	VALUES ("e9cb9f2b-bf9b-46c1-92f5-eb32b6effe8a",
+	"910d9061-497a-4c73-932f-e0d52f4912f8");
+INSERT INTO O_ATTR
+	VALUES ("e9cb9f2b-bf9b-46c1-92f5-eb32b6effe8a",
+	"910d9061-497a-4c73-932f-e0d52f4912f8",
+	"383d0079-a84d-487a-bd32-da7e0c119680",
+	'isPauseEndNotified',
+	'',
+	'',
+	'isPauseEndNotified',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c04b078b-733b-4f56-913b-8a16a7c8bdd7",
+	"910d9061-497a-4c73-932f-e0d52f4912f8");
+INSERT INTO O_BATTR
+	VALUES ("c04b078b-733b-4f56-913b-8a16a7c8bdd7",
+	"910d9061-497a-4c73-932f-e0d52f4912f8");
+INSERT INTO O_ATTR
+	VALUES ("c04b078b-733b-4f56-913b-8a16a7c8bdd7",
+	"910d9061-497a-4c73-932f-e0d52f4912f8",
+	"e9cb9f2b-bf9b-46c1-92f5-eb32b6effe8a",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("910d9061-497a-4c73-932f-e0d52f4912f8",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	0,
+	"deb13f6a-fd22-4721-810b-2c62b7d22769",
+	"a5c14889-de52-4dab-87a8-a6e439489c0c",
+	"67d321e9-570b-42cc-852f-1c2e296a7452",
+	"fd265d94-d6cf-41bf-94cb-5b8f6aba83a1",
+	"567c85e8-0671-450f-9255-40021d469209",
+	"f22de3c3-0d25-4cf4-a25a-ee0a78c89da2",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Pause',
+	'ID',
+	'R821');
+INSERT INTO R_RGO_PROXY
+	VALUES ("910d9061-497a-4c73-932f-e0d52f4912f8",
+	"a5c14889-de52-4dab-87a8-a6e439489c0c",
+	"67d321e9-570b-42cc-852f-1c2e296a7452",
+	'../../DVM_EP/DVM_EP.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("deb13f6a-fd22-4721-810b-2c62b7d22769",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	0,
+	"a5c14889-de52-4dab-87a8-a6e439489c0c",
+	"fd265d94-d6cf-41bf-94cb-5b8f6aba83a1",
+	'../../DVM_EP/DVM_EP.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("567c85e8-0671-450f-9255-40021d469209",
+	"910d9061-497a-4c73-932f-e0d52f4912f8",
+	"deb13f6a-fd22-4721-810b-2c62b7d22769",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	1,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("deb13f6a-fd22-4721-810b-2c62b7d22769",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	'../../DVM_EP/Pause/Pause.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("567c85e8-0671-450f-9255-40021d469209",
+	"910d9061-497a-4c73-932f-e0d52f4912f8",
+	"c04b078b-733b-4f56-913b-8a16a7c8bdd7",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"910d9061-497a-4c73-932f-e0d52f4912f8");
+INSERT INTO O_OIDA
+	VALUES ("97b5c604-65b1-423c-8a02-398ce773cac4",
+	"910d9061-497a-4c73-932f-e0d52f4912f8",
+	0,
+	'jobID');
+INSERT INTO O_ID
+	VALUES (1,
+	"910d9061-497a-4c73-932f-e0d52f4912f8");
+INSERT INTO O_ID
+	VALUES (2,
+	"910d9061-497a-4c73-932f-e0d52f4912f8");
+INSERT INTO PE_PE
+	VALUES ("910d9061-497a-4c73-932f-e0d52f4912f8",
+	1,
+	"1ef61a85-d4bb-4a75-8902-08208261e3ec",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("1ef61a85-d4bb-4a75-8902-08208261e3ec",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Job',
+	'',
+	100,
+	'../Job.xtuml');

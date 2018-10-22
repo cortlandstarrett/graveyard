@@ -1,0 +1,1881 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	'Job Restart Info',
+	200,
+	'S_JRI',
+	'Job Restart Infoはジョブが再開するのに必要な情報をもつクラスです。
+
+基本的にこの情報は排出された最終シートの情報を保持します。
+通常J_EJOBとR200の関係を持ちますが、割り込みの再開など、この情報を
+利用して最初の出力を行う場合にはR234の関係が張られています。
+
+つまり、R234の関係がない間はシートが排出されることによってこの情報が更新され、
+ジョブの開始時にR234の関係がある場合にはこのオブジェクトから最終シートの情報を取得し、その次のシートから出力を開始します。
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("49f058f5-9cef-4eca-9f4b-3f9efe6bbf90",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	'setSheetInfo',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'select any aSheet from instances of S_SHT
+	where ( selected.ID == param.sheetID );
+FER::assert( expression : not_empty aSheet );
+
+// Verify用
+//V_JRI::setSheetInfo( sheetID : aSheet.ID );
+
+//-- 629:20100921 Modified Start (kanda)
+select one aTreeDependSheet related by aSheet->S_TDSI[R246];
+if ( not_empty aTreeDependSheet )
+	self.rootDocNo = aTreeDependSheet.rootDocNo;
+	self.documentNo = aTreeDependSheet.documentNo;
+	self.sectionNo    = aTreeDependSheet.sectionNo;
+	self.lastFaceNo         = aTreeDependSheet.firstFaceNo;
+end if;
+//-- 629:20100921 Modified End (kanda)
+
+select one aCollateSet related by aSheet->S_CS[R213];
+FER::assert( expression : not_empty aCollateSet );
+//select one aSetParam related by aCollateSet->S_OSP[R256];
+//FER::assert( expression : not_empty aSetParam );
+select one anExecutingOrigin related by aCollateSet->S_EOS[R232];
+
+//-- 234:20050713 Modified Start (kanda)
+// 選択するS_OSPをR258からR260に修正
+select one aSetParam related by anExecutingOrigin->S_OSP[R260];
+//-- 234:20050713 Modified End (kanda)
+
+self.outtray = aSetParam.outtray;
+self.sheetNumInJob = self.sheetNumInJob + aSheet.runLength;
+if ( self.staple != "IOT_STAPLE_OFF" )
+	self.staple = aSetParam.stapleMode;
+end if;
+if ( self.fold != "IOT_FOLD_OFF" )
+	self.fold = aSetParam.foldMode;
+end if;
+if ( self.punch != "IOT_PUNCH_OFF" )
+	self.punch = aSetParam.punchMode;
+end if;
+
+//-- 344:20060829 Modified Start (kanda)
+// 排出した論理シートのexitFaceを残すように変更
+self.exitFace = aSheet.exitFace;
+//-- 344:20060829 Modified End (kanda)
+
+//-- 791:20120904 Modified Start (ikegaya)
+// シートパース実行中は部数を更新しない
+select one aSheetParseMemento related by self->J_EJOB[R200]->S_SPM[R282];
+if ( not_empty aSheetParseMemento and anExecutingOrigin.isSheetParseEnd == FALSE)
+	// 部数を更新しない
+else
+	self.runLength = aCollateSet.no;
+end if;
+//-- 791:20120904 Modified End (ikegaya)
+
+//self.sheetNoInSet = aSheet.noInSet;
+self.deliveredSheetNumInSet = aCollateSet.deliveredSheetNum;
+self.resolution = aSheet.resolution;
+
+//-- 445:20071121 Add Start (kanda)
+self.validPageCount = aSheet.validPageCount;
+self.isBoundary = aSheet.isBoundary;
+//-- 445:20071121 Add End (kanda)
+
+// Annotationの開始番号はP_PSHTで更新する
+//select one aSurface related by aSheet->S_SHF[R247];
+//select one aBackface related by aSheet->S_SHF[R248];
+//if ( aSurface.annotationPageNo != 0 )
+//	self.annotationStartNo = aSurface.annotationPageNo;
+//elif ( aBackface.annotationPageNo != 0 )
+//	self.annotationStartNo = aBackface.annotationPageNo;
+//end if;
+if ( aCollateSet.no == 1 )
+	self.pageRequireOrderFor1stSet = aCollateSet.pageRequireOrder;
+end if;
+
+
+',
+	1,
+	'',
+	"1e94eba7-e81d-4b94-b806-357bf15e5e71");
+INSERT INTO O_TPARM
+	VALUES ("1d2a5e09-facf-4e81-a5ce-1d76c4d59aaa",
+	"49f058f5-9cef-4eca-9f4b-3f9efe6bbf90",
+	'sheetID',
+	"c8447be4-d01e-4fe9-93f9-1b14504795d9",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("c8447be4-d01e-4fe9-93f9-1b14504795d9",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_SheetID',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("c115c1d6-7173-4e32-be3c-13da8b751f49",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	'setTreeInfo',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'select any anElement from instances of D_TEL
+	where ( selected.elementID == param.elementID );
+FER::assert( expression : not_empty anElement );
+
+
+select one aJobAsDocument related by anElement->D_DJOB[R306];
+select one aRootDoc related by anElement->D_RDOC[R306];
+select one aDocument related by anElement->D_DOC[R306];
+select one aSection related by anElement->D_SEC[R306];
+
+self.rootDocNo= 0 ;
+self.documentNo = 0 ;
+self.sectionNo = 0;
+self.lastFaceNo = 0;
+
+if ( not_empty aJobAsDocument )
+	self.rootDocNo = param.nextItemNo;
+	return;
+elif ( not_empty aRootDoc )
+	self.rootDocNo = aRootDoc.no;
+	self.documentNo = param.nextItemNo;
+elif ( not_empty aDocument )
+	select one aRootDoc related by aDocument->D_RDOC[R302];
+	select one aRootDocElement related by aRootDoc->D_TEL[R306];
+	self.rootDocNo = aRootDoc.no;
+	self.documentNo = aDocument.no;
+	self.sectionNo = param.nextItemNo;
+elif ( not_empty aSection )
+	select one aDocument related by aSection->D_DOC[R303];
+	select one aDocumentElement related by aDocument->D_TEL[R306];
+	select one aRootDoc related by aDocument->D_RDOC[R302];
+	select one aRootDocElement related by aRootDoc->D_TEL[R306];
+	self.rootDocNo = aRootDoc.no;
+	self.documentNo = aDocument.no;
+	self.sectionNo = aSection.no;
+	self.lastFaceNo  = param.faceNo;
+else
+	FER::assert( expression : FALSE );
+end if;
+
+self.sheetNoInSet = param.setNoInSet;
+',
+	1,
+	'',
+	"49f058f5-9cef-4eca-9f4b-3f9efe6bbf90");
+INSERT INTO O_TPARM
+	VALUES ("e8ab0446-ae28-408c-94aa-11f9f6e324b4",
+	"c115c1d6-7173-4e32-be3c-13da8b751f49",
+	'elementID',
+	"0c4f7e81-b417-40cc-a222-975f2d1cc49a",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0c4f7e81-b417-40cc-a222-975f2d1cc49a",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_TreeElementID',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("16c784db-4b7a-4c52-b9c1-27e089d62c88",
+	"c115c1d6-7173-4e32-be3c-13da8b751f49",
+	'faceNo',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"e8ab0446-ae28-408c-94aa-11f9f6e324b4",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("d3c214ea-f846-4907-8667-5e14e92d5926",
+	"c115c1d6-7173-4e32-be3c-13da8b751f49",
+	'setNoInSet',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"7c7bcad9-0e7d-4a29-b145-d6b3c8886b15",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("7c7bcad9-0e7d-4a29-b145-d6b3c8886b15",
+	"c115c1d6-7173-4e32-be3c-13da8b751f49",
+	'runLength',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"86e092c4-1728-4b03-b14b-b95dc3c983ff",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("86e092c4-1728-4b03-b14b-b95dc3c983ff",
+	"c115c1d6-7173-4e32-be3c-13da8b751f49",
+	'nextItemNo',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"16c784db-4b7a-4c52-b9c1-27e089d62c88",
+	'');
+INSERT INTO O_TFR
+	VALUES ("240047b7-205b-4b38-93aa-ac16c821b340",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	'clearInfo',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'self.rootDocNo = 0;
+self.documentNo = 0;
+self.sectionNo = 0;
+self.lastFaceNo = 0;
+self.maxFaceNo = 0;
+self.annotationTotalPageNum = 0;
+self.runLength = 0;
+self.sheetNoInSet = 0;
+self.devidedSetNo = 0;
+self.outputColorMode = "0";
+self.outtray = "0";
+self.staple = "0";
+self.fold = "0";
+self.punch = "0";
+self.exitFace = "0";
+self.firstImageDirection = IotSc_ImageDirection::eNull;
+self.pageCopies = 0;
+self.annotationTotalPageNum = 0;
+self.totalPageNum = 0;
+self.pageRequireOrderFor1stSet = IotSc_OutputOrder::eNull;
+self.firstInterleafMode = IotSc_FirstInterleafMode::eNormal;
+self.firstPunchSize = "0";
+self.firstPunchDirection = "0";
+self.jobDuplexDirection = IotSc_DuplexDirection::eNull;
+
+//-- 530:20080910 Add Start (kanda)
+self.isBookletTrimmingCanceled = FALSE;
+self.isBookletSqFoldCanceled = FALSE;
+//-- 530:20080910 Add End (kanda)
+
+// isReceivedPrintAllConfirmationはジョブの中で1度なので保存したまま
+
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("1e94eba7-e81d-4b94-b806-357bf15e5e71",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	'remove',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'select any aRestartInfo from instances of S_JRI
+	where ( selected.ID == param.infoID );
+FER::assert( expression : not_empty aRestartInfo );
+
+select one aRestartParam related by aRestartInfo->S_PFR[R234];
+if ( not_empty aRestartParam )
+	select one anExecutingJob related by aRestartParam->J_EJOB[R234];
+	unrelate anExecutingJob from aRestartInfo across R234 using aRestartParam;
+	delete object instance aRestartParam ;
+	// Verify用
+	V_JRI::remove();
+end if;
+
+select one anExecutingJob related by aRestartInfo->J_EJOB[R200];
+if ( not_empty anExecutingJob )
+	unrelate anExecutingJob from aRestartInfo across R200;
+end if;
+
+
+delete object instance aRestartInfo;
+',
+	1,
+	'',
+	"9daeda49-8a69-4cc6-836b-3a79058bcb36");
+INSERT INTO O_TPARM
+	VALUES ("50450420-979b-4ed6-ab96-2d8db3cd7b17",
+	"1e94eba7-e81d-4b94-b806-357bf15e5e71",
+	'infoID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("9daeda49-8a69-4cc6-836b-3a79058bcb36",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	'copy',
+	'//-- 347:20060919 Add Start (kanda)
+指定したログ情報をコピーする
+//-- 347:20060919 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 347:20060919 Add Start (kanda)
+
+select any aRestartInfo from instances of S_JRI
+	where ( selected.ID == param.sourceID );
+FER::assert ( expression : not_empty aRestartInfo );
+
+self.rootDocNo = aRestartInfo.rootDocNo;
+self.documentNo = aRestartInfo.documentNo;
+self.sectionNo = aRestartInfo.sectionNo;
+self.devidedSetNo = aRestartInfo.devidedSetNo;
+self.lastFaceNo = aRestartInfo.lastFaceNo;
+self.maxFaceNo = aRestartInfo.maxFaceNo;
+self.sheetNoInSet = aRestartInfo.sheetNoInSet;
+self.physicalSheetNoInSet = aRestartInfo.physicalSheetNoInSet;
+self.runLength = aRestartInfo.runLength;
+self.sheetNumInJob = aRestartInfo.sheetNumInJob;
+self.outputColorMode = aRestartInfo.outputColorMode;
+self.outtray = aRestartInfo.outtray;
+self.staple = aRestartInfo.staple;
+self.fold = aRestartInfo.fold;
+self.punch = aRestartInfo.punch;
+self.exitFace = aRestartInfo.exitFace;
+self.firstImageDirection = aRestartInfo.firstImageDirection;
+self.isReceivedPrintAllConfirmation = aRestartInfo.isReceivedPrintAllConfirmation;
+self.pageCopies = aRestartInfo.pageCopies;
+self.annotationTotalPageNum = aRestartInfo.annotationTotalPageNum;
+self.annotationStartNo = aRestartInfo.annotationStartNo;
+self.totalPageNum = aRestartInfo.totalPageNum;
+self.pageRequireOrderFor1stSet = aRestartInfo.pageRequireOrderFor1stSet;
+self.deliveredSheetNumInSet = aRestartInfo.deliveredSheetNumInSet;
+self.firstInterleafMode = aRestartInfo.firstInterleafMode;
+self.firstPunchSize = aRestartInfo.firstPunchSize;
+self.firstPunchDirection = aRestartInfo.firstPunchDirection;
+self.resolution = aRestartInfo.resolution;
+self.bookletTotalPage = aRestartInfo.bookletTotalPage;
+self.isJobNotNeedDevide = aRestartInfo.isJobNotNeedDevide;
+self.is1stPageBackSide = aRestartInfo.is1stPageBackSide;
+self.jobDuplexDirection = aRestartInfo.jobDuplexDirection;
+self.isStickingSheetExist = aRestartInfo.isStickingSheetExist;
+self.isSeparatorSheetExist = aRestartInfo.isSeparatorSheetExist;
+self.batesTotalNo = aRestartInfo.batesTotalNo;
+self.batesStartNo = aRestartInfo.batesStartNo;
+//-- 347:20060919 Add End (kanda)
+
+//-- 445:20071121 Add Start (kanda)
+self.isSetSeparatorSheetDelivered = aRestartInfo.isSetSeparatorSheetDelivered;
+self.userSheetNum = aRestartInfo.userSheetNum;
+self.annotationTargetCountStartNo = aRestartInfo.annotationTargetCountStartNo;
+self.annotationTargetCountExceptCoverAndInserterStartNo = aRestartInfo.annotationTargetCountExceptCoverAndInserterStartNo;
+self.totalAnnotationTargetCount = aRestartInfo.totalAnnotationTargetCount;
+self.totalAnnotationTargetCountExceptCoverAndInserter = aRestartInfo.totalAnnotationTargetCountExceptCoverAndInserter;
+self.firstOuttrayInJob = aRestartInfo.firstOuttrayInJob;
+self.secondOuttrayInJob = aRestartInfo.secondOuttrayInJob;
+self.firstOuttrayInSet = aRestartInfo.firstOuttrayInSet;
+self.secondOuttrayInSet = aRestartInfo.secondOuttrayInSet;
+self.firstOuttrayInSheet = aRestartInfo.firstOuttrayInSheet;
+self.secondOuttrayInSheet = aRestartInfo.secondOuttrayInSheet;
+self.validPageCount = aRestartInfo.validPageCount;
+self.isBoundary = aRestartInfo.isBoundary;
+//-- 445:20071121 Add End (kanda)
+
+//-- 530:20080911 Add Start (kanda)
+self.isBookletTrimmingCanceled =  aRestartInfo.isBookletTrimmingCanceled;
+self.isBookletSqFoldCanceled =  aRestartInfo.isBookletSqFoldCanceled;
+//-- 530:20080911 Add End (kanda)
+
+//-- 571:20090626 Add Start (kanda)
+self.totalValidPageCountOnJob = aRestartInfo.totalValidPageCountOnJob;
+self.firstValidPageCountOnJobInSet = aRestartInfo.firstValidPageCountOnJobInSet;
+self.totalValidPageCountOnJobInSet = aRestartInfo.totalValidPageCountOnJobInSet;
+self.validPageCountOnJobNumInSet = aRestartInfo.validPageCountOnJobNumInSet;
+self.isJobParseEnd = aRestartInfo.isJobParseEnd;
+//-- 571:20090626 Add End (kanda)
+
+
+',
+	1,
+	'',
+	"240047b7-205b-4b38-93aa-ac16c821b340");
+INSERT INTO O_TPARM
+	VALUES ("c820e902-e5e5-4898-9c00-c12b8969853a",
+	"9daeda49-8a69-4cc6-836b-3a79058bcb36",
+	'sourceID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("d1f2f144-2088-417c-82e8-1cffd09efe74",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("d1f2f144-2088-417c-82e8-1cffd09efe74",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("d1f2f144-2088-417c-82e8-1cffd09efe74",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("71fb99cb-07e5-4920-904b-341954c43d12",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("71fb99cb-07e5-4920-904b-341954c43d12",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("71fb99cb-07e5-4920-904b-341954c43d12",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"d1f2f144-2088-417c-82e8-1cffd09efe74",
+	'rootDocNo',
+	'',
+	'',
+	'rootDocNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("8470b40d-d687-4063-b35a-4897df6482e6",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("8470b40d-d687-4063-b35a-4897df6482e6",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("8470b40d-d687-4063-b35a-4897df6482e6",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"71fb99cb-07e5-4920-904b-341954c43d12",
+	'documentNo',
+	'',
+	'',
+	'documentNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("91fc3dac-ca54-4237-89db-db54fd741f01",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("91fc3dac-ca54-4237-89db-db54fd741f01",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("91fc3dac-ca54-4237-89db-db54fd741f01",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"8470b40d-d687-4063-b35a-4897df6482e6",
+	'sectionNo',
+	'',
+	'',
+	'sectionNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("e1405b3b-cd32-4eba-afb4-628ab75851a8",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("e1405b3b-cd32-4eba-afb4-628ab75851a8",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("e1405b3b-cd32-4eba-afb4-628ab75851a8",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"91fc3dac-ca54-4237-89db-db54fd741f01",
+	'devidedSetNo',
+	'',
+	'',
+	'devidedSetNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("76ddc464-a826-4a5b-8ef4-0381a8eecb64",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("76ddc464-a826-4a5b-8ef4-0381a8eecb64",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("76ddc464-a826-4a5b-8ef4-0381a8eecb64",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"e1405b3b-cd32-4eba-afb4-628ab75851a8",
+	'lastFaceNo',
+	'',
+	'',
+	'lastFaceNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("bc5674c1-674e-4ff8-a06e-b2821d89e44b",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("bc5674c1-674e-4ff8-a06e-b2821d89e44b",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("bc5674c1-674e-4ff8-a06e-b2821d89e44b",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"76ddc464-a826-4a5b-8ef4-0381a8eecb64",
+	'maxFaceNo',
+	'',
+	'',
+	'maxFaceNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("27d1c23e-bd4a-46f1-9eef-5d727f262ef2",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("27d1c23e-bd4a-46f1-9eef-5d727f262ef2",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("27d1c23e-bd4a-46f1-9eef-5d727f262ef2",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"bc5674c1-674e-4ff8-a06e-b2821d89e44b",
+	'sheetNoInSet',
+	'//-- 238:20050725 Add Start (kanda)
+排出済みの論理シート数
+※physicalSheetNoInSetは排出済み物理シート数。
+//-- 238:20050725 Add Start (kanda)
+',
+	'',
+	'sheetNoInSet',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("2069ccd7-3e69-4d9c-9638-6967a616d993",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("2069ccd7-3e69-4d9c-9638-6967a616d993",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("2069ccd7-3e69-4d9c-9638-6967a616d993",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"27d1c23e-bd4a-46f1-9eef-5d727f262ef2",
+	'physicalSheetNoInSet',
+	'//-- 238:20050725 Add Start (kanda)
+排出済み物理シート数。
+※noInSetは排出済みの論理シート数
+//-- 238:20050725 Add Start (kanda)
+',
+	'',
+	'physicalSheetNoInSet',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("f892c8f9-417e-4a2f-a3e6-b675d0ea5b20",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("f892c8f9-417e-4a2f-a3e6-b675d0ea5b20",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("f892c8f9-417e-4a2f-a3e6-b675d0ea5b20",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"2069ccd7-3e69-4d9c-9638-6967a616d993",
+	'runLength',
+	'',
+	'',
+	'runLength',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("f19abca1-903d-4020-a581-4c80782e3c8c",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("f19abca1-903d-4020-a581-4c80782e3c8c",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("f19abca1-903d-4020-a581-4c80782e3c8c",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"f892c8f9-417e-4a2f-a3e6-b675d0ea5b20",
+	'sheetNumInJob',
+	'',
+	'',
+	'sheetNumInJob',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("6426f41a-4f26-4ad6-ba5e-b81a972ed9e9",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("6426f41a-4f26-4ad6-ba5e-b81a972ed9e9",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("6426f41a-4f26-4ad6-ba5e-b81a972ed9e9",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"f19abca1-903d-4020-a581-4c80782e3c8c",
+	'outputColorMode',
+	'',
+	'',
+	'outputColorMode',
+	0,
+	"a2533753-ebb4-42e8-900c-d24196d37324",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("a2533753-ebb4-42e8-900c-d24196d37324",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_ColorType',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("f3d2b404-7bec-43e0-ab35-33fce647b1ec",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("f3d2b404-7bec-43e0-ab35-33fce647b1ec",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("f3d2b404-7bec-43e0-ab35-33fce647b1ec",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"6426f41a-4f26-4ad6-ba5e-b81a972ed9e9",
+	'outtray',
+	'',
+	'',
+	'outtray',
+	0,
+	"5eaeeed9-440b-4894-b3a5-21b624ade58a",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("5eaeeed9-440b-4894-b3a5-21b624ade58a",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_OutputTray',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("0d98b203-2bf7-499e-af09-3ebfe40d8b7e",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("0d98b203-2bf7-499e-af09-3ebfe40d8b7e",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("0d98b203-2bf7-499e-af09-3ebfe40d8b7e",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"f3d2b404-7bec-43e0-ab35-33fce647b1ec",
+	'staple',
+	'',
+	'',
+	'staple',
+	0,
+	"c4a4d57a-80da-46f6-9346-03e085b627a6",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("c4a4d57a-80da-46f6-9346-03e085b627a6",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_StapleMode',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("a0d8384c-7c3b-41f5-b8bc-b4248656da43",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("a0d8384c-7c3b-41f5-b8bc-b4248656da43",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("a0d8384c-7c3b-41f5-b8bc-b4248656da43",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"0d98b203-2bf7-499e-af09-3ebfe40d8b7e",
+	'fold',
+	'',
+	'',
+	'fold',
+	0,
+	"5301e9d4-d5d2-40aa-b875-728f2a985d77",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("5301e9d4-d5d2-40aa-b875-728f2a985d77",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_FoldMode',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("092325d5-31d9-4750-8393-fc616f943c22",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("092325d5-31d9-4750-8393-fc616f943c22",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("092325d5-31d9-4750-8393-fc616f943c22",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"a0d8384c-7c3b-41f5-b8bc-b4248656da43",
+	'punch',
+	'',
+	'',
+	'punch',
+	0,
+	"59fe3fad-3731-40ec-a0cb-13634f895d3d",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("59fe3fad-3731-40ec-a0cb-13634f895d3d",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_PunchMode',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("d491146f-27be-4520-9fe3-d8e6c166e158",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("d491146f-27be-4520-9fe3-d8e6c166e158",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("d491146f-27be-4520-9fe3-d8e6c166e158",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"092325d5-31d9-4750-8393-fc616f943c22",
+	'exitFace',
+	'',
+	'',
+	'exitFace',
+	0,
+	"8d6ad5eb-8220-4745-a5bb-f3e50070d5de",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("8d6ad5eb-8220-4745-a5bb-f3e50070d5de",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_ExitFace',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("e8eae64e-e8e2-4d0f-8a3f-4f63bb995ba1",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("e8eae64e-e8e2-4d0f-8a3f-4f63bb995ba1",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("e8eae64e-e8e2-4d0f-8a3f-4f63bb995ba1",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"d491146f-27be-4520-9fe3-d8e6c166e158",
+	'firstImageDirection',
+	'',
+	'',
+	'firstImageDirection',
+	0,
+	"0e679edd-bc97-4d41-b2cf-d3ecd2ac6212",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0e679edd-bc97-4d41-b2cf-d3ecd2ac6212",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_ImageDirection',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("11268486-4f36-441c-9740-317cf23f005e",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("11268486-4f36-441c-9740-317cf23f005e",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("11268486-4f36-441c-9740-317cf23f005e",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"e8eae64e-e8e2-4d0f-8a3f-4f63bb995ba1",
+	'isReceivedPrintAllConfirmation',
+	'',
+	'',
+	'isReceivedPrintAllConfirmation',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("92588115-414a-4965-97fe-281355ff64bb",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("92588115-414a-4965-97fe-281355ff64bb",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("92588115-414a-4965-97fe-281355ff64bb",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"11268486-4f36-441c-9740-317cf23f005e",
+	'pageCopies',
+	'',
+	'',
+	'pageCopies',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("fd578d9d-591c-48df-aaea-2781cbda2e28",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("fd578d9d-591c-48df-aaea-2781cbda2e28",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("fd578d9d-591c-48df-aaea-2781cbda2e28",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"92588115-414a-4965-97fe-281355ff64bb",
+	'annotationTotalPageNum',
+	'',
+	'',
+	'annotationTotalPageNum',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("0327833a-7346-4f4c-b1a2-6cd9717218be",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("0327833a-7346-4f4c-b1a2-6cd9717218be",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("0327833a-7346-4f4c-b1a2-6cd9717218be",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"fd578d9d-591c-48df-aaea-2781cbda2e28",
+	'annotationStartNo',
+	'',
+	'',
+	'annotationStartNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("9de9ecc1-f1c3-444a-ba47-b8268f22bc05",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("9de9ecc1-f1c3-444a-ba47-b8268f22bc05",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("9de9ecc1-f1c3-444a-ba47-b8268f22bc05",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"0327833a-7346-4f4c-b1a2-6cd9717218be",
+	'totalPageNum',
+	'',
+	'',
+	'totalPageNum',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("f2a0544f-e9d9-4f4b-86cb-99382be8f3e1",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("f2a0544f-e9d9-4f4b-86cb-99382be8f3e1",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("f2a0544f-e9d9-4f4b-86cb-99382be8f3e1",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"9de9ecc1-f1c3-444a-ba47-b8268f22bc05",
+	'pageRequireOrderFor1stSet',
+	'',
+	'',
+	'pageRequireOrderFor1stSet',
+	0,
+	"a2ed8bf6-c6da-46bf-8cf9-be4148f78664",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("a2ed8bf6-c6da-46bf-8cf9-be4148f78664",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_OutputOrder',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("e2cb64fb-5504-444e-8a6f-041ed931816b",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("e2cb64fb-5504-444e-8a6f-041ed931816b",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("e2cb64fb-5504-444e-8a6f-041ed931816b",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"f2a0544f-e9d9-4f4b-86cb-99382be8f3e1",
+	'deliveredSheetNumInSet',
+	'',
+	'',
+	'deliveredSheetNumInSet',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("35572832-9da3-4383-9908-36f4f327f917",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("35572832-9da3-4383-9908-36f4f327f917",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("35572832-9da3-4383-9908-36f4f327f917",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"e2cb64fb-5504-444e-8a6f-041ed931816b",
+	'firstInterleafMode',
+	'',
+	'',
+	'firstInterleafMode',
+	0,
+	"06676335-e0ce-4c46-bd55-222363328b90",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("06676335-e0ce-4c46-bd55-222363328b90",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_FirstInterleafMode',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("76424b96-2eb0-4f47-8cb7-e3e28f9b658b",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("76424b96-2eb0-4f47-8cb7-e3e28f9b658b",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("76424b96-2eb0-4f47-8cb7-e3e28f9b658b",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"35572832-9da3-4383-9908-36f4f327f917",
+	'firstPunchSize',
+	'',
+	'',
+	'firstPunchSize',
+	0,
+	"ca85c291-393b-4f9a-b277-e862ef572307",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("ca85c291-393b-4f9a-b277-e862ef572307",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_MediumSize',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("deae728a-d232-49ea-8f30-0dbb944991c5",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("deae728a-d232-49ea-8f30-0dbb944991c5",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("deae728a-d232-49ea-8f30-0dbb944991c5",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"76424b96-2eb0-4f47-8cb7-e3e28f9b658b",
+	'firstPunchDirection',
+	'',
+	'',
+	'firstPunchDirection',
+	0,
+	"0367df22-ce15-470d-9f46-cf60c37eca0c",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0367df22-ce15-470d-9f46-cf60c37eca0c",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_MediumDirection',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("11e7340a-a0e1-442d-9fc2-56b78018428e",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("11e7340a-a0e1-442d-9fc2-56b78018428e",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("11e7340a-a0e1-442d-9fc2-56b78018428e",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"deae728a-d232-49ea-8f30-0dbb944991c5",
+	'resolution',
+	'',
+	'',
+	'resolution',
+	0,
+	"d1173263-0e65-4b2d-b958-a13d316481c2",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("d1173263-0e65-4b2d-b958-a13d316481c2",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_Resolution',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("6f6cbb9b-89ea-4334-b636-a4447da7c884",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("6f6cbb9b-89ea-4334-b636-a4447da7c884",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("6f6cbb9b-89ea-4334-b636-a4447da7c884",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"11e7340a-a0e1-442d-9fc2-56b78018428e",
+	'bookletTotalPage',
+	'',
+	'',
+	'bookletTotalPage',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("70ca563f-b9ea-4bcf-94cd-9a138579aecd",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("70ca563f-b9ea-4bcf-94cd-9a138579aecd",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("70ca563f-b9ea-4bcf-94cd-9a138579aecd",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"6f6cbb9b-89ea-4334-b636-a4447da7c884",
+	'isJobNotNeedDevide',
+	'',
+	'',
+	'isJobNotNeedDevide',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("af8d0d40-e6b9-4b9e-87f4-9752d8f7384c",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("af8d0d40-e6b9-4b9e-87f4-9752d8f7384c",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("af8d0d40-e6b9-4b9e-87f4-9752d8f7384c",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"70ca563f-b9ea-4bcf-94cd-9a138579aecd",
+	'is1stPageBackSide',
+	'',
+	'',
+	'is1stPageBackSide',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("8825c026-495c-4328-ba4d-7e65e25ed1fd",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("8825c026-495c-4328-ba4d-7e65e25ed1fd",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("8825c026-495c-4328-ba4d-7e65e25ed1fd",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"af8d0d40-e6b9-4b9e-87f4-9752d8f7384c",
+	'jobDuplexDirection',
+	'ジョブを通じた綴じ方向を決定する。
+
+以下のロジックで設定される
+
+firstImageDirectionを設定したページが属するセクションがDuplexの場合は
+その綴じ方向が設定されます。Simplexの場合はfirstImageDirectionのページが
+ポートレートであればeLeftRight_temporaryが
+ランドスケープであればeTopBottom_temporayが設定される。
+
+firstImageDirectionを設定したページが属するセクションがSimplexの場合は
+最初の両面セクションの最初のページのイメージ向きを参照して
+その最初のページが表面にあたるのであればfirstImageDirectionと比較して
+一致すればそのセクションの綴じ方向が設定される。
+その最初のページが裏面にあたるのであればPF::isBackSideNeedRotationロジックに
+したがって変換した表面のイメージ向きがfirstImageDirectionと比較して
+一致すればそのセクションの綴じ方向が設定される。
+
+上記に一致しない場合、eLeftRight_temporaryが設定されていれば
+eLeftRightに、eTopBottom_temporayが設定されていればeTopBottomとなる。
+
+
+temporaryがあるのは、１ページ目がポートかランドかという情報を新たに
+追加しないためである。',
+	'',
+	'jobDuplexDirection',
+	0,
+	"707d5fec-6d0d-4f32-a58d-694554e30884",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("707d5fec-6d0d-4f32-a58d-694554e30884",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_DuplexDirection',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("4d4a9834-6eb5-4530-b052-b5d0c1810ada",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("4d4a9834-6eb5-4530-b052-b5d0c1810ada",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("4d4a9834-6eb5-4530-b052-b5d0c1810ada",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"8825c026-495c-4328-ba4d-7e65e25ed1fd",
+	'isStickingSheetExist',
+	'//-- 226: 20050706 Add Start (kanda)
+直前にStickingSheetが排出されたことを示す。
+割り込み復帰後にこの情報がTrueであった場合は、
+再開後、1枚目のシートのisStickingSheetExistはTrueになる。
+
+本情報の処理はP_PIAで行う。
+//-- 226: 20050706 Add End (kanda)
+',
+	'',
+	'isStickingSheetExist',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("8b3f5ec6-f897-46e2-b317-5e3726b9265e",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("8b3f5ec6-f897-46e2-b317-5e3726b9265e",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("8b3f5ec6-f897-46e2-b317-5e3726b9265e",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"4d4a9834-6eb5-4530-b052-b5d0c1810ada",
+	'isSeparatorSheetExist',
+	'//-- 231:20050708 Add Start (kanda)
+次にSeparatorが続くSheetが排出されたことを示す。
+割り込み復帰時にこの値がTrueであった場合、Separatorからの復帰処理になる。
+//-- 231:20050708 Add End (kanda)
+',
+	'',
+	'isSeparatorSheetExist',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("a52b9dc8-b520-493f-a4ec-43b2624cba7d",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("a52b9dc8-b520-493f-a4ec-43b2624cba7d",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("a52b9dc8-b520-493f-a4ec-43b2624cba7d",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"8b3f5ec6-f897-46e2-b317-5e3726b9265e",
+	'batesTotalNo',
+	'//-- 313:20060424 Add Start (tsuchitoi)
+Batesで数えられたトータル番号
+//-- 313:20060424 Add End (tsuchitoi)
+',
+	'',
+	'batesTotalNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("9f482c80-042b-4568-aa4c-1f429eed356e",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("9f482c80-042b-4568-aa4c-1f429eed356e",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("9f482c80-042b-4568-aa4c-1f429eed356e",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"a52b9dc8-b520-493f-a4ec-43b2624cba7d",
+	'batesStartNo',
+	'//-- 313:20060424 Add Start (tsuchitoi)
+再開時に基準となるBates番号
+//-- 313:20060424 Add End (tsuchitoi)
+',
+	'',
+	'batesStartNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("ca431702-d86f-4267-b48e-1eda76cfed44",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("ca431702-d86f-4267-b48e-1eda76cfed44",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("ca431702-d86f-4267-b48e-1eda76cfed44",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"9f482c80-042b-4568-aa4c-1f429eed356e",
+	'isSetSeparatorSheetDelivered',
+	'//-- 350:20061012 Add Start (kanda)
+SetSeparatorが排出済みであることを示す。
+//-- 350:20061012 Add End (kanda)
+',
+	'',
+	'isSetSeparatorSheetDelivered',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("31906b07-cd05-4f95-a036-9a697c6c8b4d",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("31906b07-cd05-4f95-a036-9a697c6c8b4d",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("31906b07-cd05-4f95-a036-9a697c6c8b4d",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"ca431702-d86f-4267-b48e-1eda76cfed44",
+	'userSheetNum',
+	'//-- 353:20061121 Add Start (kanda)
+ユーザにとってのシート番号(枚数)
+//-- 353:20061121 Add End (kanda)
+',
+	'',
+	'userSheetNum',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("5f5481e1-7284-4d88-8eeb-4e8ac441ab98",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("5f5481e1-7284-4d88-8eeb-4e8ac441ab98",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("5f5481e1-7284-4d88-8eeb-4e8ac441ab98",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"31906b07-cd05-4f95-a036-9a697c6c8b4d",
+	'annotationTargetCountStartNo',
+	'
+//-- 358:20061225 Add Start (kanda)
+割り込み再開後に生成するannotationTargetCountを示す
+//-- 358:20061225 Add Start (kanda)
+',
+	'',
+	'annotationTargetCountStartNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("88e13bbf-3cac-4657-af52-a5e1a790b457",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("88e13bbf-3cac-4657-af52-a5e1a790b457",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("88e13bbf-3cac-4657-af52-a5e1a790b457",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"5f5481e1-7284-4d88-8eeb-4e8ac441ab98",
+	'annotationTargetCountExceptCoverAndInserterStartNo',
+	'
+//-- 358:20061225 Add Start (kanda)
+割り込み再開後に生成するannotationTargetCountExceptCoverAndInserterを示す
+//-- 358:20061225 Add Start (kanda)
+',
+	'',
+	'annotationTargetCountExceptCoverAndInserterStartNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("2938792f-cfa5-4ea9-9b8f-3f5a7ef60450",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("2938792f-cfa5-4ea9-9b8f-3f5a7ef60450",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("2938792f-cfa5-4ea9-9b8f-3f5a7ef60450",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"88e13bbf-3cac-4657-af52-a5e1a790b457",
+	'totalAnnotationTargetCount',
+	'',
+	'',
+	'totalAnnotationTargetCount',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("15872b11-990b-41d7-897e-6dd5b4ceb3f7",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("15872b11-990b-41d7-897e-6dd5b4ceb3f7",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("15872b11-990b-41d7-897e-6dd5b4ceb3f7",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"2938792f-cfa5-4ea9-9b8f-3f5a7ef60450",
+	'totalAnnotationTargetCountExceptCoverAndInserter',
+	'',
+	'',
+	'totalAnnotationTargetCountExceptCoverAndInserter',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("d92a562d-e4bb-46d6-a0d7-9b8f7678f88a",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("d92a562d-e4bb-46d6-a0d7-9b8f7678f88a",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("d92a562d-e4bb-46d6-a0d7-9b8f7678f88a",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"15872b11-990b-41d7-897e-6dd5b4ceb3f7",
+	'firstOuttrayInJob',
+	'//-- 423:20070727 Add Start (kanda)
+Modify:Add
+Modify_No:423
+Modifier:kanda
+Modify_Date:20070727
+
+排出単位で排出した排出先(Jobの1つ目)
+//-- 423:20070727 Add End (kanda)
+',
+	'',
+	'firstOuttrayInJob',
+	0,
+	"5eaeeed9-440b-4894-b3a5-21b624ade58a",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("7de88ccf-e25f-4615-9804-60efe525b2e5",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("7de88ccf-e25f-4615-9804-60efe525b2e5",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("7de88ccf-e25f-4615-9804-60efe525b2e5",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"d92a562d-e4bb-46d6-a0d7-9b8f7678f88a",
+	'secondOuttrayInJob',
+	'//-- 423:20070727 Add Start (kanda)
+Modify:Add
+Modify_No:423
+Modifier:kanda
+Modify_Date:20070727
+
+排出単位で排出した排出先(Jobの2つ目)
+//-- 423:20070727 Add End (kanda)
+',
+	'',
+	'secondOuttrayInJob',
+	0,
+	"5eaeeed9-440b-4894-b3a5-21b624ade58a",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("e326eca4-fa61-4e86-bfb2-1c5844ee2fa7",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("e326eca4-fa61-4e86-bfb2-1c5844ee2fa7",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("e326eca4-fa61-4e86-bfb2-1c5844ee2fa7",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"7de88ccf-e25f-4615-9804-60efe525b2e5",
+	'firstOuttrayInSet',
+	'//-- 423:20070727 Add Start (kanda)
+Modify:Add
+Modify_No:423
+Modifier:kanda
+Modify_Date:20070727
+
+排出単位で排出した排出先(setの1つ目)
+//-- 423:20070727 Add End (kanda)
+',
+	'',
+	'firstOuttrayInSet',
+	0,
+	"5eaeeed9-440b-4894-b3a5-21b624ade58a",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("f63f8454-ff18-4f8d-9656-1f173dbb424e",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("f63f8454-ff18-4f8d-9656-1f173dbb424e",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("f63f8454-ff18-4f8d-9656-1f173dbb424e",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"e326eca4-fa61-4e86-bfb2-1c5844ee2fa7",
+	'secondOuttrayInSet',
+	'//-- 423:20070727 Add Start (kanda)
+Modify:Add
+Modify_No:423
+Modifier:kanda
+Modify_Date:20070727
+
+排出単位で排出した排出先(setの2つ目)
+//-- 423:20070727 Add End (kanda)
+',
+	'',
+	'secondOuttrayInSet',
+	0,
+	"5eaeeed9-440b-4894-b3a5-21b624ade58a",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("eefa38d0-0e52-4bd5-b6e6-e59e98906cf4",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("eefa38d0-0e52-4bd5-b6e6-e59e98906cf4",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("eefa38d0-0e52-4bd5-b6e6-e59e98906cf4",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"f63f8454-ff18-4f8d-9656-1f173dbb424e",
+	'firstOuttrayInSheet',
+	'//-- 423:20070727 Add Start (kanda)
+Modify:Add
+Modify_No:423
+Modifier:kanda
+Modify_Date:20070727
+
+排出単位で排出した排出先(sheettの1つ目)
+//-- 423:20070727 Add End (kanda)
+',
+	'',
+	'firstOuttrayInSheet',
+	0,
+	"5eaeeed9-440b-4894-b3a5-21b624ade58a",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("ab4520df-05bc-44d5-8ab7-5881259eeef0",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("ab4520df-05bc-44d5-8ab7-5881259eeef0",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("ab4520df-05bc-44d5-8ab7-5881259eeef0",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"eefa38d0-0e52-4bd5-b6e6-e59e98906cf4",
+	'secondOuttrayInSheet',
+	'//-- 423:20070727 Add Start (kanda)
+Modify:Add
+Modify_No:423
+Modifier:kanda
+Modify_Date:20070727
+
+排出単位で排出した排出先(sheettの2つ目)
+//-- 423:20070727 Add End (kanda)
+',
+	'',
+	'secondOuttrayInSheet',
+	0,
+	"5eaeeed9-440b-4894-b3a5-21b624ade58a",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("05497264-4069-4f8c-a46e-e29ee47425ba",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("05497264-4069-4f8c-a46e-e29ee47425ba",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("05497264-4069-4f8c-a46e-e29ee47425ba",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"ab4520df-05bc-44d5-8ab7-5881259eeef0",
+	'validPageCount',
+	'//-- 445:20071121 Add Start (kanda)
+Modify:Add
+Modify_No:445
+Modifier:kanda
+Modify_Date:20071121
+
+排出されたシートのValidPageCount
+//-- 445:20071121 Add End (kanda)
+',
+	'',
+	'validPageCount',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("a4eb2172-4f2d-4289-995a-8cd1f3e132c4",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("a4eb2172-4f2d-4289-995a-8cd1f3e132c4",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("a4eb2172-4f2d-4289-995a-8cd1f3e132c4",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"05497264-4069-4f8c-a46e-e29ee47425ba",
+	'totalValidPageCount',
+	'//-- 445:20071121 Add Start (kanda)
+Modify:Add
+Modify_No:445
+Modifier:kanda
+Modify_Date:20071121
+
+有効ページ総数(1セット排出完了時にセットされる)
+//-- 445:20071121 Add End (kanda)
+',
+	'',
+	'totalValidPageCount',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("6de6425e-7d60-43da-9b2b-a6225358a1f9",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("6de6425e-7d60-43da-9b2b-a6225358a1f9",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("6de6425e-7d60-43da-9b2b-a6225358a1f9",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"a4eb2172-4f2d-4289-995a-8cd1f3e132c4",
+	'isBoundary',
+	'//-- 445:20071121 Add Start (kanda)
+Modify:Add
+Modify_No:445
+Modifier:kanda
+Modify_Date:20071121
+
+排出されたシートが、
+オフセット位置の論理シートであったことを示す
+//-- 445:20071121 Add End (kanda)
+',
+	'',
+	'isBoundary',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("16956f1c-f9c4-455e-a4d0-0daa1d4c6546",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("16956f1c-f9c4-455e-a4d0-0daa1d4c6546",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("16956f1c-f9c4-455e-a4d0-0daa1d4c6546",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"6de6425e-7d60-43da-9b2b-a6225358a1f9",
+	'isBookletTrimmingCanceled',
+	'//-- 530:20080910 Add Start (kanda)
+// BookletTrimmingの解除情報
+Modify:Add
+Modify_No:530
+Modifier:kanda
+Modify_Date:20080910
+//-- 530:20080910 Add End (kanda)',
+	'',
+	'isBookletTrimmingCanceled',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("feaa34c7-6a32-4f5c-951c-b8ee2f856820",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("feaa34c7-6a32-4f5c-951c-b8ee2f856820",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("feaa34c7-6a32-4f5c-951c-b8ee2f856820",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"16956f1c-f9c4-455e-a4d0-0daa1d4c6546",
+	'isBookletSqFoldCanceled',
+	'//-- 530:20080910 Add Start (kanda)
+// BookletSqFoldの解除情報
+Modify:Add
+Modify_No:530
+Modifier:kanda
+Modify_Date:20080910
+//-- 530:20080910 Add End (kanda)
+',
+	'',
+	'isBookletSqFoldCanceled',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("6393ac34-b75d-43e7-abf2-56f5488b9b90",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("6393ac34-b75d-43e7-abf2-56f5488b9b90",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("6393ac34-b75d-43e7-abf2-56f5488b9b90",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"feaa34c7-6a32-4f5c-951c-b8ee2f856820",
+	'totalValidPageCountOnJob',
+	'//-- 571:20090626 Add Start (kanda)
+// ジョブ全体の有効ページ総数
+// ※totalValidPageCountはセット全体
+Modify:Add
+Modify_No:571
+Modifier:kanda
+Modify_Date:20090626
+//-- 571:20090626 Add End (kanda)
+',
+	'',
+	'totalValidPageCountOnJob',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("fcd832e8-8420-457e-b81d-4047035749b1",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("fcd832e8-8420-457e-b81d-4047035749b1",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("fcd832e8-8420-457e-b81d-4047035749b1",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"6393ac34-b75d-43e7-abf2-56f5488b9b90",
+	'firstValidPageCountOnJobInSet',
+	'//-- 571:20090626 Add Start (kanda)
+// ジョブ全体の有効ページ数(セットの先頭)
+Modify:Add
+Modify_No:571
+Modifier:kanda
+Modify_Date:20090626
+//-- 571:20090626 Add End (kanda)
+',
+	'',
+	'firstValidPageCountOnJobInSet',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("cbcaf73e-40a2-4ac1-ae7a-f2cc0a7cfcda",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("cbcaf73e-40a2-4ac1-ae7a-f2cc0a7cfcda",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("cbcaf73e-40a2-4ac1-ae7a-f2cc0a7cfcda",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"fcd832e8-8420-457e-b81d-4047035749b1",
+	'totalValidPageCountOnJobInSet',
+	'//-- 571:20090626 Add Start (kanda)
+// セット内のジョブ全体の有効ページ総数
+Modify:Add
+Modify_No:571
+Modifier:kanda
+Modify_Date:20090626
+//-- 571:20090626 Add End (kanda)
+',
+	'',
+	'totalValidPageCountOnJobInSet',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("6242d39e-888c-4afa-85ce-777d5a64cd42",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("6242d39e-888c-4afa-85ce-777d5a64cd42",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("6242d39e-888c-4afa-85ce-777d5a64cd42",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"cbcaf73e-40a2-4ac1-ae7a-f2cc0a7cfcda",
+	'validPageCountOnJobNumInSet',
+	'//-- 571:20090626 Add Start (kanda)
+// セット内でのジョブ全体の有効ページカウント数
+Modify_No:571
+Modifier:kanda
+Modify_Date:20090626
+//-- 571:20090626 Add End (kanda)
+',
+	'',
+	'validPageCountOnJobNumInSet',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("536b8b1b-e50e-4486-bbcd-67979dfe87df",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("536b8b1b-e50e-4486-bbcd-67979dfe87df",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("536b8b1b-e50e-4486-bbcd-67979dfe87df",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"6242d39e-888c-4afa-85ce-777d5a64cd42",
+	'isJobParseEnd',
+	'//-- 571:20090626 Add Start (kanda)
+// JobParseが終わっているかどうか
+Modify:Add
+Modify_No:571
+Modifier:kanda
+Modify_Date:20090626
+//-- 571:20090626 Add End (kanda)
+',
+	'',
+	'isJobParseEnd',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("1995f03e-a0a9-441c-b54f-335840f80c2b",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("1995f03e-a0a9-441c-b54f-335840f80c2b",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("1995f03e-a0a9-441c-b54f-335840f80c2b",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"536b8b1b-e50e-4486-bbcd-67979dfe87df",
+	'isNextSheetPadCover',
+	'//-- 639:20110202 Add Start (kanda)
+次に生成するシートを挿入紙する
+Modify:Add
+Modify_No:639
+Modifier:kanda
+Modify_Date: 20110202
+//-- 639:20110202 Add End (kanda)
+',
+	'',
+	'isNextSheetPadCover',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("f28a7d66-9835-480b-a4a6-36dcf35ed989",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("f28a7d66-9835-480b-a4a6-36dcf35ed989",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("f28a7d66-9835-480b-a4a6-36dcf35ed989",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"1995f03e-a0a9-441c-b54f-335840f80c2b",
+	'sequentialPageNoOnJobNumInSet',
+	'//-- 642:20110224 Add Start (sasaki_r)
+Modify:Add
+Modify_No:642
+Modifier:sasaki_r
+Modify_Date:20110224
+
+型名：integer
+意味：ジョブ全体の先行セットで割り当てた最後のページ通し番号
+
+//-- 642:20110224 Add End (sasaki_r)
+
+',
+	'',
+	'sequentialPageNoOnJobNumInSet',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("5f0055d1-ffb1-4ef3-812b-e5122a713c03",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("5f0055d1-ffb1-4ef3-812b-e5122a713c03",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("5f0055d1-ffb1-4ef3-812b-e5122a713c03",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"f28a7d66-9835-480b-a4a6-36dcf35ed989",
+	'initialSequentialPageNoOnJobInSet',
+	'//-- 642:20110224 Add Start (sasaki_r)
+Modify:Add
+Modify_No:642
+Modifier:sasaki_r
+Modify_Date:20110224
+
+型名：integer
+意味：ジョブ全体の先行セットで割り当てた最後のページ通し番号
+
+//-- 642:20110224 Add End (sasaki_r)
+
+',
+	'',
+	'initialSequentialPageNoOnJobInSet',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("6ee46c46-dcd7-4bc6-88af-1d42960e2fac",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_BATTR
+	VALUES ("6ee46c46-dcd7-4bc6-88af-1d42960e2fac",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ATTR
+	VALUES ("6ee46c46-dcd7-4bc6-88af-1d42960e2fac",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	"5f0055d1-ffb1-4ef3-812b-e5122a713c03",
+	'totalSequentialPageNoOnJobInSet',
+	'//-- 642:20110224 Add Start (sasaki_r)
+Modify:Add
+Modify_No:642
+Modifier:sasaki_r
+Modify_Date:20110224
+
+型名：integer
+意味：ジョブ全体のセット内の全PAGE数
+
+//-- 642:20110224 Add End (sasaki_r)
+
+',
+	'',
+	'totalSequentialPageNoOnJobInSet',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_OIDA
+	VALUES ("d1f2f144-2088-417c-82e8-1cffd09efe74",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO O_ID
+	VALUES (2,
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3");
+INSERT INTO PE_PE
+	VALUES ("f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	1,
+	"3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Sheet',
+	'',
+	200,
+	'../Sheet.xtuml');

@@ -1,0 +1,278 @@
+.//============================================================================
+.print "fxcolor start"
+.//============================================================================
+
+.//-- Bridge(External Entity)の非生成指定---
+.//
+.// TagBridgeCallNotGenerate( "[component_name]", "[ee_name]" )
+.//
+.// 指定されたEEをブリッジコールしないようにする。
+.//  (生成はされるが、「#if 0」で囲まれるようになる)
+.//
+.// [引数]
+.//   [component_name] : コンポーネント名                                        ("*"で全てを選択可)
+.//   [ee_name]        : External EntityのKey_Lett  ("*"で全てを選択可)
+.// 
+.// <例>
+.//   .invoke TagBridgeCallNotGenerate( "*", "SC_EE" )
+.//----------------------------------------
+.invoke TagBridgeCallNotGenerate( "IOTsc", "_MOD" )
+.invoke TagBridgeCallNotGenerate( "IOTsc", "TYPE" )
+.invoke TagBridgeCallNotGenerate( "IOTsc", "DTL" )
+.invoke TagBridgeCallNotGenerate( "IOTsc", "os" )
+
+.//-- setPrefix
+.//
+.// set_prefix_simbolsw( prefix )
+.//
+.// (ここに説明を書く)
+.//
+.// [引数]
+.//   [prefix]         : prefixに指定する文字列
+.//
+.// <例>
+.//   .invoke set_prefix_simbolsw("CSTDAMC3020_")
+.//----------------------------------------
+.//.invoke set_prefix_simbolsw("CSTDAMC3020_")
+
+.//-- I/FのSignalを生成する際はEEを呼ぶようなコードにする --
+.//
+.// port_realize_EE( "[component_name]", "[port_name]", "[ee_name]" )
+.//
+.// コードを生成する際に、
+.// 指定された port の signale から、指定された EE の bridge を Callするようにする。
+.//
+.// ※ port  と EE は同じコンポーネントの中にあること。
+.// ※ bridge は signale と同名のものが選ばれる。見つからない場合、本機能は有効とならない。
+.// 
+.// [引数]
+.//   [component_name] : コンポーネント名                                      ("*"で全てを選択可)
+.//   [port_name]      : ポート名
+.//   [ee_name]        : External EntityのKey_Lett名
+.//
+.// <例>
+.//   .invoke port_realize_EE( "IOTdm", "SC", "SC_EE" )
+.//----------------------------------------
+.//.invoke port_realize_EE( "IOTdm", "SC", "SC_EE" )
+
+.//-- Bridge(External Entity)の色付け指定 ---
+.//
+.// mark_ee_as_realized( "[component_name]", "[ee_name]", "[prefix]", "[include_file]" )
+.//
+.// EEの生成情報を付与する。
+.// 指定しない場合は BridgePoint 標準のルールで生成される。
+.//
+.// [引数]
+.//   [component_name] : コンポーネント名            ("*"で全てを選択可)
+.//   [ee_name]        : External EntityのKey_Lett
+.//   [prefix]         : 関数名につけるプレフィックス
+.//   [include_file]   : 生成するファイルヘッダ名
+.// 
+.// <例>
+.//   .invoke mark_ee_as_realized("IOTdm","EP","IotDm_EPBridge","iotdm_epbridge.h")
+.//----------------------------------------
+.invoke mark_ee_as_realized("IOTsc","PF","IotSc_PFliteBridge","iotsc_pflitebridge.h")
+.invoke mark_ee_as_realized("IOTsc","IOTD","IotSc_IotDmBridge","iotsc_iotdmbridge.h")
+.invoke mark_ee_as_realized("IOTsc","IML","IML","iot_img.h")
+.invoke mark_ee_as_realized("IOTsc","DDB","DDB","iot_doc.h")
+.invoke mark_ee_as_realized("IOTsc","DVEP","IotSc_DvBridge","iotsc_dvbridge.h")
+.invoke mark_ee_as_realized("IOTsc","JIS","IotSc_JisBridge","iotsc_jisbridge.h")
+.invoke mark_ee_as_realized("IOTsc","ERR","IotSc_ErrorBridge","iotsc_errorbridge.h")
+.invoke mark_ee_as_realized("IOTsc","BITL","BITL","iot_rcterrorbit.h")
+.invoke mark_ee_as_realized("IOTsc","RCT","IotSc_RctBridge","iotsc_rctbridge.h")
+.invoke mark_ee_as_realized("IOTsc","FER","IotSc_FatalError","iotsc_fatalerror.h")
+.invoke mark_ee_as_realized("IOTsc","FINL","FINL","iotsc_finlib.h")
+.invoke mark_ee_as_realized("IOTsc","BL","BL","iotsc_buflib.h")
+.invoke mark_ee_as_realized("IOTsc","UIL","UIL","iotsc_interactionlib.h")
+.invoke mark_ee_as_realized("IOTsc","DL","IotSc_MergeImage","iotsc_mergeimagelib.h")
+
+.//-- Event最大数指定 ---
+.//
+.// SetDomainEventMaxNumber( "[component_name]", "[InternalEventMaxNo]", "[ExternalEventMaxNo]" )
+.//
+.// Eventの最大数を指定する。
+.// 旧BPのset_domain_event_inst_max_noと同じ
+.//
+.// [引数]
+.//   [component_name] : コンポーネント名
+.//   [InternalEventMaxNo] : InternalEventの最大数
+.//   [ExternalEventMaxNo] : ExternalEventの最大数
+.// 
+.// <例>
+.//   .invoke SetDomainEventMaxNumber("IOTdm", 100, 20)
+.//----------------------------------------
+.invoke SetDomainEventMaxNumber("IOTsc", 100,10)
+
+.//-- Relation最大数指定 ---
+.//
+.// SetDomainRelationExtentMaxNumber( "[component_name]", "[RelationMaxNo]" )
+.//
+.// Relationの最大数を指定する。
+.// 旧BPのFXHO_TagMaximumRelationshipExtentSizeと同じ
+.//
+.// [引数]
+.//   [component_name] : コンポーネント名
+.//   [RelationMaxNo] : Relationの最大数
+.// 
+.// <例>
+.//   .invoke SetDomainRelationExtentMaxNumber("IOTdm", 3200)
+.//----------------------------------------
+.invoke SetDomainRelationExtentMaxNumber("IOTsc", 13000)
+
+.//-- Event最大数、Relation最大数のDefine化指定 ---
+.// SetDomainEventMaxNumber( "[component_name]", "[InternalEventMaxNo]", "[ExternalEventMaxNo]" )
+.//
+.// Eventの最大数をDefine定義名で指定するようにする。
+.// 旧BPのTagUseFacadeMaxDefと同じ。
+.// 本機能を有効にすると、SetDomainEventMaxNumber、SetDomainRelationExtentMaxNumber は、意味を成さなくなる。
+.// 本機能を有効にする際は、手書きにて以下のDefine定義値を定義(数値を指定)すること。
+.//   (ドメイン名)_INTERNAL_EVENT_MAX_NO
+.//   (ドメイン名)_SELECTNODE_MAX_NO
+.//   (ドメイン名)_RELNODE_MAX_NO
+.//
+.// [引数]
+.//   [component_name] : コンポーネント名
+.// 
+.// <例>
+.//   .invoke TagUseFacadeMaxDef("IOTsc")
+.//----------------------------------------
+.invoke TagUseFacadeMaxDef("IOTsc")
+
+.//-- instance最大数指定 ---
+.//
+.// mark_obj_as_fixed_inst_no_extend( "[component_name]", "[class_name]", "[max_macro]", "[include_file]")
+.//
+.// Instanceの最大数をヘッダファイルで指定する。
+.// 旧BPのmark_obj_as_fixed_inst_no_extendと同じ
+.//
+.// [引数]
+.//   [component_name] : コンポーネント名
+.//   [class_name] : クラス名(Key Letter)
+.//   [max_macro] : 最大数を指定するマクロ
+.//   [include_file] : ヘッダファイル名
+.// 
+.// <例>
+.//   .invoke mark_obj_as_fixed_inst_no_extend("IOTdm","CT_JOB","IOTdm_instanceMax_CT_JOB","iotdm_instancemaxdef.h")
+.//----------------------------------------
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","J_JOB", "IOTsc_instanceMax_J_JOB","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","J_JTS", "IOTsc_instanceMax_J_JTS","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","J_JRA", "IOTsc_instanceMax_J_JRA","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","J_EJOB", "IOTsc_instanceMax_J_EJOB","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","J_JCR", "IOTsc_instanceMax_J_JCR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","J_JPR", "IOTsc_instanceMax_J_JPR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","J_JHR", "IOTsc_instanceMax_J_JHR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","J_ITR", "IOTsc_instanceMax_J_ITR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","J_PIA", "IOTsc_instanceMax_J_PIA","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","J_JPN", "IOTsc_instanceMax_J_JPN","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","J_NPP", "IOTsc_instanceMax_J_NPP","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","J_PPR", "IOTsc_instanceMax_J_PPR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","J_JF", "IOTsc_instanceMax_J_JF","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","J_SSF", "IOTsc_instanceMax_J_SSF","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","J_TPP", "IOTsc_instanceMax_J_TPP","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","J_IR", "IOTsc_instanceMax_J_IR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","J_NIP", "IOTsc_instanceMax_J_NIP","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","J_SRP","IOTsc_instanceMax_J_SRP","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","J_NPDL","IOTsc_instanceMax_J_NPDL","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_JRI", "IOTsc_instanceMax_S_JRI","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_ARNR", "IOTsc_instanceMax_S_ARNR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_NPS", "IOTsc_instanceMax_S_NPS","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_CS", "IOTsc_instanceMax_S_CS","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_OSP", "IOTsc_instanceMax_S_OSP","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_SHT", "IOTsc_instanceMax_S_SHT","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_TSP", "IOTsc_instanceMax_S_TSP","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_DTP", "IOTsc_instanceMax_S_DTP","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_SHF", "IOTsc_instanceMax_S_SHF","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_IMSI", "IOTsc_instanceMax_S_IMSI","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_IMS", "IOTsc_instanceMax_S_IMS","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_EOS", "IOTsc_instanceMax_S_EOS","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_SPR", "IOTsc_instanceMax_S_SPR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_SHTP", "IOTsc_instanceMax_S_SHTP","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_SGA", "IOTsc_instanceMax_S_SGA","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_TDSI", "IOTsc_instanceMax_S_TDSI","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_OUP", "IOTsc_instanceMax_S_OUP","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_SM", "IOTsc_instanceMax_S_SM","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_SCI","IOTsc_instanceMax_S_SCI","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_SC","IOTsc_instanceMax_S_SC","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_RPR","IOTsc_instanceMax_S_RPR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_PFR", "IOTsc_instanceMax_S_PFR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","D_DJOB", "IOTsc_instanceMax_D_DJOB","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","D_PAGE", "IOTsc_instanceMax_D_PAGE","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","D_OOS", "IOTsc_instanceMax_D_OOS","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","D_RDOC", "IOTsc_instanceMax_D_RDOC","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","D_DOC", "IOTsc_instanceMax_D_DOC","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","D_SEC", "IOTsc_instanceMax_D_SEC","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","D_EAC", "IOTsc_instanceMax_D_EAC","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","D_TSD", "IOTsc_instanceMax_D_TSD","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","D_ER", "IOTsc_instanceMax_D_ER","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","D_TIT", "IOTsc_instanceMax_D_TIT","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","D_SFC", "IOTsc_instanceMax_D_SFC","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","D_TEL", "IOTsc_instanceMax_D_TEL","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","D_RI", "IOTsc_instanceMax_D_RI","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_PSA", "IOTsc_instanceMax_P_PSA","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_PSHT", "IOTsc_instanceMax_P_PSHT","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_PSHF", "IOTsc_instanceMax_P_PSHF","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_PISR", "IOTsc_instanceMax_P_PISR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_JSR", "IOTsc_instanceMax_P_JSR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_JER", "IOTsc_instanceMax_P_JER","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_SSR", "IOTsc_instanceMax_P_SSR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_SER", "IOTsc_instanceMax_P_SER","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_SIR", "IOTsc_instanceMax_P_SIR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_PIA", "IOTsc_instanceMax_P_PIA","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_PSLS", "IOTsc_instanceMax_P_PSLS","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_BNR", "IOTsc_instanceMax_P_BNR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_EBNR", "IOTsc_instanceMax_P_EBNR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_SBNR", "IOTsc_instanceMax_P_SBNR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_EPSHT", "IOTsc_instanceMax_P_EPSHT","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_SBSIR", "IOTsc_instanceMax_P_SBSIR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_EBSIR", "IOTsc_instanceMax_P_EBSIR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_NPS", "IOTsc_instanceMax_P_NPS","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_SBPS", "IOTsc_instanceMax_P_SBPS","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_BSRS", "IOTsc_instanceMax_P_BSRS","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_PBS", "IOTsc_instanceMax_P_PBS","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_PSWS", "IOTsc_instanceMax_P_PSWS","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_RCSA", "IOTsc_instanceMax_P_RCSA","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_PCR", "IOTsc_instanceMax_P_PCR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","EI_MP", "IOTsc_instanceMax_EI_MP","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","EI_MI", "IOTsc_instanceMax_EI_MI","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","EI_MIRPFP", "IOTsc_instanceMax_EI_MIRPFP","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_SDR", "IOTsc_instanceMax_P_SDR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_WSHT", "IOTsc_instanceMax_P_WSHT","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_SWSHT", "IOTsc_instanceMax_P_SWSHT","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","EI_CL", "IOTsc_instanceMax_EI_CL","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","EI_CPS", "IOTsc_instanceMax_EI_CPS","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","EI_PC", "IOTsc_instanceMax_EI_PC","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_OU", "IOTsc_instanceMax_S_OU","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_OH", "IOTsc_instanceMax_S_OH","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","SR_SRR", "IOTsc_instanceMax_SR_SRR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","SR_SRF", "IOTsc_instanceMax_SR_SRF","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","SR_SRC", "IOTsc_instanceMax_SR_SRC","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","SR_SRU", "IOTsc_instanceMax_SR_SRU","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","SR_PSR", "IOTsc_instanceMax_SR_PSR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","SR_RSHT", "IOTsc_instanceMax_SR_RSHT","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","S_SPM", "IOTsc_instanceMax_S_SPM","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_SET", "IOTsc_instanceMax_P_SET","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","EI_PL", "IOTsc_instanceMax_EI_PL","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_SDIM", "IOTsc_instanceMax_P_SDIM","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_SDIR", "IOTsc_instanceMax_P_SDIR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_SSIR", "IOTsc_instanceMax_P_SSIR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_SSBR", "IOTsc_instanceMax_P_SSBR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","P_SJBR", "IOTsc_instanceMax_P_SJBR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","DV_BC", "IOTsc_instanceMax_DV_BC","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","DV_BR", "IOTsc_instanceMax_DV_BR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","DV_BRR", "IOTsc_instanceMax_DV_BRR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","DV_DR", "IOTsc_instanceMax_DV_DR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","DV_JOB", "IOTsc_instanceMax_DV_JOB","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","DV_PAUSE", "IOTsc_instanceMax_DV_PAUSE","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","DV_PF", "IOTsc_instanceMax_DV_PF","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","DV_PI", "IOTsc_instanceMax_DV_PI","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","DV_RR", "IOTsc_instanceMax_DV_RR","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","DV_SET", "IOTsc_instanceMax_DV_SET","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","DV_SHF", "IOTsc_instanceMax_DV_SHF","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","DV_VF", "IOTsc_instanceMax_DV_VF","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","F_IF", "IOTsc_instanceMax_F_IF","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","F_IFA", "IOTsc_instanceMax_F_IFA","iotsc_instancemaxdef.h")
+.invoke mark_obj_as_fixed_inst_no_extend("IOTsc","DEV_IOT", "IOTsc_instanceMax_DEV_IOT","iotsc_instancemaxdef.h")
+
+.//============================================================================
+.print "fxcolor end"
+.//============================================================================

@@ -1,0 +1,1561 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	'Sheet Parse Memento',
+	237,
+	'S_SPM',
+	'//-- 747:20120316 Add Start (ikegaya)
+// くるみ製本のシートパースに必要なパラメータを追加
+//-- 747:20120316 Add End (ikegaya)
+
+//-- 630:20101203 Add Start (kanda)
+// シートパース中にチェックした項目を抽象化
+Modify:Add
+Modify_No:630
+Modifier:kanda
+Modify_Date:20101203
+//-- 630:20101203 Add End (kanda)
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("89d54d48-3c71-4f3b-925e-15224ed7f204",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	'getFailCode',
+	'//-- 630:20101206 Add Start (kanda)
+// 設定されているパラメータから優先度の高いフェイルを返す
+Modify:Add
+Modify_No:630
+Modifier:kanda
+Modify_Date:20101206
+//-- 630:20101206 Add End (kanda)
+',
+	"adab3b81-ff2c-417d-b169-f9374ac12561",
+	1,
+	'//-- 631:20101206 Add Start (kanda)
+profileNo = self.dfaProfileNo;
+
+//-- 748:20120320 Add Start (ikegaya)
+select one anExecutingJob related by self->J_EJOB[R282];
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero(expression : not_empty anExecutingJob);
+//-- 845:20140227 Modified End (saitou) 
+//-- 748:20120320 Add End (ikegaya)
+
+//-- 748:20120320 Modified Start (ikegaya)
+if (profileNo > 0)
+	// For DFA Profile
+	return self.getFailCodeDfa();
+elif (anExecutingJob.isPBJob == TRUE)
+	// For くるみ製本
+	return self.getFailCodePb();
+else
+	return PF::getFailCode(type : IotSc_FailType::eNull);
+end if;
+//-- 748:20120320 Modified End (ikegaya)
+//-- 631:20101206 Add End (kanda)
+',
+	1,
+	'',
+	"c9bd7734-bc83-48e5-b03c-ede8637e248f");
+INSERT INTO S_DT_PROXY
+	VALUES ("adab3b81-ff2c-417d-b169-f9374ac12561",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_FailCode',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("83f7f798-4777-4dca-a4e8-a9c21a190285",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	'setSheetNumInPhysicalSet',
+	'//-- 630:20101206 Add Start (kanda)
+// 物理セットの最大/最小シート数を更新する
+Modify:Add
+Modify_No:630
+Modifier:kanda
+Modify_Date:20101206
+//-- 630:20101206 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 631:20101206 Add Start (kanda)
+if (self.maxSheetNum == 0 or self.maxSheetNum < param.sheetNum)
+	self.maxSheetNum = param.sheetNum;
+end if;
+
+if (self.minSheetNum == 0 or self.minSheetNum > param.sheetNum)
+	self.minSheetNum = param.sheetNum;
+end if;
+//-- 631:20101206 Add End (kanda)
+//-- 708:20110628 Add Start (saitou)
+self.totalSheetNum = self.totalSheetNum + param.sheetNum;
+//-- 708:20110628 Add End (saitou)',
+	1,
+	'',
+	"9c459870-14bf-4f7d-a617-8414f1d19dde");
+INSERT INTO O_TPARM
+	VALUES ("82a21d3c-bfba-45a9-a034-d5639e0c588f",
+	"83f7f798-4777-4dca-a4e8-a9c21a190285",
+	'sheetNum',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("9c459870-14bf-4f7d-a617-8414f1d19dde",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	'setSetParam',
+	'//-- 630:20101206 Add Start (kanda)
+// セットに関連するパラメーターを保存する
+Modify:Add
+Modify_No:630
+Modifier:kanda
+Modify_Date:20101206
+//-- 630:20101206 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 631:20101206 Add Start (kanda)
+self.dfaProfileNo = param.dfaProfileNo;
+self.outtray = param.outtray;
+self.exitFace = param.exitFace;
+//-- 631:20101206 Add End (kanda)
+',
+	1,
+	'',
+	"14e18b95-7163-4188-aa69-3ab767800beb");
+INSERT INTO O_TPARM
+	VALUES ("eaa0f20d-3893-4ef3-8cc2-07b3d580d16f",
+	"9c459870-14bf-4f7d-a617-8414f1d19dde",
+	'dfaProfileNo',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("36fd87f6-ae42-4e8e-960d-1175b8869dbd",
+	"9c459870-14bf-4f7d-a617-8414f1d19dde",
+	'outtray',
+	"5eaeeed9-440b-4894-b3a5-21b624ade58a",
+	0,
+	'',
+	"62c94945-9be1-4eca-85c7-2bee874898b1",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("5eaeeed9-440b-4894-b3a5-21b624ade58a",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_OutputTray',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("62c94945-9be1-4eca-85c7-2bee874898b1",
+	"9c459870-14bf-4f7d-a617-8414f1d19dde",
+	'exitFace',
+	"8d6ad5eb-8220-4745-a5bb-f3e50070d5de",
+	0,
+	'',
+	"eaa0f20d-3893-4ef3-8cc2-07b3d580d16f",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("8d6ad5eb-8220-4745-a5bb-f3e50070d5de",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_ExitFace',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("7565385d-2019-4d86-a9d5-788ca50470c9",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	'setSheetParamDfa',
+	'//-- 747:20120316 Modified Start (ikegaya)
+// setSheetParam()->setSheetParamDfa()にFunc名を変更
+//-- 747:20120316 Modified End (ikegaya)
+
+//-- 630:20101206 Add Start (kanda)
+// シートパラメーターを設定する
+Modify:Add
+Modify_No:630
+Modifier:kanda
+Modify_Date:20101206
+//-- 630:20101206 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 631:20101206 Add Start (kanda)
+// サイズ情報とつぼ量情報を格納する
+profileNo = self.dfaProfileNo;
+if (FINL::isAvailableDfaProfileNo(dfaProfileNo : profileNo))
+
+	if (self.maxFsSize < param.fsSize)
+		self.maxFsSize = param.fsSize;
+	end if;
+
+	if (self.minFsSize > param.fsSize or self.minFsSize == 0)
+		self.minFsSize = param.fsSize;
+	end if;
+
+	if (self.maxSsSize < param.ssSize)
+		self.maxSsSize = param.ssSize;
+	end if;
+
+	if (self.minSsSize > param.ssSize or self.minSsSize == 0)
+		self.minSsSize = param.ssSize;
+	end if;
+
+	maxWeightSpec = FINL::getDfaProfile(paramID : IotSc_DfaParamID::eMaxWeight, profile : profileNo);
+	minWeightSpec = FINL::getDfaProfile(paramID : IotSc_DfaParamID::eMinWeight, profile : profileNo);
+	if (param.maxWeight > 0 and param.maxWeight < minWeightSpec)
+		self.isWeightUnderSheetExist = TRUE;	
+	end if;
+	if (param.minWeight > 0 and param.minWeight > maxWeightSpec)
+		self.isWeightOverSheetExist = TRUE;
+	end if;
+end if;
+//-- 631:20101206 Add End (kanda)
+',
+	1,
+	'',
+	"83f7f798-4777-4dca-a4e8-a9c21a190285");
+INSERT INTO O_TPARM
+	VALUES ("b174d430-a1ee-40ab-a07c-d1ee94708155",
+	"7565385d-2019-4d86-a9d5-788ca50470c9",
+	'fsSize',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("871bdecb-f43c-436d-b9ab-1d5d6809c2cb",
+	"7565385d-2019-4d86-a9d5-788ca50470c9",
+	'ssSize',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"27991622-49a4-46e4-a1c0-eeff55a426ca",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("9905f0cb-cea5-45f9-90e2-c0453ef9d93f",
+	"7565385d-2019-4d86-a9d5-788ca50470c9",
+	'maxWeight',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"b174d430-a1ee-40ab-a07c-d1ee94708155",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("27991622-49a4-46e4-a1c0-eeff55a426ca",
+	"7565385d-2019-4d86-a9d5-788ca50470c9",
+	'minWeight',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"9905f0cb-cea5-45f9-90e2-c0453ef9d93f",
+	'');
+INSERT INTO O_TFR
+	VALUES ("6ae25969-29d1-4874-aa2b-abf9fac20165",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	'setExitNgSheetInfoDfa',
+	'//-- 747:20120316 Modified Start (ikegaya)
+setExitNgSheetInfo()->setExitNgSheetInfoDfa()にFunc名を変更
+//-- 747:20120316 Modified End (ikegaya)
+
+//-- 630:20101206 Add Start (kanda)
+// 排出できないシート情報を設定する
+Modify:Add
+Modify_No:630
+Modifier:kanda
+Modify_Date:20101206
+//-- 630:20101206 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 631:20101206 Add Start (kanda)
+if (not self.isExitNgSheetExist)
+	self.isExitNgSheetExist = param.isExitNG;
+end if;
+
+if (not self.isInvertNgSheetExist)
+	self.isInvertNgSheetExist = param.isInvertNG;
+end if;
+
+if (not self.isDuplexNgSheetExist)
+	self.isDuplexNgSheetExist = self.isDuplexNgSheetExist;
+end if;
+//-- 631:20101206 Add End (kanda)
+',
+	1,
+	'',
+	"5775ebd6-be6a-4b8f-8933-6c25318befd5");
+INSERT INTO O_TPARM
+	VALUES ("f15a958c-5faf-4b5b-889b-fb36382f52ea",
+	"6ae25969-29d1-4874-aa2b-abf9fac20165",
+	'isExitNG',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'',
+	"d091145d-b3dd-4089-a277-03c06eb67594",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("b2ea9285-aeb0-4e99-9d51-f9cd547eb165",
+	"6ae25969-29d1-4874-aa2b-abf9fac20165",
+	'isInvertNG',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'',
+	"f15a958c-5faf-4b5b-889b-fb36382f52ea",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("d091145d-b3dd-4089-a277-03c06eb67594",
+	"6ae25969-29d1-4874-aa2b-abf9fac20165",
+	'isDuplexNG',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("0c1efc13-3d14-44a9-a03e-f602d20063f5",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	'createInstance',
+	'//-- 630:20101206 Add Start (kanda)
+// インスタンスを生成してEJOBと関連を張る
+Modify:Add
+Modify_No:630
+Modifier:kanda
+Modify_Date:20101206
+//-- 630:20101206 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 631:20101206 Add Start (kanda)
+select any anExecutingJob from instances of J_EJOB
+	where (selected.jobID == param.jobID);
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert(expression : not_empty anExecutingJob);
+//-- 845:20140227 Modified End (saitou) 
+select one aSheetMemento related by anExecutingJob->S_SPM[R282];
+
+if (empty aSheetMemento)
+	create object instance aSheetParseMemento of S_SPM;
+	relate anExecutingJob to aSheetParseMemento across R282;
+//-- 777:20120627 Add Start (saitou)
+	// インスタンス生成時に0初期化されているが念のため。
+	aSheetParseMemento.totalSheetNum = 0;
+//-- 777:20120627 Add End (saitou)
+end if;
+//-- 631:20101206 Add End (kanda)
+//-- 777:20120627 Deleted Start (saitou)
+//-- 708:20110628 Add Start (saitou)
+//aSheetMemento.totalSheetNum = 0;
+//-- 708:20110628 Add End (saitou)
+//-- 777:20120627 Deleted End (saitou)
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("03710fe7-e8b9-46e7-a33d-6833f16eeb25",
+	"0c1efc13-3d14-44a9-a03e-f602d20063f5",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("c9bd7734-bc83-48e5-b03c-ede8637e248f",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	'delete',
+	'//-- 630:20101206 Add Start (kanda)
+// インスタンスを削除する
+Modify:Add
+Modify_No:630
+Modifier:kanda
+Modify_Date:20101206
+//-- 630:20101206 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 631:20101206 Add Start (kanda)
+select any anExecutingJob from instances of J_EJOB
+	where (selected.jobID == param.jobID);
+FER::assert(expression : not_empty anExecutingJob);
+
+select one aSheetMemento related by anExecutingJob->S_SPM[R282];
+if (not_empty aSheetMemento)
+	unrelate anExecutingJob from aSheetMemento across R282;
+	delete object instance aSheetMemento;
+end if;
+//-- 631:20101206 Add End (kanda)
+',
+	1,
+	'',
+	"0c1efc13-3d14-44a9-a03e-f602d20063f5");
+INSERT INTO O_TPARM
+	VALUES ("3c99aa45-a339-4d01-8596-216cf1401945",
+	"c9bd7734-bc83-48e5-b03c-ede8637e248f",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("5775ebd6-be6a-4b8f-8933-6c25318befd5",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	'setBannerInfo',
+	'//-- 650:20110309 Add Start (kanda)
+// outtrayで指定された排出先に排出するバナー情報をセットする
+// スタートバナー/エンドバナーそれぞれコールする
+Modify:Add
+Modify_No:650
+Modifier:kanda
+Modify_Date:20110309
+//-- 650:20110309 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'select one anExecutingJob related by self->J_EJOB[R282];
+
+select one aTraySelectionParameter related by anExecutingJob->P_SBNR[R424]->P_BNR[R417]->S_TSP[R434];
+if (not param.isStartBanner)
+	select one aTraySelectionParameter related by anExecutingJob->P_EBNR[R425]->P_BNR[R417]->S_TSP[R434];
+end if;
+
+// バナー指示が無い場合は無視
+if (not_empty aTraySelectionParameter)
+	PF::updateBannerAttribute(isStartBanner : param.isStartBanner, jobID : anExecutingJob.jobID);
+	size = aTraySelectionParameter.outputSize;
+	dir = aTraySelectionParameter.direction;
+	ll = aTraySelectionParameter.longLength;
+	sl = aTraySelectionParameter.shortLength;
+	paperType = aTraySelectionParameter.paperType;
+	paperWeight = aTraySelectionParameter.paperWeight;
+
+	// バナーシートのプロファイル違反チェック
+	fsSize = FINL::getFsSizeByTraySelectionParameter(id : aTraySelectionParameter.ID);
+	ssSize = FINL::getSsSizeByTraySelectionParameter(id : aTraySelectionParameter.ID);
+	maxWeight = FINL::getMaxWeightByTraySelectionParameter(id : aTraySelectionParameter.ID);
+	minWeight = FINL::getMinWeightByTraySelectionParameter(id : aTraySelectionParameter.ID);
+	self.setSheetParamDfa(fsSize : fsSize, ssSize : ssSize, maxWeight : maxWeight, minWeight : minWeight);
+
+	// バナーシートのDFAへの排出可否チェック
+	isExitNG = FALSE;
+	isDuplexNG = FALSE; // バナーは片面固定
+	isInvertNG = FALSE; // バナーはストレート排出固定
+	if ((not FINL::isExitEnableWithSize(size:size, dir:dir, longLength:ll, shortLength:sl, outtray:self.outtray))
+		or (not FINL::isExitEnableWithType(type:paperType, weight:paperWeight, outtray:self.outtray)))
+		isExitNG = TRUE;
+	end if;
+//-- 748:20120320 Modified Start (ikegaya)
+	self.setExitNgSheetInfoDfa(isExitNG : isExitNG, isDuplexNG : isDuplexNG, isInvertNG : isInvertNG);
+//-- 748:20120320 Modified End (ikegaya)
+
+	// セット内の用紙数のチェック(バナーは必ず1)
+	self.setSheetNumInPhysicalSet(sheetNum : 1);
+end if;
+',
+	1,
+	'',
+	"92f9eaff-32ea-4a26-80ae-d77cbfe1715a");
+INSERT INTO O_TPARM
+	VALUES ("dfd6cc0f-3b0c-4a3f-aade-29789e4e42c0",
+	"5775ebd6-be6a-4b8f-8933-6c25318befd5",
+	'isStartBanner',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("c328f386-dd5b-41d4-9b8f-d6c82520d172",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	'setSheetParamPb',
+	'// くるみ製本のシート情報を設定し、以下を記憶する
+// 中紙ミックスサイズ
+//Modify:Add
+//Modify_No:747
+//Modifier:ikegaya
+//Modify_Date:20120316
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 748:20120316 Add Start (ikegaya)
+if (self.PBTextSize == "0")
+	self.PBTextSize = param.PBTextSize;
+	self.PBTextDir = param.PBTextDir;
+	self.PBTextSizeFS = param.PBTextFsSize;
+	self.PBTextSizeSS = param.PBTextSsSize;
+	return;
+end if;
+
+// 中紙ミックスサイズチェックを行う
+tolerance = FINL::getPBRoundingError();
+
+if (self.PBTextSize == "IOTDOC_MEDIUM_SIZE_OTHER")
+	if (param.PBTextSize == "IOTDOC_MEDIUM_SIZE_OTHER")
+		// 定型外 vs 定型外 の場合
+		// まるめ誤差範囲外はミックスサイズあり
+		// FS方向のチェック
+		if (self.PBTextSizeFS > param.PBTextFsSize)
+			if ((self.PBTextSizeFS - param.PBTextFsSize) > tolerance)
+				self.isMixSizePBText = TRUE;
+			end if;
+		else	// self.textFsSize <= param.textFsSize
+			if ((param.PBTextFsSize - self.PBTextSizeFS) > tolerance)
+				self.isMixSizePBText = TRUE;
+			end if;
+		end if;
+		// SS方向のチェック
+		if (self.PBTextSizeSS > param.PBTextSsSize)
+			if ((self.PBTextSizeSS - param.PBTextSsSize) > tolerance)
+				self.isMixSizePBText = TRUE;
+			end if;
+		else	// self.textSsSize <= param.textSsSize
+			if ((param.PBTextSsSize - self.PBTextSizeSS) > tolerance)
+				self.isMixSizePBText = TRUE;
+			end if;
+		end if;
+	else
+		// 定型外 vs 定型 の場合
+		// 定型外と定型の混在はミックスサイズあり
+		self.isMixSizePBText = TRUE;
+	end if;
+else
+	if (param.PBTextSize == "IOTDOC_MEDIUM_SIZE_OTHER")
+		// 定型 vs 定型外 の場合
+		// 定型外と定型の混在はミックスサイズあり
+		self.isMixSizePBText = TRUE;
+	else
+		// 定型 vs 定型 の場合
+		// 異なる定型はミックスサイズあり
+		if (param.PBTextSize != self.PBTextSize)
+			self.isMixSizePBText = TRUE;
+		end if;
+	end if;
+end if;
+
+return;
+//-- 748:20120316 Add End (ikegaya)
+',
+	1,
+	'',
+	"7565385d-2019-4d86-a9d5-788ca50470c9");
+INSERT INTO O_TPARM
+	VALUES ("85dbb6e4-db6c-4bed-8036-42e717660da4",
+	"c328f386-dd5b-41d4-9b8f-d6c82520d172",
+	'PBTextSize',
+	"ca85c291-393b-4f9a-b277-e862ef572307",
+	0,
+	'',
+	"66e1a5fb-7ee5-4e92-ae86-0eb58ef2580d",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("ca85c291-393b-4f9a-b277-e862ef572307",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_MediumSize',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("66e1a5fb-7ee5-4e92-ae86-0eb58ef2580d",
+	"c328f386-dd5b-41d4-9b8f-d6c82520d172",
+	'PBTextFsSize',
+	"01a0550f-9ce0-4192-87a0-df378f66a0a2",
+	0,
+	'',
+	"07a30959-7cb4-4e67-9726-45af4e482f3c",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("01a0550f-9ce0-4192-87a0-df378f66a0a2",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_MediumDimLength',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("4cff7bb6-d35a-40b6-9cf0-d2850106a233",
+	"c328f386-dd5b-41d4-9b8f-d6c82520d172",
+	'PBTextSsSize',
+	"01a0550f-9ce0-4192-87a0-df378f66a0a2",
+	0,
+	'',
+	"85dbb6e4-db6c-4bed-8036-42e717660da4",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("07a30959-7cb4-4e67-9726-45af4e482f3c",
+	"c328f386-dd5b-41d4-9b8f-d6c82520d172",
+	'PBTextDir',
+	"0367df22-ce15-470d-9f46-cf60c37eca0c",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0367df22-ce15-470d-9f46-cf60c37eca0c",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_MediumDirection',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("14e18b95-7163-4188-aa69-3ab767800beb",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	'setExitNgSheetInfoPb',
+	'// くるみ製本として使用不可なシートがあることを記憶する
+//Modify:Add
+//Modify_No:747
+//Modifier:ikegaya
+//Modify_Date:20120316
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 748:20120320 Add Start (ikegaya)
+//-- 756:20120424 Modified Start (ikegaya)
+// 中紙の用紙サイズチェックでNGシートがあることを覚える
+//-- 756:20120424 Modified End (ikegaya)
+if (not self.isPBTextNG)
+	self.isPBTextNG = param.isPBTextNG;
+end if;
+// 中紙用紙サイズと仕上がりサイズと断裁方法の組合せチェックでNGシートがあることを覚える
+if (not self.isPBTrimTextSizeFinSizeNG)
+	self.isPBTrimTextSizeFinSizeNG = param.isPBTrimTextSizeFinSizeNG;
+end if;
+//-- 756:20120424 Modified Start (ikegaya)
+// くるみ表紙の用紙サイズチェックでNGシートがあることを覚える
+//-- 756:20120424 Modified End (ikegaya)
+if (not self.isPBCoverNG)
+	self.isPBCoverNG = param.isPBCoverNG;
+end if;
+// くるみ表紙用紙サイズと仕上がりサイズと断裁方法の組合せチェックでNGシートがあることを覚える
+if (not self.isPBTrimCoverSizeFinSizeNG)
+	self.isPBTrimCoverSizeFinSizeNG = param.isPBTrimCoverSizeFinSizeNG;
+end if;
+// くるみ表紙用紙サイズと中紙用紙サイズと断裁方法の組合せチェックでNGシートがあることを覚える
+if (not self.isPBTrimTextSizeCoverSizeNG)
+	self.isPBTrimTextSizeCoverSizeNG = param.isPBTrimTextSizeCoverSizeNG;
+end if;
+
+return;
+//-- 748:20120320 Add End (ikegaya)
+',
+	1,
+	'',
+	"6ae25969-29d1-4874-aa2b-abf9fac20165");
+INSERT INTO O_TPARM
+	VALUES ("94b3235c-efe8-4248-b6c3-76aaf3d4e83d",
+	"14e18b95-7163-4188-aa69-3ab767800beb",
+	'isPBTextNG',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'',
+	"30962903-1ed3-4c66-a7c3-233751c2df5b",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("ec1e5ad2-2f45-4268-9ffb-3f8b21bf370a",
+	"14e18b95-7163-4188-aa69-3ab767800beb",
+	'isPBTrimTextSizeFinSizeNG',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'',
+	"c0d68286-9166-4062-a1ca-aa14707d9c8f",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("30962903-1ed3-4c66-a7c3-233751c2df5b",
+	"14e18b95-7163-4188-aa69-3ab767800beb",
+	'isPBCoverNG',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("02461596-aaa0-4b6e-924d-5eb97665d289",
+	"14e18b95-7163-4188-aa69-3ab767800beb",
+	'isPBTrimCoverSizeFinSizeNG',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'',
+	"94b3235c-efe8-4248-b6c3-76aaf3d4e83d",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("c0d68286-9166-4062-a1ca-aa14707d9c8f",
+	"14e18b95-7163-4188-aa69-3ab767800beb",
+	'isPBTrimTextSizeCoverSizeNG',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'',
+	"02461596-aaa0-4b6e-924d-5eb97665d289",
+	'');
+INSERT INTO O_TFR
+	VALUES ("96fb4037-2607-4a34-8f0f-dce42818e18d",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	'getFailCodeDfa',
+	'// 設定されているパラメータから優先度の高いフェイルを返す（DFA Profile用）
+// getFailCode()をDFA Profile用に変更
+//Modify:Add
+//Modify_No:747
+//Modifier:ikegaya
+//Modify_Date:20120320
+',
+	"adab3b81-ff2c-417d-b169-f9374ac12561",
+	1,
+	'profileNo = self.dfaProfileNo;
+
+// プロファイルそのもののチェック(ジョブキャンセルになるもの)
+if (not FINL::isAvailableDfaProfileNo(dfaProfileNo : profileNo))
+	return PF::getFailCode(type : IotSc_FailType::eDfaInvalidProfileNo);
+end if;
+
+if (not FINL::isAvailableOuttray(outtray : self.outtray))
+	return PF::getFailCode(type : IotSc_FailType::eDfaInvalidOuttray);
+end if;
+
+if (not FINL::isAvailableDfaParamExitFace(dfaProfileNo : profileNo, exitFace : self.exitFace))
+	return PF::getFailCode(type : IotSc_FailType::eDfaInvalidExitFace);
+end if;
+
+if (not FINL::isAvailableDfaParamOutputOrder(dfaProfileNo : profileNo, exitFace : self.exitFace))
+	return PF::getFailCode(type : IotSc_FailType::eDfaInvalidExitOrder);
+end if;
+
+//-- 650:20110311 Add Start (kanda)
+self.setBannerInfo(isStartBanner : TRUE);
+self.setBannerInfo(isStartBanner : FALSE);
+//-- 650:20110311 Add End (kanda)
+
+// 用紙に関するプロファイル違反のチェック(ジョブキャンセルになるもの)
+maxSheetNum = FINL::getDfaProfile(paramID : IotSc_DfaParamID::eMaxSheetNum, profile : profileNo);
+minSheetNum = FINL::getDfaProfile(paramID : IotSc_DfaParamID::eMinSheetNum, profile : profileNo);
+//-- 702:20110627 Add Start (ikegaya)
+isDfaSetRecovery = FINL::isAvailableDfaParamSetRecovery(dfaProfileNo :  profileNo);
+maxSheetNumForSetRecovery = PF::getSheetMaxInstanceNum();
+//-- 702:20110627 Add End (ikegaya)
+maxFS = FINL::getDfaProfile(paramID : IotSc_DfaParamID::eMaxFS, profile : profileNo);
+minFS = FINL::getDfaProfile(paramID : IotSc_DfaParamID::eMinFS, profile : profileNo);
+maxSS = FINL::getDfaProfile(paramID : IotSc_DfaParamID::eMaxSS, profile : profileNo);
+minSS = FINL::getDfaProfile(paramID : IotSc_DfaParamID::eMinSS, profile : profileNo);
+maxWeight = FINL::getDfaProfile(paramID : IotSc_DfaParamID::eMaxWeight, profile : profileNo);
+minWeight = FINL::getDfaProfile(paramID : IotSc_DfaParamID::eMinWeight, profile : profileNo);
+
+// 用紙サイズに関するチェック
+if (self.maxSheetNum > maxSheetNum)
+	return PF::getFailCode(type : IotSc_FailType::eDfaMaxSheetNumOver);
+end if;
+
+if (self.minSheetNum < minSheetNum)
+	return PF::getFailCode(type : IotSc_FailType::eDfaMinSheetNumUnder);
+end if;
+
+//-- 702:20110627 Add Start (ikegaya)
+// 論理シート数MAXより多いDFAセットリカバリジョブはアボート
+if (isDfaSetRecovery)
+	if (self.maxSheetNum > maxSheetNumForSetRecovery)
+		return PF::getFailCode(type : IotSc_FailType::eDfaSetRecoveryMaxSheetNumOver);
+	end if;
+end if;
+//-- 702:20110627 Add End (ikegaya)
+
+if (self.maxFsSize > maxFS)
+	return PF::getFailCode(type : IotSc_FailType::eDfaMaxFsSizeOver);
+end if;
+
+if (self.minFsSize < minFS)
+	return PF::getFailCode(type : IotSc_FailType::eDfaMinFsSizeUnder);
+end if;
+
+if (self.maxSsSize > maxSS)
+	return PF::getFailCode(type : IotSc_FailType::eDfaMaxSsSizeOver);
+end if;
+
+if (self.minSsSize < minSS)
+	return PF::getFailCode(type : IotSc_FailType::eDfaMinSsSizeUnder);
+end if;
+
+// つぼ量に関するチェック
+if (self.isWeightOverSheetExist)
+	return PF::getFailCode(type : IotSc_FailType::eDfaMaxWeightOver);
+end if;
+
+if (self.isWeightUnderSheetExist)
+	return PF::getFailCode(type : IotSc_FailType::eDfaMinWeightUnder);
+end if;
+
+// IOT性能に関するチェック
+if (self.isDuplexNgSheetExist)
+	return PF::getFailCode(type : IotSc_FailType::eDfaInvalidSheetDuplex);
+end if;
+
+if (self.isInvertNgSheetExist)
+	return PF::getFailCode(type : IotSc_FailType::eDfaInvalidSheetInvert);
+end if;
+
+if (self.isExitNgSheetExist)
+	return PF::getFailCode(type : IotSc_FailType::eDfaInvalidSheetExit);
+end if;
+
+// プロファイルのチェック(介入応答のあるもの)
+if (not FINL::isAvailableDfaParamLastSheetFirstFeed(dfaProfileNo : profileNo))
+	return PF::getFailCode(type : IotSc_FailType::eDfaInvalidLastSheetFirstFeed);
+end if;
+
+return PF::getFailCode(type : IotSc_FailType::eNull);
+',
+	1,
+	'',
+	"89d54d48-3c71-4f3b-925e-15224ed7f204");
+INSERT INTO O_TFR
+	VALUES ("92f9eaff-32ea-4a26-80ae-d77cbfe1715a",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	'getFailCodePb',
+	'// 設定されているパラメータから優先度の高いフェイルを返す（くるみ製本用）
+//Modify:Add
+//Modify_No:747
+//Modifier:ikegaya
+//Modify_Date:20120320
+',
+	"adab3b81-ff2c-417d-b169-f9374ac12561",
+	1,
+	'//-- 748:20120320 Add Start (ikegaya)
+select one anExecutingJob related by self->J_EJOB[R282];
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero(expression : not_empty anExecutingJob);
+//-- 845:20140227 Modified End (saitou) 
+
+//-- 802:20130214 Modified Start (ikegaya)
+// 排出先-> 中紙枚数-> 仕上がりサイズ-> 中紙サイズ-> くるみ表紙サイズ-> 調整値-> サイズと断裁方法
+//-- 802:20130214 Modified End (ikegaya)
+
+//-- 771:20120608 Add Start (ikegaya)
+// 排出先の使用可能かのチェック
+if (not FINL::isAvailableOuttray(outtray : self.outtray))
+	return PF::getFailCode(type : IotSc_FailType::ePBInvalidOuttray);
+end if;
+//-- 771:20120608 Add End (ikegaya)
+
+//-- 802:20130214 Modified Start (ikegaya)
+// 中紙の最大/最小枚数チェック
+maxTextSheetNum = FINL::getPBMaxTextSheetNum();
+minTextSheetNum = FINL::getPBMinTextSheetNum();
+// 中紙枚数 = totalSheetNum-おもて表紙枚数(1)
+totalTextSheetNum = self.totalSheetNum-1;
+if ((totalTextSheetNum < minTextSheetNum) or (maxTextSheetNum < totalTextSheetNum))
+	return PF::getFailCode(type : IotSc_FailType::ePBInvalidTextSheetNum);
+end if;
+//-- 802:20130214 Modified End (ikegaya)
+
+// 仕上がりサイズFS/SSの範囲チェック
+if (not FINL::isAvailablePBFinSize(finSizeFS : anExecutingJob.PBFinSizeFS,
+		finSizeSS : anExecutingJob.PBFinSizeSS,
+		trim : anExecutingJob.PBTrimPattern))
+	return PF::getFailCode(type : IotSc_FailType::ePBInvalidFinSize);
+end if;
+//-- 756:20120424 Modified Start (ikegaya)
+// 中紙の用紙サイズチェックでNGシートがあるか
+//-- 756:20120424 Modified End (ikegaya)
+if (self.isPBTextNG)
+	return PF::getFailCode(type : IotSc_FailType::ePBInvalidTextSize);
+end if;
+
+// 中紙用紙サイズと仕上がりサイズと断裁方法の組合せチェックでNGシートがあるか
+if (self.isPBTrimTextSizeFinSizeNG)
+	return PF::getFailCode(type : IotSc_FailType::ePBInvalidTextSize);
+end if;
+
+// 中紙ミックスサイズチェックでNGシートがあるか
+if (self.isMixSizePBText)
+	return PF::getFailCode(type : IotSc_FailType::ePBInvalidTextSize);
+end if;
+
+//-- 756:20120424 Modified Start (ikegaya)
+// くるみ表紙の用紙サイズチェックでNGシートがあるか
+//-- 756:20120424 Modified End (ikegaya)
+if (self.isPBCoverNG)
+	return PF::getFailCode(type : IotSc_FailType::ePBInvalidCoverSize);
+end if;
+
+// くるみ表紙用紙サイズと仕上がりサイズと断裁方法の組合せチェックでNGのシートがあるか
+if (self.isPBTrimCoverSizeFinSizeNG)
+	return PF::getFailCode(type : IotSc_FailType::ePBInvalidCoverSize);
+end if;
+
+// くるみ製本調整値のチェック
+// 表紙横レジ位置調整値, 表紙センター位置調整値
+// 天辺側回転量調整値, 地辺側回転量調整値, 小口側回転量調整値
+// 仕上がりサイズ調整
+// 断裁位置調整
+if (not FINL::isAvailablePBAdjustParam(coverRegAdj : anExecutingJob.PBCoverRegAdj,
+		coverCenterAdj : anExecutingJob.PBCoverCenterAdj,
+		rotationTopAdj : anExecutingJob.PBRotationTopAdj,
+		rotationBottomAdj : anExecutingJob.PBRotationBottomAdj,
+		rotationFaceAdj : anExecutingJob.PBRotationFaceAdj,
+		finSizeFSAdj : anExecutingJob.PBFinSizeFSAdj,
+		finSizeSSAdj : anExecutingJob.PBFinSizeSSAdj,
+		trimPosiAdj : anExecutingJob.PBTrimPosiAdj))
+	return PF::getFailCode(type : IotSc_FailType::ePBInvalidAdjustParam);
+end if;
+
+// くるみ表紙用紙サイズと中紙用紙サイズと断裁方法の組合せチェックでNGシートがあるか
+if (self.isPBTrimTextSizeCoverSizeNG)
+	return PF::getFailCode(type : IotSc_FailType::ePBInvalidCoverSize);
+end if;
+
+return PF::getFailCode(type : IotSc_FailType::eNull);
+//-- 748:20120320 Add End (ikegaya)
+
+',
+	1,
+	'',
+	"96fb4037-2607-4a34-8f0f-dce42818e18d");
+INSERT INTO O_REF
+	VALUES ("94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	0,
+	"4827bd93-1cdd-4255-84c1-3d508e127ad1",
+	"c3256103-7f84-40bc-b775-5afbf53f3bf4",
+	"d2401fa7-017b-42be-8f72-a65c1f45f035",
+	"02b9c7aa-63f9-4456-88c5-5e57c8366458",
+	"50715e23-3f93-4d9f-ab5e-37269206bde0",
+	"aa5a53c7-baad-4096-9ea9-d94b1854108f",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Executing Job',
+	'jobID',
+	'R282');
+INSERT INTO R_RGO_PROXY
+	VALUES ("94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"c3256103-7f84-40bc-b775-5afbf53f3bf4",
+	"d2401fa7-017b-42be-8f72-a65c1f45f035",
+	'../Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("4827bd93-1cdd-4255-84c1-3d508e127ad1",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	0,
+	"c3256103-7f84-40bc-b775-5afbf53f3bf4",
+	"02b9c7aa-63f9-4456-88c5-5e57c8366458",
+	'../Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("50715e23-3f93-4d9f-ab5e-37269206bde0",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	1,
+	'jobID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	'../../Job/Job/Job.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("50715e23-3f93-4d9f-ab5e-37269206bde0",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"00000000-0000-0000-0000-000000000000",
+	'jobID',
+	'',
+	'',
+	'jobID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("0ec3d50b-dbe8-4b16-af97-7e54b92c97b8",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("0ec3d50b-dbe8-4b16-af97-7e54b92c97b8",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("0ec3d50b-dbe8-4b16-af97-7e54b92c97b8",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"50715e23-3f93-4d9f-ab5e-37269206bde0",
+	'dfaProfileNo',
+	'',
+	'',
+	'dfaProfileNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c7366f6f-582c-48cc-a3a3-733e3cec6455",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("c7366f6f-582c-48cc-a3a3-733e3cec6455",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("c7366f6f-582c-48cc-a3a3-733e3cec6455",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"0ec3d50b-dbe8-4b16-af97-7e54b92c97b8",
+	'outtray',
+	'',
+	'',
+	'outtray',
+	0,
+	"5eaeeed9-440b-4894-b3a5-21b624ade58a",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("4a0b7975-9cd0-4b2f-9bef-30a0779eefea",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("4a0b7975-9cd0-4b2f-9bef-30a0779eefea",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("4a0b7975-9cd0-4b2f-9bef-30a0779eefea",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"c7366f6f-582c-48cc-a3a3-733e3cec6455",
+	'exitFace',
+	'',
+	'',
+	'exitFace',
+	0,
+	"8d6ad5eb-8220-4745-a5bb-f3e50070d5de",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("b7ee1d75-a393-4d86-90da-74ec8df4668e",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("b7ee1d75-a393-4d86-90da-74ec8df4668e",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("b7ee1d75-a393-4d86-90da-74ec8df4668e",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"4a0b7975-9cd0-4b2f-9bef-30a0779eefea",
+	'maxSheetNum',
+	'',
+	'',
+	'maxSheetNum',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("08658578-8ac6-438c-b56a-057ca1f65cd9",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("08658578-8ac6-438c-b56a-057ca1f65cd9",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("08658578-8ac6-438c-b56a-057ca1f65cd9",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"b7ee1d75-a393-4d86-90da-74ec8df4668e",
+	'minSheetNum',
+	'',
+	'',
+	'minSheetNum',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("e01f37ef-fbac-4d3c-92e2-431f4aeb21c8",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("e01f37ef-fbac-4d3c-92e2-431f4aeb21c8",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("e01f37ef-fbac-4d3c-92e2-431f4aeb21c8",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"08658578-8ac6-438c-b56a-057ca1f65cd9",
+	'maxFsSize',
+	'',
+	'',
+	'maxFsSize',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("d34885b5-0d08-4817-b3e1-d144aa78f273",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("d34885b5-0d08-4817-b3e1-d144aa78f273",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("d34885b5-0d08-4817-b3e1-d144aa78f273",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"e01f37ef-fbac-4d3c-92e2-431f4aeb21c8",
+	'minFsSize',
+	'',
+	'',
+	'minFsSize',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("985aaeea-4b02-4691-96a7-f13b7ea377e6",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("985aaeea-4b02-4691-96a7-f13b7ea377e6",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("985aaeea-4b02-4691-96a7-f13b7ea377e6",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"d34885b5-0d08-4817-b3e1-d144aa78f273",
+	'maxSsSize',
+	'',
+	'',
+	'maxSsSize',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("a896e288-3d47-40b7-96a4-4511ebd7d18c",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("a896e288-3d47-40b7-96a4-4511ebd7d18c",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("a896e288-3d47-40b7-96a4-4511ebd7d18c",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"985aaeea-4b02-4691-96a7-f13b7ea377e6",
+	'minSsSize',
+	'',
+	'',
+	'minSsSize',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("b5538ce5-aa23-49b0-8cd6-e30da5c86b92",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("b5538ce5-aa23-49b0-8cd6-e30da5c86b92",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("b5538ce5-aa23-49b0-8cd6-e30da5c86b92",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"a896e288-3d47-40b7-96a4-4511ebd7d18c",
+	'isWeightOverSheetExist',
+	'',
+	'',
+	'isWeightOverSheetExist',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("f675b9b1-94b8-4ed5-b09d-1c5bfefa68ca",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("f675b9b1-94b8-4ed5-b09d-1c5bfefa68ca",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("f675b9b1-94b8-4ed5-b09d-1c5bfefa68ca",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"b5538ce5-aa23-49b0-8cd6-e30da5c86b92",
+	'isWeightUnderSheetExist',
+	'',
+	'',
+	'isWeightUnderSheetExist',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("ac6c0c0f-ea0d-42e9-a7ea-e528e775ce3d",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("ac6c0c0f-ea0d-42e9-a7ea-e528e775ce3d",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("ac6c0c0f-ea0d-42e9-a7ea-e528e775ce3d",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"f675b9b1-94b8-4ed5-b09d-1c5bfefa68ca",
+	'isDuplexNgSheetExist',
+	'',
+	'',
+	'isDuplexNgSheetExist',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c5d749a7-aa3d-4d31-ad9e-4ab5b107d343",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("c5d749a7-aa3d-4d31-ad9e-4ab5b107d343",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("c5d749a7-aa3d-4d31-ad9e-4ab5b107d343",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"ac6c0c0f-ea0d-42e9-a7ea-e528e775ce3d",
+	'isInvertNgSheetExist',
+	'',
+	'',
+	'isInvertNgSheetExist',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("2a3c8f67-7da3-4875-aa73-b15574814ec2",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("2a3c8f67-7da3-4875-aa73-b15574814ec2",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("2a3c8f67-7da3-4875-aa73-b15574814ec2",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"c5d749a7-aa3d-4d31-ad9e-4ab5b107d343",
+	'isExitNgSheetExist',
+	'',
+	'',
+	'isExitNgSheetExist',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("83b0a3e8-a5b6-429d-87cf-f62f1c4655f5",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("83b0a3e8-a5b6-429d-87cf-f62f1c4655f5",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("83b0a3e8-a5b6-429d-87cf-f62f1c4655f5",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"2a3c8f67-7da3-4875-aa73-b15574814ec2",
+	'totalSheetNum',
+	'// シートパース中にできた物理シートの総数
+//  Uncollate時：バナーを除いた物理シート総数
+//  Collate時：バナーを除いた1部の場合の物理シート総数',
+	'',
+	'totalSheetNum',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("369b54e7-0136-4dd1-b8cf-d1005e4f3faa",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("369b54e7-0136-4dd1-b8cf-d1005e4f3faa",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("369b54e7-0136-4dd1-b8cf-d1005e4f3faa",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"83b0a3e8-a5b6-429d-87cf-f62f1c4655f5",
+	'PBTextSize',
+	'//-- 747:20120316 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120316
+型名：IotSht_MediumSize 
+意味：くるみ製本の中紙用紙サイズ
+//-- 747:20120316 Add End (ikegaya)
+',
+	'',
+	'PBTextSize',
+	0,
+	"ca85c291-393b-4f9a-b277-e862ef572307",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c7357409-1ad4-4c53-b6c5-78702b496850",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("c7357409-1ad4-4c53-b6c5-78702b496850",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("c7357409-1ad4-4c53-b6c5-78702b496850",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"369b54e7-0136-4dd1-b8cf-d1005e4f3faa",
+	'PBTextDir',
+	'//-- 747:20120316 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120316
+型名：IotSht_MediumDirection 
+意味：くるみ製本の中紙用紙サイズ方向
+//-- 747:20120316 Add End (ikegaya)
+
+',
+	'',
+	'PBTextDir',
+	0,
+	"0367df22-ce15-470d-9f46-cf60c37eca0c",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("e0defa55-0fa3-4360-b5d1-fa9a47d87a65",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("e0defa55-0fa3-4360-b5d1-fa9a47d87a65",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("e0defa55-0fa3-4360-b5d1-fa9a47d87a65",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"c7357409-1ad4-4c53-b6c5-78702b496850",
+	'PBTextSizeFS',
+	'//-- 747:20120316 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120316
+型名：IotSht_MediumDimLength 
+意味：くるみ製本の中紙用紙サイズ（定型外FS方向）（単位0.1mm）
+//-- 747:20120316 Add End (ikegaya)
+
+',
+	'',
+	'PBTextSizeFS',
+	0,
+	"01a0550f-9ce0-4192-87a0-df378f66a0a2",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("61966573-1df6-498e-9f74-ff5d7fcd14f3",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("61966573-1df6-498e-9f74-ff5d7fcd14f3",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("61966573-1df6-498e-9f74-ff5d7fcd14f3",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"e0defa55-0fa3-4360-b5d1-fa9a47d87a65",
+	'PBTextSizeSS',
+	'//-- 747:20120316 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120316
+型名：IotSht_MediumDimLength 
+意味：くるみ製本の中紙用紙サイズ（定型外SS方向）（単位0.1mm）
+//-- 747:20120316 Add End (ikegaya)
+',
+	'',
+	'PBTextSizeSS',
+	0,
+	"01a0550f-9ce0-4192-87a0-df378f66a0a2",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("8b8aa685-9c50-4c40-8be2-3129aa1218a0",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("8b8aa685-9c50-4c40-8be2-3129aa1218a0",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("8b8aa685-9c50-4c40-8be2-3129aa1218a0",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"61966573-1df6-498e-9f74-ff5d7fcd14f3",
+	'isMixSizePBText',
+	'//-- 747:20120316 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120316
+型名：boolean 
+意味：中紙ミックスサイズありフラグ
+//-- 747:20120316 Add End (ikegaya)
+',
+	'',
+	'isMixSizePBText',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("cae5487c-d6c3-4cd0-bf27-89a4b65e7996",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("cae5487c-d6c3-4cd0-bf27-89a4b65e7996",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("cae5487c-d6c3-4cd0-bf27-89a4b65e7996",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"8b8aa685-9c50-4c40-8be2-3129aa1218a0",
+	'isPBTextNG',
+	'//-- 747:20120316 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120316
+型名：boolean 
+意味：中紙の用紙サイズ・種類がくるみ製本の中紙として使用不可フラグ
+//-- 747:20120316 Add End (ikegaya)
+',
+	'',
+	'isPBTextNG',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("f0ede485-0f06-4fe8-8931-be531bc15d7d",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("f0ede485-0f06-4fe8-8931-be531bc15d7d",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("f0ede485-0f06-4fe8-8931-be531bc15d7d",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"cae5487c-d6c3-4cd0-bf27-89a4b65e7996",
+	'isPBTrimTextSizeFinSizeNG',
+	'//-- 747:20120316 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120316
+型名：boolean 
+意味：断裁方法と中紙用紙サイズと仕上がりサイズの組合せがくるみ製本として使用不可フラグ
+//-- 747:20120316 Add End (ikegaya)
+',
+	'',
+	'isPBTrimTextSizeFinSizeNG',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("b538c57b-54c3-4c54-8a98-a3a06d5cffdf",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("b538c57b-54c3-4c54-8a98-a3a06d5cffdf",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("b538c57b-54c3-4c54-8a98-a3a06d5cffdf",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"f0ede485-0f06-4fe8-8931-be531bc15d7d",
+	'isPBCoverNG',
+	'//-- 747:20120316 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120316
+型名：boolean 
+意味：くるみ表紙の用紙サイズ・種類がくるみ製本のくるみ表紙として使用不可フラグ
+//-- 747:20120316 Add End (ikegaya)
+',
+	'',
+	'isPBCoverNG',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c9d87fb3-bc68-4091-b7b7-c2f495663ef1",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("c9d87fb3-bc68-4091-b7b7-c2f495663ef1",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("c9d87fb3-bc68-4091-b7b7-c2f495663ef1",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"b538c57b-54c3-4c54-8a98-a3a06d5cffdf",
+	'isPBTrimCoverSizeFinSizeNG',
+	'//-- 747:20120316 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120316
+型名：boolean 
+意味：断裁方法とくるみ表紙用紙サイズと仕上がりサイズの組合せがくるみ製本として使用不可フラグ
+//-- 747:20120316 Add End (ikegaya)
+',
+	'',
+	'isPBTrimCoverSizeFinSizeNG',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("5e2e01de-b18e-4f9e-bb39-becc5cd82d5f",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("5e2e01de-b18e-4f9e-bb39-becc5cd82d5f",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("5e2e01de-b18e-4f9e-bb39-becc5cd82d5f",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"c9d87fb3-bc68-4091-b7b7-c2f495663ef1",
+	'isPBTrimTextSizeCoverSizeNG',
+	'//-- 747:20120316 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120316
+型名：boolean 
+意味：断裁方法と中紙用紙サイズとくるみ表紙用紙サイズの組合せがくるみ製本として使用不可フラグ
+//-- 747:20120316 Add End (ikegaya)
+',
+	'',
+	'isPBTrimTextSizeCoverSizeNG',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("bb62a2d2-b7bc-480a-aab7-02a8ba8a0f2d",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_BATTR
+	VALUES ("bb62a2d2-b7bc-480a-aab7-02a8ba8a0f2d",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ATTR
+	VALUES ("bb62a2d2-b7bc-480a-aab7-02a8ba8a0f2d",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	"5e2e01de-b18e-4f9e-bb39-becc5cd82d5f",
+	'currentRunLength',
+	'//-- 768:20120530 Add Start (ikegaya)
+Modify:Add
+Modify_No:768
+Modifier:ikegaya
+Modify_Date:20120530
+型名：integer 
+意味：シートパース中に退避する通常セットの現在部数
+//-- 768:20120530 Add End (ikegaya)
+
+',
+	'',
+	'currentRunLength',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_OIDA
+	VALUES ("50715e23-3f93-4d9f-ab5e-37269206bde0",
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	0,
+	'jobID');
+INSERT INTO O_ID
+	VALUES (1,
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO O_ID
+	VALUES (2,
+	"94cec4f5-5bd1-4f7e-b85a-b90fb5164de1");
+INSERT INTO PE_PE
+	VALUES ("94cec4f5-5bd1-4f7e-b85a-b90fb5164de1",
+	1,
+	"3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Sheet',
+	'',
+	200,
+	'../Sheet.xtuml');

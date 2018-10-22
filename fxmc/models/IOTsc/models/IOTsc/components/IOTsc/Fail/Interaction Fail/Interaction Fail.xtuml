@@ -1,0 +1,451 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("2614d988-c2f0-4b97-83ed-3bf4c6851491",
+	'Interaction Fail',
+	900,
+	'F_IF',
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("7c6fac9f-1f91-4674-9c54-a94ffcf957b9",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491",
+	'assignFailToJob',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 0104928:20140917 Add Start (ikegaya)
+// if job is 1st executingJob,
+// have relationship between interaction fails and executing job,
+// assign fail
+
+// get 1st executingJob
+firstJobID = J_EJOB::getFirstExecutingJob();
+
+if (param.jobID == firstJobID)
+	select any anExecutingJob from instances of J_EJOB where (selected.jobID == param.jobID);
+	FER::assert(expression : not_empty anExecutingJob);
+	
+	select many interactionFails from instances of F_IF;
+	for each anInteractionFail in interactionFails
+		relate anInteractionFail to anExecutingJob across R901;
+	end for;
+
+	select any anInteractionFailAssigner related by anExecutingJob->F_IF[R901]->F_IFA[R900];
+	FER::assert(expression : not_empty anInteractionFailAssigner);
+	generate F_IFA2:requestProcess to anInteractionFailAssigner;
+end if;
+
+return;
+//-- 0104928:20140917 Add End (ikegaya)
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("13d53b56-0f9f-4e0f-af76-bfb1041e2fb8",
+	"7c6fac9f-1f91-4674-9c54-a94ffcf957b9",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("8d65cbd8-1fb3-4938-b977-34bfce5bdcb5",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491",
+	'getHighestPriorityFaultLevel',
+	'',
+	"41d99677-bc11-4b4a-8347-afe84013c535",
+	0,
+	'//-- 0104928:20140916 Add Start (ikegaya)
+// JAM > Device Error > Operation Error > Notice
+
+tmpFaultLevel = TYPE::PfFaultLevel();
+
+tmpFaultLevel = "PFFAULT_LEVEL_DYNAMICJAM";
+select any anInteractionFail from instances of F_IF
+	where (selected.faultLevel == tmpFaultLevel);
+if (not_empty anInteractionFail)
+	return tmpFaultLevel;
+end if;
+
+tmpFaultLevel = "PFFAULT_LEVEL_STATICJAM";
+select any anInteractionFail from instances of F_IF
+	where (selected.faultLevel == tmpFaultLevel);
+if (not_empty anInteractionFail)
+	return tmpFaultLevel;
+end if;
+
+tmpFaultLevel = "PFFAULT_LEVEL_DEVICEERROR";
+select any anInteractionFail from instances of F_IF
+	where (selected.faultLevel == tmpFaultLevel);
+if (not_empty anInteractionFail)
+	return tmpFaultLevel;
+end if;
+
+tmpFaultLevel = "PFFAULT_LEVEL_OPERATIONERROR";
+select any anInteractionFail from instances of F_IF
+	where (selected.faultLevel == tmpFaultLevel);
+if (not_empty anInteractionFail)
+	return tmpFaultLevel;
+end if;
+
+tmpFaultLevel = "PFFAULT_LEVEL_NOTICE";
+select any anInteractionFail from instances of F_IF
+	where (selected.faultLevel == tmpFaultLevel);
+if (not_empty anInteractionFail)
+	return tmpFaultLevel;
+end if;
+
+return "0";
+//-- 0104928:20140916 Add End (ikegaya)
+',
+	1,
+	'',
+	"7c6fac9f-1f91-4674-9c54-a94ffcf957b9");
+INSERT INTO S_DT_PROXY
+	VALUES ("41d99677-bc11-4b4a-8347-afe84013c535",
+	"00000000-0000-0000-0000-000000000000",
+	'PfFaultLevel',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("00bf92cd-ec44-46b7-93b2-77f127129e4b",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491",
+	'getFirstOccurFailCode',
+	'',
+	"adab3b81-ff2c-417d-b169-f9374ac12561",
+	0,
+	'//-- 0104928:20140909 Add Start (ikegaya)
+code = TYPE::Iot_FailCode();
+code = "0";
+
+// get first occur fail
+select any anInteractionFail from instances of F_IF;
+if (not_empty anInteractionFail)
+	select one aPrevInteractionFail related by anInteractionFail->F_IF[R902.''is previous to''];
+	while (not_empty aPrevInteractionFail)
+		anInteractionFail = aPrevInteractionFail;
+		select one aPrevInteractionFail related by anInteractionFail->F_IF[R902.''is previous to''];
+	end while;
+end if;
+
+// search same faulyLevel
+if (not_empty anInteractionFail)
+	if (anInteractionFail.faultLevel == param.faultLevel)
+		code = anInteractionFail.code;
+	else
+		select one aNextInteractionFail related by anInteractionFail->F_IF[R902.''is next to''];
+		while (not_empty aNextInteractionFail)
+			if (aNextInteractionFail.faultLevel == param.faultLevel)
+				code = aNextInteractionFail.code;
+				break;
+			end if;
+			anInteractionFail = aNextInteractionFail;
+			select one aNextInteractionFail related by anInteractionFail->F_IF[R902.''is next to''];
+		end while;
+	end if;
+end if;
+		
+return code;
+//-- 0104928:20140909 Add End (ikegaya)
+',
+	1,
+	'',
+	"8d65cbd8-1fb3-4938-b977-34bfce5bdcb5");
+INSERT INTO O_TPARM
+	VALUES ("a87868fe-2429-487c-a8e6-dfa970d654d5",
+	"00bf92cd-ec44-46b7-93b2-77f127129e4b",
+	'faultLevel',
+	"41d99677-bc11-4b4a-8347-afe84013c535",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("adab3b81-ff2c-417d-b169-f9374ac12561",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_FailCode',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("b9e47ed8-abd7-4f45-a046-da1fbd7dd369",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491",
+	'correctFeedCount',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	1,
+	'//-- 103752:20140708 Add Start (ikegaya)
+correctFeedCount = FALSE;
+
+select any aPhysicalSheet from instances of P_PSHT; 
+if (not_empty aPhysicalSheet)
+	select one aPrevPhysicalSheet related by aPhysicalSheet->P_PSHT[R403.''is previous to''];
+	while (not_empty aPrevPhysicalSheet)
+		aPhysicalSheet = aPrevPhysicalSheet;
+		select one aPrevPhysicalSheet related by aPhysicalSheet->P_PSHT[R403.''is previous to''];
+	end while;
+end if;
+
+if (not_empty aPhysicalSheet)
+	if (aPhysicalSheet.sheetFeedCount > aPhysicalSheet.sheetDeliverCount)
+		correctFeedCount = TRUE;
+	end if;
+
+	if (correctFeedCount)
+		feedReverseCount = aPhysicalSheet.sheetFeedCount - aPhysicalSheet.sheetDeliverCount;
+		aPhysicalSheet.sheetFeedCount = aPhysicalSheet.sheetDeliverCount;
+		aRecoveryPhysicalSheet = aPhysicalSheet;
+
+		select one aNextPhysicalSheet related by aPhysicalSheet->P_PSHT[R403.''is next to''];
+		while (not_empty aNextPhysicalSheet)
+			aPhysicalSheet = aNextPhysicalSheet;
+			if (aPhysicalSheet.sheetFeedCount > 0)
+				feedReverseCount = feedReverseCount + aPhysicalSheet.sheetFeedCount;
+				aPhysicalSheet.sheetFeedCount = 0;
+			end if;
+			select one aNextPhysicalSheet related by aPhysicalSheet->P_PSHT[R403.''is next to''];
+		end while;
+
+		select one aRecoveryPhysicalSet related by aRecoveryPhysicalSheet->P_SET[R459];
+		FER::assert_with_return_zero(expression : not_empty aRecoveryPhysicalSet);
+		select one aRecoveryExecutingJob related by aRecoveryPhysicalSheet->J_EJOB[R429];
+		FER::assert_with_return_zero(expression : not_empty aRecoveryExecutingJob);
+
+		JIS::correctFeedSheetInfo(
+			sheetID : aRecoveryPhysicalSheet.ID,
+			displaySetNo : aRecoveryPhysicalSet.displaySetNo,
+			sheetFeedCount : aRecoveryPhysicalSheet.sheetFeedCount,
+			collate : aRecoveryPhysicalSet.collate,
+			jobID : aRecoveryExecutingJob.jobID
+		);
+	end if;
+end if;
+
+return correctFeedCount;
+//-- 103752:20140708 Add End (ikegaya)
+
+',
+	1,
+	'',
+	"00bf92cd-ec44-46b7-93b2-77f127129e4b");
+INSERT INTO O_TFR
+	VALUES ("16a775f3-4444-4f27-b7d3-89b5610450a9",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491",
+	'correctCounters',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 103752:20140708 Add Start (ikegaya)
+select any aPhysicalSheet from instances of P_PSHT;
+if (not_empty aPhysicalSheet)
+	recoveryFeedCount = self.correctFeedCount();
+end if;
+
+return;
+//-- 103752:20140708 Add End (ikegaya)
+',
+	1,
+	'',
+	"b9e47ed8-abd7-4f45-a046-da1fbd7dd369");
+INSERT INTO O_TFR
+	VALUES ("7aefedc1-7246-4fca-9697-1463e2aa24e1",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491",
+	'correctDeliverCountInSet',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 0105388:20150309 Add Start (saitou)
+correctCount=0;
+
+select any aRecoverySet from instances of P_SET where (selected.setID == param.setID);
+if (not_empty aRecoverySet)
+	// 補正カウントを算出する。
+	// リカバリ対象セットの排出枚数と、同じCollateSetの次の分冊セットの排出枚数を合わせて補正カウントとする。
+	correctCount = correctCount + aRecoverySet.deliverCount;
+	select one nextRecoverySet related by aRecoverySet->P_SET[R457.''next'']; 
+	if (not_empty nextRecoverySet)
+		if (nextRecoverySet.collateSetNo == aRecoverySet.collateSetNo)
+			correctCount = correctCount + nextRecoverySet.deliverCount;
+		end if;
+	end if;
+
+	JIS::correctDeliverSheetInfoInSet(jobID:aRecoverySet.jobID, 
+	                                  displaySetNo:aRecoverySet.displaySetNo, 
+	                                  collate:aRecoverySet.collate, 
+	                                  correctCount:correctCount);
+end if;
+//-- 0105388:20150309 Add End (saitou)',
+	1,
+	'',
+	"16a775f3-4444-4f27-b7d3-89b5610450a9");
+INSERT INTO O_TPARM
+	VALUES ("3bd36668-155f-4712-9197-def1f8e69094",
+	"7aefedc1-7246-4fca-9697-1463e2aa24e1",
+	'setID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("4b013959-d6f1-4c4f-a567-f2119038d377",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491");
+INSERT INTO O_BATTR
+	VALUES ("4b013959-d6f1-4c4f-a567-f2119038d377",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491");
+INSERT INTO O_ATTR
+	VALUES ("4b013959-d6f1-4c4f-a567-f2119038d377",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491",
+	"00000000-0000-0000-0000-000000000000",
+	'code',
+	'',
+	'',
+	'code',
+	0,
+	"adab3b81-ff2c-417d-b169-f9374ac12561",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("f09a6d8e-d7a7-465e-9d5c-f171e1104ca3",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491");
+INSERT INTO O_BATTR
+	VALUES ("f09a6d8e-d7a7-465e-9d5c-f171e1104ca3",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491");
+INSERT INTO O_ATTR
+	VALUES ("f09a6d8e-d7a7-465e-9d5c-f171e1104ca3",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491",
+	"4b013959-d6f1-4c4f-a567-f2119038d377",
+	'faultLevel',
+	'',
+	'',
+	'faultLevel',
+	0,
+	"41d99677-bc11-4b4a-8347-afe84013c535",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("2614d988-c2f0-4b97-83ed-3bf4c6851491",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	0,
+	"4827bd93-1cdd-4255-84c1-3d508e127ad1",
+	"4050449d-358e-4a24-a834-16403d36e2a0",
+	"9358e02d-59ff-4bd0-b835-d8232715d467",
+	"ef78552b-6c5d-4e90-9098-da456db2225c",
+	"905a0646-bb87-4150-956c-17157b6480cb",
+	"96aa353d-22f9-4d02-b9ee-a032a147e66b",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Executing Job',
+	'jobID',
+	'R901.''occurring''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("2614d988-c2f0-4b97-83ed-3bf4c6851491",
+	"4050449d-358e-4a24-a834-16403d36e2a0",
+	"9358e02d-59ff-4bd0-b835-d8232715d467",
+	'../Fail.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("4827bd93-1cdd-4255-84c1-3d508e127ad1",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	0,
+	"4050449d-358e-4a24-a834-16403d36e2a0",
+	"ef78552b-6c5d-4e90-9098-da456db2225c",
+	'../Fail.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("905a0646-bb87-4150-956c-17157b6480cb",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491",
+	"47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	1,
+	'jobID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	'../../Job/Job/Job.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("905a0646-bb87-4150-956c-17157b6480cb",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491",
+	"f09a6d8e-d7a7-465e-9d5c-f171e1104ca3",
+	'jobID',
+	'',
+	'',
+	'jobID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("3f829cf7-8c74-40d1-98cf-2f858a5d1c5d",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491");
+INSERT INTO O_BATTR
+	VALUES ("3f829cf7-8c74-40d1-98cf-2f858a5d1c5d",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491");
+INSERT INTO O_ATTR
+	VALUES ("3f829cf7-8c74-40d1-98cf-2f858a5d1c5d",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491",
+	"905a0646-bb87-4150-956c-17157b6480cb",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("771d39f5-7d5a-4bf3-96d0-11b077a8c886",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491");
+INSERT INTO O_BATTR
+	VALUES ("771d39f5-7d5a-4bf3-96d0-11b077a8c886",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491");
+INSERT INTO O_ATTR
+	VALUES ("771d39f5-7d5a-4bf3-96d0-11b077a8c886",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491",
+	"3f829cf7-8c74-40d1-98cf-2f858a5d1c5d",
+	'occurredFirstJobId',
+	'',
+	'',
+	'occurredFirstJobId',
+	0,
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491");
+INSERT INTO O_OIDA
+	VALUES ("4b013959-d6f1-4c4f-a567-f2119038d377",
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491",
+	0,
+	'code');
+INSERT INTO O_ID
+	VALUES (1,
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491");
+INSERT INTO O_ID
+	VALUES (2,
+	"2614d988-c2f0-4b97-83ed-3bf4c6851491");
+INSERT INTO PE_PE
+	VALUES ("2614d988-c2f0-4b97-83ed-3bf4c6851491",
+	1,
+	"122831e1-84ad-41a6-85ec-b53e8ddcc92a",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("122831e1-84ad-41a6-85ec-b53e8ddcc92a",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Fail',
+	'IOTで発生したFail(JAM, Device Error, Operation Error, Notice)を処理するサブシステム',
+	900,
+	'../Fail.xtuml');

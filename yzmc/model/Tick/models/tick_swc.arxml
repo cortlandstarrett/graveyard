@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AUTOSAR xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://autosar.org/schema/r4.0" xsi:schemaLocation="http://autosar.org/schema/r4.0 autosar_4-0-2.xsd"><AR-PACKAGES>
+    <AR-PACKAGE UUID="9d2b92f5-ea0d-413c-91cc-6974bf0e61d3">
+      <SHORT-NAME>pkg_tick</SHORT-NAME>
+      <ELEMENTS>
+        <MODE-DECLARATION-GROUP UUID="f8c2cbd5-7e19-403f-892d-06c56aa10aa2">
+          <SHORT-NAME>mdg_tick</SHORT-NAME>
+          <INITIAL-MODE-REF DEST="MODE-DECLARATION">/pkg_tick/mdg_tick/md_Init</INITIAL-MODE-REF>
+          <MODE-DECLARATIONS>
+            <MODE-DECLARATION UUID="16a6a070-e341-4c7f-83cf-d0a9fadc81d2">
+              <SHORT-NAME>md_Init</SHORT-NAME>
+            </MODE-DECLARATION>
+            <MODE-DECLARATION UUID="e72fb1d0-2174-4e29-b741-4c07d6d153f2">
+              <SHORT-NAME>md_Run</SHORT-NAME>
+            </MODE-DECLARATION>
+          </MODE-DECLARATIONS>
+        </MODE-DECLARATION-GROUP>
+        <SENDER-RECEIVER-INTERFACE UUID="8425a5ce-f94a-44bc-b224-b266c43fa6e6">
+          <SHORT-NAME>in_Tick_tick</SHORT-NAME>
+          <IS-SERVICE>false</IS-SERVICE>
+          <DATA-ELEMENTS>
+            <VARIABLE-DATA-PROTOTYPE UUID="172aec01-54c7-4ca6-a409-ca6370b5d4ab">
+              <SHORT-NAME>count</SHORT-NAME>
+              <SW-DATA-DEF-PROPS>
+                <SW-DATA-DEF-PROPS-VARIANTS>
+                  <SW-DATA-DEF-PROPS-CONDITIONAL>
+                    <SW-CALIBRATION-ACCESS>READ-ONLY</SW-CALIBRATION-ACCESS>
+                  </SW-DATA-DEF-PROPS-CONDITIONAL>
+                </SW-DATA-DEF-PROPS-VARIANTS>
+              </SW-DATA-DEF-PROPS>
+              <TYPE-TREF DEST="APPLICATION-PRIMITIVE-DATA-TYPE">/pkg_tick/dt_sint16</TYPE-TREF>
+            </VARIABLE-DATA-PROTOTYPE>
+          </DATA-ELEMENTS>
+        </SENDER-RECEIVER-INTERFACE>
+        <CLIENT-SERVER-INTERFACE UUID="3f6328a2-c3ab-4b2f-97fb-a501f92c115e">
+          <SHORT-NAME>in_TickReset_reset</SHORT-NAME>
+          <IS-SERVICE>false</IS-SERVICE>
+          <OPERATIONS>
+            <CLIENT-SERVER-OPERATION UUID="30e7366a-5b21-40a6-a411-2b8296bc91dc">
+              <SHORT-NAME>op_reset</SHORT-NAME>
+              <ARGUMENTS>
+                <ARGUMENT-DATA-PROTOTYPE UUID="4fcad9c3-cffc-4bb4-8151-93b39b2a9d6b">
+                  <SHORT-NAME>count</SHORT-NAME>
+                  <SW-DATA-DEF-PROPS>
+                    <SW-DATA-DEF-PROPS-VARIANTS>
+                      <SW-DATA-DEF-PROPS-CONDITIONAL>
+                        <SW-CALIBRATION-ACCESS>READ-ONLY</SW-CALIBRATION-ACCESS>
+                      </SW-DATA-DEF-PROPS-CONDITIONAL>
+                    </SW-DATA-DEF-PROPS-VARIANTS>
+                  </SW-DATA-DEF-PROPS>
+                  <TYPE-TREF DEST="APPLICATION-PRIMITIVE-DATA-TYPE">/pkg_tick/dt_sint16</TYPE-TREF>
+                  <DIRECTION>IN</DIRECTION>
+                </ARGUMENT-DATA-PROTOTYPE>
+              </ARGUMENTS>
+            </CLIENT-SERVER-OPERATION>
+          </OPERATIONS>
+        </CLIENT-SERVER-INTERFACE>
+        <APPLICATION-SW-COMPONENT-TYPE UUID="358011cf-6830-4560-832c-85c81386b3fc">
+          <SHORT-NAME>co_Tickee</SHORT-NAME>
+          <PORTS>
+            <R-PORT-PROTOTYPE UUID="6540fc79-91bd-44e6-a667-a85d9fbfec4c">
+              <SHORT-NAME>pt_TickProv_tick</SHORT-NAME>
+              <REQUIRED-INTERFACE-TREF DEST="SENDER-RECEIVER-INTERFACE">/pkg_tick/in_Tick_tick</REQUIRED-INTERFACE-TREF>
+            </R-PORT-PROTOTYPE>
+            <R-PORT-PROTOTYPE UUID="34e2e135-6e0c-4fe7-bf74-23cf1219088c">
+              <SHORT-NAME>pt_TickResetReq_reset</SHORT-NAME>
+              <REQUIRED-INTERFACE-TREF DEST="CLIENT-SERVER-INTERFACE">/pkg_tick/in_TickReset_reset</REQUIRED-INTERFACE-TREF>
+            </R-PORT-PROTOTYPE>
+            <R-PORT-PROTOTYPE UUID="1c790518-0ed7-4edc-8a32-364f6e5cfcca">
+              <SHORT-NAME>pt_Tickee_init</SHORT-NAME>
+              <REQUIRED-INTERFACE-TREF DEST="MODE-SWITCH-INTERFACE">/pkg_tick/in_tickMode</REQUIRED-INTERFACE-TREF>
+            </R-PORT-PROTOTYPE>
+          </PORTS>
+          <INTERNAL-BEHAVIORS>
+            <SWC-INTERNAL-BEHAVIOR UUID="bbf57b44-c7ec-41d3-8ab2-1c35e9f73954">
+              <SHORT-NAME>ib_Tickee</SHORT-NAME>
+              <ADMIN-DATA/>
+              <DATA-TYPE-MAPPING-REFS>
+                <DATA-TYPE-MAPPING-REF DEST="DATA-TYPE-MAPPING-SET">/pkg_tick/DataTMappingSet</DATA-TYPE-MAPPING-REF>
+              </DATA-TYPE-MAPPING-REFS>
+              <EXCLUSIVE-AREAS>
+                <EXCLUSIVE-AREA UUID="8e91415c-0267-4820-816d-0997b4949bc1">
+                  <SHORT-NAME>ea_Tickee</SHORT-NAME>
+                </EXCLUSIVE-AREA>
+              </EXCLUSIVE-AREAS>
+              <AR-TYPED-PER-INSTANCE-MEMORYS>
+                <VARIABLE-DATA-PROTOTYPE UUID="83c53788-6ac8-42e8-9929-941686aef91d">
+                  <SHORT-NAME>pm_clamp</SHORT-NAME>
+                  <TYPE-TREF DEST="APPLICATION-PRIMITIVE-DATA-TYPE">/pkg_tick/dt_sint16</TYPE-TREF>
+                </VARIABLE-DATA-PROTOTYPE>
+              </AR-TYPED-PER-INSTANCE-MEMORYS>
+              <EVENTS>
+                <DATA-RECEIVED-EVENT UUID="c8d9ab13-5939-43e9-8ab4-231b5b64e962">
+                  <SHORT-NAME>ev_TickProv_tick</SHORT-NAME>
+                  <START-ON-EVENT-REF DEST="RUNNABLE-ENTITY">/pkg_tick/co_Tickee/ib_Tickee/ru_TickProv_tick</START-ON-EVENT-REF>
+                  <DATA-IREF>
+                    <CONTEXT-R-PORT-REF DEST="R-PORT-PROTOTYPE">/pkg_tick/co_Tickee/pt_TickProv_tick</CONTEXT-R-PORT-REF>
+                    <TARGET-DATA-ELEMENT-REF DEST="VARIABLE-DATA-PROTOTYPE">/pkg_tick/in_Tick_tick/count</TARGET-DATA-ELEMENT-REF>
+                  </DATA-IREF>
+                </DATA-RECEIVED-EVENT>
+                <SWC-MODE-SWITCH-EVENT UUID="896e896a-69c7-4d19-8a19-5b0e7c27239b">
+                  <SHORT-NAME>ev_Tickee_Initialize</SHORT-NAME>
+                  <START-ON-EVENT-REF DEST="RUNNABLE-ENTITY">/pkg_tick/co_Tickee/ib_Tickee/ru_Tickee_Initialize</START-ON-EVENT-REF>
+                  <ACTIVATION>ON-ENTRY</ACTIVATION>
+                  <MODE-IREFS>
+                    <MODE-IREF>
+                      <CONTEXT-PORT-REF DEST="R-PORT-PROTOTYPE">/pkg_tick/co_Tickee/pt_Tickee_init</CONTEXT-PORT-REF>
+                      <CONTEXT-MODE-DECLARATION-GROUP-PROTOTYPE-REF DEST="MODE-DECLARATION-GROUP-PROTOTYPE">/pkg_tick/in_tickMode/mdgp_tick</CONTEXT-MODE-DECLARATION-GROUP-PROTOTYPE-REF>
+                      <TARGET-MODE-DECLARATION-REF DEST="MODE-DECLARATION">/pkg_tick/mdg_tick/md_Init</TARGET-MODE-DECLARATION-REF>
+                    </MODE-IREF>
+                  </MODE-IREFS>
+                </SWC-MODE-SWITCH-EVENT>
+              </EVENTS>
+              <RUNNABLES>
+                <RUNNABLE-ENTITY UUID="1612a4b4-e075-4a8b-abac-a8021934d531">
+                  <SHORT-NAME>ru_Tickee_Initialize</SHORT-NAME>
+                  <CAN-ENTER-EXCLUSIVE-AREA-REFS>
+                    <CAN-ENTER-EXCLUSIVE-AREA-REF DEST="EXCLUSIVE-AREA">/pkg_tick/co_Tickee/ib_Tickee/ea_Tickee</CAN-ENTER-EXCLUSIVE-AREA-REF>
+                  </CAN-ENTER-EXCLUSIVE-AREA-REFS>
+                  <MINIMUM-START-INTERVAL>0.0</MINIMUM-START-INTERVAL>
+                  <CAN-BE-INVOKED-CONCURRENTLY>true</CAN-BE-INVOKED-CONCURRENTLY>
+                  <SYMBOL>ib_Tickee_ru_Tickee_Initialize</SYMBOL>
+                </RUNNABLE-ENTITY>
+                <RUNNABLE-ENTITY UUID="14f76d07-5f90-426c-957c-a124710a7a7f">
+                  <SHORT-NAME>ru_TickProv_tick</SHORT-NAME>
+                  <CAN-ENTER-EXCLUSIVE-AREA-REFS>
+                    <CAN-ENTER-EXCLUSIVE-AREA-REF DEST="EXCLUSIVE-AREA">/pkg_tick/co_Tickee/ib_Tickee/ea_Tickee</CAN-ENTER-EXCLUSIVE-AREA-REF>
+                  </CAN-ENTER-EXCLUSIVE-AREA-REFS>
+                  <MINIMUM-START-INTERVAL>0.0</MINIMUM-START-INTERVAL>
+                  <CAN-BE-INVOKED-CONCURRENTLY>true</CAN-BE-INVOKED-CONCURRENTLY>
+                  <DATA-RECEIVE-POINT-BY-ARGUMENTS>
+                    <VARIABLE-ACCESS UUID="5399a7b5-2c22-404d-9b36-7331bb689d88">
+                      <SHORT-NAME>TickProv_tick</SHORT-NAME>
+                      <ACCESSED-VARIABLE>
+                        <AUTOSAR-VARIABLE-IREF>
+                          <PORT-PROTOTYPE-REF DEST="R-PORT-PROTOTYPE">/pkg_tick/co_Tickee/pt_TickProv_tick</PORT-PROTOTYPE-REF>
+                          <ROOT-VARIABLE-DATA-PROTOTYPE-REF DEST="VARIABLE-DATA-PROTOTYPE">/pkg_tick/in_Tick_tick/count</ROOT-VARIABLE-DATA-PROTOTYPE-REF>
+                          <TARGET-DATA-PROTOTYPE-REF DEST="VARIABLE-DATA-PROTOTYPE">/pkg_tick/in_Tick_tick/count</TARGET-DATA-PROTOTYPE-REF>
+                        </AUTOSAR-VARIABLE-IREF>
+                      </ACCESSED-VARIABLE>
+                    </VARIABLE-ACCESS>
+                  </DATA-RECEIVE-POINT-BY-ARGUMENTS>
+                  <SERVER-CALL-POINTS>
+                    <SYNCHRONOUS-SERVER-CALL-POINT UUID="ebe9bf8a-87aa-4a24-a645-5178a07a0530">
+                      <SHORT-NAME>TickResetReq_reset</SHORT-NAME>
+                      <OPERATION-IREF>
+                        <CONTEXT-R-PORT-REF DEST="R-PORT-PROTOTYPE">/pkg_tick/co_Tickee/pt_TickResetReq_reset</CONTEXT-R-PORT-REF>
+                        <TARGET-REQUIRED-OPERATION-REF DEST="CLIENT-SERVER-OPERATION">/pkg_tick/in_TickReset_reset/op_reset</TARGET-REQUIRED-OPERATION-REF>
+                      </OPERATION-IREF>
+                      <TIMEOUT>0.5</TIMEOUT>
+                    </SYNCHRONOUS-SERVER-CALL-POINT>
+                  </SERVER-CALL-POINTS>
+                  <SYMBOL>ib_Tickee_ru_TickProv</SYMBOL>
+                </RUNNABLE-ENTITY>
+              </RUNNABLES>
+              <SUPPORTS-MULTIPLE-INSTANTIATION>true</SUPPORTS-MULTIPLE-INSTANTIATION>
+            </SWC-INTERNAL-BEHAVIOR>
+          </INTERNAL-BEHAVIORS>
+        </APPLICATION-SW-COMPONENT-TYPE>
+        <APPLICATION-SW-COMPONENT-TYPE UUID="324ee67d-1093-48d3-a864-9686e7c19369">
+          <SHORT-NAME>co_Ticker</SHORT-NAME>
+          <PORTS>
+            <P-PORT-PROTOTYPE UUID="82d5dfcd-7700-402d-bf25-3609b87dcdd7">
+              <SHORT-NAME>pt_TickResetProv_reset</SHORT-NAME>
+              <PROVIDED-INTERFACE-TREF DEST="CLIENT-SERVER-INTERFACE">/pkg_tick/in_TickReset_reset</PROVIDED-INTERFACE-TREF>
+            </P-PORT-PROTOTYPE>
+            <P-PORT-PROTOTYPE UUID="e476384f-104a-4b69-8d6c-1a0788b9e7cb">
+              <SHORT-NAME>pt_TickReq_tick</SHORT-NAME>
+              <PROVIDED-INTERFACE-TREF DEST="SENDER-RECEIVER-INTERFACE">/pkg_tick/in_Tick_tick</PROVIDED-INTERFACE-TREF>
+            </P-PORT-PROTOTYPE>
+            <R-PORT-PROTOTYPE UUID="015778c5-9295-4b0d-a64e-29d4e224157c">
+              <SHORT-NAME>pt_Ticker_init</SHORT-NAME>
+              <REQUIRED-INTERFACE-TREF DEST="MODE-SWITCH-INTERFACE">/pkg_tick/in_tickMode</REQUIRED-INTERFACE-TREF>
+            </R-PORT-PROTOTYPE>
+          </PORTS>
+          <INTERNAL-BEHAVIORS>
+            <SWC-INTERNAL-BEHAVIOR UUID="6a445a09-3bd5-46dd-8f1f-a06859c5a211">
+              <SHORT-NAME>ib_Ticker</SHORT-NAME>
+              <ADMIN-DATA/>
+              <DATA-TYPE-MAPPING-REFS>
+                <DATA-TYPE-MAPPING-REF DEST="DATA-TYPE-MAPPING-SET">/pkg_tick/DataTMappingSet</DATA-TYPE-MAPPING-REF>
+              </DATA-TYPE-MAPPING-REFS>
+              <EXCLUSIVE-AREAS>
+                <EXCLUSIVE-AREA UUID="886186a1-f2cb-413a-83ec-11891fb2394e">
+                  <SHORT-NAME>ea_Ticker</SHORT-NAME>
+                </EXCLUSIVE-AREA>
+              </EXCLUSIVE-AREAS>
+              <AR-TYPED-PER-INSTANCE-MEMORYS>
+                <VARIABLE-DATA-PROTOTYPE UUID="448e0610-d446-4efe-94ec-dac857f15184">
+                  <SHORT-NAME>pm_count</SHORT-NAME>
+                  <TYPE-TREF DEST="APPLICATION-PRIMITIVE-DATA-TYPE">/pkg_tick/dt_sint16</TYPE-TREF>
+                </VARIABLE-DATA-PROTOTYPE>
+              </AR-TYPED-PER-INSTANCE-MEMORYS>
+              <EVENTS>
+                <TIMING-EVENT UUID="38f43258-4f9c-4b63-b480-44db9d4009c6">
+                  <SHORT-NAME>ev_Ticker_Timer</SHORT-NAME>
+                  <START-ON-EVENT-REF DEST="RUNNABLE-ENTITY">/pkg_tick/co_Ticker/ib_Ticker/ru_Ticker_Timer</START-ON-EVENT-REF>
+                  <PERIOD>0.01</PERIOD>
+                </TIMING-EVENT>
+                <OPERATION-INVOKED-EVENT UUID="7d117780-dd91-4297-b662-08cb4697f6c2">
+                  <SHORT-NAME>ev_TickResetProv_reset</SHORT-NAME>
+                  <START-ON-EVENT-REF DEST="RUNNABLE-ENTITY">/pkg_tick/co_Ticker/ib_Ticker/ru_TickResetProv_reset</START-ON-EVENT-REF>
+                  <OPERATION-IREF>
+                    <CONTEXT-P-PORT-REF DEST="P-PORT-PROTOTYPE">/pkg_tick/co_Ticker/pt_TickResetProv_reset</CONTEXT-P-PORT-REF>
+                    <TARGET-PROVIDED-OPERATION-REF DEST="CLIENT-SERVER-OPERATION">/pkg_tick/in_TickReset_reset/op_reset</TARGET-PROVIDED-OPERATION-REF>
+                  </OPERATION-IREF>
+                </OPERATION-INVOKED-EVENT>
+                <SWC-MODE-SWITCH-EVENT UUID="5c090cb7-de2b-49b0-bfc2-ee9911a0ae93">
+                  <SHORT-NAME>ev_Ticker_Initialize</SHORT-NAME>
+                  <START-ON-EVENT-REF DEST="RUNNABLE-ENTITY">/pkg_tick/co_Ticker/ib_Ticker/ru_Ticker_Initialize</START-ON-EVENT-REF>
+                  <ACTIVATION>ON-ENTRY</ACTIVATION>
+                  <MODE-IREFS>
+                    <MODE-IREF>
+                      <CONTEXT-PORT-REF DEST="R-PORT-PROTOTYPE">/pkg_tick/co_Ticker/pt_Ticker_init</CONTEXT-PORT-REF>
+                      <CONTEXT-MODE-DECLARATION-GROUP-PROTOTYPE-REF DEST="MODE-DECLARATION-GROUP-PROTOTYPE">/pkg_tick/in_tickMode/mdgp_tick</CONTEXT-MODE-DECLARATION-GROUP-PROTOTYPE-REF>
+                      <TARGET-MODE-DECLARATION-REF DEST="MODE-DECLARATION">/pkg_tick/mdg_tick/md_Init</TARGET-MODE-DECLARATION-REF>
+                    </MODE-IREF>
+                  </MODE-IREFS>
+                </SWC-MODE-SWITCH-EVENT>
+              </EVENTS>
+              <RUNNABLES>
+                <RUNNABLE-ENTITY UUID="a51b034a-00e6-48ac-9f50-5f6652e436f3">
+                  <SHORT-NAME>ru_Ticker_Timer</SHORT-NAME>
+                  <CAN-ENTER-EXCLUSIVE-AREA-REFS>
+                    <CAN-ENTER-EXCLUSIVE-AREA-REF DEST="EXCLUSIVE-AREA">/pkg_tick/co_Ticker/ib_Ticker/ea_Ticker</CAN-ENTER-EXCLUSIVE-AREA-REF>
+                  </CAN-ENTER-EXCLUSIVE-AREA-REFS>
+                  <MINIMUM-START-INTERVAL>0.0</MINIMUM-START-INTERVAL>
+                  <CAN-BE-INVOKED-CONCURRENTLY>true</CAN-BE-INVOKED-CONCURRENTLY>
+                  <DATA-SEND-POINTS>
+                    <VARIABLE-ACCESS UUID="b05feb74-7690-495b-b0e2-dcf8cb2a922c">
+                      <SHORT-NAME>TickReq_tick</SHORT-NAME>
+                      <ACCESSED-VARIABLE>
+                        <AUTOSAR-VARIABLE-IREF>
+                          <PORT-PROTOTYPE-REF DEST="P-PORT-PROTOTYPE">/pkg_tick/co_Ticker/pt_TickReq_tick</PORT-PROTOTYPE-REF>
+                          <ROOT-VARIABLE-DATA-PROTOTYPE-REF DEST="VARIABLE-DATA-PROTOTYPE">/pkg_tick/in_Tick_tick/count</ROOT-VARIABLE-DATA-PROTOTYPE-REF>
+                          <TARGET-DATA-PROTOTYPE-REF DEST="VARIABLE-DATA-PROTOTYPE">/pkg_tick/in_Tick_tick/count</TARGET-DATA-PROTOTYPE-REF>
+                        </AUTOSAR-VARIABLE-IREF>
+                      </ACCESSED-VARIABLE>
+                    </VARIABLE-ACCESS>
+                  </DATA-SEND-POINTS>
+                  <SYMBOL>ib_Ticker_ru_TickerTimer</SYMBOL>
+                </RUNNABLE-ENTITY>
+                <RUNNABLE-ENTITY UUID="c486d384-2c03-4c01-9376-6d557a4b617b">
+                  <SHORT-NAME>ru_Ticker_Initialize</SHORT-NAME>
+                  <CAN-ENTER-EXCLUSIVE-AREA-REFS>
+                    <CAN-ENTER-EXCLUSIVE-AREA-REF DEST="EXCLUSIVE-AREA">/pkg_tick/co_Ticker/ib_Ticker/ea_Ticker</CAN-ENTER-EXCLUSIVE-AREA-REF>
+                  </CAN-ENTER-EXCLUSIVE-AREA-REFS>
+                  <MINIMUM-START-INTERVAL>0.0</MINIMUM-START-INTERVAL>
+                  <CAN-BE-INVOKED-CONCURRENTLY>true</CAN-BE-INVOKED-CONCURRENTLY>
+                  <DATA-SEND-POINTS>
+                    <VARIABLE-ACCESS UUID="ba99751d-415c-4db5-acaa-04b040244490">
+                      <SHORT-NAME>TickReq_tick</SHORT-NAME>
+                      <ACCESSED-VARIABLE>
+                        <AUTOSAR-VARIABLE-IREF>
+                          <PORT-PROTOTYPE-REF DEST="P-PORT-PROTOTYPE">/pkg_tick/co_Ticker/pt_TickReq_tick</PORT-PROTOTYPE-REF>
+                          <ROOT-VARIABLE-DATA-PROTOTYPE-REF DEST="VARIABLE-DATA-PROTOTYPE">/pkg_tick/in_Tick_tick/count</ROOT-VARIABLE-DATA-PROTOTYPE-REF>
+                          <TARGET-DATA-PROTOTYPE-REF DEST="VARIABLE-DATA-PROTOTYPE">/pkg_tick/in_Tick_tick/count</TARGET-DATA-PROTOTYPE-REF>
+                        </AUTOSAR-VARIABLE-IREF>
+                      </ACCESSED-VARIABLE>
+                    </VARIABLE-ACCESS>
+                  </DATA-SEND-POINTS>
+                  <SYMBOL>ib_Ticker_ru_Ticker_Initialize</SYMBOL>
+                </RUNNABLE-ENTITY>
+                <RUNNABLE-ENTITY UUID="bce83c32-53d5-4bb3-b484-9358f8b67547">
+                  <SHORT-NAME>ru_TickResetProv_reset</SHORT-NAME>
+                  <CAN-ENTER-EXCLUSIVE-AREA-REFS>
+                    <CAN-ENTER-EXCLUSIVE-AREA-REF DEST="EXCLUSIVE-AREA">/pkg_tick/co_Ticker/ib_Ticker/ea_Ticker</CAN-ENTER-EXCLUSIVE-AREA-REF>
+                  </CAN-ENTER-EXCLUSIVE-AREA-REFS>
+                  <MINIMUM-START-INTERVAL>0.0</MINIMUM-START-INTERVAL>
+                  <CAN-BE-INVOKED-CONCURRENTLY>true</CAN-BE-INVOKED-CONCURRENTLY>
+                  <DATA-SEND-POINTS>
+                    <VARIABLE-ACCESS UUID="3498efdc-3464-45cf-9cb4-e541896059fe">
+                      <SHORT-NAME>TickReq_tick</SHORT-NAME>
+                      <ACCESSED-VARIABLE>
+                        <AUTOSAR-VARIABLE-IREF>
+                          <PORT-PROTOTYPE-REF DEST="P-PORT-PROTOTYPE">/pkg_tick/co_Ticker/pt_TickReq_tick</PORT-PROTOTYPE-REF>
+                          <ROOT-VARIABLE-DATA-PROTOTYPE-REF DEST="VARIABLE-DATA-PROTOTYPE">/pkg_tick/in_Tick_tick/count</ROOT-VARIABLE-DATA-PROTOTYPE-REF>
+                          <TARGET-DATA-PROTOTYPE-REF DEST="VARIABLE-DATA-PROTOTYPE">/pkg_tick/in_Tick_tick/count</TARGET-DATA-PROTOTYPE-REF>
+                        </AUTOSAR-VARIABLE-IREF>
+                      </ACCESSED-VARIABLE>
+                    </VARIABLE-ACCESS>
+                  </DATA-SEND-POINTS>
+                  <SYMBOL>ib_Ticker_ru_TickResetProv_reset</SYMBOL>
+                </RUNNABLE-ENTITY>
+              </RUNNABLES>
+              <SUPPORTS-MULTIPLE-INSTANTIATION>true</SUPPORTS-MULTIPLE-INSTANTIATION>
+            </SWC-INTERNAL-BEHAVIOR>
+          </INTERNAL-BEHAVIORS>
+        </APPLICATION-SW-COMPONENT-TYPE>
+        <COMPOSITION-SW-COMPONENT-TYPE UUID="34fbca4b-0b2b-4320-8d20-4273e2c326ee">
+          <SHORT-NAME>cz_Tickee</SHORT-NAME>
+          <ADMIN-DATA/>
+          <PORTS>
+            <R-PORT-PROTOTYPE UUID="5715ccb8-c41c-4d37-babd-849d523c8690">
+              <SHORT-NAME>pt_TickProv_tick</SHORT-NAME>
+              <REQUIRED-INTERFACE-TREF DEST="SENDER-RECEIVER-INTERFACE">/pkg_tick/in_Tick_tick</REQUIRED-INTERFACE-TREF>
+            </R-PORT-PROTOTYPE>
+            <R-PORT-PROTOTYPE UUID="be56e86a-272a-48c7-b5fd-6f4b76709514">
+              <SHORT-NAME>pt_TickResetReq_reset</SHORT-NAME>
+              <REQUIRED-INTERFACE-TREF DEST="CLIENT-SERVER-INTERFACE">/pkg_tick/in_TickReset_reset</REQUIRED-INTERFACE-TREF>
+            </R-PORT-PROTOTYPE>
+          </PORTS>
+          <COMPONENTS>
+            <SW-COMPONENT-PROTOTYPE UUID="ebdedbd5-bc5e-48e3-879e-324bb5c42605">
+              <SHORT-NAME>cp_Tickee</SHORT-NAME>
+              <TYPE-TREF DEST="APPLICATION-SW-COMPONENT-TYPE">/pkg_tick/co_Tickee</TYPE-TREF>
+            </SW-COMPONENT-PROTOTYPE>
+          </COMPONENTS>
+          <CONNECTORS>
+            <DELEGATION-SW-CONNECTOR UUID="9a011e1c-5cc4-462b-b23b-a0f768179bbe">
+              <SHORT-NAME>cn_TickProv_tick</SHORT-NAME>
+              <INNER-PORT-IREF>
+                <R-PORT-IN-COMPOSITION-INSTANCE-REF>
+                  <CONTEXT-COMPONENT-REF DEST="SW-COMPONENT-PROTOTYPE">/pkg_tick/cz_Tickee/cp_Tickee</CONTEXT-COMPONENT-REF>
+                  <TARGET-R-PORT-REF DEST="R-PORT-PROTOTYPE">/pkg_tick/co_Tickee/pt_TickProv_tick</TARGET-R-PORT-REF>
+                </R-PORT-IN-COMPOSITION-INSTANCE-REF>
+              </INNER-PORT-IREF>
+              <OUTER-PORT-REF DEST="R-PORT-PROTOTYPE">/pkg_tick/cz_Tickee/pt_TickProv_tick</OUTER-PORT-REF>
+            </DELEGATION-SW-CONNECTOR>
+            <DELEGATION-SW-CONNECTOR UUID="4395f929-7bc2-4b06-9bca-a4f0c356dea1">
+              <SHORT-NAME>cn_TickResetReq_reset</SHORT-NAME>
+              <INNER-PORT-IREF>
+                <R-PORT-IN-COMPOSITION-INSTANCE-REF>
+                  <CONTEXT-COMPONENT-REF DEST="SW-COMPONENT-PROTOTYPE">/pkg_tick/cz_Tickee/cp_Tickee</CONTEXT-COMPONENT-REF>
+                  <TARGET-R-PORT-REF DEST="R-PORT-PROTOTYPE">/pkg_tick/co_Tickee/pt_TickResetReq_reset</TARGET-R-PORT-REF>
+                </R-PORT-IN-COMPOSITION-INSTANCE-REF>
+              </INNER-PORT-IREF>
+              <OUTER-PORT-REF DEST="R-PORT-PROTOTYPE">/pkg_tick/cz_Tickee/pt_TickResetReq_reset</OUTER-PORT-REF>
+            </DELEGATION-SW-CONNECTOR>
+          </CONNECTORS>
+        </COMPOSITION-SW-COMPONENT-TYPE>
+        <COMPOSITION-SW-COMPONENT-TYPE UUID="8e483a2b-72ea-4f87-a362-a7f3cd95a6c5">
+          <SHORT-NAME>cz_Ticker</SHORT-NAME>
+          <PORTS>
+            <P-PORT-PROTOTYPE UUID="6c6b7b85-8f7b-477b-9233-3a8b9188ff12">
+              <SHORT-NAME>pt_TickResetProv_reset</SHORT-NAME>
+              <PROVIDED-INTERFACE-TREF DEST="CLIENT-SERVER-INTERFACE">/pkg_tick/in_TickReset_reset</PROVIDED-INTERFACE-TREF>
+            </P-PORT-PROTOTYPE>
+            <P-PORT-PROTOTYPE UUID="20549e47-d0a6-402b-bb08-85e1555777ff">
+              <SHORT-NAME>pt_TickReq_tick</SHORT-NAME>
+              <PROVIDED-INTERFACE-TREF DEST="SENDER-RECEIVER-INTERFACE">/pkg_tick/in_Tick_tick</PROVIDED-INTERFACE-TREF>
+            </P-PORT-PROTOTYPE>
+          </PORTS>
+          <COMPONENTS>
+            <SW-COMPONENT-PROTOTYPE UUID="c14c601a-7fa3-443c-8e99-3fbd965c4597">
+              <SHORT-NAME>cp_Ticker</SHORT-NAME>
+              <TYPE-TREF DEST="APPLICATION-SW-COMPONENT-TYPE">/pkg_tick/co_Ticker</TYPE-TREF>
+            </SW-COMPONENT-PROTOTYPE>
+          </COMPONENTS>
+          <CONNECTORS>
+            <DELEGATION-SW-CONNECTOR UUID="32e21585-7373-47da-89a6-b1498d8e77e0">
+              <SHORT-NAME>cn_TickResetProv_reset</SHORT-NAME>
+              <INNER-PORT-IREF>
+                <P-PORT-IN-COMPOSITION-INSTANCE-REF>
+                  <CONTEXT-COMPONENT-REF DEST="SW-COMPONENT-PROTOTYPE">/pkg_tick/cz_Ticker/cp_Ticker</CONTEXT-COMPONENT-REF>
+                  <TARGET-P-PORT-REF DEST="P-PORT-PROTOTYPE">/pkg_tick/co_Ticker/pt_TickResetProv_reset</TARGET-P-PORT-REF>
+                </P-PORT-IN-COMPOSITION-INSTANCE-REF>
+              </INNER-PORT-IREF>
+              <OUTER-PORT-REF DEST="P-PORT-PROTOTYPE">/pkg_tick/cz_Ticker/pt_TickResetProv_reset</OUTER-PORT-REF>
+            </DELEGATION-SW-CONNECTOR>
+            <DELEGATION-SW-CONNECTOR UUID="39e22e21-0ed8-42c7-83e3-68c1f47857a9">
+              <SHORT-NAME>cn_TickReq_tick</SHORT-NAME>
+              <INNER-PORT-IREF>
+                <P-PORT-IN-COMPOSITION-INSTANCE-REF>
+                  <CONTEXT-COMPONENT-REF DEST="SW-COMPONENT-PROTOTYPE">/pkg_tick/cz_Ticker/cp_Ticker</CONTEXT-COMPONENT-REF>
+                  <TARGET-P-PORT-REF DEST="P-PORT-PROTOTYPE">/pkg_tick/co_Ticker/pt_TickReq_tick</TARGET-P-PORT-REF>
+                </P-PORT-IN-COMPOSITION-INSTANCE-REF>
+              </INNER-PORT-IREF>
+              <OUTER-PORT-REF DEST="P-PORT-PROTOTYPE">/pkg_tick/cz_Ticker/pt_TickReq_tick</OUTER-PORT-REF>
+            </DELEGATION-SW-CONNECTOR>
+          </CONNECTORS>
+        </COMPOSITION-SW-COMPONENT-TYPE>
+        <COMPOSITION-SW-COMPONENT-TYPE UUID="d6cf8a96-5be9-459f-bf99-4edac9e8b04b">
+          <SHORT-NAME>cz_default</SHORT-NAME>
+          <ADMIN-DATA/>
+          <COMPONENTS>
+            <SW-COMPONENT-PROTOTYPE UUID="668fc3ca-8322-4761-ae69-c6cbdc0f341a">
+              <SHORT-NAME>cp_cz_Tickee</SHORT-NAME>
+              <TYPE-TREF DEST="COMPOSITION-SW-COMPONENT-TYPE">/pkg_tick/cz_Tickee</TYPE-TREF>
+            </SW-COMPONENT-PROTOTYPE>
+            <SW-COMPONENT-PROTOTYPE UUID="3bdd7692-7bae-44bb-8c72-7dfd7a0b0cac">
+              <SHORT-NAME>cp_cz_Ticker</SHORT-NAME>
+              <TYPE-TREF DEST="COMPOSITION-SW-COMPONENT-TYPE">/pkg_tick/cz_Ticker</TYPE-TREF>
+            </SW-COMPONENT-PROTOTYPE>
+          </COMPONENTS>
+          <CONNECTORS>
+            <ASSEMBLY-SW-CONNECTOR UUID="06c26046-95a3-465e-b64f-2f79f1b249e1">
+              <SHORT-NAME>cn_TickReq_tick</SHORT-NAME>
+              <PROVIDER-IREF>
+                <CONTEXT-COMPONENT-REF DEST="SW-COMPONENT-PROTOTYPE">/pkg_tick/cz_default/cp_cz_Ticker</CONTEXT-COMPONENT-REF>
+                <TARGET-P-PORT-REF DEST="P-PORT-PROTOTYPE">/pkg_tick/cz_Ticker/pt_TickReq_tick</TARGET-P-PORT-REF>
+              </PROVIDER-IREF>
+              <REQUESTER-IREF>
+                <CONTEXT-COMPONENT-REF DEST="SW-COMPONENT-PROTOTYPE">/pkg_tick/cz_default/cp_cz_Tickee</CONTEXT-COMPONENT-REF>
+                <TARGET-R-PORT-REF DEST="R-PORT-PROTOTYPE">/pkg_tick/cz_Tickee/pt_TickProv_tick</TARGET-R-PORT-REF>
+              </REQUESTER-IREF>
+            </ASSEMBLY-SW-CONNECTOR>
+            <ASSEMBLY-SW-CONNECTOR UUID="294ff754-f7f7-45cf-9ded-4b49f2d00201">
+              <SHORT-NAME>cn_TickResetReq_reset</SHORT-NAME>
+              <PROVIDER-IREF>
+                <CONTEXT-COMPONENT-REF DEST="SW-COMPONENT-PROTOTYPE">/pkg_tick/cz_default/cp_cz_Ticker</CONTEXT-COMPONENT-REF>
+                <TARGET-P-PORT-REF DEST="P-PORT-PROTOTYPE">/pkg_tick/cz_Ticker/pt_TickResetProv_reset</TARGET-P-PORT-REF>
+              </PROVIDER-IREF>
+              <REQUESTER-IREF>
+                <CONTEXT-COMPONENT-REF DEST="SW-COMPONENT-PROTOTYPE">/pkg_tick/cz_default/cp_cz_Tickee</CONTEXT-COMPONENT-REF>
+                <TARGET-R-PORT-REF DEST="R-PORT-PROTOTYPE">/pkg_tick/cz_Tickee/pt_TickResetReq_reset</TARGET-R-PORT-REF>
+              </REQUESTER-IREF>
+            </ASSEMBLY-SW-CONNECTOR>
+          </CONNECTORS>
+        </COMPOSITION-SW-COMPONENT-TYPE>
+        <SWC-IMPLEMENTATION UUID="f576aec3-95c9-4cee-b6ac-eb4992a217bc">
+          <SHORT-NAME>im_Tickee</SHORT-NAME>
+          <CODE-DESCRIPTORS>
+            <CODE UUID="dcc0ddad-7084-47a4-962c-30bb8fb14d1c">
+              <SHORT-NAME>cd_tickee</SHORT-NAME>
+            </CODE>
+          </CODE-DESCRIPTORS>
+          <PROGRAMMING-LANGUAGE>C</PROGRAMMING-LANGUAGE>
+          <RESOURCE-CONSUMPTION UUID="90bd30ad-9bd1-4de7-a0a5-47a61e238cf8">
+            <SHORT-NAME>rc_tickee</SHORT-NAME>
+            <MEMORY-SECTIONS>
+              <MEMORY-SECTION UUID="1505c727-3b7d-4e50-9111-ef5b8bc4cbcd">
+                <SHORT-NAME>ms_tickee</SHORT-NAME>
+                <ALIGNMENT>10</ALIGNMENT>
+                <SIZE>2000</SIZE>
+              </MEMORY-SECTION>
+            </MEMORY-SECTIONS>
+          </RESOURCE-CONSUMPTION>
+          <USED-CODE-GENERATOR>BridgePoint xtUML MC3020</USED-CODE-GENERATOR>
+          <VENDOR-ID>31</VENDOR-ID>
+          <BEHAVIOR-REF DEST="SWC-INTERNAL-BEHAVIOR">/pkg_tick/co_Tickee/ib_Tickee</BEHAVIOR-REF>
+        </SWC-IMPLEMENTATION>
+        <SWC-IMPLEMENTATION UUID="fa6b946a-30e7-4ae7-a23c-8743fe87df5d">
+          <SHORT-NAME>im_Ticker</SHORT-NAME>
+          <CODE-DESCRIPTORS>
+            <CODE UUID="f3e8243a-4b4c-4d4b-9d66-73c7e5a84fa7">
+              <SHORT-NAME>cd_ticker</SHORT-NAME>
+            </CODE>
+          </CODE-DESCRIPTORS>
+          <PROGRAMMING-LANGUAGE>C</PROGRAMMING-LANGUAGE>
+          <RESOURCE-CONSUMPTION UUID="8e4feab9-6ddf-424d-bc77-ba903d7e98e9">
+            <SHORT-NAME>rc_ticker</SHORT-NAME>
+            <MEMORY-SECTIONS>
+              <MEMORY-SECTION UUID="d44ec584-7b6f-4a34-ab30-e2d0816ea6c6">
+                <SHORT-NAME>ms_ticker</SHORT-NAME>
+                <ALIGNMENT>10</ALIGNMENT>
+                <SIZE>2000</SIZE>
+              </MEMORY-SECTION>
+            </MEMORY-SECTIONS>
+          </RESOURCE-CONSUMPTION>
+          <USED-CODE-GENERATOR>BridgePoint xtUML MC3020</USED-CODE-GENERATOR>
+          <VENDOR-ID>31</VENDOR-ID>
+          <BEHAVIOR-REF DEST="SWC-INTERNAL-BEHAVIOR">/pkg_tick/co_Ticker/ib_Ticker</BEHAVIOR-REF>
+        </SWC-IMPLEMENTATION>
+        <APPLICATION-PRIMITIVE-DATA-TYPE UUID="0cada7f2-26b7-4798-a2c3-bcada64860e6">
+          <SHORT-NAME>dt_boolean</SHORT-NAME>
+          <CATEGORY>BOOLEAN</CATEGORY>
+          <SW-DATA-DEF-PROPS>
+            <SW-DATA-DEF-PROPS-VARIANTS>
+              <SW-DATA-DEF-PROPS-CONDITIONAL>
+                <SW-CALIBRATION-ACCESS>READ-ONLY</SW-CALIBRATION-ACCESS>
+              </SW-DATA-DEF-PROPS-CONDITIONAL>
+            </SW-DATA-DEF-PROPS-VARIANTS>
+          </SW-DATA-DEF-PROPS>
+        </APPLICATION-PRIMITIVE-DATA-TYPE>
+        <APPLICATION-PRIMITIVE-DATA-TYPE UUID="7341bc05-79a0-4512-a904-95eeb3d2fd6b">
+          <SHORT-NAME>dt_sint16</SHORT-NAME>
+          <CATEGORY>VALUE</CATEGORY>
+          <SW-DATA-DEF-PROPS>
+            <SW-DATA-DEF-PROPS-VARIANTS>
+              <SW-DATA-DEF-PROPS-CONDITIONAL>
+                <IMPLEMENTATION-DATA-TYPE-REF DEST="IMPLEMENTATION-DATA-TYPE">/pkg_tick/sint16</IMPLEMENTATION-DATA-TYPE-REF>
+              </SW-DATA-DEF-PROPS-CONDITIONAL>
+            </SW-DATA-DEF-PROPS-VARIANTS>
+          </SW-DATA-DEF-PROPS>
+        </APPLICATION-PRIMITIVE-DATA-TYPE>
+        <DATA-TYPE-MAPPING-SET UUID="607b2b45-633c-4013-bc82-8ea349ed0494">
+          <SHORT-NAME>DataTMappingSet</SHORT-NAME>
+          <DATA-TYPE-MAPS>
+            <DATA-TYPE-MAP>
+              <APPLICATION-DATA-TYPE-REF DEST="APPLICATION-PRIMITIVE-DATA-TYPE">/pkg_tick/dt_sint16</APPLICATION-DATA-TYPE-REF>
+              <IMPLEMENTATION-DATA-TYPE-REF DEST="IMPLEMENTATION-DATA-TYPE">/pkg_tick/sint16</IMPLEMENTATION-DATA-TYPE-REF>
+            </DATA-TYPE-MAP>
+          </DATA-TYPE-MAPS>
+          <MODE-REQUEST-TYPE-MAPS>
+            <MODE-REQUEST-TYPE-MAP>
+              <IMPLEMENTATION-DATA-TYPE-REF DEST="IMPLEMENTATION-DATA-TYPE">/pkg_tick/boolean</IMPLEMENTATION-DATA-TYPE-REF>
+              <MODE-GROUP-REF DEST="MODE-DECLARATION-GROUP">/pkg_tick/mdg_tick</MODE-GROUP-REF>
+            </MODE-REQUEST-TYPE-MAP>
+          </MODE-REQUEST-TYPE-MAPS>
+        </DATA-TYPE-MAPPING-SET>
+        <IMPLEMENTATION-DATA-TYPE UUID="d58873af-b8e5-4b3f-90c1-6a880c45e282">
+          <SHORT-NAME>sint16</SHORT-NAME>
+          <CATEGORY>VALUE</CATEGORY>
+        </IMPLEMENTATION-DATA-TYPE>
+        <MODE-SWITCH-INTERFACE UUID="d1489069-ca87-4a4c-a70e-aa3f2ff2e81b">
+          <SHORT-NAME>in_tickMode</SHORT-NAME>
+          <MODE-GROUP UUID="dd3b5b72-91ad-4fca-b240-feaeb292ce21">
+            <SHORT-NAME>mdgp_tick</SHORT-NAME>
+            <TYPE-TREF DEST="MODE-DECLARATION-GROUP">/pkg_tick/mdg_tick</TYPE-TREF>
+          </MODE-GROUP>
+        </MODE-SWITCH-INTERFACE>
+        <IMPLEMENTATION-DATA-TYPE UUID="b6c6bd39-dbb4-413d-9a11-16124ef9afb1">
+          <SHORT-NAME>boolean</SHORT-NAME>
+          <CATEGORY>VALUE</CATEGORY>
+        </IMPLEMENTATION-DATA-TYPE>
+      </ELEMENTS>
+    </AR-PACKAGE>
+  </AR-PACKAGES></AUTOSAR>

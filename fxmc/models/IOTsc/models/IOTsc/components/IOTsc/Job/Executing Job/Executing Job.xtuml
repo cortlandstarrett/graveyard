@@ -1,0 +1,3248 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	'Executing Job',
+	103,
+	'J_EJOB',
+	'Exectuting JobはDMからのJobAcceptableを受けて実行対象となったジョブを抽象化したものです。
+
+Jobの実際にシートを出す動きなどはExecuting Jobが作られないとできません。
+
+//-- 219: 20050519 Add Start (kanda)
+mergedColorModeを追加
+ジョブに指定されたColorModeと、合成イメージのカラーを合成した結果。
+JobStartでdmに通知する(EP用)
+//-- 219: 20050519 Add End (kanda)
+
+//-- 220: :20050520 Add Start (kanda)
+uncollateOffsetNumを追加
+uncollateJobの場合、ここに設定された枚数ごとにOffsetさせる
+//-- 220: :20050520 Add Start (kanda)
+
+//-- 225: 20050613 Add Start (kanda)
+isBlackSpeedPromoteOnを引数に追加(sc10174)
+//-- 225: 20050613 Add End (kanda)
+
+//-- 350:20061010 Deleted Start (kanda)
+isUncollateSeparatorSheetJobをS_OSPに移動
+//-- 350:20061010 Deleted End (kanda)
+
+//-- 354:20061115 Add Start (kanda)
+isProofPrintJobを追加
+//-- 354:20061115 Add End (kanda)
+
+//-- 655:20110328 Add Start (ikegaya)
+dfaConfirmを追加
+//-- 655:20110328 Add End (ikegaya)',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("cbdd3af9-49d2-4370-afab-3db3a723a613",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	'clear',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'select one aJob related by self->J_JOB[R104];
+//-- 0104801:20140827 Add Start (ikegaya)
+FER::assert(expression : not_empty aJob);
+//-- 0104801:20140827 Add End (ikegaya)
+
+//-- 629:20100915 Add Start (kanda)
+SR_SRC::delete(jobID : self.jobID);
+//-- 629:20100915 Add End (kanda)
+//-- 631:20101206 Add Start (kanda)
+S_SPM::delete(jobID : self.jobID);
+//-- 631:20101206 Add End (kanda)
+
+select one aNormalStep related by self->S_NPS[R252];
+if ( not_empty aNormalStep )
+	select one aParser related by aNormalStep->S_DTP[R216];
+	unrelate aParser from aNormalStep across R216;
+	delete object instance aParser;
+	unrelate self from aNormalStep across R252;
+	delete object instance aNormalStep;
+end if;
+
+select one aRestartParam related by self->S_PFR[R234];
+if ( not_empty aRestartParam )
+	select one aRestartInfo related by aRestartParam->S_JRI[R234];
+	unrelate self from aRestartInfo across R234 using aRestartParam;
+	delete object instance aRestartParam;
+	select one aTmpJob related by  aRestartInfo->J_EJOB[R200];
+	if ( empty aTmpJob )
+		delete object instance aRestartInfo;
+	end if;
+end if;
+
+select one aTemporaryPrintProcess related by self->J_TPP[R113];
+if ( not_empty aTemporaryPrintProcess )
+	unrelate self from aTemporaryPrintProcess across R113;
+	delete object instance aTemporaryPrintProcess;
+end if;
+
+select one anAllImageRetrieve related by self->S_ARNR[R201];
+if ( not_empty anAllImageRetrieve )
+	unrelate self from anAllImageRetrieve across R201;
+	delete object instance anAllImageRetrieve;
+end if;
+
+select one aLoggingRestartInfo related by self->S_JRI[R200];
+
+unrelate self from aLoggingRestartInfo across R200;
+delete object instance aLoggingRestartInfo;
+
+select one aLastSheetInfo related by self->S_SM[R261];
+unrelate self from aLastSheetInfo across R261;
+delete object instance aLastSheetInfo;
+
+select one aRestartInfo related by self->S_PFR[R234]->S_JRI[R234];
+if ( not_empty aRestartInfo )
+	S_JRI::remove( infoID : aRestartInfo.ID );
+end if;
+
+select many interactionProcesses related by self->J_NIP[R118];
+for each anInteractionProcess in interactionProcesses
+	select one aJobFail related by anInteractionProcess->J_JF[R115];
+	select one aParamChangeReq related by anInteractionProcess->P_PCR[R115];
+	select one anInteraction related by self->J_IR[R114];
+
+	if ( not_empty anInteraction )
+		PF::cancelInteraction( interactID : anInteraction.interactionID );
+		select one anInteractingProcess related by anInteraction->J_NIP[R116];
+		unrelate self from anInteraction across R114;
+		unrelate anInteractingProcess from anInteraction across R116;
+		delete object instance anInteraction;
+//-- 530:20080911 Add Start (kanda)
+		if ( anInteractionProcess.paramID > 0 )
+			UIL::releaseParamID( paramID : anInteractionProcess.paramID );
+		end if;
+//-- 530:20080911 Add End (kanda)
+	end if;
+
+	select one aNeedPrintPause related by anInteractionProcess->J_NPP[R110];
+	select one aPrintPause related by aNeedPrintPause->J_PPR[R111];
+	if ( not_empty aPrintPause )
+		// Print Pauseが他に参照されている場合には
+		// 消さない 
+ 		select any anOtherNeedPrintPause related by aPrintPause->J_NPP[R111]
+			where ( selected.ID != aNeedPrintPause.ID );
+		unrelate aPrintPause from aNeedPrintPause across R111;
+
+		if ( empty anOtherNeedPrintPause )
+			// 強制的にResumeする
+			aPrintPause.resumeForce();
+			delete object instance aPrintPause;
+		end if;
+	end if;
+
+
+	unrelate aNeedPrintPause from anInteractionProcess across R110;
+	
+	if ( not_empty aJobFail )
+		unrelate aJobFail from anInteractionProcess across R115;
+		delete object instance aJobFail;
+	elif ( not_empty aParamChangeReq )
+		unrelate aParamChangeReq from anInteractionProcess across R115;
+		delete object instance aParamChangeReq;
+	else
+		FER::assert( expression : FALSE );
+	end if;
+
+//-- 05:20040308 Modified Start 
+	unrelate self from anInteractionProcess across R118;	
+
+	delete object instance aNeedPrintPause;
+	delete object instance anInteractionProcess;
+//-- 05:20040308 Modified End
+
+end for;
+
+if ( not self.isJobStartNotified )
+	// AR34470
+	// Job Startを送っていない場合JOB_ACCEPTEBLEを自分で発行する
+	select one aJobRequestAccepter related by aJob->J_JRA[R102];
+	generate J_JRA1:jobAcceptable to aJobRequestAccepter;
+end if;
+
+//-- 353:20061122 Add Start (kanda)
+S_SCI::deleteAllSpotCheckInstructions( jobID : self.jobID );
+//-- 353:20061122 Add End (kanda)
+
+//-- 423:20070724 Add Start (kanda)
+select one aOutputUnit related by self->S_OU[R277];
+//-- 0104801:20140827 Add Start (ikegaya)
+FER::assert(expression : not_empty aOutputUnit);
+//-- 0104801:20140827 Add End (ikegaya)
+S_OU::delete( outputUnitID : aOutputUnit.ID );
+//-- 423:20070724 Add End (kanda)
+
+//-- 487:20080422 Add Start (kanda)
+if ( self.sealBaseContextId > 0 )
+	DL::deleteSealBaseContext( baseContextId : self.sealBaseContextId );
+end if;
+//-- 487:20080422 Add End (kanda)
+
+
+//-- 0104928:20140917 Add Start (ikegaya)
+//-- 0104061:20141024 Modified Start (ikegaya)
+select one aNextExecutingJob related by self->J_JOB[R104]->J_JOB[R101.''is next to'']->J_EJOB[R104];
+select many interactionFails related by self->F_IF[R901];
+for each anInteractionFail in interactionFails
+	// delete relation with executing job
+	unrelate self from anInteractionFail across R901;
+
+	if (anInteractionFail.faultLevel == "PFFAULT_LEVEL_OPERATIONERROR"
+		or anInteractionFail.faultLevel == "PFFAULT_LEVEL_NOTICE")
+		// delete Operation Error, Notice with executing job
+		generate F_IF3:failClear to anInteractionFail;
+//-- 0106002:20150106 Modified Start (ikegaya)
+	else
+		// next job relate to fail
+		if (not_empty aNextExecutingJob)
+				relate aNextExecutingJob to anInteractionFail across R901;
+		end if;
+	end if;
+//-- 0106002:20150106 Modified End (ikegaya)
+end for;
+
+select any anInteractionFailAssigner from instances of F_IFA;
+FER::assert(expression : not_empty anInteractionFailAssigner);
+// request process to anInteractionFailAssigner for next executing job
+if (not_empty aNextExecutingJob)
+	select any anInteractionFail related by aNextExecutingJob->F_IF[R901];
+	if (not_empty anInteractionFail)
+		generate F_IFA2:requestProcess to anInteractionFailAssigner;
+	end if;
+//else
+//	generate F_IFA3:failClear to anInteractionFailAssigner;
+end if;
+//-- 0104061:20141024 Modified End (ikegaya)
+//-- 0104928:20140917 Add End (ikegaya)
+
+unrelate self from aJob across R104;
+BL::releaseJob( jobID : aJob.jobID );
+
+//-- 14599:20131028 Add Start (saitou) 
+// P_SDIM->J_EJOBの関連が残って(迷子になって)しまうので、明示的に切る。
+select one aSendDocInfoMgr related by self->P_SDIM[R465];
+if( not_empty aSendDocInfoMgr )
+	unrelate aSendDocInfoMgr from self across R465;
+end if;
+//-- 14599:20131028 Add End (saitou) 
+
+
+
+//-- 0104928:20140917 Deleted Start (ikegaya)
+//-- 0104061:20140724 Modified Start (ikegaya)
+//-- 15679:20140530 Add Start (ikegaya)
+//-- 15679:20140530 Add End (ikegaya)
+//-- 0104061:20140724 Modified End (ikegaya)
+//-- 0104928:20140917 Deleted End (ikegaya)
+
+//-- 11394:20130404 Add Start (ikegaya)
+// Jobのエントリ削除
+ret = DDB::deleteJob( jobID : aJob.jobID );
+FER::assert( expression : ret == "IOTDOC_OK");
+//-- 11394:20130404 Add End (ikegaya)
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("232b6a8b-8a1f-4a7e-8cf6-06f0752a3d42",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	'getSeparatorNum',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	1,
+	'//-- 236:20050715 Add Start (kanda)
+self.separatorNum = self.separatorNum % 100;
+self.separatorNum = self.separatorNum + 1;
+return self.separatorNum;
+//-- 236:20050715 Add End (kanda)
+',
+	1,
+	'',
+	"cbdd3af9-49d2-4370-afab-3db3a723a613");
+INSERT INTO O_TFR
+	VALUES ("c63cfd0d-52d4-41f0-9cd1-a36ff5c86203",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	'isNeedPosAdjMergeImgOnJob',
+	'// 位置調整が必要となる(可能性のある)合成が指示されているか否かを返す。
+// スタンプやUUIDなど。
+// くるみ製本のように断裁される場合、UUIDなどは断裁されない位置にタイさせる必要があるため、戻り値としてTRUEを返す。
+// これを受けて、P_PSHF.createMergeImageReqest()での合成サイズや、
+//  P_PSHF.ImageRequesting での合成可能領域での計算を行う。
+',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	1,
+	'//-- 774:20120626 Add Start (saitou) 
+isRet = FALSE;
+if(  ( self.isBatesPrint )
+  or ( self.dateAnnotationMode != IotSc_DateAnnotationMode::eOff )
+  or ( self.pageAnnotationMode != IotSc_PageAnnotationMode::eOff )
+  or ( self.stampAnnotationMode != IotSc_StampAnnotationMode::eOff )
+  or ( self.isUUIDPrint )
+  or ( self.sealBaseContextId > 0 )
+ )
+	isRet = TRUE;
+end if;
+
+return isRet;
+//-- 774:20120626 Add End (saitou) ',
+	1,
+	'',
+	"232b6a8b-8a1f-4a7e-8cf6-06f0752a3d42");
+INSERT INTO O_TFR
+	VALUES ("5b74d99e-ffc7-4d22-be03-b410246801d7",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	'setDocDBJobParam',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 11394:20130321 Add Start (ikegaya)
+select one aJob related by self->J_JOB[R104];
+//-- 0104801:20140827 Add Start (ikegaya)
+FER::assert(expression : not_empty aJob);
+//-- 0104801:20140827 Add End (ikegaya)
+
+// when data type is calibration, job type is changed to calibration
+jobType = PF::getSendJobType( jobID : aJob.jobID ) ;
+if ( jobType == "IOT_JOB_TYPE_NULL" )
+	jobType = aJob.jobType ;
+end if ;
+ret = DDB::setJobType( jobHandle : self.jobHandle, data : jobType ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+// OffsetはJobでは指定しない
+ret = DDB::setJobOffsetMode( jobHandle : self.jobHandle, data : "IOT_OFFSET_OFF" ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+ret = DDB::setJobSMHConfirmation( jobHandle : self.jobHandle, data : self.smhConfirm ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+ret = DDB::setJobDFAConfirmation( jobHandle : self.jobHandle, data : self.dfaConfirm ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+ret = DDB::setJobMediumTypeMismatchAction( jobHandle : self.jobHandle, data : self.mediumTypeMismatchAction ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+orderedCountSeqNum = PF::getOrderCountSequenceNum( jobID : self.jobID ) ;
+ret = DDB::setJobOrderedCountSeqNum( jobHandle : self.jobHandle, data : orderedCountSeqNum ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+if ( orderedCountSeqNum > 0 )
+	initialOrderCount = PF::getResumeInfoOrderdcountStartNo( jobID : self.jobID ) ;
+	ret = DDB::setJobInitialOrderCount( jobHandle : self.jobHandle, data : initialOrderCount ) ;
+	FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+//-- 14599:20130829 Modified Start (ikegaya)
+	trayNo = PF::getResumeInfoLastFeedTabTray( jobID : self.jobID ) ;
+	ret = DDB::setJobLastFeederTabTrayNo( jobHandle : self.jobHandle, data : trayNo ) ;
+	FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 14599:20130829 Modified End (ikegaya)
+end if ;
+
+ret = DDB::setJobServiceType( jobHandle : self.jobHandle, data : aJob.serviceType ) ;
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+// FreeFlowのために、ログに残す両面指示をセットする
+PF::setJobLibParameter( jobID : self.jobID ) ;
+return ;
+//-- 11394:20130321 Add End (ikegaya)
+',
+	1,
+	'',
+	"31555cea-1ebf-4dbf-a6bf-450f7bcf8b04");
+INSERT INTO O_TFR
+	VALUES ("31555cea-1ebf-4dbf-a6bf-450f7bcf8b04",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	'jobCompleted',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 14599:20130709 Add Start (ikegaya)
+generate J_EJOB9:jobCompleted to self;
+self.isJobCompleted = TRUE;
+
+return;
+//-- 14599:20130709 Add End (ikegaya)
+',
+	1,
+	'',
+	"c63cfd0d-52d4-41f0-9cd1-a36ff5c86203");
+INSERT INTO O_TFR
+	VALUES ("6f83aff2-b5b5-41b4-8a23-0c6c437c0fc3",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	'getFirstExecutingJob',
+	'',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'//--15679:20140416 Add Start (ikegaya)
+// 実行中の先頭ジョブを取得
+select any aFirstExecutingJob from instances of J_EJOB;	// 型合わせのためNULL OK. 
+select any aJob from instances of J_JOB;
+
+if ( not_empty aJob )
+	select one aPrevJob related by aJob->J_JOB[R101.''is previous to''];
+	while ( not_empty aPrevJob )
+		select one anExecutingJob related by aPrevJob->J_EJOB[R104];
+		if ( not_empty anExecutingJob )
+			aFirstExecutingJob = anExecutingJob;
+		end if;
+
+		aJob = aPrevJob;
+		select one aPrevJob related by aJob->J_JOB[R101.''is previous to''];
+	end while;
+end if;
+
+if ( not_empty aFirstExecutingJob )
+	return aFirstExecutingJob.jobID;
+end if;
+
+return 0;
+//-- 15679:20140416 Add End (ikegaya)
+',
+	1,
+	'',
+	"5b74d99e-ffc7-4d22-be03-b410246801d7");
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_REF
+	VALUES ("d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	0,
+	"47673d6f-a3be-45e6-8453-46bc9a597882",
+	"c97c90d1-381d-4626-bf7e-d2db0cf319d1",
+	"13fda855-577d-44b5-8a04-510dd283ecc5",
+	"0acc6ba6-4713-468e-928c-0213d81683ed",
+	"4827bd93-1cdd-4255-84c1-3d508e127ad1",
+	"ab9776b9-396e-4892-aa01-60e1efcb8b82",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Job',
+	'jobID',
+	'R104');
+INSERT INTO R_RGO_PROXY
+	VALUES ("d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"c97c90d1-381d-4626-bf7e-d2db0cf319d1",
+	"13fda855-577d-44b5-8a04-510dd283ecc5",
+	'../Job.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	0,
+	"c97c90d1-381d-4626-bf7e-d2db0cf319d1",
+	"0acc6ba6-4713-468e-928c-0213d81683ed",
+	'../Job.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("4827bd93-1cdd-4255-84c1-3d508e127ad1",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	1,
+	'jobID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	'../Job/Job.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("4827bd93-1cdd-4255-84c1-3d508e127ad1",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"00000000-0000-0000-0000-000000000000",
+	'jobID',
+	'',
+	'',
+	'jobID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("b5a4c1be-88e7-4105-ae1c-dfe979a08f0e",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("b5a4c1be-88e7-4105-ae1c-dfe979a08f0e",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("b5a4c1be-88e7-4105-ae1c-dfe979a08f0e",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"4827bd93-1cdd-4255-84c1-3d508e127ad1",
+	'jobHandle',
+	'',
+	'',
+	'jobHandle',
+	0,
+	"5a7e4ab3-f300-459b-a98f-9fac2e2abc8e",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("5a7e4ab3-f300-459b-a98f-9fac2e2abc8e",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_JobHandle',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("72bf8293-9fd5-4086-9582-f56373c157db",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("72bf8293-9fd5-4086-9582-f56373c157db",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("72bf8293-9fd5-4086-9582-f56373c157db",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"b5a4c1be-88e7-4105-ae1c-dfe979a08f0e",
+	'isParamFixed',
+	'',
+	'',
+	'isParamFixed',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("36d00ab5-bc11-4bff-af04-9fd1914ed2ba",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("36d00ab5-bc11-4bff-af04-9fd1914ed2ba",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("36d00ab5-bc11-4bff-af04-9fd1914ed2ba",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"72bf8293-9fd5-4086-9582-f56373c157db",
+	'isJobStartNotified',
+	'',
+	'',
+	'isJobStartNotified',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("b4658df6-6d90-482e-a821-587afd1328aa",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("b4658df6-6d90-482e-a821-587afd1328aa",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("b4658df6-6d90-482e-a821-587afd1328aa",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"36d00ab5-bc11-4bff-af04-9fd1914ed2ba",
+	'isJobEndNotified',
+	'',
+	'',
+	'isJobEndNotified',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("562bcea3-9984-4926-a320-0f0c44ef8113",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("562bcea3-9984-4926-a320-0f0c44ef8113",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("562bcea3-9984-4926-a320-0f0c44ef8113",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"b4658df6-6d90-482e-a821-587afd1328aa",
+	'isImageRecoveryNotifyNeeded',
+	'isImageRecoveryNotifyNeeded :
+	イメージを引けるところまで引いたかどうかを通知するかどうかのフラグです。
+	最初はJ_JTSの値から取得しますが、ジョブないのドキュメントが確定した時点で
+	その必要がなくなる（もともとBuffer Bridgeで前段との関係上必要なため）ので
+	その時点でFALSEとなります。
+',
+	'',
+	'isImageRecoveryNotifyNeeded',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("88969621-cc3e-4983-b1ef-15b828606918",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("88969621-cc3e-4983-b1ef-15b828606918",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("88969621-cc3e-4983-b1ef-15b828606918",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"562bcea3-9984-4926-a320-0f0c44ef8113",
+	'forcedDuplex',
+	'',
+	'',
+	'forcedDuplex',
+	0,
+	"0f03abd6-b671-4524-9a2d-8fa87fd566d9",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0f03abd6-b671-4524-9a2d-8fa87fd566d9",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_ForcedDuplex',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("b2f37555-3f2b-441a-9b3f-8649b8fbc84f",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("b2f37555-3f2b-441a-9b3f-8649b8fbc84f",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("b2f37555-3f2b-441a-9b3f-8649b8fbc84f",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"88969621-cc3e-4983-b1ef-15b828606918",
+	'jamRecoveryMode',
+	'',
+	'',
+	'jamRecoveryMode',
+	0,
+	"5d579947-1d8d-4c07-b1da-3d938bf3235e",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("5d579947-1d8d-4c07-b1da-3d938bf3235e",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_RecoveryMode',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("e6961173-abf1-49ec-b347-6d688e9bbe37",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("e6961173-abf1-49ec-b347-6d688e9bbe37",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("e6961173-abf1-49ec-b347-6d688e9bbe37",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"b2f37555-3f2b-441a-9b3f-8649b8fbc84f",
+	'smhConfirm',
+	'',
+	'',
+	'smhConfirm',
+	0,
+	"8cd154a8-379c-475e-86e9-7d36f4fe2e4e",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("8cd154a8-379c-475e-86e9-7d36f4fe2e4e",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_SMHConfirmation',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("bd540f0a-0951-47ea-8430-1fc2d6b32932",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("bd540f0a-0951-47ea-8430-1fc2d6b32932",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("bd540f0a-0951-47ea-8430-1fc2d6b32932",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"e6961173-abf1-49ec-b347-6d688e9bbe37",
+	'dfaConfirm',
+	'',
+	'',
+	'dfaConfirm',
+	0,
+	"2c5df395-a096-4d30-8c96-218d6a7b8a90",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("2c5df395-a096-4d30-8c96-218d6a7b8a90",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_DFAConfirmation',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("7627a2b8-02aa-4ff3-be7a-a6e4f76ca360",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("7627a2b8-02aa-4ff3-be7a-a6e4f76ca360",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("7627a2b8-02aa-4ff3-be7a-a6e4f76ca360",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"bd540f0a-0951-47ea-8430-1fc2d6b32932",
+	'isWaitingPageAdd',
+	'',
+	'',
+	'isWaitingPageAdd',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("49c881a8-0228-472b-af9e-f92e6b318d53",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("49c881a8-0228-472b-af9e-f92e6b318d53",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("49c881a8-0228-472b-af9e-f92e6b318d53",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"7627a2b8-02aa-4ff3-be7a-a6e4f76ca360",
+	'imageErase',
+	'',
+	'',
+	'imageErase',
+	0,
+	"b1b5e349-ff8a-4dd7-b2d9-1956f0ef467a",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("b1b5e349-ff8a-4dd7-b2d9-1956f0ef467a",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_ImageEraseMode',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_REF
+	VALUES ("d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	0,
+	"d1f2f144-2088-417c-82e8-1cffd09efe74",
+	"dbdffbca-7ad1-4887-9e5d-71bf05c707b4",
+	"be14b520-7400-4eb8-9e4a-4758a74edf8e",
+	"aaaeef37-22df-4ea5-a008-d4bfe8742a3b",
+	"f79c0daf-136c-4e74-834d-dd4134405b9d",
+	"5a4ffdd9-677d-498c-bc0e-cbf982c99190",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Job Restart Info',
+	'ID',
+	'R200.''logs for restart info''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"dbdffbca-7ad1-4887-9e5d-71bf05c707b4",
+	"be14b520-7400-4eb8-9e4a-4758a74edf8e",
+	'../../Sheet/Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("d1f2f144-2088-417c-82e8-1cffd09efe74",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	0,
+	"dbdffbca-7ad1-4887-9e5d-71bf05c707b4",
+	"aaaeef37-22df-4ea5-a008-d4bfe8742a3b",
+	'../../Sheet/Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("f79c0daf-136c-4e74-834d-dd4134405b9d",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"d1f2f144-2088-417c-82e8-1cffd09efe74",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("d1f2f144-2088-417c-82e8-1cffd09efe74",
+	"f47aedc0-7cb8-4b68-a08f-d88b67fa98d3",
+	'../../Sheet/Job Restart Info/Job Restart Info.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("f79c0daf-136c-4e74-834d-dd4134405b9d",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"49c881a8-0228-472b-af9e-f92e6b318d53",
+	'loggingRestartInfo',
+	'',
+	'',
+	'loggingRestartInfo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"323fe364-068d-4806-b63b-2eec34dd66fd",
+	0,
+	"c184ec38-77c6-489c-958c-2a87a32e698a",
+	"28f075f4-88a8-4bde-a021-2857a6c16534",
+	"8ef4134b-4c73-40d7-99f1-d647e67fe240",
+	"b9321212-0aeb-49a4-bc30-ec0ebb10238e",
+	"2f13255c-448e-4bd2-bd83-c10748c94344",
+	"ab3f7340-3012-42d4-93bd-caf3d0908ba8",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Sheet Provider',
+	'collateSetID',
+	'R253');
+INSERT INTO R_RGO_PROXY
+	VALUES ("d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"28f075f4-88a8-4bde-a021-2857a6c16534",
+	"8ef4134b-4c73-40d7-99f1-d647e67fe240",
+	'../../Sheet/Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("c184ec38-77c6-489c-958c-2a87a32e698a",
+	"323fe364-068d-4806-b63b-2eec34dd66fd",
+	0,
+	"28f075f4-88a8-4bde-a021-2857a6c16534",
+	"b9321212-0aeb-49a4-bc30-ec0ebb10238e",
+	'../../Sheet/Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("2f13255c-448e-4bd2-bd83-c10748c94344",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"7268d40b-bd9b-4b9a-92f4-01dd91b2e58e",
+	"832218a6-b1d8-46e3-b7ad-a10815bef1c6",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("7268d40b-bd9b-4b9a-92f4-01dd91b2e58e",
+	"832218a6-b1d8-46e3-b7ad-a10815bef1c6",
+	'../../Sheet/Collate Set/Collate Set.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("2f13255c-448e-4bd2-bd83-c10748c94344",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"f79c0daf-136c-4e74-834d-dd4134405b9d",
+	'currentSheetProviderID',
+	'',
+	'',
+	'currentSheetProviderID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("7999a894-f87a-4f49-9dc4-01e887bc2243",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("7999a894-f87a-4f49-9dc4-01e887bc2243",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("7999a894-f87a-4f49-9dc4-01e887bc2243",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"2f13255c-448e-4bd2-bd83-c10748c94344",
+	'isJobCompleted',
+	'//-- 14599:20130709 Modified Start (ikegaya)
+// ジョブの終了を表すフラグ
+// OLD : isJobEndAnsReceived
+//-- 14599:20130709 Modified End (ikegaya)
+',
+	'',
+	'isJobCompleted',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"0eeca1ed-14de-466a-830d-e59b52bd9707",
+	0,
+	"fd5f8abc-5c37-48dd-9399-84ed3530dcf6",
+	"446cc555-95e3-45e3-b8d1-c826e6f7be23",
+	"722d6fd1-670c-4d6b-86bc-959f510897dd",
+	"c4cc6fe2-290c-4c4a-847e-7623893bab3b",
+	"fea48d4f-5ae3-4174-b6d6-f6471aa783e3",
+	"38e151f1-d7dc-4459-a4ba-f25ba12f83ce",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Sheet Memento',
+	'ID',
+	'R261.''uses as last sheet info''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"446cc555-95e3-45e3-b8d1-c826e6f7be23",
+	"722d6fd1-670c-4d6b-86bc-959f510897dd",
+	'../../Sheet/Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("fd5f8abc-5c37-48dd-9399-84ed3530dcf6",
+	"0eeca1ed-14de-466a-830d-e59b52bd9707",
+	0,
+	"446cc555-95e3-45e3-b8d1-c826e6f7be23",
+	"c4cc6fe2-290c-4c4a-847e-7623893bab3b",
+	'../../Sheet/Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("fea48d4f-5ae3-4174-b6d6-f6471aa783e3",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"fd5f8abc-5c37-48dd-9399-84ed3530dcf6",
+	"0eeca1ed-14de-466a-830d-e59b52bd9707",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("fd5f8abc-5c37-48dd-9399-84ed3530dcf6",
+	"0eeca1ed-14de-466a-830d-e59b52bd9707",
+	'../../Sheet/Sheet Memento/Sheet Memento.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("fea48d4f-5ae3-4174-b6d6-f6471aa783e3",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"7999a894-f87a-4f49-9dc4-01e887bc2243",
+	'lastSheetInfo',
+	'',
+	'',
+	'lastSheetInfo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("85a6dfb1-3063-4325-9667-d88d2015e18e",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("85a6dfb1-3063-4325-9667-d88d2015e18e",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("85a6dfb1-3063-4325-9667-d88d2015e18e",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"fea48d4f-5ae3-4174-b6d6-f6471aa783e3",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("984ae964-f29c-4ca8-8e1d-2d6fceac04cb",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("984ae964-f29c-4ca8-8e1d-2d6fceac04cb",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("984ae964-f29c-4ca8-8e1d-2d6fceac04cb",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"85a6dfb1-3063-4325-9667-d88d2015e18e",
+	'pageAnnotationMode',
+	'',
+	'',
+	'pageAnnotationMode',
+	0,
+	"3b471eaa-5ccb-4d99-ac8f-2bc42e54ba7b",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("3b471eaa-5ccb-4d99-ac8f-2bc42e54ba7b",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_PageAnnotationMode',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("684b12de-7ae4-4938-a64e-6a79d6c20f67",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("684b12de-7ae4-4938-a64e-6a79d6c20f67",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("684b12de-7ae4-4938-a64e-6a79d6c20f67",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"984ae964-f29c-4ca8-8e1d-2d6fceac04cb",
+	'pageCondition',
+	'',
+	'',
+	'pageCondition',
+	0,
+	"54425017-ce14-4682-8e9a-d3d1846194c0",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("54425017-ce14-4682-8e9a-d3d1846194c0",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_AnnotationCondition',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("6fdad702-bed0-44ef-8354-e1b046d643b3",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("6fdad702-bed0-44ef-8354-e1b046d643b3",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("6fdad702-bed0-44ef-8354-e1b046d643b3",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"684b12de-7ae4-4938-a64e-6a79d6c20f67",
+	'startPageOffset',
+	'',
+	'',
+	'startPageOffset',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("5f354c91-83ac-49af-8925-8595288492ea",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("5f354c91-83ac-49af-8925-8595288492ea",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("5f354c91-83ac-49af-8925-8595288492ea",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"6fdad702-bed0-44ef-8354-e1b046d643b3",
+	'startPageNo',
+	'',
+	'',
+	'startPageNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("93e309f2-6100-4c9f-a344-dd887e56e79c",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("93e309f2-6100-4c9f-a344-dd887e56e79c",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("93e309f2-6100-4c9f-a344-dd887e56e79c",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"5f354c91-83ac-49af-8925-8595288492ea",
+	'endPageNo',
+	'',
+	'',
+	'endPageNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("86605843-415e-4aca-8fca-b8dfe3e5c8d1",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("86605843-415e-4aca-8fca-b8dfe3e5c8d1",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("86605843-415e-4aca-8fca-b8dfe3e5c8d1",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"93e309f2-6100-4c9f-a344-dd887e56e79c",
+	'totalPageNo',
+	'',
+	'',
+	'totalPageNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("84dc012e-3dbc-485c-b9ab-4dc4436e6dbb",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("84dc012e-3dbc-485c-b9ab-4dc4436e6dbb",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("84dc012e-3dbc-485c-b9ab-4dc4436e6dbb",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"86605843-415e-4aca-8fca-b8dfe3e5c8d1",
+	'dateAnnotationMode',
+	'',
+	'',
+	'dateAnnotationMode',
+	0,
+	"95a14724-114a-4467-8a94-c6de4db77a19",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("95a14724-114a-4467-8a94-c6de4db77a19",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_DateAnnotationMode',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("5f3d604d-4ec5-4170-b80e-9452317485fc",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("5f3d604d-4ec5-4170-b80e-9452317485fc",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("5f3d604d-4ec5-4170-b80e-9452317485fc",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"84dc012e-3dbc-485c-b9ab-4dc4436e6dbb",
+	'dateCondition',
+	'',
+	'',
+	'dateCondition',
+	0,
+	"54425017-ce14-4682-8e9a-d3d1846194c0",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c853bd20-a9eb-4e79-9dea-d62d64ca270c",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("c853bd20-a9eb-4e79-9dea-d62d64ca270c",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("c853bd20-a9eb-4e79-9dea-d62d64ca270c",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"5f3d604d-4ec5-4170-b80e-9452317485fc",
+	'stampAnnotationMode',
+	'',
+	'',
+	'stampAnnotationMode',
+	0,
+	"c0dda4fb-d1cd-4bed-a2d6-79f59c108430",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("c0dda4fb-d1cd-4bed-a2d6-79f59c108430",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_StampAnnotationMode',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("7972e183-6459-44b7-9ea7-69fd4cc600a7",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("7972e183-6459-44b7-9ea7-69fd4cc600a7",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("7972e183-6459-44b7-9ea7-69fd4cc600a7",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"c853bd20-a9eb-4e79-9dea-d62d64ca270c",
+	'stampCondition',
+	'',
+	'',
+	'stampCondition',
+	0,
+	"54425017-ce14-4682-8e9a-d3d1846194c0",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("8c2f9fed-3f97-40fd-8f4c-6155124352b0",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("8c2f9fed-3f97-40fd-8f4c-6155124352b0",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("8c2f9fed-3f97-40fd-8f4c-6155124352b0",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"7972e183-6459-44b7-9ea7-69fd4cc600a7",
+	'stampColor',
+	'',
+	'',
+	'stampColor',
+	0,
+	"155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_ImageColor',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("2e5dac29-bd8f-4b92-bb79-166698de0088",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("2e5dac29-bd8f-4b92-bb79-166698de0088",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("2e5dac29-bd8f-4b92-bb79-166698de0088",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"8c2f9fed-3f97-40fd-8f4c-6155124352b0",
+	'waterMarkMode',
+	'',
+	'',
+	'waterMarkMode',
+	0,
+	"b0fd43bd-7057-4505-8b19-501d82779611",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("b0fd43bd-7057-4505-8b19-501d82779611",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_WaterMarkMode',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("f6a12d0a-75bb-44af-bb0d-d6cde5eebeaa",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("f6a12d0a-75bb-44af-bb0d-d6cde5eebeaa",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("f6a12d0a-75bb-44af-bb0d-d6cde5eebeaa",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"2e5dac29-bd8f-4b92-bb79-166698de0088",
+	'waterMarkColor',
+	'',
+	'',
+	'waterMarkColor',
+	0,
+	"155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("63be2b73-efbd-40fe-bb03-294ab9795e13",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("63be2b73-efbd-40fe-bb03-294ab9795e13",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("63be2b73-efbd-40fe-bb03-294ab9795e13",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"f6a12d0a-75bb-44af-bb0d-d6cde5eebeaa",
+	'copiesNumPrintMode',
+	'',
+	'',
+	'copiesNumPrintMode',
+	0,
+	"c796c135-121d-4575-baa0-e18abc6e68e5",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("c796c135-121d-4575-baa0-e18abc6e68e5",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_CopiesNumPrintMode',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("6da01c66-b8b9-48d1-b128-30ec3b55558a",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("6da01c66-b8b9-48d1-b128-30ec3b55558a",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("6da01c66-b8b9-48d1-b128-30ec3b55558a",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"63be2b73-efbd-40fe-bb03-294ab9795e13",
+	'copiesNumStartOffset',
+	'',
+	'',
+	'copiesNumStartOffset',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("a95d8414-6649-4421-b437-c1032aa9a57a",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("a95d8414-6649-4421-b437-c1032aa9a57a",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("a95d8414-6649-4421-b437-c1032aa9a57a",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"6da01c66-b8b9-48d1-b128-30ec3b55558a",
+	'formColor',
+	'',
+	'',
+	'formColor',
+	0,
+	"155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("dad7339e-5ab3-4422-9cad-61065ea6e697",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("dad7339e-5ab3-4422-9cad-61065ea6e697",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("dad7339e-5ab3-4422-9cad-61065ea6e697",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"a95d8414-6649-4421-b437-c1032aa9a57a",
+	'formType',
+	'',
+	'',
+	'formType',
+	0,
+	"f07776df-bc43-40ca-a55a-579a4a4f36ba",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("f07776df-bc43-40ca-a55a-579a4a4f36ba",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_FormType',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("4cf1cd6e-25e0-47fd-83f7-b454dec4286a",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("4cf1cd6e-25e0-47fd-83f7-b454dec4286a",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("4cf1cd6e-25e0-47fd-83f7-b454dec4286a",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"dad7339e-5ab3-4422-9cad-61065ea6e697",
+	'isMergeImageFixedDirection',
+	'',
+	'',
+	'isMergeImageFixedDirection',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("9e3c0b00-26d0-4780-a60c-c4db7a3f212d",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("9e3c0b00-26d0-4780-a60c-c4db7a3f212d",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("9e3c0b00-26d0-4780-a60c-c4db7a3f212d",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"4cf1cd6e-25e0-47fd-83f7-b454dec4286a",
+	'mediumTypeMismatchAction',
+	'用紙種類のミスマッチを起こした時の処理を指定します。
+値の詳細はIOTscのI/F仕様書を参照のこと。
+
+システムデータに従うという指定は、モデル内には入ってこず、
+PFlite Bridge内で調整してからこの値を設定すること。',
+	'',
+	'mediumTypeMismatchAction',
+	0,
+	"a9557720-3392-4d44-8b7e-2a7343ba426c",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("a9557720-3392-4d44-8b7e-2a7343ba426c",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_MediumTypeMismatchAction',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("e20d3497-cf13-4449-aac6-76f43e8fe219",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("e20d3497-cf13-4449-aac6-76f43e8fe219",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("e20d3497-cf13-4449-aac6-76f43e8fe219",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"9e3c0b00-26d0-4780-a60c-c4db7a3f212d",
+	'isPaperColorAttrEnable',
+	'//-- 20:20040323
+// 用紙属性対応
+用紙属性を使用するかどうかを指定します。
+用紙属性とは、カラー、白黒、指定無しといった用紙トレイの属性です。
+
+TRUE : 用紙属性を利用した出力を行う
+FALSE : 用紙属性を利用しない。
+
+PF::updateJobAttribute()内で設定され、これが指定されるとシート情報に
+PaperColorAttrが設定されます。
+
+参照はS_SHTでされます。',
+	'',
+	'isPaperColorAttrEnable',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("7c32d2f8-1aef-42ad-82b6-bae6fbd2ba45",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("7c32d2f8-1aef-42ad-82b6-bae6fbd2ba45",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("7c32d2f8-1aef-42ad-82b6-bae6fbd2ba45",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"e20d3497-cf13-4449-aac6-76f43e8fe219",
+	'indicatedDuplexDirection',
+	'//-- 23:20040329 Add
+ジョブの両面綴じ方向指示指定。
+
+これが指定されている場合にはS_JRIのjobDuplexDirectionではなく、
+こちらの綴じ方向を有効とする。',
+	'',
+	'indicatedDuplexDirection',
+	0,
+	"707d5fec-6d0d-4f32-a58d-694554e30884",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("707d5fec-6d0d-4f32-a58d-694554e30884",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_DuplexDirection',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("d1cbddeb-f855-436a-8acd-ef0164e5aedf",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("d1cbddeb-f855-436a-8acd-ef0164e5aedf",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("d1cbddeb-f855-436a-8acd-ef0164e5aedf",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"7c32d2f8-1aef-42ad-82b6-bae6fbd2ba45",
+	'isFirstPagePrint',
+	'//-- 30:20040405 Add
+先頭ページ印字指定
+
+TRUE : 先頭ページプリントを行う
+FALSE : 先頭ページプリントを行わない（通常はこっち）
+
+先頭ページプリントはデフォルトの排出先にイメージがついているページを１ページだけ
+出力します。BLANKのページは出力しません。',
+	'',
+	'isFirstPagePrint',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("5b5500ba-7385-4bf3-b614-a97d02ff4ace",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("5b5500ba-7385-4bf3-b614-a97d02ff4ace",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("5b5500ba-7385-4bf3-b614-a97d02ff4ace",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"d1cbddeb-f855-436a-8acd-ef0164e5aedf",
+	'isJobCopiesCannotChange',
+	'//-- 140:20040802 Add 
+Jobの部数変更が禁止になったかどうかを示す。',
+	'',
+	'isJobCopiesCannotChange',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("5efa46c1-f4b8-41ae-8602-459175c06e7d",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("5efa46c1-f4b8-41ae-8602-459175c06e7d",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("5efa46c1-f4b8-41ae-8602-459175c06e7d",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"5b5500ba-7385-4bf3-b614-a97d02ff4ace",
+	'mergedColorMode',
+	'//-- 219:20050519 Add Start (kanda)
+合成イメージに指定された色情報を考慮したカラーモード情報。
+dmへJobStart通知する際に使用する.(SC10055)
+//-- 219:20050519 Add End (kanda)',
+	'',
+	'mergedColorMode',
+	0,
+	"8b70262d-c859-45a3-9b86-d7858584682c",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("8b70262d-c859-45a3-9b86-d7858584682c",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_ColorMode',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("3100dcd2-3b39-4280-8d22-05def589e016",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("3100dcd2-3b39-4280-8d22-05def589e016",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("3100dcd2-3b39-4280-8d22-05def589e016",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"5efa46c1-f4b8-41ae-8602-459175c06e7d",
+	'uncollateOffsetNum',
+	'//-- 220: 20050520 Add Start (kanda)
+uncollate offsetのoffset枚数を表す。
+「0」の場合はuncollate offset動作をしない
+//-- 220: 20050520 Add End (kanda)
+',
+	'',
+	'uncollateOffsetNum',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("d248109b-5436-481b-a254-f05836c99927",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("d248109b-5436-481b-a254-f05836c99927",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("d248109b-5436-481b-a254-f05836c99927",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"3100dcd2-3b39-4280-8d22-05def589e016",
+	'isBlackSpeedPromoteOn',
+	'
+',
+	'',
+	'isBlackSpeedPromoteOn',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("47b111f3-6d45-44b1-88af-e943101d8148",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("47b111f3-6d45-44b1-88af-e943101d8148",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("47b111f3-6d45-44b1-88af-e943101d8148",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"d248109b-5436-481b-a254-f05836c99927",
+	'separatorSheetTraySwitchMode',
+	'//-- 243:20050815 Add Start (kanda)
+セパレートシートのATSモードを示す。
+//-- 243:20050815 Add End (kanda)
+
+//-- 283:20051013 Add Start (kanda)
+SC11026の導入により、仕切り合紙、表紙のシートはATSしないこととなった。
+SyncServiceからは常に0ffがセットされる
+//-- 283:20051013 Add End (kanda)
+',
+	'',
+	'separatorSheetTraySwitchMode',
+	0,
+	"682a5944-175c-4585-8d68-e98a22645347",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("682a5944-175c-4585-8d68-e98a22645347",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_TraySwitch',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("5c7f9897-6ce3-4b8e-a491-40e3ce3057da",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("5c7f9897-6ce3-4b8e-a491-40e3ce3057da",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("5c7f9897-6ce3-4b8e-a491-40e3ce3057da",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"47b111f3-6d45-44b1-88af-e943101d8148",
+	'waterMarkCharacter',
+	'//--233:20050713 Add Start(tsuchitoi)
+Water Mark(Hybrid 含む)の文字列IDを示す。0は文字列を打たないことを示す。
+//--233:20050713 Add End',
+	'',
+	'waterMarkCharacter',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("5f0d2be2-98fc-41f5-97ca-fdbfd352553f",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("5f0d2be2-98fc-41f5-97ca-fdbfd352553f",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("5f0d2be2-98fc-41f5-97ca-fdbfd352553f",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"5c7f9897-6ce3-4b8e-a491-40e3ce3057da",
+	'isUUIDPrint',
+	'//--233:20050713 Add Start (tsuchitoi)
+UUIDを印字するかどうかを指定する
+//--233:20050713 Add End
+',
+	'',
+	'isUUIDPrint',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("3d40238d-4682-47dc-b332-270c73590218",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("3d40238d-4682-47dc-b332-270c73590218",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("3d40238d-4682-47dc-b332-270c73590218",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"5f0d2be2-98fc-41f5-97ca-fdbfd352553f",
+	'separatorNum',
+	'//-- 236:20050715 Add Start (kanda)
+ジョブで排出したセパレータの数を表す。(UncollateSeparator)
+この値はUncollate時のSetStartInfoで通知するdevidedNoに設定する。
+
+なお、この値の取得には、getSeparatorNum()をコールすること。
+J_EJOB生成時にアーキテクチャにより0で初期化する。
+//-- 236:20050715 Add End (kanda)
+',
+	'',
+	'separatorNum',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c02e8671-6a13-4170-9ec1-f45a62368ad5",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("c02e8671-6a13-4170-9ec1-f45a62368ad5",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("c02e8671-6a13-4170-9ec1-f45a62368ad5",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"3d40238d-4682-47dc-b332-270c73590218",
+	'officialStampSelect',
+	'//-- 242:20050810 Add Start (kanda)
+インストラクションから取得したスタンプ(認証)の種類を設定する
+//-- 242:20050810 Add End (kanda)
+',
+	'',
+	'officialStampSelect',
+	0,
+	"44463c96-3d46-45b4-9181-5ed74533c6c3",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("44463c96-3d46-45b4-9181-5ed74533c6c3",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_StampSelect',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("b73cbaeb-6cff-4df0-974a-c3abacd4c105",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("b73cbaeb-6cff-4df0-974a-c3abacd4c105",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("b73cbaeb-6cff-4df0-974a-c3abacd4c105",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"c02e8671-6a13-4170-9ec1-f45a62368ad5",
+	'officialStampShift',
+	'//-- 242:20050810 Add Start (kanda)
+インストラクションから取得したスタンプ(認証)の位置を設定する
+//-- 242:20050810 Add End (kanda)
+',
+	'',
+	'officialStampShift',
+	0,
+	"1dffdc49-252c-4e95-bacc-0cac90097c38",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("1dffdc49-252c-4e95-bacc-0cac90097c38",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_StampShift',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("39aa137e-ba98-4309-a5ee-195b0523978f",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("39aa137e-ba98-4309-a5ee-195b0523978f",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("39aa137e-ba98-4309-a5ee-195b0523978f",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"b73cbaeb-6cff-4df0-974a-c3abacd4c105",
+	'isJobCancelRequesting',
+	'//-- 268:20050920 Add Start (kanda)
+システムに対してジョブアボートを要求している状態を表す。
+(S_EOSでジョブアボート処理待ち状態を作れないため導入)
+このフラグが立っている場合は、nextSheetReqを処理しない。
+//-- 268:20050920 Add End (kanda)
+',
+	'',
+	'isJobCancelRequesting',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("729e3f08-7761-4a3a-8a8d-af460b127197",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("729e3f08-7761-4a3a-8a8d-af460b127197",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("729e3f08-7761-4a3a-8a8d-af460b127197",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"39aa137e-ba98-4309-a5ee-195b0523978f",
+	'isBatesPrint',
+	'//-- 313:20060424 Add Start(tscuhitoi)
+Bates番号を打つかどうか
+TRUE: 打つ
+FALSE:打たない
+//-- 313:20060424 Add End(tscuhitoi)',
+	'',
+	'isBatesPrint',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("815d1bde-af5c-428f-86ed-26474571dbbf",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("815d1bde-af5c-428f-86ed-26474571dbbf",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("815d1bde-af5c-428f-86ed-26474571dbbf",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"729e3f08-7761-4a3a-8a8d-af460b127197",
+	'batesCondition',
+	'//-- 313:20060424 Add Start(tscuhitoi)
+Bates番号のコンディション
+//-- 313:20060424 Add End(tscuhitoi)',
+	'',
+	'batesCondition',
+	0,
+	"54425017-ce14-4682-8e9a-d3d1846194c0",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("a632e5c7-d884-4d98-9c53-32ee1cc728a7",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("a632e5c7-d884-4d98-9c53-32ee1cc728a7",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("a632e5c7-d884-4d98-9c53-32ee1cc728a7",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"815d1bde-af5c-428f-86ed-26474571dbbf",
+	'batesStartNoOffset',
+	'//-- 313:20060424 Add Start(tscuhitoi)
+Bates番号の開始番号オフセット
+これが10の時には、10,11,12というように打たれる
+//-- 313:20060424 Add End(tscuhitoi)',
+	'',
+	'batesStartNoOffset',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("7def0a50-f468-460a-a775-f80fb2fd9323",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("7def0a50-f468-460a-a775-f80fb2fd9323",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("7def0a50-f468-460a-a775-f80fb2fd9323",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"a632e5c7-d884-4d98-9c53-32ee1cc728a7",
+	'batesStartNo',
+	'//-- 313:20060424 Add Start(tscuhitoi)
+Bates番号を打ち始めのページ数
+//-- 313:20060424 Add End(tscuhitoi)',
+	'',
+	'batesStartNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("7fbbc0e8-6c84-4665-b054-737577244338",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("7fbbc0e8-6c84-4665-b054-737577244338",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("7fbbc0e8-6c84-4665-b054-737577244338",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"7def0a50-f468-460a-a775-f80fb2fd9323",
+	'batesEndNo',
+	'//-- 313:20060424 Add Start(tscuhitoi)
+Bates番号を打ち終わりのページ数
+//-- 313:20060424 Add End(tscuhitoi)',
+	'',
+	'batesEndNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("71075f8b-a300-4cad-b0a5-0358f98700ce",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("71075f8b-a300-4cad-b0a5-0358f98700ce",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("71075f8b-a300-4cad-b0a5-0358f98700ce",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"7fbbc0e8-6c84-4665-b054-737577244338",
+	'batesDigitNo',
+	'//-- 313:20060424 Add Start(tsuchitoi)
+Batesの桁数
+//-- 313:20060424 Add End(tsuchitoi)
+',
+	'',
+	'batesDigitNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("d3e0de5b-cb6d-4e42-b7b8-534135a8a506",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("d3e0de5b-cb6d-4e42-b7b8-534135a8a506",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("d3e0de5b-cb6d-4e42-b7b8-534135a8a506",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"71075f8b-a300-4cad-b0a5-0358f98700ce",
+	'isProofPrintJob',
+	'//-- 354:20061115 Add Start (kanda)
+プルーフプリントジョブ(プルーフの1部目)であるかを示す
+//-- 354:20061115 Add End (kanda)
+',
+	'',
+	'isProofPrintJob',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e",
+	0,
+	"8b76331e-6032-4a22-9257-46cfeb142d19",
+	"dc032607-e6d2-4374-a11a-c0f5ba83c233",
+	"a28e6543-4d4e-49fa-947c-71009dff16f3",
+	"9f59ed73-d449-4e27-a3f1-09aa447b3cfb",
+	"27aaf3ca-c6de-4da9-a950-0b863e90b399",
+	"2aca707f-f21d-40e5-b0fb-72a11b98d8c0",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Spot Check Instruction',
+	'ID',
+	'R266.''to use first''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"dc032607-e6d2-4374-a11a-c0f5ba83c233",
+	"a28e6543-4d4e-49fa-947c-71009dff16f3",
+	'../../Sheet/Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("8b76331e-6032-4a22-9257-46cfeb142d19",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e",
+	0,
+	"dc032607-e6d2-4374-a11a-c0f5ba83c233",
+	"9f59ed73-d449-4e27-a3f1-09aa447b3cfb",
+	'../../Sheet/Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("27aaf3ca-c6de-4da9-a950-0b863e90b399",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"8b76331e-6032-4a22-9257-46cfeb142d19",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("8b76331e-6032-4a22-9257-46cfeb142d19",
+	"f4945ca0-de27-49fc-9f77-b89cd260432e",
+	'../../Sheet/Spot Check Instruction/Spot Check Instruction.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("27aaf3ca-c6de-4da9-a950-0b863e90b399",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"d3e0de5b-cb6d-4e42-b7b8-534135a8a506",
+	'firstSpotCheckInstructionID',
+	'',
+	'',
+	'firstSpotCheckInstructionID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("08e7a5c7-28ae-4ec3-a11c-8cd9d6e7d1ee",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("08e7a5c7-28ae-4ec3-a11c-8cd9d6e7d1ee",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("08e7a5c7-28ae-4ec3-a11c-8cd9d6e7d1ee",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"27aaf3ca-c6de-4da9-a950-0b863e90b399",
+	'pageNoColor',
+	'',
+	'',
+	'pageNoColor',
+	0,
+	"155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("f8ea0b55-bc70-4efb-af22-6f57e9087456",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("f8ea0b55-bc70-4efb-af22-6f57e9087456",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("f8ea0b55-bc70-4efb-af22-6f57e9087456",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"08e7a5c7-28ae-4ec3-a11c-8cd9d6e7d1ee",
+	'batesNoColor',
+	'',
+	'',
+	'batesNoColor',
+	0,
+	"155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("d3b4e326-9ef9-48ec-ab5d-cb85f9c699b1",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("d3b4e326-9ef9-48ec-ab5d-cb85f9c699b1",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("d3b4e326-9ef9-48ec-ab5d-cb85f9c699b1",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"f8ea0b55-bc70-4efb-af22-6f57e9087456",
+	'datesColor',
+	'',
+	'',
+	'datesColor',
+	0,
+	"155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"1f04dc59-dc06-4b16-9925-382af529b54f",
+	0,
+	"741b05ab-8987-4245-a3d5-154743ddcae9",
+	"1f2d57d2-fc0c-44f2-a213-3e1a3d8a5e49",
+	"1ea441e9-3659-4018-a449-6187edd1ac7d",
+	"f385b77c-1e3a-4903-88e2-22304ac0a566",
+	"b7ac9d36-3ab5-4818-a25f-6aebc3a2a04a",
+	"95f5d803-7510-43e7-9938-d0db373346a3",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Output Unit',
+	'ID',
+	'R277');
+INSERT INTO R_RGO_PROXY
+	VALUES ("d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"1f2d57d2-fc0c-44f2-a213-3e1a3d8a5e49",
+	"1ea441e9-3659-4018-a449-6187edd1ac7d",
+	'../../Sheet/Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("741b05ab-8987-4245-a3d5-154743ddcae9",
+	"1f04dc59-dc06-4b16-9925-382af529b54f",
+	0,
+	"1f2d57d2-fc0c-44f2-a213-3e1a3d8a5e49",
+	"f385b77c-1e3a-4903-88e2-22304ac0a566",
+	'../../Sheet/Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("b7ac9d36-3ab5-4818-a25f-6aebc3a2a04a",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"741b05ab-8987-4245-a3d5-154743ddcae9",
+	"1f04dc59-dc06-4b16-9925-382af529b54f",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("741b05ab-8987-4245-a3d5-154743ddcae9",
+	"1f04dc59-dc06-4b16-9925-382af529b54f",
+	'../../Sheet/Output Unit/Output Unit.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("b7ac9d36-3ab5-4818-a25f-6aebc3a2a04a",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"d3b4e326-9ef9-48ec-ab5d-cb85f9c699b1",
+	'outputUnitID',
+	'',
+	'',
+	'outputUnitID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("a821ad89-1441-4806-bca0-5ba4e38eb925",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("a821ad89-1441-4806-bca0-5ba4e38eb925",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("a821ad89-1441-4806-bca0-5ba4e38eb925",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"b7ac9d36-3ab5-4818-a25f-6aebc3a2a04a",
+	'isForcedAnnotationPrint',
+	'//-- 469:20080201 Add Start (kanda)
+属性追加
+
+Modify_No:419
+Modifier:kanda
+Modify_Date:20080201
+//-- 469:20080201 Add End (kanda)
+',
+	'',
+	'isForcedAnnotationPrint',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("e6a0a171-f005-4725-a6ad-a3cb73172b73",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("e6a0a171-f005-4725-a6ad-a3cb73172b73",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("e6a0a171-f005-4725-a6ad-a3cb73172b73",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"a821ad89-1441-4806-bca0-5ba4e38eb925",
+	'sealTemplateId',
+	'//-- 487:20080421 Add Start (kanda)
+// SealのテンプレートID
+Modify:Add
+Modify_No:487
+Modifier:kanda
+Modify_Date:20080421
+//-- 487:20080421 Add End (kanda)
+',
+	'',
+	'sealTemplateId',
+	0,
+	"75457db8-d0b7-4b56-ab24-3b0b2cd7b139",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("75457db8-d0b7-4b56-ab24-3b0b2cd7b139",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_SealTemplateId',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("c2391dba-eed6-4a7a-b4f1-59dda62271ef",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("c2391dba-eed6-4a7a-b4f1-59dda62271ef",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("c2391dba-eed6-4a7a-b4f1-59dda62271ef",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"e6a0a171-f005-4725-a6ad-a3cb73172b73",
+	'sealBaseContextId',
+	'//-- 487:20080421 Add Start (kanda)
+// SealのベースコンテキストID
+Modify:Add
+Modify_No:487
+Modifier:kanda
+Modify_Date:20080421
+//-- 487:20080421 Add End (kanda)
+',
+	'',
+	'sealBaseContextId',
+	0,
+	"70a9aae2-b9ad-428a-b968-bcb0b9db5e95",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("70a9aae2-b9ad-428a-b968-bcb0b9db5e95",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_SealContextId',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("2c7089f6-1e19-42dd-84f0-e6152b5313b4",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("2c7089f6-1e19-42dd-84f0-e6152b5313b4",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("2c7089f6-1e19-42dd-84f0-e6152b5313b4",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"c2391dba-eed6-4a7a-b4f1-59dda62271ef",
+	'isSealDrawPhaseAfterStorage',
+	'//-- 487:20080421 Add Start (kanda)
+// 描画フェイズがAfterStorage(IOT)のSealがあるかどうか
+Modify:Add
+Modify_No:487
+Modifier:kanda
+Modify_Date:20080421
+//-- 487:20080421 Add End (kanda)
+',
+	'',
+	'isSealDrawPhaseAfterStorage',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("02932bbf-d973-4c06-b957-3a344f015862",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("02932bbf-d973-4c06-b957-3a344f015862",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("02932bbf-d973-4c06-b957-3a344f015862",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"2c7089f6-1e19-42dd-84f0-e6152b5313b4",
+	'isSealDrawPhaseBeforeStorage',
+	'//-- 487:20080421 Add Start (kanda)
+// 描画フェイズがBeforeStorage(Spol)のSealがあるかどうか
+Modify:Add
+Modify_No:487
+Modifier:kanda
+Modify_Date:20080421
+//-- 487:20080421 Add End (kanda)
+',
+	'',
+	'isSealDrawPhaseBeforeStorage',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("1e003001-a51f-44fe-92d1-878969f4c05a",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("1e003001-a51f-44fe-92d1-878969f4c05a",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("1e003001-a51f-44fe-92d1-878969f4c05a",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"02932bbf-d973-4c06-b957-3a344f015862",
+	'totalValidPageCountOnJob',
+	'//-- 571:20090609 Add Start (kanda)
+// ジョブ全体の有効ページ総数
+// ※totalValidPageCountはセット全体
+Modify:Add
+Modify_No:571
+Modifier:kanda
+Modify_Date:20090609
+//-- 571:20090609 Add End (kanda)
+',
+	'',
+	'totalValidPageCountOnJob',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("7d7d726d-46a6-4709-8232-972e10a9fdd3",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("7d7d726d-46a6-4709-8232-972e10a9fdd3",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("7d7d726d-46a6-4709-8232-972e10a9fdd3",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"1e003001-a51f-44fe-92d1-878969f4c05a",
+	'validPageCountOnJob',
+	'//-- 571:20090609 Add Start (kanda)
+// ジョブ全体の有効ページ数
+Modify:Add
+Modify_No:571
+Modifier:kanda
+Modify_Date:20090609
+//-- 571:20090609 Add End (kanda)
+',
+	'',
+	'validPageCountOnJob',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("cccc6f58-0d66-49cf-944e-af463e5259f2",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("cccc6f58-0d66-49cf-944e-af463e5259f2",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("cccc6f58-0d66-49cf-944e-af463e5259f2",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"7d7d726d-46a6-4709-8232-972e10a9fdd3",
+	'isJobParse',
+	'//-- 571:20090609 Add Start (kanda)
+// Jobパースを実施するかどうか
+Modify:Add
+Modify_No:571
+Modifier:kanda
+Modify_Date:20090609
+//-- 571:20090609 Add End (kanda)
+',
+	'',
+	'isJobParse',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("38379706-15f1-4a21-a383-ccdc9b8efbdd",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("38379706-15f1-4a21-a383-ccdc9b8efbdd",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("38379706-15f1-4a21-a383-ccdc9b8efbdd",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"cccc6f58-0d66-49cf-944e-af463e5259f2",
+	'isJobParseEnd',
+	'//-- 571:20090618 Add Start (kanda)
+// Jobパースが終了したかどうか
+Modify:Add
+Modify_No:571
+Modifier:kanda
+Modify_Date:20090618
+//-- 571:20090618 Add End (kanda)
+',
+	'',
+	'isJobParseEnd',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("fed2b3a4-e0b0-4ad1-87a3-4bb8b7503724",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("fed2b3a4-e0b0-4ad1-87a3-4bb8b7503724",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("fed2b3a4-e0b0-4ad1-87a3-4bb8b7503724",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"38379706-15f1-4a21-a383-ccdc9b8efbdd",
+	'isValidPageCountOnJobPrint',
+	'//-- 571:20090618 Add Start (kanda)
+// ジョブの有効ページ数を印刷するかどうか
+Modify:Add
+Modify_No:571
+Modifier:kanda
+Modify_Date:20090618
+//-- 571:20090618 Add End (kanda)
+',
+	'',
+	'isValidPageCountOnJobPrint',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("6449e059-3bec-49aa-abe4-31f14757e376",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("6449e059-3bec-49aa-abe4-31f14757e376",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("6449e059-3bec-49aa-abe4-31f14757e376",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"fed2b3a4-e0b0-4ad1-87a3-4bb8b7503724",
+	'isTotalValidPageCountOnJobPrint',
+	'//-- 571:20090618 Add Start (kanda)
+// ジョブの有効ページ総数を印刷するかどうか
+Modify:Add
+Modify_No:571
+Modifier:kanda
+Modify_Date:20090618
+//-- 571:20090618 Add End (kanda)
+',
+	'',
+	'isTotalValidPageCountOnJobPrint',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"2ace2a48-9c33-4416-83b0-7bfaff93fa96",
+	0,
+	"24331ba9-c286-45c1-962a-ea1c9a858fa6",
+	"18263add-a90c-4969-b0f0-eae970ecaf05",
+	"9184cb77-9bb0-46f5-8820-83e26a258924",
+	"3782110a-db1d-4f64-891a-225529e88cf7",
+	"3d52140d-e29d-4555-bc4d-81c05b8cadc0",
+	"c86adee3-6926-4751-9948-6b17ff245663",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Set Recovery Request',
+	'setRecoveryRequestID',
+	'R700');
+INSERT INTO R_RGO_PROXY
+	VALUES ("d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"18263add-a90c-4969-b0f0-eae970ecaf05",
+	"9184cb77-9bb0-46f5-8820-83e26a258924",
+	'../../SetRecovery/SetRecovery.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("24331ba9-c286-45c1-962a-ea1c9a858fa6",
+	"2ace2a48-9c33-4416-83b0-7bfaff93fa96",
+	0,
+	"18263add-a90c-4969-b0f0-eae970ecaf05",
+	"3782110a-db1d-4f64-891a-225529e88cf7",
+	'../../SetRecovery/SetRecovery.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("3d52140d-e29d-4555-bc4d-81c05b8cadc0",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"24331ba9-c286-45c1-962a-ea1c9a858fa6",
+	"2ace2a48-9c33-4416-83b0-7bfaff93fa96",
+	1,
+	'setRecoveryRequestID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("24331ba9-c286-45c1-962a-ea1c9a858fa6",
+	"2ace2a48-9c33-4416-83b0-7bfaff93fa96",
+	'../../SetRecovery/Set Recovery Request/Set Recovery Request.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("3d52140d-e29d-4555-bc4d-81c05b8cadc0",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"6449e059-3bec-49aa-abe4-31f14757e376",
+	'setRecoveryRequestID',
+	'',
+	'',
+	'setRecoveryRequestID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c51a8604-979a-49b1-95fc-c5b460c64561",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("c51a8604-979a-49b1-95fc-c5b460c64561",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("c51a8604-979a-49b1-95fc-c5b460c64561",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"3d52140d-e29d-4555-bc4d-81c05b8cadc0",
+	'isWaitingSetRecoveryProcessEnd',
+	'//-- 627:20101109 Add Start (kanda)
+Modify:Add
+Modify_No:627
+Modifier:kanda
+Modify_Date:20101109
+//-- 627:20101109 Add End (kanda)
+',
+	'',
+	'isWaitingSetRecoveryProcessEnd',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("493fb0e3-033c-4c49-ac70-56d0fddf1cea",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("493fb0e3-033c-4c49-ac70-56d0fddf1cea",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("493fb0e3-033c-4c49-ac70-56d0fddf1cea",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"c51a8604-979a-49b1-95fc-c5b460c64561",
+	'isRecivedSetNotExist',
+	'//-- 627:20101109 Add Start (kanda)
+// 処理中断中にセットが確定したかどうかを表す
+Modify:Add
+Modify_No:627
+Modifier:kanda
+Modify_Date:20101109
+//-- 627:20101109 Add End (kanda)
+',
+	'',
+	'isRecivedSetNotExist',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("1deaf0fe-d2af-4d54-b822-f915c5006c46",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("1deaf0fe-d2af-4d54-b822-f915c5006c46",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("1deaf0fe-d2af-4d54-b822-f915c5006c46",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"493fb0e3-033c-4c49-ac70-56d0fddf1cea",
+	'dfaProfileNo',
+	'//-- 630:20101203 Add Start (kanda)
+// DFA Profile番号(0は無効値とする)
+Modify:Add
+Modify_No:630
+Modifier:kanda
+Modify_Date:20101203
+//-- 630:20101203 Add End (kanda)
+',
+	'',
+	'dfaProfileNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("e80a7773-9146-47c8-ad7f-c586f2dec899",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("e80a7773-9146-47c8-ad7f-c586f2dec899",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("e80a7773-9146-47c8-ad7f-c586f2dec899",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"1deaf0fe-d2af-4d54-b822-f915c5006c46",
+	'isSetRecoveryJob',
+	'//-- 630:20101215 Add Start (kanda)
+// このジョブのセットは全てSetRecovery対象であることをあらわす
+Modify:Add
+Modify_No:630
+Modifier:kanda
+Modify_Date:20101215
+//-- 630:20101215 Add End (kanda)
+',
+	'',
+	'isSetRecoveryJob',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("8786e043-08c1-4b3e-8381-7925e52a9a87",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("8786e043-08c1-4b3e-8381-7925e52a9a87",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("8786e043-08c1-4b3e-8381-7925e52a9a87",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"e80a7773-9146-47c8-ad7f-c586f2dec899",
+	'maxSid',
+	'//-- 642:20110224 Add Start (sasaki_r)
+Modify:Add
+Modify_No:642
+Modifier:sasaki_r
+Modify_Date:20110224
+
+型名：UINT64
+意味：出力済み最大SID
+
+//-- 642:20110224 Add End (sasaki_r)
+',
+	'',
+	'maxSid',
+	0,
+	"05669bc6-03ef-4010-814c-5d17ccedd083",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("05669bc6-03ef-4010-814c-5d17ccedd083",
+	"00000000-0000-0000-0000-000000000000",
+	'UINT64',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("881c64a7-551b-44fe-afc6-fe6576540872",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("881c64a7-551b-44fe-afc6-fe6576540872",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("881c64a7-551b-44fe-afc6-fe6576540872",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"8786e043-08c1-4b3e-8381-7925e52a9a87",
+	'initialSid',
+	'//-- 642:20110224 Add Start (sasaki_r)
+Modify:Add
+Modify_No:642
+Modifier:sasaki_r
+Modify_Date:20110224
+
+型名：UINT64
+意味：SID初期値
+
+//-- 642:20110224 Add End (sasaki_r)
+
+',
+	'',
+	'initialSid',
+	0,
+	"05669bc6-03ef-4010-814c-5d17ccedd083",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("a82cc0ba-a90b-4b83-be9f-f8ebc1ac2126",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("a82cc0ba-a90b-4b83-be9f-f8ebc1ac2126",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("a82cc0ba-a90b-4b83-be9f-f8ebc1ac2126",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"881c64a7-551b-44fe-afc6-fe6576540872",
+	'sequentialPageNoOnJob',
+	'//-- 642:20110224 Add Start (sasaki_r)
+Modify:Add
+Modify_No:642
+Modifier:sasaki_r
+Modify_Date:20110224
+
+型名：integer
+意味：先行セットで割り当てた最後のページ通し番号
+
+//-- 642:20110224 Add End (sasaki_r)
+
+',
+	'',
+	'sequentialPageNoOnJob',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("480d6ef1-dd20-47be-b228-0249c9cd4239",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("480d6ef1-dd20-47be-b228-0249c9cd4239",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("480d6ef1-dd20-47be-b228-0249c9cd4239",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"a82cc0ba-a90b-4b83-be9f-f8ebc1ac2126",
+	'sosekiID',
+	'//-- 642:20110224 Add Start (sasaki_r)
+Modify:Add
+Modify_No:642
+Modifier:sasaki_r
+Modify_Date:20110224
+
+型名：integer
+意味：sosekiのID
+
+//-- 642:20110224 Add End (sasaki_r)
+
+',
+	'',
+	'sosekiID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("02ba488b-6100-458b-bc6f-ca6775d227e3",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("02ba488b-6100-458b-bc6f-ca6775d227e3",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("02ba488b-6100-458b-bc6f-ca6775d227e3",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"480d6ef1-dd20-47be-b228-0249c9cd4239",
+	'jobCancelCodeOnUpdateJobAttribute',
+	'//-- 642:20110224 Add Start (sasaki_r)
+Modify:Add
+Modify_No:642
+Modifier:sasaki_r
+Modify_Date:20110224
+
+型名：Iot_FailCode
+意味：パラメータ取得時に検出したジョブキャンセル要因
+
+//-- 642:20110224 Add End (sasaki_r)
+
+',
+	'',
+	'jobCancelCodeOnUpdateJobAttribute',
+	0,
+	"adab3b81-ff2c-417d-b169-f9374ac12561",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("adab3b81-ff2c-417d-b169-f9374ac12561",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_FailCode',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("0626ec2a-78e7-4e25-8d58-3d16947cb6f5",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("0626ec2a-78e7-4e25-8d58-3d16947cb6f5",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("0626ec2a-78e7-4e25-8d58-3d16947cb6f5",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"02ba488b-6100-458b-bc6f-ca6775d227e3",
+	'endBannerReqIdOnDFA',
+	'//-- 650:20110310 Add Start (kanda)
+DFAジョブ時はエンドバナー確定までジョブ開始をしない
+エンドバナー待ちをしているときのリクエストID
+Modify:Add
+Modify_No:650
+Modifier:kanda
+Modify_Date:20110310
+//-- 650:20110310 Add End (kanda)
+',
+	'',
+	'endBannerReqIdOnDFA',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("26b88187-900f-4aa1-9f50-52b85accb35b",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("26b88187-900f-4aa1-9f50-52b85accb35b",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("26b88187-900f-4aa1-9f50-52b85accb35b",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"0626ec2a-78e7-4e25-8d58-3d16947cb6f5",
+	'isPBJob',
+	'//-- 747:20120307 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120307
+型名：boolean
+意味：くるみ製本ジョブフラグ（T=くるみ製本ジョブである）
+//-- 747:20120307 Add End (ikegaya)
+',
+	'',
+	'isPBJob',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("a35e8c39-4dd9-4463-b93e-909742c90548",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("a35e8c39-4dd9-4463-b93e-909742c90548",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("a35e8c39-4dd9-4463-b93e-909742c90548",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"26b88187-900f-4aa1-9f50-52b85accb35b",
+	'PBTrimPattern',
+	'//-- 747:20120307 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120307
+型名：Iot_PbTrimPattern
+意味：くるみ製本の断裁方法
+//-- 747:20120307 Add End (ikegaya)
+',
+	'',
+	'PBTrimPattern',
+	0,
+	"e8a83750-b822-49cf-a5be-73a0f733c5ee",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("e8a83750-b822-49cf-a5be-73a0f733c5ee",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_PbTrimPattern',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("c8649389-54b1-45cb-88b3-d00c95ac7798",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("c8649389-54b1-45cb-88b3-d00c95ac7798",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("c8649389-54b1-45cb-88b3-d00c95ac7798",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"a35e8c39-4dd9-4463-b93e-909742c90548",
+	'PBAdjustedFinSizeFS',
+	'//-- 747:20120307 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120307
+型名：Iot_PbFinSize
+意味：くるみ製本の天地（主走査方向）仕上がりサイズ（単位0.1mm）※調整値含む
+//-- 747:20120307 Add End (ikegaya)
+',
+	'',
+	'PBAdjustedFinSizeFS',
+	0,
+	"4bcfc177-7c16-44c6-9268-c0a58d51960c",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("4bcfc177-7c16-44c6-9268-c0a58d51960c",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_PbFinSize',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("df6e089e-be2b-4296-af8b-511655231c02",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("df6e089e-be2b-4296-af8b-511655231c02",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("df6e089e-be2b-4296-af8b-511655231c02",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"c8649389-54b1-45cb-88b3-d00c95ac7798",
+	'PBAdjustedFinSizeSS',
+	'//-- 747:20120307 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120307
+型名：Iot_PbFinSize
+意味：くるみ製本の小口（副走査方向）仕上がりサイズ（単位0.1mm）※調整値含む
+//-- 747:20120307 Add End (ikegaya)
+',
+	'',
+	'PBAdjustedFinSizeSS',
+	0,
+	"4bcfc177-7c16-44c6-9268-c0a58d51960c",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("94bcdbbe-26ea-4bc3-bef6-3847c37707e4",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("94bcdbbe-26ea-4bc3-bef6-3847c37707e4",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("94bcdbbe-26ea-4bc3-bef6-3847c37707e4",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"df6e089e-be2b-4296-af8b-511655231c02",
+	'PBAdjustedTrimPosi',
+	'//-- 747:20120307 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120307
+型名：Iot_PbTrimPosi
+意味：くるみ製本の天辺断裁位置（単位0.1mm）※調整値含む
+//-- 747:20120307 Add End (ikegaya)
+',
+	'',
+	'PBAdjustedTrimPosi',
+	0,
+	"1a0d39f2-940f-41f9-bf5b-9c184fc140bb",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("1a0d39f2-940f-41f9-bf5b-9c184fc140bb",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_PbTrimPosi',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("3690f5d0-953e-4b11-913d-ddf546a96f82",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("3690f5d0-953e-4b11-913d-ddf546a96f82",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("3690f5d0-953e-4b11-913d-ddf546a96f82",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"94bcdbbe-26ea-4bc3-bef6-3847c37707e4",
+	'PBCoverRegAdj',
+	'//-- 747:20120307 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120307
+型名：Iot_PbTrimAdjust 
+意味：くるみ製本の表紙横レジ位置調整値（単位0.1mm）
+//-- 747:20120307 Add End (ikegaya)
+',
+	'',
+	'PBCoverRegAdj',
+	0,
+	"bed031a1-3094-404c-bc25-7eb52ccd8c10",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("bed031a1-3094-404c-bc25-7eb52ccd8c10",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_PbTrimAdjust',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("69d73ad9-40d2-41a9-a032-d119c100c07e",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("69d73ad9-40d2-41a9-a032-d119c100c07e",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("69d73ad9-40d2-41a9-a032-d119c100c07e",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"3690f5d0-953e-4b11-913d-ddf546a96f82",
+	'PBCoverCenterAdj',
+	'//-- 747:20120307 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120307
+型名：Iot_PbTrimAdjust 
+意味：くるみ製本の表紙センター位置調整値（単位0.1mm）
+//-- 747:20120307 Add End (ikegaya)
+',
+	'',
+	'PBCoverCenterAdj',
+	0,
+	"bed031a1-3094-404c-bc25-7eb52ccd8c10",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("7da4e419-f3ca-4d44-9ad9-847e4f94e98b",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("7da4e419-f3ca-4d44-9ad9-847e4f94e98b",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("7da4e419-f3ca-4d44-9ad9-847e4f94e98b",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"69d73ad9-40d2-41a9-a032-d119c100c07e",
+	'PBRotationTopAdj',
+	'//-- 747:20120307 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120307
+型名：Iot_PbTrimAdjust 
+意味：くるみ製本の天辺側回転量調整値（単位0.1mm）
+//-- 747:20120307 Add End (ikegaya)
+',
+	'',
+	'PBRotationTopAdj',
+	0,
+	"bed031a1-3094-404c-bc25-7eb52ccd8c10",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("f253753b-8e4c-4836-bb41-6b6c07ff5630",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("f253753b-8e4c-4836-bb41-6b6c07ff5630",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("f253753b-8e4c-4836-bb41-6b6c07ff5630",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"7da4e419-f3ca-4d44-9ad9-847e4f94e98b",
+	'PBRotationBottomAdj',
+	'//-- 747:20120307 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120307
+型名：Iot_PbTrimAdjust 
+意味：くるみ製本の地辺側回転量調整値（単位0.1mm）
+//-- 747:20120307 Add End (ikegaya)
+',
+	'',
+	'PBRotationBottomAdj',
+	0,
+	"bed031a1-3094-404c-bc25-7eb52ccd8c10",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("b32004f0-48b7-4c71-8f13-db51e52a3304",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("b32004f0-48b7-4c71-8f13-db51e52a3304",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("b32004f0-48b7-4c71-8f13-db51e52a3304",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"f253753b-8e4c-4836-bb41-6b6c07ff5630",
+	'PBRotationFaceAdj',
+	'//-- 747:20120307 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120307
+型名：Iot_PbTrimAdjust 
+意味：くるみ製本の小口側回転量調整値（単位0.1mm）
+//-- 747:20120307 Add End (ikegaya)
+',
+	'',
+	'PBRotationFaceAdj',
+	0,
+	"bed031a1-3094-404c-bc25-7eb52ccd8c10",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("debc23c7-850f-4b04-bfbc-56d71e8e3a20",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("debc23c7-850f-4b04-bfbc-56d71e8e3a20",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("debc23c7-850f-4b04-bfbc-56d71e8e3a20",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"b32004f0-48b7-4c71-8f13-db51e52a3304",
+	'PBFinSizeFSAdj',
+	'//-- 747:20120321 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120321
+型名：Iot_PbTrimAdjust 
+意味：くるみ製本の仕上がりサイズ（FS方向）調整値（単位0.1mm）
+//-- 747:20120321 Add End (ikegaya)
+',
+	'',
+	'PBFinSizeFSAdj',
+	0,
+	"bed031a1-3094-404c-bc25-7eb52ccd8c10",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("13428a96-81b6-40d3-8867-92352b6e3118",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("13428a96-81b6-40d3-8867-92352b6e3118",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("13428a96-81b6-40d3-8867-92352b6e3118",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"debc23c7-850f-4b04-bfbc-56d71e8e3a20",
+	'PBFinSizeSSAdj',
+	'//-- 747:20120321 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120321
+型名：Iot_PbTrimAdjust 
+意味：くるみ製本の仕上がりサイズ（SS方向）調整値（単位0.1mm）
+//-- 747:20120321 Add End (ikegaya)
+',
+	'',
+	'PBFinSizeSSAdj',
+	0,
+	"bed031a1-3094-404c-bc25-7eb52ccd8c10",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("3aab0c80-a7e0-406a-8a77-f69c16ff10c6",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("3aab0c80-a7e0-406a-8a77-f69c16ff10c6",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("3aab0c80-a7e0-406a-8a77-f69c16ff10c6",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"13428a96-81b6-40d3-8867-92352b6e3118",
+	'PBTrimPosiAdj',
+	'//-- 747:20120321 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120321
+型名：Iot_PbTrimAdjust 
+意味：くるみ製本の断裁位置調整値（単位0.1mm）
+//-- 747:20120321 Add End (ikegaya)
+',
+	'',
+	'PBTrimPosiAdj',
+	0,
+	"bed031a1-3094-404c-bc25-7eb52ccd8c10",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("805ddb20-f0b6-4f40-97f3-95340c3fd558",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("805ddb20-f0b6-4f40-97f3-95340c3fd558",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("805ddb20-f0b6-4f40-97f3-95340c3fd558",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"3aab0c80-a7e0-406a-8a77-f69c16ff10c6",
+	'PBFinSize',
+	'//-- 747:20120319 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120319
+型名：IotSht_MediumSize 
+意味：くるみ製本の仕上がりサイズ（用紙サイズ）
+//-- 747:20120319 Add End (ikegaya)
+',
+	'',
+	'PBFinSize',
+	0,
+	"ca85c291-393b-4f9a-b277-e862ef572307",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("ca85c291-393b-4f9a-b277-e862ef572307",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_MediumSize',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("f5f7219a-c4ba-4ac2-9414-71f1783d8e38",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("f5f7219a-c4ba-4ac2-9414-71f1783d8e38",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("f5f7219a-c4ba-4ac2-9414-71f1783d8e38",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"805ddb20-f0b6-4f40-97f3-95340c3fd558",
+	'PBFinDir',
+	'//-- 747:20120319 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120319
+型名：IotSht_MediumDirection
+意味：くるみ製本の仕上がりサイズ（用紙方向）
+//-- 747:20120319 Add End (ikegaya)
+',
+	'',
+	'PBFinDir',
+	0,
+	"0367df22-ce15-470d-9f46-cf60c37eca0c",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0367df22-ce15-470d-9f46-cf60c37eca0c",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_MediumDirection',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("b6b62521-d3a3-4061-a62c-6feea1ad7c25",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("b6b62521-d3a3-4061-a62c-6feea1ad7c25",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("b6b62521-d3a3-4061-a62c-6feea1ad7c25",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"f5f7219a-c4ba-4ac2-9414-71f1783d8e38",
+	'PBFinSizeFS',
+	'//-- 747:20120319 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120319
+型名：IotSht_MediumDimLength 
+意味：くるみ製本の仕上がりサイズ（非定型用紙サイズFS方向）（単位0.1mm）
+//-- 747:20120319 Add End (ikegaya)
+',
+	'',
+	'PBFinSizeFS',
+	0,
+	"01a0550f-9ce0-4192-87a0-df378f66a0a2",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("01a0550f-9ce0-4192-87a0-df378f66a0a2",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_MediumDimLength',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("8bf3499f-1269-4ea1-8a90-63ad8820727e",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("8bf3499f-1269-4ea1-8a90-63ad8820727e",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("8bf3499f-1269-4ea1-8a90-63ad8820727e",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"b6b62521-d3a3-4061-a62c-6feea1ad7c25",
+	'PBFinSizeSS',
+	'//-- 747:20120319 Add Start (ikegaya)
+Modify:Add
+Modify_No:747
+Modifier:ikegaya
+Modify_Date:20120319
+型名：IotSht_MediumDimLength 
+意味：くるみ製本の仕上がりサイズ（非定型用紙サイズSS方向）（単位0.1mm）
+//-- 747:20120319 Add End (ikegaya)
+',
+	'',
+	'PBFinSizeSS',
+	0,
+	"01a0550f-9ce0-4192-87a0-df378f66a0a2",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"470c0123-1888-4b25-a943-81f70b9a1b76",
+	0,
+	"0ee2a71d-2a71-41e9-a6ce-d43615d46d87",
+	"b7a3a113-d192-4903-b883-15fb20ce23a1",
+	"c929a54b-0c49-4459-9650-0007c897ed2a",
+	"5f808c6d-098c-4f5a-b88e-384b2288d8fb",
+	"d0d972de-9427-4c12-88e0-60e3ebc277dc",
+	"bde8d8db-5482-4fc7-9f59-4b591678cd25",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'sendDocInfoMgr',
+	'ID',
+	'R465');
+INSERT INTO R_RGO_PROXY
+	VALUES ("d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"b7a3a113-d192-4903-b883-15fb20ce23a1",
+	"c929a54b-0c49-4459-9650-0007c897ed2a",
+	'../../Physical Sheet/Physical Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("0ee2a71d-2a71-41e9-a6ce-d43615d46d87",
+	"470c0123-1888-4b25-a943-81f70b9a1b76",
+	0,
+	"b7a3a113-d192-4903-b883-15fb20ce23a1",
+	"5f808c6d-098c-4f5a-b88e-384b2288d8fb",
+	'../../Physical Sheet/Physical Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("d0d972de-9427-4c12-88e0-60e3ebc277dc",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"0ee2a71d-2a71-41e9-a6ce-d43615d46d87",
+	"470c0123-1888-4b25-a943-81f70b9a1b76",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("0ee2a71d-2a71-41e9-a6ce-d43615d46d87",
+	"470c0123-1888-4b25-a943-81f70b9a1b76",
+	'../../Physical Sheet/sendDocInfoMgr/sendDocInfoMgr.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("d0d972de-9427-4c12-88e0-60e3ebc277dc",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"8bf3499f-1269-4ea1-8a90-63ad8820727e",
+	'sendSheetInfoMngID',
+	'',
+	'',
+	'sendSheetInfoMngID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("d7663979-b57f-4c50-9058-e7abeb9270ec",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("d7663979-b57f-4c50-9058-e7abeb9270ec",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("d7663979-b57f-4c50-9058-e7abeb9270ec",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"d0d972de-9427-4c12-88e0-60e3ebc277dc",
+	'printStartTime',
+	'//-- 14599:20130806 Add Start (ikegaya)
+Modify:Add
+Modify_No:14599
+Modifier:ikegaya
+Modify_Date:20130806
+型名：IotSc_Time
+意味：プリント処理を開始した時刻
+//-- 14599:20130806 Add End (ikegaya)
+',
+	'',
+	'printStartTime',
+	0,
+	"ff245ef7-45a3-42d8-babd-7d28495353e6",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("ff245ef7-45a3-42d8-babd-7d28495353e6",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_Time',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("343f4593-7e95-46b5-93ac-df40ddfe3814",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("343f4593-7e95-46b5-93ac-df40ddfe3814",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("343f4593-7e95-46b5-93ac-df40ddfe3814",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"d7663979-b57f-4c50-9058-e7abeb9270ec",
+	'elapsedTime',
+	'//-- 14599:20130806 Add Start (ikegaya)
+Modify:Add
+Modify_No:14599
+Modifier:ikegaya
+Modify_Date:20130806
+型名：integer
+意味：ジョブ経過時間
+//-- 14599:20130806 Add End (ikegaya)
+',
+	'',
+	'elapsedTime',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("29fe91e3-4c63-46e6-b3c8-41ffad5732ce",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_BATTR
+	VALUES ("29fe91e3-4c63-46e6-b3c8-41ffad5732ce",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_ATTR
+	VALUES ("29fe91e3-4c63-46e6-b3c8-41ffad5732ce",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	"343f4593-7e95-46b5-93ac-df40ddfe3814",
+	'existPlexSheet',
+	'//-- 0104309:20150205 Add Start (ikegaya)
+Modify:Add
+Modify_No:0104309
+Modifier:ikegaya
+Modify_Date:20150205
+型名：boolean
+意味：ジョブ中に両面印刷を行ったか否か
+//-- 0104309:20150205 Add End (ikegaya)
+',
+	'',
+	'existPlexSheet',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_OIDA
+	VALUES ("4827bd93-1cdd-4255-84c1-3d508e127ad1",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	0,
+	'jobID');
+INSERT INTO O_ID
+	VALUES (1,
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO O_OIDA
+	VALUES ("b7ac9d36-3ab5-4818-a25f-6aebc3a2a04a",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	1,
+	'outputUnitID');
+INSERT INTO O_ID
+	VALUES (2,
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c");
+INSERT INTO PE_PE
+	VALUES ("d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	1,
+	"1ef61a85-d4bb-4a75-8902-08208261e3ec",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("1ef61a85-d4bb-4a75-8902-08208261e3ec",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Job',
+	'',
+	100,
+	'../Job.xtuml');

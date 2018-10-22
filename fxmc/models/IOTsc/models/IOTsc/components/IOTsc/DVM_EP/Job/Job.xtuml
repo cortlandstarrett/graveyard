@@ -1,0 +1,432 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("5604b176-9272-4151-8224-fc8102ff8a06",
+	'Job',
+	800,
+	'DV_JOB',
+	'DV(EP)について、
+JOBに関するものを担当する。
+
+CallするDVMは以下
+
+ComlDvm_VerifyStartPrinting
+ComlDvm_NotifyStopPrinting
+
+・Job起動可否を独自に判断し、可であると判断した際に、
+　　DVにJobを起動してよいかを問い合わせ、可否をJ_EJOBに通知する
+　　DVより可と判断された場合、その時点でJobは起動しているものとみなす。
+・Jobが起動している場合、Jobが停止・終了した際に、 DVに停止を通知する。
+
+---
+
+Job開始時(E_JOBからJobStart受け取ったとき)に
+　次Job実施可否判断をし、可になったら、VerifyStartPrintingを実施。
+
+Jobが正常終了したら
+　NotifyStopPrinting(Complete)
+
+jobがCancelされたら、
+　NotifyStopPrinting()',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("b6e48982-9979-401e-baa9-616703ffbd7b",
+	"5604b176-9272-4151-8224-fc8102ff8a06",
+	'getFirstJobID',
+	'',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'// 先頭DVJobを探す
+// J_JOBが順番管理しているので、J_JOBをキーにさかのぼり探す
+select any aJob from instances of J_JOB;
+select any aFirstDVJob from instances of DV_JOB; // 型合わせのため。NULLでもよい。
+firstJobID = 0;
+
+if( not_empty aJob )
+  
+  select one aPrevJob related by aJob->J_JOB[R101.''is previous to''];
+  while( not_empty aPrevJob )
+  
+    select one aPrevDVJob related by aPrevJob->J_EJOB[R104]->DV_JOB[R800];
+    if( not_empty aPrevDVJob )
+      aFirstDVJob = aPrevDVJob;
+    end if;
+  
+    aFirstJob = aPrevJob;
+    select one aPrevJob related by aFirstJob->J_JOB[R101.''is previous to''];
+  end while;
+  
+end if;
+
+if( not_Empty aFirstDVJob )
+  firstJobID = aFirstDVJob.jobID;
+end if;
+
+return firstJobID;
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("3736a4bc-e532-4a16-9a97-1c6455e3652f",
+	"5604b176-9272-4151-8224-fc8102ff8a06",
+	'stop',
+	'本関数はDV_JOBを停止させる場合に呼ぶ。(DV_JOBは残る)
+終了時は呼ぶべきでない。
+
+DV_JOBは本関数を呼んでも必ず停止するわけではなく、
+本関数内で停止要否を判断する。
+
+停止が必要と判断されれば、DV_JOBへ停止を指示し、TRUEを返す。
+停止が不要と判断されれば、何もせずFALSEを返す。
+',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	1,
+	'// DV_JOBへ停止を要求する。
+// 停止要因を検索し、停止の必要がある場合、停止イベントを自身に投げて TRUE を返す。
+// 停止の必要がないと判断されると、停止イベントを投げずに FALSE を返す。
+
+// 検索順はFail Pause, Print Pause, (必要であれば)Restart Reqの順
+// (EP Accessory仕様書上は優先順位は明らかにされていない)
+// Pause指示はFail通知により来る場合があるので、Fail Pauseをまず検索
+// Restart Reqは基本的に他の要因がない時のみIOTdmから通知されるため、最後に検索
+// Restart Reqによる停止はVerifyFeed済みのシートが居なければ行う必要は無い。
+
+reason = IotSc_StopReason::eRestartReq;
+failCode = TYPE::Iot_FailCode();
+//-- 0104801:20140829 Add Start (saitou) 
+failCode = "0";
+//-- 0104801:20140829 Add End (saitou) 
+isNeedStop = TRUE;
+
+// Failを探す
+//  SystemFailはモデルまで来ない。
+//  SubSystemFailはJ_SSFの存在で確認
+//  その他はJ_JFの存在で確認
+select any aSubSystemFail from instances of J_SSF;
+select any aJobFail from instances of J_JF;
+
+//-- 0104131:20140814 Modified Start (saitou) 
+// Pauseを探す
+//  Pauseが要因になりうる場合、必ずPauseFactorは居るはず。
+select any aPauseFactor related by self->DV_PF[R816];
+//-- 0104131:20140814 Modified End (saitou) 
+
+
+if( not_empty aSubSystemFail )
+	reason = IotSc_StopReason::eFail;
+elif( not_empty aJobFail )
+	reason = IotSc_StopReason::eFail;
+	select one anInteractionProcess related by aJobFail->J_NIP[R115];
+	FER::assert( expression : not_empty anInteractionProcess );
+	failCode = anInteractionProcess.failCode;
+elif( not_empty aPauseFactor )
+	reason = IotSc_StopReason::ePauseReq;
+else 
+	reason = IotSc_StopReason::eRestartReq;
+end if;
+
+// RestartReqが要因による停止はVerifyFeed済みのシートが居なければ不要
+if( reason == IotSc_StopReason::eRestartReq )
+	// DV_SHFが居る=VerifyFeedした面が居る
+	//  Job単位でなくていいはず
+	select many DVSheetFaces from instances of DV_SHF;
+	if( empty DVSheetFaces )
+		isNeedStop = FALSE;
+	end if;
+end if;
+
+// 完了に至るものはここで選ばれるべきではない 
+FER::assert( expression :	( reason != IotSc_StopReason::eCompleted )
+						and ( reason != IotSc_StopReason::eInterrupt )
+			);
+
+if( isNeedStop )
+	generate DV_JOB9:JobStop(	failCode:	failCode,
+						stopReason:	reason
+					) to self;
+end if;
+
+return isNeedStop;
+',
+	1,
+	'',
+	"b6e48982-9979-401e-baa9-616703ffbd7b");
+INSERT INTO O_TFR
+	VALUES ("0433f449-1f04-4213-a952-c24890f03ae8",
+	"5604b176-9272-4151-8224-fc8102ff8a06",
+	'resume',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	1,
+	'// DV_JOBへ再開を要求する。
+// 停止要因を検索し、再開できるのであれば、再開イベントを自身に投げて TRUE を返す。
+// 停止要因が残っており再開不可と判断されると、停止イベントを投げずに FALSE を返す。
+
+isNeedWaitAns = false;
+
+select any aPauseFactor related by self->DV_PF[R816];
+if( empty aPauseFactor )
+  generate DV_JOB10:Resume to self;
+  isNeedWaitAns = true;
+end if;
+
+return isNeedWaitAns;
+',
+	1,
+	'',
+	"3736a4bc-e532-4a16-9a97-1c6455e3652f");
+INSERT INTO O_REF
+	VALUES ("5604b176-9272-4151-8224-fc8102ff8a06",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	0,
+	"4827bd93-1cdd-4255-84c1-3d508e127ad1",
+	"d308286d-91b2-498a-bbab-fd01152fa3d0",
+	"05e27cad-4bbe-4a72-952a-f5ee85b5fd43",
+	"42744356-8db1-4b9e-a94b-3c12fa8cdd8a",
+	"a016e150-7713-44c9-9631-48a6021b3bc1",
+	"c05fa666-d8d0-4c1d-acaa-44a79b6a49aa",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Executing Job',
+	'jobID',
+	'R800');
+INSERT INTO R_RGO_PROXY
+	VALUES ("5604b176-9272-4151-8224-fc8102ff8a06",
+	"d308286d-91b2-498a-bbab-fd01152fa3d0",
+	"05e27cad-4bbe-4a72-952a-f5ee85b5fd43",
+	'../DVM_EP.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("4827bd93-1cdd-4255-84c1-3d508e127ad1",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	0,
+	"d308286d-91b2-498a-bbab-fd01152fa3d0",
+	"42744356-8db1-4b9e-a94b-3c12fa8cdd8a",
+	'../DVM_EP.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("a016e150-7713-44c9-9631-48a6021b3bc1",
+	"5604b176-9272-4151-8224-fc8102ff8a06",
+	"47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	1,
+	'jobID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	'../../Job/Job/Job.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("a016e150-7713-44c9-9631-48a6021b3bc1",
+	"5604b176-9272-4151-8224-fc8102ff8a06",
+	"00000000-0000-0000-0000-000000000000",
+	'jobID',
+	'',
+	'',
+	'jobID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c032c31a-7ca6-4d31-bdf9-89de5afcafab",
+	"5604b176-9272-4151-8224-fc8102ff8a06");
+INSERT INTO O_BATTR
+	VALUES ("c032c31a-7ca6-4d31-bdf9-89de5afcafab",
+	"5604b176-9272-4151-8224-fc8102ff8a06");
+INSERT INTO O_ATTR
+	VALUES ("c032c31a-7ca6-4d31-bdf9-89de5afcafab",
+	"5604b176-9272-4151-8224-fc8102ff8a06",
+	"a016e150-7713-44c9-9631-48a6021b3bc1",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("05f934fc-3e77-4918-ae06-f1864b6d6ae9",
+	"5604b176-9272-4151-8224-fc8102ff8a06");
+INSERT INTO O_BATTR
+	VALUES ("05f934fc-3e77-4918-ae06-f1864b6d6ae9",
+	"5604b176-9272-4151-8224-fc8102ff8a06");
+INSERT INTO O_ATTR
+	VALUES ("05f934fc-3e77-4918-ae06-f1864b6d6ae9",
+	"5604b176-9272-4151-8224-fc8102ff8a06",
+	"c032c31a-7ca6-4d31-bdf9-89de5afcafab",
+	'jobAttrPtr',
+	'',
+	'',
+	'jobAttrPtr',
+	0,
+	"6c8910ce-1dca-462d-9cef-0ef759afb11d",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("6c8910ce-1dca-462d-9cef-0ef759afb11d",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_DvJobAttrPtr',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("911ed836-fc1a-4cfd-818c-71d0168ed07f",
+	"5604b176-9272-4151-8224-fc8102ff8a06");
+INSERT INTO O_BATTR
+	VALUES ("911ed836-fc1a-4cfd-818c-71d0168ed07f",
+	"5604b176-9272-4151-8224-fc8102ff8a06");
+INSERT INTO O_ATTR
+	VALUES ("911ed836-fc1a-4cfd-818c-71d0168ed07f",
+	"5604b176-9272-4151-8224-fc8102ff8a06",
+	"05f934fc-3e77-4918-ae06-f1864b6d6ae9",
+	'isWaitingResult',
+	'',
+	'',
+	'isWaitingResult',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("95e3d504-8482-4672-b16d-aec7ba961860",
+	"5604b176-9272-4151-8224-fc8102ff8a06");
+INSERT INTO O_BATTR
+	VALUES ("95e3d504-8482-4672-b16d-aec7ba961860",
+	"5604b176-9272-4151-8224-fc8102ff8a06");
+INSERT INTO O_ATTR
+	VALUES ("95e3d504-8482-4672-b16d-aec7ba961860",
+	"5604b176-9272-4151-8224-fc8102ff8a06",
+	"911ed836-fc1a-4cfd-818c-71d0168ed07f",
+	'isWaitingAnswer',
+	'',
+	'',
+	'isWaitingAnswer',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("0cb82636-f85d-4285-8f91-d43f3a2e72fc",
+	"5604b176-9272-4151-8224-fc8102ff8a06");
+INSERT INTO O_BATTR
+	VALUES ("0cb82636-f85d-4285-8f91-d43f3a2e72fc",
+	"5604b176-9272-4151-8224-fc8102ff8a06");
+INSERT INTO O_ATTR
+	VALUES ("0cb82636-f85d-4285-8f91-d43f3a2e72fc",
+	"5604b176-9272-4151-8224-fc8102ff8a06",
+	"95e3d504-8482-4672-b16d-aec7ba961860",
+	'isNewJob',
+	'',
+	'',
+	'isNewJob',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("ca182fbe-d6c8-4d12-9f44-279081881129",
+	"5604b176-9272-4151-8224-fc8102ff8a06");
+INSERT INTO O_BATTR
+	VALUES ("ca182fbe-d6c8-4d12-9f44-279081881129",
+	"5604b176-9272-4151-8224-fc8102ff8a06");
+INSERT INTO O_ATTR
+	VALUES ("ca182fbe-d6c8-4d12-9f44-279081881129",
+	"5604b176-9272-4151-8224-fc8102ff8a06",
+	"0cb82636-f85d-4285-8f91-d43f3a2e72fc",
+	'isPrinting',
+	'',
+	'',
+	'isPrinting',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("b9c33e71-0eaf-4528-b485-c128da6d9cf7",
+	"5604b176-9272-4151-8224-fc8102ff8a06");
+INSERT INTO O_BATTR
+	VALUES ("b9c33e71-0eaf-4528-b485-c128da6d9cf7",
+	"5604b176-9272-4151-8224-fc8102ff8a06");
+INSERT INTO O_ATTR
+	VALUES ("b9c33e71-0eaf-4528-b485-c128da6d9cf7",
+	"5604b176-9272-4151-8224-fc8102ff8a06",
+	"ca182fbe-d6c8-4d12-9f44-279081881129",
+	'failCode',
+	'',
+	'',
+	'failCode',
+	0,
+	"adab3b81-ff2c-417d-b169-f9374ac12561",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("adab3b81-ff2c-417d-b169-f9374ac12561",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_FailCode',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("aa51eebc-db39-414b-aa9b-24ba259db342",
+	"5604b176-9272-4151-8224-fc8102ff8a06");
+INSERT INTO O_BATTR
+	VALUES ("aa51eebc-db39-414b-aa9b-24ba259db342",
+	"5604b176-9272-4151-8224-fc8102ff8a06");
+INSERT INTO O_ATTR
+	VALUES ("aa51eebc-db39-414b-aa9b-24ba259db342",
+	"5604b176-9272-4151-8224-fc8102ff8a06",
+	"b9c33e71-0eaf-4528-b485-c128da6d9cf7",
+	'endReason',
+	'',
+	'',
+	'endReason',
+	0,
+	"9c893b59-8b7b-4b35-adc4-2ed6ec13e8d2",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("9c893b59-8b7b-4b35-adc4-2ed6ec13e8d2",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_StopReason',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_ID
+	VALUES (0,
+	"5604b176-9272-4151-8224-fc8102ff8a06");
+INSERT INTO O_OIDA
+	VALUES ("a016e150-7713-44c9-9631-48a6021b3bc1",
+	"5604b176-9272-4151-8224-fc8102ff8a06",
+	0,
+	'jobID');
+INSERT INTO O_ID
+	VALUES (1,
+	"5604b176-9272-4151-8224-fc8102ff8a06");
+INSERT INTO O_ID
+	VALUES (2,
+	"5604b176-9272-4151-8224-fc8102ff8a06");
+INSERT INTO PE_PE
+	VALUES ("5604b176-9272-4151-8224-fc8102ff8a06",
+	1,
+	"af611e23-e432-451f-96ec-b77f935091bf",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("af611e23-e432-451f-96ec-b77f935091bf",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'DVM_EP',
+	'DVM/EP についての処理を担当するサブシステム。
+
+ここで全てのDVMやEPについての処理をするわけではなく、
+あくまでモデルでやる部分を集約させたもの。',
+	800,
+	'../DVM_EP.xtuml');

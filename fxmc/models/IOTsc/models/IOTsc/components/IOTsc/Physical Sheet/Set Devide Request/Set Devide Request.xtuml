@@ -1,0 +1,376 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("2ad409aa-f884-4761-afc5-069adf82eea7",
+	'Set Devide Request',
+	425,
+	'P_SDR',
+	'このクラスはSheetの出力単位を変更したい場合の要求をクラス化したものです。
+
+役割
+	このオブジェクトが存在する場合は、P_RCSAではなく、このクラスでSheetの
+	送信要求を受けます。
+
+	P_SDRはSheetを受けてセットの分割を行います。ここでいうセットは
+	丁合のセット及び分割のセットを言います。
+
+	P_SDRはセット内の分割の最初のシートであればDevided SetのIDを採番し、
+	SheetのisDevidedSetStartをTRUEとしてP_RCSAに送信します。
+
+	また、unit数を受けるか、setEndを受けた場合か、分冊単位の終わりのSheet
+	(isDevideSetEnd=TRUEのSheet)を検知した場合にSheetをWating Sheetの
+	順にP_RCSAに送信します。
+
+	isInvert=TRUEの場合には、Sheetを保留させて順序を入れ替えて
+	P_RCSAに送信します。
+	この場合、以下のような動きを行います。unit数となるまでSheetを保持します。
+	この時、Waiting Sheetを作成し、順序関係を張ります。
+	順序の張り方は受けた順の逆になります。
+	（1,2,3とSheetを受けた場合、Waiting Sheetの順は3→2→1となります）
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("98b0cc4d-b321-46ef-9a4c-660237e52c95",
+	"2ad409aa-f884-4761-afc5-069adf82eea7",
+	'createInstance',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'select any aCollateSetAccepter from instances of P_RCSA
+	where ( selected.ID == param.accepterID );
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero( expression : not_empty aCollateSetAccepter );
+//-- 845:20140227 Modified End (saitou) 
+
+create object instance aDevideRequest of P_SDR;
+
+aDevideRequest.unit = param.unit;
+aDevideRequest.isInvert = param.isInvert;
+aDevideRequest.currentSheetNum = 0;
+aDevideRequest.currentDevideSetNo = 0;
+
+relate aDevideRequest to aCollateSetAccepter across R450;
+
+return aDevideRequest.accepterID;',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("681721b6-ce88-47b9-a2b9-0a1872a282bc",
+	"98b0cc4d-b321-46ef-9a4c-660237e52c95",
+	'unit',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"46ebc998-5a9d-4027-97f1-30ca278c0d54",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("46ebc998-5a9d-4027-97f1-30ca278c0d54",
+	"98b0cc4d-b321-46ef-9a4c-660237e52c95",
+	'isInvert',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'',
+	"7fd8fea8-cf31-43e8-b4f5-613c8cdbc7db",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("7fd8fea8-cf31-43e8-b4f5-613c8cdbc7db",
+	"98b0cc4d-b321-46ef-9a4c-660237e52c95",
+	'accepterID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("c76ffae5-467c-4b1c-942b-7fe775a393bd",
+	"2ad409aa-f884-4761-afc5-069adf82eea7",
+	'remove',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'select any aDevideRequest from instances of P_SDR
+	where ( selected.accepterID == param.devideRequestID );
+FER::assert( expression : not_empty aDevideRequest );
+
+select one aFirstSheet related by aDevideRequest->P_WSHT[R451];
+if ( not_empty aFirstSheet )
+	unrelate aDevideRequest from aFirstSheet across R451;
+end if;
+
+//-- 35:20040409 Modified Start
+select many waitingSheets related by aDevideRequest->P_WSHT[R448];
+//-- 35:20040409 Modified End
+for each aWaitingSheet in waitingSheets
+	select one aLogicalSheet related by aWaitingSheet->S_SHT[R448];
+	unrelate aLogicalSheet from aDevideRequest across R448 using aWaitingSheet;
+	delete object instance aWaitingSheet;
+	// R449は切らないが、deleteされるので大丈夫
+end for;
+
+select one aSetRequestAccepter related by aDevideRequest->P_RCSA[R450];
+unrelate aSetRequestAccepter from aDevideRequest across R450;
+
+delete object instance aDevideRequest;',
+	1,
+	'',
+	"98b0cc4d-b321-46ef-9a4c-660237e52c95");
+INSERT INTO O_TPARM
+	VALUES ("574e0687-84b6-4492-b22b-5567b2dfaf83",
+	"c76ffae5-467c-4b1c-942b-7fe775a393bd",
+	'devideRequestID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_REF
+	VALUES ("2ad409aa-f884-4761-afc5-069adf82eea7",
+	"c146a413-21dc-487e-91b4-5ce3bb346883",
+	0,
+	"f1919be8-a37d-4202-9a54-9bc8d1b79989",
+	"c3d62dab-4ba1-42ea-9830-469f8d2062fb",
+	"a1866865-afff-496f-8f12-29fc2b93af15",
+	"704052cd-1d82-424e-8085-4c1754847dc9",
+	"29ea3709-cd38-442b-97b1-3ef3ed8ecad3",
+	"2a964e43-a482-44ad-92b8-9b780a358deb",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Request in Collate Set Accepter',
+	'ID',
+	'R450');
+INSERT INTO R_RGO_PROXY
+	VALUES ("2ad409aa-f884-4761-afc5-069adf82eea7",
+	"c3d62dab-4ba1-42ea-9830-469f8d2062fb",
+	"a1866865-afff-496f-8f12-29fc2b93af15",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("f1919be8-a37d-4202-9a54-9bc8d1b79989",
+	"c146a413-21dc-487e-91b4-5ce3bb346883",
+	0,
+	"c3d62dab-4ba1-42ea-9830-469f8d2062fb",
+	"704052cd-1d82-424e-8085-4c1754847dc9",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("29ea3709-cd38-442b-97b1-3ef3ed8ecad3",
+	"2ad409aa-f884-4761-afc5-069adf82eea7",
+	"f1919be8-a37d-4202-9a54-9bc8d1b79989",
+	"c146a413-21dc-487e-91b4-5ce3bb346883",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("f1919be8-a37d-4202-9a54-9bc8d1b79989",
+	"c146a413-21dc-487e-91b4-5ce3bb346883",
+	'../Request in Collate Set Accepter/Request in Collate Set Accepter.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("29ea3709-cd38-442b-97b1-3ef3ed8ecad3",
+	"2ad409aa-f884-4761-afc5-069adf82eea7",
+	"00000000-0000-0000-0000-000000000000",
+	'accepterID',
+	'',
+	'',
+	'accepterID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("569996f6-ac97-41b6-a880-643a3d95bff5",
+	"2ad409aa-f884-4761-afc5-069adf82eea7");
+INSERT INTO O_BATTR
+	VALUES ("569996f6-ac97-41b6-a880-643a3d95bff5",
+	"2ad409aa-f884-4761-afc5-069adf82eea7");
+INSERT INTO O_ATTR
+	VALUES ("569996f6-ac97-41b6-a880-643a3d95bff5",
+	"2ad409aa-f884-4761-afc5-069adf82eea7",
+	"29ea3709-cd38-442b-97b1-3ef3ed8ecad3",
+	'unit',
+	'SheetをSetに分割する単位を示します。',
+	'',
+	'unit',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("16f34545-f315-4ede-90b4-c0a0caaf4be0",
+	"2ad409aa-f884-4761-afc5-069adf82eea7");
+INSERT INTO O_BATTR
+	VALUES ("16f34545-f315-4ede-90b4-c0a0caaf4be0",
+	"2ad409aa-f884-4761-afc5-069adf82eea7");
+INSERT INTO O_ATTR
+	VALUES ("16f34545-f315-4ede-90b4-c0a0caaf4be0",
+	"2ad409aa-f884-4761-afc5-069adf82eea7",
+	"569996f6-ac97-41b6-a880-643a3d95bff5",
+	'isInvert',
+	'Sheetの送信順を規定します。
+TRUE : P_RCSAに対してSheetをunit単位で逆順に送信します。
+FALSE:P_RCSAに対して正順に送信します。',
+	'',
+	'isInvert',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("e64ad3af-3ae5-4924-be7b-729839bb7336",
+	"2ad409aa-f884-4761-afc5-069adf82eea7");
+INSERT INTO O_BATTR
+	VALUES ("e64ad3af-3ae5-4924-be7b-729839bb7336",
+	"2ad409aa-f884-4761-afc5-069adf82eea7");
+INSERT INTO O_ATTR
+	VALUES ("e64ad3af-3ae5-4924-be7b-729839bb7336",
+	"2ad409aa-f884-4761-afc5-069adf82eea7",
+	"16f34545-f315-4ede-90b4-c0a0caaf4be0",
+	'currentSheetNum',
+	'現在受けた分割セット内のSheet枚数です。
+unit数に達した場合、そのSheetは分割セット内の終わりのシートとなり、
+その時点で0にクリアされます。',
+	'',
+	'currentSheetNum',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("9df53ebc-046d-462a-bfbf-083acc5c782f",
+	"2ad409aa-f884-4761-afc5-069adf82eea7");
+INSERT INTO O_BATTR
+	VALUES ("9df53ebc-046d-462a-bfbf-083acc5c782f",
+	"2ad409aa-f884-4761-afc5-069adf82eea7");
+INSERT INTO O_ATTR
+	VALUES ("9df53ebc-046d-462a-bfbf-083acc5c782f",
+	"2ad409aa-f884-4761-afc5-069adf82eea7",
+	"e64ad3af-3ae5-4924-be7b-729839bb7336",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("2ad409aa-f884-4761-afc5-069adf82eea7",
+	"9755c6a6-24e6-44f6-a086-580ffe9661c9",
+	0,
+	"394a286c-0b8b-4ffb-bb71-ff21c513bef6",
+	"54d52e95-ba30-4075-8541-d2b000c98d51",
+	"068cf5dc-59cf-4ae7-9b6a-225d12c49384",
+	"9926b6aa-2a25-4bce-af79-bc718226b8bf",
+	"07c467f0-bba6-4b6a-ad88-fa3ce57931fc",
+	"7eb0cce5-d871-465d-a3d9-fd856a07fb4b",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Waiting Sheet',
+	'ID',
+	'R451.''has as first''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("2ad409aa-f884-4761-afc5-069adf82eea7",
+	"54d52e95-ba30-4075-8541-d2b000c98d51",
+	"068cf5dc-59cf-4ae7-9b6a-225d12c49384",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("394a286c-0b8b-4ffb-bb71-ff21c513bef6",
+	"9755c6a6-24e6-44f6-a086-580ffe9661c9",
+	0,
+	"54d52e95-ba30-4075-8541-d2b000c98d51",
+	"9926b6aa-2a25-4bce-af79-bc718226b8bf",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("07c467f0-bba6-4b6a-ad88-fa3ce57931fc",
+	"2ad409aa-f884-4761-afc5-069adf82eea7",
+	"394a286c-0b8b-4ffb-bb71-ff21c513bef6",
+	"9755c6a6-24e6-44f6-a086-580ffe9661c9",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("394a286c-0b8b-4ffb-bb71-ff21c513bef6",
+	"9755c6a6-24e6-44f6-a086-580ffe9661c9",
+	'../Waiting Sheet/Waiting Sheet.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("07c467f0-bba6-4b6a-ad88-fa3ce57931fc",
+	"2ad409aa-f884-4761-afc5-069adf82eea7",
+	"9df53ebc-046d-462a-bfbf-083acc5c782f",
+	'firstSheet',
+	'保持しているSheetに対して、最初のSheetを示します。
+保留しているSheetを送信する場合、この関係で最初のSheetを取得し、
+その後R449の関係でSheetを取得します。',
+	'',
+	'firstSheet',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c04ed05f-271b-49f4-ba8d-64fdf0efef89",
+	"2ad409aa-f884-4761-afc5-069adf82eea7");
+INSERT INTO O_BATTR
+	VALUES ("c04ed05f-271b-49f4-ba8d-64fdf0efef89",
+	"2ad409aa-f884-4761-afc5-069adf82eea7");
+INSERT INTO O_ATTR
+	VALUES ("c04ed05f-271b-49f4-ba8d-64fdf0efef89",
+	"2ad409aa-f884-4761-afc5-069adf82eea7",
+	"07c467f0-bba6-4b6a-ad88-fa3ce57931fc",
+	'currentDevideSetNo',
+	'Set内の分割セットのIDとなります。
+分割セットを新たに作る場合にインクリメントされていきます。',
+	'',
+	'currentDevideSetNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"2ad409aa-f884-4761-afc5-069adf82eea7");
+INSERT INTO O_OIDA
+	VALUES ("29ea3709-cd38-442b-97b1-3ef3ed8ecad3",
+	"2ad409aa-f884-4761-afc5-069adf82eea7",
+	0,
+	'accepterID');
+INSERT INTO O_ID
+	VALUES (1,
+	"2ad409aa-f884-4761-afc5-069adf82eea7");
+INSERT INTO O_ID
+	VALUES (2,
+	"2ad409aa-f884-4761-afc5-069adf82eea7");
+INSERT INTO PE_PE
+	VALUES ("2ad409aa-f884-4761-afc5-069adf82eea7",
+	1,
+	"28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Physical Sheet',
+	'このサブシステムは実際の出力を行うためのDMとのI/Fおよび論理シートだけでは
+表現できない出力に関する概念を抽象化したものです。
+
+このサブシステムで表現されるものには以下の項目があります。
+1. DMとのI/Fを実現する内部キュー
+2.キューが処理対象となった実シートおよび実イメージ
+3.バナー、合紙などの論理シート以外で表現されるシート（表紙は論理シートで表現される）
+
+DMとのI/Fといっても表現されるのは以下のものです。
+SC→DM
+SET_START_INFO
+SHEET_INFO
+SET_END_INFO
+JOB_END_INFO
+
+DM→SC
+NEXT_SHEET_REQ
+IMAGE_REQ
+SHEET_END
+
+JOB_START_INFOも当初含まれていましたが（モデルにもまだ存在するが）キューに
+おくことにより不具合が生じたため、現状ではJ_EJOBから直接ブリッジのコールが行われています。
+
+',
+	400,
+	'../Physical Sheet.xtuml');

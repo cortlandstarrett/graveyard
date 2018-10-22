@@ -1,0 +1,318 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	'Root Document',
+	303,
+	'D_RDOC',
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("b7c1a67c-b988-4a6a-95b7-da732c2d10e3",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	'keep',
+	'//-- 627:20100907 Add Start (kanda)
+// RDOCのシステムデータを解放する
+Modify:Add
+Modify_No:627
+Modifier:kanda
+Modify_Date:20100907
+//-- 627:20100907 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 629:20101104 Add Start (kanda)
+// 全ての子供がクローズされていたら自分を閉じて親に通知する
+select many documents related by self->D_DOC[R302]
+	where (selected.isKeep == FALSE);
+
+if (empty documents)
+	self.isKeep = TRUE;
+	PF::closeRDoc(rDocID : self.rootDocID);
+	self.rootDocID = 0;
+	select one aJob related by self->D_DJOB[R301];
+	aJob.keep();
+end if;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("94e65e35-9d26-4748-9b8a-50cc52a954cb",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	'reOpen',
+	'//-- 627:20100907 Add Start (kanda)
+// RDocのシステムリソースを再取得する
+Modify:Add
+Modify_No:627
+Modifier:kanda
+Modify_Date:20100907
+//-- 627:20100907 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	1,
+	'//-- 629:20101104 Add Start (kanda)
+//-- 645:20110318 Modified Start (kanda)
+if (not self.isKeep)
+	return TRUE;
+end if;
+
+select one aDJob related by self->D_DJOB[R301];
+//-- 0104801:20140827 Add Start (ikegaya)
+FER::assert_with_return_zero(expression : not_empty aDJob);
+//-- 0104801:20140827 Add End (ikegaya)
+rdocID= PF::requestRDoc(jobID : aDJob.jobID, no : self.no);
+
+self.isKeep = FALSE;
+self.rootDocID = rdocID;
+
+return TRUE;
+//-- 645:20110318 Modified End (kanda)
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"b7c1a67c-b988-4a6a-95b7-da732c2d10e3");
+INSERT INTO O_NBATTR
+	VALUES ("5fe7a3f3-b309-4360-87cd-11494259664c",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8");
+INSERT INTO O_BATTR
+	VALUES ("5fe7a3f3-b309-4360-87cd-11494259664c",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8");
+INSERT INTO O_ATTR
+	VALUES ("5fe7a3f3-b309-4360-87cd-11494259664c",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("7e997b93-cde5-4847-b4fb-c5643c6dd0d8",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8");
+INSERT INTO O_BATTR
+	VALUES ("7e997b93-cde5-4847-b4fb-c5643c6dd0d8",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8");
+INSERT INTO O_ATTR
+	VALUES ("7e997b93-cde5-4847-b4fb-c5643c6dd0d8",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	"5fe7a3f3-b309-4360-87cd-11494259664c",
+	'no',
+	'',
+	'',
+	'no',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("27643c99-57b8-47c0-b260-ffa4fc38852b",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8");
+INSERT INTO O_BATTR
+	VALUES ("27643c99-57b8-47c0-b260-ffa4fc38852b",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8");
+INSERT INTO O_ATTR
+	VALUES ("27643c99-57b8-47c0-b260-ffa4fc38852b",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	"7e997b93-cde5-4847-b4fb-c5643c6dd0d8",
+	'rootDocID',
+	'',
+	'',
+	'rootDocID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("77122f34-4993-4328-94b2-35a97fc1003c",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8");
+INSERT INTO O_BATTR
+	VALUES ("77122f34-4993-4328-94b2-35a97fc1003c",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8");
+INSERT INTO O_ATTR
+	VALUES ("77122f34-4993-4328-94b2-35a97fc1003c",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	"27643c99-57b8-47c0-b260-ffa4fc38852b",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	"dc166524-8c86-40dc-83a2-4c026e90f72e",
+	0,
+	"57ef56b5-f628-48cf-8505-be6cb80aff2a",
+	"a34e7f77-2fbf-4091-8b66-1cf69a62ed4f",
+	"0204be84-56b2-46cc-841e-b1a761f23eca",
+	"3f71fda5-64ce-4f0c-ab8e-d981c9f3aa03",
+	"2290f757-7dd7-4287-9e0a-cece44263ea5",
+	"fc09ab76-a72e-422c-9f72-e16a42b291fe",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Tree Element',
+	'elementID',
+	'R306');
+INSERT INTO R_RGO_PROXY
+	VALUES ("bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	"a34e7f77-2fbf-4091-8b66-1cf69a62ed4f",
+	"0204be84-56b2-46cc-841e-b1a761f23eca",
+	'../Document.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("57ef56b5-f628-48cf-8505-be6cb80aff2a",
+	"dc166524-8c86-40dc-83a2-4c026e90f72e",
+	0,
+	"a34e7f77-2fbf-4091-8b66-1cf69a62ed4f",
+	"3f71fda5-64ce-4f0c-ab8e-d981c9f3aa03",
+	'../Document.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("2290f757-7dd7-4287-9e0a-cece44263ea5",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	"57ef56b5-f628-48cf-8505-be6cb80aff2a",
+	"dc166524-8c86-40dc-83a2-4c026e90f72e",
+	1,
+	'elementID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("57ef56b5-f628-48cf-8505-be6cb80aff2a",
+	"dc166524-8c86-40dc-83a2-4c026e90f72e",
+	'../Tree Element/Tree Element.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("2290f757-7dd7-4287-9e0a-cece44263ea5",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	"77122f34-4993-4328-94b2-35a97fc1003c",
+	'elementID',
+	'',
+	'',
+	'elementID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("ae45ee6e-f73b-4f60-86f5-ba98a48a67c0",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8");
+INSERT INTO O_BATTR
+	VALUES ("ae45ee6e-f73b-4f60-86f5-ba98a48a67c0",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8");
+INSERT INTO O_ATTR
+	VALUES ("ae45ee6e-f73b-4f60-86f5-ba98a48a67c0",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	"2290f757-7dd7-4287-9e0a-cece44263ea5",
+	'isKeep',
+	'//-- 627:20100907 Add Start (kanda)
+// keep状態かどうかをあらわす
+Modify:Add
+Modify_No:627
+Modifier:kanda
+Modify_Date:20100907
+//-- 627:20100907 Add End (kanda)
+',
+	'',
+	'isKeep',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	"f0ee859d-bdbf-4dbd-8550-2ab56487d1a3",
+	0,
+	"4c3ae463-da8f-4adf-b52a-7c4332f93471",
+	"dd6ac7ce-0931-4a2a-8185-a3be08ba3d86",
+	"d2de40d2-08a2-4a9a-acd8-b97b3a437f40",
+	"7ef21c95-2e72-4eb1-af7d-fb8dc571a632",
+	"6f9c4a70-da39-443e-bb52-9c0c2a683f31",
+	"43279f85-c514-495d-aa27-058bbc763e23",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Job As Document',
+	'ID',
+	'R301');
+INSERT INTO R_RGO_PROXY
+	VALUES ("bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	"dd6ac7ce-0931-4a2a-8185-a3be08ba3d86",
+	"d2de40d2-08a2-4a9a-acd8-b97b3a437f40",
+	'../Document.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("4c3ae463-da8f-4adf-b52a-7c4332f93471",
+	"f0ee859d-bdbf-4dbd-8550-2ab56487d1a3",
+	0,
+	"dd6ac7ce-0931-4a2a-8185-a3be08ba3d86",
+	"7ef21c95-2e72-4eb1-af7d-fb8dc571a632",
+	'../Document.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("6f9c4a70-da39-443e-bb52-9c0c2a683f31",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	"4c3ae463-da8f-4adf-b52a-7c4332f93471",
+	"f0ee859d-bdbf-4dbd-8550-2ab56487d1a3",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("4c3ae463-da8f-4adf-b52a-7c4332f93471",
+	"f0ee859d-bdbf-4dbd-8550-2ab56487d1a3",
+	'../Job As Document/Job As Document.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("6f9c4a70-da39-443e-bb52-9c0c2a683f31",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	"ae45ee6e-f73b-4f60-86f5-ba98a48a67c0",
+	'parentID',
+	'',
+	'',
+	'parentID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8");
+INSERT INTO O_OIDA
+	VALUES ("6f9c4a70-da39-443e-bb52-9c0c2a683f31",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	0,
+	'parentID');
+INSERT INTO O_OIDA
+	VALUES ("7e997b93-cde5-4847-b4fb-c5643c6dd0d8",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	0,
+	'no');
+INSERT INTO O_ID
+	VALUES (1,
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8");
+INSERT INTO O_OIDA
+	VALUES ("5fe7a3f3-b309-4360-87cd-11494259664c",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	1,
+	'ID');
+INSERT INTO O_ID
+	VALUES (2,
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8");
+INSERT INTO O_OIDA
+	VALUES ("2290f757-7dd7-4287-9e0a-cece44263ea5",
+	"bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	2,
+	'elementID');
+INSERT INTO PE_PE
+	VALUES ("bd222c5c-a2cc-4da5-a991-6908cc2f30a8",
+	1,
+	"0ea143e2-8254-4ee0-b406-3901240ee102",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("0ea143e2-8254-4ee0-b406-3901240ee102",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Document',
+	'',
+	300,
+	'../Document.xtuml');

@@ -1,0 +1,294 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68",
+	'Job Type Spec',
+	101,
+	'J_JTS',
+	'Job Type Specはジョブの種類に関する情報を保持するための仕様クラスです。
+
+基本的にはPFliteのジョブタイプと似たようなものですが、内部的動作が
+同じ物はPFliteのジョブタイプが異なっても同じタイプとして扱います。
+また、ジョブタイプが同じでもパラメータの指定によって違うタイプとして
+扱うこともあります。
+
+前者の例
+Direct Decompose PrintとDirect Report Printは同じタイプ
+（IOT_JOB_TYPE_DIRECT_DECOMPOSE_PRINT）として扱われます
+
+EPC-PrintもBuffer Bridge ModeのOn/Offで別に扱います。
+
+これらのマッピングはPF::getJobType()で行われます。
+
+下記の情報を保持しています。
+imageErase ： イメージ転送終了時にイメージを解放するかどうか
+
+ioMode : PFliteのPush-PullかPull-Pullモードかを指定します
+
+fixType : ジョブ起動時にパラメータが決まっているジョブかどうかを指定します。
+	Jobインスタンス作成イベントcreateのisParamFixedがTrueの場合に
+	参照されます。これがFalseの場合、パラメータが決定したことを通知する
+	イベントが来るまでジョブ処理は進みません。
+
+heldMode : Hold指示に対して、自己の都合のみで処理を終えて良いか、あるいは
+	前段と同期するかを指定します。
+	例：通常のEPC-Printでは同期の必要がないのですが、Direct Copyなどは
+	同期が必要です（Controller機能仕様書 Direct Copyを参照のこと）
+
+isJobPauseNeedImageAbort : 
+	Job Pause時にイメージの解放が必要かどうかを示します。これによりJob Pauseで
+	作成されるJ_PPRオブジェクトが決定されます。
+
+isImageRecoveryNotifyNeeded
+	イメージを引けるところまで引いたかどうかを通知するか
+	どうかを示すフラグです。Buffer Bridgeの時にはTRUEとなります。
+
+isSetUnitJob : セットの単位を強制的にJobにします。通常、Collate指定された階層か
+	Document階層になりますが、これがTRUEの場合には常にジョブ単位となります。
+	ダイレクト/Bypass コピーに関してTRUEになります。
+ 	
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_NBATTR
+	VALUES ("9491ffc2-ee70-4848-8983-e93098065c3f",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_BATTR
+	VALUES ("9491ffc2-ee70-4848-8983-e93098065c3f",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_ATTR
+	VALUES ("9491ffc2-ee70-4848-8983-e93098065c3f",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68",
+	"00000000-0000-0000-0000-000000000000",
+	'jobType',
+	'',
+	'',
+	'jobType',
+	0,
+	"af75d68f-4ffb-4ff3-b2c1-092e141e8ec6",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("af75d68f-4ffb-4ff3-b2c1-092e141e8ec6",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobType',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("54d731dc-1726-4e7b-a731-4eda31872bd2",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_BATTR
+	VALUES ("54d731dc-1726-4e7b-a731-4eda31872bd2",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_ATTR
+	VALUES ("54d731dc-1726-4e7b-a731-4eda31872bd2",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68",
+	"9491ffc2-ee70-4848-8983-e93098065c3f",
+	'defaultImageEraseMode',
+	'',
+	'',
+	'defaultImageEraseMode',
+	0,
+	"b1b5e349-ff8a-4dd7-b2d9-1956f0ef467a",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("b1b5e349-ff8a-4dd7-b2d9-1956f0ef467a",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_ImageEraseMode',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("eff13ece-f35a-47c2-b25e-fb00953826f1",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_BATTR
+	VALUES ("eff13ece-f35a-47c2-b25e-fb00953826f1",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_ATTR
+	VALUES ("eff13ece-f35a-47c2-b25e-fb00953826f1",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68",
+	"54d731dc-1726-4e7b-a731-4eda31872bd2",
+	'ioMode',
+	'',
+	'',
+	'ioMode',
+	0,
+	"bf300ea2-5c1e-444f-bbec-cd9d75fb9abe",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("bf300ea2-5c1e-444f-bbec-cd9d75fb9abe",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_IOMode',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("c0d4cc65-362c-4240-bb69-e93f67415bc8",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_BATTR
+	VALUES ("c0d4cc65-362c-4240-bb69-e93f67415bc8",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_ATTR
+	VALUES ("c0d4cc65-362c-4240-bb69-e93f67415bc8",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68",
+	"eff13ece-f35a-47c2-b25e-fb00953826f1",
+	'fixMode',
+	'',
+	'',
+	'fixMode',
+	0,
+	"6248cb38-407e-462f-ae0c-abb288971c5d",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("6248cb38-407e-462f-ae0c-abb288971c5d",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_FixType',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("7fc8a2e2-4f77-4bba-81f6-970bd8bbe1fb",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_BATTR
+	VALUES ("7fc8a2e2-4f77-4bba-81f6-970bd8bbe1fb",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_ATTR
+	VALUES ("7fc8a2e2-4f77-4bba-81f6-970bd8bbe1fb",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68",
+	"c0d4cc65-362c-4240-bb69-e93f67415bc8",
+	'heldMode',
+	'',
+	'',
+	'heldMode',
+	0,
+	"04582e14-73ea-4aa5-b966-02955912d020",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("04582e14-73ea-4aa5-b966-02955912d020",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_HeldMode',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("51c1ea59-ab69-41c0-809f-88cc9a9f732e",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_BATTR
+	VALUES ("51c1ea59-ab69-41c0-809f-88cc9a9f732e",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_ATTR
+	VALUES ("51c1ea59-ab69-41c0-809f-88cc9a9f732e",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68",
+	"7fc8a2e2-4f77-4bba-81f6-970bd8bbe1fb",
+	'isJobPauseNeedImageAbort',
+	'',
+	'',
+	'isJobPauseNeedImageAbort',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("05dfd769-1dd6-4657-b139-5ab8f64019f7",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_BATTR
+	VALUES ("05dfd769-1dd6-4657-b139-5ab8f64019f7",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_ATTR
+	VALUES ("05dfd769-1dd6-4657-b139-5ab8f64019f7",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68",
+	"51c1ea59-ab69-41c0-809f-88cc9a9f732e",
+	'isSetUnitJob',
+	'',
+	'',
+	'isSetUnitJob',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("b5715e86-8133-4153-97c9-54de0c6fc9fe",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_BATTR
+	VALUES ("b5715e86-8133-4153-97c9-54de0c6fc9fe",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_ATTR
+	VALUES ("b5715e86-8133-4153-97c9-54de0c6fc9fe",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68",
+	"05dfd769-1dd6-4657-b139-5ab8f64019f7",
+	'isImageRecoveryNotifyNeeded',
+	'',
+	'',
+	'isImageRecoveryNotifyNeeded',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("566f7bf5-6da1-4877-aa12-e212f0923272",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_BATTR
+	VALUES ("566f7bf5-6da1-4877-aa12-e212f0923272",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_ATTR
+	VALUES ("566f7bf5-6da1-4877-aa12-e212f0923272",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68",
+	"b5715e86-8133-4153-97c9-54de0c6fc9fe",
+	'isCollateEnable',
+	'',
+	'',
+	'isCollateEnable',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("f1a2ab75-66a2-4b52-9b3e-1bb869965024",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_BATTR
+	VALUES ("f1a2ab75-66a2-4b52-9b3e-1bb869965024",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_ATTR
+	VALUES ("f1a2ab75-66a2-4b52-9b3e-1bb869965024",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68",
+	"566f7bf5-6da1-4877-aa12-e212f0923272",
+	'isParameterNotFixUntilFirstPageAdd',
+	'',
+	'',
+	'isParameterNotFixUntilFirstPageAdd',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_OIDA
+	VALUES ("9491ffc2-ee70-4848-8983-e93098065c3f",
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68",
+	0,
+	'jobType');
+INSERT INTO O_ID
+	VALUES (1,
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO O_ID
+	VALUES (2,
+	"3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68");
+INSERT INTO PE_PE
+	VALUES ("3f2dfa63-cba5-4b7c-b0fc-ab3ee2156d68",
+	1,
+	"1ef61a85-d4bb-4a75-8902-08208261e3ec",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("1ef61a85-d4bb-4a75-8902-08208261e3ec",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Job',
+	'',
+	100,
+	'../Job.xtuml');

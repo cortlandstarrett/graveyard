@@ -1,0 +1,371 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("4dd79c24-a02e-4edb-8174-e899d79c6467",
+	'Origin Of Set',
+	302,
+	'D_OOS',
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("3227c6d2-99bd-4e0b-98e6-7ddb27c800eb",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467",
+	'notifyNoUse',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//ACTION_SPECIFICATION:TRUE
+select any this from instances of D_OOS
+	where ( selected.ID == param.originID ) ;
+//-- 848:20140411 Add Start (ikegaya)
+FER::assert( expression : not_empty this );
+//-- 848:20140411 Add End (ikegaya)
+
+// すでにNo Useイベントを誰かが投げていて、OOSで
+// 受け付けられていない場合にはイベントは送らない
+
+if ( not  this.isNoUseReceived )
+	select one aJobAsDocument related by this->D_DJOB[R305] ;
+	select one aDocument related by this->D_DOC[R305] ;
+
+	if ( not_empty aJobAsDocument )
+		generate D_DJOB4:noUse to aJobAsDocument ;
+	elif ( not_empty aDocument )
+		generate D_DOC4:docNoUse to aDocument ;
+	else
+		FER::assert( expression : FALSE ) ;
+	end if ;
+	this.isNoUseReceived = TRUE;
+end if;',
+	1,
+	'',
+	"aedc643c-f731-418d-b456-6c2e3c5de629");
+INSERT INTO O_TPARM
+	VALUES ("f3300432-1fd5-40ec-87fd-760e078ff75a",
+	"3227c6d2-99bd-4e0b-98e6-7ddb27c800eb",
+	'originID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("aedc643c-f731-418d-b456-6c2e3c5de629",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467",
+	'getJobID',
+	'',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'//ACTION_SPECIFICATION:TRUE
+select any this from instances of D_OOS
+	where ( selected.ID == param.sourceID ) ;
+if ( not_empty this )
+	select one aDocument related by this->D_DOC[R305] ;
+	select one aJobAsDocument related by this->D_DJOB[R305] ;
+	if ( not_empty aDocument )
+		select one aJobAsDocument related by
+			aDocument->D_RDOC[R302]->D_DJOB[R301] ;
+	end if ;
+
+//-- 848:20140411 Add Start (ikegaya)
+	if ( not_empty aJobAsDocument )
+//-- 848:20140411 Add End (ikegaya)
+		return aJobAsDocument.jobID ;
+//-- 848:20140411 Add Start (ikegaya)
+	end if;
+//-- 848:20140411 Add End (ikegaya)
+end if ;
+
+return 0 ;',
+	1,
+	'',
+	"7aa11e83-7089-44a8-a5d5-52d06d2820c5");
+INSERT INTO O_TPARM
+	VALUES ("020349f9-541f-44c9-8011-73432e7d49a5",
+	"aedc643c-f731-418d-b456-6c2e3c5de629",
+	'sourceID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("05665ea6-cfa0-4098-b421-be8d039c51ba",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467",
+	'remove',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'select any anOrigin from instances of D_OOS
+	where ( selected.ID == param.originID );
+FER::assert( expression : not_empty anOrigin );
+
+select one aSetParam related by anOrigin->S_OSP[R258];
+if ( not_empty aSetParam )
+	unrelate aSetParam from anOrigin across R258;
+	S_OSP::release( setParamID :aSetParam.ID );
+end if;
+
+select one anOriginParam related by anOrigin->S_OUP[R259];
+unrelate anOrigin from anOriginParam across R259;
+delete object instance anOriginParam;
+
+select one aJobAsDocument related by anOrigin->D_DJOB[R305];
+select one aDocument related by anOrigin->D_DOC[R305];
+if ( not_empty aJobAsDocument )
+	unrelate aJobAsDocument from anOrigin across R305;
+elif ( not_empty aDocument )
+	unrelate aDocument from anOrigin across R305;
+end if;
+
+delete object instance anOrigin;
+',
+	1,
+	'',
+	"3227c6d2-99bd-4e0b-98e6-7ddb27c800eb");
+INSERT INTO O_TPARM
+	VALUES ("f3db2133-b7a1-413e-9f92-3b3975836215",
+	"05665ea6-cfa0-4098-b421-be8d039c51ba",
+	'originID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("7aa11e83-7089-44a8-a5d5-52d06d2820c5",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467",
+	'getInstID',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	1,
+	'select one aDocument related by self->D_DOC[R305] ;
+select one aJobAsDocument related by self->D_DJOB[R305] ;
+if ( not_empty aDocument )
+	return PF::getDocInstID( docID : aDocument.documentID );
+elif ( not_empty aJobAsDocument )
+	return PF::getJobInstID( jobID : aJobAsDocument.jobID );
+else
+//-- 845:20140227 Modified Start (saitou) 
+	FER::assert_with_return_zero( expression : FALSE );
+//-- 845:20140227 Modified End (saitou) 
+end if;',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_NBATTR
+	VALUES ("6c3c1d1c-e63c-4b9e-9087-67d1b9ecc4e2",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467");
+INSERT INTO O_BATTR
+	VALUES ("6c3c1d1c-e63c-4b9e-9087-67d1b9ecc4e2",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467");
+INSERT INTO O_ATTR
+	VALUES ("6c3c1d1c-e63c-4b9e-9087-67d1b9ecc4e2",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("3dbf12dd-7b3e-42ba-b8ac-80adbddd670c",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467");
+INSERT INTO O_BATTR
+	VALUES ("3dbf12dd-7b3e-42ba-b8ac-80adbddd670c",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467");
+INSERT INTO O_ATTR
+	VALUES ("3dbf12dd-7b3e-42ba-b8ac-80adbddd670c",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467",
+	"6c3c1d1c-e63c-4b9e-9087-67d1b9ecc4e2",
+	'internalOffsetMode',
+	'',
+	'',
+	'internalOffsetMode',
+	0,
+	"fb1d19e9-ef53-45f0-a301-0775247e6274",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("fb1d19e9-ef53-45f0-a301-0775247e6274",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_OffsetMode',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("47ef260a-7b3a-4972-9c38-0f8c9b8dfe01",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467");
+INSERT INTO O_BATTR
+	VALUES ("47ef260a-7b3a-4972-9c38-0f8c9b8dfe01",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467");
+INSERT INTO O_ATTR
+	VALUES ("47ef260a-7b3a-4972-9c38-0f8c9b8dfe01",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467",
+	"3dbf12dd-7b3e-42ba-b8ac-80adbddd670c",
+	'isSetUnit',
+	'',
+	'',
+	'isSetUnit',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("4dd79c24-a02e-4edb-8174-e899d79c6467",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	0,
+	"d4097803-ff95-4cbc-b7d3-5e380298eb44",
+	"2b8fe0f8-ba5e-4a89-a40d-590172f1128a",
+	"d7d90490-d86c-4e19-8eef-beca05198868",
+	"74ef0101-7583-4837-b8a5-976588aae0df",
+	"d7d521a8-36d2-4355-89bb-5a8c1ba50cfd",
+	"cd0e4e48-003f-4d2a-8024-1e022eaee8fc",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Set Parameter',
+	'ID',
+	'R258.''uses as default parameter''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("4dd79c24-a02e-4edb-8174-e899d79c6467",
+	"2b8fe0f8-ba5e-4a89-a40d-590172f1128a",
+	"d7d90490-d86c-4e19-8eef-beca05198868",
+	'../../Sheet/Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("d4097803-ff95-4cbc-b7d3-5e380298eb44",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	0,
+	"2b8fe0f8-ba5e-4a89-a40d-590172f1128a",
+	"74ef0101-7583-4837-b8a5-976588aae0df",
+	'../../Sheet/Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("d7d521a8-36d2-4355-89bb-5a8c1ba50cfd",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467",
+	"d4097803-ff95-4cbc-b7d3-5e380298eb44",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("d4097803-ff95-4cbc-b7d3-5e380298eb44",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	'../../Sheet/Set Parameter/Set Parameter.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("d7d521a8-36d2-4355-89bb-5a8c1ba50cfd",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467",
+	"47ef260a-7b3a-4972-9c38-0f8c9b8dfe01",
+	'setDefaultParamID',
+	'',
+	'',
+	'setDefaultParamID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("4dd79c24-a02e-4edb-8174-e899d79c6467",
+	"724d1dcf-c579-430e-86f8-efb2d98fe5a4",
+	0,
+	"aebebb06-1660-489a-b2a5-a18be5db195c",
+	"d7d2165d-c8db-4b8b-9300-8ac0d5fb780f",
+	"ff34fc54-b682-4987-a4e4-203265bad561",
+	"d7ef0ebb-d3a7-4e23-bd77-4327ebd7288c",
+	"9e582f86-248d-41e7-bf4e-82dcf33a5db3",
+	"1ccb27e0-74e4-4921-a20c-6dcc3822d010",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Origin Unique Parameter',
+	'ID',
+	'R259');
+INSERT INTO R_RGO_PROXY
+	VALUES ("4dd79c24-a02e-4edb-8174-e899d79c6467",
+	"d7d2165d-c8db-4b8b-9300-8ac0d5fb780f",
+	"ff34fc54-b682-4987-a4e4-203265bad561",
+	'../../Sheet/Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("aebebb06-1660-489a-b2a5-a18be5db195c",
+	"724d1dcf-c579-430e-86f8-efb2d98fe5a4",
+	0,
+	"d7d2165d-c8db-4b8b-9300-8ac0d5fb780f",
+	"d7ef0ebb-d3a7-4e23-bd77-4327ebd7288c",
+	'../../Sheet/Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("9e582f86-248d-41e7-bf4e-82dcf33a5db3",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467",
+	"aebebb06-1660-489a-b2a5-a18be5db195c",
+	"724d1dcf-c579-430e-86f8-efb2d98fe5a4",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("aebebb06-1660-489a-b2a5-a18be5db195c",
+	"724d1dcf-c579-430e-86f8-efb2d98fe5a4",
+	'../../Sheet/Origin Unique Parameter/Origin Unique Parameter.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("9e582f86-248d-41e7-bf4e-82dcf33a5db3",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467",
+	"d7d521a8-36d2-4355-89bb-5a8c1ba50cfd",
+	'uniqueParamID',
+	'',
+	'',
+	'uniqueParamID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("e45c9433-2a8c-4aa7-9d13-31b31ca48046",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467");
+INSERT INTO O_BATTR
+	VALUES ("e45c9433-2a8c-4aa7-9d13-31b31ca48046",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467");
+INSERT INTO O_ATTR
+	VALUES ("e45c9433-2a8c-4aa7-9d13-31b31ca48046",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467",
+	"9e582f86-248d-41e7-bf4e-82dcf33a5db3",
+	'isNoUseReceived',
+	'',
+	'',
+	'isNoUseReceived',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"4dd79c24-a02e-4edb-8174-e899d79c6467");
+INSERT INTO O_OIDA
+	VALUES ("6c3c1d1c-e63c-4b9e-9087-67d1b9ecc4e2",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"4dd79c24-a02e-4edb-8174-e899d79c6467");
+INSERT INTO O_ID
+	VALUES (2,
+	"4dd79c24-a02e-4edb-8174-e899d79c6467");
+INSERT INTO PE_PE
+	VALUES ("4dd79c24-a02e-4edb-8174-e899d79c6467",
+	1,
+	"0ea143e2-8254-4ee0-b406-3901240ee102",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("0ea143e2-8254-4ee0-b406-3901240ee102",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Document',
+	'',
+	300,
+	'../Document.xtuml');

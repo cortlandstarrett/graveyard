@@ -1,0 +1,824 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("def9c206-3e13-4b8b-8848-ce8e360aedc7",
+	'Physical Sheet With Set',
+	422,
+	'P_PSWS',
+	'実シートの中で、丁合セットに絡むシートを抽象化したものです。
+P_NPSおよびP_PBSはともに本文セットのシートとして利用されるため、
+サブクラスとなっています。
+
+バナーシートは本文のセットとは関係ないため、サブクラスにはなりません。
+
+役割概要
+
+本文の中のシートとして、セット内のシートを扱う時に使用されます。
+S_NPS/P_PBSの区別をせずに統一的にセット内の１シートとして使う場合に使用します。
+
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("95ab3b71-765c-42e4-a38c-5c25ffd47aff",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7",
+	'setResumeInfo',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 639:20110210 Add Start (kanda)
+// 見づらいので古い修正履歴を削除
+// 212, 238
+//-- 639:20110210 Add End (kanda)
+
+select one aCollateSet related by self->P_RCSA[R444]->S_CS[R443];
+select one aNormalSheet related by self->P_NPS[R440];
+select one anExecutingJob related by aCollateSet->S_EOS[R232]->S_NPS[R231]->J_EJOB[R252];
+
+//-- 571:20090626 Add Start (kanda)
+select one anExecutingOrigin related by aCollateSet->S_EOS[R232];
+//-- 571:20090626 Add End (kanda)
+
+select one aRestartInfo related by anExecutingJob->S_JRI[R200];
+select one aSetAccepter related by self->P_RCSA[R444];
+
+
+//-- 226:20050706 Add Start (kanda)
+select any aPhysicalSheet from instances of P_PSHT; // 型あわせ
+if ( not_empty aNormalSheet )
+	select one aPhysicalSheet related by aNormalSheet->P_PSLS[R430]->P_PSHT[R423];
+else
+	select one aPhysicalSheet related by self->P_PBS[R440]->P_PSHT[R423];
+end if;
+//-- 848:20140501 Add Start (ikegaya)
+FER::assert( expression : not_empty aPhysicalSheet );
+//-- 848:20140501 Add End (ikegaya)
+// isStickingSheetがTrueならば次のシートはStickingSheetExistなので,
+// そのままTrueをいれればよい
+aRestartInfo.isStickingSheetExist = aPhysicalSheet.isStickingSheet;
+//-- 226:20050706 Add End (kanda)
+
+//-- 350:20061012 Add Start (kanda)
+// セットセパレータ以外の排出
+aRestartInfo.isSetSeparatorSheetDelivered = FALSE;
+//-- 350:20061012 Add End (kanda)
+
+type = self.sheetType;
+firstInterleafMode = IotSc_FirstInterleafMode::eNormal; // 再開時の先頭Inserterの取り扱い
+
+if ( type == IotSc_SheetType::eOHPInserterBeforeOHP or 
+     type == IotSc_SheetType::eOHPInserterWithImageBeforeOHP)
+	firstInterleafMode = IotSc_FirstInterleafMode::eInserterIgnore; // 再開時合紙は必要ない
+elif ( type == IotSc_SheetType::eOHP )
+	if ( aSetAccepter.ohpInserterMode == IotSc_InsertMode::eOnAfterImage )
+		firstInterleafMode = IotSc_FirstInterleafMode::eFirstBlank; // 合紙からの出力
+	elif ( aSetAccepter.ohpInserterMode == IotSc_InsertMode::eOnWithImageAfterImage )
+		
+		firstInterleafMode = IotSc_FirstInterleafMode::eOHPIgnore; // 再開時OHPは必要ない
+	end if;
+
+//-- 350:20061012 Add Start (kanda)
+elif ( aCollateSet.collateMode == "IOT_COLLATE_ON" and 
+	type == IotSc_SheetType::eSeparator )
+	aRestartInfo.isSetSeparatorSheetDelivered = TRUE;
+//-- 350:20061012 Add End (kanda)
+
+end if;
+
+//-- 231:20050708 Add Start (kanda)
+if ( firstInterleafMode == IotSc_FirstInterleafMode::eNormal )
+	if ( aPhysicalSheet.isSeparatorSheetExist )
+		firstInterleafMode = IotSc_FirstInterleafMode::eSeparator;
+	end if;
+end if;
+//-- 231:20050708 Add End (kanda)
+
+aRestartInfo.firstInterleafMode = firstInterleafMode;
+
+// 物理シートNoを残す
+aRestartInfo.physicalSheetNoInSet = self.no;
+
+//-- 370:20061227 Add Start (kanda)
+// セットの先頭の場合、アノテーション関連のカウンタをリセットする
+if ( self.no == 1 )
+	aRestartInfo.annotationStartNo = 0;
+	aRestartInfo.batesStartNo = 0;
+	aRestartInfo.annotationTargetCountStartNo = 0;
+	aRestartInfo.annotationTargetCountExceptCoverAndInserterStartNo = 0;
+end if;
+//-- 370:20061227 Add End (kanda)
+
+//-- 553:20090226 Add Start (kanda)
+select one aDefaultSetParam  related by aCollateSet->S_EOS[R232]->S_OSP[R260];
+aRestartInfo.bookletTotalPage = aDefaultSetParam.foldBindTotalNum;
+//-- 553:20090226 Add End (kanda)
+
+
+//-- 571:20090626 Add Start (kanda)
+aRestartInfo.isJobParseEnd = anExecutingJob.isJobParseEnd;
+aRestartInfo.totalValidPageCountOnJob = anExecutingJob.totalValidPageCountOnJob;
+aRestartInfo.firstValidPageCountOnJobInSet = anExecutingOrigin.firstValidPageCountOnJob;
+aRestartInfo.totalValidPageCountOnJobInSet = anExecutingOrigin.totalValidPageCountOnJob;
+//-- 571:20090626 Add End (kanda)
+
+//-- 640:20110218 Add Start (kanda)
+aRestartInfo.isNextSheetPadCover = self.isNextSheetPadCover;
+//-- 640:20110218 Add End (kanda)
+
+//-- 643:20110228 Add Start (ikegaya)
+aRestartInfo.initialSequentialPageNoOnJobInSet = anExecutingOrigin.initialSequentialPageNoOnJob;
+aRestartInfo.totalSequentialPageNoOnJobInSet = anExecutingOrigin.totalSequentialPageNoOnJob;
+//-- 643:20110228 Add End (ikegaya)
+
+if ( not_empty aNormalSheet )
+	
+
+//-- 202:20050210 Add Start (kanda)
+	if ( not  aNormalSheet.isLast )
+		return;
+	end if;
+//-- 202:20050210 Add End
+
+	select one aLogicalSheet related by aNormalSheet->S_SHT[R435];
+
+//-- 398:20070321 Deleted Start (kanda)
+//	aRestartInfo.sheetNoInSet = aLogicalSheet.noInSet;
+//-- 398:20070321 Deleted End (kanda)
+
+	if ( aLogicalSheet.isRestartDisable )
+		// このシートは再開対象とならない
+		return;
+	end if;
+
+//-- 398:20070321 Add Start (kanda)
+	aRestartInfo.sheetNoInSet = aLogicalSheet.noInSet;
+//-- 398:20070321 Add End (kanda)
+
+//-- 353:20061121 Add Start (kanda)
+	// 論理シートに関連付いた全ての物理シートを排出したときに更新する
+	aRestartInfo.userSheetNum = self.userSheetNum;
+//-- 353:20061121 Add End (kanda)
+
+	// まだそのシートに関する出力要求が残っているか？
+	// 残っていれば割り込み再開情報を更新しない
+	// Logical Sheetを利用して再開情報をセット
+	aRestartInfo.setSheetInfo( sheetID : aLogicalSheet.ID );
+	//開始Annotation番号は最終シートの番号とする
+	select one aSurface related by aLogicalSheet->S_SHF[R247];
+	select one aBackface related by aLogicalSheet->S_SHF[R248];
+	// 1toNの場合は裏面があれば裏面の番号をStart Noとする
+
+//-- 313:20060426 Modified Start (kanda)
+	if ( aSurface.annotationPageNo != 0 )
+		aRestartInfo.annotationStartNo = aSurface.annotationPageNo;
+	elif ( aBackface.annotationPageNo != 0 )
+		aRestartInfo.annotationStartNo = aBackface.annotationPageNo;
+	end if;
+	if ( aSurface.batesNo != 0 )
+		aRestartInfo.batesStartNo = aSurface.batesNo;
+	elif ( aBackface.annotationPageNo != 0 )
+		aRestartInfo.batesStartNo = aBackface.batesNo;
+	end if;
+//-- 358:20061226 Add Start (kanda)
+	if ( aSurface.annotationTargetCount != 0 )
+		aRestartInfo.annotationTargetCountStartNo = aSurface.annotationTargetCount;
+	elif ( aBackface.annotationTargetCount != 0 )
+		aRestartInfo.annotationTargetCountStartNo = aBackface.annotationTargetCount;
+	end if;
+	if ( aSurface.annotationTargetCountExceptCoverAndInserter != 0 )
+		aRestartInfo.annotationTargetCountExceptCoverAndInserterStartNo
+				= aSurface.annotationTargetCountExceptCoverAndInserter;
+	elif ( aBackface.annotationTargetCountExceptCoverAndInserter != 0 )
+		aRestartInfo.annotationTargetCountExceptCoverAndInserterStartNo
+				= aBackface.annotationTargetCountExceptCoverAndInserter;
+	end if;
+//-- 358:20061226 Add End (kanda)
+//-- 571:20090626 Add Start (kanda)
+	if ( aSurface.validPageCountOnJobNum != 0 )
+		aRestartInfo.validPageCountOnJobNumInSet = aSurface.validPageCountOnJobNum;
+	elif ( aBackface.validPageCountOnJobNum != 0 )
+		aRestartInfo.validPageCountOnJobNumInSet = aBackface.validPageCountOnJobNum;
+	end if;
+//-- 571:20090626 Add End (kanda)
+//-- 643:20110228 Add Start (ikegaya)
+	if ( aSurface.sequentialPageNoOnJobNum != 0 )
+		aRestartInfo.sequentialPageNoOnJobNumInSet = aSurface.sequentialPageNoOnJobNum;
+	elif ( aBackface.sequentialPageNoOnJobNum != 0 )
+		aRestartInfo.sequentialPageNoOnJobNumInSet = aBackface.sequentialPageNoOnJobNum;
+	end if;
+//-- 643:20110228 Add End (ikegaya)
+
+	if ( aCollateSet.pageRequireOrder == IotSc_OutputOrder::e1toN and 
+		not aCollateSet.isFaceOrderInvertInDevideSet
+	)
+		if ( aBackface.annotationPageNo != 0 )
+			aRestartInfo.annotationStartNo = aBackface.annotationPageNo;
+		end if;
+		if ( aBackface.batesNo != 0 )
+			aRestartInfo.batesStartNo = aBackface.batesNo;
+		end if;
+//-- 358:20061226 Add Start (kanda)
+		if ( aBackface.annotationTargetCount != 0 )
+			aRestartInfo.annotationTargetCountStartNo = aBackface.annotationTargetCount;
+		end if;
+		if ( aBackface.annotationTargetCountExceptCoverAndInserter != 0 )
+			aRestartInfo.annotationTargetCountExceptCoverAndInserterStartNo
+					= aBackface.annotationTargetCountExceptCoverAndInserter;
+		end if;
+//-- 358:20061226 Add End (kanda)
+//-- 571:20090626 Add Start (kanda)
+		if ( aBackface.validPageCountOnJobNum != 0 )
+			aRestartInfo.validPageCountOnJobNumInSet = aBackface.validPageCountOnJobNum;
+		end if;
+//-- 571:20090626 Add End (kanda)
+//-- 643:20110228 Add Start (ikegaya)
+		if ( aBackface.sequentialPageNoOnJobNum != 0 )
+			aRestartInfo.sequentialPageNoOnJobNumInSet = aBackface.sequentialPageNoOnJobNum;
+		end if;
+//-- 643:20110228 Add End (ikegaya)
+
+	end if;
+//-- 313:20060426 Modified End (kanda)
+
+//-- 640:20110218 Modified Start (kanda)
+//-- 639:20110210 Deleted Start (kanda)
+//	aRestartInfo.isNextSheetPadCover = aNormalSheet.isNextSheetPadCover;
+//-- 639:20110210 Add End (kanda)
+//-- 640:20110218 Deleted End (kanda)
+
+//-- 423:20070810 Add Start (kanda)
+	// 関連する論理シートの最後の用紙が排出されたので排出履歴を削除する
+	aRestartInfo.firstOuttrayInSheet = "0";
+	aRestartInfo.secondOuttrayInSheet = "0";
+//-- 423:20070810 Add End (kanda)
+
+else
+	// この場合、Treeの設定はすでに行われているの何もしなくて良いはず
+end if;			
+			
+return;
+
+',
+	1,
+	'',
+	"62f2443b-e9c8-4898-a7e1-e619f16b45f6");
+INSERT INTO O_TFR
+	VALUES ("62f2443b-e9c8-4898-a7e1-e619f16b45f6",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7",
+	'isReallyOffsetPosition',
+	'//-- 226:20050628 Add Start (kanda)
+Uncollate時に本当に、このシートでOffsetするか？判断する。
+True:  このシートでOffsetする
+False:Offsetしない
+
+※isUncollateOffsetPositionがTrueでも、指定部数が1部の場合はFalseが返る。
+//-- 226:20050628 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	1,
+	'//-- 226:20050628 Add Start (kanda)
+//-- 350:20061011 Add Start (kanda)
+// セパレータはオフセットしない
+if ( self.sheetType == IotSc_SheetType::eSeparator )
+	return FALSE;
+end if;
+//-- 350:20061011 Add End (kanda)
+
+select one aNormalPhysicalSheet related by self->P_NPS[R440];
+select one aBlankSheet related by self->P_PBS[R440];
+
+select one aSetAccepter related by self-> P_RCSA[R444];
+select one aCollateSet related by aSetAccepter->S_CS[R443];
+select one anExecutingOrigin related by aCollateSet->S_EOS[R232];
+
+isJobOffset = FALSE;
+if ( anExecutingOrigin.offsetMode == IotSc_OffsetMode::eNew_1stSet )
+	isJobOffset = TRUE;
+end if;
+
+runLength = 1;
+
+//-- 301:20060106 Add Start (tsuchitoi)
+//-- 453:20071218 Modified Start (kanda)
+select any aPhysicalSheet from instances of P_PSHT; // 型あわせ
+if ( empty aBlankSheet )
+	select one aPhysicalSheet related by aNormalPhysicalSheet->P_PSLS[R430]->P_PSHT[R423];
+else
+	select one aPhysicalSheet related by aBlankSheet->P_PSHT[R423];
+end if;
+//-- 453:20071218 Modified End (kanda)
+//-- 301:20060106 Add End (tsuchitoi)
+
+//-- 310:20060306 Add Start (kanda)
+select one anExecutingJob related by aPhysicalSheet->J_EJOB[R429];
+select one aRestartInfo related by anExecutingJob->S_JRI[R200];
+select one anAccepter related by anExecutingJob->P_PIA[R415];
+
+//-- 423:20070726 Modified Start (kanda)
+//isAnySheetCreated = TRUE;	
+//if ( not anAccepter.isAnySheetCreated and aRestartInfo.sheetNoInSet == 0 )
+//	isAnySheetCreated = FALSE;	
+//end if;
+
+select one aOutputUnit related by anExecutingJob->S_OU[R277];
+isAnySheetCreated = S_OH::isAnySheetCreated( outputUnitID : aOutputUnit.ID, outtray : aPhysicalSheet.outtray );
+//-- 423:20070726 Modified End (kanda)
+//-- 310:20060306 Add End (kanda)
+
+if ( not_empty aNormalPhysicalSheet ) 
+	select one aSheet related by aNormalPhysicalSheet->S_SHT[R435];
+	runLength = aSheet.runLength;
+end if;
+
+//-- 667:20110415 Add Start (saitou)
+select one aSetParam related by aCollateSet->S_OSP[R256];
+
+// Staple有りならシステムデータに従いOffset
+if( aSetParam.stapleMode != "IOT_STAPLE_OFF" )	// 1枚の場合でもOffsetはする。(Stapleを外すのは外)
+	resultOffsetMode = PF::getSystemOffsetMode(
+				doStaple : TRUE , outTray : aSetParam.outtray );
+	if( resultOffsetMode == IotSc_OffsetMode::eOn_Job )
+		// フラグだけ立てて判断は下で行う。
+		isJobOffset = TRUE;
+	elif( resultOffsetMode == IotSc_OffsetMode::eOn_Set )
+		// SetOffsetはStapleSet単位(SubSet単位)でOffsetする
+		return TRUE;
+	elif( resultOffsetMode == IotSc_OffsetMode::eOff )
+		return FALSE;
+	else
+		// 知らない値が返ってきた
+		// ログだけ出して、OFFと同じ扱いとする
+		str0 = aSetParam.stapleMode;	//ログ用のdummy string
+		str0 = "0";
+		FER::modelLog( log : "[P_PSWS]isReallyOffsetPosition() Unknown SystemOffsetMode ",
+			str1 : str0, str2 : str0, str3 : str0,
+			int1 : 0, int2 : 0, int3 : 0 );
+
+//		FER::assert( expression:FALSE );
+		return FALSE;
+	end if;
+end if;	
+//-- 667:20110415 Add End (saitou)
+
+//-- 666:20110512 Modified Start (saitou)
+if ( ( self.isBoundary ) or ( aCollateSet.collateMode != "IOT_COLLATE_ON" ) )
+//-- 666:20110512 Modified End (saitou)
+
+//-- 423:20070726 Add Start (kanda)
+	// OHP合紙は1枚目以外では必ずCont(1部指定である前提)
+	// なのでCollateセットを排出単位と見なして問題ない
+	if ( not_empty aNormalPhysicalSheet ) 
+		select one aSheet related by aNormalPhysicalSheet->S_SHT[R435];
+		select one aOutputUnit related by aSheet->S_OU[R277];
+	else
+		select one aOutputUnit related by aCollateSet->S_OU[R277];
+	end if;
+	isAnySheetCreatedInSet = S_OH::isAnySheetCreated( outputUnitID : aOutputUnit.ID, outtray :aPhysicalSheet.outtray ) ;
+//-- 423:20070726 Add End (kanda)
+
+
+//-- 301:20060106 Add Start (tsuchitoi)
+//-- 310:20060306 Deleted Start (kanda)
+//	select one anExecutingJob related by aPhysicalSheet->J_EJOB[R429];
+//	select one aRestartInfo related by anExecutingJob->S_JRI[R200];
+//	select one anAccepter related by anExecutingJob->P_PIA[R415];
+//	isAnySheetCreated = TRUE;	
+//	if ( not anAccepter.isAnySheetCreated and aRestartInfo.sheetNoInSet == 0 )
+//		isAnySheetCreated = FALSE;	
+//	end if;
+//-- 310:20060306 Deleted End (kanda)
+
+//-- 445:20071129 Add Start (kanda)
+	// 部数指定オフセットの場合は必ずTRUE
+	if ( anExecutingOrigin.offsetMode == IotSc_OffsetMode::eCopies )
+		return TRUE;
+	end if;
+//-- 445:20071129 Add End (kanda)
+
+	if ( not isAnySheetCreated )
+		// シートが作られていないときは必ずTRUE
+		return TRUE;
+	end if;
+
+	if ( isJobOffset ) 
+		// シートが作られている場合は常にFALSE
+//-- 423:20070726 Modified Start (kanda)
+//	elif ( runLength > 1  ) 
+	elif ( runLength > 1 and ( not isAnySheetCreatedInSet ) )
+//-- 423:20070726 Modified End (kanda)
+		// Set単位では複数部数の場合にのみTRUEとなる
+		return TRUE;
+	end if;
+
+//-- 301:20060106 Add End (tsuchitoi)
+//-- 301:20060106 Deleted Start(tsuchitoi)
+//	elif ( self.no == 1 )
+//		return TRUE;
+//	elif ( runLength > 1 and not isJobOffset )
+//		return TRUE;
+//	end if;
+//-- 301:20060106 Deleted End(tsuchitoi)
+
+end if;
+
+//-- 310:20060303 Add Start (kanda)
+if ( aCollateSet.collateMode == "IOT_COLLATE_ON" )
+	// COLLATE_ONで本オペレーションがコールされるのは分割製本時だけ。
+	// 必ずP_NPSは存在している
+//-- 845:20140227 Modified Start (saitou) 
+	FER::assert_with_return_zero( expression : not_empty aNormalPhysicalSheet );
+//-- 845:20140227 Modified End (saitou) 
+	select one aLogicalSheet related by aNormalPhysicalSheet->S_SHT[R435];
+
+	select one aRequest related by aNormalPhysicalSheet->P_SIR[R447]->P_PISR[R407];
+//-- 423:20070726 Modified Start (kanda)
+//	if ( aRequest.isStickingSheetExist )
+	select one aSetParam related by aCollateSet->S_OSP[R256];
+	select one aOutputUnit related by aCollateSet->S_OU[R277];
+	if ( S_OH::isAnySheetCreated( outputUnitID : aOutputUnit.ID, outtray : aSetParam.outtray ) )
+//-- 423:20070726 Modified End (kanda)
+		return FALSE;
+	end if;
+
+	// シートが作られていないときは必ずTRUE
+	if ( not isAnySheetCreated )
+		return TRUE;
+	end if;
+
+	// シートが作られている場合は常にFALSE
+	if ( isJobOffset ) 
+		return FALSE;
+	end if;
+
+	if ( aLogicalSheet.noInSet == 1 )
+		return TRUE;
+	end if;
+end if;
+//-- 310:20060303 Add End (kanda)
+
+return FALSE;
+
+//-- 226:20050628 Add End (kanda)
+
+',
+	1,
+	'',
+	"64c06277-f672-4339-a8ad-10cdd65a8d85");
+INSERT INTO O_TFR
+	VALUES ("64c06277-f672-4339-a8ad-10cdd65a8d85",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7",
+	'isLastSheetInJob',
+	'//-- 708:20110701 Add Start (saitou)
+Modify:Add 
+Modify_No:708
+Modifier:saitou
+Modify_Date:20110701
+
+SheetParseの情報をもとにEOJの判定を行う。
+//-- 708:20110701 Add End (saitou)
+',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	1,
+	'// DFAは最終シート通知前にEOJ確定させる。
+//  (DFA前提で条件を考えているところがあるので、他で使うことがあるなら要検討)
+select one aPhysicalSheet related by self->P_NPS[R440]->P_PSLS[R430]->P_PSHT[R423];
+if ( empty aPhysicalSheet )
+	select one aPhysicalSheet related by self->P_PBS[R440]->P_PSHT[R423];
+end if;
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero(expression : not_empty aPhysicalSheet);
+//-- 845:20140227 Modified End (saitou) 
+
+select one anExecutingJob related by aPhysicalSheet->J_EJOB[R429];
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero(expression : not_empty anExecutingJob);
+//-- 845:20140227 Modified End (saitou) 
+select one aCollateSet related by self->P_RCSA[R444]->S_CS[R443];
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero(expression : not_empty aCollateSet);
+//-- 845:20140227 Modified End (saitou) 
+
+select one anOrigin related by aCollateSet->S_EOS[R232]->D_OOS[R215];
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero( expression : not_empty anOrigin );
+//-- 845:20140227 Modified End (saitou) 
+
+select one anOriginParam related by anOrigin->S_OUP[R259];
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero( expression : not_empty anOriginParam );
+//-- 845:20140227 Modified End (saitou) 
+
+
+jobID = D_OOS::getJobID( sourceID : anOrigin.ID );
+
+
+// 総部数の取得
+totalRunLength = anOriginParam.runLength;
+overWrittenCopiesNum = PF::getOverWrittenCopiesNum( jobID : jobID );
+if ( overWrittenCopiesNum > 0 )
+	// 部数変更されていた場合
+	totalRunLength = overWrittenCopiesNum ;
+end if;
+
+
+isLastSheetInJob = FALSE;
+
+select one aSheetParseMement related by anExecutingJob->S_SPM[R282];
+//-- 748:20120323 Modified Start (ikegaya)
+// DFA Profile有効時のみEOJを付加する
+if ( not_empty aSheetParseMement and anExecutingJob.dfaProfileNo > 0)
+//-- 748:20120323 Modified End (ikegaya)
+	if ( aCollateSet.collateMode == "IOT_COLLATE_OFF" )
+		// UnCollate なら部数分の数が数えられているので、一致したらEOJ
+		if ( aSheetParseMement.totalSheetNum == self.no )
+			isLastSheetInJob = TRUE;
+		end if;
+	else
+		// Collate は 1部分しか数えていない。部数変更の可能性もあるので、ここで部数も確認する。
+		if ( ( aSheetParseMement.totalSheetNum == self.no ) and ( aCollateSet.no == totalRunLength ) )
+			isLastSheetInJob = TRUE;
+		end if;
+	end if;
+end if;
+
+// EndBannerがいたら、ここでEOJはありえない。
+//  (DFAではバナーキャンセルされるようなケースではP_EBNRも作られない)
+select one aEndBannerRequest related by anExecutingJob->P_EBNR[R425];
+if ( not_empty aEndBannerRequest )
+	isLastSheetInJob = FALSE;
+end if;
+
+return isLastSheetInJob;
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_NBATTR
+	VALUES ("2838c83f-9c5e-4c3b-bca9-5cd677c891a8",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7");
+INSERT INTO O_BATTR
+	VALUES ("2838c83f-9c5e-4c3b-bca9-5cd677c891a8",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7");
+INSERT INTO O_ATTR
+	VALUES ("2838c83f-9c5e-4c3b-bca9-5cd677c891a8",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("def9c206-3e13-4b8b-8848-ce8e360aedc7",
+	"c146a413-21dc-487e-91b4-5ce3bb346883",
+	0,
+	"f1919be8-a37d-4202-9a54-9bc8d1b79989",
+	"187935e4-a5a9-4e67-a3d7-e74c8d8f4b26",
+	"1620169b-b88c-4597-a6f2-0a7e8afa8802",
+	"71c3d324-d8c0-481f-bc6f-ddcd67d759ac",
+	"0c52c10d-ea52-47af-981c-73d158dc7fbd",
+	"0e6f46fc-3f56-4c94-b18c-40f7e22cc437",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Request in Collate Set Accepter',
+	'ID',
+	'R444.''is belong to''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("def9c206-3e13-4b8b-8848-ce8e360aedc7",
+	"187935e4-a5a9-4e67-a3d7-e74c8d8f4b26",
+	"1620169b-b88c-4597-a6f2-0a7e8afa8802",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("f1919be8-a37d-4202-9a54-9bc8d1b79989",
+	"c146a413-21dc-487e-91b4-5ce3bb346883",
+	0,
+	"187935e4-a5a9-4e67-a3d7-e74c8d8f4b26",
+	"71c3d324-d8c0-481f-bc6f-ddcd67d759ac",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("0c52c10d-ea52-47af-981c-73d158dc7fbd",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7",
+	"f1919be8-a37d-4202-9a54-9bc8d1b79989",
+	"c146a413-21dc-487e-91b4-5ce3bb346883",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("f1919be8-a37d-4202-9a54-9bc8d1b79989",
+	"c146a413-21dc-487e-91b4-5ce3bb346883",
+	'../Request in Collate Set Accepter/Request in Collate Set Accepter.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("0c52c10d-ea52-47af-981c-73d158dc7fbd",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7",
+	"2838c83f-9c5e-4c3b-bca9-5cd677c891a8",
+	'accepterID',
+	'',
+	'',
+	'accepterID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("95c16873-481d-41d5-aeea-e0fccd093ef1",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7");
+INSERT INTO O_BATTR
+	VALUES ("95c16873-481d-41d5-aeea-e0fccd093ef1",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7");
+INSERT INTO O_ATTR
+	VALUES ("95c16873-481d-41d5-aeea-e0fccd093ef1",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7",
+	"0c52c10d-ea52-47af-981c-73d158dc7fbd",
+	'no',
+	'',
+	'',
+	'no',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("79a1499e-e9b2-4426-92c6-391cdbaaadb9",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7");
+INSERT INTO O_BATTR
+	VALUES ("79a1499e-e9b2-4426-92c6-391cdbaaadb9",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7");
+INSERT INTO O_ATTR
+	VALUES ("79a1499e-e9b2-4426-92c6-391cdbaaadb9",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7",
+	"95c16873-481d-41d5-aeea-e0fccd093ef1",
+	'sheetType',
+	'Sheet情報に設定する用紙種類を設定します。
+P_NPSでは通常S_SHTのtypeが設定されますが、OHP合紙（イメージあり）の場合などにはS_SHTの値とは異なった値（例えばOHPInserter)などが設定されます。
+
+設定される場所
+P_NPS : Created
+P_PBS : Created',
+	'',
+	'sheetType',
+	0,
+	"100f8c84-e289-4a5c-93e8-d9859dad5bba",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("100f8c84-e289-4a5c-93e8-d9859dad5bba",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_SheetType',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("06648137-a737-45b5-988d-ea0997bacd5b",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7");
+INSERT INTO O_BATTR
+	VALUES ("06648137-a737-45b5-988d-ea0997bacd5b",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7");
+INSERT INTO O_ATTR
+	VALUES ("06648137-a737-45b5-988d-ea0997bacd5b",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7",
+	"79a1499e-e9b2-4426-92c6-391cdbaaadb9",
+	'userSheetNum',
+	'//-- 353:20061122 Add Start (kanda)
+ジョブ内で生成された論理シートを伴う物理シート(NormalPrintSheet)に振られる通し番号.
+論理シートを伴わない白紙などは0がセットされる(アーキテクチャが初期化する).
+//-- 353:20061122 Add End (kanda)
+',
+	'',
+	'userSheetNum',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("a377f598-8423-42f5-8fb4-f3f2e991de05",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7");
+INSERT INTO O_BATTR
+	VALUES ("a377f598-8423-42f5-8fb4-f3f2e991de05",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7");
+INSERT INTO O_ATTR
+	VALUES ("a377f598-8423-42f5-8fb4-f3f2e991de05",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7",
+	"06648137-a737-45b5-988d-ea0997bacd5b",
+	'isBoundary',
+	'//-- 226:20050628 Add Start (tsuchitoi)
+uncollate時のOffset開始シートをあらわす。
+trueの場合はSetで決めた値をDMへ通知する。(JobOffsetは除く)
+falseの場合にはoffset=CONTでDMへ通知する。
+なお、本属性はインスタンス生成時に、アーキテクチャによりfalseで初期化される。
+//-- 226:20050628 Add End(tsuchitoi)
+',
+	'',
+	'isBoundary',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("0b2eed61-c4e6-4b32-a23f-7a4b835a2fbd",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7");
+INSERT INTO O_BATTR
+	VALUES ("0b2eed61-c4e6-4b32-a23f-7a4b835a2fbd",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7");
+INSERT INTO O_ATTR
+	VALUES ("0b2eed61-c4e6-4b32-a23f-7a4b835a2fbd",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7",
+	"a377f598-8423-42f5-8fb4-f3f2e991de05",
+	'isSpotCheckSheet',
+	'//-- 353:20061030 Add Start (kanda)
+位置指定のサンプルシートであることを示す。
+//-- 353:20061030 Add End (kanda)
+',
+	'',
+	'isSpotCheckSheet',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("30c7a9e2-4695-4d52-a220-b98dcc443473",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7");
+INSERT INTO O_BATTR
+	VALUES ("30c7a9e2-4695-4d52-a220-b98dcc443473",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7");
+INSERT INTO O_ATTR
+	VALUES ("30c7a9e2-4695-4d52-a220-b98dcc443473",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7",
+	"0b2eed61-c4e6-4b32-a23f-7a4b835a2fbd",
+	'isNextSheetPadCover',
+	'//-- 640:20110218 Add Start (kanda)
+次に生成するシートを挿入紙する(割り込み再開情報)
+Modify:Add
+Modify_No:640
+Modifier:kanda
+Modify_Date: 20110218
+//-- 639:20110218 Add End (kanda)
+',
+	'',
+	'isNextSheetPadCover',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7");
+INSERT INTO O_OIDA
+	VALUES ("2838c83f-9c5e-4c3b-bca9-5cd677c891a8",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7");
+INSERT INTO O_OIDA
+	VALUES ("0c52c10d-ea52-47af-981c-73d158dc7fbd",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7",
+	1,
+	'accepterID');
+INSERT INTO O_OIDA
+	VALUES ("95c16873-481d-41d5-aeea-e0fccd093ef1",
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7",
+	1,
+	'no');
+INSERT INTO O_ID
+	VALUES (2,
+	"def9c206-3e13-4b8b-8848-ce8e360aedc7");
+INSERT INTO PE_PE
+	VALUES ("def9c206-3e13-4b8b-8848-ce8e360aedc7",
+	1,
+	"28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Physical Sheet',
+	'このサブシステムは実際の出力を行うためのDMとのI/Fおよび論理シートだけでは
+表現できない出力に関する概念を抽象化したものです。
+
+このサブシステムで表現されるものには以下の項目があります。
+1. DMとのI/Fを実現する内部キュー
+2.キューが処理対象となった実シートおよび実イメージ
+3.バナー、合紙などの論理シート以外で表現されるシート（表紙は論理シートで表現される）
+
+DMとのI/Fといっても表現されるのは以下のものです。
+SC→DM
+SET_START_INFO
+SHEET_INFO
+SET_END_INFO
+JOB_END_INFO
+
+DM→SC
+NEXT_SHEET_REQ
+IMAGE_REQ
+SHEET_END
+
+JOB_START_INFOも当初含まれていましたが（モデルにもまだ存在するが）キューに
+おくことにより不具合が生じたため、現状ではJ_EJOBから直接ブリッジのコールが行われています。
+
+',
+	400,
+	'../Physical Sheet.xtuml');

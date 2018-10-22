@@ -1,0 +1,449 @@
+-- BP 7.1.6 content: InstanceStateMachine syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO SM_ISM
+	VALUES ("e43d3394-d5f8-4ac6-90ac-7760758c6e1f",
+	"1b4627a3-4eda-455f-a45c-c16a8a586e85");
+INSERT INTO SM_SM
+	VALUES ("e43d3394-d5f8-4ac6-90ac-7760758c6e1f",
+	'',
+	59);
+INSERT INTO SM_MOORE
+	VALUES ("e43d3394-d5f8-4ac6-90ac-7760758c6e1f");
+INSERT INTO SM_EVTDI
+	VALUES ("83725f1f-6cf8-4a50-9b42-0357db9dc250",
+	"e43d3394-d5f8-4ac6-90ac-7760758c6e1f",
+	'logFileName',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000004",
+	'',
+	"1a206a62-25bd-4c98-9c5e-d7451336907e",
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO SM_LEVT
+	VALUES ("1a206a62-25bd-4c98-9c5e-d7451336907e",
+	"e43d3394-d5f8-4ac6-90ac-7760758c6e1f",
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO SM_SEVT
+	VALUES ("1a206a62-25bd-4c98-9c5e-d7451336907e",
+	"e43d3394-d5f8-4ac6-90ac-7760758c6e1f",
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO SM_EVT
+	VALUES ("1a206a62-25bd-4c98-9c5e-d7451336907e",
+	"e43d3394-d5f8-4ac6-90ac-7760758c6e1f",
+	"00000000-0000-0000-0000-000000000000",
+	1,
+	'init',
+	0,
+	'',
+	'V_INIT1',
+	'');
+INSERT INTO SM_STATE
+	VALUES ("466a68a7-338f-4e00-9e74-9dd2d3031666",
+	"e43d3394-d5f8-4ac6-90ac-7760758c6e1f",
+	"00000000-0000-0000-0000-000000000000",
+	'Initialize',
+	1,
+	0);
+INSERT INTO SM_SEME
+	VALUES ("466a68a7-338f-4e00-9e74-9dd2d3031666",
+	"1a206a62-25bd-4c98-9c5e-d7451336907e",
+	"e43d3394-d5f8-4ac6-90ac-7760758c6e1f",
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO SM_NSTXN
+	VALUES ("dbd23ce4-d06f-4202-9860-a4a92e4520e9",
+	"e43d3394-d5f8-4ac6-90ac-7760758c6e1f",
+	"466a68a7-338f-4e00-9e74-9dd2d3031666",
+	"1a206a62-25bd-4c98-9c5e-d7451336907e",
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO SM_TXN
+	VALUES ("dbd23ce4-d06f-4202-9860-a4a92e4520e9",
+	"e43d3394-d5f8-4ac6-90ac-7760758c6e1f",
+	"466a68a7-338f-4e00-9e74-9dd2d3031666",
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO SM_MOAH
+	VALUES ("47841b41-6cdd-470d-b004-22f51af7134a",
+	"e43d3394-d5f8-4ac6-90ac-7760758c6e1f",
+	"466a68a7-338f-4e00-9e74-9dd2d3031666");
+INSERT INTO SM_AH
+	VALUES ("47841b41-6cdd-470d-b004-22f51af7134a",
+	"e43d3394-d5f8-4ac6-90ac-7760758c6e1f");
+INSERT INTO SM_ACT
+	VALUES ("47841b41-6cdd-470d-b004-22f51af7134a",
+	"e43d3394-d5f8-4ac6-90ac-7760758c6e1f",
+	1,
+	'if ( rcvd_evt.logFileName != "" or self.logFileName != "" )
+if ( rcvd_evt.logFileName != "" )
+	self.logFileName = rcvd_evt.logFileName;
+end if;
+
+self.product = IotSc_ProductName::emonoMF;
+
+//-- 0105163:20140925 Modified Start (ikegaya)
+::IOTsc_init();
+//create object instance aInit of J_INIT;
+//generate J_INIT1:INIT to aInit;
+//-- 0105163:20140925 Modified End (ikegaya)
+
+select any aLog from instances of V_LOG;
+if ( empty aLog )
+	create object instance aLog of V_LOG;
+	aLog.isSilent = true;
+end if;
+
+create object instance aDocTree of V_DT;
+aDocTree.rootDocNo = 1;
+aDocTree.rootDocFlag = IotSc_FixType::eFixed;
+aDocTree.docNo = 1;
+aDocTree.docFlag = IotSc_FixType::eFixed;
+aDocTree.secNo = 1;
+aDocTree.secFlag = IotSc_FixType::eFixed;
+aDocTree.pageNo = 2;
+aDocTree.pageFlag = IotSc_FixType::eFixed;
+
+create object instance aParamInfo of V_PI;
+//aParamInfo.jobType = "IOT_JOB_TYPE_EPC_PRINT";
+//aParamInfo.jobType = "IOT_JOB_TYPE_DIRECT_COPY";
+aParamInfo.jobType = "IOT_JOB_TYPE_EPC_PRINT";
+//aParamInfo.jobType = "IOT_JOB_TYPE_BUFFER_BRIDGE_COPY";
+aParamInfo.setUnit = IotSc_DocType::eDoc;
+aParamInfo.collate = "IOT_COLLATE_ON";
+aParamInfo.plex = "IOTSHT_PLEX_SIMPLEX";
+aParamInfo.runLength = 1;
+aParamInfo.outtray = "IOTSHT_OUTTRAY_FIN1";
+aParamInfo.exitFace = "0";
+//aParamInfo.bannerMode = IotSc_BannerMode::eStartAndEndBanner;
+aParamInfo.bannerMode = IotSc_BannerMode::eOff;
+aParamInfo.jobOffsetMode = IotSc_OffsetMode::eOn;
+aParamInfo.docOffsetMode = IotSc_OffsetMode::eOn;
+aParamInfo.systemOffsetMode = IotSc_OffsetMode::eOn_Job;
+aParamInfo.signature = IotSc_SignatureMode::eOff;
+create object instance aDummy of V_DP;
+
+
+
+
+
+
+create object instance aDefaultPage of V_PAGE;
+aDefaultPage.setDefaultValue();
+create object instance aDefaultSec of V_SEC;
+aDefaultSec.setDefaultValue();
+select any aTest from instances of V_TD;
+
+create object instance aSystemData of V_SD;
+aSystemData.setDefaultValue();
+
+create object instance aConfig of V_CFG;
+aConfig.setDefaultValue();
+
+create object instance aMaxValues of V_MV;
+aMaxValues.setDefaultValue();
+
+if ( empty aTest and self.testCase > 0 )
+	create object instance aTest of V_TD;
+	aTest.testCase = self.testCase;
+end if;
+
+
+create object instance aOut of V_OT;
+//aOut.name = "IOTSHT_OUTTRAY_CENTER";
+//aOut.occupingService = "";
+//create object instance aOut of V_OT;
+//aOut.name = "IOTSHT_OUTTRAY_SIDE";
+//aOut.occupingService = "";
+//create object instance aOut of V_OT;
+//aOut.name = "IOTSHT_OUTTRAY_CENTER2";
+//aOut.occupingService = "";
+//create object instance aOut of V_OT;
+aOut.name = "IOTSHT_OUTTRAY_TOP";
+aOut.occupingService = "";
+
+
+create object instance aOut of V_OT;
+aOut.name = "IOTSHT_OUTTRAY_FIN1";
+aOut.occupingService = "";
+create object instance aOut of V_OT;
+aOut.name = "IOTSHT_OUTTRAY_FIN2";
+aOut.occupingService = "";
+create object instance aOut of V_OT;
+aOut.name = "IOTSHT_OUTTRAY_FIN3";
+aOut.occupingService = "";
+create object instance aOut of V_OT;
+aOut.name = "IOTSHT_OUTTRAY_FIN4";
+aOut.occupingService = "";
+
+create object instance aOut of V_OT;
+aOut.name = "IOTSHT_OUTTRAY_MBX1";
+aOut.occupingService = "";
+create object instance aOut of V_OT;
+aOut.name = "IOTSHT_OUTTRAY_MBX2";
+aOut.occupingService = "";
+create object instance aOut of V_OT;
+aOut.name = "IOTSHT_OUTTRAY_MBX3";
+aOut.occupingService = "";
+create object instance aOut of V_OT;
+aOut.name = "IOTSHT_OUTTRAY_MBX4";
+aOut.occupingService = "";
+create object instance aOut of V_OT;
+aOut.name = "IOTSHT_OUTTRAY_MBX5";
+aOut.occupingService = "";
+create object instance aOut of V_OT;
+aOut.name = "IOTSHT_OUTTRAY_MBX6";
+aOut.occupingService = "";
+create object instance aOut of V_OT;
+aOut.name = "IOTSHT_OUTTRAY_MBX7";
+aOut.occupingService = "";
+create object instance aOut of V_OT;
+aOut.name = "IOTSHT_OUTTRAY_MBX8";
+aOut.occupingService = "";
+create object instance aOut of V_OT;
+aOut.name = "IOTSHT_OUTTRAY_MBX9";
+aOut.occupingService = "";
+create object instance aOut of V_OT;
+aOut.name = "IOTSHT_OUTTRAY_MBX10";
+aOut.occupingService = "";
+
+
+
+if ( not_empty aTest )
+	aTest.executeTest();
+end if;
+
+
+aDummy.isAutoDebug = TRUE;
+::B_PF_JobOrderGo( jobID : 1 , isParamFixed : TRUE , isPauseRequested : FALSE);
+//::B_IOTD_JobAcceptable();
+
+select any anAutoRun from instances of V_AJA;
+if ( not_empty anAutoRun )
+	generate V_AJA1 to anAutoRun;
+end if;
+
+//generate J_JOB1:create( jobID : 1 ,
+//			isParamFixed : TRUE ) to J_JOB creator;
+else
+msg = "***************************************************************************************";
+msg = "**********************   Input File Name !!!!!!!!!!!!!!!!   **********************************";
+msg = "***************************************************************************************";
+
+end if;',
+	'');
+INSERT INTO SM_TAH
+	VALUES ("c1413e23-7c48-4b58-9bd4-3b4fbc5eccba",
+	"e43d3394-d5f8-4ac6-90ac-7760758c6e1f",
+	"dbd23ce4-d06f-4202-9860-a4a92e4520e9");
+INSERT INTO SM_AH
+	VALUES ("c1413e23-7c48-4b58-9bd4-3b4fbc5eccba",
+	"e43d3394-d5f8-4ac6-90ac-7760758c6e1f");
+INSERT INTO SM_ACT
+	VALUES ("c1413e23-7c48-4b58-9bd4-3b4fbc5eccba",
+	"e43d3394-d5f8-4ac6-90ac-7760758c6e1f",
+	1,
+	'',
+	'');
+INSERT INTO GD_MD
+	VALUES ("57228df5-4989-4cde-9f6d-2e34118299f6",
+	8,
+	"e43d3394-d5f8-4ac6-90ac-7760758c6e1f",
+	40,
+	1,
+	0,
+	1,
+	1,
+	0,
+	12,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	'',
+	'IOTsc::components::IOTsc::Verify::Init::Instance State Machine');
+INSERT INTO GD_GE
+	VALUES ("2c190f77-4a8b-4dfb-ad8a-12c45daba506",
+	"57228df5-4989-4cde-9f6d-2e34118299f6",
+	"466a68a7-338f-4e00-9e74-9dd2d3031666",
+	41,
+	0,
+	'IOTsc::components::IOTsc::Verify::Init::Instance State Machine::Initialize');
+INSERT INTO GD_SHP
+	VALUES ("2c190f77-4a8b-4dfb-ad8a-12c45daba506");
+INSERT INTO GD_NCS
+	VALUES ("2c190f77-4a8b-4dfb-ad8a-12c45daba506");
+INSERT INTO DIM_ND
+	VALUES (432.000000,
+	816.000000,
+	"2c190f77-4a8b-4dfb-ad8a-12c45daba506");
+INSERT INTO DIM_GE
+	VALUES (1744.000000,
+	1248.000000,
+	"2c190f77-4a8b-4dfb-ad8a-12c45daba506",
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO DIM_ELE
+	VALUES ("2c190f77-4a8b-4dfb-ad8a-12c45daba506",
+	1,
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO DIM_CON
+	VALUES ("216abc02-1e24-4e43-81a5-116eab5d6a3f",
+	2176.000000,
+	1360.000000,
+	"2c190f77-4a8b-4dfb-ad8a-12c45daba506");
+INSERT INTO DIM_CON
+	VALUES ("ce482eef-de0a-4afe-8f13-2c37b1ff1b1a",
+	2064.000000,
+	1248.000000,
+	"2c190f77-4a8b-4dfb-ad8a-12c45daba506");
+INSERT INTO GD_GE
+	VALUES ("fa0bf23d-057b-4152-8a8f-ab79f02d1bd6",
+	"57228df5-4989-4cde-9f6d-2e34118299f6",
+	"dbd23ce4-d06f-4202-9860-a4a92e4520e9",
+	42,
+	0,
+	'IOTsc::components::IOTsc::Verify::Init::Instance State Machine::Initialize::V_INIT1: init');
+INSERT INTO GD_CON
+	VALUES ("fa0bf23d-057b-4152-8a8f-ab79f02d1bd6",
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO GD_CTXT
+	VALUES ("e1f0f98a-b5e8-415e-a05b-abe17b4d1521",
+	"fa0bf23d-057b-4152-8a8f-ab79f02d1bd6",
+	1,
+	0.000000,
+	0.000000);
+INSERT INTO DIM_ND
+	VALUES (0.000000,
+	0.000000,
+	"e1f0f98a-b5e8-415e-a05b-abe17b4d1521");
+INSERT INTO DIM_GE
+	VALUES (0.000000,
+	0.000000,
+	"e1f0f98a-b5e8-415e-a05b-abe17b4d1521",
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO DIM_ELE
+	VALUES ("e1f0f98a-b5e8-415e-a05b-abe17b4d1521",
+	0,
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO GD_CTXT
+	VALUES ("d2ab3fbe-946c-4bf7-be03-188e2d98477e",
+	"fa0bf23d-057b-4152-8a8f-ab79f02d1bd6",
+	3,
+	125.000000,
+	-2.000000);
+INSERT INTO DIM_ND
+	VALUES (87.000000,
+	58.000000,
+	"d2ab3fbe-946c-4bf7-be03-188e2d98477e");
+INSERT INTO DIM_GE
+	VALUES (2240.000000,
+	1251.000000,
+	"d2ab3fbe-946c-4bf7-be03-188e2d98477e",
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO DIM_ELE
+	VALUES ("d2ab3fbe-946c-4bf7-be03-188e2d98477e",
+	0,
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO GD_CTXT
+	VALUES ("ae97ca8e-7d37-4cec-ba77-355e6b6100e7",
+	"fa0bf23d-057b-4152-8a8f-ab79f02d1bd6",
+	2,
+	0.000000,
+	0.000000);
+INSERT INTO DIM_ND
+	VALUES (0.000000,
+	0.000000,
+	"ae97ca8e-7d37-4cec-ba77-355e6b6100e7");
+INSERT INTO DIM_GE
+	VALUES (0.000000,
+	0.000000,
+	"ae97ca8e-7d37-4cec-ba77-355e6b6100e7",
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO DIM_ELE
+	VALUES ("ae97ca8e-7d37-4cec-ba77-355e6b6100e7",
+	0,
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO GD_LS
+	VALUES ("a7ac81b4-1a54-42e0-a655-92cd89a7d302",
+	"fa0bf23d-057b-4152-8a8f-ab79f02d1bd6",
+	"00000000-0000-0000-0000-000000000000",
+	"ba35b282-4cd8-409b-b145-8b651b843510",
+	"9754e849-d392-4610-aac5-a4803b71f15d");
+INSERT INTO GD_LS
+	VALUES ("8f4316a2-71cb-43a5-8e6a-862b5c4d60c1",
+	"fa0bf23d-057b-4152-8a8f-ab79f02d1bd6",
+	"a7ac81b4-1a54-42e0-a655-92cd89a7d302",
+	"9754e849-d392-4610-aac5-a4803b71f15d",
+	"870da1c9-70d5-4aed-9fe8-d7ad73d3370a");
+INSERT INTO GD_LS
+	VALUES ("1d86ac24-a92e-4f9c-902a-740c30e4cbe0",
+	"fa0bf23d-057b-4152-8a8f-ab79f02d1bd6",
+	"8f4316a2-71cb-43a5-8e6a-862b5c4d60c1",
+	"870da1c9-70d5-4aed-9fe8-d7ad73d3370a",
+	"36712c88-8733-4b27-9854-372eaeaf4ad6");
+INSERT INTO GD_LS
+	VALUES ("1b046dab-ab18-4cf2-bf04-837b0817c8d2",
+	"fa0bf23d-057b-4152-8a8f-ab79f02d1bd6",
+	"1d86ac24-a92e-4f9c-902a-740c30e4cbe0",
+	"36712c88-8733-4b27-9854-372eaeaf4ad6",
+	"d482f856-ee2a-4213-9931-863b4d0586b0");
+INSERT INTO DIM_WAY
+	VALUES ("ba35b282-4cd8-409b-b145-8b651b843510",
+	2176.000000,
+	1360.000000,
+	"fa0bf23d-057b-4152-8a8f-ab79f02d1bd6",
+	"00000000-0000-0000-0000-000000000000",
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO DIM_WAY
+	VALUES ("9754e849-d392-4610-aac5-a4803b71f15d",
+	2208.000000,
+	1360.000000,
+	"fa0bf23d-057b-4152-8a8f-ab79f02d1bd6",
+	"00000000-0000-0000-0000-000000000000",
+	"ba35b282-4cd8-409b-b145-8b651b843510");
+INSERT INTO DIM_WAY
+	VALUES ("870da1c9-70d5-4aed-9fe8-d7ad73d3370a",
+	2208.000000,
+	1200.000000,
+	"fa0bf23d-057b-4152-8a8f-ab79f02d1bd6",
+	"00000000-0000-0000-0000-000000000000",
+	"9754e849-d392-4610-aac5-a4803b71f15d");
+INSERT INTO DIM_WAY
+	VALUES ("36712c88-8733-4b27-9854-372eaeaf4ad6",
+	2064.000000,
+	1200.000000,
+	"fa0bf23d-057b-4152-8a8f-ab79f02d1bd6",
+	"00000000-0000-0000-0000-000000000000",
+	"870da1c9-70d5-4aed-9fe8-d7ad73d3370a");
+INSERT INTO DIM_WAY
+	VALUES ("d482f856-ee2a-4213-9931-863b4d0586b0",
+	2064.000000,
+	1248.000000,
+	"fa0bf23d-057b-4152-8a8f-ab79f02d1bd6",
+	"00000000-0000-0000-0000-000000000000",
+	"36712c88-8733-4b27-9854-372eaeaf4ad6");
+INSERT INTO DIM_GE
+	VALUES (0.000000,
+	0.000000,
+	"fa0bf23d-057b-4152-8a8f-ab79f02d1bd6",
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO DIM_ELE
+	VALUES ("fa0bf23d-057b-4152-8a8f-ab79f02d1bd6",
+	1,
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO DIM_ED
+	VALUES ("216abc02-1e24-4e43-81a5-116eab5d6a3f",
+	"ce482eef-de0a-4afe-8f13-2c37b1ff1b1a",
+	"fa0bf23d-057b-4152-8a8f-ab79f02d1bd6");
+INSERT INTO DIM_DIA
+	VALUES ("57228df5-4989-4cde-9f6d-2e34118299f6",
+	'',
+	1.000000,
+	1600.000000,
+	1442.000000,
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_OBJ_PROXY
+	VALUES ("1b4627a3-4eda-455f-a45c-c16a8a586e85",
+	'Init',
+	500,
+	'V_INIT',
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'../Init.xtuml');

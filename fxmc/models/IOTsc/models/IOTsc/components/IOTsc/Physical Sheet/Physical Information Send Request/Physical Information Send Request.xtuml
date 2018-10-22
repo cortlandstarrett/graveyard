@@ -1,0 +1,756 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("f04b829e-5532-49d9-a442-0a76bbe299b6",
+	'Physical Information Send Request',
+	403,
+	'P_PISR',
+	'//-- 682:20110509 Add Start (ikegaya)
+Attribute「extSpotCheckSheetNum」を追加
+//-- 682:20110509 Add End (ikegaya)
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("c93028d6-bbee-42c6-a198-d21f7dcc16f9",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	'remove',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'select any aRequest from instances of P_PISR
+	where ( selected.ID == param.requestID );
+FER::assert( expression : not_empty aRequest );
+
+select one aJobStartRequest related by aRequest->P_JSR[R407];
+select one aJobEndRequest related by aRequest->P_JER[R407];
+select one aSetStartRequest related by aRequest->P_SSR[R407];
+select one aSetEndRequest related by aRequest->P_SER[R407];
+select one aSheetInfoRequest related by aRequest->P_SIR[R407];
+select one aStartBannerRequest related by aRequest->P_SBSIR[R407];
+select one aEndBannerRequest related by aRequest->P_EBSIR[R407];
+select one aBlankRequest related by aRequest->P_BSRS[R407];
+
+if ( not_empty aJobStartRequest )
+	unrelate aJobStartRequest from aRequest across R407;
+	delete object instance aJobStartRequest;
+elif ( not_empty aJobEndRequest )
+	unrelate aJobEndRequest from aRequest across R407;
+	delete object instance aJobEndRequest;
+elif ( not_empty aSetStartRequest )
+	select one aCollateSet related by aSetStartRequest->S_CS[R412];
+	if ( not_empty aCollateSet )
+		unrelate aCollateSet from aSetStartRequest across R412;
+	end if;
+	unrelate aSetStartRequest from aRequest across R407;
+	delete object instance aSetStartRequest;
+elif ( not_empty aSetEndRequest )
+	select one aCollateSet related by aSetEndRequest->S_CS[R413];
+	if ( not_empty aCollateSet )
+		unrelate aCollateSet from aSetEndRequest across R413;
+	end if;
+	unrelate aSetEndRequest from aRequest across R407;
+	delete object instance aSetEndRequest;
+elif ( not_empty aSheetInfoRequest )
+	select one aSheet related by aSheetInfoRequest->S_SHT[R409];	
+	if ( not_empty aSheet )
+		unrelate aSheet from aSheetInfoRequest across R409;
+	end if;
+	unrelate aSheetInfoRequest from aRequest across R407;
+//-- 353:20070109 Add Start (kanda)
+	select one aReplicator related by aSheetInfoRequest->S_RPR[R273];
+	S_SC::deleteAllSpotChecks( replicatorID : aReplicator.ID );
+	unrelate aSheetInfoRequest from aReplicator across R273;
+	delete object instance aReplicator;
+//-- 353:20070109 Add End (kanda)
+	delete object instance aSheetInfoRequest;
+elif ( not_empty aStartBannerRequest )
+	select one aSheet related by aStartBannerRequest->S_SHT[R422];	
+	if ( not_empty aSheet )
+		unrelate aSheet from aStartBannerRequest across R422;
+	end if;
+	unrelate aStartBannerRequest from aRequest across R407;
+	delete object instance aStartBannerRequest;
+elif ( not_empty aEndBannerRequest )
+	unrelate aEndBannerRequest from aRequest across R407;
+	delete object instance aEndBannerRequest;
+elif ( not_empty aBlankRequest )
+	select one aCollateSet related by aBlankRequest->S_CS[R438];
+	select one aTraySelect related by aBlankRequest->S_TSP[R445];
+	unrelate aCollateSet from aBlankRequest across R438;
+	unrelate aBlankRequest from aRequest across R407;
+	if ( not_empty aTraySelect )
+		unrelate aBlankRequest from aTraySelect across R445;
+		delete object instance aTraySelect;
+	end if;
+	delete object instance aBlankRequest;
+	
+else
+	FER::assert( expression : FALSE );
+end if;
+
+select one anAccepter related by aRequest->P_PIA[R426];
+if ( not_empty anAccepter )
+	unrelate anAccepter from aRequest across R426;
+end if;
+
+select one aCurrentAssigner related by aRequest->P_PSA[R414];
+if ( not_empty aCurrentAssigner )
+	unrelate aCurrentAssigner from aRequest across R414;
+end if;
+select one anAssigner related by aRequest->P_PSA[R406];
+if ( not_empty anAssigner )
+	unrelate anAssigner from aRequest across R406;
+end if;
+
+select one aNextRequest related by aRequest->P_PISR[R408.''is next to''];
+select one aPrevRequest related by aRequest->P_PISR[R408.''is previous to''];
+if ( not_empty aNextRequest )
+	unrelate aRequest from aNextRequest across R408.''is next to'';
+end if;
+if ( not_empty aPrevRequest )
+	unrelate aRequest from aPrevRequest across R408.''is previous to'';
+end if;
+if ( not_empty aNextRequest and not_empty aPrevRequest )
+	relate aPrevRequest to aNextRequest across R408.''is next to'';
+end if;
+
+delete object instance aRequest;',
+	1,
+	'',
+	"bd342d9c-458a-48df-a396-a5aa6b97302f");
+INSERT INTO O_TPARM
+	VALUES ("c7202763-1a8d-4bfb-ac93-0b053b88c36a",
+	"c93028d6-bbee-42c6-a198-d21f7dcc16f9",
+	'requestID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("bd342d9c-458a-48df-a396-a5aa6b97302f",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	'isStickingSheet',
+	'//-- 226: 20050706 Add Start (kanda)
+StickingSheetかどうか？返す。
+先頭のシート以外はStickingSheetにはならない。
+//-- 226: 20050706 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	1,
+	'//-- 226: 20050706 Add Start (kanda)
+// StickingSheetかどうか？返す。
+// 先頭のシート以外はStickingSheetにはならない。
+
+select one aBlankSheetRequest related by self->P_BSRS[R407];
+select one aSheetInfomationRequest related by self->P_SIR[R407];
+select one aStartBannerSheetInfomationRequest related by self->P_SBSIR[R407];
+
+// 想定外のインスタンスからコールされた
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero( expression : not_empty aSheetInfomationRequest or not_empty aBlankSheetRequest or not_empty aStartBannerSheetInfomationRequest );
+//-- 845:20140227 Modified End (saitou) 
+
+// P_SIRの場合は複数部数指定の先頭以外はFALSE;
+if ( not_empty aSheetInfomationRequest )
+	if ( aSheetInfomationRequest.currentNo > 1 )
+		return FALSE;
+	end if;
+end if;
+return self.isStickingSheet;
+//-- 226: 20050706 Add End (kanda)
+',
+	1,
+	'',
+	"43353d8a-fee6-4758-9a0d-25c2ab6b9de8");
+INSERT INTO O_TFR
+	VALUES ("43353d8a-fee6-4758-9a0d-25c2ab6b9de8",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	'isRequestInSheetParseSet',
+	'//-- 632:20101223 Add Start (kanda)
+// セットパース中のリクエストかどうか判別する
+Modify:Add
+Modify_No:632
+Modifier:kanda
+Modify_Date:20101223
+//-- 633:20101223 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	1,
+	'isSheetParse = FALSE;
+
+// S_CSに関連付くRequestがシートパースかどうか判別する
+select any aCollateSet from instances of S_CS; // 型あわせ
+
+select one aSetStartRequest related by self->P_SSR[R407];
+select one aSheetInfoRequest related by self->P_SIR[R407];
+select one aBlankSheetRequest related by self->P_BSRS[R407];
+select one aSetEndRequest related by self->P_SER[R407];
+
+if (not_empty aSetStartRequest)
+	select one aCollateSet related by aSetStartRequest->S_CS[R412];
+elif (not_empty aSheetInfoRequest)
+	select one aCollateSet related by aSheetInfoRequest->S_SHT[R409]->S_CS[R213];
+elif (not_empty aBlankSheetRequest)
+	select one aCollateSet related by aBlankSheetRequest->S_CS[R438];
+elif (not_empty aSetEndRequest)
+	select one aCollateSet related by aSetEndRequest->S_CS[R413];
+else
+	// S_CSに関連付かないRequestはSheetParseと無関係のためFALSEを返す
+	return FALSE;
+end if;
+
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero(expression : not_empty aCollateSet);
+//-- 845:20140227 Modified End (saitou) 
+isSheetParse = aCollateSet.isSheetParse;
+
+return isSheetParse;
+',
+	1,
+	'',
+	"627da1b2-1daa-4a5d-a489-115fcb5f1035");
+INSERT INTO O_TFR
+	VALUES ("e1d90d25-c605-40d3-9753-e08aa387d891",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	'isBoundaryPosition',
+	'//-- 226:20050628 Add Start (kanda)
+そのシート内で、Uncolalte時のOffsetの先頭か？判定する。
+True： 生成するP_PSHTのisUncollateOffsetPositionをTrueにする生成イベントを通知。
+Trueの場合でも、必ずしもそのシートでOffsetするわけではない。
+P_SIR, P_BSRSからのみコール可能。
+//-- 226:20050628 Add Start (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	1,
+	'//-- 226:20050628 Add Start (kanda)
+select one aBlankSheetRequest related by self->P_BSRS[R407];
+select one aSheetInfomationRequest related by self->P_SIR[R407];
+
+// 想定外のインスタンスからコールされた
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero( expression : not_empty aSheetInfomationRequest or not_empty aBlankSheetRequest );
+//-- 845:20140227 Modified End (saitou) 
+
+currentNo = 0;
+//-- 638:20110131 Modified Start (kanda)
+isBoundarySheet = FALSE;
+//-- 638:20110131 Modified End (kanda)
+//-- 445:20071129 Add Start (kanda)
+//-- 638:20110131 Modified Start (kanda)
+isCopiesNumSubset = FALSE;
+//-- 638:20110131 Modified End (kanda)
+//-- 445:20071129 Add End (kanda)
+
+outputRunLength = 0;
+if ( not_empty aBlankSheetRequest )
+	currentNo = 1;
+else
+// aSheetInfomationRequestがあった場合
+//-- 682:20110509 Modified Start (ikegaya)
+	//currentNo = aSheetInfomationRequest.currentNo;
+	currentNo = aSheetInfomationRequest.currentNo - self.extSpotCheckSheetNum;
+//-- 682:20110509 Modified End (ikegaya)
+	select one aSheet related by aSheetInfomationRequest->S_SHT[R409];
+	select any anExecutingJob from instances of J_EJOB where ( selected.jobID == aSheet.jobID );
+//-- 848:20140501 Add Start (ikegaya)
+	FER::assert_with_return_zero( expression : not_empty anExecutingJob );
+//-- 848:20140501 Add End (ikegaya)
+
+	outputRunLength = aSheet.outputRunLength;
+//-- 445:20071129 Modified Start (kanda)
+//-- 638:20110131 Modified Start (kanda)
+	subsetNum  = anExecutingJob.uncollateOffsetNum;
+	select one anOriginUniqueParam related by
+		aSheetInfomationRequest->S_SHT[R409]->S_CS[R213]->S_EOS[R232]->D_OOS[R215]->S_OUP[R259];
+//-- 848:20140501 Add Start (ikegaya)
+	FER::assert_with_return_zero( expression : not_empty anOriginUniqueParam );
+//-- 848:20140501 Add End (ikegaya)
+	if ( anOriginUniqueParam.subsetMode == IotSc_SubsetMode::eCopies )
+		subsetNum = anOriginUniqueParam.subsetNum;
+//-- 638:20110131 Modified End (kanda)
+//-- 460:20071228 Add Start (kanda)
+//-- 638:20110131 Modified Start (kanda)
+		isCopiesNumSubset = TRUE;
+//-- 638:20110131 Modified End (kanda)
+
+		// セットで初めての排出の場合はNEW
+		select one aOutputUnit related by aSheet->S_OU[R277];
+		if ( not S_OH::isAnySheetCreated( outputUnitID : aOutputUnit.ID, outtray : aSheet.outtray ) )
+//-- 638:20110131 Modified Start (kanda)
+			isBoundarySheet = TRUE;
+//-- 638:20110131 Modified End (kanda)
+		end if;
+//-- 460:20071228 Add End (kanda)
+
+	end if;
+//-- 445:20071129 Modified End (kanda)
+
+//-- 638:20110131 Modified Start (kanda)
+	if ( subsetNum > 0 and aSheet.runLength >  subsetNum )
+//-- 638:20110131 Modified End (kanda)
+//-- 460:20071228 Deleted Start (kanda)
+//-- 445:20071129 Add Start (kanda)
+//		isCopiesNumOffset = TRUE;
+//-- 445:20071129 Add End (kanda)
+//-- 460:20071228 Deleted End (kanda)
+	 	if ( currentNo == 1 )
+//-- 638:20110131 Modified Start (kanda)
+			isBoundarySheet = TRUE;
+//-- 638:20110131 Modified End (kanda)
+//-- 461:20080110 Modified Start (kanda)
+		elif ( aSheet.exitFace == "IOTDOC_EXIT_FACE_DOWN" or 
+			aSheet.exitFace == "IOTDOC_EXIT_FACE_DOWN_REVERSE" )
+//-- 461:20080110 Modified End (kanda)
+//-- 638:20110131 Modified Start (kanda)
+			if ( currentNo % subsetNum == 1 )
+				isBoundarySheet = TRUE;			
+//-- 638:20110131 Modified End (kanda)
+			end if;
+		elif ( aSheet.exitFace == "IOTDOC_EXIT_FACE_UP" or
+		        aSheet.exitFace == "IOTDOC_EXIT_FACE_UP_REVERSE" )
+//-- 638:20110131 Modified Start (kanda)
+			if ( (aSheet.runLength - (currentNo - 1)) % subsetNum == 0 )
+				isBoundarySheet = TRUE;
+//-- 638:20110131 Modified End (kanda)
+			end if;
+		end if;
+	end if;
+end if;
+
+//-- 638:20110201 Modified Start (kanda)
+//-- 423:20070726 Modified Start (kanda)
+//-- 445:20071129 Modified Start (kanda)
+if ( isCopiesNumSubset )
+	if ( isBoundarySheet )
+		if ( currentNo > 1 )
+			return TRUE;
+		elif ( not self.isStickingSheetExist )
+			return TRUE;
+		end if;
+	end if;
+end if;
+//-- 445:20071129 Modified End (kanda)
+
+return FALSE;
+//-- 423:20070726 Modified End (kanda)
+//-- 638:20110201 Modified End (kanda)
+
+//-- 226:20050628 Add End (kanda)
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("627da1b2-1daa-4a5d-a489-115fcb5f1035",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	'isLastSheetInBoundary',
+	'//-- 639:20110204 Add Start (kanda)
+サブセット内の最終シートか判別するI/F
+Modify:Add
+Modify_No:639
+Modifier:kanda
+Modify_Date:20110120
+//-- 639:20110204 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	1,
+	'select one aBlankSheetRequest related by self->P_BSRS[R407];
+select one aSheetInfomationRequest related by self->P_SIR[R407];
+
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero( expression : not_empty aSheetInfomationRequest or not_empty aBlankSheetRequest );
+//-- 845:20140227 Modified End (saitou) 
+
+currentNo = 0;
+isLastSheetInBoundary = FALSE;
+
+if (not_empty aBlankSheetRequest)
+	currentNo = 1;
+else
+//-- 682:20110509 Modified Start (ikegaya)
+	//currentNo = aSheetInfomationRequest.currentNo;
+	currentNo = aSheetInfomationRequest.currentNo - self.extSpotCheckSheetNum;
+//-- 682:20110509 Modified End (ikegaya)
+	select one aSheet related by aSheetInfomationRequest->S_SHT[R409];
+	select any anExecutingJob from instances of J_EJOB where ( selected.jobID == aSheet.jobID );
+//-- 848:20140501 Add Start (ikegaya)
+	FER::assert_with_return_zero( expression : not_empty anExecutingJob );
+//-- 848:20140501 Add End (ikegaya)
+
+	subsetNum  = anExecutingJob.uncollateOffsetNum;
+	select one anOriginUniqueParam related by
+		aSheetInfomationRequest->S_SHT[R409]->S_CS[R213]->S_EOS[R232]->D_OOS[R215]->S_OUP[R259];
+//-- 848:20140501 Add Start (ikegaya)
+	FER::assert_with_return_zero( expression : not_empty anOriginUniqueParam );
+//-- 848:20140501 Add End (ikegaya)
+	if ( anOriginUniqueParam.subsetMode == IotSc_SubsetMode::eCopies )
+		subsetNum = anOriginUniqueParam.subsetNum;
+	end if;
+
+//-- 660:20110331 Modified Start (sasaki_r)
+	if (subsetNum > 0)
+//-- 660:20110331 Modified End (sasaki_r)
+		if (aSheet.exitFace == "IOTDOC_EXIT_FACE_DOWN" or 
+			aSheet.exitFace == "IOTDOC_EXIT_FACE_DOWN_REVERSE")
+			// FaceDown時は最後に残り部数が排出される => 最終シート後は必ずBoundary区切り
+			if (currentNo > 0 and currentNo % subsetNum == 0)
+				isLastSheetInBoundary = TRUE;			
+			end if;
+			if (aSheetInfomationRequest.isLastRequestCreated)
+				isLastSheetInBoundary = TRUE;
+			end if;
+		elif (aSheet.exitFace == "IOTDOC_EXIT_FACE_UP" or
+		        aSheet.exitFace == "IOTDOC_EXIT_FACE_UP_REVERSE")
+			// FaceUp時は最初に残り部数が排出される => 先頭シートの前にBoundary区切りがある
+			//                                      => 最終シートの後にはBoundary区切りは無い
+			if (currentNo == 0)
+				isLastSheetInBoundary = TRUE;
+			end if;
+//-- 701:20110620 Modified Start (saitou)
+			if ((currentNo > 0) and (aSheet.runLength - currentNo) % subsetNum == 0)
+//-- 701:20110620 Modified End (saitou)
+				isLastSheetInBoundary = TRUE;
+			end if;
+			if (aSheetInfomationRequest.isLastRequestCreated)
+				isLastSheetInBoundary = FALSE;
+			end if;
+		end if;
+	end if;
+end if;
+
+return isLastSheetInBoundary;
+',
+	1,
+	'',
+	"e1d90d25-c605-40d3-9753-e08aa387d891");
+INSERT INTO O_NBATTR
+	VALUES ("d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6");
+INSERT INTO O_BATTR
+	VALUES ("d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6");
+INSERT INTO O_ATTR
+	VALUES ("d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("f04b829e-5532-49d9-a442-0a76bbe299b6",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	0,
+	"d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	"28ecee26-d518-4599-974a-439ea5d875a3",
+	"11845307-cc56-4e17-9ce1-09f86c9e5674",
+	"8d5c2a46-05aa-4724-83f3-3631f7ad9f3e",
+	"f3258c8d-1c57-46bd-b46a-7b77e17c2442",
+	"eb8faa50-8ecd-4927-a0c7-595906edf07e",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Physical Information Send Request',
+	'ID',
+	'R408.''is next to''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("f04b829e-5532-49d9-a442-0a76bbe299b6",
+	"28ecee26-d518-4599-974a-439ea5d875a3",
+	"11845307-cc56-4e17-9ce1-09f86c9e5674",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	0,
+	"28ecee26-d518-4599-974a-439ea5d875a3",
+	"8d5c2a46-05aa-4724-83f3-3631f7ad9f3e",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("f3258c8d-1c57-46bd-b46a-7b77e17c2442",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	"d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	0,
+	'ID');
+INSERT INTO O_ATTR
+	VALUES ("f3258c8d-1c57-46bd-b46a-7b77e17c2442",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	"d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	'nextRequestID',
+	'',
+	'',
+	'nextRequestID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c859e13e-9870-426e-b8f4-3c509977f06c",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6");
+INSERT INTO O_BATTR
+	VALUES ("c859e13e-9870-426e-b8f4-3c509977f06c",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6");
+INSERT INTO O_ATTR
+	VALUES ("c859e13e-9870-426e-b8f4-3c509977f06c",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	"f3258c8d-1c57-46bd-b46a-7b77e17c2442",
+	'isSheetRequestNeed',
+	'',
+	'',
+	'isSheetRequestNeed',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("f04b829e-5532-49d9-a442-0a76bbe299b6",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	0,
+	"59236d6d-03b4-4f0a-88bf-e86fd5954294",
+	"b4a4b152-edd1-44fc-9fef-25af965f4e06",
+	"8f017046-b08b-4e7e-aec3-c6f54d6fbbd0",
+	"73dd0ea1-920b-4c0b-ab31-f49e50b32909",
+	"5c096503-e586-4313-8235-71016db91435",
+	"4a65450f-b0b7-49a2-9668-56818e34aa84",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Physical Information Assigner',
+	'jobID',
+	'R406');
+INSERT INTO R_RGO_PROXY
+	VALUES ("f04b829e-5532-49d9-a442-0a76bbe299b6",
+	"b4a4b152-edd1-44fc-9fef-25af965f4e06",
+	"8f017046-b08b-4e7e-aec3-c6f54d6fbbd0",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("59236d6d-03b4-4f0a-88bf-e86fd5954294",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	0,
+	"b4a4b152-edd1-44fc-9fef-25af965f4e06",
+	"73dd0ea1-920b-4c0b-ab31-f49e50b32909",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("5c096503-e586-4313-8235-71016db91435",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	"47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	1,
+	'jobID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	'../../Job/Job/Job.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("5c096503-e586-4313-8235-71016db91435",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	"c859e13e-9870-426e-b8f4-3c509977f06c",
+	'jobID',
+	'',
+	'',
+	'jobID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("a7f3b8fb-1d6e-44f8-918b-1ea878163586",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6");
+INSERT INTO O_BATTR
+	VALUES ("a7f3b8fb-1d6e-44f8-918b-1ea878163586",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6");
+INSERT INTO O_ATTR
+	VALUES ("a7f3b8fb-1d6e-44f8-918b-1ea878163586",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	"5c096503-e586-4313-8235-71016db91435",
+	'isStickingSheetExist',
+	'//-- 226: 20050622 Add Start (kanda)
+リクエストの前にシートを挿入したか？をあらわす。(バナーや合紙など)
+挿入されたシートと、リクエストで生成されるシートは同じ区切りを用いる。
+区切りとは、現時点ではOffsetのみ。
+
+Trueになるのは、P_SSR, P_SIR, P_BSRSのみ.
+この属性はインスタンス生成時にアーキテクチャによりFalseがセットされる。
+//-- 226: 20050622 Add End (kanda)
+',
+	'',
+	'isStickingSheetExist',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c2855e12-0cdc-4669-bc26-8585dea691db",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6");
+INSERT INTO O_BATTR
+	VALUES ("c2855e12-0cdc-4669-bc26-8585dea691db",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6");
+INSERT INTO O_ATTR
+	VALUES ("c2855e12-0cdc-4669-bc26-8585dea691db",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	"a7f3b8fb-1d6e-44f8-918b-1ea878163586",
+	'isStickingSheet',
+	'//-- 226: 20050706 Add Start (kanda)
+シートの前に挿入されたシートであることを示す。(合紙やスタートバナーなど)
+
+Trueになるのは、 P_SIR, P_BSRS, P_SBSIRのみ.
+この属性はインスタンス生成時にアーキテクチャによりFalseがセットされる。
+//-- 226: 20050706 Add End (kanda)
+',
+	'',
+	'isStickingSheet',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("46741ca0-8a8f-45b5-94d7-98f94419dd46",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6");
+INSERT INTO O_BATTR
+	VALUES ("46741ca0-8a8f-45b5-94d7-98f94419dd46",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6");
+INSERT INTO O_ATTR
+	VALUES ("46741ca0-8a8f-45b5-94d7-98f94419dd46",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	"c2855e12-0cdc-4669-bc26-8585dea691db",
+	'isSeparatorSheetExist',
+	'//-- 231:20050708 Add Start (kanda)
+このリクエストのあとに、セパレータシートがあることを示す。
+参照するのはP_SIR, P_BSRS.
+アーキテクチャによりfalseに初期化される。
+//-- 231:20050708 Add End (kanda)
+',
+	'',
+	'isSeparatorSheetExist',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("564a0ade-1c4a-4679-87e1-ed213d92e145",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6");
+INSERT INTO O_BATTR
+	VALUES ("564a0ade-1c4a-4679-87e1-ed213d92e145",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6");
+INSERT INTO O_ATTR
+	VALUES ("564a0ade-1c4a-4679-87e1-ed213d92e145",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	"46741ca0-8a8f-45b5-94d7-98f94419dd46",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("dd445177-e226-40ff-b7f2-5c693975c7ca",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6");
+INSERT INTO O_BATTR
+	VALUES ("dd445177-e226-40ff-b7f2-5c693975c7ca",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6");
+INSERT INTO O_ATTR
+	VALUES ("dd445177-e226-40ff-b7f2-5c693975c7ca",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	"564a0ade-1c4a-4679-87e1-ed213d92e145",
+	'isSheetParse',
+	'//-- 636:20110120 Add Start (sasaki_r)
+Modify:Add
+Modify_No:636
+Modifier:sasaki_r
+Modify_Date:20110120
+
+シートパースモードを表すフラグ
+
+//-- 636:20110120 Add End (sasaki_r)',
+	'',
+	'isSheetParse',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("d4cc5f99-598d-4949-86c4-8ed078a58935",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6");
+INSERT INTO O_BATTR
+	VALUES ("d4cc5f99-598d-4949-86c4-8ed078a58935",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6");
+INSERT INTO O_ATTR
+	VALUES ("d4cc5f99-598d-4949-86c4-8ed078a58935",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	"dd445177-e226-40ff-b7f2-5c693975c7ca",
+	'extSpotCheckSheetNum',
+	'//-- 682:20110509 Add Start (ikegaya)
+Modify:Add
+Modify_No:682
+Modifier:ikegaya
+Modify_Date:20110509
+
+外数サンプルシートを作った数
+
+//-- 682:20110509 Add End (ikegaya)
+
+',
+	'',
+	'extSpotCheckSheetNum',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"f04b829e-5532-49d9-a442-0a76bbe299b6");
+INSERT INTO O_OIDA
+	VALUES ("d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"f04b829e-5532-49d9-a442-0a76bbe299b6");
+INSERT INTO O_ID
+	VALUES (2,
+	"f04b829e-5532-49d9-a442-0a76bbe299b6");
+INSERT INTO PE_PE
+	VALUES ("f04b829e-5532-49d9-a442-0a76bbe299b6",
+	1,
+	"28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Physical Sheet',
+	'このサブシステムは実際の出力を行うためのDMとのI/Fおよび論理シートだけでは
+表現できない出力に関する概念を抽象化したものです。
+
+このサブシステムで表現されるものには以下の項目があります。
+1. DMとのI/Fを実現する内部キュー
+2.キューが処理対象となった実シートおよび実イメージ
+3.バナー、合紙などの論理シート以外で表現されるシート（表紙は論理シートで表現される）
+
+DMとのI/Fといっても表現されるのは以下のものです。
+SC→DM
+SET_START_INFO
+SHEET_INFO
+SET_END_INFO
+JOB_END_INFO
+
+DM→SC
+NEXT_SHEET_REQ
+IMAGE_REQ
+SHEET_END
+
+JOB_START_INFOも当初含まれていましたが（モデルにもまだ存在するが）キューに
+おくことにより不具合が生じたため、現状ではJ_EJOBから直接ブリッジのコールが行われています。
+
+',
+	400,
+	'../Physical Sheet.xtuml');

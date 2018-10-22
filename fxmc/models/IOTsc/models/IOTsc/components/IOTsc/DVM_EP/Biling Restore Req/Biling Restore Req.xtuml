@@ -1,0 +1,168 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("93863100-70f1-4c20-9fc2-222ff4ba6a4b",
+	'Biling Restore Req',
+	808,
+	'DV_BRR',
+	'UpdateRscからBillingCheckで不一致を見つけると(修復が必要な時のみ？)生成される',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("b65fa3b0-3ef2-403a-bba7-7acbb6f06238",
+	"93863100-70f1-4c20-9fc2-222ff4ba6a4b",
+	'create',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'select any aBillingChecker from instances of DV_BC;
+FER::assert( expression : not_empty aBillingChecker );
+
+create object instance aBillingRestoreReq of DV_BRR;
+aBillingRestoreReq.failCode = param.failCode;
+
+relate aBillingRestoreReq to aBillingChecker across R811;
+
+generate DV_BC5:''restore req''(requestID: aBillingRestoreReq.id )  to aBillingChecker;',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("a9f0bc20-55ea-4df8-979c-3aa60d9114d8",
+	"b65fa3b0-3ef2-403a-bba7-7acbb6f06238",
+	'failCode',
+	"adab3b81-ff2c-417d-b169-f9374ac12561",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("adab3b81-ff2c-417d-b169-f9374ac12561",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_FailCode',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("8dcc3b1a-e13a-4686-b51a-9a7369f2ae81",
+	"93863100-70f1-4c20-9fc2-222ff4ba6a4b",
+	'delete',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'select one aBillingChecker related by self->DV_BC[R811];
+FER::assert( expression : not_empty aBillingChecker );
+
+unrelate self from aBillingChecker across R811;
+
+// 使用中の関連は基本的には張られていたはずだが、
+//  関連を切るのは張られていた場合のみにする。
+select one aBillingCheckOwner related by self->DV_BC[R813];
+if( not_empty aBillingCheckOwner )
+  unrelate self from aBillingCheckOwner across R813;
+end if;
+
+delete object instance self;
+',
+	1,
+	'',
+	"b65fa3b0-3ef2-403a-bba7-7acbb6f06238");
+INSERT INTO O_NBATTR
+	VALUES ("416add5f-9c3a-4f81-937d-5a7208c40eb5",
+	"93863100-70f1-4c20-9fc2-222ff4ba6a4b");
+INSERT INTO O_BATTR
+	VALUES ("416add5f-9c3a-4f81-937d-5a7208c40eb5",
+	"93863100-70f1-4c20-9fc2-222ff4ba6a4b");
+INSERT INTO O_ATTR
+	VALUES ("416add5f-9c3a-4f81-937d-5a7208c40eb5",
+	"93863100-70f1-4c20-9fc2-222ff4ba6a4b",
+	"00000000-0000-0000-0000-000000000000",
+	'failCode',
+	'',
+	'',
+	'failCode',
+	0,
+	"adab3b81-ff2c-417d-b169-f9374ac12561",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("93863100-70f1-4c20-9fc2-222ff4ba6a4b",
+	"6af7c037-c79d-42ec-866b-cae29a8d32b6",
+	0,
+	"6c9e36c3-ceb6-424a-a352-4907ccc2d35e",
+	"fd30db63-3846-4d01-bdc6-3d53b3609351",
+	"32001660-9848-4a87-8341-52b3e9202925",
+	"98968367-dca8-4c02-9e1f-d072ebf6d916",
+	"63ac4b95-53eb-4359-b641-fda77f024ebb",
+	"31797ba8-eca2-41ee-835c-f92c097d94f8",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Billing Checker',
+	'id',
+	'R811.''has''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("93863100-70f1-4c20-9fc2-222ff4ba6a4b",
+	"fd30db63-3846-4d01-bdc6-3d53b3609351",
+	"32001660-9848-4a87-8341-52b3e9202925",
+	'../DVM_EP.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("6c9e36c3-ceb6-424a-a352-4907ccc2d35e",
+	"6af7c037-c79d-42ec-866b-cae29a8d32b6",
+	0,
+	"fd30db63-3846-4d01-bdc6-3d53b3609351",
+	"98968367-dca8-4c02-9e1f-d072ebf6d916",
+	'../DVM_EP.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("63ac4b95-53eb-4359-b641-fda77f024ebb",
+	"93863100-70f1-4c20-9fc2-222ff4ba6a4b",
+	"6c9e36c3-ceb6-424a-a352-4907ccc2d35e",
+	"6af7c037-c79d-42ec-866b-cae29a8d32b6",
+	1,
+	'id');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("6c9e36c3-ceb6-424a-a352-4907ccc2d35e",
+	"6af7c037-c79d-42ec-866b-cae29a8d32b6",
+	'../Billing Checker/Billing Checker.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("63ac4b95-53eb-4359-b641-fda77f024ebb",
+	"93863100-70f1-4c20-9fc2-222ff4ba6a4b",
+	"416add5f-9c3a-4f81-937d-5a7208c40eb5",
+	'id',
+	'',
+	'',
+	'id',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"93863100-70f1-4c20-9fc2-222ff4ba6a4b");
+INSERT INTO O_OIDA
+	VALUES ("63ac4b95-53eb-4359-b641-fda77f024ebb",
+	"93863100-70f1-4c20-9fc2-222ff4ba6a4b",
+	0,
+	'id');
+INSERT INTO O_ID
+	VALUES (1,
+	"93863100-70f1-4c20-9fc2-222ff4ba6a4b");
+INSERT INTO O_ID
+	VALUES (2,
+	"93863100-70f1-4c20-9fc2-222ff4ba6a4b");
+INSERT INTO PE_PE
+	VALUES ("93863100-70f1-4c20-9fc2-222ff4ba6a4b",
+	1,
+	"af611e23-e432-451f-96ec-b77f935091bf",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("af611e23-e432-451f-96ec-b77f935091bf",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'DVM_EP',
+	'DVM/EP についての処理を担当するサブシステム。
+
+ここで全てのDVMやEPについての処理をするわけではなく、
+あくまでモデルでやる部分を集約させたもの。',
+	800,
+	'../DVM_EP.xtuml');

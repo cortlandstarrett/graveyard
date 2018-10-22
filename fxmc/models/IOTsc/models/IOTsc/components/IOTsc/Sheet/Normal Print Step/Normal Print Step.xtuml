@@ -1,0 +1,473 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("3427bbc1-12ca-4138-adc3-a687e11281c6",
+	'Normal Print Step',
+	208,
+	'S_NPS',
+	'Normal Print Stepは当初の概念で作成したクラスであり、現在では名称がそぐわなくなっています。本来はSet Assignerとでも名づけた方が良いかもしれません。
+
+このクラスはジョブ階層・ドキュメント階層の出力指定を参照してCollateレベルの判定を行っています（すなわちセットの元となる単位を割り付けている）。
+
+どちらの階層で丁合となるかは単純ではなく、様々な条件があります。
+例えば
+	・Collateが指定されている
+	・Jobの種別がJob階層のCollateとなっている
+	・その他の設定が（Stapleなど）有効になっている
+
+などです。
+
+Collate単位の判定はジョブが優先されます。',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("a298c144-3aee-4eb8-8f06-db1c28fe81ec",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6",
+	'moderatePerfectBinder',
+	'//-- 762:20120515 Add Start (saitou)
+// S_OSP[258]に対して、PerfectBinder(くるみ製本)の調停をする
+Modify:Add
+Modify_No:762
+Modifier:saitou
+Modify_Date:20120515
+//-- 762:20120515 Add End (saitou)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'str0   = PF::getFailCode( type : IotSc_FailType::eNull ); // ログ用のdummy string
+
+select any anExecutingJob from instances of J_EJOB
+	where (selected.jobID == self.jobID);
+FER::assert(expression : not_empty anExecutingJob);
+
+select any anOrigin from instances of D_OOS
+	where ( selected.ID == param.originID ) ;
+FER::assert( expression : not_empty anOrigin );
+
+//-- 763:20120530 Add Start (ikegaya)
+select one aJobAsDocument related by anOrigin->D_DJOB[R305];
+select one aDocument related by anOrigin->D_DOC[R305];
+//-- 763:20120530 Add End (ikegaya)
+
+if ( anExecutingJob.isPBJob )
+
+	select one anOriginSetParam related by anOrigin->S_OSP[R258];
+
+	// 排出順指示は1toN固定
+	anOriginSetParam.outputOrder	= IotSc_OutputOrder::e1toN;
+
+	// 排出面指示はFaceDown固定
+	anOriginSetParam.exitFace	= "IOTDOC_EXIT_FACE_DOWN";
+
+	// OffsetはOFF固定
+	anOriginSetParam.offset		= "IOT_OFFSET_OFF";
+
+	// 折りもOFF固定
+	anOriginSetParam.foldMode		= "IOT_FOLD_OFF";
+	anOriginSetParam.foldSide		= IotSc_FoldSide::eNull;
+	anOriginSetParam.foldBindMode	= IotSc_FoldBindMode::eOff;
+	anOriginSetParam.foldBindNum	= 0;
+	anOriginSetParam.foldBindTotalNum = 0;
+
+	// 綴じもOFF固定
+	anOriginSetParam.stapleMode	= "IOT_STAPLE_OFF";
+
+	// パンチもOFF固定
+	anOriginSetParam.punchMode		= "IOT_PUNCH_OFF";
+
+	// --- 以下は引っかかったらジョブアボート --- //
+
+	select one anOriginParam related by anOrigin->S_OUP[R259];
+	FER::assert(expression : not_empty anOriginParam);
+
+	// OHP合紙が指定されていた場合、ジョブアボート
+	if(
+	       ( anOriginParam.interleafMode !=IotSc_InterleafMode::eNull )
+	   and ( anOriginParam.interleafMode !=IotSc_InterleafMode::eOff  )
+	  )
+		FER::modelLog( log : "[S_NPS]PerfectBind x OHPInserterMode",
+			str1 : str0, str2 : str0, str3 : str0,
+			int1 : 0, int2 : 0, int3 : 0 );
+		PF::requestJobCancel( jobID : anExecutingJob.jobID,
+			failCode : "PFFAULT_CL_PRINT_INSTRUCTION_FAIL" ) ; 
+	end if;
+
+	// (くるみでない)表紙が指定されていた場合、ジョブアボート
+	if( 
+	      ( anOriginParam.frontCoverMode != IotSc_CoverMode::eOff ) 
+	   or ( anOriginParam.backCoverMode  != IotSc_CoverMode::eOff ) 
+	  )
+		FER::modelLog( log : "[S_NPS]PerfectBind x CoverMode",
+			str1 : str0, str2 : str0, str3 : str0,
+			int1 : 0, int2 : 0, int3 : 0 );
+		PF::requestJobCancel( jobID : anExecutingJob.jobID,
+			failCode : "PFFAULT_CL_PRINT_INSTRUCTION_FAIL" ) ; 
+	end if;
+
+//-- 763:20120530 Add Start (ikegaya)
+	// Doc階層までCollate指示を参照したがCOLLATE_ON"でない場合、ジョブアボート
+	docCollateMode = anOriginParam.collateMode; // 型合わせ
+	docCollateMode = "IOT_COLLATE_NULL";
+	// Document Collate
+	if ( not_empty aDocument )
+		docCollateMode = anOriginParam.collateMode;
+		if ( docCollateMode != "IOT_COLLATE_ON" )
+			FER::modelLog( log : "[S_NPS]PerfectBind x UnCollateMode",
+				str1 : str0, str2 : str0, str3 : str0,
+				int1 : 0, int2 : 0, int3 : 0 );
+			PF::requestJobCancel( jobID : anExecutingJob.jobID,
+				failCode : "PFFAULT_CL_PRINT_INSTRUCTION_FAIL" );
+		end if;
+	end if;
+//-- 763:20120530 Add End (ikegaya)
+
+end if;
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("8c01759e-8267-45d6-b1ab-f09c669ee52e",
+	"a298c144-3aee-4eb8-8f06-db1c28fe81ec",
+	'originID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_REF
+	VALUES ("3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	0,
+	"4827bd93-1cdd-4255-84c1-3d508e127ad1",
+	"41203687-b666-46ec-b6b4-3c494a35c1a4",
+	"ff57b259-30b0-4686-bb2f-d1db0fabb5f5",
+	"892f777e-81ac-48c1-8534-11a634bb353c",
+	"c30a9d8d-d20b-429b-9ee8-c8763f07e3f1",
+	"30f5d652-dba7-487e-97f9-1da9440e2398",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Executing Job',
+	'jobID',
+	'R252');
+INSERT INTO R_RGO_PROXY
+	VALUES ("3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"41203687-b666-46ec-b6b4-3c494a35c1a4",
+	"ff57b259-30b0-4686-bb2f-d1db0fabb5f5",
+	'../Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("4827bd93-1cdd-4255-84c1-3d508e127ad1",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	0,
+	"41203687-b666-46ec-b6b4-3c494a35c1a4",
+	"892f777e-81ac-48c1-8534-11a634bb353c",
+	'../Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("c30a9d8d-d20b-429b-9ee8-c8763f07e3f1",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	1,
+	'jobID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	'../../Job/Job/Job.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("c30a9d8d-d20b-429b-9ee8-c8763f07e3f1",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"00000000-0000-0000-0000-000000000000",
+	'jobID',
+	'',
+	'',
+	'jobID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"5ec7aebe-de79-4645-85ef-e3c3ca66f6bf",
+	0,
+	"f7024eb2-7986-4ed6-a41c-c356f23b080c",
+	"b8f1d5af-2336-4e75-9fe9-63607960f85b",
+	"c4ff6b07-ca25-4357-8f66-e6b205edf8d7",
+	"3117058b-68f7-4e50-8e35-ad3c6b6705b6",
+	"1aa50da7-f5a5-4e7e-97b9-0b1b34a503bc",
+	"814d7fa3-dc34-4234-b905-9e5049761ff0",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Document Tree Parser',
+	'ID',
+	'R216');
+INSERT INTO R_RGO_PROXY
+	VALUES ("3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"b8f1d5af-2336-4e75-9fe9-63607960f85b",
+	"c4ff6b07-ca25-4357-8f66-e6b205edf8d7",
+	'../Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("f7024eb2-7986-4ed6-a41c-c356f23b080c",
+	"5ec7aebe-de79-4645-85ef-e3c3ca66f6bf",
+	0,
+	"b8f1d5af-2336-4e75-9fe9-63607960f85b",
+	"3117058b-68f7-4e50-8e35-ad3c6b6705b6",
+	'../Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("1aa50da7-f5a5-4e7e-97b9-0b1b34a503bc",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"f7024eb2-7986-4ed6-a41c-c356f23b080c",
+	"5ec7aebe-de79-4645-85ef-e3c3ca66f6bf",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("f7024eb2-7986-4ed6-a41c-c356f23b080c",
+	"5ec7aebe-de79-4645-85ef-e3c3ca66f6bf",
+	'../Document Tree Parser/Document Tree Parser.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("1aa50da7-f5a5-4e7e-97b9-0b1b34a503bc",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"c30a9d8d-d20b-429b-9ee8-c8763f07e3f1",
+	'parserID',
+	'',
+	'',
+	'parserID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	0,
+	"5a013554-36e8-449f-863a-96dc3c4f0543",
+	"5a016433-e9c1-487a-a6a1-691cbb9f059e",
+	"8fd49e56-71c8-4148-be29-e9b1a54ea5d3",
+	"2ecfae03-a0fa-4f43-86fe-ea391f27d346",
+	"104a7476-ed81-4be2-b859-15752dd6d0e0",
+	"022638aa-330a-481b-8a9b-5052c669d939",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Executing Origin of Set',
+	'ID',
+	'R236.''is now processing''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"5a016433-e9c1-487a-a6a1-691cbb9f059e",
+	"8fd49e56-71c8-4148-be29-e9b1a54ea5d3",
+	'../Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("5a013554-36e8-449f-863a-96dc3c4f0543",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	0,
+	"5a016433-e9c1-487a-a6a1-691cbb9f059e",
+	"2ecfae03-a0fa-4f43-86fe-ea391f27d346",
+	'../Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("104a7476-ed81-4be2-b859-15752dd6d0e0",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"5a013554-36e8-449f-863a-96dc3c4f0543",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("5a013554-36e8-449f-863a-96dc3c4f0543",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	'../Executing Origin of Set/Executing Origin of Set.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("104a7476-ed81-4be2-b859-15752dd6d0e0",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"1aa50da7-f5a5-4e7e-97b9-0b1b34a503bc",
+	'currentExecutingOriginID',
+	'',
+	'',
+	'currentExecutingOriginID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("3864ca15-3a1a-4bfe-9c90-727e7b549b86",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6");
+INSERT INTO O_BATTR
+	VALUES ("3864ca15-3a1a-4bfe-9c90-727e7b549b86",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6");
+INSERT INTO O_ATTR
+	VALUES ("3864ca15-3a1a-4bfe-9c90-727e7b549b86",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"104a7476-ed81-4be2-b859-15752dd6d0e0",
+	'isAllSheetInfoSent',
+	'',
+	'',
+	'isAllSheetInfoSent',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	0,
+	"5a013554-36e8-449f-863a-96dc3c4f0543",
+	"b535eec2-b8f7-40e3-b7bf-9e3c7efe6eee",
+	"e3fd9eed-d860-406a-b54a-36ca740f02d1",
+	"8a407ab6-24c8-42e4-bc3f-92061aace323",
+	"a6e4ac9d-9a2b-4018-bd91-3b5e924062c0",
+	"a984c7b4-b8b4-442b-961c-27970841bfc8",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Executing Origin of Set',
+	'ID',
+	'R262');
+INSERT INTO R_RGO_PROXY
+	VALUES ("3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"b535eec2-b8f7-40e3-b7bf-9e3c7efe6eee",
+	"e3fd9eed-d860-406a-b54a-36ca740f02d1",
+	'../Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("5a013554-36e8-449f-863a-96dc3c4f0543",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	0,
+	"b535eec2-b8f7-40e3-b7bf-9e3c7efe6eee",
+	"8a407ab6-24c8-42e4-bc3f-92061aace323",
+	'../Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("a6e4ac9d-9a2b-4018-bd91-3b5e924062c0",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"5a013554-36e8-449f-863a-96dc3c4f0543",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	0,
+	'ID');
+INSERT INTO O_ATTR
+	VALUES ("a6e4ac9d-9a2b-4018-bd91-3b5e924062c0",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"3864ca15-3a1a-4bfe-9c90-727e7b549b86",
+	'curretnFirstOrigin',
+	'',
+	'',
+	'curretnFirstOrigin',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("9122c252-6551-49ba-93f9-8c836dcb7791",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6");
+INSERT INTO O_BATTR
+	VALUES ("9122c252-6551-49ba-93f9-8c836dcb7791",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6");
+INSERT INTO O_ATTR
+	VALUES ("9122c252-6551-49ba-93f9-8c836dcb7791",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"a6e4ac9d-9a2b-4018-bd91-3b5e924062c0",
+	'currentOriginNo',
+	'',
+	'',
+	'currentOriginNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("4ce06025-62a8-4410-a9d8-1c7571ec9975",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6");
+INSERT INTO O_BATTR
+	VALUES ("4ce06025-62a8-4410-a9d8-1c7571ec9975",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6");
+INSERT INTO O_ATTR
+	VALUES ("4ce06025-62a8-4410-a9d8-1c7571ec9975",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"9122c252-6551-49ba-93f9-8c836dcb7791",
+	'restartOffsetPosition',
+	'//-- 197:20041222 Add Start kanda
+割り込み復帰時のOffsetPositionを記憶して置く。
+//-- 197:20041222 Add End',
+	'',
+	'restartOffsetPosition',
+	0,
+	"3023bb0c-ee82-413f-8bcc-8af53537b337",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("3023bb0c-ee82-413f-8bcc-8af53537b337",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_OffsetPosition',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("11df4e6b-a8ad-40b1-8a27-2ba4ff04b823",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6");
+INSERT INTO O_BATTR
+	VALUES ("11df4e6b-a8ad-40b1-8a27-2ba4ff04b823",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6");
+INSERT INTO O_ATTR
+	VALUES ("11df4e6b-a8ad-40b1-8a27-2ba4ff04b823",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"4ce06025-62a8-4410-a9d8-1c7571ec9975",
+	'restartIsStickingSheetExist',
+	'//-- 226:20050706 Add Start (kanda)
+割り込み情報のisStickingSheetExistのコピー。
+この値がTrueの場合、
+先頭のP_PISRはisStickingSheetExistとして処理する必要がある。
+//-- 226:20050706 Add End (kanda)
+',
+	'',
+	'restartIsStickingSheetExist',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("b5e18519-62a5-4159-8545-44bbcb8bc352",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6");
+INSERT INTO O_BATTR
+	VALUES ("b5e18519-62a5-4159-8545-44bbcb8bc352",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6");
+INSERT INTO O_ATTR
+	VALUES ("b5e18519-62a5-4159-8545-44bbcb8bc352",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6",
+	"11df4e6b-a8ad-40b1-8a27-2ba4ff04b823",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"3427bbc1-12ca-4138-adc3-a687e11281c6");
+INSERT INTO O_OIDA
+	VALUES ("c30a9d8d-d20b-429b-9ee8-c8763f07e3f1",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6",
+	0,
+	'jobID');
+INSERT INTO O_ID
+	VALUES (1,
+	"3427bbc1-12ca-4138-adc3-a687e11281c6");
+INSERT INTO O_OIDA
+	VALUES ("1aa50da7-f5a5-4e7e-97b9-0b1b34a503bc",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6",
+	1,
+	'parserID');
+INSERT INTO O_ID
+	VALUES (2,
+	"3427bbc1-12ca-4138-adc3-a687e11281c6");
+INSERT INTO PE_PE
+	VALUES ("3427bbc1-12ca-4138-adc3-a687e11281c6",
+	1,
+	"3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Sheet',
+	'',
+	200,
+	'../Sheet.xtuml');

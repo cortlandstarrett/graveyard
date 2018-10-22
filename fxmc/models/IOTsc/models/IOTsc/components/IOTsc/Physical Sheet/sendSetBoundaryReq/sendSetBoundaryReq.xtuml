@@ -1,0 +1,218 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("3504bc8a-78f1-44ec-96da-1b7497b4d06a",
+	'sendSetBoundaryReq',
+	432,
+	'P_SSBR',
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("32b78d07-4669-4c7d-9140-9b0e3a65fb1e",
+	"3504bc8a-78f1-44ec-96da-1b7497b4d06a",
+	'create',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'create object instance aSendSetBoundaryReq of P_SSBR;
+aSendSetBoundaryReq.setID = param.setID;
+
+docInfoReqID = P_SDIR::create();
+select any aSendDocInfo from instances of P_SDIR
+    where( selected.requestID == docInfoReqID );
+FER::assert( expression : not_empty aSendDocInfo );
+
+relate aSendSetBoundaryReq to aSendDocInfo across R467;
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("1994f70c-2c11-48aa-b662-2a77fc94358c",
+	"32b78d07-4669-4c7d-9140-9b0e3a65fb1e",
+	'setID',
+	"fa0128d1-5ddb-4bf9-af73-bba2eecc8821",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("fa0128d1-5ddb-4bf9-af73-bba2eecc8821",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_SetID',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("a600cb37-8186-493d-8d2e-9f4068536e94",
+	"3504bc8a-78f1-44ec-96da-1b7497b4d06a",
+	'send',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 0104271:20140821 Add Start (ikegaya)
+select any aPhysicalSet from instances of P_SET where(selected.setID == self.setID);
+FER::assert(expression : not_empty aPhysicalSet);
+select any aIOT from instances of DEV_IOT;
+FER::assert(expression : not_empty aIOT);
+
+aPhysicalSet.isFixed = TRUE;
+
+// セット単位で停止するセットであるかつ、CycleDown中の場合は、
+// IOT停止時の停止単位情報を"セット単位以外での停止"に設定する
+if (aPhysicalSet.needSetPause() == TRUE and aIOT.status == "IOT_IOT_CYCLE_DOWN")
+	RCT::setStopBoundary(isInStapleSet : FALSE);
+end if;
+//-- 0104271:20140821 Add End (ikegaya)
+IOTD::sendSetBoundary( setID : self.setID );
+',
+	1,
+	'',
+	"e4ee3dc9-effc-4baf-bd53-008e581fc985");
+INSERT INTO O_TFR
+	VALUES ("e4ee3dc9-effc-4baf-bd53-008e581fc985",
+	"3504bc8a-78f1-44ec-96da-1b7497b4d06a",
+	'getJobID',
+	'',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	1,
+	'// SetIDからJobIDを得る
+jobID = 0;
+setHandle = TYPE::IotDoc_SetHandle();
+docResult = DDB::getSetHandle( setID : self.setID, r_setHandle : setHandle );
+FER::assert( expression : docResult == "IOTDOC_OK" );
+docResult = DDB::getSetJobID( setHandle : setHandle, r_data : jobID );
+FER::assert( expression : docResult == "IOTDOC_OK" );
+
+return jobID;
+',
+	1,
+	'',
+	"32b78d07-4669-4c7d-9140-9b0e3a65fb1e");
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("49447c83-2dfc-4afd-94a1-142e9a2c3b73",
+	"3504bc8a-78f1-44ec-96da-1b7497b4d06a");
+INSERT INTO O_BATTR
+	VALUES ("49447c83-2dfc-4afd-94a1-142e9a2c3b73",
+	"3504bc8a-78f1-44ec-96da-1b7497b4d06a");
+INSERT INTO O_ATTR
+	VALUES ("49447c83-2dfc-4afd-94a1-142e9a2c3b73",
+	"3504bc8a-78f1-44ec-96da-1b7497b4d06a",
+	"00000000-0000-0000-0000-000000000000",
+	'setID',
+	'',
+	'',
+	'setID',
+	0,
+	"fa0128d1-5ddb-4bf9-af73-bba2eecc8821",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("3504bc8a-78f1-44ec-96da-1b7497b4d06a",
+	"184b6ef4-c512-41c2-894b-52517cb996fd",
+	0,
+	"0072ba0c-444d-4457-8474-5750cd0c74b4",
+	"5a7a9592-4574-4c36-8d98-deac178bb4c7",
+	"30b24008-d3c5-41bb-8ca4-5c898705240a",
+	"a47e6c95-87a7-4dd0-b4a3-67eefb51f1bb",
+	"6df89da6-eabc-4e08-a45d-8fb2f014de34",
+	"32ba06b1-32ff-4526-aea0-8f60ad9ca458",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'sendDocInfoReq',
+	'requestID',
+	'R467');
+INSERT INTO R_RGO_PROXY
+	VALUES ("3504bc8a-78f1-44ec-96da-1b7497b4d06a",
+	"5a7a9592-4574-4c36-8d98-deac178bb4c7",
+	"30b24008-d3c5-41bb-8ca4-5c898705240a",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("0072ba0c-444d-4457-8474-5750cd0c74b4",
+	"184b6ef4-c512-41c2-894b-52517cb996fd",
+	0,
+	"5a7a9592-4574-4c36-8d98-deac178bb4c7",
+	"a47e6c95-87a7-4dd0-b4a3-67eefb51f1bb",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("6df89da6-eabc-4e08-a45d-8fb2f014de34",
+	"3504bc8a-78f1-44ec-96da-1b7497b4d06a",
+	"0072ba0c-444d-4457-8474-5750cd0c74b4",
+	"184b6ef4-c512-41c2-894b-52517cb996fd",
+	1,
+	'requestID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("0072ba0c-444d-4457-8474-5750cd0c74b4",
+	"184b6ef4-c512-41c2-894b-52517cb996fd",
+	'../sendDocInfoReq/sendDocInfoReq.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("6df89da6-eabc-4e08-a45d-8fb2f014de34",
+	"3504bc8a-78f1-44ec-96da-1b7497b4d06a",
+	"49447c83-2dfc-4afd-94a1-142e9a2c3b73",
+	'requestID',
+	'',
+	'',
+	'requestID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"3504bc8a-78f1-44ec-96da-1b7497b4d06a");
+INSERT INTO O_OIDA
+	VALUES ("6df89da6-eabc-4e08-a45d-8fb2f014de34",
+	"3504bc8a-78f1-44ec-96da-1b7497b4d06a",
+	0,
+	'requestID');
+INSERT INTO O_ID
+	VALUES (1,
+	"3504bc8a-78f1-44ec-96da-1b7497b4d06a");
+INSERT INTO O_ID
+	VALUES (2,
+	"3504bc8a-78f1-44ec-96da-1b7497b4d06a");
+INSERT INTO PE_PE
+	VALUES ("3504bc8a-78f1-44ec-96da-1b7497b4d06a",
+	1,
+	"28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Physical Sheet',
+	'このサブシステムは実際の出力を行うためのDMとのI/Fおよび論理シートだけでは
+表現できない出力に関する概念を抽象化したものです。
+
+このサブシステムで表現されるものには以下の項目があります。
+1. DMとのI/Fを実現する内部キュー
+2.キューが処理対象となった実シートおよび実イメージ
+3.バナー、合紙などの論理シート以外で表現されるシート（表紙は論理シートで表現される）
+
+DMとのI/Fといっても表現されるのは以下のものです。
+SC→DM
+SET_START_INFO
+SHEET_INFO
+SET_END_INFO
+JOB_END_INFO
+
+DM→SC
+NEXT_SHEET_REQ
+IMAGE_REQ
+SHEET_END
+
+JOB_START_INFOも当初含まれていましたが（モデルにもまだ存在するが）キューに
+おくことにより不具合が生じたため、現状ではJ_EJOBから直接ブリッジのコールが行われています。
+
+',
+	400,
+	'../Physical Sheet.xtuml');

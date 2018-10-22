@@ -1,0 +1,509 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	'Sheet Infomation Request',
+	408,
+	'P_SIR',
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("2776e311-bab5-4370-a9ea-7aab8b5751e1",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	'createInstance',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'create object instance this of P_SIR;
+
+//--202:20050210 Add Start (kanda)
+this.isFirstPhysicalSheet = true;
+//-- 202:20050210 Add End
+
+select any aRequestAccepter from instances of P_PIA
+	where ( selected.jobID == param.jobID );
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero( expression : not_empty aRequestAccepter );
+//-- 845:20140227 Modified End (saitou) 
+
+create object instance aPhysicalRequest of P_PISR;
+relate this to aPhysicalRequest across R407;
+// SHEET_INFOはNext Sheet Reqを受けた後
+aPhysicalRequest.isSheetRequestNeed = TRUE;
+//-- 635:20110124 Add Start (sasaki_r)
+aPhysicalRequest.isSheetParse = param.isSheetParse;
+//-- 635:20110124 Add End (sasaki_r)
+
+select any aSheet from instances of S_SHT
+	where ( selected.ID == param.sheetID );
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero( expression : not_empty aSheet );
+//-- 845:20140227 Modified End (saitou) 
+relate this to aSheet across R409;
+
+//-- 353:20061121 Add Start (kanda)
+create object instance aReplicator of S_RPR;
+relate this to aReplicator across R273;
+//-- 353:20061121 Add End (kanda)
+
+
+
+this.currentNo = 0;
+// this.startOffsetPosition = param.startOffsetPosition;
+this.sheetType = param.sheetType;
+this.isUncollateDevide = param.isUncollateDevide;
+
+//-- 353:20061121 Deleted Start (kanda)
+// if ( this.isUncollateDevide )
+//	if ( aSheet.outputRunLength > 0 )
+//		this.currentNo = aSheet.runLength - aSheet.outputRunLength;
+//	end if;
+//end if;
+//-- 353:20061121 Deleted End (kanda)
+return aPhysicalRequest.ID;',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("f30fcbf4-1551-44e6-a92d-816d7b1b9f45",
+	"2776e311-bab5-4370-a9ea-7aab8b5751e1",
+	'sheetID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"23c635be-1764-4009-95c8-88a773e26be5",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("23c635be-1764-4009-95c8-88a773e26be5",
+	"2776e311-bab5-4370-a9ea-7aab8b5751e1",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"d87acd36-ba7e-43e6-b40c-95ffe41cc504",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("a1c63aa1-6694-4c18-a091-ccf9ca499563",
+	"2776e311-bab5-4370-a9ea-7aab8b5751e1",
+	'sheetType',
+	"100f8c84-e289-4a5c-93e8-d9859dad5bba",
+	0,
+	'',
+	"f30fcbf4-1551-44e6-a92d-816d7b1b9f45",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("100f8c84-e289-4a5c-93e8-d9859dad5bba",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_SheetType',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("d87acd36-ba7e-43e6-b40c-95ffe41cc504",
+	"2776e311-bab5-4370-a9ea-7aab8b5751e1",
+	'isUncollateDevide',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'',
+	"4f8f3894-db8f-42b2-b739-91640ebed15a",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("4f8f3894-db8f-42b2-b739-91640ebed15a",
+	"2776e311-bab5-4370-a9ea-7aab8b5751e1",
+	'isSheetParse',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_REF
+	VALUES ("268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	0,
+	"d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	"48dc12f6-3206-42ee-9325-efe27bcce2ef",
+	"867f7310-6587-4b4b-b0dc-2c88858901b1",
+	"89da0332-6f52-4a49-bb13-3512d3c93033",
+	"cd57410a-92b8-4db7-820a-edf0e3f47100",
+	"8d5923dd-7334-43fb-9b01-ab10fad026ab",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Physical Information Send Request',
+	'ID',
+	'R407');
+INSERT INTO R_RGO_PROXY
+	VALUES ("268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"48dc12f6-3206-42ee-9325-efe27bcce2ef",
+	"867f7310-6587-4b4b-b0dc-2c88858901b1",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	0,
+	"48dc12f6-3206-42ee-9325-efe27bcce2ef",
+	"89da0332-6f52-4a49-bb13-3512d3c93033",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("cd57410a-92b8-4db7-820a-edf0e3f47100",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	1,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	'../Physical Information Send Request/Physical Information Send Request.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("cd57410a-92b8-4db7-820a-edf0e3f47100",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"8e3132c4-07d6-4c8b-8aa4-58984ebd75f6",
+	0,
+	"098702d5-2ced-46dd-bd94-3127d068c12c",
+	"bb7e7511-8b1c-45fd-a61d-289752c13445",
+	"50267685-9224-4cbb-96e3-4ae038cdb111",
+	"50158526-0138-480e-adc4-00dcc6a87562",
+	"02eefe86-eecc-4f79-ad2f-8d923dba5ff6",
+	"1a458947-dc67-4306-8be9-a657c5a0d025",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Sheet',
+	'ID',
+	'R409');
+INSERT INTO R_RGO_PROXY
+	VALUES ("268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"bb7e7511-8b1c-45fd-a61d-289752c13445",
+	"50267685-9224-4cbb-96e3-4ae038cdb111",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("098702d5-2ced-46dd-bd94-3127d068c12c",
+	"8e3132c4-07d6-4c8b-8aa4-58984ebd75f6",
+	0,
+	"bb7e7511-8b1c-45fd-a61d-289752c13445",
+	"50158526-0138-480e-adc4-00dcc6a87562",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("02eefe86-eecc-4f79-ad2f-8d923dba5ff6",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"098702d5-2ced-46dd-bd94-3127d068c12c",
+	"8e3132c4-07d6-4c8b-8aa4-58984ebd75f6",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("098702d5-2ced-46dd-bd94-3127d068c12c",
+	"8e3132c4-07d6-4c8b-8aa4-58984ebd75f6",
+	'../../Sheet/Sheet/Sheet.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("02eefe86-eecc-4f79-ad2f-8d923dba5ff6",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"cd57410a-92b8-4db7-820a-edf0e3f47100",
+	'logicalSheetID',
+	'',
+	'',
+	'logicalSheetID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("b61104ac-41d4-49de-ae2c-7360fc0a3cbc",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97");
+INSERT INTO O_BATTR
+	VALUES ("b61104ac-41d4-49de-ae2c-7360fc0a3cbc",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97");
+INSERT INTO O_ATTR
+	VALUES ("b61104ac-41d4-49de-ae2c-7360fc0a3cbc",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"02eefe86-eecc-4f79-ad2f-8d923dba5ff6",
+	'isUncollateDevide',
+	'',
+	'',
+	'isUncollateDevide',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("41c27dcf-7f7f-4fe1-9239-1a4dcaf1c1ec",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97");
+INSERT INTO O_BATTR
+	VALUES ("41c27dcf-7f7f-4fe1-9239-1a4dcaf1c1ec",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97");
+INSERT INTO O_ATTR
+	VALUES ("41c27dcf-7f7f-4fe1-9239-1a4dcaf1c1ec",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"b61104ac-41d4-49de-ae2c-7360fc0a3cbc",
+	'startOffsetPosition',
+	'',
+	'',
+	'startOffsetPosition',
+	0,
+	"3023bb0c-ee82-413f-8bcc-8af53537b337",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("3023bb0c-ee82-413f-8bcc-8af53537b337",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_OffsetPosition',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("bedf0778-0ca7-4f36-889e-91318f148e81",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97");
+INSERT INTO O_BATTR
+	VALUES ("bedf0778-0ca7-4f36-889e-91318f148e81",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97");
+INSERT INTO O_ATTR
+	VALUES ("bedf0778-0ca7-4f36-889e-91318f148e81",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"41c27dcf-7f7f-4fe1-9239-1a4dcaf1c1ec",
+	'currentNo',
+	'P_SIR内部での物理的な通し番号',
+	'',
+	'currentNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("dc839749-170b-4c8e-bb31-ca8c3b0ac12b",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97");
+INSERT INTO O_BATTR
+	VALUES ("dc839749-170b-4c8e-bb31-ca8c3b0ac12b",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97");
+INSERT INTO O_ATTR
+	VALUES ("dc839749-170b-4c8e-bb31-ca8c3b0ac12b",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"bedf0778-0ca7-4f36-889e-91318f148e81",
+	'sheetType',
+	'',
+	'',
+	'sheetType',
+	0,
+	"100f8c84-e289-4a5c-93e8-d9859dad5bba",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c648c749-e5b3-4f21-93d4-ac03997720f3",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97");
+INSERT INTO O_BATTR
+	VALUES ("c648c749-e5b3-4f21-93d4-ac03997720f3",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97");
+INSERT INTO O_ATTR
+	VALUES ("c648c749-e5b3-4f21-93d4-ac03997720f3",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"dc839749-170b-4c8e-bb31-ca8c3b0ac12b",
+	'isFirstPhysicalSheet',
+	'//-- 202:20050210 Add Start kanda
+同一論理シートの物理シートが複数生成されるとき、先頭を区別する。
+ True:  先頭の場合にセット
+ False: 前に同じ論理シートの物理が存在している。
+//-- 202:20050210 Add End
+',
+	'',
+	'isFirstPhysicalSheet',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("de3c4571-2532-42d4-b5db-4d05561e6610",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97");
+INSERT INTO O_BATTR
+	VALUES ("de3c4571-2532-42d4-b5db-4d05561e6610",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97");
+INSERT INTO O_ATTR
+	VALUES ("de3c4571-2532-42d4-b5db-4d05561e6610",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"c648c749-e5b3-4f21-93d4-ac03997720f3",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"df927f03-db66-4031-be74-2046114966c2",
+	0,
+	"20e7fe41-95c9-44b6-bca2-a920e4445e44",
+	"2ec175b7-8dcf-48dc-bc39-20ea7a2d1cb9",
+	"45fad435-feb4-425c-aa3a-5d09218138d6",
+	"bef9a69c-b14d-4cbe-bfab-46e6d2ca8c4b",
+	"a02a975d-3c28-49c7-87a1-9875b9b35478",
+	"42f725a6-ff13-4ba5-8647-6c962d7432b6",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Replicator',
+	'ID',
+	'R273');
+INSERT INTO R_RGO_PROXY
+	VALUES ("268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"2ec175b7-8dcf-48dc-bc39-20ea7a2d1cb9",
+	"45fad435-feb4-425c-aa3a-5d09218138d6",
+	'../../Sheet/Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("20e7fe41-95c9-44b6-bca2-a920e4445e44",
+	"df927f03-db66-4031-be74-2046114966c2",
+	0,
+	"2ec175b7-8dcf-48dc-bc39-20ea7a2d1cb9",
+	"bef9a69c-b14d-4cbe-bfab-46e6d2ca8c4b",
+	'../../Sheet/Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("a02a975d-3c28-49c7-87a1-9875b9b35478",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"20e7fe41-95c9-44b6-bca2-a920e4445e44",
+	"df927f03-db66-4031-be74-2046114966c2",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("20e7fe41-95c9-44b6-bca2-a920e4445e44",
+	"df927f03-db66-4031-be74-2046114966c2",
+	'../../Sheet/Replicator/Replicator.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("a02a975d-3c28-49c7-87a1-9875b9b35478",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"de3c4571-2532-42d4-b5db-4d05561e6610",
+	'replicaterID',
+	'',
+	'',
+	'replicaterID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("d1ad9051-f845-4b54-8aa1-5da1849f6d4e",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97");
+INSERT INTO O_BATTR
+	VALUES ("d1ad9051-f845-4b54-8aa1-5da1849f6d4e",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97");
+INSERT INTO O_ATTR
+	VALUES ("d1ad9051-f845-4b54-8aa1-5da1849f6d4e",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"a02a975d-3c28-49c7-87a1-9875b9b35478",
+	'isLastRequestCreated',
+	'//-- 639:20110202 Add Start (kanda)
+本文としての最終シートが生成済み
+Modify:Add
+Modify_No:639
+Modifier:kanda
+Modify_Date: 20110202
+//-- 639:20110202 Add End (kanda)
+',
+	'',
+	'isLastRequestCreated',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("e1b267e2-6ada-4630-8a4c-41a8182f0b32",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97");
+INSERT INTO O_BATTR
+	VALUES ("e1b267e2-6ada-4630-8a4c-41a8182f0b32",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97");
+INSERT INTO O_ATTR
+	VALUES ("e1b267e2-6ada-4630-8a4c-41a8182f0b32",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	"d1ad9051-f845-4b54-8aa1-5da1849f6d4e",
+	'isNextSheetPadCover',
+	'//-- 639:20110202 Add Start (kanda)
+次に生成するシートをPadCoverにする
+Modify:Add
+Modify_No:639
+Modifier:kanda
+Modify_Date: 20110202
+//-- 639:20110202 Add End (kanda)
+',
+	'',
+	'isNextSheetPadCover',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97");
+INSERT INTO O_OIDA
+	VALUES ("cd57410a-92b8-4db7-820a-edf0e3f47100",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97");
+INSERT INTO O_OIDA
+	VALUES ("02eefe86-eecc-4f79-ad2f-8d923dba5ff6",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	1,
+	'logicalSheetID');
+INSERT INTO O_ID
+	VALUES (2,
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97");
+INSERT INTO O_OIDA
+	VALUES ("a02a975d-3c28-49c7-87a1-9875b9b35478",
+	"268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	2,
+	'replicaterID');
+INSERT INTO PE_PE
+	VALUES ("268b3488-40e6-4695-a5a7-9c52e2b7ab97",
+	1,
+	"28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Physical Sheet',
+	'このサブシステムは実際の出力を行うためのDMとのI/Fおよび論理シートだけでは
+表現できない出力に関する概念を抽象化したものです。
+
+このサブシステムで表現されるものには以下の項目があります。
+1. DMとのI/Fを実現する内部キュー
+2.キューが処理対象となった実シートおよび実イメージ
+3.バナー、合紙などの論理シート以外で表現されるシート（表紙は論理シートで表現される）
+
+DMとのI/Fといっても表現されるのは以下のものです。
+SC→DM
+SET_START_INFO
+SHEET_INFO
+SET_END_INFO
+JOB_END_INFO
+
+DM→SC
+NEXT_SHEET_REQ
+IMAGE_REQ
+SHEET_END
+
+JOB_START_INFOも当初含まれていましたが（モデルにもまだ存在するが）キューに
+おくことにより不具合が生じたため、現状ではJ_EJOBから直接ブリッジのコールが行われています。
+
+',
+	400,
+	'../Physical Sheet.xtuml');
