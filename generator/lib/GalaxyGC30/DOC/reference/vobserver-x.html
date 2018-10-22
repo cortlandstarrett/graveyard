@@ -1,0 +1,535 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vobserver prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vobserver prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vobserver-x.html#section_DataType">Types</A> [2]</TD>
+<TD><A HREF="vobserver-x.html#section_Function">Functions</A> [26]</TD>
+<TD><A HREF="vobserver-x.html#section_Message">Messages</A> [6]</TD>
+<TD><A HREF="vobserver-x.html#section_Constant">Constants</A> [2]</TD>
+<TD><A HREF="vobserver-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vobserver"><HR><H4>vobserver</H4></A>
+<PRE>
+        typedef ... <B>vobserver</B>;
+</PRE>
+
+<DL><DD>
+Observer objects provide additional support above simple observable 
+objects for dedicated observers. Any <code><A HREF="vobservable-x.html#vobservable"><CODE>vobservable</CODE></A></code> object can be 
+installed as an observer on another <code><A HREF="vobservable-x.html#vobservable"><CODE>vobservable</CODE></A>,/code> object, 
+but objects of this class are intended to be used more or less 
+exclusively as observers. They can be temporarily
+disabled, and they maintain a patron object attribute.
+<P>
+The patron of an observer represents the object on whose behalf the
+observer acts. For example, the observer may modify or invalidate the
+patron object when it is enabled, and the observed object changes.
+</DD></DL>
+<P>
+<A NAME="vobserverClass"><HR><H4>vobserverClass</H4></A>
+<PRE>
+        typedef ... <B>vobserverClass</B>;
+</PRE>
+
+<DL><DD>
+Describes the behavior of a class of observer objects.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vobserverClone"><HR><H4>vobserverClone</H4></A>
+<PRE>
+        vobserver * <B>vobserverClone</B>(
+                vobserver * observer);
+</PRE>
+
+<DL><DD>
+Creates a new copy of an observer object.
+</DD></DL>
+<P>
+<A NAME="vobserverCopy"><HR><H4>vobserverCopy</H4></A>
+<PRE>
+        void <B>vobserverCopy</B>(
+                vobserver * observer,
+                vobserver * target);
+</PRE>
+
+<DL><DD>
+Copies the attributes from one existing observer object to another.
+</DD></DL>
+<P>
+<A NAME="vobserverCopyInit"><HR><H4>vobserverCopyInit</H4></A>
+<PRE>
+        void <B>vobserverCopyInit</B>(
+                vobserver * observer,
+                vobserver * target);
+</PRE>
+
+<DL><DD>
+Initializes an observer object by copying the attributes from an
+existing observer object.
+</DD></DL>
+<P>
+<A NAME="vobserverCreateOfClass"><HR><H4>vobserverCreateOfClass</H4></A>
+<PRE>
+        vobserver * <B>vobserverCreateOfClass</B>(
+                vobserverClass * clas);
+</PRE>
+
+<DL><DD>
+Creates an observer object of the specified class.
+</DD></DL>
+<P>
+<A NAME="vobserverDestroy"><HR><H4>vobserverDestroy</H4></A>
+<PRE>
+        void <B>vobserverDestroy</B>(
+                vobserver * observer);
+</PRE>
+
+<DL><DD>
+Destroys an observer object.
+</DD></DL>
+<P>
+<A NAME="vobserverDisable"><HR><H4>vobserverDisable</H4></A>
+<PRE>
+        void <B>vobserverDisable</B>(
+                vobserver * observer);
+</PRE>
+
+<DL><DD>
+Marks the observer object as not actively observing its targets.
+Disabling an observer does not uninstall it anywhere, but does affect
+how it responds to any invocations of 
+<code><A HREF="vobservable-x.html#vobservableWILL_OBSERVE"><CODE>vobservableWILL_OBSERVE</CODE></A></code>. However, since announcing 
+objects may not check the <code><A HREF="vobservable-x.html#vobservableWILL_OBSERVE"><CODE>vobservableWILL_OBSERVE</CODE></A></code> 
+method before calling <code><A HREF="vobservable-x.html#vobservableOBSERVE"><CODE>vobservableOBSERVE</CODE></A></code>, 
+a disabled observer may still receive occurrence announcements. 
+It is up to the observer's implementation of 
+<code><A HREF="vobservable-x.html#vobservableOBSERVE"><CODE>vobservableOBSERVE</CODE></A></code> to check the enabled 
+attribute before interacting with the patron.
+</DD></DL>
+<P>
+<A NAME="vobserverEnable"><HR><H4>vobserverEnable</H4></A>
+<PRE>
+        void <B>vobserverEnable</B>(
+                vobserver * observer);
+</PRE>
+
+<DL><DD>
+Marks the observer object as actively observing its targets. 
+An enabled observer object sees all the desired occurrences from the
+<code><A HREF="vobservable-x.html#vobservable"><CODE>vobservable</CODE></A></code> objects in which it is installed. 
+Implementation of the observer's <code><A HREF="vobservable-x.html#vobservableOBSERVE"><CODE>vobservableOBSERVE</CODE></A></code> 
+method should perform any interactions with its patron as normal.
+</DD></DL>
+<P>
+<A NAME="vobserverGetClass"><HR><H4>vobserverGetClass</H4></A>
+<PRE>
+        vobserverClass * <B>vobserverGetClass</B>(
+                vobserver * observer);
+</PRE>
+
+<DL><DD>
+Returns the class of an observer object.
+</DD></DL>
+<P>
+<A NAME="vobserverGetData"><HR><H4>vobserverGetData</H4></A>
+<PRE>
+        const void * <B>vobserverGetData</B>(
+                vobserver * observer);
+</PRE>
+
+<DL><DD>
+Returns the generic data reference.
+</DD></DL>
+<P>
+<A NAME="vobserverGetDefaultClass"><HR><H4>vobserverGetDefaultClass</H4></A>
+<PRE>
+        vobserverClass * <B>vobserverGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default class of observer objects.
+</DD></DL>
+<P>
+<A NAME="vobserverGetDesiredOccurrenceClass"><HR><H4>vobserverGetDesiredOccurrenceClass</H4></A>
+<PRE>
+        const voccurrenceClass * <B>vobserverGetDesiredOccurrenceClass</B>(
+                vobserver * observer);
+</PRE>
+
+<DL><DD>
+Returns the kind of occurrences the observer desires.
+The returned class will never be <SAMP>NULL</SAMP> and will always be
+<code><A HREF="voccurrence-x.html#voccurrence"><CODE>voccurrence</CODE></A></code> or a class derived from <code><A HREF="voccurrence-x.html#voccurrence"><CODE>voccurrence</CODE></A></code>.
+</DD></DL>
+<P>
+<A NAME="vobserverGetInstance"><HR><H4>vobserverGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vobserverGetInstance</B>(
+                vobserver * observer);
+</PRE>
+
+<DL><DD>
+Returns an observer object references as a <A HREF="vinstance-x.html#vinstance"><CODE>vinstance</CODE></A> reference.
+</DD></DL>
+<P>
+<A NAME="vobserverGetLoadable"><HR><H4>vobserverGetLoadable</H4></A>
+<PRE>
+        vloadable * <B>vobserverGetLoadable</B>(
+                vobserver * observer);
+</PRE>
+
+<DL><DD>
+Returns an observer object references as a <A HREF="vloadable-x.html#vloadable"><CODE>vloadable</CODE></A> reference.
+</DD></DL>
+<P>
+<A NAME="vobserverGetObservable"><HR><H4>vobserverGetObservable</H4></A>
+<PRE>
+        vobservable * <B>vobserverGetObservable</B>(
+                vobserver * observer);
+</PRE>
+
+<DL><DD>
+Returns an observer object references as a <A HREF="vobservable-x.html#vobservable"><CODE>vobservable</CODE></A> reference.
+</DD></DL>
+<P>
+<A NAME="vobserverGetPatron"><HR><H4>vobserverGetPatron</H4></A>
+<PRE>
+        vinstance * <B>vobserverGetPatron</B>(
+                vobserver * observer);
+</PRE>
+
+<DL><DD>
+Returns the patron object of the observer.
+The returned object may be <SAMP>NULL</SAMP>, 
+indicating that the observer does not currently have a patron.
+</DD></DL>
+<P>
+<A NAME="vobserverGetTag"><HR><H4>vobserverGetTag</H4></A>
+<PRE>
+        const vname * <B>vobserverGetTag</B>(
+                vobserver * observer);
+</PRE>
+
+<DL><DD>
+Returns the tag attribute of an observer object.
+</DD></DL>
+<P>
+<A NAME="vobserverInitOfClass"><HR><H4>vobserverInitOfClass</H4></A>
+<PRE>
+        void <B>vobserverInitOfClass</B>(
+                vobserver * observer,
+                vobserverClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a new observer object of the specified class.
+</DD></DL>
+<P>
+<A NAME="vobserverIsEnabled"><HR><H4>vobserverIsEnabled</H4></A>
+<PRE>
+        vbool <B>vobserverIsEnabled</B>(
+                vobserver * observer);
+</PRE>
+
+<DL><DD>
+Returns whether the observer is marked as actively observing its targets.
+</DD></DL>
+<P>
+<A NAME="vobserverLoad"><HR><H4>vobserverLoad</H4></A>
+<PRE>
+        vobserver * <B>vobserverLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Loads and returns a new observer object given a resource.
+</DD></DL>
+<P>
+<A NAME="vobserverLoadInit"><HR><H4>vobserverLoadInit</H4></A>
+<PRE>
+        void <B>vobserverLoadInit</B>(
+                vobserver * observer,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Initializes a new observer object given a resource.
+</DD></DL>
+<P>
+<A NAME="vobserverSetData"><HR><H4>vobserverSetData</H4></A>
+<PRE>
+        void <B>vobserverSetData</B>(
+                vobserver * observer,
+                const void * data);
+</PRE>
+
+<DL><DD>
+Sets the generic data reference. The default <code>vobserver</code> 
+class does not use this field, so subclasses may use it for any purpose, 
+such as providing context to the observer's patron object.
+</DD></DL>
+<P>
+<A NAME="vobserverSetDesiredOccurrenceClass"><HR><H4>vobserverSetDesiredOccurrenceClass</H4></A>
+<PRE>
+        void <B>vobserverSetDesiredOccurrenceClass</B>(
+                vobserver * observer,
+                const voccurrenceClass * occurClass);
+</PRE>
+
+<DL><DD>
+Sets the kind of occurrences the observer desires. Occurrences of 
+classes different from this desired class may still be
+passed to the observer's <code><A HREF="vobservable-x.html#vobservableOBSERVE"><CODE>vobservableOBSERVE</CODE></A></code> method, 
+but the announcer may use this hint to avoid assembling occurrences 
+that will be disregarded.
+</DD></DL>
+<P>
+<A NAME="vobserverSetPatron"><HR><H4>vobserverSetPatron</H4></A>
+<PRE>
+        void <B>vobserverSetPatron</B>(
+                vobserver * observer,
+                vinstance * patron);
+</PRE>
+
+<DL><DD>
+Sets or clears the patron object of the observer. The passed object 
+may be <SAMP>NULL</SAMP> to indicate that the
+observer does not currently have a patron. By default, the 
+<code>vobserver</code> class does not use the patron object for
+any operations.
+</DD></DL>
+<P>
+<A NAME="vobserverSetTag"><HR><H4>vobserverSetTag</H4></A>
+<PRE>
+        void <B>vobserverSetTag</B>(
+                vobserver * observer,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Sets the tag attribute of an observer object.
+</DD></DL>
+<P>
+<A NAME="vobserverStartup"><HR><H4>vobserverStartup</H4></A>
+<PRE>
+        void <B>vobserverStartup</B>();
+</PRE>
+
+<DL><DD>
+Starts up all of the classes and global information in the vobserver module.
+</DD></DL>
+<P>
+<A NAME="vobserverStore"><HR><H4>vobserverStore</H4></A>
+<PRE>
+        void <B>vobserverStore</B>(
+                vobserver * observer,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Stores the attributes of an observer object into a resource.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vobserverDESIRED_OCCURRENCE_CLASS"><HR><H4>vobserverDESIRED_OCCURRENCE_CLASS</H4></A>
+<PRE>
+        &lt;<B>vobserverDESIRED_OCCURRENCE_CLASS</B>&gt;
+</PRE>
+
+<DL><DD>
+The default kind of occurrence desired by the class of observers.
+</DD></DL>
+<P>
+<A NAME="vobserverDISABLE"><HR><H4>vobserverDISABLE</H4></A>
+<PRE>
+        &lt;<B>vobserverDISABLE</B>&gt;
+</PRE>
+
+<DL><DD>
+Marks the observer object as not actively observing its targets.
+Disabling an observer does not uninstall it anywhere, but does affect
+how it responds to any invocations of the <code><A HREF="vobservable-x.html#vobservableWILL_OBSERVE"><CODE>vobservableWILL_OBSERVE</CODE></A></code>
+method. However, since announcing objects may not check the
+<code><A HREF="vobservable-x.html#vobservableWILL_OBSERVE"><CODE>vobservableWILL_OBSERVE</CODE></A></code> method before calling 
+<code><A HREF="vobservable-x.html#vobservableOBSERVE"><CODE>vobservableOBSERVE</CODE></A></code>, a disabled observer may still 
+receive occurrence announcements. It is up to the observer's implementation 
+of <code><A HREF="vobservable-x.html#vobservableOBSERVE"><CODE>vobservableOBSERVE</CODE></A></code> to check the enabled attribute 
+before interacting with the patron.
+</DD></DL>
+<P>
+<A NAME="vobserverENABLE"><HR><H4>vobserverENABLE</H4></A>
+<PRE>
+        &lt;<B>vobserverENABLE</B>&gt;
+</PRE>
+
+<DL><DD>
+Marks the observer object as actively observing its targets.
+An enabled observer object sees all the desired occurrences from the
+<code><A HREF="vobservable-x.html#vobservable"><CODE>vobservable</CODE></A></code> objects in which it is installed. 
+The implementation of the observer's <code><A HREF="vobservable-x.html#vobservableOBSERVE"><CODE>vobservableOBSERVE</CODE></A></code> 
+method should perform any interactions with its patron as normal.
+</DD></DL>
+<P>
+<A NAME="vobserverSET_DATA"><HR><H4>vobserverSET_DATA</H4></A>
+<PRE>
+        &lt;<B>vobserverSET_DATA</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the generic data reference.
+The default <code>vobserver</code> class does not use this field, 
+so subclasses may use it for any purpose, such as providing context 
+to the observer's patron object.
+</DD></DL>
+<P>
+<A NAME="vobserverSET_DESIRED_OCCURRENCE_CLASS"><HR><H4>vobserverSET_DESIRED_OCCURRENCE_CLASS</H4></A>
+<PRE>
+        &lt;<B>vobserverSET_DESIRED_OCCURRENCE_CLASS</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the kind of occurrences the observer desires.
+Occurrences of classes different from this desired class may still be
+passed to the observer's <code><A HREF="vobservable-x.html#vobservableOBSERVE"><CODE>vobservableOBSERVE</CODE></A></code> 
+method, but the announcer may use this hint to avoid 
+assembling occurrences that will be disregarded.
+</DD></DL>
+<P>
+<A NAME="vobserverSET_PATRON"><HR><H4>vobserverSET_PATRON</H4></A>
+<PRE>
+        &lt;<B>vobserverSET_PATRON</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets or clears the patron object of the observer. 
+The passed object may be <SAMP>NULL</SAMP> to indicate that the
+observer does not currently have a patron. By default, the 
+<code>vobserver</code> class does not use the patron object for
+any operations.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vobserverHEADER"><HR><H4>vobserverHEADER</H4></A>
+<PRE>
+        <B>vobserverHEADER</B>
+</PRE>
+
+<DL><DD>
+The name of the header file for the vobserver module.
+</DD></DL>
+<P>
+<A NAME="vobserverINCLUDED"><HR><H4>vobserverINCLUDED</H4></A>
+<PRE>
+        <B>vobserverINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file vobserverINCLUDED is included.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vobserverCLASS"><HR><H4>vobserverCLASS</H4></A>
+<PRE>
+        #define <B>vobserverCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for the observer class.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

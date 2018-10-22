@@ -1,0 +1,363 @@
+<HTML>
+<HEAD>
+<TITLE>Class Manager</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Class Manager</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Button.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Client.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="27053"></A>
+The <EM><B>Class Manager</B></EM> lets you obtain many of the benefits of an object-oriented programming language with standard C language constructs. The object-oriented programming methodology encouraged by the Class Manager allows both control and flexibility in the development process. Initially, the main benefit is the ease with which you can customize the repertory of standard user interface objects supplied with Galaxy (all of which are built with Class Manager facilities). The Class Manager also makes it possible to create new user interface objects that leverage the functionality of existing Galaxy code. The C Version of the "Galaxy Hierarchy Diagram" illustrates the Galaxy class hierarchy and the core classes that are defined by the Class Manager.<P>
+Subclassing the standard user interface components is an integral part of developing a sophisticated application in Galaxy. Subclassing should not be viewed as a "last resort" technique reserved for extreme circumstances. It is often useful to derive entire application components from standard Galaxy components. For example, an application's document object could be derived from the standard Galaxy dialog object by subclassing the standard dialog class.<P>
+The concepts underlying the Class Manager are the same as those of object-oriented programming in general. A <EM><B>class</B></EM> is a set of <EM><B>methods</B></EM> (or operations) that define the ways that data within an associated data structure can be read, written, and changed. <EM><B>Objects</B></EM> are the data structures themselves. A <EM><B>classed object</B></EM> is an object that has a class.<P>
+<A NAME="31709"><H2> Class Manager Implementation</H2></A>
+In Galaxy, each classed object contains a pointer to a <EM><B>class structure</B></EM>. The structure, in turn, contains pointers to the associated functions and data that implement the object's behavior. The function pointers are the "methods." Each class also has a set of <EM><B>class variables</B></EM>, as well as ancillary information that the Class Manager uses to bind resource objects to in-memory classes and to allocate sufficient memory for new objects.<P>
+Public interfaces to the standard user interface objects (including the dialogs, items, menus, and windows provided by Galaxy) are implemented through classes. This approach makes it easy to customize the objects' behavior and appearance. For example, one can subclass the standard Galaxy button class and override its drawing method to create buttons with a custom appearance.<P>
+Classes are arranged in hierarchies to take advantage of the inheritance capabilities provided by the Class Manager. The usual way to create offspring classes, called <EM><B>subclasses</B></EM>, is to spawn from a parent class, called a <EM><B>superclass</B></EM>. The clone can then be modified to produce a specific subclass. Each subclass contains a pointer to its superclass through which it inherits properties. In order to optimize performance, Galaxy does not use the superclass pointer for method dispatch or variable fetch. Each class at every level of the hierarchy includes its own methods and variables as well as all the methods and variables for all of its superclasses. This ensures that all bindings are resolved through a single level of indirection. This strategy makes numerous classes expensive in terms of storage requirements, but thoughtful design can minimize the impact of this problem. For a new class, you should isolate the operations that are primitive to the class and provide methods only for those operations. Each class type has a set of messages that are fixed at compile time. Refer to the C Version of the "Galaxy Hierarchy Diagram" for a representation of Galaxy class hierarchy.<P>
+<A NAME="31720"><H2> Class Definitions</H2></A>
+Each class with a distinct set of methods and variables is implemented as a C structure type. If a subclass adds no new methods or variables, it can use the same structure as its superclass. Necessary content changes can be made after the class is created. For example, creating a new appearance for an existing button requires a new class, but not a new class structure type, since the set of methods for the new button is the same as for the original one. The recommended procedure is to reproduce or clone the existing button class and set its draw method to the appropriate drawing function.<P>
+Methods can be added to an existing class definition. The new class needs a new C structure containing space for all the old methods plus the added methods. The superclass definition can be inherited by using a macro provided by the module that declares the superclass (typically <TT>vmoduleCLASS</TT>). User classes should also define themselves in terms of a macro so that new classes can easily inherit their methods. For example, the button class is built as a subclass of the dialog item class by inheriting the dialog item class definition and adding methods for highlighting and unhighlighting.<P>
+Class definition macros require a number of arguments to make type declarations work correctly. The exact arguments depend on the module defining the macro. Type interchangeability is implemented by declaring parallel structures with similar members. Type names are declared through macro arguments so that each class that uses the class definition receives complete type checking. <P>
+For example, the contents of <TT>vdialogClass</TT>, a subclass of <TT>vwindowClass</TT>, is defined with the following macro:<P>
+<PRE><UL>#define vdialogCLASS(SUPER, DIALOG, NOTIFY, ITEM, LIST) 
+   vwindowCLASS(SUPER, DIALOG, NOTIFY); 
+   vclassMETHOD(vdialogAPPEND_ITEM, (DIALOG *dialog, ITEM *item)); 
+   vclassMETHOD(vdialogDELETE_ITEM, (DIALOG *dialog, ITEM *item)); 
+   ...
+
+</UL></PRE>When the macro is expanded to declare the class structure, actual type names are passed as parameters to the macro:<P>
+<PRE><UL>struct vdialogClass
+{
+   vdialogCLASS(vdialogClass, vdialog, vdialogNoteProc,
+                vdialogItem, vdialogItemList);
+};
+
+</UL></PRE>Note that the Class Manager imposes three constraints on a target architecture for the operation of inheritance&#175;these constraints are not explicitly guaranteed by the C language but are essentially implied by ANSI C and are incorporated in all reasonable implementations of the C language.<P>
+<A NAME="31743"><H2> Core Classes and Object Types</H2></A>
+The Class Manager provides four core classes:<P>
+<DL>
+<DT><DD> <TT>vclassRoot</TT> contains attributes that should be included in all classes. These root attributes include superclass, class name, and instance size. All classes defined by Galaxy libraries inherit from vclassRoot.
+<DT><DD> <TT>vinstanceClass</TT> extends <TT>vclassRoot</TT> to include a standard set of creation and destruction methods.
+<DT><DD> <TT>vobjectClass</TT> extends <TT>vinstanceClass</TT> to include a standard set of copying and resource methods.
+<DT><DD> <TT>vobjectAttributedClass</TT> expands <TT>vobjectClass</TT> to include methods for attribute binding. This mechanism is used by the Command Manager to implement the user interface inheritance hierarchy. All user interface classes provided by Galaxy (such as <TT>vwindowClass</TT> and <TT>vdialogItemClass</TT>) inherit from <TT>vobjectAttributedClass</TT>. Refer to the Command Manager chapter for information on how to utilize the user interface inheritance hierarchy.
+</DL>
+The Class Manager provides two core types:<P>
+<DL>
+<DT><DD> <TT>vinstance</TT> provides the basis upon which objects belonging to subclasses of <TT>vinstanceClass</TT>, <TT>vobjectClass</TT>, and <TT>vobjectAttributedClass</TT> must be constructed.
+<DT><DD> <TT>vobject</TT> provides the basis upon which objects belonging to subclasses of <TT>vobjectClass</TT> and <TT>vobjectAttributedClass</TT> must be constructed.
+</DL>
+The Class Manager also provides a support type to the core object type:<P>
+<DL>
+<DT><DD> <TT>vobjectList</TT> provides a basis for linearly storing objects belonging to subclasses of the core object class. Dialog item lists, menu item lists, and menu bar menu lists are all based on object lists.
+</DL>
+<A NAME="31765"><H2> Dynamic Binding Functions</H2></A>
+The Class Manager also includes a number of <EM><B>dynamic binding functions</B></EM>. These functions allow messages to be defined at run time (as opposed to compile time), but it should be noted that this approach entails significantly greater method dispatch overhead. Dynamic binding is appropriate for situations where message names need to be defined dynamically, or messages are expressed in some run-time representation. An object-oriented interapplication communication service, for example, could make use of this capability.<P>
+<A NAME="31773"><H2> Functional Behavior</H2></A>
+Using the Class Manager to create new classes is a three-part sequence. First, you declare the proper C data structure for the class and its instances. Next, you create the class using Class Manager functions. Then, you create instances of the class's objects and manipulate them with the class's methods.<P>
+Three functions are provided for creating a new class.<P>
+<TT><B>Reproduce</B></TT> is for creating a subclass of an existing class. This is useful for overriding specific methods and variables of a given class. However, this function cannot be used if the new class requires methods or variables in addition to those provided by its superclass.<P>
+<TT><B>Clone</B></TT> is for creating a sibling class of an existing class. This is useful for creating a new class that is similar to, but does not inherit from, an existing class.<P>
+<TT><B>Spawn</B></TT> is for creating a subclass with space for additional methods.<P>
+When you are finished with a class, destroy it with <TT><B>Destroy</B></TT>. Note that you do not need to destroy classes explicitly&#175;the Class Manager will destroy all of your classes for you automatically during shutdown.<P>
+Every class can be assigned a name using <TT><B>SetName</B></TT>. If the class is to be shared by all clients in a given process, use <TT><B>SetGlobalName</B></TT>. Class names are used by the Class Manager to type objects in resource files. To access a class (for example, to spawn a new class), use <TT><B>Load</B></TT> first, then run the appropriate function, such as <TT><B>Spawn</B></TT>. To specify the size of a class's instances, use <TT><B>SetObjectSize</B></TT>.<P>
+To bind a method or a method variable to a class, use <TT><B>Set</B></TT>. To bind a method or variable to a name rather than a message identifier, use <TT><B>SetDynamic</B></TT>. To retrieve the class's methods and variables, use <TT><B>Get</B></TT>. To retrieve dynamic method and variable bindings, use <TT><B>GetDynamic</B></TT>. <TT><B>BindDynamic</B></TT> retrieves method and variable bindings from a class and all its superclasses.<P>
+To retrieve a class's parent (superclass), use <TT><B>GetSuper</B></TT>. To determine if a class inherits in any way from another class, use <TT><B>IsKindOf</B></TT>. This is often useful for determining if an object will understand a given message identifier. <P>
+To send messages and arguments to messages, use <TT><B>Send</B></TT>. To send messages to a class's parent, use <TT><B>SendSuper</B></TT>. If <TT><B>SendSuper</B></TT> is called from within a method function, the original class where the method is defined should be used, not the class of the instance receiving the message. To send a message by name instead of by message identifier, use <TT><B>SendDynamic</B></TT>. <P>
+To allocate space for an instance of a class, use <TT><B>Alloc</B></TT>. To free the space once the instance has been destroyed, use <TT><B>Free</B></TT>. Using <TT><B>Alloc</B></TT>/<TT><B>Free</B></TT> to allocate objects is significantly more efficient than using vmemAlloc/vmemFree. The functions <TT><B>vobjectCreateOfClass</B></TT>, <TT><B>vobjectClone</B></TT>, and <TT><B>vobjectLoad</B></TT> all use <TT><B>vclassAlloc</B></TT> to allocate storage for new objects. Subclasses of the core object class will normally not need to call <TT><B>Alloc</B></TT> directly, though other classes may find it useful if they implement no storage management facilities of their own.<P>
+<A NAME="31810"><H2> Defining Classes</H2></A>
+The key to successful class usage is setting up proper class data structures. The Galaxy *<TT>CLASS</TT> convention is the recommended way to accomplish this. Each class in Galaxy is defined in this way. The *CLASS convention creates a preprocessor declaration that defines the class-wide storage and function pointer space for the class. Each *CLASS macro must include the *CLASS macro of its superclass. If the class being created is a base class, *CLASS must include vclassROOT, which contains basic class information.<P>
+An example will illustrate the *CLASS declaration and subsequent steps in creating a class. Suppose you want to define a class that models the behavior of the common house cat. Further, suppose that you want the class to initially have three methods: Meow, SetName, and GetName. The Meow method takes no arguments and returns nothing; SetName takes a string and returns nothing; GetName takes nothing and returns a string. All methods take a class instance (or object) as an implicit argument, since the methods need some way to "get to" the object's information. A sample class declaration is given in <A HREF="Class.html#31823">Example 1</A>. Note that this example demonstrates how to define a class at the root of the class hierarchy in order to demonstrate the use of Class Manager entry points. It is much more common to subclass a class farther down in the inheritance hierarchy. Refer to <A HREF="Class.html#31945">"Using the Core Object Type"</A> for information on how to do this.<P>
+<A NAME="31823"><I>Example 1.  Class declaration approach
+</I><P>
+<PRE><UL>#define vcatCLASS(CLASS, CAT) 
+   vclassROOT(CLASS); 
+   vclassMETHOD(vcatMEOW, (CAT *kitty)); 
+   vclassMETHOD(vcatSET_NAME, (CAT *kitty, vchar *name)); 
+   vclassMETHOD_RET(vcatGET_NAME, vchar*, (CAT *kitty))
+
+</UL></PRE>The CLASS and CAT parameters to the vcatCLASS macro state the class being defined and the object (instance) type of the class being defined. The vclassROOT macro includes basic information necessary for managing classes in general. vcatMEOW is an example of a vclassID, as described in the "Data Types and Classes" section of this chapter. vcatMEOW is declared as a pointer to a function that returns void (nothing) and takes an argument called kitty. The parameter kitty is of type CAT. The actual class declaration is shown in <A HREF="Class.html#31836">Example 2</A>. Note that the last statement should not be terminated with a semicolon, since this will be provided by the context in which the macro is expanded.<P>
+<A NAME="31836"><I>Example 2.  Class declaration
+</I><P>
+<PRE><UL>typedef struct vcat vcat;           /* forward ref */
+typedef struct vcatClass vcatClass; /* forward ref */
+
+struct vcatClass {
+   vcatCLASS(vcatClass, vcat)
+};
+
+struct vcat {
+   vcatClass *catClass;
+   vchar     *catName; /* name of particular vcat instance */
+};
+
+#define vcatGetClass(cat) ((cat)-&gt;catClass)
+
+</UL></PRE>vcatClass is the actual class used to hold the method bindings. There may be multiple existing classes of this type if a subclass wishes to change the contents of the class without adding any new slots. Object instances contain a pointer to this class.<P>
+To summarize, vcatCLASS illustrates a technique for declaring the space used by the function pointers to the class's behavior. The class is defined by declaring a struct that invokes the vcatCLASS; a type for the object instance is declared by another struct that contains per-instance information.<P>
+<A NAME="31855"><H2> Setting Class Methods</H2></A>
+With the class structured accordingly, you next create the methods and bind them to the class. A possible implementation of the cat methods is shown in <A HREF="Class.html#31862">Example 3</A>.<P>
+<A NAME="31862"><I>Example 3.  Implementation of methods
+</I><P>
+<PRE><UL>static void SampleMeow (vcat *kitty)
+{
+   printf("Meown");
+}
+
+static void SampleSetName (vcat *kitty, vchar *name)
+{
+   kitty-&gt;catName = name;
+} /* SampleSetName */
+
+static vchar* SampleGetName (vcat *kitty)
+{
+   return (kitty-&gt;catName);
+} /* SampleGetName */
+
+</UL></PRE>Note that each method takes a pointer to an instance of the class. The functions are declared as static to prevent possible name space collisions in modules that override these methods.<P>
+The way to create a "cat class" is illustrated in <A HREF="Class.html#31886">Example 4</A>.<P>
+<A NAME="31886"><I>Example 4.  Creating a class
+</I><P>
+<PRE><UL>   vcatClass *aCatClass;
+   // ...
+   /* create an empty class. */
+   aCatClass = vclassSpawn (vclassGetRoot(),
+                            sizeof(vcatClass));
+   vclassSetNameScribed (aCatClass,
+                         vcharScribeLiteral("a kitty class"));
+   vclassSetObjectSize (aCatClass, sizeof(vcat));
+
+</UL></PRE>At this point, aCatClass contains undefined method bindings for the vcatMeow and other methods. The functions can be bound to the class as follows:<P>
+<PRE><UL>vclassSet (aCatClass, vcatMEOW, SampleMeow);
+vclassSet (aCatClass, vcatSET_NAME, SampleSetName);
+vclassSet (aCatClass, vcatGET_NAME, SampleGetName);
+</UL></PRE><A NAME="31908"><H2> Creating Object Instances and Sending Messages</H2></A>
+Now that the class structure is set up, you can create objects that belong to the class, as in <A HREF="Class.html#31915">Example 5</A>.<P>
+<A NAME="31915"><I>Example 5.  Creating a classed object
+</I><P>
+<PRE><UL>   vcat *fluffy;
+
+   fluffy = vclassAlloc(aCatClass);
+   fluffy-&gt;catClass = aCatClass;
+
+</UL></PRE>To send a message:<P>
+<PRE><UL>   vclassSend (vcatGetClass(fluffy), vcatMEOW, (fluffy));
+
+</UL></PRE>This calls the SampleMeow function and outputs "Meow" to stdout. The entire argument list of the message is enclosed in parentheses and passed as the third argument of the <TT><B>vclassSend</B></TT> call.<P>
+You can send a message with additional arguments, as follows:<P>
+<PRE><UL>   vclassSend (vcatGetClass(fluffy), vcatSET_NAME,
+               (fluffy, (vchar*)"Fluffy"));
+
+</UL></PRE>It is often desirable to provide macros that make messages look like function calls:<P>
+<PRE><UL>#define vcatSetName(cat, name) 
+  vclassSend(vcatGetClass(cat), vcatSET_NAME, (cat, name))
+#define vcatGetName(cat) 
+  vclassSend (vcatGetClass(cat), vcatGET_NAME, (cat))
+
+</UL></PRE>This is done throughout the Galaxy API so that all entry points follow a consistent model.<P>
+<A NAME="31938"><H2> Using the Instance Class</H2></A>
+The <EM><B>instance class</B></EM> implements a simple object with initialization and destruction semantics. An instance is an object that can be used for building other object classes that require startup and shutdown semantics, but do not or cannot implement any of the resource storage manipulation semantics provided by the standard vobject class. Objects of the <TT>vinstance</TT> class are lighter weight than objects of the <TT>vobject</TT> class, and are thus suitable for building iterators, type classes, and other light weight objects.<P>
+The instance class inherits from <TT>vclassROOT</TT> and introduces only two methods: an initialization method (<TT>vinstanceINIT</TT>) and a destruction method (<TT>vinstanceDESTROY</TT>). These methods are used to instantiate and remove an object of a given class. Any class that is subclassed off the <TT>vinstance</TT> class (such as the <TT>vobject</TT> class) will inherit these methods.<P>
+The <TT>vclassROOT</TT> class is the base class for all Galaxy classes. The instance class is an abstract class and thus needs to be subclassed from in order to be useful. Refer to the C Version of the "Galaxy Hierarchy Diagram" for a representation of the Galaxy class hierarchy.<P>
+<A NAME="31945"><H2> Using the Core Object Type</H2></A>
+Galaxy provides an object type, <TT>vobject</TT>, and a corresponding class, <TT>vobjectClass</TT>, which inherits from the Instance class, <TT>vinstance</TT>. The object type may be used as a basic framework for manipulating objects in Galaxy. All of the user interface classes provided by Galaxy inherit from this class, and users are encouraged to use it as a basis for their own classes. The Class Manager includes a number of convenience functions and higher-level data types (<TT>vobjectList</TT>, for example) that operate on <TT>vobjects</TT> and their subclasses. The object class contains message definitions for copying (<TT>vobjectCOPY</TT>, <TT>vobjectCOPY_INIT</TT>), resource management (<TT>vobjectLOAD_INIT</TT>, <TT>vobjectSTORE</TT>), and tagging (<TT>vobjectSET_TAG</TT>). The object type inherits the <TT>INIT</TT> and <TT>DESTROY</TT> methods from the instance class (<TT>vinstanceINIT</TT> and <TT>vinstanceDESTROY</TT>), however the object type also defines its own <TT>INIT</TT> and <TT>DESTROY</TT> methods (<TT>vobjectINIT</TT> and <TT>vobjectDESTROY</TT>) which are actually macros that call the <TT>vinstanceINIT</TT> and <TT>vinstanceDESTROY</TT> methods. The object type also contains a pointer to the object's class and a tag reference for identifying the object.<P>
+Classes that inherit from the core object class must include a field of type <TT>vobject</TT> as the first member of their structure type declaration. This ensures that the object's class will be located in the place where the method dispatch mechanism expects to find it. This also makes it possible to cast a pointer to a <TT>vobject</TT> to a pointer to another object type that is based on <TT>vobject</TT>, assuming the real type of the object is known by some other means. Objects based on the type <TT>vobject</TT> should define a macro that retrieves the first member of their structure so that casts will not have to be made in this direction. For example, if it is known that object is actually pointing to an object of type <TT>vwindow</TT>:<P>
+<PRE><UL>   vobject *object; /* already initialized */
+   vwindow *window;
+
+   window = (vwindow*)object;
+   object = vwindowGetObject(window);
+
+</UL></PRE>Since all the Galaxy user interface classes inherit from the core object class, you can call any object function on the base object of a given user interface object. Retrieve the base object with the <TT><B>GetObject</B></TT> function of the appropriate class. <P>
+For example:<P>
+<PRE><UL>   vobjectStore(vwindowGetObject(window), resource);
+
+</UL></PRE>However, Galaxy classes typically provide their own versions of the most common core object entry points. This makes it unnecessary to explicitly fetch the core object of a given user interface object when you want to manipulate it. The following code has exactly the same effect as the previous example:<P>
+<PRE><UL>   vwindowStore(window, resource);
+
+</UL></PRE>To get the core object class, call <TT><B>vobjectGetDefaultClass</B></TT>. Call <TT><B>vclassSpawn</B></TT> on the result of <TT><B>vobjectGetDefaultClass</B></TT> to define a new top-level class. To determine the class of an object's resource representation, call <TT><B>vobjectGetResourceClass</B></TT>.<P>
+To create a dynamic instance/object of a given class, call <TT><B>vobjectCreateOfClass</B></TT>. To initialize a static instance of a given class, call <TT><B>vobjectInitOfClass</B></TT>. You can call this function on any class that inherits from the default object class. Refer to the C Version of the "Galaxy Hierarchy Diagram" for details. For example:<P>
+<PRE><UL>   window = (vwindow*) vobjectCreateOfClass
+               ((vobjectClass*)vwindowGetDefaultClass());
+
+</UL></PRE>has the same effect as:<P>
+<PRE><UL>   window = vwindowCreate();
+
+</UL></PRE>To create a dynamic copy of an object, use <TT><B>vobjectClone</B></TT>. To make a static copy of an object, use <TT><B>vobjectCopyInit</B></TT>. To copy the contents of one existing object into another, use <TT><B>vobjectCopy</B></TT>. <TT><B>vobjectCopy</B></TT> should be called only on objects with identical type declarations.<P>
+To destroy a static or dynamic object, use <TT><B>vobjectDestroy</B></TT>. Use <TT><B>vobjectDestroyLater</B></TT> to destroy an object and still let other functions reference it until the current event is completely handled. This is often useful inside an event handler if the function calling the event handler wants to reference the object after the event handler has returned.<P>
+To write the contents of an object into a resource, use <TT><B>vobjectStore</B></TT>. To read an object's contents from a resource into a static instance, use <TT><B>vobjectLoadInit</B></TT>. To create a new instance from a resource, use <TT><B>vobjectLoad</B></TT>. For example:<P>
+<PRE><UL>   resource = 
+      vresourceMake(myResourceFile,
+                    vnameInternGlobalLiteral("MyResource"));
+   vobjectStore(vwindowGetObject(myWindow), resource);
+   newWindow = (vwindow*)vobjectLoad(resource);
+
+</UL></PRE>To change the tag of an object, use <TT><B>vobjectSetTag</B></TT>. To retrieve the tag, use <TT><B>vobjectGetTag</B></TT>.<P>
+To retrieve the class of an object, use <TT><B>vobjectGetClass</B></TT>. To determine its size in bytes, use <TT><B>vobjectGetSize</B></TT>. To determine if an object belongs to or inherits from a given class, use <TT><B>vobjectIsKindOf</B></TT>. This is the best way to determine if an object is of a given "type." For example, the following code illustrates how a library that operates on generic objects could ensure that a window's title is always the same as its tag:<P>
+<PRE><UL>   if (vobjectIsKindOf(object, vwindowGetDefaultClass()))
+     vwindowSetTitle((vwindow*)object, vobjectGetTag(object));
+
+</UL></PRE><A NAME="31997"><H2> Subclassing the Core Object Type</H2></A>
+You should use <TT>vobject</TT> as the starting point for your own classed object types. If the type structure of a subclass of <TT>vobject</TT> contains additional elements (which is usually the case), then the subclass must override all the initialization methods (<TT>vobjectINIT</TT>, <TT>vobjectCOPY_INIT</TT>, <TT>vobjectLOAD_INIT</TT>) in order to ensure that instances of the class are initialized properly. Only these three methods (which correspond to the entry points <TT><B>vobjectInitOfClass</B></TT>, <TT><B>vobjectCopyInit</B></TT>, and <TT><B>vobjectLoadInit</B></TT>) will receive pointers to uninitialized instances&#175;all other object methods will receive pointers to initialized instances. Additional methods should be overridden if the new attributes should be copied (<TT>vobjectCOPY</TT>), destroyed (<TT>vobjectDESTROY</TT>), or stored in resources (<TT>vobjectSTORE</TT>). It is also important to inform the class of the larger object size with <TT><B>vclassSetObjectSize</B></TT> so that the dynamic instantiation functions will know how much space to allocate for each object.<P>
+Certain object functions are simple combinations of an allocation function and an initialization function. <TT><B>vobjectCreateOfClass</B></TT> calls <TT><B>vclassAlloc</B></TT> to allocate space for a new instance, then calls <TT><B>vobjectInitOfClass</B></TT> to initialize it. <TT><B>vobjectClone</B></TT> calls <TT><B>vclassAlloc</B></TT> to allocate space for a new instance, then calls <TT><B>vobjectCopyInit</B></TT> to initialize it from an existing instance. <TT><B>vobjectLoad</B></TT> calls <TT><B>vclassAlloc</B></TT> to allocate space for a new instance, then calls <TT><B>vobjectLoadInit</B></TT> to initialize it from a resource. These composite functions do not require subclassing themselves&#175;this makes it possible, for example, to add functionality to both <TT><B>vobjectCreateOfClass</B></TT> and <TT><B>vobjectInitOfClass</B></TT> by overriding just <TT>vobjectINIT</TT>. New classes can define simple macros to these functions to get dynamic versions of their entry points "for free."<P>
+<A HREF="Class.html#32030">Table 1</A> illustrates the relationship between static and dynamic object instantiation functions:<P>
+
+<TABLE BORDER="3">
+
+<CAPTION>Dynamic versus static instantiation functions<P>
+</CAPTION>
+
+<tr><th><B>Dynamic Function
+</B></th><th><B>Static Function
+</B></th>
+<tr><td>Create
+</td><td>Init
+</td></tr>
+<tr><td>CreateOfClass
+</td><td>InitOfClass
+</td></tr>
+<tr><td>Clone
+</td><td>CopyInit
+</td></tr>
+<tr><td>Load
+</td><td>LoadInit
+</td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+<A NAME="9598"><H1> The Attributed Object Type</H1></A>
+Attributed objects, like core objects, use the type definition <TT>vobject</TT>, but attributed objects have classes that inherit from <TT>vobjectAttributedClass</TT> in addition to <TT>vobjectClass</TT> (<TT>vobjectAttributedClass</TT> is a subclass of <TT>vobjectClass</TT>). Attributed objects can be manipulated symbolically through the Class Manager and the Command classes rather than through the function entry points provided by the object's. This extra level of abstraction allows the object to be moved around and even replaced entirely by a different kind of object without changing any application code.<P>
+Note that the attributed object entry points are more useful to implementors of new object classes than to users of existing object classes or applications. Applications will interact with attributed objects chiefly through Command class interfaces.<P>
+Attributed objects, by definition, are part of the <EM><B>user interface inheritance hierarchy</B></EM>. This hierarchy is a structure of object instances (as opposed to object classes) that lets user interface objects be scoped like classes. A dialog item, for example, inherits its color attribute from its window if the item does not define its own color attribute. This technique is extended through the use of <EM><B>command spaces</B></EM> to allow arbitrary attribute definitions to be attached to different parts of the inheritance hierarchy. This concept is treated in more depth in the Command chapter.<P>
+Attributed objects can receive messages that result from an object command (a command derived from the result of calling <TT><B>vobjectGetCommandClass</B></TT>) being issued or queried. In these cases, the command is identified by a selector value. A <EM><B>selector</B></EM> is an integer identifier for a command. Command names are mapped to selector values by command dictionaries. The object issue or query method can use the selector value in a switch statement to determine the appropriate response to the command.<P>
+A subset of an attributed object's attributes are <EM><B>named</B></EM>. Named attributes can be accessed symbolically using the attribute binding functions in addition to the standard function entry points. Entry points that manipulate named attributes take the name of the attribute to manipulate as an argument in addition to the particular attributed object. Not all of an attributed object's attributes are named&#175;generally only those that are found to be most useful to Command clients are named. For example, the latter two function calls in the following code sample have the same effect:<P>
+<PRE><UL>   vwindow *window; /* already contains a window */
+   vstr    *title;
+
+   title = vstrCloneScribed(vcharScribeLiteral("A Title"));
+   vwindowSetTitle(window, title);
+
+   vobjectSetAttribute(vwindowGetObject(window),
+                       vnameInternGlobalLiteral("Title"), title);
+
+</UL></PRE>Additionally, the following two function calls both retrieve the title of the window:<P>
+<PRE><UL>   vwindow     *window; /* already contains a window */
+   const vchar *title;
+
+   title = vwindowGetTitle(window);
+   title = vobjectGetAttribute(vwindowGetObject(window),
+                               vnameInternGlobalLiteral("Title"));
+
+</UL></PRE>The attributes of objects in the user interface inheritance hierarchy have bindings in the sense that attribute values can be specified for a given object through the Command classes. Bindings are usually defined with <EM><B>command spaces</B></EM> that are attached to objects in the user interface inheritance hierarchy. The object that defines an attribute binding need not be the object whose attribute is bound&#175;this feature allows many objects to be manipulated at once from a single point in the tree. For example, an application can define "Undo Paste" as the "Title" attribute under the tag "Undo" in a command space attached to a window. From that point forward, all menu items in the window whose tag is "Undo" will have their titles changed to "Undo Paste."<P>
+Use <TT><B>vobjectGetDefaultAttributedClass</B></TT> with <TT><B>vclassSpawn</B></TT> to create a new attributed object class. Use <TT><B>vobjectGetCommandClass</B></TT> with <TT><B>vcommandCreateOfClass</B></TT> or <TT><B>vcommandInitOfClass</B></TT> to create a command that is turned into a message when issued or queried.<P>
+Use <TT><B>UpdateAttribute</B></TT> to change an attribute of an object to its current binding in the user interface inheritance hierarchy. Use <TT><B>UpdateAllAttributes</B></TT> to update all of an object's attributes. These functions are occasionally useful to applications. For example, the following code verifies that a menu's items have the correct state attribute:<P>
+<PRE><UL>   vobjectUpdateAttribute(vwindowGetObject(vmenuGetWindow(menu)),
+                          vname_State);
+
+</UL></PRE>The following code verifies that all the attributes of a menu's items are correct:<P>
+<PRE><UL>   vobjectUpdateAllAttributes
+     (vwindowGetObject(vmenuGetWindow(menu)));
+
+</UL></PRE>To propagate the change of an attribute binding to objects using that binding, use <TT><B>PropagateChange</B></TT>. To propagate a set of attribute bindings, use <TT><B>PropagateChangeDict</B></TT>. To continue a propagation to an object inheriting from a given object, use <TT><B>PropagateChangeDictFromParent</B></TT>. Note that the propagation itself is not enough to define the new attribute value&#175;an appropriate binding must also be made using an attribute dictionary or exported through a query function. Automatic propagation is a feature of the command space manipulation functions (refer to the Command chapter for details). These functions are occasionally useful to applications.<P>
+To request help on a given object, use <TT><B>Help</B></TT>. A help request typically consists of a call to the Galaxy Help Manager, which, in turn, opens a window on the user's display that contains help for the object in question. To print the contents of an object for debugging, use <TT><B>Dump</B></TT>.<P>
+Use <TT><B>SetAttribute</B></TT> to symbolically change an attribute of an object. Use <TT><B>SetAllAttributes</B></TT> to symbolically change a set of object attributes. Use <TT><B>GetAttribute</B></TT> to symbolically retrieve an attribute of an object. Use <TT><B>GetAllAttributes</B></TT> to symbolically retrieve all of an object's attributes. Use <TT><B>GetContextAttributes</B></TT> to retrieve the attributes of an object that are based on its context, as opposed to its contents. Note that these entry points are provided mainly for use by the attributed object infrastructure and for attributed object subclasses, not for applications.<P>
+Use <TT><B>IssueSelector</B></TT> to issue a command by selector to an object. Use <TT><B>QuerySelector</B></TT> to query an object by selector. These functions are provided for use by the object command class and for subclass overrides.<P>
+To issue a command from the scope of a given object, use <TT><B>IssueCommand</B></TT>. Use <TT><B>QueryCommand</B></TT> to query from the scope of a given object. To dispatch a command as an alternate form of notification, use <TT><B>DispatchCommand</B></TT>. These functions are rarely useful to applications.<P>
+To obtain the current binding of an attribute from the scope of a given object in the user interface inheritance hierarchy, use <TT><B>BindAttribute</B></TT>. To obtain all the attribute bindings for a given object, use <TT><B>BindAllAttributes</B></TT>. Parallel versions of these functions (<TT><B>AssociateAttribute</B></TT> and <TT><B>AssociateAllAttributes</B></TT>) are provided that will also query the given attributes if no bindings are available. These functions are provided for use by the Command classes and for subclass overrides.<P>
+<A NAME="9908"><H2> Subclassing the Attributed Object Class</H2></A>
+You should subclass <TT><B>vobjectAttributedClass</B></TT> to create classes for objects that are part of the user interface inheritance hierarchy. Objects that are part of the user interface inheritance hierarchy can be manipulated abstractly with the Command classes. The attributed object class is subclassed like the <TT>vloadable</TT> class, except that additional methods must be overridden by the subclass to implement its specific functionality.<P>
+A subclass of the attributed object class should override the methods <TT>vobjectSET_ATTRIBUTE</TT>, <TT>vobjectSET_ALL_ATTRIBUTES</TT>, <TT>vobjectGET_ATTRIBUTE</TT>, and <TT>vobjectGET_ALL_ATTRIBUTES</TT> if it defines any new attributes that are named, or it names any attributes that are not named in its superclass. Override <TT>vobjectGET_CONTEXT_ATTRIBUTES</TT> if the subclass defines any context attributes that are not defined by its superclass. Override <TT>vobjectUPDATE_ATTRIBUTE</TT>, <TT>vobjectUPDATE_ALL_ATTRIBUTES</TT>, and <TT>vobjectPROPAGATE_CHANGE_DICT</TT> if the object contains references to any child objects that are also part of the user interface inheritance hierarchy. Override <TT>vobjectISSUE_SELECTOR</TT> and <TT>vobjectQUERY_SELECTOR</TT> if the object defines any new command selectors. Override <TT>vobjectBIND_ATTRIBUTE</TT> and <TT>vobjectBIND_ALL_ATTRIBUTES</TT> to connect the object to its parent and to incorporate any instance bindings (such as a command space) into the user interface inheritance hierarchy. Override <TT>vobjectFILTER_CHANGE_DICT</TT> if the object contains any instance command bindings (such as a command space).<P>
+<A NAME="27596"><H2> Sample Code</H2></A>
+Complete source code demonstrating some of the concepts presented in this chapter is available in your Galaxy distribution in the <TT>samples/docsamps</TT> directory.<P>
+<A NAME="27601"><H3> Simple Module Sample Code</H3></A>
+The <TT>moniker</TT> code sample illustrates how to define a subclass of <TT>vobject</TT>. It defines a new type called <TT>vmoniker</TT> that represents an abstract visual tag for an object. A moniker could be attached to a dialog or menu item to indicate how it should be drawn, for example. The <TT>moniker</TT> code also illustrates techniques that are useful for subclassing the user interface object classes (<TT>vdialogItem</TT>, <TT>vmenuItem</TT>, <TT>vwindow</TT>, for example).<P>
+<A NAME="5335"><H3> Attributed Object Sample Code</H3></A>
+The <TT>node</TT> code sample illustrates how to subclass the attributed object type. It defines a new type called "vnode" with a corresponding class "vnodeClass". A vnode is simply a repository for command definitions with a state and title. Each vnode can have a single command space, a single parent node, and any number of child nodes.<P>
+Nodes have a simple inheritance hierarchy that consists of following parent pointers until the top of the tree is reached. Nodes have state and title attributes to show how attributes are set during propagation and updating. To simplify the example, all node attributes are assumed to be shared.<P>
+The <TT>node</TT> example is contrived to completely demonstrate the attributed object interfaces. This example assumes some familiarity with the core object type (<TT>moniker</TT>) example. The <TT>node</TT> example also assumes some familiarity with command spaces. Refer to the Command chapter for more information on command spaces.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Button.html">Previous Chapter</A> | 
+		<A HREF="Client.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

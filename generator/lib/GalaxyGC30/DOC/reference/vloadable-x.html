@@ -1,0 +1,850 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vloadable prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vloadable prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vloadable-x.html#section_DataType">Types</A> [4]</TD>
+<TD><A HREF="vloadable-x.html#section_Function">Functions</A> [35]</TD>
+<TD><A HREF="vloadable-x.html#section_Message">Messages</A> [7]</TD>
+<TD><A HREF="vloadable-x.html#section_Constant">Constants</A> [3]</TD>
+<TD><A HREF="vloadable-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vloadable"><HR><H4>vloadable</H4></A>
+<PRE>
+        typedef ... <B>vloadable</B>;
+</PRE>
+
+<DL><DD>
+Contains the information necessary for base level
+functionality of loading and storing from
+<CODE><A HREF="vresource-x.html#vresource"><CODE>vresource</CODE></A></CODE> objects. This class also 
+provides two initialization options in addition
+to overriding <CODE><A HREF="vinstance-x.html#vinstanceINIT"><CODE>vinstanceINIT</CODE></A></CODE>, namely
+overriding <CODE><A HREF="vloadable-x.html#vloadableCOPY_INIT"><CODE>vloadableCOPY_INIT</CODE></A></CODE>, or overriding
+<CODE><A HREF="vloadable-x.html#vloadableLOAD_INIT"><CODE>vloadableLOAD_INIT</CODE></A></CODE>. The first option 
+initializes the new instance as a copy of an existing instance. 
+The second option initializes the new instance 
+according to the information found in the passed 
+<CODE><A HREF="vresource-x.html#vresource"><CODE>vresource</CODE></A></CODE> object.
+</DD></DL>
+<P>
+<A NAME="vloadableClass"><HR><H4>vloadableClass</H4></A>
+<PRE>
+        typedef ... <B>vloadableClass</B>;
+</PRE>
+
+<DL><DD>
+Describes the behavior of a class of loadable objects.
+</DD></DL>
+<P>
+<A NAME="vloadableDetermineResourceClassFunc"><HR><H4>vloadableDetermineResourceClassFunc</H4></A>
+<PRE>
+        typedef ... <B>vloadableDetermineResourceClassFunc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a function that determines the class of the object stored in
+the specified resource.
+</DD></DL>
+<P>
+<A NAME="vloadableResolveResourceFunc"><HR><H4>vloadableResolveResourceFunc</H4></A>
+<PRE>
+        typedef ... <B>vloadableResolveResourceFunc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a function that resolves a resource reference from a specified
+path string and an optional class pointer.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vloadableClone"><HR><H4>vloadableClone</H4></A>
+<PRE>
+        vloadable * <B>vloadableClone</B>(
+                vloadable * object);
+</PRE>
+
+<DL><DD>
+Creates a new copy of a loadable object.
+<P>
+Space for the object is allocated dynamically based on the object size
+of the object's class. The source object of the clone can be dynamic or
+static. Subclasses based on the loadable object
+class can define a macro to this function for their
+<CODE>Clone</CODE> function. This function essentially
+allocates space for a new instance and calls
+<CODE><A HREF="vloadable-x.html#vloadableCopyInit"><CODE>vloadableCopyInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vloadableCloneOfClass"><HR><H4>vloadableCloneOfClass</H4></A>
+<PRE>
+        vloadable * <B>vloadableCloneOfClass</B>(
+                vloadable * object,
+                vloadableClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new copy of a loadable object, using the specified class
+instead of the source object's class.
+</DD></DL>
+<P>
+<A NAME="vloadableCloneOfSubclass"><HR><H4>vloadableCloneOfSubclass</H4></A>
+<PRE>
+        vloadable * <B>vloadableCloneOfSubclass</B>(
+                vloadable * object,
+                vloadableClass * base);
+</PRE>
+
+<DL><DD>
+Creates a new copy of a loadable object, checking that the source
+object's class is a subclass of the specified base class.
+<P>
+The <CODE><A HREF="vclass-x.html#vclassNotFoundException"><CODE>vclassNotFoundException</CODE></A></CODE> exception is thrown if the
+classes are not compatible.
+</DD></DL>
+<P>
+<A NAME="vloadableCopy"><HR><H4>vloadableCopy</H4></A>
+<PRE>
+        void <B>vloadableCopy</B>(
+                vloadable * object,
+                vloadable * target);
+</PRE>
+
+<DL><DD>
+Copies the attributes from one existing loadable object to another.
+<P>
+The source and target objects must have compatible classes for this
+to work correctly. Subclasses based on the loadable object
+class can define a macro to this function for their
+<CODE>Copy</CODE> function. This function destroys any
+unpreserved objects allocated internally by <SAMP>target</SAMP> but
+<I>not</I> <SAMP>target</SAMP> itself.
+Each subclass decides which internal attributes to clone
+into the new object, which to copy by reference, and which to
+leave in the former state.  This function is implemented
+by sending the message <CODE><A HREF="vloadable-x.html#vloadableCOPY"><CODE>vloadableCOPY</CODE></A></CODE> to the source object.
+</DD></DL>
+<P>
+<A NAME="vloadableCopyCommon"><HR><H4>vloadableCopyCommon</H4></A>
+<PRE>
+        void <B>vloadableCopyCommon</B>(
+                vloadable * object,
+                vloadable * target);
+</PRE>
+
+<DL><DD>
+Copies the contents of an object up through the class that the source
+and target object have in common.
+</DD></DL>
+<P>
+<A NAME="vloadableCopyInit"><HR><H4>vloadableCopyInit</H4></A>
+<PRE>
+        void <B>vloadableCopyInit</B>(
+                vloadable * object,
+                vloadable * target);
+</PRE>
+
+<DL><DD>
+Initializes a loadable object by copying the attributes from an
+existing loadable object.
+<P>
+Subclasses based on the loadable object class can define a
+macro to this function for their <CODE>CopyInit</CODE>
+function. Each subclass decides which internal attributes to clone
+into the new object, which to copy by reference, and which to
+initialize to a default state. This function simply stores the class
+of the source object in the target object and sends the
+message <CODE><A HREF="vloadable-x.html#vloadableCOPY_INIT"><CODE>vloadableCOPY_INIT</CODE></A></CODE>.
+
+</DD></DL>
+<P>
+<A NAME="vloadableCopyInitOfClass"><HR><H4>vloadableCopyInitOfClass</H4></A>
+<PRE>
+        void <B>vloadableCopyInitOfClass</B>(
+                vloadable * object,
+                vloadable * target,
+                vloadableClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a loadable object by copying the attributes from an
+existing loadable object, using the specified class
+instead of the source object's class.
+</DD></DL>
+<P>
+<A NAME="vloadableCopyInitOfSubclass"><HR><H4>vloadableCopyInitOfSubclass</H4></A>
+<PRE>
+        void <B>vloadableCopyInitOfSubclass</B>(
+                vloadable * object,
+                vloadable * target,
+                vloadableClass * base);
+</PRE>
+
+<DL><DD>
+Initializes a loadable object by copying the attributes from an
+existing loadable object, checking that the source
+object's class is a subclass of the specified base class.
+<P>
+The <CODE><A HREF="vclass-x.html#vclassNotFoundException"><CODE>vclassNotFoundException</CODE></A></CODE> exception is thrown if the
+classes are not compatible.
+</DD></DL>
+<P>
+<A NAME="vloadableCreateOfClass"><HR><H4>vloadableCreateOfClass</H4></A>
+<PRE>
+        vloadable * <B>vloadableCreateOfClass</B>(
+                vloadableClass * clas);
+</PRE>
+
+<DL><DD>
+Creates an loadable object of the specified class.
+<P>
+The attributes of the object are set to their default values,
+according to the class. Space for the object is allocated dynamically
+based on the object size of the class. The Class Manager reclaims the
+storage occupied by the object when it is destroyed with
+<CODE><A HREF="vloadable-x.html#vloadableDestroy"><CODE>vloadableDestroy</CODE></A></CODE>. Higher-level interfaces based
+on the core object type can define a macro to this function
+for their <CODE>Create</CODE> function. This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vloadable-x.html#vloadableInitOfClass"><CODE>vloadableInitOfClass</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vloadableDestroy"><HR><H4>vloadableDestroy</H4></A>
+<PRE>
+        void <B>vloadableDestroy</B>(
+                vloadable * object);
+</PRE>
+
+<DL><DD>
+Destroys a loadable object.
+<P>
+The object must have been created or initialized by a vloadable Init
+or Create function.  Subclasses based on the loadable object class can
+define a macro to this function for their <CODE>Destroy</CODE>
+function. This function is implemented by sending the
+message <CODE>vloadableDESTROY</CODE> to the object.
+</DD></DL>
+<P>
+<A NAME="vloadableDump"><HR><H4>vloadableDump</H4></A>
+<PRE>
+        void <B>vloadableDump</B>(
+                vloadable * object,
+                FILE * stream);
+</PRE>
+
+<DL><DD>
+Prints information about a loadable object.
+<P>
+This function is intended for debugging and should not be used
+to store the contents of the object in recoverable form.
+This function has effect only if debugging is enabled. This
+function is implemented by sending the message
+<CODE><A HREF="vloadable-x.html#vloadableDUMP"><CODE>vloadableDUMP</CODE></A></CODE> to the object.
+</DD></DL>
+<P>
+<A NAME="vloadableGetAlias"><HR><H4>vloadableGetAlias</H4></A>
+<PRE>
+        const vchar * <B>vloadableGetAlias</B>(
+                vloadable * object);
+</PRE>
+
+<DL><DD>
+Returns the load alias of an object, if one exists.
+</DD></DL>
+<P>
+<A NAME="vloadableGetClass"><HR><H4>vloadableGetClass</H4></A>
+<PRE>
+        vloadableClass * <B>vloadableGetClass</B>(
+                vloadable * object);
+</PRE>
+
+<DL><DD>
+Returns the class of a loadable object.
+</DD></DL>
+<P>
+<A NAME="vloadableGetDefaultClass"><HR><H4>vloadableGetDefaultClass</H4></A>
+<PRE>
+        vloadableClass * <B>vloadableGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default class of loadable objects.
+</DD></DL>
+<P>
+<A NAME="vloadableGetInstance"><HR><H4>vloadableGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vloadableGetInstance</B>(
+                vloadable * object);
+</PRE>
+
+<DL><DD>
+Returns the loadable object reference as a <A HREF="vinstance-x.html#vinstance"><CODE>vinstance</CODE></A> object reference.
+</DD></DL>
+<P>
+<A NAME="vloadableGetResourceClass"><HR><H4>vloadableGetResourceClass</H4></A>
+<PRE>
+        vloadableClass * <B>vloadableGetResourceClass</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Returns the class stored in the specified resource.
+<P>
+If the resource does not have a class name stored in it, or if the
+class is not registered with the Class Manager, then the
+<CODE><A HREF="vclass-x.html#vclassNotFoundException"><CODE>vclassNotFoundException</CODE></A></CODE> exception is thrown.
+</DD></DL>
+<P>
+<A NAME="vloadableGetResourceSubclass"><HR><H4>vloadableGetResourceSubclass</H4></A>
+<PRE>
+        vloadableClass * <B>vloadableGetResourceSubclass</B>(
+                vresource resource,
+                vloadableClass * base);
+</PRE>
+
+<DL><DD>
+Returns the class stored in the specified resource, checking that it
+is compatible with the specified base class.
+<P>
+If the resource does not have a class name stored in it, then the
+specified base class is returned.  If the stored class name is not a
+subclass of the base class, then the
+<CODE><A HREF="vclass-x.html#vclassNotFoundException"><CODE>vclassNotFoundException</CODE></A></CODE> exception is thrown.
+</DD></DL>
+<P>
+<A NAME="vloadableGetSourceSubclass"><HR><H4>vloadableGetSourceSubclass</H4></A>
+<PRE>
+        vloadableClass * <B>vloadableGetSourceSubclass</B>(
+                vloadable * source,
+                vloadableClass * base);
+</PRE>
+
+<DL><DD>
+Returns the class of the specified object, checking that it
+is compatible with the specified base class.
+<P>
+If the class of the object is not a subclass of the base class, then
+the <CODE><A HREF="vclass-x.html#vclassNotFoundException"><CODE>vclassNotFoundException</CODE></A></CODE> exception is thrown.
+</DD></DL>
+<P>
+<A NAME="vloadableGetTag"><HR><H4>vloadableGetTag</H4></A>
+<PRE>
+        const vname * <B>vloadableGetTag</B>(
+                vloadable * object);
+</PRE>
+
+<DL><DD>
+Returns the tag of a loadable object, or NULL.
+</DD></DL>
+<P>
+<A NAME="vloadableInitOfClass"><HR><H4>vloadableInitOfClass</H4></A>
+<PRE>
+        void <B>vloadableInitOfClass</B>(
+                vloadable * object,
+                vloadableClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a new loadable object of the specified class.
+<P>
+The attributes of the object are set to their default values,
+according to the class. Subclasses based on the loadable object class
+can define a macro to this function for their <CODE>Init</CODE>
+function. This function simply stores the class in the
+class field of the object structure and sends it the
+message <CODE>vloadableINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vloadableIsKindOf"><HR><H4>vloadableIsKindOf</H4></A>
+<PRE>
+        int <B>vloadableIsKindOf</B>(
+                const vloadable * object,
+                const vclass * clas);
+</PRE>
+
+<DL><DD>
+Returns whether the class of the loadable object inherits from the
+base class.
+</DD></DL>
+<P>
+<A NAME="vloadableIsResourceKindOf"><HR><H4>vloadableIsResourceKindOf</H4></A>
+<PRE>
+        int <B>vloadableIsResourceKindOf</B>(
+                vresource resource,
+                vclass * clas);
+</PRE>
+
+<DL><DD>
+Returns whether the class name stored in the specified resource is a
+subclass of the specified base class.
+</DD></DL>
+<P>
+<A NAME="vloadableLoad"><HR><H4>vloadableLoad</H4></A>
+<PRE>
+        vloadable * <B>vloadableLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Loads and returns a new loadable object given a resource.
+<P>
+Space for the object is allocated dynamically based on the object size
+of the object's class. The object's class is determined by the
+value of the tag ``Class'' (<CODE>vname_Class</CODE>). It
+generates a <CODE><A HREF="vclass-x.html#vclassNotFoundException"><CODE>vclassNotFoundException</CODE></A></CODE>
+exception if the name does not denote a class in the Class
+Manager registry. Subclasses based on the loadable object class
+can define a macro to this function for their
+<CODE>Load</CODE> function. This function essentially
+allocates space for a new instance and calls
+<CODE><A HREF="vloadable-x.html#vloadableLoadInit"><CODE>vloadableLoadInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vloadableLoadInit"><HR><H4>vloadableLoadInit</H4></A>
+<PRE>
+        void <B>vloadableLoadInit</B>(
+                vloadable * object,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Initializes a new loadable object given a resource.
+<P>
+The object's class is determined by
+the value of the tag ``Class'' (<CODE>vname_Class</CODE>).
+It generates a <CODE><A HREF="vclass-x.html#vclassNotFoundException"><CODE>vclassNotFoundException</CODE></A></CODE>
+exception if the name does not denote a class in the Class
+Manager registry. Subclasses based on the loadable object class
+can define a macro to this function for their
+<CODE>LoadInit</CODE> function. Attributes might be
+initialized based on the contents of the resource, or they
+might be set to default values, depending on the
+appropriate functionality. This function stores the class
+specified by the resource in the class field of the object
+structure and sends it the message
+<CODE><A HREF="vloadable-x.html#vloadableLOAD_INIT"><CODE>vloadableLOAD_INIT</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vloadableLoadInitOfClass"><HR><H4>vloadableLoadInitOfClass</H4></A>
+<PRE>
+        void <B>vloadableLoadInitOfClass</B>(
+                vloadable * object,
+                vresource resource,
+                vloadableClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a new loadable object given a resource, using the
+specified class instead of the class stored in the resource.
+</DD></DL>
+<P>
+<A NAME="vloadableLoadInitOfSubclass"><HR><H4>vloadableLoadInitOfSubclass</H4></A>
+<PRE>
+        void <B>vloadableLoadInitOfSubclass</B>(
+                vloadable * object,
+                vresource resource,
+                vloadableClass * base);
+</PRE>
+
+<DL><DD>
+Initializes a new loadable object given a resource, checking
+that the class stored in the resource is a subclass of the specified
+base class.
+<P>
+The <CODE><A HREF="vclass-x.html#vclassNotFoundException"><CODE>vclassNotFoundException</CODE></A></CODE> exception is thrown if the
+classes are not compatible.
+</DD></DL>
+<P>
+<A NAME="vloadableLoadOfClass"><HR><H4>vloadableLoadOfClass</H4></A>
+<PRE>
+        vloadable * <B>vloadableLoadOfClass</B>(
+                vresource resource,
+                vloadableClass * clas);
+</PRE>
+
+<DL><DD>
+Loads and returns a new loadable object given a resource, using the
+specified class instead of the class stored in the resource.
+</DD></DL>
+<P>
+<A NAME="vloadableLoadOfSubclass"><HR><H4>vloadableLoadOfSubclass</H4></A>
+<PRE>
+        vloadable * <B>vloadableLoadOfSubclass</B>(
+                vresource resource,
+                vloadableClass * base);
+</PRE>
+
+<DL><DD>
+Loads and returns a new loadable object given a resource, checking
+that the class stored in the resource is a subclass of the specified
+base class.
+<P>
+The <CODE><A HREF="vclass-x.html#vclassNotFoundException"><CODE>vclassNotFoundException</CODE></A></CODE> exception is thrown if the
+classes are not compatible.
+</DD></DL>
+<P>
+<A NAME="vloadableSetAlias"><HR><H4>vloadableSetAlias</H4></A>
+<PRE>
+        void <B>vloadableSetAlias</B>(
+                vloadable * object,
+                const vchar * alias);
+</PRE>
+
+<DL><DD>
+Sets the load alias of an object. This attribute is not supported in
+full in the current version of Galaxy.
+</DD></DL>
+<P>
+<A NAME="vloadableSetAliasScribed"><HR><H4>vloadableSetAliasScribed</H4></A>
+<PRE>
+        void <B>vloadableSetAliasScribed</B>(
+                vloadable * object,
+                vscribe * alias);
+</PRE>
+
+<DL><DD>
+Sets the load alias of an object given a scribe. This attribute is
+not supported in full in the current version of Galaxy.
+</DD></DL>
+<P>
+<A NAME="vloadableSetResolveResourceFunc"><HR><H4>vloadableSetResolveResourceFunc</H4></A>
+<PRE>
+        void <B>vloadableSetResolveResourceFunc</B>(
+                vloadableResolveResourceFunc func);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vloadableSetTag"><HR><H4>vloadableSetTag</H4></A>
+<PRE>
+        void <B>vloadableSetTag</B>(
+                vloadable * object,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Sets the tag of a loadable object.
+<P>
+The tag must be <SAMP>NULL</SAMP>, or a global name obtained from the
+Name Manager. An object's tag is useful for retrieving the
+object by name from higher-level structures (for example,
+for identifying a particular dialog item in a dialog). This
+function is implemented by sending the message
+<CODE><A HREF="vloadable-x.html#vloadableSET_TAG"><CODE>vloadableSET_TAG</CODE></A></CODE> to the object.
+</DD></DL>
+<P>
+<A NAME="vloadableStartup"><HR><H4>vloadableStartup</H4></A>
+<PRE>
+        void <B>vloadableStartup</B>();
+</PRE>
+
+<DL><DD>
+Starts up all of the classes and global information in the vloadable module.
+</DD></DL>
+<P>
+<A NAME="vloadableStore"><HR><H4>vloadableStore</H4></A>
+<PRE>
+        void <B>vloadableStore</B>(
+                vloadable * object,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Stores the attributes of an loadable object into a resource.
+<P>
+It generates a <CODE><A HREF="vclass-x.html#vclassUnnamedException"><CODE>vclassUnnamedException</CODE></A></CODE> exception if the
+object's class is not named. Subclasses based on the loadable
+object class can define a macro to this function for their
+<CODE>Store</CODE> function. This function is implemented
+by sending the message <CODE><A HREF="vloadable-x.html#vloadableSTORE"><CODE>vloadableSTORE</CODE></A></CODE> to the object.
+    <P>
+To make an object into a resource, first call
+<CODE><A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A></CODE> to create an untyped resource in
+the desired location, then call <CODE>vloadableStore</CODE>
+to write the object into the resource. For example:
+    <P>
+<BLOCKQUOTE>
+
+<PRE>
+
+vloadable *loadable;    /* contains an object */
+<A HREF="vresource-x.html#vresource"><CODE>vresource</CODE></A> fileResource, loadableResource;
+fileResource   = <A HREF="vresource-x.html#vresourceOpenFile"><CODE>vresourceOpenFile</CODE></A>( ... );
+loadableResource = <A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A>(fileResource, 
+                               <A HREF="vname-x.html#vnameInternGlobalLiteral"><CODE>vnameInternGlobalLiteral</CODE></A>("MyObject"));
+vloadableStore(loadable, loadableResource);
+<A HREF="vresource-x.html#vresourceCloseFile"><CODE>vresourceCloseFile</CODE></A>(fileResource);
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vloadableTestGetResourceClass"><HR><H4>vloadableTestGetResourceClass</H4></A>
+<PRE>
+        vloadableClass * <B>vloadableTestGetResourceClass</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Returns the class stored in the specified resource, or NULL.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vloadableCOPY"><HR><H4>vloadableCOPY</H4></A>
+<PRE>
+        &lt;<B>vloadableCOPY</B>&gt;
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vloadableCOPY_INIT"><HR><H4>vloadableCOPY_INIT</H4></A>
+<PRE>
+        &lt;<B>vloadableCOPY_INIT</B>&gt;
+</PRE>
+
+<DL><DD>
+Copies the contents of the object <SAMP>object</SAMP> into
+the uninitialized memory addressed by <SAMP>target</SAMP>.
+The class of <SAMP>target</SAMP> must be set to the class
+of <SAMP>object</SAMP>; call <CODE><A HREF="vloadable-x.html#vloadableCopyInit"><CODE>vloadableCopyInit</CODE></A></CODE>
+to set the class pointer of the target object and
+initialize it from the source object at once. All objects
+allocated internally by <SAMP>object</SAMP> are cloned and
+stored in <SAMP>target</SAMP>.
+    <P>
+The default method for the core object class copies a
+reference to the object's tag into the target memory.
+Subclasses that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to copy the core object, then
+copy each attribute of the source object into the target
+memory. Internal objects that cannot be shared must be
+copied also.
+</DD></DL>
+<P>
+<A NAME="vloadableDUMP"><HR><H4>vloadableDUMP</H4></A>
+<PRE>
+        &lt;<B>vloadableDUMP</B>&gt;
+</PRE>
+
+<DL><DD>
+Prints the contents of the object <SAMP>object</SAMP> on
+the file <SAMP>stream</SAMP> in user-readable form.
+    <P>
+The default method for the core object class prints the
+object's class and tag. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+print the contents of their core object, then print any
+subclass-specific attributes on the file stream. The
+function entry point <CODE><A HREF="vloadable-x.html#vloadableDump"><CODE>vloadableDump</CODE></A></CODE> is
+implemented by sending this message to the object.
+</DD></DL>
+<P>
+<A NAME="vloadableLOAD_INIT"><HR><H4>vloadableLOAD_INIT</H4></A>
+<PRE>
+        &lt;<B>vloadableLOAD_INIT</B>&gt;
+</PRE>
+
+<DL><DD>
+Reads an object from the resource <SAMP>resource</SAMP> and
+stores it in the uninitialized memory addressed by
+<SAMP>object</SAMP>. The class of <SAMP>object</SAMP> must
+be set to the class specified by the resource; call
+<CODE><A HREF="vloadable-x.html#vloadableLoadInit"><CODE>vloadableLoadInit</CODE></A></CODE> to set the class pointer of an
+object from a resource and load it at once.
+    <P>
+The default method for the core object class simply reads
+the object's tag from the resource and stores it in the
+object structure. Subclasses that override this method
+should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to load the
+core object, then initialize each subclass-defined
+attribute of the object. Attributes might be initialized
+based on the contents of the resource, or they might be set
+to default values, depending on the desired functionality.
+</DD></DL>
+<P>
+<A NAME="vloadableSET_ALIAS_SCRIBED"><HR><H4>vloadableSET_ALIAS_SCRIBED</H4></A>
+<PRE>
+        &lt;<B>vloadableSET_ALIAS_SCRIBED</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the load alias of an object. This attribute is not supported in
+full in the current version of Galaxy.
+</DD></DL>
+<P>
+<A NAME="vloadableSET_TAG"><HR><H4>vloadableSET_TAG</H4></A>
+<PRE>
+        &lt;<B>vloadableSET_TAG</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the tag of the object <SAMP>object</SAMP> to
+<SAMP>tag</SAMP>. <SAMP>tag</SAMP> must be
+<SAMP>NULL</SAMP> or a global name obtained from the Name
+Manager. The function entry point
+<CODE><A HREF="vloadable-x.html#vloadableSetTag"><CODE>vloadableSetTag</CODE></A></CODE> is implemented by sending this
+message to the object.
+    <P>
+The default method for the core object class simply stores
+the new tag in the object structure. Subclasses that
+override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to store the new tag, then
+make any necessary internal state changes.
+</DD></DL>
+<P>
+<A NAME="vloadableSTORE"><HR><H4>vloadableSTORE</H4></A>
+<PRE>
+        &lt;<B>vloadableSTORE</B>&gt;
+</PRE>
+
+<DL><DD>
+Writes the contents of the object <SAMP>object</SAMP> into
+the resource <SAMP>resource</SAMP>. The function entry
+point <CODE><A HREF="vloadable-x.html#vloadableStore"><CODE>vloadableStore</CODE></A></CODE> is implemented by sending
+this message to the object.
+    <P>
+The default method for the core object class stores the
+class name and the object tag (if any) in the resource.
+Subclasses that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to store the contents of the
+core object, then store each persistent attribute of the
+object in the resource dictionary.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vloadableHEADER"><HR><H4>vloadableHEADER</H4></A>
+<PRE>
+        <B>vloadableHEADER</B>
+</PRE>
+
+<DL><DD>
+The name of the header file for the vloadable module.
+</DD></DL>
+<P>
+<A NAME="vloadableINCLUDED"><HR><H4>vloadableINCLUDED</H4></A>
+<PRE>
+        <B>vloadableINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file \Code{vloadable.h} is included.
+</DD></DL>
+<P>
+<A NAME="vloadableMAX_ALIAS_CHAIN"><HR><H4>vloadableMAX_ALIAS_CHAIN</H4></A>
+<PRE>
+        <B>vloadableMAX_ALIAS_CHAIN</B>
+</PRE>
+
+<DL><DD>
+The maximum number of times that resource aliases will be followed
+during object loading.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vloadableCLASS"><HR><H4>vloadableCLASS</H4></A>
+<PRE>
+        #define <B>vloadableCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for the base loadable class.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

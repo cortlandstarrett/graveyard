@@ -1,0 +1,172 @@
+#!/bin/sh
+#==========================================================================
+#
+# File:      $RCSfile: install_private,v $
+# Version:   $Revision: 1.9 $
+# Modified:  $Date: 2013/01/10 23:42:54 $
+#
+# (c) Copyright 1992-2013 by Mentor Graphics Corp. All rights reserved.
+#
+#==========================================================================
+# This document contains information proprietary and confidential to
+# Mentor Graphics Corp., and is not for external distribution.
+#==========================================================================
+#
+
+set -e
+set -u
+
+if [ $# -lt 2 ]; then
+  echo "Usage:
+   `basename $0` <platform> <version> <key_or_date> <bp_install_dir>
+"
+  exit 2
+fi
+
+PLATFORM=$1
+export PLATFORM
+VERSION=$2
+export VERSION
+ds="_$3"
+install_dir=$4
+shift
+shift
+shift
+shift
+
+# Include file with customizable build information
+this_path=`dirname $0`
+if [ "$this_path" = "." ]; then
+  this_path="`pwd`"
+fi
+
+# Go up a directory level.  This script is platform-dependent
+this_path=`dirname $this_path`
+
+HOST_INFO_INCLUDE=$this_path/get_host_platform.inc
+. $HOST_INFO_INCLUDE
+
+BUILD_INCLUDE=$this_path/build_vars.inc
+. $BUILD_INCLUDE
+
+exesuf=".exe"
+libsuf=".dll"
+client_bin=$install_dir\\$PLATFORM\\client\\bin
+client_lib=$install_dir\\$PLATFORM\\client\\lib
+client_core=$install_dir\\$PLATFORM\\client\\client_core
+repository_bin=$install_dir\\repository_bin
+if [ ! -d $client_bin ]; then
+  echo "Could not locate BP client bin directory:
+   $client_bin"
+  exit 1
+fi
+
+dbserver_bin=$install_dir\\$PLATFORM\\dbserver\\bin
+if [ ! -d $dbserver_bin ]; then
+  echo "Could not locate BP dbserver bin directory:
+   $dbserver_bin"
+  exit 1
+fi
+
+set -x
+cd $client_bin
+for file in analyst gen_file gen_import sim_ooa ptgetenv ptgetshe
+  do
+  source=$file$ds$exesuf
+  dest=$file$exesuf
+  if [ -f $BUILD_DIR\\$source ]; then
+    rm -f .\\$dest
+    cp -p $BUILD_DIR\\$source .\\$dest
+    ls -al .\\$dest
+  fi
+  done
+
+cd $client_bin
+for schema in ooa sim gen
+  do
+  schema_file=$schema.app_schema
+  if [ -f $SCHEMA_DIR\\$schema_file$ds ]; then
+    rm -f $schema_file
+    cp -p $SCHEMA_DIR\\$schema_file$ds $schema_file
+    ls -al $schema_file
+  fi
+  done
+
+exes="pt_ver_data_get \
+pt_ver_info_get \
+pt_ver_num_highest_get \
+pt_get_latest \
+pt_get_ver_data \
+pt_get_ver_info \
+pt_get_branches \
+pt_get_versions \
+pt_un_check_out"
+
+cd $repository_bin
+for file in $exes
+  do
+  source=$file$ds$exesuf
+  dest=$file$exesuf
+  if [ -f $BUILD_DIR\\$source ]; then
+    rm -f .\\$dest
+    cp -p $BUILD_DIR\\$source .\\$dest
+    ls -al .\\$dest
+  fi
+  done
+
+loc_node="`hostname`:"
+
+cd $client_bin
+if [ -f analyst$exesuf ]; then
+  $dbserver_bin\\ossetasp .\\analyst$exesuf $client_bin\\ooa.app_schema
+  $dbserver_bin\\ossetasp -p .\\analyst$exesuf
+fi
+
+if [ -f sim_ooa$exesuf ]; then
+  $dbserver_bin\\ossetasp .\\sim_ooa$exesuf $client_bin\\sim.app_schema
+  $dbserver_bin\\ossetasp -p .\\sim_ooa$exesuf
+fi
+
+if [ -f gen_file$exesuf ]; then
+  $dbserver_bin\\ossetasp .\\gen_file$exesuf $client_bin\\gen.app_schema
+  $dbserver_bin\\ossetasp -p .\\gen_file$exesuf
+fi
+
+if [ -f gen_import$exesuf ]; then
+  $dbserver_bin\\ossetasp .\\gen_import$exesuf $client_bin\\gen.app_schema
+  $dbserver_bin\\ossetasp -p .\\gen_import$exesuf
+fi
+
+cd $client_core
+for vr in analyst sim_ooa
+  do
+  source=${vr}$ds.vr
+  dest=$vr.vr
+  if [ -f $BUILD_DIR\\$source ]; then
+    rm -f $dest
+    cp -p $BUILD_DIR\\$source $dest
+    ls -al $dest
+  fi
+  done
+
+cd $client_lib
+for lib in libREPB libTRANS
+  do
+  for suf in $libsuf .def .lib
+    do
+    source=${lib}$ds$suf
+    dest=$lib$suf
+    if [ -f $BUILD_DIR\\$source ]; then
+      rm -f $dest
+      cp -p $BUILD_DIR\\$source $dest
+      ls -al $dest
+    fi
+    done
+  done
+
+cd $dbserver_bin
+$dbserver_bin\\ossetasp .\\o6_coll1.dll $dbserver_bin\\os_coll.adb
+$dbserver_bin\\ossetasp .\\o6alloc.dll $dbserver_bin\\os_alloc.adb
+$dbserver_bin\\ossetasp .\\o6cmpct1.dll $dbserver_bin\\oscmpct.adb
+$dbserver_bin\\ossetasp .\\o6query1.dll $dbserver_bin\\osquery.adb
+$dbserver_bin\\ossetasp .\\o6sevol1.dll $dbserver_bin\\ossevol.adb

@@ -1,0 +1,694 @@
+<<
+/*========================================================================
+ *
+ * File:      $RCSfile: parser.dlg,v $
+ * Version:   $Revision: 1.9 $
+ * Modified:  $Date: 2013/01/10 23:41:22 $
+ *
+ * (c) Copyright 1992-2013 by Mentor Graphics Corp. All rights reserved.
+ *
+ *========================================================================
+ * This document contains information proprietary and confidential to
+ * Mentor Graphics Corp., and is not for external distribution.
+ *======================================================================== 
+ */
+/* parser.dlg -- DLG Description of scanner
+ *
+ * Generated from: al.g
+ *
+ * Terence Parr, Will Cohen, and Hank Dietz: 1989-1999
+ * Purdue University Electrical Engineering
+ * With AHPCRC, University of Minnesota
+ * ANTLR Version 1.33MR20
+ */
+
+#define ANTLR_VERSION	13320
+#include "tokens.h"
+#include "AToken.h"
+#include "ASTBase.h"
+
+#include "p_types.hh"
+#include "myAST.h"
+#include "p_symtbl.hh"
+#include "p_msgs.hh"
+#include "p_error.hh"
+#include "p_check.hh"
+#include "p_ckbase.hh"
+#include "p_tthred.hh"
+#include "d_typdef.hh"
+#include "u_desc.hh"
+#include <stdio.h>
+>>
+
+<<%%parserclass P>>
+
+<<%%lexprefix
+
+#include "p_error.hh"
+#include "P.h"
+#include "vchar.h"
+>>
+
+<<%%lexmember
+
+void errstd(const char *s)
+{
+	if ( s )
+	{
+		((P*)parser)->er->stmt_error( _line, _begcol, _endcol, 
+		"Near line %d col %d (err354): %S (skipping text '%S')\n",
+		_line, _begcol, vcharScribeASCII(s), vcharScribeASCII(_lextext) );
+	}
+	else
+	{
+	((P*)parser)->er->stmt_error( _line, _begcol, _endcol, 
+	"Near line %d col %d (err355): Lexical error (skipping text '%S')\n",
+	_line, _begcol, vcharScribeASCII(_lextext) );
+}
+}
+
+void panic ( const char *msg )
+{
+throw msg;
+}
+>>
+
+
+%%START
+
+@
+	<<
+		replchar('\0');   
+		return Eof;
+	>>
+
+[aA]cross       | ACROSS
+	<<
+		return TOK_ACROSS;
+	>>
+
+[aA]ny          | ANY
+	<<
+		return TOK_ANY;
+	>>
+
+[aA]ssigner     | ASSIGNER
+	<<
+		return TOK_ASSIGNER;
+	>>
+
+[aA]ssign       | ASSIGN
+	<<
+		return TOK_ASSIGN;
+	>>
+
+[bB]reak        | BREAK
+	<<
+		return TOK_BREAKTOKEN;
+	>>
+
+[bB]y           | BY
+	<<
+		return TOK_BY;
+	>>
+
+[cC]lass        | CLASS
+	<<
+		return TOK_CLASS;
+	>>
+
+[cC]ontinue     | CONTINUE
+	<<
+		return TOK_CONTINUE;
+	>>
+
+[cC]ontrol      | CONTROL
+	<<
+		return TOK_CONTROL;
+	>>
+
+[cC]reate       | CREATE
+	<<
+		return TOK_CREATE;
+	>>
+
+[cC]reator      | CREATOR
+	<<
+		return TOK_CREATOR;
+	>>
+
+[dD]elete       | DELETE
+	<<
+		return TOK_DELETE;
+	>>
+
+[eE]ach         | EACH
+	<<
+		return TOK_EACH;
+	>>
+
+[eE]nd          | END
+	<<
+		return TOK_END;
+	>>
+
+[eE]vent        | EVENT
+	<<
+		return TOK_EVENT;
+	>>
+
+[fF]or          | FOR
+	<<
+		return TOK_FOR;
+	>>
+
+[fF]rom         | FROM
+	<<
+		return TOK_FROM;
+	>>
+
+[gG]enerate     | GENERATE
+	<<
+		return TOK_GENERATE;
+	>>
+
+[iI]n           | IN
+	<<
+		return TOK_IN;
+	>>
+
+[iI]nstances    | INSTANCES
+	<<
+		return TOK_INSTANCES;
+	>>
+
+[iI]nstance     | INSTANCE
+	<<
+		return TOK_INSTANCE;
+	>>
+
+[mM]any         | MANY
+	<<
+		return TOK_MANY;
+	>>
+
+[oO]bject       | OBJECT
+	<<
+		return TOK_OBJECT;
+	>>
+
+[oO]f           | OF
+	<<
+		return TOK_OF;
+	>>
+
+[oO]ne          | ONE
+	<<
+		return TOK_ONE;
+	>>
+
+[rR]elated      | RELATED
+	<<
+		return TOK_RELATED;
+	>>
+
+[rR]elate       | RELATE
+	<<
+		return TOK_RELATE;
+	>>
+
+[sS]elect       | SELECT
+	<<
+		return TOK_SELECT;
+	>>
+
+[sS]top         | STOP
+	<<
+		return TOK_STOP;
+	>>
+
+[tT]o           | TO
+	<<
+		return TOK_TO;
+	>>
+
+[wW]here        | WHERE
+	<<
+		return TOK_WHERE;
+	>>
+
+[uU]nrelate     | UNRELATE
+	<<
+		return TOK_UNRELATE;
+	>>
+
+[uU]sing        | USING
+	<<
+		return TOK_USING;
+	>>
+
+[bB]ridge       | BRIDGE
+	<<
+		return TOK_BRIDGE;
+	>>
+
+[cC]ardinality  | CARDINALITY
+	<<
+		return TOK_CARDINALITY;
+	>>
+
+[eE]mpty        | EMPTY
+	<<
+		return TOK_EMPTY;
+	>>
+
+[fF]alse        | FALSE
+	<<
+		return TOK_FALSETOKEN;
+	>>
+
+[nN]ot          | NOT
+	<<
+		return TOK_NOT;
+	>>
+
+[nN]ot_[eE]mpty | NOT_EMPTY
+	<<
+		return TOK_NOTEMPTY;
+	>>
+
+[tT]ransform    | TRANSFORM
+	<<
+		return TOK_TRANSFORM;
+	>>
+
+[tT]rue         | TRUE
+	<<
+		return TOK_TRUETOKEN;
+	>>
+
+[pP]aram        | PARAM
+	<<
+		return TOK_PARAM;
+	>>
+
+[rR]cvd_[eE]vt  | RCVD_EVT
+	<<
+		return TOK_RCVD_EVT;
+	>>
+
+[sS]elected     | SELECTED
+	<<
+		return TOK_SELECTED;
+	>>
+
+[sS]elf         | SELF
+	<<
+		return TOK_SELF;
+	>>
+
+[aA]nd          | AND
+	<<
+		return TOK_AND;
+	>>
+
+[eE]lif         | ELIF
+	<<
+		return TOK_ELIF;
+	>>
+
+[eE]lse         | ELSE
+	<<
+		return TOK_ELSE;
+	>>
+
+[iI]f           | IF
+	<<
+		return TOK_IF;
+	>>
+
+[oO]r           | OR
+	<<
+		return TOK_OR;
+	>>
+
+[rR]eturn       | RETURN
+	<<
+		return TOK_RETURN;
+	>>
+
+[wW]hile        | WHILE
+	<<
+		return TOK_WHILE;
+	>>
+
+_[dD]ebug       | _DEBUG
+	<<
+		return TOK_DEBUG;
+	>>
+
+_[oO]n          | _ON
+	<<
+		return TOK_ON;
+	>>
+
+_[oO]ff         | _OFF
+	<<
+		return TOK_OFF;
+	>>
+
+_[tT]race       | _TRACE
+	<<
+		return TOK_TRACE;
+	>>
+
+_[sS]tat        | _STAT
+	<<
+		return TOK_STAT;
+	>>
+
+_[dD]ump        | _DUMP
+	<<
+		return TOK_DUMP;
+	>>
+
+_[sS]or         | _SOR
+	<<
+		return TOK_SOR;
+	>>
+
+\->
+	<<
+		return TOK_ARROW;
+	>>
+
+,
+	<<
+		return TOK_COMMA;
+	>>
+
+:
+	<<
+		return TOK_COLON;
+	>>
+
+\/
+	<<
+		return TOK_DIV;
+	>>
+
+\.
+	<<
+		return TOK_DOT;
+	>>
+
+::
+	<<
+		return TOK_DOUBLECOLON;
+	>>
+
+==
+	<<
+		return TOK_DOUBLEEQUAL;
+	>>
+
+=
+	<<
+		return TOK_EQUAL;
+	>>
+
+>=
+	<<
+		return TOK_GE;
+	>>
+
+>
+	<<
+		return TOK_GT;
+	>>
+
+<=
+	<<
+		return TOK_LE;
+	>>
+
+<
+	<<
+		return TOK_LESSTHAN;
+	>>
+
+\(
+	<<
+		return TOK_LPAREN;
+	>>
+
+\[
+	<<
+		return TOK_LSQBR;
+	>>
+
+\-
+	<<
+		return TOK_MINUS;
+	>>
+
+%
+	<<
+		return TOK_MOD;
+	>>
+
+\!=
+	<<
+		return TOK_NOTEQUAL;
+	>>
+
+\+
+	<<
+		return TOK_PLUS;
+	>>
+
+\)
+	<<
+		return TOK_RPAREN;
+	>>
+
+\]
+	<<
+		return TOK_RSQBR;
+	>>
+
+;
+	<<
+		return TOK_SEMI;
+	>>
+
+\*
+	<<
+		return TOK_TIMES;
+	>>
+
+?
+	<<
+		return TOK_QMARK;
+	>>
+
+'
+	<<
+		more();
+		mode(TICKED_PHRASE);
+		return TOK_TICK;
+	>>
+
+\"
+	<<
+		mode(QUOTED_STRING);   
+		return TOK_QUOTE;
+	>>
+
+( ([0-9]*.[0-9]+) | ([0-9]+.) ) {[eE] {[\-\+]} [0-9]+} {[FfLl]}
+	<<
+		return TOK_FRACTION;
+	>>
+
+// ~[\n\r@]*
+	<<
+		skip();   
+		return TOK_COMMENT;
+	>>
+
+/\*
+	<<
+		skip();
+		mode(C_COMMENT);
+		return TOK_C_COMMENT;
+	>>
+
+[\ \t]+
+	<<
+		skip();   
+		return (ANTLRTokenType)177;
+	>>
+
+\n|\r|\r\n
+	<<
+		skip();
+		newline();
+		ColToken::update_offset(endcol());
+		set_endcol(0);
+		return (ANTLRTokenType)178;
+	>>
+
+[rR][0-9]+
+	<<
+		return TOK_RELID;
+	>>
+
+[_a-zA-Z\@][_a-zA-Z\@0-9]*
+	<<
+		return TOK_ID;
+	>>
+
+[_a-zA-Z\@#][_a-zA-Z\@0-9#]*
+	<<
+		return TOK_GENERAL_NAME;
+	>>
+
+[0-9]+[_a-zA-Z\@][_a-zA-Z\@0-9]*
+	<<
+		return TOK_BAD_ID;
+	>>
+
+[0-9]+[_a-zA-Z\@#][_a-zA-Z\@0-9#]*
+	<<
+		return TOK_BAD_NAME;
+	>>
+
+[0-9]+
+	<<
+		return TOK_NUMBER;
+	>>
+
+..*
+	<<
+		return TOK_GARBAGE;
+	>>
+
+
+%%TICKED_PHRASE
+
+@
+	<<
+		return Eof;
+	>>
+
+@@
+	<<
+		replchar('\0'); mode(START);   
+		return TOK_BADPHRASE_EOF;
+	>>
+
+~['\n\r@]
+	<<
+		more();   
+		return (ANTLRTokenType)3;
+	>>
+
+'
+	<<
+		mode(START);   
+		return TOK_PHRASE;
+	>>
+
+\n|\r|\r\n
+	<<
+		replchar('\'');
+		ColToken::update_offset(endcol());
+		newline();
+		set_endcol(0);
+		mode(START);
+		return TOK_BADPHRASE_NL;
+	>>
+
+
+%%QUOTED_STRING
+
+@
+	<<
+		return Eof;
+	>>
+
+@@@
+	<<
+		replchar('\0'); mode(START);   
+		return TOK_BADSTRING_EOF;
+	>>
+
+\"\"
+	<<
+		more();   
+		return (ANTLRTokenType)7;
+	>>
+
+~[\"\n\r@]
+	<<
+		more();   
+		return (ANTLRTokenType)8;
+	>>
+
+\"
+	<<
+		replchar('\0');
+		mode(START);
+		return TOK_STRING;
+	>>
+
+\n|\r|\r\n
+	<<
+		replchar('\0');
+		ColToken::update_offset(endcol());
+		newline();
+		set_endcol(0);
+		mode(START);
+		return TOK_BADSTRING_NL;
+	>>
+
+
+%%C_COMMENT
+
+@
+	<<
+		return Eof;
+	>>
+
+@@@@
+	<<
+		replchar('\0');
+		mode(START);
+		return TOK_MISSING_ASTSL;
+	>>
+
+\*/
+	<<
+		replchar('\0');
+		skip();
+		mode(START);
+		return (ANTLRTokenType)12;
+	>>
+
+\n|\r|\r\n
+	<<
+		replchar('\0');
+		ColToken::update_offset(endcol());
+		newline();
+		set_endcol(0);
+		skip();
+		return (ANTLRTokenType)13;
+	>>
+
+~[]
+	<<
+		skip();   
+		return (ANTLRTokenType)14;
+	>>
+
+%%

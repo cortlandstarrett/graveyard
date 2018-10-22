@@ -1,0 +1,715 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vstr prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vstr prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vstr-x.html#section_DataType">Types</A> [1]</TD>
+<TD><A HREF="vstr-x.html#section_Function">Functions</A> [17]</TD>
+<TD></TD>
+<TD><A HREF="vstr-x.html#section_Constant">Constants</A> [1]</TD>
+<TD></TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vstr"><HR><H4>vstr</H4></A>
+<PRE>
+        typedef ... <B>vstr</B>;
+</PRE>
+
+<DL><DD>
+Dynamic string object.  Because of the way this type is
+implemented, a <SAMP>vstr *</SAMP> is equivalent (in both
+type and value) to a <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A> *</SAMP> to the first
+character in the <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> array inside the
+<SAMP>vstr</SAMP> object.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vstrAppend"><HR><H4>vstrAppend</H4></A>
+<PRE>
+        vstr * <B>vstrAppend</B>(
+                vstr * string,
+                const vchar * appendString);
+</PRE>
+
+<DL><DD>
+Modifies <SAMP>string</SAMP> by appending
+<SAMP>appendString</SAMP> onto the end of the
+null-terminated contents of <SAMP>string</SAMP>. The size
+of <SAMP>string</SAMP> is increased if necessary to
+accommodate the new contents. The modified string is
+returned. The string may have been reallocated, so it may
+be in a different memory location from the old
+<SAMP>dest</SAMP>.
+    <P>
+The string to be concatenated is specified by a
+null-terminated string.
+    <P>
+Use this function when you need to concatenate a single
+string to the null-terminated contents of a
+<SAMP>vstr</SAMP>.
+    <P>
+Note that each call to <CODE>vstrAppend</CODE> will have to
+scan the <SAMP>vstr</SAMP> to find the end of the string
+that is stored there. Use <CODE><A HREF="vstr-x.html#vstrConcatenate"><CODE>vstrConcatenate</CODE></A></CODE> if
+you know the length of the string is the same as the
+allocated size of the <SAMP>vstr</SAMP> to avoid this
+scanning.
+</DD></DL>
+<P>
+<A NAME="vstrAppendScribed"><HR><H4>vstrAppendScribed</H4></A>
+<PRE>
+        vstr * <B>vstrAppendScribed</B>(
+                vstr * string,
+                vscribe * appendString);
+</PRE>
+
+<DL><DD>
+Modifies <SAMP>string</SAMP> by appending the specified
+scribe (<SAMP>appendString</SAMP>) onto the end of the
+null-terminated contents of <SAMP>string</SAMP>. The size
+of <SAMP>string</SAMP> is increased if necessary to
+accommodate the new contents. The modified string is
+returned. The string may have been reallocated, so it may
+be in a different memory location from the old
+<SAMP>dest</SAMP>.
+    <P>
+The string to be concatenated is specified by a scribe. The
+scribe passed to this function is automatically destroyed
+after it is used.
+    <P>
+Use this function when you need to concatenate a single
+string to the null-terminated contents of a
+<SAMP>vstr</SAMP>. For example:
+    <P>
+<BLOCKQUOTE>
+
+<PRE>
+
+vstr *string;
+
+string = <A HREF="vstr-x.html#vstrCreateSized"><CODE>vstrCreateSized</CODE></A>(10);
+string = vstrAppendScribed(string, <A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>("string1"));
+string = vstrAppendScribed(string,
+<A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>("and-a-2-and-a"));
+
+</PRE>
+</BLOCKQUOTE>
+
+    <P>
+Note that each call to <CODE>vstrAppend</CODE> will have to
+scan the <SAMP>vstr</SAMP> to find the end of the string
+that is stored there. Use <CODE><A HREF="vstr-x.html#vstrConcatenate"><CODE>vstrConcatenate</CODE></A></CODE> if
+you know the length of the string is the same as the
+allocated size of the <SAMP>vstr</SAMP> to avoid this
+scanning.
+</DD></DL>
+<P>
+<A NAME="vstrClone"><HR><H4>vstrClone</H4></A>
+<PRE>
+        vstr * <B>vstrClone</B>(
+                const vchar * string);
+</PRE>
+
+<DL><DD>
+Creates a new dynamic string. The contents of the new
+string are determined by the null-terminated string
+<SAMP>string</SAMP>. The size of the new <SAMP>vstr</SAMP>
+will be the same as the length of the source. 
+This function is probably the most useful way to create a
+dynamic string.
+</DD></DL>
+<P>
+<A NAME="vstrCloneScribed"><HR><H4>vstrCloneScribed</H4></A>
+<PRE>
+        vstr * <B>vstrCloneScribed</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Creates a new dynamic string. The contents of the new
+string are determined by the string written by
+<SAMP>scribe</SAMP> in the <SAMP>Scribed</SAMP> variation.
+The size of the new <SAMP>vstr</SAMP> will be the same as
+the length of the source. The scribe passed to this
+function is automatically destroyed after it is used. 
+This function is probably the most useful way to create a
+dynamic string. For example:
+    <P>
+<BLOCKQUOTE>
+<PRE>
+
+vstr *string1, *string2, *string3, *string4;
+
+string1 = vstrCloneScribed(<A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>("literal string"));
+string2 = vstrCloneScribed(<A HREF="vchar-x.html#vcharScribeToUpperCase"><CODE>vcharScribeToUpperCase</CODE></A>(string1));
+string3 = vstrCloneScribed(<A HREF="vnum-x.html#vnumScribeFloat"><CODE>vnumScribeFloat</CODE></A>(3.14159));
+string4 = vstrClone(string3);
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vstrConcatenate"><HR><H4>vstrConcatenate</H4></A>
+<PRE>
+        vstr * <B>vstrConcatenate</B>(
+                vstr * string,
+                const vchar * concatenateString);
+</PRE>
+
+<DL><DD>
+Modifies <SAMP>string</SAMP> by concatenating the specified
+string onto the end of it. The size of <SAMP>string</SAMP>
+is increased by the length of the concatenated string. The
+modified string is returned. The string may have been
+reallocated, so it may be in a different memory location
+from the old <SAMP>dest</SAMP>.
+    <P>
+The string to be concatenated is specified by a
+null-terminated string.
+    <P>
+Use this function when you need to concatenate a single
+string to the end of a dynamic string whose size is the
+same as the length of the string it contains.
+    <P>
+Note that the string is concatenated after the complete
+current <SAMP>vstr</SAMP>'s <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> array. If
+you want to append the string after a null-terminated
+string that is contained in that array, use
+<CODE><A HREF="vstr-x.html#vstrAppend"><CODE>vstrAppend</CODE></A></CODE> instead.
+    <P>
+If you need to concatenate more than one string, you should
+use <CODE><A HREF="vstr-x.html#vstrCopyMultiScribed"><CODE>vstrCopyMultiScribed</CODE></A></CODE> for greater
+efficiency (refer to the explanation of
+<CODE><A HREF="vstr-x.html#vstrCopyMultiScribed"><CODE>vstrCopyMultiScribed</CODE></A></CODE> for an example of this).
+</DD></DL>
+<P>
+<A NAME="vstrConcatenateScribed"><HR><H4>vstrConcatenateScribed</H4></A>
+<PRE>
+        vstr * <B>vstrConcatenateScribed</B>(
+                vstr * string,
+                vscribe * concatenateScribe);
+</PRE>
+
+<DL><DD>
+Modifies <SAMP>string</SAMP> by concatenating the specified
+scribe (<SAMP>concatenateScribe</SAMP>) onto the end of it.
+The size of <SAMP>string</SAMP> is increased by the length
+of the concatenated string. The modified string is
+returned. The string to be concatenated is specified by a scribe.
+    <P>
+Use this function when you need to concatenate a single
+string to the end of a dynamic string whose size is the
+same as the length of the string it contains. For example:
+    <P>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+vstr *string;
+
+string = <A HREF="vstr-x.html#vstrCloneScribed"><CODE>vstrCloneScribed</CODE></A>(<A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>("string1"));
+string = vstrConcatenateScribed(string,
+<A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>("and-a-2-and-a"));
+
+</PRE>
+</BLOCKQUOTE>
+
+<P>
+Note that the string is concatenated after the complete
+current <SAMP>vstr</SAMP>'s <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> array. If
+you want to append the string after a null-terminated
+string that is contained in that array, use
+<CODE><A HREF="vstr-x.html#vstrAppend"><CODE>vstrAppend</CODE></A></CODE> instead.
+</DD></DL>
+<P>
+<A NAME="vstrCopy"><HR><H4>vstrCopy</H4></A>
+<PRE>
+        vstr * <B>vstrCopy</B>(
+                const vchar * source,
+                vstr * dest);
+</PRE>
+
+<DL><DD>
+Changes <SAMP>dest</SAMP> to contain the specified string.
+The new contents of <SAMP>dest</SAMP> are determined by the
+null-terminated string <SAMP>source</SAMP>. The length of
+the string, as well as the contents of the string, are
+changed. The changed string is returned. The string may
+have been reallocated, so it may be in a different memory
+location from the old <SAMP>dest</SAMP>.
+    <P>
+Use <CODE>vstrCopy</CODE> whenever you want to change both
+the contents and the allocated size of an already existing
+<SAMP>vstr</SAMP>. For example:
+    <P>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+vstr *string1, *string2;
+
+string1 = <A HREF="vstr-x.html#vstrCloneScribed"><CODE>vstrCloneScribed</CODE></A>(<A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>("literal string"));
+string2 = <A HREF="vstr-x.html#vstrCreate"><CODE>vstrCreate</CODE></A>();
+string2 = vstrCopy(string1, string2);
+string1 = <A HREF="vstr-x.html#vstrCopyScribed"><CODE>vstrCopyScribed</CODE></A>(<A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>("one more string"),
+                          string1);
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vstrCopyMulti"><HR><H4>vstrCopyMulti</H4></A>
+<PRE>
+        vstr * <B>vstrCopyMulti</B>(
+                const vchar * string1,
+                ... arg2);
+</PRE>
+
+<DL><DD>
+Concatenates the contents of multiple source strings
+together and changes <SAMP>dest</SAMP> to contain the
+resulting string. Both the size and contents of
+<SAMP>dest</SAMP> are changed. If <SAMP>dest</SAMP> is a
+null pointer, a new dynamic string is created and returned;
+otherwise, the updated <SAMP>dest</SAMP> pointer is
+returned. The string may have been reallocated, so it may
+be in a different memory location from the old
+<SAMP>dest</SAMP>.
+    <P>
+The source strings are specified by null-terminated
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> strings.
+    <P>
+Note that a null pointer should be passed between the last
+source string and the destination string, so the function
+can tell how many source strings you have passed.
+    <P>
+This routine is useful for building a dynamic string out of
+many simpler strings in one step, without having to
+allocate strings of intermediate sizes. Use
+<CODE>vstrCopyMulti</CODE> instead of multiple calls to
+<CODE><A HREF="vstr-x.html#vstrConcatenate"><CODE>vstrConcatenate</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vstrCopyMultiScribed"><HR><H4>vstrCopyMultiScribed</H4></A>
+<PRE>
+        vstr * <B>vstrCopyMultiScribed</B>(
+                vscribe * scribe1,
+                ... arg2);
+</PRE>
+
+<DL><DD>
+Concatenates the contents of multiple source strings
+together and changes <SAMP>dest</SAMP> to contain the
+resulting string. Both the size and contents of
+<SAMP>dest</SAMP> are changed. If <SAMP>dest</SAMP> is a
+null pointer, a new dynamic string is created and returned;
+otherwise, the updated <SAMP>dest</SAMP> pointer is
+returned. The string may have been reallocated, so it may
+be in a different memory location from the old
+<SAMP>dest</SAMP>.
+    <P>
+The source strings are specified by scribes.
+    <P>
+Note that a null pointer should be passed between the last
+source string and the destination string, so the function
+can tell how many source strings you have passed.
+    <P>
+These routines are useful for building a dynamic string out
+of many simpler strings in one step, without having to
+allocate strings of intermediate sizes. Use
+<CODE>vstrCopyMultiScribed</CODE> instead of multiple calls
+to <CODE><A HREF="vstr-x.html#vstrConcatenateScribed"><CODE>vstrConcatenateScribed</CODE></A></CODE>. For example:
+    <P>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+vstr *string1;
+
+string1 = vstrCopyMultiScribed(<A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>("From "),
+                        <A HREF="vnum-x.html#vnumScribeInt"><CODE>vnumScribeInt</CODE></A>(32),
+                        <A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>(" to "),
+                        <A HREF="vnum-x.html#vnumScribeInt"><CODE>vnumScribeInt</CODE></A>(84),
+                        <A HREF="vchar-x.html#vcharScribeCharacter"><CODE>vcharScribeCharacter</CODE></A>(<A HREF="vchar-x.html#vcharFromLiteral"><CODE>vcharFromLiteral</CODE></A>('.')),
+                        NULL /* end marker for scribe list */,
+                        NULL /* dest vstr (allocate a new one) */ );
+
+</PRE>
+</BLOCKQUOTE>
+
+    <P>
+This routine can also serve to append multiple strings to
+an already existing <SAMP>vstr</SAMP>. Simply use
+<CODE><A HREF="vstr-x.html#vstrScribe"><CODE>vstrScribe</CODE></A></CODE> on the dynamic string to be
+appended to and pass it as the first parameter. For
+example:
+    <P>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+string1 = vstrCopyMultiScribed(<A HREF="vstr-x.html#vstrScribe"><CODE>vstrScribe</CODE></A>(string1),
+                                <A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>("\nAnd back to "),
+                                <A HREF="vnum-x.html#vnumScribeInt"><CODE>vnumScribeInt</CODE></A>(32),
+                                <A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>("again."),
+                                NULL, NULL);
+
+</PRE>
+</BLOCKQUOTE>
+
+    <P>
+In this case, <CODE>vstrCopyMultiScribed</CODE> will notice
+that the first scribe was created with
+<CODE><A HREF="vstr-x.html#vstrScribe"><CODE>vstrScribe</CODE></A></CODE> and reuse it to append the other
+strings to.
+</DD></DL>
+<P>
+<A NAME="vstrCopyScribed"><HR><H4>vstrCopyScribed</H4></A>
+<PRE>
+        vstr * <B>vstrCopyScribed</B>(
+                vscribe * scribe,
+                vstr * dest);
+</PRE>
+
+<DL><DD>
+Changes <SAMP>dest</SAMP> to contain the specified string.
+The new contents of <SAMP>dest</SAMP> are determined by the
+string written by <SAMP>scribe</SAMP>. The length of the
+string, as well as the contents of the string, are changed.
+The changed string is returned. The string may have been
+reallocated, so it may be in a different memory location
+from the old <SAMP>dest</SAMP>. The scribe passed to this
+function is automatically destroyed after it is used.
+    <P>
+For example:
+    <P>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+vstr                *string1, *string2;
+
+string1 = <A HREF="vstr-x.html#vstrCloneScribed"><CODE>vstrCloneScribed</CODE></A>(<A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>("literal string"));
+string2 = <A HREF="vstr-x.html#vstrCreate"><CODE>vstrCreate</CODE></A>();
+string2 = vstrCopy(string1, string2);
+string1 = vstrCopyScribed(<A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>("one more string"),
+                          string1);
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vstrCreate"><HR><H4>vstrCreate</H4></A>
+<PRE>
+        vstr * <B>vstrCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new dynamic string object with zero length (not
+including the terminating null character).
+    <P>
+This function is rarely useful. It is provided mainly for
+API consistency. You will instead probably want to call
+<CODE><A HREF="vstr-x.html#vstrCreateSized"><CODE>vstrCreateSized</CODE></A></CODE> if you need to make an
+uninitialized dynamic string or <CODE><A HREF="vstr-x.html#vstrClone"><CODE>vstrClone</CODE></A></CODE> to
+create an initialized string.
+</DD></DL>
+<P>
+<A NAME="vstrCreateSized"><HR><H4>vstrCreateSized</H4></A>
+<PRE>
+        vstr * <B>vstrCreateSized</B>(
+                size_t length);
+</PRE>
+
+<DL><DD>
+Creates a new dynamic string object with space for a string
+<SAMP>length</SAMP> characters long. The first character in
+the string will be initialized to a null character. Thus,
+although the string will have enough space to hold up to
+<SAMP>length</SAMP> characters, it will initially contain a
+zero length null-terminated string.
+    <P>
+A dynamic string is depicted in Figure.
+    <P>
+<BLOCKQUOTE>
+Figure: A String Manager dynamic string
+    <P>
+<IMG SRC="String.A_String_Manager_dyn.gif"></BLOCKQUOTE>
+
+    <P>
+The String Manager's header information located before the
+first character contains the allocated length of the string
+and other private information. This information is never
+directly accessed except by the String Manager itself, and
+you can ignore it.
+    <P>
+The actual pointer returned points to the start of an array
+of <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP>s that is <SAMP>length <A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP>s
+long. This is followed by one additional
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP>, which is the null-termination for the
+string. You are free to write directly into the
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> array. You should not, however,
+overwrite the null at the end of the string with a non-null
+character. Note that if the string contained in the
+<SAMP>vstr</SAMP> is shorter than the allocated size of the
+<SAMP>vstr</SAMP>, an additional null character can appear
+somewhere in the <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> array, marking the end
+of the string.
+</DD></DL>
+<P>
+<A NAME="vstrDestroy"><HR><H4>vstrDestroy</H4></A>
+<PRE>
+        void <B>vstrDestroy</B>(
+                vstr * string);
+</PRE>
+
+<DL><DD>
+Destroys a string object and all dynamic space associated
+with it. This should be called on strings created with
+<CODE><A HREF="vstr-x.html#vstrCreate"><CODE>vstrCreate</CODE></A></CODE> and <CODE><A HREF="vstr-x.html#vstrClone"><CODE>vstrClone</CODE></A></CODE> in order
+to clean up the allocated memory.
+</DD></DL>
+<P>
+<A NAME="vstrGetSize"><HR><H4>vstrGetSize</H4></A>
+<PRE>
+        size_t <B>vstrGetSize</B>(
+                const vstr * string);
+</PRE>
+
+<DL><DD>
+Returns the length (in characters) of the
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> array allocated for string use in the
+given string object (not including the terminating null
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP>).
+    <P>
+Note that if you have written directly into the
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> array, the size of the array is not
+necessarily the same as the length of the string stored in
+the array. Use <CODE><A HREF="vchar-x.html#vcharLength"><CODE>vcharLength</CODE></A></CODE> to obtain the
+actual string length (if the string is null-terminated).
+</DD></DL>
+<P>
+<A NAME="vstrScribe"><HR><H4>vstrScribe</H4></A>
+<PRE>
+        vscribe * <B>vstrScribe</B>(
+                vstr * string);
+</PRE>
+
+<DL><DD>
+Returns a scribe that uses the contents and size of the
+given dynamic string to write out its string, passing
+ownership of the string to the scribe thus created. Thus
+the string will either be extracted from the scribe in the
+process of getting its string (and thus reused) or
+destroyed when the scribe is destroyed.
+    <P>
+You should use this routine whenever you have a dynamic
+string that you want to use just once and then throw away.
+The function you pass the scribe to can simply grab the
+string and reuse it rather than copying it for private use.
+    <P>
+Consider the following examples:
+    <P>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+vstr   *dynamicString = ...;
+<A HREF="vmenu-x.html#vmenu"><CODE>vmenu</CODE></A>  *menu = ... ;
+
+/* first case */
+<A HREF="vmenu-x.html#vmenuSetTitleScribed"><CODE>vmenuSetTitleScribed</CODE></A>(menu, vstrScribe(dynamicString));
+
+/* second case */
+<A HREF="vmenu-x.html#vmenuSetTitleScribed"><CODE>vmenuSetTitleScribed</CODE></A>(menu, <A HREF="vchar-x.html#vcharScribe"><CODE>vcharScribe</CODE></A>(dynamicString));
+<A HREF="vstr-x.html#vstrDestroy"><CODE>vstrDestroy</CODE></A>(dynamicString);
+
+</PRE>
+</BLOCKQUOTE>
+
+    <P>
+Both of these cases produce the same results. However,
+there is a performance difference. In the first case,
+<SAMP>dynamicString</SAMP> can be directly used by
+<CODE><A HREF="vmenu-x.html#vmenuSetTitleScribed"><CODE>vmenuSetTitleScribed</CODE></A></CODE> to represent the title of
+the menu without copying it (assuming that menus store
+their titles as dynamic strings).
+    <P>
+In the second case, however,
+<CODE><A HREF="vmenu-x.html#vmenuSetTitleScribed"><CODE>vmenuSetTitleScribed</CODE></A></CODE> must clone
+<SAMP>dynamicString</SAMP> to get a private copy of it.
+<SAMP>dynamicString</SAMP> is then destroyed. Thus an extra
+allocate, copy, and destroy have been performed on the
+string in the second case.
+</DD></DL>
+<P>
+<A NAME="vstrSetSize"><HR><H4>vstrSetSize</H4></A>
+<PRE>
+        vstr * <B>vstrSetSize</B>(
+                vstr * string,
+                size_t newSize);
+</PRE>
+
+<DL><DD>
+Sets the allocated size of a string object to
+<SAMP>newSize</SAMP> characters (not including space for a
+terminating null <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP>). It returns a pointer
+to the resized string. The string may have been
+reallocated, so it may be in a different memory location
+from the old string.
+    <P>
+The contents of the string are preserved if
+<SAMP>newSize</SAMP> is greater than the current size, or
+the first <SAMP>newSize</SAMP> characters are preserved if
+<SAMP>newSize</SAMP> is less than the current size.
+</DD></DL>
+<P>
+<A NAME="vstrSetSizeMangle"><HR><H4>vstrSetSizeMangle</H4></A>
+<PRE>
+        vstr * <B>vstrSetSizeMangle</B>(
+                vstr * string,
+                size_t newSize);
+</PRE>
+
+<DL><DD>
+Sets the allocated size of a string object to
+<SAMP>newSize</SAMP> characters (not including space for a
+terminating null <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP>). It returns a pointer
+to the resized string. The string may have been
+reallocated, so it may be in a different memory location
+from the old string. The contents of the string are not preserved at all.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vstrINCLUDED"><HR><H4>vstrINCLUDED</H4></A>
+<PRE>
+        <B>vstrINCLUDED</B>
+</PRE>
+
+<DL><DD>
+C pre-processor flag used to protect this header against
+multiple inclusion. By default, <CODE>vstrINCLUDED</CODE>
+is undefined. When this header is included it first checks
+to see that <CODE>vstrINCLUDED</CODE> is undefined and then
+defines it and includes the rest of the header. Thus,
+subsequent attempts to include this header will only get a
+check to see if <CODE>vstrINCLUDED</CODE> is undefined,
+which will fail and the rest of the header will be skipped.
+    <P>
+This can also be used to avoid including this file in the
+first place. This will have no effect on correctness (this
+header will always make the check), but it can improve
+compilation time by avoiding the inclusion of header files
+that have already been included and are going to be skipped
+anyway. For example:
+    <P>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+#ifndef  vstrINCLUDED
+#include vstrHEADER
+#endif
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

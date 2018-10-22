@@ -1,0 +1,156 @@
+#==========================================================================
+#
+# File:      $RCSfile: get_host_platform.inc.vc7,v $
+# Version:   $Revision: 1.9 $
+# Modified:  $Date: 2013/01/10 23:42:21 $
+#
+# (c) Copyright 1992-2013 by Mentor Graphics Corp. All rights reserved.
+#
+#==========================================================================
+# This document contains information proprietary and confidential to
+# Mentor Graphics Corp., and is not for external distribution.
+#==========================================================================
+#
+# This file is an imbed for a script to determine the platform
+# on which the build tools are running.
+#
+# Returns:
+#   RUNNING_PLATFORM
+#     Range of values: win32, cygwin
+#   GALAXYHOME
+#   MC_DBMS_ROOTDIR
+#   MC_DBMS_SCHEMA_DIR
+#   MGLS_HOME
+#   CC_DIR
+#   ARCH1
+#   PRIVATE_HOME
+#   CC_DIR
+#   cc_DIR
+#   JAVA_HOME
+#   PLATFORM_JAVA
+#   LD_LIBRARY_PATH=${GALAXYHOME}/lib:${MC_DBMS_ROOTDIR}/lib:/usr/openwin/lib
+#   SHLIB_PATH=/usr/lib:${MC_DBMS_ROOTDIR}/lib:${GALAXYHOME}/lib
+#   PATH=$CC_DIR:/usr/ccs/bin:$PATH
+#
+
+_os_rel="`uname -s`_`uname -r`"
+RUNNING_PLATFORM=
+case $_os_rel in
+  WIN* )
+    RUNNING_PLATFORM=win32
+    ;;
+  CYGWIN* )
+    RUNNING_PLATFORM=cygwin
+    ;;
+  * )
+    echo "Cannot determine the type of host this system is."
+    echo "  Results of 'uname -s': `uname -s`"
+    echo "             'uname -r': `uname -r`"
+    echo "  (script get_current_platform)"
+    exit 2
+    ;;
+esac
+
+# Un-set these variables
+unset _os_rel 
+
+echo "Running platform is $RUNNING_PLATFORM, host `hostname`"
+
+# Programming environment
+case $RUNNING_PLATFORM in
+  win32 )
+    RUNNING_HOSTNAME=`hostname`
+    case $RUNNING_HOSTNAME in
+      shrike )
+        GALAXYHOME=H:/Visix/GalaxyGC30
+        #OS_ROOTDIR=H:/OS6.0.SP8_17622_17667/ostore
+        OS_ROOTDIR=H:/ODI_OS60_SP8/ostore
+        OS_SCHEMA_DIR=${OS_ROOTDIR}/lib
+        MGLS_HOME=Z:/bp_source/${PLATFORM}/${VERSION}/mgls/${PLATFORM}
+        CC_DIR=H:/PROGRA~1/MICROS~2/VC98/BIN
+        JAVA_HOME=C:/PROGRA~1/Java/jdk1.3.1
+        PLATFORM_JAVA=win32
+        ARCH1=Z:
+        PRIVATE_HOME=$ARCH1/sun/u/$USERNAME
+        ;;
+      * )
+        echo "Compiles for Win32 are not supported on host $RUNNING_HOSTNAME"
+        exit 2
+    esac
+    unset RUNNING_HOSTNAME
+    export GALAXYHOME
+    export OS_ROOTDIR
+    export OS_SCHEMA_DIR
+    export MGLS_HOME
+    export CC_DIR
+    export cc_DIR
+    export JAVA_HOME
+    export PLATFORM_JAVA
+    export ARCH1
+    export PRIVATE_HOME
+    export RUNNING_PLATFORM
+    export PATH
+
+    echo "GALAXYHOME=$GALAXYHOME"
+    echo "OS_ROOTDIR=$OS_ROOTDIR"
+    echo "OS_SCHEMA_DIR=$OS_SCHEMA_DIR"
+    echo "MGLS_HOME=$MGLS_HOME"
+    echo "CC_DIR=$CC_DIR"
+    echo "cc_DIR=$CC_DIR"
+    echo "JAVA_HOME=$JAVA_HOME"
+    echo "PLATFORM_JAVA=$PLATFORM_JAVA"
+    echo "ARCH1=$ARCH1"
+    echo "PRIVATE_HOME=$PRIVATE_HOME"
+    echo "RUNNING_PLATFORM=$RUNNING_PLATFORM"
+    echo "PATH=$PATH"
+    ;;
+  cygwin )
+    RUNNING_HOSTNAME=`hostname`
+    case 1 in
+      1 )
+        GALAXYHOME=C:/lib/GalaxyGC30
+        MC_DBMS_ROOTDIR=C:/lib/mc_dbms
+        MC_DBMS_SCHEMA_DIR=${MC_DBMS_ROOTDIR}/lib
+        MGLS_HOME=C:/lib/mgls/win32
+        #VC6 - CC_DIR=C:/PROGRA~1/MICROS~3/VC98/BIN
+        CC_DIR=C:/PROGRA~1/MICROS~1.NET/Vc7/bin
+        JAVA_HOME=C:/PROGRA~1/Java/jdk1.3.1
+        PLATFORM_JAVA=win32
+        #ARCH1=Z:
+        #PRIVATE_HOME=$ARCH1/sun/u/$USERNAME
+        ARCH1=/c/sandbox_bp
+        PRIVATE_HOME=$ARCH1
+        ;;
+      * )
+        echo "Compiles for Cygwin are not supported on host $RUNNING_HOSTNAME"
+        exit 2
+    esac
+    unset RUNNING_HOSTNAME
+    export GALAXYHOME
+    export MC_DBMS_ROOTDIR
+    export MC_DBMS_SCHEMA_DIR
+    export MGLS_HOME
+    export CC_DIR
+    export cc_DIR
+    export JAVA_HOME
+    export PLATFORM_JAVA
+    export ARCH1
+    export PRIVATE_HOME
+    export RUNNING_PLATFORM
+    export PATH
+
+    echo "GALAXYHOME=$GALAXYHOME"
+    echo "MC_DBMS_ROOTDIR=$MC_DBMS_ROOTDIR"
+    echo "MC_DBMS_SCHEMA_DIR=$MC_DBMS_SCHEMA_DIR"
+    echo "MGLS_HOME=$MGLS_HOME"
+    echo "CC_DIR=$CC_DIR"
+    echo "cc_DIR=$CC_DIR"
+    echo "JAVA_HOME=$JAVA_HOME"
+    echo "PLATFORM_JAVA=$PLATFORM_JAVA"
+    echo "ARCH1=$ARCH1"
+    echo "PRIVATE_HOME=$PRIVATE_HOME"
+    echo "RUNNING_PLATFORM=$RUNNING_PLATFORM"
+    echo "PATH=$PATH"
+    ;;
+esac
+

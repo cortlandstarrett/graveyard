@@ -1,0 +1,1546 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vdebug prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vdebug prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vdebug-x.html#section_DataType">Types</A> [1]</TD>
+<TD><A HREF="vdebug-x.html#section_Function">Functions</A> [66]</TD>
+<TD></TD>
+<TD><A HREF="vdebug-x.html#section_Constant">Constants</A> [19]</TD>
+<TD></TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vdebugAssertionHandler"><HR><H4>vdebugAssertionHandler</H4></A>
+<PRE>
+        typedef ... <B>vdebugAssertionHandler</B>;
+</PRE>
+
+<DL><DD>
+Denotes a function that is called when a debug assertion fails. You
+can create and install your own assertiong handlers with
+<code><A HREF="vdebug-x.html#vdebugSetAssertionHandler"><CODE>vdebugSetAssertionHandler</CODE></A></samp>. The default assertion handler
+is <code><A HREF="vdebug-x.html#vdebugAbort"><CODE>vdebugAbort</CODE></A></code>.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vdebugAT"><HR><H4>vdebugAT</H4></A>
+<PRE>
+        void <B>vdebugAT</B>(
+                int level,
+                 action);
+</PRE>
+
+<DL><DD>
+Evaluates <SAMP>x</SAMP> if <CODE>vdebugDEBUG</CODE> is set
+and the local debug tag is active at the given level. Due
+to the fact that <CODE>vdebugAT</CODE> is a MACRO which
+ends in a right-curly-brace, it cannot be used as the sole
+body of an <SAMP>if</SAMP> statement if that
+<SAMP>if</SAMP> is to be followed by an <SAMP>else</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdebugAbort"><HR><H4>vdebugAbort</H4></A>
+<PRE>
+        void <B>vdebugAbort</B>(
+                void * data,
+                const char * message,
+                const char * file,
+                const char * tag,
+                int line);
+</PRE>
+
+<DL><DD>
+Aborts the program, printing the <samp>message</samp>,
+<samp>file</samp>, <samp>line</samp>, and debugging stack to the
+warning stream. This is the default assertion handler. Use
+<code><A HREF="vdebug-x.html#vdebugSetAssertionHandler"><CODE>vdebugSetAssertionHandler</CODE></A></samp> to install a different default
+assertion handler. 
+</DD></DL>
+<P>
+<A NAME="vdebugActive"><HR><H4>vdebugActive</H4></A>
+<PRE>
+        vbool <B>vdebugActive</B>(
+                const char * module);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the given module is active, 
+meaning that it is currently being debugged. 
+Returns <SAMP>FALSE</SAMP> if it is inactive.
+<P>
+All modules are active unless:
+
+<UL>
+<li>debugging has been narrowed to a single module - refer to <CODE>vdebugMODULE</CODE>, or 
+<li>debugging has not been compiled in - refer to <CODE>vdebugDEBUG</CODE>, or
+<li>this module's debugging level has been set to zero. 
+</UL>
+
+This call is equivalent to <CODE><A HREF="vdebug-x.html#vdebugActiveAt"><CODE>vdebugActiveAt</CODE></A></CODE><SAMP>(module,1)</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdebugActiveAt"><HR><H4>vdebugActiveAt</H4></A>
+<PRE>
+        vbool <B>vdebugActiveAt</B>(
+                const char * module,
+                int level);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the given module is active, meaning
+currently being debugged, at the given level; returns <SAMP>FALSE</SAMP> if it is not. 
+<P>
+All modules are active unless:
+
+<ul>
+<li>debugging has been narrowed to a single module, or 
+<li>debugging has not been compiled in, or 
+<li>this module's debugging level is below the passed-in level.
+</ul>
+
+Refer to sections <CODE>vdebugMODULE</CODE>; <CODE>vdebugLEVEL</CODE>;
+<CODE>vdebugVARIABLES</CODE>; and, <CODE>vdebugDEBUG</CODE> for more information.
+</DD></DL>
+<P>
+<A NAME="vdebugAdvise"><HR><H4>vdebugAdvise</H4></A>
+<PRE>
+        void <B>vdebugAdvise</B>(
+                const char * formatString,
+                ... arg2);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Prints the message contained in <SAMP>formatString</SAMP>
+to the <SAMP>Advice</SAMP> stream at
+<CODE>vdebugLEVEL_NORMAL</CODE> level. Used to advise
+developers that what they have done is not necessarily
+wrong, but a better, more efficient method is available.
+<P>
+Developers designing libraries can use the
+<SAMP>Advice</SAMP> stream to signify that there is a
+better way. The argument list is the same as for
+<SAMP>printf</SAMP>.
+<P>
+This entry point exists for backward compatibility. The
+recommended call is <CODE><A HREF="vdebug-x.html#vdebugMAdvise"><CODE>vdebugMAdvise</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdebugAdviseAt"><HR><H4>vdebugAdviseAt</H4></A>
+<PRE>
+        void <B>vdebugAdviseAt</B>(
+                int level,
+                const char * formatString,
+                ... arg3);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Identical to <CODE>vdebugAdvise</CODE>, except the message
+in <SAMP>formatString</SAMP> is printed only if the debug
+level is set at or above <SAMP>level</SAMP>. Typically, a
+level of <CODE>vdebugLEVEL_NORMAL</CODE> is used with an
+Advise call to keep unwanted detail from obscuring more
+important messages.
+<P>
+This entry point exists for backward compatibility. The
+recommended call is <CODE><A HREF="vdebug-x.html#vdebugMAdviseAt"><CODE>vdebugMAdviseAt</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdebugAssert"><HR><H4>vdebugAssert</H4></A>
+<PRE>
+        void <B>vdebugAssert</B>(
+                int condition);
+</PRE>
+
+<DL><DD>
+Calls the ANSI C library function <SAMP>assert()</SAMP> if
+<CODE>vdebugDEBUG</CODE> is set and the local debug tag is
+active.
+</DD></DL>
+<P>
+<A NAME="vdebugBE"><HR><H4>vdebugBE</H4></A>
+<PRE>
+        void <B>vdebugBE</B>(
+                 text);
+</PRE>
+
+<DL><DD>
+<CODE>vdebugBE</CODE><SAMP>(x)</SAMP> is macro'd to
+<SAMP>x</SAMP> if <CODE>vdebugDEBUG</CODE> is set. It is
+macro'd out of existence if <CODE>vdebugDEBUG</CODE> is
+off.
+</DD></DL>
+<P>
+<A NAME="vdebugDumpProcStack"><HR><H4>vdebugDumpProcStack</H4></A>
+<PRE>
+        void <B>vdebugDumpProcStack</B>(
+                FILE * fp);
+</PRE>
+
+<DL><DD>
+Prints the current debug procedure frame stack to the
+<SAMP>FILE</SAMP> pointer <SAMP>fp</SAMP>. If
+<SAMP>fp</SAMP> is <SAMP>NULL</SAMP>, then the current stack
+is printed to the <SAMP>Info</SAMP> stream. Debug procedure
+frames are made by <CODE><A HREF="vdebug-x.html#vdebugTraceEnter"><CODE>vdebugTraceEnter</CODE></A></CODE> and
+<CODE><A HREF="vdebug-x.html#vdebugTraceLeave"><CODE>vdebugTraceLeave</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdebugEVAL"><HR><H4>vdebugEVAL</H4></A>
+<PRE>
+        void <B>vdebugEVAL</B>(
+                 stmts);
+</PRE>
+
+<DL><DD>
+<CODE>vdebugEVAL</CODE><SAMP>(stmts)</SAMP> is a macro that
+evaluates <SAMP>stmts</SAMP> if <CODE>vdebugDEBUG</CODE> is
+set and the local debug tag is active. If
+<CODE>vdebugDEBUG</CODE> is off, <CODE>vdebugEVAL</CODE> is
+macro'd out of existence. 
+<P>
+Because <CODE>vdebugEVAL</CODE> is a MACRO which ends in a
+right curly-brace, it cannot be used as the sole body of an
+<SAMP>if</SAMP> statement if that <SAMP>if</SAMP> is to be
+followed by an <SAMP>else</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdebugGetAdviceLevel"><HR><H4>vdebugGetAdviceLevel</H4></A>
+<PRE>
+        int <B>vdebugGetAdviceLevel</B>();
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Returns the current debugging level for the
+<SAMP>Advice</SAMP> stream. This entry point exists for
+backward compatibility. The recommended call is to
+<CODE><A HREF="vdebug-x.html#vdebugMAdvise"><CODE>vdebugMAdvise</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdebugGetAdviceStream"><HR><H4>vdebugGetAdviceStream</H4></A>
+<PRE>
+        FILE * <B>vdebugGetAdviceStream</B>();
+</PRE>
+
+<DL><DD>
+Returns the <SAMP>FILE *</SAMP> to which the
+<SAMP>Advice</SAMP> debugging activity is being sent.
+</DD></DL>
+<P>
+<A NAME="vdebugGetCurrentModule"><HR><H4>vdebugGetCurrentModule</H4></A>
+<PRE>
+        const char * <B>vdebugGetCurrentModule</B>();
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Returns the currently active module, or <SAMP>NULL</SAMP>
+if debugging is not currently narrowed to one module.
+<P>
+This entry point is included for backward compatibility.
+The recommended call is <CODE><A HREF="vdebug-x.html#vdebugActive"><CODE>vdebugActive</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdebugGetCurrentProcName"><HR><H4>vdebugGetCurrentProcName</H4></A>
+<PRE>
+        const char * <B>vdebugGetCurrentProcName</B>();
+</PRE>
+
+<DL><DD>
+Returns the current debug frame's procedure name as set by
+<CODE><A HREF="vdebug-x.html#vdebugTraceEnter"><CODE>vdebugTraceEnter</CODE></A></CODE>. This call is only valid
+within the lexical scope of a <CODE><A HREF="vdebug-x.html#vdebugTraceEnter"><CODE>vdebugTraceEnter</CODE></A></CODE>
+- <CODE><A HREF="vdebug-x.html#vdebugTraceLeave"><CODE>vdebugTraceLeave</CODE></A></CODE> pair.
+<P>
+This entry point is intended for higher-level Galaxy
+functions. You should normally not need to access this
+function.
+</DD></DL>
+<P>
+<A NAME="vdebugGetInfoLevel"><HR><H4>vdebugGetInfoLevel</H4></A>
+<PRE>
+        int <B>vdebugGetInfoLevel</B>();
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Returns the current debugging level for the <SAMP>Info</SAMP> stream.
+<P>
+This entry point exists for backward compatibility. The
+preferred call is <CODE><A HREF="vdebug-x.html#vdebugMInform"><CODE>vdebugMInform</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdebugGetInfoStream"><HR><H4>vdebugGetInfoStream</H4></A>
+<PRE>
+        FILE * <B>vdebugGetInfoStream</B>();
+</PRE>
+
+<DL><DD>
+Returns the <SAMP>FILE *</SAMP> to which the
+<SAMP>Inform</SAMP> debugging activity is being sent.
+</DD></DL>
+<P>
+<A NAME="vdebugGetLastProcName"><HR><H4>vdebugGetLastProcName</H4></A>
+<PRE>
+        const char * <B>vdebugGetLastProcName</B>();
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Returns the procedure name of the last debugging frame that
+was entered but not left. This will always be the topmost
+debug frame on the stack. This function may return NULL at
+any time. This function will not throw an exception.
+<P>
+This entry point is intended for higher-level Galaxy
+functions. You should normally not need to access this
+function.
+</DD></DL>
+<P>
+<A NAME="vdebugGetModuleLevel"><HR><H4>vdebugGetModuleLevel</H4></A>
+<PRE>
+        int <B>vdebugGetModuleLevel</B>(
+                const char * module);
+</PRE>
+
+<DL><DD>
+Returns 0 if the module identified by <samp>tag</samp> is not active at
+the current debugging level, non-zero otherwise.
+</DD></DL>
+<P>
+<A NAME="vdebugGetTracingLevel"><HR><H4>vdebugGetTracingLevel</H4></A>
+<PRE>
+        int <B>vdebugGetTracingLevel</B>();
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Returns the current debugging level for the
+<SAMP>Tracing</SAMP> stream. This entry point exists for
+backward compatibility. The recommended call is
+<CODE><A HREF="vdebug-x.html#vdebugMTrace"><CODE>vdebugMTrace</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdebugGetTracingStream"><HR><H4>vdebugGetTracingStream</H4></A>
+<PRE>
+        FILE * <B>vdebugGetTracingStream</B>();
+</PRE>
+
+<DL><DD>
+Returns the <SAMP>FILE *</SAMP> to which the
+<SAMP>Trace</SAMP> debugging activity is being sent.
+</DD></DL>
+<P>
+<A NAME="vdebugGetWarningLevel"><HR><H4>vdebugGetWarningLevel</H4></A>
+<PRE>
+        int <B>vdebugGetWarningLevel</B>();
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Returns the current debugging level for the <SAMP>Warning</SAMP> stream.
+<P>
+This entry point exists for backward compatibility. The
+preferred call is <CODE><A HREF="vdebug-x.html#vdebugMWarn"><CODE>vdebugMWarn</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdebugGetWarningStream"><HR><H4>vdebugGetWarningStream</H4></A>
+<PRE>
+        FILE * <B>vdebugGetWarningStream</B>();
+</PRE>
+
+<DL><DD>
+Returns the <SAMP>FILE *</SAMP> to which the
+<SAMP>Warn</SAMP> debugging activity is being sent.
+</DD></DL>
+<P>
+<A NAME="vdebugHandledAssert"><HR><H4>vdebugHandledAssert</H4></A>
+<PRE>
+        void <B>vdebugHandledAssert</B>(
+                int condition,
+                vdebugAssertionHandler handler,
+                void * data);
+</PRE>
+
+<DL><DD>
+Calls the assertion handler <samp>handler</samp> if
+<samp>condition</samp> evaluates to false. <samp>data</samp> is passed
+to the assertion handler as the first argument.
+</DD></DL>
+<P>
+<A NAME="vdebugHandledMessagedAssert"><HR><H4>vdebugHandledMessagedAssert</H4></A>
+<PRE>
+        void <B>vdebugHandledMessagedAssert</B>(
+                int condition,
+                const char * msg,
+                vdebugAssertionHandler proc,
+                void * data);
+</PRE>
+
+<DL><DD>
+Calls the assertion handler <samp>handler</samp> if
+<samp>condition</samp> evaluates to false. <samp>data</samp> is passed
+to the assertion handler as the first argument. <samp>msg</samp> is
+printed instead of the standard message.
+</DD></DL>
+<P>
+<A NAME="vdebugIF"><HR><H4>vdebugIF</H4></A>
+<PRE>
+        void <B>vdebugIF</B>(
+                 int,
+                 stmts);
+</PRE>
+
+<DL><DD>
+Evaluates <SAMP>stmts</SAMP> if <CODE>vdebugDEBUG</CODE> is
+set, the local debug tag is active, and <SAMP>cond</SAMP>
+is <SAMP>TRUE</SAMP>. If <CODE>vdebugDEBUG</CODE> is not
+set, <CODE>vdebugIF</CODE> is macro'd out of existence. 
+<P>
+Because <CODE>vdebugIF</CODE> is a MACRO which
+ends in a right curly-brace, it cannot be used as the sole
+body of an <SAMP>if</SAMP> statement if that
+<SAMP>if</SAMP> is to be followed by an <SAMP>else</SAMP>.
+To avoid this problem, use constructs of the form:
+<P>
+<PRE>
+<SAMP> if (foo)  vdebugIF();  else bar(); </SAMP>
+</PRE>
+</DD></DL>
+<P>
+<A NAME="vdebugInform"><HR><H4>vdebugInform</H4></A>
+<PRE>
+        void <B>vdebugInform</B>(
+                const char * formatString,
+                ... arg2);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Prints the given message to the <SAMP>Info</SAMP> stream if
+the debug level is at or above <CODE>vdebugLEVEL_HIGH</CODE> level. 
+Used for informative messages like <SAMP>Found element</SAMP>, or 
+<SAMP>i == 6.</SAMP> The argument list is the same as for
+<SAMP>printf</SAMP>.
+<P>
+This entry point is included for backward compatibility.
+The recommended call is <CODE><A HREF="vdebug-x.html#vdebugMInform"><CODE>vdebugMInform</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdebugInformAt"><HR><H4>vdebugInformAt</H4></A>
+<PRE>
+        void <B>vdebugInformAt</B>(
+                int level,
+                const char * formatString,
+                ... arg3);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Identical to <CODE>vdebugInform</CODE>, except the given
+message is printed to the <SAMP>Info</SAMP> stream at or
+above the given level. Typically, a level of
+<CODE>vdebugLEVEL_HIGH</CODE> or higher is used with an
+Inform call to keep unwanted detail from obscuring more
+important messages.
+<P>
+This entry point is included for backward compatibility.
+The recommended call is <CODE><A HREF="vdebug-x.html#vdebugMInformAt"><CODE>vdebugMInformAt</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdebugMAdvise"><HR><H4>vdebugMAdvise</H4></A>
+<PRE>
+        void <B>vdebugMAdvise</B>(
+                (const char *, ...) arg1);
+</PRE>
+
+<DL><DD>
+Prints the  message contained in <SAMP>format_string</SAMP>
+to the <SAMP>Advice</SAMP> stream at
+<CODE>vdebugLEVEL_NORMAL</CODE> level. Used to advise
+developers that what they have done is not necessarily
+wrong, but a better, more efficient method is available.
+Developers designing libraries can use the
+<SAMP>Advice</SAMP> stream to signify that there is a
+better way. The argument list is the same as for
+<SAMP>printf</SAMP>.
+<P>
+The M stands for macro which is meant to indicate that this
+call is implemented with a C pre-processor macro. This
+particular call has to be implemented with a macro because
+it takes a variable number of arguments, but needs to be
+compiled out of existence. Note the double parentheses
+that allow this to occur and require that this be
+implemented as a macro.
+</DD></DL>
+<P>
+<A NAME="vdebugMAdviseAt"><HR><H4>vdebugMAdviseAt</H4></A>
+<PRE>
+        void <B>vdebugMAdviseAt</B>(
+                (int, const char *, ...) arg1);
+</PRE>
+
+<DL><DD>
+Identical to <CODE>vdebugMAdvise</CODE>, except the message
+in <SAMP>format_string</SAMP> is printed only if the debug
+level is set at or above <SAMP>level</SAMP>. Typically, a
+level of <CODE>vdebugLEVEL_NORMAL</CODE> is used with an
+Advise call to keep unwanted detail from obscuring more
+important messages.
+<P>
+The M stands for macro which is meant to indicate that this
+call is implemented with a C pre-processor macro. This
+particular call has to be implemented with a macro because
+it takes a variable number of arguments, but needs to be
+compiled out of existence. Note the double parentheses
+that allow this to occur and require that this be
+implemented as a macro.
+</DD></DL>
+<P>
+<A NAME="vdebugMInform"><HR><H4>vdebugMInform</H4></A>
+<PRE>
+        void <B>vdebugMInform</B>(
+                (const char *, ...) arg1);
+</PRE>
+
+<DL><DD>
+Prints the given message to the <SAMP>Info</SAMP> stream if
+the debug level is at or above
+<CODE>vdebugLEVEL_HIGH</CODE> level. Used for informative
+messages like <SAMP>Found element</SAMP> or <SAMP>i ==
+6</SAMP>. The argument list is the same as for
+<SAMP>printf</SAMP>. The M stands for macro which is meant
+to indicate that this call is implemented with a C
+pre-processor macro. This particular call has to be
+implemented with a macro because it takes a variable number
+of arguments, but needs to be compiled out of existence.
+Note the double parentheses that allow this to occur and
+require that this be implemented as a macro.
+</DD></DL>
+<P>
+<A NAME="vdebugMInformAt"><HR><H4>vdebugMInformAt</H4></A>
+<PRE>
+        void <B>vdebugMInformAt</B>(
+                (int, const char *, ...) arg1);
+</PRE>
+
+<DL><DD>
+Identical to <CODE>vdebugMInform</CODE>, except the given
+message is printed to the <SAMP>Info</SAMP> stream at or
+above the given level. Typically, a level of
+<CODE>vdebugLEVEL_HIGH</CODE> or higher is used with an
+Inform call to keep unwanted detail from obscuring more
+important messages.
+<P>
+The M stands for macro which is meant to indicate that this
+call is implemented with a C pre-processor macro. This
+particular call has to be implemented with a macro because
+it takes a variable number of arguments, but needs to be
+compiled out of existence. Note the double parentheses
+that allow this to occur and require that this be
+implemented as a macro.
+</DD></DL>
+<P>
+<A NAME="vdebugMTrace"><HR><H4>vdebugMTrace</H4></A>
+<PRE>
+        void <B>vdebugMTrace</B>(
+                (const char *, ...) arg1);
+</PRE>
+
+<DL><DD>
+Prints the given message to the <SAMP>Tracing</SAMP> stream
+above <CODE>vdebugLEVEL_HIGH</CODE> level. This is a hook
+for code inserted at the beginning and end of each function
+to print tracing information to illustrate control flow.
+<P>
+The M stands for macro which is meant to indicate that this
+call is implemented with a C pre-processor macro. This
+particular call has to be implemented with a macro because
+it takes a variable number of arguments, but needs to be
+compiled out of existence. Note the double parentheses
+that allow this to occur and require that this be
+implemented as a macro.
+</DD></DL>
+<P>
+<A NAME="vdebugMTraceAt"><HR><H4>vdebugMTraceAt</H4></A>
+<PRE>
+        void <B>vdebugMTraceAt</B>(
+                (int, const char *, ...) arg1);
+</PRE>
+
+<DL><DD>
+Identical to <CODE>vdebugMTrace</CODE>, except the given
+message is printed to the <SAMP>Tracing</SAMP> stream at or
+above the given level. Typically, a level higher than
+<CODE>vdebugLEVEL_HIGH</CODE> is used with a
+<SAMP>Trace</SAMP> call to keep unwanted detail from
+obscuring more important messages.
+<P>
+The M stands for macro which is meant to indicate that this
+call is implemented with a C pre-processor macro. This
+particular call has to be implemented with a macro because
+it takes a variable number of arguments, but needs to be
+compiled out of existence. Note the double parentheses
+that allow this to occur and require that this be
+implemented as a macro.
+</DD></DL>
+<P>
+<A NAME="vdebugMWarn"><HR><H4>vdebugMWarn</H4></A>
+<PRE>
+        void <B>vdebugMWarn</B>(
+                (const char *, ...) arg1);
+</PRE>
+
+<DL><DD>
+Prints the given message to the <SAMP>Warning</SAMP> stream
+at or above <CODE>vdebugLEVEL_LOW</CODE> level. The
+<SAMP>Warning</SAMP> stream is used to inform the developer
+that a major error has occurred.
+<P>
+The M stands for macro which is meant to indicate that this
+call is implemented with a C pre-processor macro. This
+particular call has to be implemented with a macro because
+it takes a variable number of arguments, but needs to be
+compiled out of existence. Note the double parentheses
+that allow this to occur and require that this be
+implemented as a macro.
+</DD></DL>
+<P>
+<A NAME="vdebugMWarnAt"><HR><H4>vdebugMWarnAt</H4></A>
+<PRE>
+        void <B>vdebugMWarnAt</B>(
+                (int, const char *, ...) arg1);
+</PRE>
+
+<DL><DD>
+Identical to <CODE>vdebugMWarn</CODE>, except the given
+message is printed to the <SAMP>Warning</SAMP> stream at or
+above the given level. Typically, a level of
+<CODE>vdebugLEVEL_LOW</CODE> is used with a Warn call to
+insure that important warning messages get through.
+<P>
+The M stands for macro which is meant to indicate that this
+call is implemented with a C pre-processor macro. This
+particular call has to be implemented with a macro because
+it takes a variable number of arguments, but needs to be
+compiled out of existence. Note the double parentheses
+that allow this to occur and require that this be
+implemented as a macro.
+</DD></DL>
+<P>
+<A NAME="vdebugMessagedAssert"><HR><H4>vdebugMessagedAssert</H4></A>
+<PRE>
+        void <B>vdebugMessagedAssert</B>(
+                int condition,
+                const char * msg);
+</PRE>
+
+<DL><DD>
+Calls the ANSI C library function <SAMP>assert</SAMP> with
+the given message if <CODE>vdebugDEBUG</CODE> is set and
+the local debug tag is active.
+</DD></DL>
+<P>
+<A NAME="vdebugParseLevel"><HR><H4>vdebugParseLevel</H4></A>
+<PRE>
+        int <B>vdebugParseLevel</B>(
+                const char * value);
+</PRE>
+
+<DL><DD>
+Parses the given string into a debug variable level. For
+example:
+    <P>
+<SAMP>int level =
+vdebugParseLevel("vdebugLEVEL_HIGH");</SAMP>
+    <P>
+where <SAMP>level</SAMP> is one of:
+    <P>
+<CODE>vdebugLEVEL_OFF</CODE>
+    <P>
+ <CODE>vdebugLEVEL_MIN</CODE>
+    <P>
+ <CODE>vdebugLEVEL_LOW</CODE>
+    <P>
+ <CODE>vdebugLEVEL_NORMAL</CODE>
+    <P>
+ <CODE>vdebugLEVEL_HIGH</CODE>
+    <P>
+ <CODE>vdebugLEVEL_MAX</CODE>
+    <P>
+or any integer from <CODE>vdebugLEVEL_OFF</CODE> to
+<CODE>vdebugLEVEL_MAX</CODE>.
+    <P>
+Debugging levels are used to control debug code on a per
+module basis.
+    <P>
+Setting the level of a module higher than normal generally
+indicates that more debugging output is generated.
+</DD></DL>
+<P>
+<A NAME="vdebugPerror"><HR><H4>vdebugPerror</H4></A>
+<PRE>
+        void <B>vdebugPerror</B>(
+                const char * str);
+</PRE>
+
+<DL><DD>
+Calls the ANSI C library function <SAMP>perror</SAMP> if
+<CODE>vdebugDEBUG</CODE> is set and the local debug tag is
+active.
+</DD></DL>
+<P>
+<A NAME="vdebugSetAdviceLevel"><HR><H4>vdebugSetAdviceLevel</H4></A>
+<PRE>
+        void <B>vdebugSetAdviceLevel</B>(
+                int level);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Sets the debugging level for the <SAMP>Advice</SAMP>
+stream. The level should be between the values of
+<CODE>vdebugLEVEL_MIN</CODE> and
+<CODE>vdebugLEVEL_MAX</CODE>. The higher the level, the
+more advice that is generated. The threshold at which a
+module's advice becomes active is when that module's level
+is greater than <CODE>vdebugLEVEL_MAX</CODE><SAMP> -
+<CODE><A HREF="vdebug-x.html#vdebugGetAdviceLevel"><CODE>vdebugGetAdviceLevel</CODE></A></CODE>()</SAMP>. 
+<P>
+Put more succinctly, <SAMP>threshold = <CODE>vdebugLEVEL_MAX</CODE>
+- <CODE><A HREF="vdebug-x.html#vdebugGetAdviceLevel"><CODE>vdebugGetAdviceLevel</CODE></A></CODE>()</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdebugSetAdviceStream"><HR><H4>vdebugSetAdviceStream</H4></A>
+<PRE>
+        void <B>vdebugSetAdviceStream</B>(
+                FILE * fp);
+</PRE>
+
+<DL><DD>
+Sets the <SAMP>Advice</SAMP> stream to the open <SAMP>FILE
+*</SAMP> <SAMP>stream</SAMP>. By default, this is set to
+<SAMP>stderr</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdebugSetAssertionHandler"><HR><H4>vdebugSetAssertionHandler</H4></A>
+<PRE>
+        void <B>vdebugSetAssertionHandler</B>(
+                vdebugAssertionHandler handler);
+</PRE>
+
+<DL><DD>
+Changes the default debug assertion handler to
+<samp>handler</samp>. The default assertion handler is
+<code><A HREF="vdebug-x.html#vdebugAbort"><CODE>vdebugAbort</CODE></A></code>. Use this function to install your own
+assertion handler.
+</DD></DL>
+<P>
+<A NAME="vdebugSetCurrentModule"><HR><H4>vdebugSetCurrentModule</H4></A>
+<PRE>
+        void <B>vdebugSetCurrentModule</B>(
+                const char * module);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Limits default debugging to the given module. If passed
+<SAMP>NULL</SAMP>, debugging is no longer be limited to one
+module.
+<P>
+This entry point is included for backward compatibility.
+The recommended call is <CODE><A HREF="vdebug-x.html#vdebugSetVariables"><CODE>vdebugSetVariables</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdebugSetInfoLevel"><HR><H4>vdebugSetInfoLevel</H4></A>
+<PRE>
+        void <B>vdebugSetInfoLevel</B>(
+                int level);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Sets the debugging level for the <SAMP>Info</SAMP> stream.
+The level should be between the values of <CODE>vdebugLEVEL_MIN</CODE> and
+<CODE>vdebugLEVEL_MAX</CODE>.
+</DD></DL>
+<P>
+<A NAME="vdebugSetInfoStream"><HR><H4>vdebugSetInfoStream</H4></A>
+<PRE>
+        void <B>vdebugSetInfoStream</B>(
+                FILE * fp);
+</PRE>
+
+<DL><DD>
+Sets the <SAMP>Info</SAMP> stream to the open <SAMP>FILE
+*</SAMP> <SAMP>stream</SAMP>. By default, this is set to
+<SAMP>stderr</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdebugSetLevel"><HR><H4>vdebugSetLevel</H4></A>
+<PRE>
+        void <B>vdebugSetLevel</B>(
+                int level);
+</PRE>
+
+<DL><DD>
+Sets the default debugging level to the given integer.
+Normally, this is set <CODE>vdebugLEVEL_NORMAL</CODE>.
+</DD></DL>
+<P>
+<A NAME="vdebugSetModuleLevel"><HR><H4>vdebugSetModuleLevel</H4></A>
+<PRE>
+        void <B>vdebugSetModuleLevel</B>(
+                const char * module,
+                int level);
+</PRE>
+
+<DL><DD>
+Sets the debugging level at which the module identified by
+<samp>tag</samp> to <samp>level</samp>.
+</DD></DL>
+<P>
+<A NAME="vdebugSetTracingLevel"><HR><H4>vdebugSetTracingLevel</H4></A>
+<PRE>
+        void <B>vdebugSetTracingLevel</B>(
+                int level);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Sets the debugging level for the <SAMP>Tracing</SAMP>
+stream. The level should be between the values of
+<CODE>vdebugLEVEL_MIN</CODE> and <CODE>vdebugLEVEL_MAX</CODE>.
+</DD></DL>
+<P>
+<A NAME="vdebugSetTracingStream"><HR><H4>vdebugSetTracingStream</H4></A>
+<PRE>
+        void <B>vdebugSetTracingStream</B>(
+                FILE * fp);
+</PRE>
+
+<DL><DD>
+Sets the <SAMP>Tracing</SAMP> stream to the open <SAMP>FILE
+*</SAMP> <SAMP>stream</SAMP>. By default, this is set to
+<SAMP>stderr</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdebugSetVariables"><HR><H4>vdebugSetVariables</H4></A>
+<PRE>
+        void <B>vdebugSetVariables</B>(
+                const char * specs);
+</PRE>
+
+<DL><DD>
+Parses the given string and sets the corresponding debug
+variable levels. For example:
+    <P>
+<SAMP>vdebugSetVariables("vinst:vdebugLEVEL_HIGH:vevent:vdebugLEVEL_MAX");</SAMP>
+    <P>
+The general form is:
+    <P>
+<SAMP>module:level[:module:level]*</SAMP>
+    <P>
+where level is one of:
+    <P>
+<CODE>vdebugLEVEL_OFF</CODE>
+    <P>
+ <CODE>vdebugLEVEL_MIN</CODE>
+    <P>
+ <CODE>vdebugLEVEL_LOW</CODE>
+    <P>
+ <CODE>vdebugLEVEL_NORMAL</CODE>
+    <P>
+ <CODE>vdebugLEVEL_HIGH</CODE>
+    <P>
+ <CODE>vdebugLEVEL_MAX</CODE>
+    <P>
+or any integer from <CODE>vdebugLEVEL_OFF</CODE> to
+<CODE>vdebugLEVEL_MAX</CODE>.
+    <P>
+Debugging levels are used to control debug code on a per
+module basis. Setting the level of a module higher than
+normal generally indicates that more debugging output is
+generated.
+</DD></DL>
+<P>
+<A NAME="vdebugSetWarningLevel"><HR><H4>vdebugSetWarningLevel</H4></A>
+<PRE>
+        void <B>vdebugSetWarningLevel</B>(
+                int level);
+</PRE>
+
+<DL><DD>
+Sets the debugging level for the <SAMP>Warning</SAMP>
+stream. The level should be between the values of
+<CODE>vdebugLEVEL_MIN</CODE> and <CODE>vdebugLEVEL_MAX</CODE>.
+</DD></DL>
+<P>
+<A NAME="vdebugSetWarningStream"><HR><H4>vdebugSetWarningStream</H4></A>
+<PRE>
+        void <B>vdebugSetWarningStream</B>(
+                FILE * fp);
+</PRE>
+
+<DL><DD>
+Sets the <SAMP>Warning</SAMP> stream to the open file
+pointer <SAMP>fp</SAMP>. By default, this is set to
+<SAMP>stderr</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdebugStartup"><HR><H4>vdebugStartup</H4></A>
+<PRE>
+        void <B>vdebugStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the Debug manager. This call has no effect if the debug
+manager is already initialized. 
+</DD></DL>
+<P>
+<A NAME="vdebugTrace"><HR><H4>vdebugTrace</H4></A>
+<PRE>
+        void <B>vdebugTrace</B>(
+                const char * formatString,
+                ... arg2);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Prints the given message to the <SAMP>Tracing</SAMP> stream
+above <CODE>vdebugLEVEL_HIGH</CODE> level. This is a hook
+for code inserted at the beginning and end of each function
+to print tracing information to illustrate control flow.
+<P>
+This entry point is included for backward compatibility.
+The recommended call is <CODE><A HREF="vdebug-x.html#vdebugMTrace"><CODE>vdebugMTrace</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdebugTraceAt"><HR><H4>vdebugTraceAt</H4></A>
+<PRE>
+        void <B>vdebugTraceAt</B>(
+                int level,
+                const char * formatString,
+                ... arg3);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Identical to <CODE>vdebugTrace</CODE>, except the given
+message is printed to the <SAMP>Tracing</SAMP> stream at or
+above the given level. Typically, a level higher than
+<CODE>vdebugLEVEL_HIGH</CODE> is used with an Trace call to
+keep unwanted detail from obscuring more important
+messages.
+<P>
+This entry point is included for backward compatibility.
+The recommended call is <CODE><A HREF="vdebug-x.html#vdebugMTraceAt"><CODE>vdebugMTraceAt</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdebugTraceClear"><HR><H4>vdebugTraceClear</H4></A>
+<PRE>
+        void <B>vdebugTraceClear</B>();
+</PRE>
+
+<DL><DD>
+This function is used to clear the current top debugging
+stack frame from the debugging frame stack before
+performing a non-local exit. It is typically used just
+before a return from inside a <CODE><A HREF="vdebug-x.html#vdebugTraceEnter"><CODE>vdebugTraceEnter</CODE></A></CODE>
+... <CODE><A HREF="vdebug-x.html#vdebugTraceLeave"><CODE>vdebugTraceLeave</CODE></A></CODE> scope. 
+<P>
+If you do not clear the current debugging frame and jump out of the
+current scope into a parent scope, the debug frame stack
+top pointer still points to this frame (which is no longer
+be valid and will thus likely cause an access violation).
+It is used mainly by the Exception class.
+</DD></DL>
+<P>
+<A NAME="vdebugTraceEnter"><HR><H4>vdebugTraceEnter</H4></A>
+<PRE>
+        void <B>vdebugTraceEnter</B>(
+                void * proc);
+</PRE>
+
+<DL><DD>
+This function is used in stack tracing to signify the entry
+into a procedure. It is implemented as a macro that expects
+the name of the procedure as the argument.
+<P>
+<CODE><A HREF="vdebug-x.html#vdebugTraceLeave"><CODE>vdebugTraceLeave</CODE></A></CODE> must be used to end a
+<SAMP>vdebug</SAMP> tracing frame. Failure to do so may
+result in dangling debug stacks and debug output with
+incorrect procedure names. It is used mainly by the
+Exception class.
+</DD></DL>
+<P>
+<A NAME="vdebugTraceEnterAt"><HR><H4>vdebugTraceEnterAt</H4></A>
+<PRE>
+        void <B>vdebugTraceEnterAt</B>(
+                int level,
+                void * proc);
+</PRE>
+
+<DL><DD>
+Identical to <CODE>vdebugTraceEnter</CODE>, except the
+stack trace message is printed to the <SAMP>Tracing</SAMP>
+stream at or above the given level.
+</DD></DL>
+<P>
+<A NAME="vdebugTraceEnterAtFrom"><HR><H4>vdebugTraceEnterAtFrom</H4></A>
+<PRE>
+        void <B>vdebugTraceEnterAtFrom</B>(
+                int level,
+                void * proc,
+                const char * tag,
+                const char * file,
+                int line);
+</PRE>
+
+<DL><DD>
+This function is equavilent to <code>vdebugTraceEnterAt</code> except
+that the tag, file, and line number of where the procedure is being
+called from are passed explicitly.
+</DD></DL>
+<P>
+<A NAME="vdebugTraceEnterFrom"><HR><H4>vdebugTraceEnterFrom</H4></A>
+<PRE>
+        void <B>vdebugTraceEnterFrom</B>(
+                void * proc,
+                const char * tag,
+                const char * file,
+                int line);
+</PRE>
+
+<DL><DD>
+This function is equavilent to <code>vdebugTraceEnter</code> except
+that the tag, file, and line number of where the procedure is being
+called from are passed explicitly.
+</DD></DL>
+<P>
+<A NAME="vdebugTraceEnterSubroutine"><HR><H4>vdebugTraceEnterSubroutine</H4></A>
+<PRE>
+        void <B>vdebugTraceEnterSubroutine</B>();
+</PRE>
+
+<DL><DD>
+This call is for use within a function which calls
+<CODE>vdebugTraceEnter</CODE> and
+<CODE><A HREF="vdebug-x.html#vdebugTraceLeave"><CODE>vdebugTraceLeave</CODE></A></CODE> to temporarily remove that
+function from the top of the trace stack. This is useful in
+the case where a function which uses the stack tracing
+features calls another function that does not. Without
+<CODE>vdebugTraceEnterSubroutine</CODE>, this can lead to
+confusing debugging output. To prevent this, wrap the
+function call with a
+<CODE>vdebugTraceEnterSubroutine</CODE> and
+<CODE><A HREF="vdebug-x.html#vdebugTraceLeave"><CODE>vdebugTraceLeave</CODE></A></CODE> pair, 
+as demonstrated in the example below.
+<P>
+
+<PRE>
+
+\Code{
+void myFuncUsingTrace(int arg)
+{
+	vdebugTraceEnter(myFuncUsingTrace);
+
+	<A HREF="vdebug-x.html#vdebugMInform"><CODE>vdebugMInform</CODE></A>(("about to enter subroutine\n"));
+
+	vdebugTraceEnterSubroutine();
+	myFuncWhichDoesntUseTrace(arg+1);
+	<A HREF="vdebug-x.html#vdebugTraceLeave"><CODE>vdebugTraceLeave</CODE></A>();
+
+	<A HREF="vdebug-x.html#vdebugMInform"><CODE>vdebugMInform</CODE></A>(("we're back\n"));
+
+	<A HREF="vdebug-x.html#vdebugTraceLeave"><CODE>vdebugTraceLeave</CODE></A>();
+}
+}
+
+</PRE>
+</DD></DL>
+<P>
+<A NAME="vdebugTraceLeave"><HR><H4>vdebugTraceLeave</H4></A>
+<PRE>
+        void <B>vdebugTraceLeave</B>();
+</PRE>
+
+<DL><DD>
+This function is used for stack tracing to signify the exit
+from the procedure specified by
+<CODE><A HREF="vdebug-x.html#vdebugTraceEnter"><CODE>vdebugTraceEnter</CODE></A></CODE>. It is used to terminate
+either a <CODE><A HREF="vdebug-x.html#vdebugTraceEnter"><CODE>vdebugTraceEnter</CODE></A></CODE> or a
+<CODE><A HREF="vdebug-x.html#vdebugTraceReenter"><CODE>vdebugTraceReenter</CODE></A></CODE>. Failure to do so may
+result in dangling debug stacks and debug output with
+incorrect procedure names. It is used mainly by the
+Exception class.
+</DD></DL>
+<P>
+<A NAME="vdebugTracePop"><HR><H4>vdebugTracePop</H4></A>
+<PRE>
+        void <B>vdebugTracePop</B>();
+</PRE>
+
+<DL><DD>
+In stack tracing, removes the top procedure from the tracing
+stack. This function is similar to <code><A HREF="vdebug-x.html#vdebugTraceLeave"><CODE>vdebugTraceLeave</CODE></A></code>
+except that does not print information to the Tracing stream.
+</DD></DL>
+<P>
+<A NAME="vdebugTraceReenter"><HR><H4>vdebugTraceReenter</H4></A>
+<PRE>
+        void <B>vdebugTraceReenter</B>();
+</PRE>
+
+<DL><DD>
+This function is used for stack tracing to signify the
+reentry into a procedure. It should only be used inside a
+previous <SAMP>vdebug</SAMP> tracing frame.
+<CODE>vdebugTraceReenter</CODE> must be terminated by a
+<CODE><A HREF="vdebug-x.html#vdebugTraceLeave"><CODE>vdebugTraceLeave</CODE></A></CODE> to be syntactically correct.
+It is used mainly by the Exception class.
+</DD></DL>
+<P>
+<A NAME="vdebugUpdateStack"><HR><H4>vdebugUpdateStack</H4></A>
+<PRE>
+        void <B>vdebugUpdateStack</B>();
+</PRE>
+
+<DL><DD>
+This function is used for stack tracing to update the
+current stack contents. It is used to reset the debug frame
+stack top to point to the current frame. It is used mainly
+by the Exception class.
+</DD></DL>
+<P>
+<A NAME="vdebugWarn"><HR><H4>vdebugWarn</H4></A>
+<PRE>
+        void <B>vdebugWarn</B>(
+                const char * formatString,
+                ... arg2);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Prints the given message to the <SAMP>Warning</SAMP> stream
+at or above <CODE>vdebugLEVEL_LOW</CODE> level. The
+<SAMP>Warning</SAMP> stream is used to inform the developer
+that a major error has occurred.
+<P>
+This entry point is included for backward compatibility.
+The recommended call is <CODE><A HREF="vdebug-x.html#vdebugMWarn"><CODE>vdebugMWarn</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdebugWarnAt"><HR><H4>vdebugWarnAt</H4></A>
+<PRE>
+        void <B>vdebugWarnAt</B>(
+                int level,
+                const char * formatString,
+                ... arg3);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Identical to <CODE>vdebugWarn</CODE>, except the given
+message is printed to the <SAMP>Warning</SAMP> stream at or
+above the given level. Typically, a level of
+<CODE>vdebugLEVEL_LOW</CODE> is used with a Warn call to
+ensure that important warning messages get through.
+<P>
+This entry point is included for backward compatibility.
+The recommended call is <CODE><A HREF="vdebug-x.html#vdebugMWarnAt"><CODE>vdebugMWarnAt</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vdebugDEBUG"><HR><H4>vdebugDEBUG</H4></A>
+<PRE>
+        <B>vdebugDEBUG</B>
+</PRE>
+
+<DL><DD>
+C pre-processor constant that controls inclusion of
+debugging code. It is either <SAMP>FALSE</SAMP> or not
+<SAMP>FALSE</SAMP> (usually <SAMP>TRUE</SAMP>). If
+<CODE>vdebugDEBUG</CODE> is <SAMP>FALSE</SAMP>, all
+debugging code is compiled out of existence. By default,
+<CODE>vdebugDEBUG</CODE> is defined to
+<CODE>vportDEBUG</CODE>.
+</DD></DL>
+<P>
+<A NAME="vdebugDEFAULT_ADVICE_LEVEL"><HR><H4>vdebugDEFAULT_ADVICE_LEVEL</H4></A>
+<PRE>
+        <B>vdebugDEFAULT_ADVICE_LEVEL</B>
+</PRE>
+
+<DL><DD>
+An integer constant used as the default <SAMP>Advice</SAMP>
+level.
+</DD></DL>
+<P>
+<A NAME="vdebugDEFAULT_ADVICE_STREAM"><HR><H4>vdebugDEFAULT_ADVICE_STREAM</H4></A>
+<PRE>
+        <B>vdebugDEFAULT_ADVICE_STREAM</B>
+</PRE>
+
+<DL><DD>
+A <SAMP>FILE *</SAMP> used as the default <SAMP>Advice</SAMP> stream.
+</DD></DL>
+<P>
+<A NAME="vdebugDEFAULT_INFO_LEVEL"><HR><H4>vdebugDEFAULT_INFO_LEVEL</H4></A>
+<PRE>
+        <B>vdebugDEFAULT_INFO_LEVEL</B>
+</PRE>
+
+<DL><DD>
+An integer constant used as the default <SAMP>Info</SAMP>
+level.
+</DD></DL>
+<P>
+<A NAME="vdebugDEFAULT_INFO_STREAM"><HR><H4>vdebugDEFAULT_INFO_STREAM</H4></A>
+<PRE>
+        <B>vdebugDEFAULT_INFO_STREAM</B>
+</PRE>
+
+<DL><DD>
+A <SAMP>FILE *</SAMP> used as the default <SAMP>Info</SAMP> stream.
+</DD></DL>
+<P>
+<A NAME="vdebugDEFAULT_LEVEL_ENVIRONMENT_VARIABLE"><HR><H4>vdebugDEFAULT_LEVEL_ENVIRONMENT_VARIABLE</H4></A>
+<PRE>
+        <B>vdebugDEFAULT_LEVEL_ENVIRONMENT_VARIABLE</B>
+</PRE>
+
+<DL><DD>
+The string <SAMP>vdebugLEVEL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdebugDEFAULT_MODULE_ENVIRONMENT_VARIABLE"><HR><H4>vdebugDEFAULT_MODULE_ENVIRONMENT_VARIABLE</H4></A>
+<PRE>
+        <B>vdebugDEFAULT_MODULE_ENVIRONMENT_VARIABLE</B>
+</PRE>
+
+<DL><DD>
+The string <SAMP>vdebugMODULE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdebugDEFAULT_TRACING_LEVEL"><HR><H4>vdebugDEFAULT_TRACING_LEVEL</H4></A>
+<PRE>
+        <B>vdebugDEFAULT_TRACING_LEVEL</B>
+</PRE>
+
+<DL><DD>
+An integer constant used as the default <SAMP>Tracing</SAMP> level.
+</DD></DL>
+<P>
+<A NAME="vdebugDEFAULT_TRACING_STREAM"><HR><H4>vdebugDEFAULT_TRACING_STREAM</H4></A>
+<PRE>
+        <B>vdebugDEFAULT_TRACING_STREAM</B>
+</PRE>
+
+<DL><DD>
+A <SAMP>FILE *</SAMP> used as the default <SAMP>Tracing</SAMP> stream.
+</DD></DL>
+<P>
+<A NAME="vdebugDEFAULT_WARNING_LEVEL"><HR><H4>vdebugDEFAULT_WARNING_LEVEL</H4></A>
+<PRE>
+        <B>vdebugDEFAULT_WARNING_LEVEL</B>
+</PRE>
+
+<DL><DD>
+An integer constant used as the default <SAMP>Warning</SAMP> level.
+</DD></DL>
+<P>
+<A NAME="vdebugDEFAULT_WARNING_STREAM"><HR><H4>vdebugDEFAULT_WARNING_STREAM</H4></A>
+<PRE>
+        <B>vdebugDEFAULT_WARNING_STREAM</B>
+</PRE>
+
+<DL><DD>
+A <SAMP>FILE *</SAMP> used as the default Warning stream.
+</DD></DL>
+<P>
+<A NAME="vdebugHEADER"><HR><H4>vdebugHEADER</H4></A>
+<PRE>
+        <B>vdebugHEADER</B>
+</PRE>
+
+<DL><DD>
+C pre-processor string used to <SAMP>#include</SAMP> this
+header. This is initially defined in <SAMP>vHEADER.h</SAMP>
+which is included by <SAMP>vport.h</SAMP>, which is included
+by almost every header file. It may then be redefined to
+<CODE>vportNULL_HEADER</CODE> to avoid having this header
+included twice by naive code. For example:
+<P>
+<BLOCKQUOTE>
+
+<PRE>
+
+#ifndef  vdebugINCLUDED
+#include vdebugHEADER
+#endif
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vdebugINCLUDED"><HR><H4>vdebugINCLUDED</H4></A>
+<PRE>
+        <B>vdebugINCLUDED</B>
+</PRE>
+
+<DL><DD>
+C pre-processor flag used to protect this header against
+multiple inclusion. By default, <CODE>vdebugINCLUDED</CODE>
+is undefined. When this header is included it first checks
+to see that <CODE>vdebugINCLUDED</CODE> is undefined and
+then defines it and includes the rest of the header. Thus,
+subsequent attempts to include this header only get a check
+to see if <CODE>vdebugINCLUDED</CODE> is undefined, which
+fails, and the rest of the header is skipped.
+<P>
+This can also be used to avoid including this file in the
+first place. This has no effect on correctness (this header
+always makes the check), but it can improve compilation
+time by avoiding the inclusion of header files that have
+already been included and are going to be skipped anyway.
+For example:
+<P>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+#ifndef  vdebugINCLUDED
+#include vdebugHEADER
+#endif
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vdebugLEVEL_HIGH"><HR><H4>vdebugLEVEL_HIGH</H4></A>
+<PRE>
+        <B>vdebugLEVEL_HIGH</B>
+</PRE>
+
+<DL><DD>
+An integer constant used to indicate a high level of
+debugging output. It is most often used as a value for
+setting the levels of various modules in
+<CODE>vdebugVARIABLES</CODE>. For example:
+    <P>
+<SAMP>% setenv vdebugVARIABLES
+vinst:vdebugLEVEL_HIGH:vex:vdebugLEVEL_HIGH</SAMP>
+    <P>
+Currently, its value is <SAMP>750</SAMP>.
+    <P>
+For comparison, <CODE><A HREF="vdebug-x.html#vdebugMTrace"><CODE>vdebugMTrace</CODE></A></CODE> calls become
+active when a module's level is higher than
+<CODE>vdebugLEVEL_HIGH</CODE>. <CODE><A HREF="vdebug-x.html#vdebugMInform"><CODE>vdebugMInform</CODE></A></CODE>
+calls become active when a module's level is
+<CODE>vdebugLEVEL_HIGH</CODE> or higher.
+<CODE><A HREF="vdebug-x.html#vdebugMAdvise"><CODE>vdebugMAdvise</CODE></A></CODE> is active when the level is
+<CODE>vdebugLEVEL_NORMAL</CODE> or higher.
+<CODE><A HREF="vdebug-x.html#vdebugMWarn"><CODE>vdebugMWarn</CODE></A></CODE> statements are seen when the level
+is <CODE>vdebugLEVEL_LOW</CODE> or above.
+</DD></DL>
+<P>
+<A NAME="vdebugLEVEL_LOW"><HR><H4>vdebugLEVEL_LOW</H4></A>
+<PRE>
+        <B>vdebugLEVEL_LOW</B>
+</PRE>
+
+<DL><DD>
+An integer constant used to indicate a low level of
+debugging output. It is rarely used. Currently, its value
+is <SAMP>250</SAMP>.
+<P>
+For comparison, <CODE><A HREF="vdebug-x.html#vdebugMTrace"><CODE>vdebugMTrace</CODE></A></CODE> calls become
+active when a module's level is higher than
+<CODE>vdebugLEVEL_HIGH</CODE>. <CODE><A HREF="vdebug-x.html#vdebugMInform"><CODE>vdebugMInform</CODE></A></CODE>
+calls become active when a module's level is
+<CODE>vdebugLEVEL_HIGH</CODE> or higher.
+<CODE><A HREF="vdebug-x.html#vdebugMAdvise"><CODE>vdebugMAdvise</CODE></A></CODE> is active when the level is
+<CODE>vdebugLEVEL_NORMAL</CODE> or higher.
+<CODE><A HREF="vdebug-x.html#vdebugMWarn"><CODE>vdebugMWarn</CODE></A></CODE> statements are seen when the level
+is <CODE>vdebugLEVEL_LOW</CODE> or above.
+</DD></DL>
+<P>
+<A NAME="vdebugLEVEL_MAX"><HR><H4>vdebugLEVEL_MAX</H4></A>
+<PRE>
+        <B>vdebugLEVEL_MAX</B>
+</PRE>
+
+<DL><DD>
+n integer constant used to indicate the maximum level of
+debugging output. It is most often used as a value for
+setting the levels of various modules in
+<CODE>vdebugVARIABLES</CODE>. For example:
+    <P>
+<SAMP>% setenv vdebugVARIABLES
+vinst:vdebugLEVEL_MAX:vex:vdebugLEVEL_MAX</SAMP>
+    <P>
+Currently, its value is <SAMP>1000</SAMP>.
+    <P>
+For comparison, <CODE><A HREF="vdebug-x.html#vdebugMTrace"><CODE>vdebugMTrace</CODE></A></CODE> calls become
+active when a module's level is higher than
+<CODE>vdebugLEVEL_HIGH</CODE>. <CODE><A HREF="vdebug-x.html#vdebugMInform"><CODE>vdebugMInform</CODE></A></CODE>
+calls become active when a module's level is
+<CODE>vdebugLEVEL_HIGH</CODE> or higher.
+<CODE><A HREF="vdebug-x.html#vdebugMAdvise"><CODE>vdebugMAdvise</CODE></A></CODE> is active when the level is
+<CODE>vdebugLEVEL_NORMAL</CODE> or higher.
+<CODE><A HREF="vdebug-x.html#vdebugMWarn"><CODE>vdebugMWarn</CODE></A></CODE> statements are seen when the level
+is <CODE>vdebugLEVEL_LOW</CODE> or above.
+</DD></DL>
+<P>
+<A NAME="vdebugLEVEL_MIN"><HR><H4>vdebugLEVEL_MIN</H4></A>
+<PRE>
+        <B>vdebugLEVEL_MIN</B>
+</PRE>
+
+<DL><DD>
+An integer constant used to indicate a minimal level of
+debugging output. It is rarely used. Currently, its value
+is <SAMP>10</SAMP>.
+<P>
+For comparison, <CODE><A HREF="vdebug-x.html#vdebugMTrace"><CODE>vdebugMTrace</CODE></A></CODE> calls become
+active when a module's level is higher than
+<CODE>vdebugLEVEL_HIGH</CODE>. <CODE><A HREF="vdebug-x.html#vdebugMInform"><CODE>vdebugMInform</CODE></A></CODE>
+calls become active when a module's level is
+<CODE>vdebugLEVEL_HIGH</CODE> or higher.
+<CODE><A HREF="vdebug-x.html#vdebugMAdvise"><CODE>vdebugMAdvise</CODE></A></CODE> is active when the level is
+<CODE>vdebugLEVEL_NORMAL</CODE> or higher.
+<CODE><A HREF="vdebug-x.html#vdebugMWarn"><CODE>vdebugMWarn</CODE></A></CODE> statements are seen when the level
+is <CODE>vdebugLEVEL_LOW</CODE> or above.
+</DD></DL>
+<P>
+<A NAME="vdebugLEVEL_NORMAL"><HR><H4>vdebugLEVEL_NORMAL</H4></A>
+<PRE>
+        <B>vdebugLEVEL_NORMAL</B>
+</PRE>
+
+<DL><DD>
+An integer constant used to indicate a normal level of
+debugging output. It is most often used as a value for
+setting the levels of various modules in
+<CODE>vdebugVARIABLES</CODE>. For example:
+    <P>
+<SAMP>% setenv vdebugVARIABLES
+vinst:vdebugLEVEL_NORMAL:vex:vdebugLEVEL_NORMAL</SAMP>
+    <P>
+Currently, its value is <SAMP>500</SAMP>.
+    <P>
+For comparison, <CODE><A HREF="vdebug-x.html#vdebugMTrace"><CODE>vdebugMTrace</CODE></A></CODE> calls become
+active when a module's level is higher than
+<CODE>vdebugLEVEL_HIGH</CODE>. <CODE><A HREF="vdebug-x.html#vdebugMInform"><CODE>vdebugMInform</CODE></A></CODE>
+calls become active when a module's level is
+<CODE>vdebugLEVEL_HIGH</CODE> or higher.
+<CODE><A HREF="vdebug-x.html#vdebugMAdvise"><CODE>vdebugMAdvise</CODE></A></CODE> is active when the level is
+<CODE>vdebugLEVEL_NORMAL</CODE> or higher.
+<CODE><A HREF="vdebug-x.html#vdebugMWarn"><CODE>vdebugMWarn</CODE></A></CODE> statements are seen when the level
+is <CODE>vdebugLEVEL_LOW</CODE> or above.
+</DD></DL>
+<P>
+<A NAME="vdebugLEVEL_OFF"><HR><H4>vdebugLEVEL_OFF</H4></A>
+<PRE>
+        <B>vdebugLEVEL_OFF</B>
+</PRE>
+
+<DL><DD>
+An integer constant used to turn off debugging output. It
+is most often used as a value for setting the levels of
+various modules in <CODE>vdebugVARIABLES</CODE>. For
+example:
+<P>
+<SAMP>% setenv vdebugVARIABLES
+vinst:vdebugLEVEL_OFF:vex:vdebugLEVEL_OFF</SAMP>
+<P>
+Currently, its value is 0.
+<P>
+For comparison, <CODE><A HREF="vdebug-x.html#vdebugMTrace"><CODE>vdebugMTrace</CODE></A></CODE> calls become
+active when a module's level is higher than
+<CODE>vdebugLEVEL_HIGH</CODE>. <CODE><A HREF="vdebug-x.html#vdebugMInform"><CODE>vdebugMInform</CODE></A></CODE>
+calls become active when a module's level is
+<CODE>vdebugLEVEL_HIGH</CODE> or higher.
+<CODE><A HREF="vdebug-x.html#vdebugMAdvise"><CODE>vdebugMAdvise</CODE></A></CODE> is active when the level is
+<CODE>vdebugLEVEL_NORMAL</CODE> or higher.
+<CODE><A HREF="vdebug-x.html#vdebugMWarn"><CODE>vdebugMWarn</CODE></A></CODE> statements are seen when the level
+is <CODE>vdebugLEVEL_LOW</CODE> or above.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

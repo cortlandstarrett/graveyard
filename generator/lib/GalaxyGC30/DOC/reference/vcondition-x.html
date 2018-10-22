@@ -1,0 +1,382 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vcondition prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vcondition prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vcondition-x.html#section_DataType">Types</A> [1]</TD>
+<TD><A HREF="vcondition-x.html#section_Function">Functions</A> [11]</TD>
+<TD></TD>
+<TD><A HREF="vcondition-x.html#section_Constant">Constants</A> [2]</TD>
+<TD></TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vcondition"><HR><H4>vcondition</H4></A>
+<PRE>
+        typedef ... <B>vcondition</B>;
+</PRE>
+
+<DL><DD>
+A synchronization object which allows a thread to automatically release a
+mutex and suspend its execution until notified by another thread to
+resume execution and reacquire the released mutex. 
+<P>
+Condition variables are used when a thread wants to wait until a shared
+resource, typically a variable, becomes a certain value. This is
+accomplished by locking a mutex, checking the value of the variable,
+and while the value is not what is desired, waiting on the condition
+variable. The mutex is released while waiting on a condition variable,
+allowing other threads to acquire the mutex, alter the value of the
+variable, then signal the waiting thread(s) that the value has
+changed. 
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vconditionDestroy"><HR><H4>vconditionDestroy</H4></A>
+<PRE>
+        int <B>vconditionDestroy</B>(
+                vcondition * condition);
+</PRE>
+
+<DL><DD>
+Destroys the condition variable represented by <samp>condition</samp>,
+which must have been initialized by <code><A HREF="vcondition-x.html#vconditionInit"><CODE>vconditionInit</CODE></A></code>. The
+condition variable will no longer be valid and should not be used by
+any thread after this call. The result of calling this function on a
+condition variable that is in use by other threads is undefined.
+</DD></DL>
+<P>
+<A NAME="vconditionDump"><HR><H4>vconditionDump</H4></A>
+<PRE>
+        int <B>vconditionDump</B>(
+                vcondition * condition,
+                FILE * fp);
+</PRE>
+
+<DL><DD>
+Prints the contents of the condition variable <samp>condition</samp>
+on the file <samp>fp</samp> in user-readable form. This function is
+intended for debugging and should not be used to store the contents of
+the condition variable in recoverable form. This function has effect
+only if debugging is enabled. 
+</DD></DL>
+<P>
+<A NAME="vconditionGetName"><HR><H4>vconditionGetName</H4></A>
+<PRE>
+        const char * <B>vconditionGetName</B>(
+                vcondition * condition);
+</PRE>
+
+<DL><DD>
+Returns the name of <samp>condition</samp>, or <samp>NULL</samp> if
+the condition variable has no name.
+</DD></DL>
+<P>
+<A NAME="vconditionInit"><HR><H4>vconditionInit</H4></A>
+<PRE>
+        int <B>vconditionInit</B>(
+                vcondition * condition);
+</PRE>
+
+<DL><DD>
+Initializes the memory addressed by <samp>condition</samp> as a
+condition variable. The new condition variable has no name.
+</DD></DL>
+<P>
+<A NAME="vconditionSetName"><HR><H4>vconditionSetName</H4></A>
+<PRE>
+        int <B>vconditionSetName</B>(
+                vcondition * condition,
+                const char * name);
+</PRE>
+
+<DL><DD>
+Sets the name of <samp>condition</samp> to <samp>name</samp>. It is
+often a good idea to give each condition variable a unique name as
+many of the debugging errors and warnings produced by the condition
+variable class will include the offending condition variable's
+name. 
+</DD></DL>
+<P>
+<A NAME="vconditionSetNameFormatted"><HR><H4>vconditionSetNameFormatted</H4></A>
+<PRE>
+        int <B>vconditionSetNameFormatted</B>(
+                vcondition * condition,
+                const char * nameFmt,
+                void * fmtArg);
+</PRE>
+
+<DL><DD>
+Sets the name of <samp>condition</samp> to <samp>fmt</samp> expanded
+with <samp>arg</samp>. This function is useful in naming condition
+variables that are associated with instances of other objects. Example: 
+
+<BLOCKQUOTE>
+<PRE>
+vcondition c;
+<A HREF="vdialog-x.html#vdialog"><CODE>vdialog</CODE></A> *d;
+
+<A HREF="vcondition-x.html#vconditionInit"><CODE>vconditionInit</CODE></A>(&c);
+vconditionSetNameFormatted(&c, "For dialog 0x%p", d);
+</PRE>
+</BLOCKQUOTE>
+
+This would set the name of <samp>c</samp> to "For dialog 0xDEADBEEF"
+if the dialog is at address 0xDEADBEEF.
+</DD></DL>
+<P>
+<A NAME="vconditionSignal"><HR><H4>vconditionSignal</H4></A>
+<PRE>
+        int <B>vconditionSignal</B>(
+                vcondition * condition);
+</PRE>
+
+<DL><DD>
+Signals at least one thread waiting on <samp>condition</samp>. This
+causes at least one thread waiting on the condition variable to wake
+up and reacquire the mutex that was released in <code><A HREF="vcondition-x.html#vconditionWait"><CODE>vconditionWait</CODE></A></code>. 
+<p>
+Note that this function activates <b>at least one</b> thread, not just a
+single thread. Although only a single thread will usually 
+be awakened, some multiprocessor architectures will
+sometimes activate more than one thread for efficiency.
+Therefore, counting on this function to activate one and only one
+thread would be a mistake.
+</DD></DL>
+<P>
+<A NAME="vconditionSignalAll"><HR><H4>vconditionSignalAll</H4></A>
+<PRE>
+        int <B>vconditionSignalAll</B>(
+                vcondition * condition);
+</PRE>
+
+<DL><DD>
+Signals all threads waiting on <samp>condition</samp>. This causes
+every thread waiting on the condition variable to wake up and
+reacquire the mutex that was released in <code><A HREF="vcondition-x.html#vconditionWait"><CODE>vconditionWait</CODE></A></code>.
+</DD></DL>
+<P>
+<A NAME="vconditionStartup"><HR><H4>vconditionStartup</H4></A>
+<PRE>
+        void <B>vconditionStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the condition variable class. 
+Has no effect if this manager is already initialized.
+</DD></DL>
+<P>
+<A NAME="vconditionWait"><HR><H4>vconditionWait</H4></A>
+<PRE>
+        int <B>vconditionWait</B>(
+                vcondition * condition,
+                vmutex * mutex,
+                unsigned long secs,
+                unsigned long nsecs);
+</PRE>
+
+<DL><DD>
+Causes the calling thread to wait for <samp>condition</samp> to be
+signaled. The <samp>mutex</samp> must be locked by the calling
+thread. The mutex will be unlocked and the thread will begin waiting
+on the condition variable. This operation is atomic. Once signaled,
+the calling thread will relock the mutex and return with
+<samp>vstatusSUCCESS</samp>.
+<p>
+If <samp>secs</samp> or <samp>nsecs</samp> are non-zero, they specify
+the number of seconds and nanoseconds, respectively, to wait for the
+condition to be signaled. If the condition is not signaled within the
+specified period of time, <code>vconditionWait</code> will return with
+<samp>vstatusTIMED_OUT</samp>.
+<p>
+If <samp>mutex</samp> is a recursive mutex and it is locked more than
+once, <code>vconditionWait</code> will unlock <samp>mutex</samp>
+enough times to release it to other threads waiting to lock it. On
+return from <code>vconditionWait</code> the mutex will be relocked the
+same number of times so as to keep the caller's state consistent.
+<p>
+Note that there are times where the operating system will wake up a thread
+waiting on a condition variable even though the condition variable was
+<b>not</b> signaled. To protect against such an event, it is wise to
+have the calling thread loop and call <code>vconditionWait</code>
+again if the state of the variable it is testing has not changed. For
+example:
+
+<BLOCKQUOTE>
+<PRE>
+vcondition c;
+<A HREF="vmutex-x.html#vmutex"><CODE>vmutex</CODE></A>     m;
+vbool      buffer_full;
+
+<A HREF="vmutex-x.html#vmutexMLock"><CODE>vmutexMLock</CODE></A>(&m);
+
+/* if the buffer is full, wait for another thread to make some room in it */
+
+while (buffer_full == vTRUE) 
+  vconditionWait(&c, &m, 0, 0);
+
+/* the buffer has room in it now, add an element to it... */
+
+<A HREF="vmutex-x.html#vmutexMUnlock"><CODE>vmutexMUnlock</CODE></A>(&m);
+
+</PRE>
+</BLOCKQUOTE>
+
+Presumabley, another thread will execute code that looks something
+like this:
+
+<BLOCKQUOTE>
+<PRE>
+<A HREF="vmutex-x.html#vmutexMLock"><CODE>vmutexMLock</CODE></A>(&m);
+
+/* take an element out of the buffer... */
+
+buffer_full = vFALSE;
+<A HREF="vcondition-x.html#vconditionSignal"><CODE>vconditionSignal</CODE></A>(&c);
+
+<A HREF="vmutex-x.html#vmutexMUnlock"><CODE>vmutexMUnlock</CODE></A>(&m);
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vconditionWaitInterruptable"><HR><H4>vconditionWaitInterruptable</H4></A>
+<PRE>
+        int <B>vconditionWaitInterruptable</B>(
+                vcondition * condition,
+                vmutex * mutex,
+                unsigned long secs,
+                unsigned long nsecs);
+</PRE>
+
+<DL><DD>
+Causes the calling thread to wait for the specified condition
+variable, just like <code>vconditionWait</code>, except that the wait
+is interruptable with <code><A HREF="vthread-x.html#vthreadInterrupt"><CODE>vthreadInterrupt</CODE></A></code>. If the wait is
+interrupted with <code><A HREF="vthread-x.html#vthreadInterrupt"><CODE>vthreadInterrupt</CODE></A></code>,
+<code>vconditionWaitInterruptable</code> will return with <samp>vstatusINTERRUPTED</samp>.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vconditionINCLUDED"><HR><H4>vconditionINCLUDED</H4></A>
+<PRE>
+        <B>vconditionINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vcondition.h</SAMP> is included.
+Use this constant to protect against multiple inclusion of the vcondition
+header file. This constant is intended to be used in this way when
+including header files:
+
+<BLOCKQUOTE>
+<PRE>
+#ifndef  vconditionINCLUDED
+#include vconditionHEADER
+#endif
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vconditionNULL"><HR><H4>vconditionNULL</H4></A>
+<PRE>
+        <B>vconditionNULL</B>
+</PRE>
+
+<DL><DD>
+Constant representing an uninitialized <CODE>vcondition</CODE>.
+Use this constant to initialize a <CODE>vcondition</CODE> to
+<SAMP>NULL</SAMP> or to determine if a <CODE>vcondition</CODE> is
+<SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

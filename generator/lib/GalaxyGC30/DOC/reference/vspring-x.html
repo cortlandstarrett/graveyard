@@ -1,0 +1,924 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vspring prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vspring prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vspring-x.html#section_DataType">Types</A> [2]</TD>
+<TD><A HREF="vspring-x.html#section_Function">Functions</A> [27]</TD>
+<TD><A HREF="vspring-x.html#section_Message">Messages</A> [7]</TD>
+<TD><A HREF="vspring-x.html#section_Constant">Constants</A> [3]</TD>
+<TD><A HREF="vspring-x.html#section_Macro">Macros</A> [2]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vspringArrangerClass"><HR><H4>vspringArrangerClass</H4></A>
+<PRE>
+        typedef ... <B>vspringArrangerClass</B>;
+</PRE>
+
+<DL><DD>
+Describes how to apply a given spring solution to a given
+list of items. The arranger class contains the functions
+that convert solution indexes into item pointers; that
+retrieve the current, minimum, and natural sizes of items;
+that constrain any new sizes; and that actually set the new
+positions and sizes. Arranger classes are referenced by a
+pointer to this type.
+</DD></DL>
+<P>
+<A NAME="vspringSolution"><HR><H4>vspringSolution</H4></A>
+<PRE>
+        typedef ... <B>vspringSolution</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to dynamically locate a set
+of items and to determine the minimum size of the items'
+container. A spring domain can be compiled into a spring
+solution, or a spring solution can be built up from
+scratch. Spring solutions are referenced by a pointer to an
+object of this type.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vspring"><HR><H4>vspring</H4></A>
+<PRE>
+        void <B>vspring</B>();
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vspringAppendSolutionStep"><HR><H4>vspringAppendSolutionStep</H4></A>
+<PRE>
+        void <B>vspringAppendSolutionStep</B>(
+                vspringSolution * solution,
+                int flags,
+                int baseLength,
+                int itemIndex);
+</PRE>
+
+<DL><DD>
+Appends a new step, whose fixed base length is
+<SAMP>baseLength</SAMP>, for the item specified by
+<SAMP>itemIndex</SAMP> to the spring solution
+<SAMP>solution</SAMP>. The value of <SAMP>flags</SAMP>
+determines the type of step. Its value must be zero or a
+combination of the following:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><CODE>vspringVERTICAL_STEP</CODE>
+<DD>For steps in vertical direction.
+<DT><CODE>vspringFORWARD_EDGE_STEP</CODE>
+<DD>For steps involving the forward edge.
+<DT><CODE>vspringINTERNAL_STEP</CODE>
+<DD>For steps involving an internal connection.
+<DT><CODE>vspringSTRETCH_STEP</CODE>
+<DD>For steps that stretch to include extra space.
+<DT><CODE>vspringNATURAL_BASE_STEP</CODE>
+<DD>For steps whose base lengths depend on the context.
+<DT><CODE>vspringLOCKED_STEP</CODE>
+<DD>For steps whose base lengths have edit locks.
+<DT><CODE>vspringLAST_STEP</CODE>
+<DD>For the last step in a series.
+</DL>
+</BLOCKQUOTE>
+
+    <P>
+This is the only function that adds steps to a spring
+solution. Generally, you do not want to manipulate
+solutions at this level.
+</DD></DL>
+<P>
+<A NAME="vspringArrangeFromSolution"><HR><H4>vspringArrangeFromSolution</H4></A>
+<PRE>
+        void <B>vspringArrangeFromSolution</B>(
+                vspringArrangerClass * arrangerClass,
+                void * arrangerData,
+                vspringSolution * solution,
+                const vrect * rect);
+</PRE>
+
+<DL><DD>
+Arranges a set of items according to the positions
+specified by <SAMP>solution</SAMP> and the border rectangle
+<SAMP>rect</SAMP>. The information on the individual items
+is collected by passing the <SAMP>arrangerData</SAMP>
+pointer to the various <SAMP>arrangerClass</SAMP>  methods.
+If the <SAMP>keepInfo</SAMP> attribute of the solution is
+<SAMP>FALSE</SAMP>, the Spring class freshly queries each
+time for the individual item pointers, rectangles, minimum
+sizes, and natural sizes. Otherwise, the information is
+retained for future use.
+</DD></DL>
+<P>
+<A NAME="vspringCalcMinSizeFromSolution"><HR><H4>vspringCalcMinSizeFromSolution</H4></A>
+<PRE>
+        void <B>vspringCalcMinSizeFromSolution</B>(
+                vspringArrangerClass * arrangerClass,
+                void * arrangerData,
+                vspringSolution * solution,
+                int * w,
+                int * h);
+</PRE>
+
+<DL><DD>
+Calculates the minimum size necessary to arrange a set of
+items according to the positions specified by the spring
+solution <SAMP>solution</SAMP> when all of the stretch
+between item edges is set to zero, if possible. The minimum
+size is returned in the space pointed to by <SAMP>w</SAMP>
+and <SAMP>h</SAMP>. The information on the individual items
+is collected by passing the <SAMP>arrangerData</SAMP>
+pointer to the various <SAMP>arrangerClass</SAMP>  methods.
+If the <SAMP>keepInfo</SAMP> attribute of the solution is
+<SAMP>FALSE</SAMP>, the Spring class freshly queries each
+time for the individual item pointers, rectangles, minimum
+sizes, and natural sizes. Otherwise, the information is
+retained for future use.
+</DD></DL>
+<P>
+<A NAME="vspringCloneSolution"><HR><H4>vspringCloneSolution</H4></A>
+<PRE>
+        vspringSolution * <B>vspringCloneSolution</B>(
+                vspringSolution * solution);
+</PRE>
+
+<DL><DD>
+Creates a new copy of the spring solution
+<SAMP>solution</SAMP> and returns a pointer to it. You need
+to clone a spring solution before passing it to
+<CODE><A HREF="vdialog-x.html#vdialogSetSolution"><CODE>vdialogSetSolution</CODE></A></CODE>,
+<CODE><A HREF="vcontainer-x.html#vcontainerSetSolution"><CODE>vcontainerSetSolution</CODE></A></CODE>,
+<CODE><A HREF="vdialog-x.html#vdialogSetItemListSolution"><CODE>vdialogSetItemListSolution</CODE></A></CODE>, or
+<CODE><A HREF="vspringdom-x.html#vspringdomSetSolution"><CODE>vspringdomSetSolution</CODE></A></CODE>, if you do not own it.
+</DD></DL>
+<P>
+<A NAME="vspringCreateSolution"><HR><H4>vspringCreateSolution</H4></A>
+<PRE>
+        vspringSolution * <B>vspringCreateSolution</B>();
+</PRE>
+
+<DL><DD>
+Creates a new, empty spring solution and returns a pointer
+to it. The <CODE><A HREF="vspring-x.html#vspringSolution"><CODE>vspringSolution</CODE></A></CODE> type is not managed
+by the Class class. You only need to call this function
+if you were going to fill up the solution manually.
+Typically, you will create new solutions by calling
+<CODE><A HREF="vspringdom-x.html#vspringdomCompile"><CODE>vspringdomCompile</CODE></A></CODE> on an appropriately
+configured spring domain.
+</DD></DL>
+<P>
+<A NAME="vspringDestroySolution"><HR><H4>vspringDestroySolution</H4></A>
+<PRE>
+        void <B>vspringDestroySolution</B>(
+                vspringSolution * solution);
+</PRE>
+
+<DL><DD>
+Destroys the spring solution <SAMP>solution</SAMP> and all
+of its steps. You can only destroy solutions that you own.
+You should not destroy the solutions returned by
+<CODE><A HREF="vdialog-x.html#vdialogGetSolution"><CODE>vdialogGetSolution</CODE></A></CODE>,
+<CODE><A HREF="vcontainer-x.html#vcontainerGetSolution"><CODE>vcontainerGetSolution</CODE></A></CODE>,
+<CODE><A HREF="vdialog-x.html#vdialogGetItemListSolution"><CODE>vdialogGetItemListSolution</CODE></A></CODE>, and
+<CODE><A HREF="vspringdom-x.html#vspringdomGetSolution"><CODE>vspringdomGetSolution</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vspringDumpSolution"><HR><H4>vspringDumpSolution</H4></A>
+<PRE>
+        void <B>vspringDumpSolution</B>(
+                vspringSolution * solution,
+                FILE * stream);
+</PRE>
+
+<DL><DD>
+Prints information about the spring solution
+<SAMP>solution</SAMP> on the file stream
+<SAMP>stream</SAMP>. This information is for debugging
+purposes only. This function is enabled only in the
+debugging libraries.
+</DD></DL>
+<P>
+<A NAME="vspringEmptySolution"><HR><H4>vspringEmptySolution</H4></A>
+<PRE>
+        void <B>vspringEmptySolution</B>(
+                vspringSolution * solution);
+</PRE>
+
+<DL><DD>
+Destroys all of the steps in a solution without freeing the
+memory. This function is useful if you are simply going to
+rebuild the solution anyway.
+</DD></DL>
+<P>
+<A NAME="vspringGetDefaultArrangerClass"><HR><H4>vspringGetDefaultArrangerClass</H4></A>
+<PRE>
+        vspringArrangerClass * <B>vspringGetDefaultArrangerClass</B>();
+</PRE>
+
+<DL><DD>
+Returns a root level arranger class. The functions provided
+in this class  do nothing. You can create your own class by
+cloning (using <CODE><A HREF="vclass-x.html#vclassClone"><CODE>vclassClone</CODE></A></CODE>) or by reproducing
+from this root class (using <CODE><A HREF="vclass-x.html#vclassReproduce"><CODE>vclassReproduce</CODE></A></CODE>).
+After creating your own copy of the class, you can
+selectively define (using <CODE><A HREF="vclass-x.html#vclassSet"><CODE>vclassSet</CODE></A></CODE>) the
+methods with your own functions. Refer to the ``Using the
+Spring Manager for Other Objects'' section of this chapter.
+</DD></DL>
+<P>
+<A NAME="vspringGetSolutionFixedBaseAt"><HR><H4>vspringGetSolutionFixedBaseAt</H4></A>
+<PRE>
+        int <B>vspringGetSolutionFixedBaseAt</B>(
+                vspringSolution * solution,
+                int stepIndex);
+</PRE>
+
+<DL><DD>
+Returns the fixed base length of a specified step in the
+spring solution <SAMP>solution</SAMP>. The appropriate
+values of <SAMP>stepIndex</SAMP> range from zero to the
+number of steps appended to the solution since the
+solution's creation minus one. The order of the steps is
+the same as the order in which you appended them to the
+solution.
+</DD></DL>
+<P>
+<A NAME="vspringGetSolutionFlagsAt"><HR><H4>vspringGetSolutionFlagsAt</H4></A>
+<PRE>
+        unsigned int <B>vspringGetSolutionFlagsAt</B>(
+                vspringSolution * solution,
+                int stepIndex);
+</PRE>
+
+<DL><DD>
+Returns the flags for a specified step in the spring
+solution <SAMP>solution</SAMP>. The appropriate values of
+<SAMP>stepIndex</SAMP> range from zero to the number of
+steps appended to the solution since the solution's
+creation minus one. The order of the steps is the same as
+the order in which you appended them to the solution.
+</DD></DL>
+<P>
+<A NAME="vspringGetSolutionItemCount"><HR><H4>vspringGetSolutionItemCount</H4></A>
+<PRE>
+        int <B>vspringGetSolutionItemCount</B>(
+                vspringSolution * solution);
+</PRE>
+
+<DL><DD>
+Returns the largest index used by any of the steps in the
+spring solution <SAMP>solution</SAMP> plus one.
+Effectively, this is the number of items that will be
+arranged according to the solution, although some items may
+not be referenced by any of its steps.
+</DD></DL>
+<P>
+<A NAME="vspringGetSolutionItemIndexAt"><HR><H4>vspringGetSolutionItemIndexAt</H4></A>
+<PRE>
+        int <B>vspringGetSolutionItemIndexAt</B>(
+                vspringSolution * solution,
+                int stepIndex);
+</PRE>
+
+<DL><DD>
+Returns the item index for a specified step in the spring
+solution <SAMP>solution</SAMP>. The appropriate values of
+<SAMP>stepIndex</SAMP> range from zero to the number of
+steps appended to the solution since the solution's
+creation minus one. The order of the steps is the same as
+the order in which you appended them to the solution.
+</DD></DL>
+<P>
+<A NAME="vspringGetSolutionStepCount"><HR><H4>vspringGetSolutionStepCount</H4></A>
+<PRE>
+        int <B>vspringGetSolutionStepCount</B>(
+                vspringSolution * solution);
+</PRE>
+
+<DL><DD>
+Returns the number of steps appended to the spring solution
+<SAMP>solution</SAMP> since its creation.
+</DD></DL>
+<P>
+<A NAME="vspringHasSolutionKeepInfo"><HR><H4>vspringHasSolutionKeepInfo</H4></A>
+<PRE>
+        vbool <B>vspringHasSolutionKeepInfo</B>(
+                vspringSolution * solution);
+</PRE>
+
+<DL><DD>
+Returns whether the Spring class keeps certain
+information used by the spring solution
+<SAMP>solution</SAMP> in calls to
+<CODE><A HREF="vspring-x.html#vspringArrangeFromSolution"><CODE>vspringArrangeFromSolution</CODE></A></CODE> and
+<CODE><A HREF="vspring-x.html#vspringCalcMinSizeFromSolution"><CODE>vspringCalcMinSizeFromSolution</CODE></A></CODE>. This
+information includes the individual item pointers,
+rectangles, minimum sizes, and natural sizes.
+</DD></DL>
+<P>
+<A NAME="vspringLoadSolution"><HR><H4>vspringLoadSolution</H4></A>
+<PRE>
+        vspringSolution * <B>vspringLoadSolution</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Loads a spring solution from <SAMP>resource</SAMP> and
+returns a pointer to the new spring solution.
+</DD></DL>
+<P>
+<A NAME="vspringMarkSolutionItemIndexesChanged"><HR><H4>vspringMarkSolutionItemIndexesChanged</H4></A>
+<PRE>
+        void <B>vspringMarkSolutionItemIndexesChanged</B>(
+                vspringSolution * solution);
+</PRE>
+
+<DL><DD>
+Tells the Spring class to freshly query, through the
+arranger class, for the item pointers used by the spring
+solution <SAMP>solution</SAMP> in the next call to
+<CODE><A HREF="vspring-x.html#vspringArrangeFromSolution"><CODE>vspringArrangeFromSolution</CODE></A></CODE> or
+<CODE><A HREF="vspring-x.html#vspringCalcMinSizeFromSolution"><CODE>vspringCalcMinSizeFromSolution</CODE></A></CODE>. This function
+is only effective if the <SAMP>keepInfo</SAMP> attribute of
+the solution is <SAMP>TRUE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vspringMarkSolutionItemMinSizesChanged"><HR><H4>vspringMarkSolutionItemMinSizesChanged</H4></A>
+<PRE>
+        void <B>vspringMarkSolutionItemMinSizesChanged</B>(
+                vspringSolution * solution);
+</PRE>
+
+<DL><DD>
+Tells the Spring class to freshly query, through the
+arranger class, for the item minimum sizes used by the
+spring solution <SAMP>solution</SAMP> in the next call to
+<CODE><A HREF="vspring-x.html#vspringArrangeFromSolution"><CODE>vspringArrangeFromSolution</CODE></A></CODE> or
+<CODE><A HREF="vspring-x.html#vspringCalcMinSizeFromSolution"><CODE>vspringCalcMinSizeFromSolution</CODE></A></CODE>. This function
+is only effective if the <SAMP>keepInfo</SAMP> attribute of
+the solution is <SAMP>TRUE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vspringMarkSolutionItemNaturalSizesChanged"><HR><H4>vspringMarkSolutionItemNaturalSizesChanged</H4></A>
+<PRE>
+        void <B>vspringMarkSolutionItemNaturalSizesChanged</B>(
+                vspringSolution * solution);
+</PRE>
+
+<DL><DD>
+Tells the Spring class to freshly query, through the
+arranger class, for the item natural sizes used by the
+spring solution <SAMP>solution</SAMP> in the next call to
+<CODE><A HREF="vspring-x.html#vspringArrangeFromSolution"><CODE>vspringArrangeFromSolution</CODE></A></CODE> or
+<CODE><A HREF="vspring-x.html#vspringCalcMinSizeFromSolution"><CODE>vspringCalcMinSizeFromSolution</CODE></A></CODE>. This function
+is only effective if the <SAMP>keepInfo</SAMP> attribute of
+the solution is <SAMP>TRUE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vspringMarkSolutionItemRectsChanged"><HR><H4>vspringMarkSolutionItemRectsChanged</H4></A>
+<PRE>
+        void <B>vspringMarkSolutionItemRectsChanged</B>(
+                vspringSolution * solution);
+</PRE>
+
+<DL><DD>
+Tells the Spring class to freshly query, through the
+arranger class, for the item rectangles used by the spring
+solution <SAMP>solution</SAMP> in the next call to
+<CODE><A HREF="vspring-x.html#vspringArrangeFromSolution"><CODE>vspringArrangeFromSolution</CODE></A></CODE> or
+<CODE><A HREF="vspring-x.html#vspringCalcMinSizeFromSolution"><CODE>vspringCalcMinSizeFromSolution</CODE></A></CODE>. This function
+is only effective if the <SAMP>keepInfo</SAMP> attribute of
+the solution is <SAMP>TRUE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vspringSetSolutionFixedBaseAt"><HR><H4>vspringSetSolutionFixedBaseAt</H4></A>
+<PRE>
+        void <B>vspringSetSolutionFixedBaseAt</B>(
+                vspringSolution * solution,
+                int stepIndex,
+                int baseLength);
+</PRE>
+
+<DL><DD>
+Sets the fixed base length of a specified step in the
+spring solution <SAMP>solution</SAMP>. The appropriate
+values of <SAMP>stepIndex</SAMP> range from zero to the
+number of steps appended to the solution since the
+solution's creation minus one. The order of the steps is
+the same as the order in which you appended them to the
+solution.
+</DD></DL>
+<P>
+<A NAME="vspringSetSolutionFlagsAt"><HR><H4>vspringSetSolutionFlagsAt</H4></A>
+<PRE>
+        void <B>vspringSetSolutionFlagsAt</B>(
+                vspringSolution * solution,
+                int stepIndex,
+                unsigned int flags);
+</PRE>
+
+<DL><DD>
+Sets the flags for a specified step in the spring solution
+<SAMP>solution</SAMP>. The appropriate values of
+<SAMP>stepIndex</SAMP> range from zero to the number of
+steps appended to the solution since the solution's
+creation minus one. The order of the steps is the same as
+the order in which you appended them to the solution. The
+value of <SAMP>flags</SAMP> determines the type of step.
+Its value must be zero or a combination of the following:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><CODE>vspringVERTICAL_STEP</CODE>
+<DD>For steps in vertical direction.
+<DT><CODE>vspringFORWARD_EDGE_STEP</CODE>
+<DD>For steps involving the forward edge.
+<DT><CODE>vspringINTERNAL_STEP</CODE>
+<DD>For steps involving an internal connection.
+<DT><CODE>vspringSTRETCH_STEP</CODE>
+<DD>For steps that stretch to include extra space.
+<DT><CODE>vspringNATURAL_BASE_STEP</CODE>
+<DD>For steps whose base lengths depend on the context.
+<DT><CODE>vspringLOCKED_STEP</CODE>
+<DD>For steps whose base lengths have edit locks.
+<DT><CODE>vspringLAST_STEP</CODE>
+<DD>For the last step in a series.
+</DL>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vspringSetSolutionItemIndexAt"><HR><H4>vspringSetSolutionItemIndexAt</H4></A>
+<PRE>
+        void <B>vspringSetSolutionItemIndexAt</B>(
+                vspringSolution * solution,
+                int stepIndex,
+                int itemIndex);
+</PRE>
+
+<DL><DD>
+Sets the item index for a specified step in the spring
+solution <SAMP>solution</SAMP>. The appropriate values of
+<SAMP>stepIndex</SAMP> range from zero to the number of
+steps appended to the solution since the solution's
+creation minus one. The order of the steps is the same as
+the order in which you appended them to the solution. If
+<SAMP>itemIndex</SAMP> is greater than or equal to the item
+count of the solution, then the item count is increased to
+include the index.
+</DD></DL>
+<P>
+<A NAME="vspringSetSolutionKeepInfo"><HR><H4>vspringSetSolutionKeepInfo</H4></A>
+<PRE>
+        void <B>vspringSetSolutionKeepInfo</B>(
+                vspringSolution * solution,
+                int keepInfo);
+</PRE>
+
+<DL><DD>
+Sets whether the spring solution <SAMP>solution</SAMP>
+should retain certain information for efficiency after
+calls to <CODE><A HREF="vspring-x.html#vspringArrangeFromSolution"><CODE>vspringArrangeFromSolution</CODE></A></CODE> and
+<CODE><A HREF="vspring-x.html#vspringCalcMinSizeFromSolution"><CODE>vspringCalcMinSizeFromSolution</CODE></A></CODE>. This
+information includes the individual item pointers,
+rectangles, minimum sizes, and natural sizes. The default
+value of this attribute is <SAMP>FALSE</SAMP>, so the
+Spring class freshly queries, through the arranger class,
+for the information it needs during each arrangement and
+minimum size calculation.
+</DD></DL>
+<P>
+<A NAME="vspringStartup"><HR><H4>vspringStartup</H4></A>
+<PRE>
+        void <B>vspringStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the low-level part of the Spring class. Has
+no effect if it is already initialized.
+</DD></DL>
+<P>
+<A NAME="vspringStoreSolution"><HR><H4>vspringStoreSolution</H4></A>
+<PRE>
+        void <B>vspringStoreSolution</B>(
+                vspringSolution * solution,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Stores all the steps of the spring solution
+<SAMP>solution</SAMP> in <SAMP>resource</SAMP>.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vspringCONSTRAIN_ITEM_SIZE"><HR><H4>vspringCONSTRAIN_ITEM_SIZE</H4></A>
+<PRE>
+        &lt;<B>vspringCONSTRAIN_ITEM_SIZE</B>&gt;
+</PRE>
+
+<DL><DD>
+Specifies the dimensions of <SAMP>item</SAMP> by changing
+the provisional sizes pointed to by <SAMP>widthPtr</SAMP>
+and <SAMP>heightPtr</SAMP>. For example, the height of an
+item may be changed to an integral number of lines.
+    <P>
+The default method for the spring arranger class leaves
+both dimensions alone.
+    <P>
+The default method for the spring domain arranger class
+leaves both dimensions alone. A pointer to the spring
+domain is passed in <SAMP>user</SAMP>. A pointer to the
+spring domain object is passed in <SAMP>item</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vspringGET_ITEM_AT"><HR><H4>vspringGET_ITEM_AT</H4></A>
+<PRE>
+        &lt;<B>vspringGET_ITEM_AT</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns an item pointer from the collection pointed to by
+<SAMP>user</SAMP>. The value of <SAMP>index</SAMP> ranges
+form zero to the number of items in the collection minus
+one. The <SAMP>NULL</SAMP> value should be returned for
+indexes outside of this range.
+    <P>
+The default method for the arranger class always returns
+<SAMP>NULL</SAMP>.
+    <P>
+The default method for the spring domain arranger class
+returns the topmost domain object when given an index of
+zero and returns the other objects based on their layering
+order. A pointer to the spring domain is passed in
+<SAMP>user</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vspringGET_ITEM_MIN_SIZE"><HR><H4>vspringGET_ITEM_MIN_SIZE</H4></A>
+<PRE>
+        &lt;<B>vspringGET_ITEM_MIN_SIZE</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns the minimum size of <SAMP>item</SAMP> by setting
+the integers pointed to by <SAMP>wPtr</SAMP> and
+<SAMP>hPtr</SAMP>.
+    <P>
+The default method for the arranger class returns zero for
+both dimensions.
+    <P>
+The default method for the spring domain arranger class
+returns zero for both dimensions. A pointer to the spring
+domain is passed in <SAMP>user</SAMP>. A pointer to the
+spring domain object is passed in <SAMP>item</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vspringGET_ITEM_NATURAL_SIZE"><HR><H4>vspringGET_ITEM_NATURAL_SIZE</H4></A>
+<PRE>
+        &lt;<B>vspringGET_ITEM_NATURAL_SIZE</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns the natural size of <SAMP>item</SAMP> by setting
+the integers pointed to by <SAMP>wPtr</SAMP> and
+<SAMP>hPtr</SAMP>. The natural size depends on the current
+context. The current context typically involves information
+like look-and-feel and system font, but you may define it
+in any way that is suitable for your items.
+    <P>
+The default method for the arranger class returns zero for
+both dimensions.
+    <P>
+The default method for the spring domain arranger class
+returns zero for both dimensions. A pointer to the spring
+domain is passed in <SAMP>user</SAMP>. A pointer to the
+spring domain object is passed in <SAMP>item</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vspringGET_ITEM_RECT"><HR><H4>vspringGET_ITEM_RECT</H4></A>
+<PRE>
+        &lt;<B>vspringGET_ITEM_RECT</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns the rectangle of <SAMP>item</SAMP>.
+    <P>
+The default method for the arranger class returns the
+result of a call to <CODE><A HREF="vrect-x.html#vrectNull"><CODE>vrectNull</CODE></A></CODE>.
+    <P>
+The default method for the spring domain arranger class
+returns a domain object's bounds. A pointer to the spring
+domain is passed in <SAMP>user</SAMP>. A pointer to the
+spring domain object is passed in <SAMP>item</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vspringGET_NATURAL_ITEM_SEPARATION"><HR><H4>vspringGET_NATURAL_ITEM_SEPARATION</H4></A>
+<PRE>
+        &lt;<B>vspringGET_NATURAL_ITEM_SEPARATION</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns the natural value of the specified separation
+between <SAMP>item1</SAMP> and <SAMP>item2</SAMP>. The
+appropriate separation is specified by
+<SAMP>whichSeparation</SAMP>, which can have any of the
+following values:
+    <P>
+<CODE>vspringLEFT_TO_LEFT_SEPARATION</CODE>
+    <P>
+<CODE>vspringLEFT_TO_RIGHT_SEPARATION</CODE>
+    <P>
+<CODE>vspringRIGHT_TO_LEFT_SEPARATION</CODE>
+    <P>
+<CODE>vspringRIGHT_TO_RIGHT_SEPARATION</CODE>
+    <P>
+<CODE>vspringBOTTOM_TO_BOTTOM_SEPARATION</CODE>
+    <P>
+<CODE>vspringBOTTOM_TO_TOP_SEPARATION</CODE>
+    <P>
+<CODE>vspringTOP_TO_BOTTOM_SEPARATION</CODE>
+    <P>
+<CODE>vspringTOP_TO_TOP_SEPARATION</CODE>
+    <P>
+You may define these natural values in any way that is
+suitable for your items.
+    <P>
+The default method for the arranger class returns zero.
+    <P>
+The default method for the spring domain arranger class
+returns zero. A pointer to the spring domain is passed in
+<SAMP>user</SAMP>. Pointers to the two spring domain
+objects are passed in <SAMP>item1</SAMP> and
+<SAMP>item2</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vspringSET_ITEM_RECT"><HR><H4>vspringSET_ITEM_RECT</H4></A>
+<PRE>
+        &lt;<B>vspringSET_ITEM_RECT</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the rectangle of <SAMP>item</SAMP> to
+<SAMP>rect</SAMP>.
+    <P>
+The default method for the arranger class does nothing.
+    <P>
+The default method for the spring domain arranger class
+sets a domain object's bounds to <SAMP>rect</SAMP>. A
+pointer to the spring domain is passed in
+<SAMP>user</SAMP>. A pointer to the spring domain object is
+passed in <SAMP>item</SAMP>.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vspringINCLUDED"><HR><H4>vspringINCLUDED</H4></A>
+<PRE>
+        <B>vspringINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vspring.h</SAMP> is
+included.
+</DD></DL>
+<P>
+<A NAME="vspringLEFT_TO_LEFT_SEPARATION"><HR><H4>vspringLEFT_TO_LEFT_SEPARATION</H4></A>
+<PRE>
+        <B>vspringLEFT_TO_LEFT_SEPARATION</B>
+</PRE>
+<A NAME="vspringLEFT_TO_RIGHT_SEPARATION"><PRE>
+        <B>vspringLEFT_TO_RIGHT_SEPARATION</B>
+</PRE>
+</A>
+<A NAME="vspringRIGHT_TO_LEFT_SEPARATION"><PRE>
+        <B>vspringRIGHT_TO_LEFT_SEPARATION</B>
+</PRE>
+</A>
+<A NAME="vspringRIGHT_TO_RIGHT_SEPARATION"><PRE>
+        <B>vspringRIGHT_TO_RIGHT_SEPARATION</B>
+</PRE>
+</A>
+<A NAME="vspringBOTTOM_TO_BOTTOM_SEPARATION"><PRE>
+        <B>vspringBOTTOM_TO_BOTTOM_SEPARATION</B>
+</PRE>
+</A>
+<A NAME="vspringBOTTOM_TO_TOP_SEPARATION"><PRE>
+        <B>vspringBOTTOM_TO_TOP_SEPARATION</B>
+</PRE>
+</A>
+<A NAME="vspringTOP_TO_BOTTOM_SEPARATION"><PRE>
+        <B>vspringTOP_TO_BOTTOM_SEPARATION</B>
+</PRE>
+</A>
+<A NAME="vspringTOP_TO_TOP_SEPARATION"><PRE>
+        <B>vspringTOP_TO_TOP_SEPARATION</B>
+</PRE>
+</A>
+
+<DL><DD>
+Specify which two edges are involved in an item to item
+separation.
+</DD></DL>
+<P>
+<A NAME="vspringVERTICAL_STEP"><HR><H4>vspringVERTICAL_STEP</H4></A>
+<PRE>
+        <B>vspringVERTICAL_STEP</B>
+</PRE>
+<A NAME="vspringFORWARD_EDGE_STEP"><PRE>
+        <B>vspringFORWARD_EDGE_STEP</B>
+</PRE>
+</A>
+<A NAME="vspringSTRETCH_STEP"><PRE>
+        <B>vspringSTRETCH_STEP</B>
+</PRE>
+</A>
+<A NAME="vspringNATURAL_BASE_STEP"><PRE>
+        <B>vspringNATURAL_BASE_STEP</B>
+</PRE>
+</A>
+<A NAME="vspringLAST_STEP"><PRE>
+        <B>vspringLAST_STEP</B>
+</PRE>
+</A>
+<A NAME="vspringINTERNAL_STEP"><PRE>
+        <B>vspringINTERNAL_STEP</B>
+</PRE>
+</A>
+<A NAME="vspringLOCKED_STEP"><PRE>
+        <B>vspringLOCKED_STEP</B>
+</PRE>
+</A>
+<A NAME="vspringSTRETCH_FACTOR_SHIFT"><PRE>
+        <B>vspringSTRETCH_FACTOR_SHIFT</B>
+</PRE>
+</A>
+<A NAME="vspringSTRETCH_FACTOR_MASK"><PRE>
+        <B>vspringSTRETCH_FACTOR_MASK</B>
+</PRE>
+</A>
+<A NAME="vspringDEFAULT_SPRING"><PRE>
+        <B>vspringDEFAULT_SPRING</B>
+</PRE>
+</A>
+<A NAME="vspringSINGLE_SPRING"><PRE>
+        <B>vspringSINGLE_SPRING</B>
+</PRE>
+</A>
+<A NAME="vspringDOUBLE_SPRING"><PRE>
+        <B>vspringDOUBLE_SPRING</B>
+</PRE>
+</A>
+<A NAME="vspringFOUR_TIMES_SPRING"><PRE>
+        <B>vspringFOUR_TIMES_SPRING</B>
+</PRE>
+</A>
+<A NAME="vspringEIGHT_TIMES_SPRING"><PRE>
+        <B>vspringEIGHT_TIMES_SPRING</B>
+</PRE>
+</A>
+<A NAME="vspringHALF_SPRING"><PRE>
+        <B>vspringHALF_SPRING</B>
+</PRE>
+</A>
+<A NAME="vspringQUARTER_SPRING"><PRE>
+        <B>vspringQUARTER_SPRING</B>
+</PRE>
+</A>
+<A NAME="vspringEIGHTH_SPRING"><PRE>
+        <B>vspringEIGHTH_SPRING</B>
+</PRE>
+</A>
+<A NAME="vspringSTRETCH_FACTOR_MAX"><PRE>
+        <B>vspringSTRETCH_FACTOR_MAX</B>
+</PRE>
+</A>
+
+<DL><DD>
+Specify the type of a spring solution step.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vspringArrangerCLASS"><HR><H4>vspringArrangerCLASS</H4></A>
+<PRE>
+        #define <B>vspringArrangerCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the declarations for <CODE>vspringArranger</CODE> classes; this macro
+expands to the contents of <CODE><A HREF="vspring-x.html#vspringArrangerClass"><CODE>vspringArrangerClass</CODE></A></CODE>. 
+<CODE>SUPER</CODE> is the type identifier of the class being declared .
+<CODE>USER</CODE> is the type identifier of the arranger instances being
+declared. <CODE>ITEM</CODE> is the type identifier of the items being 
+arranged. This macro should be used by higher-level class definitions to
+declare the core arranger class definition. 
+</DD></DL>
+<P>
+<A NAME="vspringSolutionCLASS"><HR><H4>vspringSolutionCLASS</H4></A>
+<PRE>
+        #define <B>vspringSolutionCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the declarations for <CODE>vspringSolution</CODE> classes; this macro
+expands to the contents of <CODE><A HREF="vspring-x.html#vspringSolutionClass"><CODE>vspringSolutionClass</CODE></A></CODE>. 
+<CODE>SUPER</CODE> is the type identifier of the class being declared .
+<CODE>OBJECT</CODE> is the type identifier of the solution instance being
+declared. This macro should be used by higher-level class definitions to
+declare the core solution class definition. 
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

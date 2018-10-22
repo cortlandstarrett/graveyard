@@ -1,0 +1,955 @@
+#ifndef _CURSOR_H
+#define _CURSOR_H
+
+#ifndef _OS_PSE_COLL
+#include <ostore/hdrstart.hh>
+#include <ostore/coll/collptr.hh>
+#else   // not PSE
+#include <os_pse/psecoll/hdrstart.hh>
+#include <os_pse/coll/collptr.hh>
+
+_OS_BEGIN_NAMESPACE(os_pse)
+class _Index_component;
+#endif  // not PSE
+
+#if defined(__os_hp11)
+#if defined(__ptr)
+#undef __ptr
+#endif
+#if defined(_ptr)
+#undef _ptr
+#endif
+#endif
+
+class os_index_path;
+class os_set;
+class _Component_cursor;
+class _Index_name;
+class _Ipset;
+class _Scan;
+
+class _Ixonly_cursor;
+class _Packed_list_cursor;
+class _Chained_list_cursor;
+class _Dictionary_cursor;
+class os_coll_user_ext_cursor;
+class _os_cursor_holder;
+class _Rhash_cursor;
+class _os_btree_cursor;
+
+class os_coll_range;
+class os_dictionary_cursor;
+class os_dictionary;
+class _Coll_array_sp_entry;
+class _Coll_array_pt_entry;
+
+typedef _Component_cursor* os_Component_cursor_p;
+
+/* From mapping.hh: */
+#ifndef _MAPPING_FUNCTIONS
+#define _MAPPING_FUNCTIONS
+typedef os_int32 (*_Rank_fcn)(os_void_const_p, os_void_const_p);
+typedef os_unsigned_int32 (*_Hash_fcn)(os_void_const_p);
+#endif
+
+
+#ifndef _DIRECTION_DEFINED
+#define _DIRECTION_DEFINED
+enum _Direction { OS_CURSOR_FORWARD, OS_CURSOR_REVERSE, _Direction_pad = 1<<30 };
+#endif
+
+
+class _OS_COLL_IMPORT os_cursor {
+protected:
+  friend class _Foreach_undo;
+  friend class os_collection ;
+  friend class os_collection_internal;
+  friend class os_dictionary;
+  friend class os_rel_many ;
+  friend class _os_cursor_holder;
+  friend class os_dyn_hash;
+   
+protected:
+
+  /* common data members */
+
+  /* os_cursor flags */
+  enum {  
+     _at_deleted_element            = 1 << 0,
+     _exceeds_addr_space            = 1 << 1,
+     _more_true                     = 1 << 2, 
+     _initialized                   = 1 << 3,
+     _array_cursor                  = 1 << 4,
+     _ixonly_cursor                 = 1 << 5,
+     _update_insensitive_cursor     = 1 << 6,
+     _index_based_cursor            = 1 << 7,
+     _default_cursor                = 1 << 8,
+     _restricted_dictionary_cursor  = 1 << 9,
+     _dynamic_extent_cursor         = 1 << 10,
+     _dictionary_cursor             = 1 << 11,  
+     _use_dcur                      = 1 << 12,
+     _use_unsafe_ordered_mechanism  = 1 << 13,
+     _use_coll_range                = 1 << 14,
+     _order_by_key_val              = 1 << 15,
+     _sort_by_type                  = 1 << 16,
+     _sort_by_user_rfn              = 1 << 17,
+     _sort_by_addrs                 = 1 << 18,
+     _iterate_off_range             = 1 << 19,
+     _has_temporary_index           = 1 << 20,
+     _optimized                     = 1 << 21
+  };
+  
+  os_unsigned_int32 flags;
+  os_unsigned_int32 os4u0;
+  os_unsigned_int32 os4u1;
+  os_unsigned_int32 os4u2;
+  os_coll_ptr void0;
+  os_coll_ptr void1;
+  os_coll_ptr void2;
+  os_coll_ptr _contents;
+
+  os_collection * get_contents() const 
+  { 
+    if (is_optimized())
+      return (os_collection*) _distal;
+    else
+      return (os_collection *)(void*)_contents;
+  }
+  
+  void set_contents(os_collection * cont) 
+  {
+    if (is_optimized())
+      _distal = (void*) cont;
+    else          
+      _contents = (void*)cont;
+  }
+  
+  void set_void0(void * v0)
+  {
+    if (is_optimized())
+      proximal = (_Component_cursor*) v0;
+    else
+      void0 = v0;
+  }
+
+  void* get_void0() const
+  {
+    if (is_optimized())
+      return (void*) proximal;
+    else
+      return void0;
+  }
+
+  void set_void1(void * v1)
+  {
+    if (is_optimized())
+      source = (_Component_cursor*) v1;
+    else
+      void1 = v1;
+  }
+
+  void* get_void1() const
+  {
+    if (is_optimized())
+      return (void*) source;
+    else
+      return void1;
+  }
+ 
+
+private:
+
+  /* accessor functions for unsafe ordered iteration data members */
+
+  _Ipset*& ipset() { return (_Ipset*&) void0; }
+  _Ipset*& ipset() const { return *((_Ipset**) &void0); }
+
+  void unsafe_ordered_bind(const os_collection&);
+  void unsafe_ordered_unbind();
+
+  void free_ipset();
+
+  os_int32 unsafe_ordered_first(os_void_p& v);
+  os_int32 unsafe_ordered_last(os_void_p& v);
+  os_int32 unsafe_ordered_next(os_void_p& v);
+  os_int32 unsafe_ordered_previous(os_void_p& v);
+  os_int32 unsafe_ordered_between() const { return 0; }
+  void* unsafe_ordered_retrieve() const;
+
+protected:
+
+  /* array iteration interface */
+
+  void array_bind(const os_collection&);
+  void array_unbind();
+  void array_reset();
+  void array_create(const os_collection&);
+  void array_delete();
+  void array_sort(const os_collection&);
+  void array_copy(const os_cursor& c, os_boolean convert_to_sp = 0);
+
+  os_int32 array_first(os_void_p&);
+  os_int32 array_last(os_void_p&);
+  os_int32 array_next(os_void_p&);
+  os_int32 array_previous(os_void_p&);
+  void* array_retrieve() const;
+  
+/* accessor functions for array iteration data members */
+
+  char*& type_of_sort() const
+    { return (char*&)void1; }
+  const os_unsigned_int32& array_size() const 
+     { return os4u0; }
+  os_unsigned_int32& array_size()
+     { return os4u0; }
+  const os_unsigned_int32& current_index() const 
+     { return os4u1; }
+  os_unsigned_int32& current_index()
+     { return os4u1; }
+  const void* get_array() const
+    { return (const void*)(void*)get_void0(); }
+  void* get_array()
+    { return (void*)get_void0(); }
+  void set_array(const void* ar)
+    { set_void0((void*)ar); }
+  void* array_get_value() const;
+
+protected:
+
+  /* Data members and access function For restricted (ordered) iteration */
+
+  /* The dictionary cursor used during unsafe restricted iteratin with
+     an index
+     */
+
+  os_dictionary_cursor*& dcur() 
+    { return *(os_dictionary_cursor**)(void**)&_distal; }
+  os_dictionary_cursor*& dcur() const 
+    { return *(os_dictionary_cursor**)(void**)&_distal; }
+
+  os_coll_range*&  range() const { return (os_coll_range*&)path_name; }
+
+  os_int32 unsafe_ordered_dcur_first(os_void_p& v);
+  os_int32 unsafe_ordered_dcur_last(os_void_p& v);
+  os_int32 unsafe_ordered_dcur_next(os_void_p& v);
+  os_int32 unsafe_ordered_dcur_previous(os_void_p& v);
+  os_int32 unsafe_ordered_dcur_between() const { return 0; }
+  void* unsafe_ordered_dcur_retrieve() const;
+
+protected:
+
+  /* Data members and access function For ordered iteration */
+
+  char * path_name;
+  _Index_name * index;
+  void * _distal;
+  _Component_cursor * proximal;
+  _Component_cursor * source;
+  
+  _Component_cursor*& distal() 
+    { return *(_Component_cursor**)(void**)&_distal; }
+  _Component_cursor*& distal() const 
+    { return *(_Component_cursor**)(void**)&_distal; }
+  const _Component_cursor*& most_proximal_with_mapping() const
+       { return *((const _Component_cursor**) &void0); }
+  _Component_cursor*& most_proximal_with_mapping()
+       { return *((_Component_cursor**) &void0); }
+  const os_index_path*& iteration_path() const
+    { return (const os_index_path*&) void1; }
+  os_index_path*& iteration_path()
+    { return (os_index_path*&) void1; }
+  /* Needed if contents allows duplicates. */
+  const os_unsigned_int32& count() const
+    { return os4u0; };
+  os_unsigned_int32& count()
+    { return os4u0; };
+
+protected:
+
+  /* for iteration over dictionaries */
+
+  os_coll_range*& rng() 
+  {
+    if (is_optimized())
+      return *(os_coll_range**)&source;
+    else
+      return *(os_coll_range**)&void1;
+  }  
+ 
+  os_coll_range*& rng() const 
+  {
+    if (is_optimized())
+      return *(os_coll_range**)&source;
+    else
+      return *(os_coll_range**)&void1;
+  }  
+ 
+  void bind_restricted_dictionary_cursor();
+  void unbind_restricted_dictionary_cursor();
+  void reset_restricted_dictionary_cursor();
+
+  os_int32 rdc_first(os_void_p&);
+  os_int32 rdc_last(os_void_p&);
+  os_int32 rdc_next(os_void_p&);
+  os_int32 rdc_previous(os_void_p&);
+  void* rdc_retrieve() const;
+
+public:
+  os_dictionary_cursor*& dc() const 
+  {
+    if (is_optimized())
+      return *(os_dictionary_cursor**)&proximal;
+    else
+      return *(os_dictionary_cursor**)&void0;
+  } 
+ 
+  os_dictionary_cursor*& dc()
+  {
+    if (is_optimized())
+      return *(os_dictionary_cursor**)&proximal;
+    else
+      return *(os_dictionary_cursor**)&void0;
+  } 
+ 
+  void remember(_os_cursor_holder &);
+  void restore(_os_cursor_holder &);
+protected:
+
+  /* ordered iteration interface */
+
+  _Component_cursor* most_distal_invalid() const;
+  void* complete_path(_Component_cursor *, void*,
+		     _Direction = OS_CURSOR_FORWARD) const;
+  _Index_name* temporary_cursor_order() const;
+
+  os_int32 ordered_first(os_void_p&);
+  os_int32 ordered_last(os_void_p&);
+  os_int32 ordered_next(os_void_p&);
+  os_int32 ordered_previous(os_void_p&);
+  os_int32 ordered_between() const;
+  void* ordered_retrieve() const;
+
+  void ordered_bind(const os_collection&);
+  void ordered_unbind();
+  void ordered_reset();
+  
+  void free_component_cursors();
+  void drop_temporary_index();
+
+  os_unsigned_int32 time_to_go(const _Index_name*) const;
+
+  /* the following routines are used with restricted ordered cursor */
+  _Component_cursor* create_range_comp_cursor(_Index_component* ic, 
+					      os_Component_cursor_p & cc);
+
+protected:
+
+  void bind(const os_collection&, os_int32 safety);
+  void unbind();
+  void unbind_dynamic_extent();
+  void unbind_ixonly();
+  void unbind_dictionary();
+  void _reset();
+  void clear();
+
+public:
+
+  os_int32 first(os_void_p &v);
+  os_int32 last(os_void_p &v);
+  os_int32 next(os_void_p &v);
+  os_int32 previous(os_void_p &v);
+
+ 
+public:
+  // Enums for user cursor options
+  enum { unsafe = 0, 
+         safe = _update_insensitive_cursor,  
+	 forward = 0, 
+         reverse = 1,
+	 default_order = 0,
+ 	 update_insensitive = _update_insensitive_cursor,
+         order_by_key_value = _order_by_key_val,
+ 	 index_on_pointer_target = 0,
+         iterate_off_range = _iterate_off_range,
+         order_by_address = _sort_by_addrs,
+         optimized = _optimized
+       };
+
+  os_cursor();
+  os_cursor(const os_cursor& c);
+#ifdef _OS_COLL_CURSOR_OPTIMIZE
+  os_cursor(const os_collection&, os_int32 _flags = _optimized) ;
+  os_cursor(const os_dictionary& c, const os_coll_range& r,
+	    os_int32 _flags = _optimized);
+#else
+  os_cursor(const os_collection&, os_int32 _flags = 0) ;
+  os_cursor(const os_dictionary& c, const os_coll_range& r,
+	    os_int32 _flags = 0);
+#endif
+  os_cursor(const os_collection&, const char* _typename, 
+	    os_int32 _flags = 0);
+  os_cursor(const os_collection&, _Rank_fcn, os_int32 _flags = 0);
+  os_cursor(const os_collection& c, const os_index_path& i,
+            os_int32 _flags = 0); 
+  os_cursor(const os_collection& c, const os_index_path& ip, 
+	    const os_coll_range& r, os_int32 _flags = 0);
+
+  ~os_cursor() ;
+  void check_cast() const;
+
+#ifndef _OS_BorlandCC
+  const os_collection* owner () const ;
+#endif
+  os_collection* owner () ;
+  
+  void rebind(const os_collection&);
+  void rebind(const os_collection&, _Rank_fcn);
+
+  /* This function must be called when holding a cursor across a 
+     transaction where the call should be made after starting the
+     new transaction.  */
+  void resolve_all();
+
+  void* first() { void* v; return first(v)?v:0; };
+  void* last() { void* v; return last(v)?v:0; };
+  void* next() { void* v; return next(v)?v:0; };
+  void* previous() { void* v; return previous(v)?v:0; };
+  void* retrieve() const;
+
+  void * retrieve(os_address_space_marker &);
+  void * first(os_address_space_marker &);
+  void * last(os_address_space_marker &);
+  void * next(os_address_space_marker &);
+  void * previous(os_address_space_marker &);
+
+
+  os_int32 more() const { return get_more(); }
+  os_int32 null() const { return !more(); };
+  os_int32 valid() const;
+
+/* operations that modify the collection */
+  void insert_after(const void* p) const;
+  void insert_before(const void* p) const;
+  void remove_at() const;
+
+public:
+
+ /* obtain information about the cursor */
+   os_coll_range*  get_range() const;
+   _Index_name* get_index() const;
+   os_int32 is_safe() const { return 0; }
+   
+public:
+
+#if !defined(_LINGUIST_) && !defined(_ODI_LINGUIST_)
+  operator _Packed_list_cursor&() const
+  { 
+    check_cast();
+    return *(_Packed_list_cursor*)this;
+  }
+  operator _Ixonly_cursor&() const
+  { 
+    check_cast();
+    return *(_Ixonly_cursor*)this;
+  }
+  operator _Chained_list_cursor&() const
+  {
+    check_cast();
+    return *(_Chained_list_cursor*)this;
+  }
+  operator _Dictionary_cursor&() const
+  {
+    check_cast();
+    return *(_Dictionary_cursor*)this;
+  }
+  operator os_coll_user_ext_cursor&() const
+  {
+    check_cast();
+    return *(os_coll_user_ext_cursor*)this;
+  }
+  operator _Packed_list_cursor&()
+  { 
+    check_cast();
+    return *(_Packed_list_cursor*)this;
+  }
+#ifdef __os_cafe
+  operator _Ixonly_cursor&()
+  { 
+    check_cast();
+    return *(_Ixonly_cursor*)this;
+  }
+  operator _Chained_list_cursor&()
+  {
+    check_cast();
+    return *(_Chained_list_cursor*)this;
+  }
+  operator _Dictionary_cursor&()
+  {
+    check_cast();
+    return *(_Dictionary_cursor*)this;
+  }
+  operator os_coll_user_ext_cursor&()
+  {
+    check_cast();
+    return *(os_coll_user_ext_cursor*)this;
+  }
+#endif /* __os_cafe */
+#else
+  operator _Packed_list_cursor&() const;
+  operator _Ixonly_cursor&() const;
+  operator _Chained_list_cursor&() const;
+  operator _Dictionary_cursor&() const;
+  operator os_coll_user_ext_cursor&() const;
+  operator _Packed_list_cursor&();
+  operator _Ixonly_cursor&();
+  operator _Chained_list_cursor&();
+  operator _Dictionary_cursor&();
+  operator os_coll_user_ext_cursor&();
+#endif
+ 
+protected:
+   void set_at_deleted_element(os_int32 toggle)
+   { 
+      if (toggle) flags |= _at_deleted_element;
+      else        flags &= ~_at_deleted_element; 
+   }
+   void set_exceeds_addr_space(os_int32 toggle)
+   { 
+     if (toggle) flags |= _exceeds_addr_space;
+     else        flags &= ~_exceeds_addr_space;  
+   }
+   os_int32 set_more(os_int32 toggle)
+   { 
+      if (toggle) flags |= _more_true;
+      else        flags &= ~_more_true;
+      return toggle;      
+   }
+   void set_initialized(os_int32 toggle)
+   { 
+      if (toggle) flags |= _initialized;
+      else        flags &= ~_initialized;      
+   }
+   void set_ixonly_cursor(os_int32 toggle)
+   { 
+      if (toggle) flags |= _ixonly_cursor;
+      else        flags &= ~_ixonly_cursor;      
+   }
+   void set_array_cursor(os_int32 toggle)
+   { 
+      if (toggle) flags |= _array_cursor;
+      else        flags &= ~_array_cursor;      
+   }
+   void set_update_insensitive_cursor(os_int32 toggle)
+   { 
+      if (toggle) flags |= _update_insensitive_cursor;
+      else        flags &= ~_update_insensitive_cursor;      
+   }
+   void set_index_based_cursor(os_int32 toggle)
+   { 
+      if (toggle) flags |= _index_based_cursor;
+      else        flags &= ~_index_based_cursor;      
+   }
+   void set_default_cursor(os_int32 toggle)
+   { 
+      if (toggle) flags |= _default_cursor;
+      else        flags &= ~_default_cursor;       
+   }
+   void set_restricted_dictionary_cursor(os_int32 toggle)
+   { 
+      if (toggle) flags |= _restricted_dictionary_cursor;
+      else        flags &= ~_restricted_dictionary_cursor;      
+   }  
+   void set_dynamic_extent_cursor(os_int32 toggle)
+   { 
+      if (toggle) flags |= _dynamic_extent_cursor;
+      else        flags &= ~_dynamic_extent_cursor;      
+   }
+   void set_dictionary_cursor(os_int32 toggle)
+   { 
+      if (toggle) flags |= _dictionary_cursor;
+      else        flags &= ~_dictionary_cursor;      
+   } 
+   void set_use_dcur(os_int32 toggle)
+   { 
+      if (toggle) flags |= _use_dcur;
+      else        flags &= ~_use_dcur; 
+   }
+   void set_use_unsafe_ordered_mechanism(os_int32 toggle)
+   { 
+      if (toggle) flags |= _use_unsafe_ordered_mechanism;
+      else        flags &= ~_use_unsafe_ordered_mechanism;     
+   }
+   void set_use_coll_range(os_int32 toggle)
+   { 
+      if (toggle) flags |= _use_coll_range;
+      else        flags &= ~_use_coll_range;      
+   }
+   void set_order_by_key_val(os_int32 toggle)
+   { 
+      if (toggle) flags |= _order_by_key_val;
+      else        flags &= ~_order_by_key_val;      
+   }
+   void set_sort_by_type(os_int32 toggle)
+   { 
+      if (toggle) flags |= _sort_by_type;
+      else        flags &= ~_sort_by_type;      
+   }
+   void set_sort_by_user_rfn(os_int32 toggle)
+   {
+      if (toggle) flags |= _sort_by_user_rfn;
+      else        flags &= ~_sort_by_user_rfn; 
+   }
+   void set_sort_by_addrs(os_int32 toggle)
+   {
+      if (toggle) flags |= _sort_by_addrs;
+      else        flags &= ~_sort_by_addrs; 
+   }
+  void set_iterate_off_range(os_int32 toggle)
+   {
+      if (toggle) flags |= _iterate_off_range;
+      else        flags &= ~_iterate_off_range; 
+   }
+  void set_has_temporary_index(os_int32 toggle)
+   {
+      if (toggle) flags |= _has_temporary_index;
+      else        flags &= ~_has_temporary_index; 
+   }
+  void set_optimized(os_int32 toggle)
+   {
+      if (toggle) flags |= _optimized;
+      else        flags &= ~_optimized; 
+   }
+public:
+   os_boolean get_at_deleted_element() const 
+      {return flags & _at_deleted_element;}
+   os_boolean exceeds_addr_space() const 
+      {return flags & _exceeds_addr_space;}
+   os_boolean get_more() const 
+      {return flags & _more_true;}
+   os_boolean initialized() const 
+      {return flags & _initialized;}
+   os_boolean ixonly_cursor() const 
+      {return flags & _ixonly_cursor;}
+   os_boolean array_cursor() const 
+      {return flags & _array_cursor;}
+   os_boolean update_insensitive_cursor() const 
+      {return flags & _update_insensitive_cursor;}
+   os_boolean index_based_cursor() const 
+      {return flags & _index_based_cursor;}
+   os_boolean default_cursor() const 
+      {return flags & _default_cursor;}
+   os_boolean restricted_dictionary_cursor() const 
+      {return flags & _restricted_dictionary_cursor;}
+   os_boolean dynamic_extent_cursor() const 
+      {return flags & _dynamic_extent_cursor;}
+   os_boolean dictionary_cursor() const 
+      {return flags & _dictionary_cursor;}
+   os_boolean use_dcur() const 
+      {return flags & _use_dcur;}      
+   os_boolean use_unsafe_ordered_mechanism() const 
+      {return flags & _use_unsafe_ordered_mechanism;}
+   os_boolean use_coll_range() const 
+      {return flags & _use_coll_range;} 
+   os_boolean order_by_key_val() const 
+      {return flags & _order_by_key_val;}
+   os_boolean sort_by_type() const 
+      {return flags & _sort_by_type;}
+   os_boolean sort_by_user_rfn() const 
+      {return flags & _sort_by_user_rfn;}
+   os_boolean sort_by_addrs() const 
+      {return flags & _sort_by_addrs;}
+   os_boolean do_iterate_off_range() const 
+      {return flags & _iterate_off_range;}
+   os_boolean has_temporary_index() const 
+      {return flags & _has_temporary_index;}
+   os_boolean sorted_cursor() const
+      { return (flags &(_sort_by_addrs | _sort_by_user_rfn | _sort_by_type));} 
+   os_boolean is_optimized() const
+      { return flags & _optimized;}
+
+protected:
+      /* odds and ends */
+   os_int32 invalid_cursor() const;
+
+public:
+  static os_typespec* get_os_typespec();
+
+  /* Schema evolution */
+  static void post_evolution_transform(void* object);
+
+  os_cursor& operator= (const os_cursor& c);
+};
+
+/*****************************************************************************/
+/* os_coll_range implementation */
+/*****************************************************************************/
+
+enum _OSCOLRNG_Type_Enum
+{
+   _OSCOLRNG_SIGNED_CHAR_TAG = 1,
+   _OSCOLRNG_UNSIGNED_CHAR_TAG,
+   _OSCOLRNG_SHORT_TAG,
+   _OSCOLRNG_UNSIGNED_SHORT_TAG,
+   _OSCOLRNG_INT_TAG,
+   _OSCOLRNG_UNSIGNED_INT_TAG,
+   _OSCOLRNG_LONG_TAG,
+   _OSCOLRNG_UNSIGNED_LONG_TAG,
+   _OSCOLRNG_FLOAT_TAG,
+   _OSCOLRNG_DOUBLE_TAG,
+   _OSCOLRNG_LONG_DOUBLE_TAG,
+   _OSCOLRNG_POINTER_TAG,
+   _OSCOLRNG_CHAR_STAR_TAG,
+   _OSCOLRNG_CHAR_ARR_TAG,
+   _OSCOLRNG_USR_TAG,
+   _OSCOLRNG_LAST_TYPE_ENUM_TAG,
+   _OSCOLRNG_Type_Enum_pad = 1<<30
+};
+
+
+union _OS_COLL_IMPORT _OSCOLRNG_Type_Union
+{
+  os_signed_int8    sc;
+  unsigned char     uc;
+  short             ss;
+  unsigned short    us;
+  int               si;
+  unsigned int      ui;
+  long*             sl;
+  unsigned long*    ul;
+  float             f;
+  double*           d;
+  long double*      ld;
+  void *            p;
+  char padding[8];		/* 64-bit neutralization */
+
+  _OSCOLRNG_Type_Union(os_signed_int8 arg) { sc = arg; };
+  _OSCOLRNG_Type_Union(unsigned char arg) { uc = arg; };
+  _OSCOLRNG_Type_Union(short arg) { ss = arg; };
+  _OSCOLRNG_Type_Union(unsigned short arg) { us = arg; };
+  _OSCOLRNG_Type_Union(int arg) { si = arg; };
+  _OSCOLRNG_Type_Union(unsigned int arg) { ui = arg; };
+  _OSCOLRNG_Type_Union(long* arg) { sl = arg; };
+  _OSCOLRNG_Type_Union(unsigned long* arg) { ul = arg; };
+  _OSCOLRNG_Type_Union(float arg) { f = arg; };
+  _OSCOLRNG_Type_Union(double* arg) { d = arg; };
+  _OSCOLRNG_Type_Union(long double* arg) { ld = arg; };
+  _OSCOLRNG_Type_Union(void * arg) { p = arg; };
+};
+
+/*****************************************************************************/
+/*****************************************************************************/
+
+class _OS_COLL_IMPORT os_coll_range 
+{
+  friend class _Ipset;
+  friend class _Component_cursor;
+  friend class os_cursor;
+  friend class os_dictionary;
+  friend class os_collection;
+
+public:
+
+  enum os_range_query_type_enum {
+    one_sided,
+    two_sided,
+    os_range_query_type_enum_pad = 1<<30
+    };
+  
+private:
+
+  _OSCOLRNG_Type_Union lo_key; 
+
+  _OSCOLRNG_Type_Union hi_key;
+  _OSCOLRNG_Type_Enum  key_type;
+
+  os_int32 lo_cond;   
+  os_int32 hi_cond;
+  os_int32 qry_type; /* os_range_query_type_enum */
+
+  void* extra_deref_lo;
+  os_pad_ptr8(extra_deref_lo)
+  void* extra_deref_hi;
+  os_pad_ptr8(extra_deref_hi)
+
+protected:
+
+  enum bound { UNDEFINED = 0,
+               LOW, 
+	       HIGH,
+	       bound_pad = 1<<30
+	       };
+
+  os_int32 compare(const void* val, os_coll_range::bound low_or_high,_Rank_fcn fcn);
+  os_int32 is_value_within_range(const void* val, _Rank_fcn fcn);
+  os_int32 discriminant__OSCOLRNG_Type_Union();
+
+protected:
+
+  void fix_up_range(os_index_path* path);
+  void fix_up_range(_Rank_fcn fn, const char* keytype);
+  void swap_condition_if_necessary(_Rank_fcn fn);
+
+  os_int32 one_side_is_equality_test();
+  void drop_range_test();
+  void swap_cond();
+  void swap_keys();
+
+public:
+
+  /* destructor */
+  ~os_coll_range();
+
+  /* constructors */
+
+  os_coll_range(os_collection::restriction a_low_cond,os_signed_int8 a_lo_key);
+  os_coll_range(os_collection::restriction a_lo_cond, os_signed_int8 a_lo_key,
+		os_collection::restriction a_hi_cond, os_signed_int8 a_hi_key);
+
+  os_coll_range(os_collection::restriction a_low_cond, unsigned char a_lo_key);
+  os_coll_range(os_collection::restriction a_lo_cond, unsigned char a_lo_key,
+		os_collection::restriction a_hi_cond, unsigned char a_hi_key);
+
+  os_coll_range(os_collection::restriction a_low_cond, short a_lo_key);
+  os_coll_range(os_collection::restriction a_lo_cond, short a_lo_key, 
+		os_collection::restriction a_hi_cond, short a_hi_key);
+
+  os_coll_range(os_collection::restriction a_low_cond,unsigned short a_lo_key);
+  os_coll_range(os_collection::restriction a_lo_cond, unsigned short a_lo_key,
+		os_collection::restriction a_hi_cond, unsigned short a_hi_key);
+
+  os_coll_range(os_collection::restriction a_low_cond, os_int32 a_lo_key);
+  os_coll_range(os_collection::restriction a_lo_cond, os_int32 a_lo_key,
+		os_collection::restriction a_hi_cond, os_int32 a_hi_key);
+
+  os_coll_range(os_collection::restriction a_low_cond, os_unsigned_int32 a_lo_key);
+  os_coll_range(os_collection::restriction a_lo_cond, os_unsigned_int32 a_lo_key,
+		os_collection::restriction a_hi_cond, os_unsigned_int32 a_hi_key);
+
+  os_coll_range(os_collection::restriction a_low_cond, long a_lo_key);
+  os_coll_range(os_collection::restriction a_lo_cond, long a_lo_key,
+		os_collection::restriction a_hi_cond, long a_hi_key);
+
+  os_coll_range(os_collection::restriction a_low_cond, unsigned long a_lo_key);
+  os_coll_range(os_collection::restriction a_lo_cond, unsigned long a_lo_key,
+		os_collection::restriction a_hi_cond, unsigned long a_hi_key);
+
+  os_coll_range(os_collection::restriction a_low_cond, float a_lo_key);
+  os_coll_range(os_collection::restriction a_lo_cond, float a_lo_key,
+		os_collection::restriction a_hi_cond, float a_hi_key);
+
+  os_coll_range(os_collection::restriction a_low_cond, double a_lo_key);
+  os_coll_range(os_collection::restriction a_lo_cond, double a_lo_key,
+		os_collection::restriction a_hi_cond, double a_hi_key);
+
+  os_coll_range(os_collection::restriction a_low_cond, long double a_lo_key);
+  os_coll_range(os_collection::restriction a_lo_cond, long double a_lo_key,
+		os_collection::restriction a_hi_cond, long double a_hi_key);
+
+  os_coll_range(os_collection::restriction a_low_cond, const void* a_lo_key);
+  os_coll_range(os_collection::restriction a_lo_cond, const void* a_lo_key,
+		os_collection::restriction hi_cond, const void* hi_key);
+
+  os_coll_range(const os_coll_range&);
+
+public:
+
+  static os_typespec* get_os_typespec();
+
+
+  void* _get_low_key() const;
+  void* _get_high_key() const;
+
+  void* _get_low_key_deref_if_ptr() const;
+  void* _get_high_key_deref_if_ptr() const;
+
+  os_int32 _get_low_condition() const { return lo_cond; }
+  os_int32 _get_high_condition() const { return hi_cond; }
+
+
+  /* for internal use only */
+  os_int32 _get_query_type() const  { return qry_type; }
+  _OSCOLRNG_Type_Enum _get_key_type() const { return key_type; }
+  
+};
+
+
+// This class is used to remember the position of cursor in the collection
+// after a release address space call has been made.
+
+class _OS_COLL_IMPORT _os_cursor_holder
+{
+
+public:
+  // The public interface to os_cursor holder
+  _os_cursor_holder();
+  ~_os_cursor_holder(); 
+
+  void remember_base(os_cursor & cursor);
+  void restore_base(os_cursor & cursor);
+  void remember_Rhash(_Rhash_cursor & cursor);
+  void restore_Rhash(_Rhash_cursor & cursor);
+  void remember_osbtree(_os_btree_cursor & cursor);
+  void restore_osbtree(_os_btree_cursor & cursor);
+
+private:
+
+  // Data members used to remember position
+  
+  // Base cursor:    
+ 
+  os_coll_ptr void0;
+  os_coll_ptr void1;
+  os_coll_ptr void2;
+  os_unsigned_int32 os4u0;
+  os_unsigned_int32 os4u1;
+  os_unsigned_int32 os4u2;
+  os_unsigned_int32 flags;
+
+  // Specific for an os_btree cursor
+  os_unsigned_int32 _flags;
+  void_coll_ptr   _node;
+  os_unsigned_int32    _index;
+  os_unsigned_int32    _null;
+
+  // Specific for an rhash cursor
+  os_unsigned_int32 table;
+  os_unsigned_int32 slot;
+  osbitf null_after_maintenance : 1;
+  osbitf oflo : 1;
+  os_int32 oflo_counter;
+
+  // holder for the _Rhash-os_btree overflow cursor
+  os_soft_pointer<_os_cursor_holder> _overflow;
+  os_boolean _overflowUsed;
+
+};
+
+
+// Classes used for array entries, depending on whether entries are
+// for softpointers or pointers.
+class _Coll_array_sp_entry {
+public:
+  _Coll_array_sp_entry(void * ptr) {_ptr = (os_coll_ptr) ptr;}
+  _Coll_array_sp_entry() {}
+  ~_Coll_array_sp_entry() {}
+
+  const os_coll_ptr & getSP() const {return _ptr;}
+  _Coll_array_sp_entry & operator=(const _Coll_array_sp_entry & rhs)
+  {_ptr = rhs._ptr; return *this;}
+  _Coll_array_sp_entry & operator=(void * rhs)
+  {_ptr = rhs; return *this;}
+  void set(void * ptr) {_ptr = ptr;}
+  
+  static os_typespec * get_os_typespec();
+private:
+  os_coll_ptr _ptr;
+};
+
+
+#if !defined(_OS_PSE_COLL)
+#include <ostore/hdrend.hh>
+#else //defined(_OS_PSE_COLL)
+_OS_END_NAMESPACE
+#include <os_pse/psecoll/hdrend.hh>
+#endif //defined(_OS_PSE_COLL)
+#endif

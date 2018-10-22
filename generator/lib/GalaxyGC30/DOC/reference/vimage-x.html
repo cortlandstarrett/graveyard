@@ -1,0 +1,1325 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vimage prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vimage prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vimage-x.html#section_DataType">Types</A> [4]</TD>
+<TD><A HREF="vimage-x.html#section_Function">Functions</A> [54]</TD>
+<TD><A HREF="vimage-x.html#section_Message">Messages</A> [5]</TD>
+<TD><A HREF="vimage-x.html#section_Constant">Constants</A> [1]</TD>
+<TD><A HREF="vimage-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vimage"><HR><H4>vimage</H4></A>
+<PRE>
+        typedef ... <B>vimage</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to represent an image.
+Images are referenced by a pointer to this type. Images can
+be created dynamically with <CODE><A HREF="vimage-x.html#vimageCreate"><CODE>vimageCreate</CODE></A></CODE> or
+initialized statically with <CODE><A HREF="vimage-x.html#vimageInit"><CODE>vimageInit</CODE></A></CODE>. A
+<CODE>vimage</CODE> contains a pixmap, a color palette, and
+an optional transparency.
+<P>
+An image is a two-dimensional array of <I>mapped</I> pixel
+values on top of pixmaps and color palettes. Two types of
+images are available: palette and true color. A palette
+image is an image where the pixmap values represent an
+index into a color palette. A true color image has no
+palette; the pixmap values themselves represent actual
+colors.
+<p>
+A palette image is typically used in an image where
+many colors are used repeatedly throughout the image and
+the total number of colors in the image is low. True color
+images are desirable when there are a large number of
+colors in the image.
+</DD></DL>
+<P>
+<A NAME="vimageClass"><HR><H4>vimageClass</H4></A>
+<PRE>
+        typedef ... <B>vimageClass</B>;
+</PRE>
+
+<DL><DD>
+Contains the message definitions for a class of images.
+This class type is derived from <CODE><A HREF="vpixmap-x.html#vpixmapClass"><CODE>vpixmapClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vimageDimension"><HR><H4>vimageDimension</H4></A>
+<PRE>
+        typedef ... <B>vimageDimension</B>;
+</PRE>
+
+<DL><DD>
+Denotes an integral type that can hold a width or height of
+an image. Note that image dimensions are specified through
+the Image Library API using the type <SAMP>int</SAMP>, but
+they are truncated internally, if necessary, to the type
+<CODE>vimageDimension</CODE>.
+</DD></DL>
+<P>
+<A NAME="vimageValue"><HR><H4>vimageValue</H4></A>
+<PRE>
+        typedef ... <B>vimageValue</B>;
+</PRE>
+
+<DL><DD>
+Denotes an integral type that can hold a pixel value of an
+image. The legal range of image values actually ranges from
+zero to the number of colors in the image minus one.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vimageAppendPaletteEntry"><HR><H4>vimageAppendPaletteEntry</H4></A>
+<PRE>
+        int <B>vimageAppendPaletteEntry</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vimageClone"><HR><H4>vimageClone</H4></A>
+<PRE>
+        vimage * <B>vimageClone</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Creates a copy of the image <SAMP>image</SAMP> and returns
+a pointer to its contents. Storage for the image is
+allocated by the Image Library. The Image Library reclaims
+the storage occupied by the image when it is destroyed with
+<CODE><A HREF="vimage-x.html#vimageDestroy"><CODE>vimageDestroy</CODE></A></CODE>. This function copies all the
+attributes of the image, and it clones any attribute
+objects that are owned by the image. The image to be cloned
+can be dynamic or static. The map of the image is cloned
+also. This function essentially allocates space for a new
+image and calls <CODE><A HREF="vimage-x.html#vimageCopyInit"><CODE>vimageCopyInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vimageCompactPalette"><HR><H4>vimageCompactPalette</H4></A>
+<PRE>
+        void <B>vimageCompactPalette</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vimageCopy"><HR><H4>vimageCopy</H4></A>
+<PRE>
+        void <B>vimageCopy</B>(
+                vimage * image,
+                vimage * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>image</SAMP> into
+<SAMP>target</SAMP> so that the two images represent
+equivalent objects. <SAMP>target</SAMP> must have been
+created or initialized by an Image Library function. This
+function copies all the attributes of the image, and it
+clones any attribute objects that are owned by the image.
+This function destroys any objects allocated internally by
+<SAMP>target</SAMP> (including its owned attributes) but
+does <I>not</I> destroy <SAMP>target</SAMP> itself. The
+image map is automatically copied. The images to be copied
+can be dynamic or static.
+</DD></DL>
+<P>
+<A NAME="vimageCopyInit"><HR><H4>vimageCopyInit</H4></A>
+<PRE>
+        void <B>vimageCopyInit</B>(
+                vimage * image,
+                vimage * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>image</SAMP> into
+<SAMP>target</SAMP> so the memory addressed by
+<SAMP>target</SAMP> is an image equivalent to
+<SAMP>image</SAMP>. <SAMP>target</SAMP> should be a pointer
+to uninitialized memory; the Image Library initializes it
+as part of the copy. This function copies all the
+attributes of the image and clones any attribute objects
+that are owned by the image. The image map is automatically
+copied.
+</DD></DL>
+<P>
+<A NAME="vimageCreate"><HR><H4>vimageCreate</H4></A>
+<PRE>
+        vimage * <B>vimageCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new image and returns a pointer to its contents.
+Storage for the image is allocated by the Image Library.
+The Image Library reclaims the storage occupied by the
+image when it is destroyed with <CODE><A HREF="vimage-x.html#vimageDestroy"><CODE>vimageDestroy</CODE></A></CODE>.
+The new image is created with a set of default attributes,
+as documented in the Image  chapter of the
+<I>Galaxy Programmer's Guide</I>. A
+map is automatically created for the image. The pixel
+contents of the image are initially undefined. This
+function essentially allocates space for a new image and
+calls <CODE><A HREF="vimage-x.html#vimageInit"><CODE>vimageInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vimageCreateOfClass"><HR><H4>vimageCreateOfClass</H4></A>
+<PRE>
+        vimage * <B>vimageCreateOfClass</B>(
+                vimageClass * clas);
+</PRE>
+
+<DL><DD>
+Creates an image of class <SAMP>clas</SAMP> and returns a
+pointer to its contents. The attributes of the image are
+set to their default values, according to the class. Space
+for the image is allocated dynamically based on the object
+size of the class. The Class Manager will reclaim the
+storage occupied by the image when it is destroyed with
+<CODE><A HREF="vimage-x.html#vimageDestroy"><CODE>vimageDestroy</CODE></A></CODE>. This function essentially
+allocates space for a new instance and calls
+<CODE><A HREF="vimage-x.html#vimageInitOfClass"><CODE>vimageInitOfClass</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vimageCreateSpecific"><HR><H4>vimageCreateSpecific</H4></A>
+<PRE>
+        vimage * <B>vimageCreateSpecific</B>(
+                int w,
+                int h,
+                int numColors);
+</PRE>
+
+<DL><DD>
+Creates a new image of width <SAMP>w</SAMP> and height
+<SAMP>h</SAMP> and returns a pointer to its contents. The
+palette of the image is given space for
+<SAMP>numColors</SAMP> colors, and the depth of its map is
+set such that it can represent at least this many pixel
+values. Other attributes of the image are set to their
+defaults, as documented in the <I>Image </I> chapter
+of the <I>Galaxy Programmer's
+Guide</I>. Storage for the image is allocated by the Image
+Library. The Image Library reclaims the storage occupied by
+the image when it is destroyed with
+<CODE><A HREF="vimage-x.html#vimageDestroy"><CODE>vimageDestroy</CODE></A></CODE>. A map is automatically created
+for the image using the arguments provided. The pixel
+contents of the image are initially undefined. This
+function essentially allocates space for a new image and
+calls <CODE><A HREF="vimage-x.html#vimageInitSpecific"><CODE>vimageInitSpecific</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vimageDeletePaletteEntry"><HR><H4>vimageDeletePaletteEntry</H4></A>
+<PRE>
+        void <B>vimageDeletePaletteEntry</B>(
+                vimage * image,
+                int index);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vimageDestroy"><HR><H4>vimageDestroy</H4></A>
+<PRE>
+        void <B>vimageDestroy</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Destroys the image represented by <SAMP>image</SAMP>, which
+must have been created or initialized by an Image Library
+function. Use this function to reclaim the storage occupied
+by an image. The image should not be referenced by any
+other object when it is destroyed. This function attempts
+to free the storage occupied by <SAMP>image</SAMP> only if
+it was allocated by <CODE><A HREF="vimage-x.html#vimageCreate"><CODE>vimageCreate</CODE></A></CODE>,
+<CODE><A HREF="vimage-x.html#vimageCreateSpecific"><CODE>vimageCreateSpecific</CODE></A></CODE>, or
+<CODE><A HREF="vimage-x.html#vimageClone"><CODE>vimageClone</CODE></A></CODE>. This function also destroys any
+attribute objects that are owned by the image, including
+its map.
+</DD></DL>
+<P>
+<A NAME="vimageDump"><HR><H4>vimageDump</H4></A>
+<PRE>
+        void <B>vimageDump</B>(
+                vimage * image,
+                FILE * stream);
+</PRE>
+
+<DL><DD>
+Prints the contents of the image <SAMP>image</SAMP> on the
+file <SAMP>stream</SAMP> in user-readable form. This
+function is intended for debugging and should not be used
+to store the contents of the image in recoverable form.
+This function has effect only if debugging is enabled.
+</DD></DL>
+<P>
+<A NAME="vimageGetClass"><HR><H4>vimageGetClass</H4></A>
+<PRE>
+        vimageClass * <B>vimageGetClass</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Returns the class of the image <SAMP>image</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vimageGetData"><HR><H4>vimageGetData</H4></A>
+<PRE>
+        const void * <B>vimageGetData</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Returns the generic data pointer attached to the image
+<SAMP>image</SAMP>, which can be <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vimageGetDefaultClass"><HR><H4>vimageGetDefaultClass</H4></A>
+<PRE>
+        vimageClass * <B>vimageGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default image class. This class should be
+subclassed to create new image types.
+</DD></DL>
+<P>
+<A NAME="vimageGetDepth"><HR><H4>vimageGetDepth</H4></A>
+<PRE>
+        int <B>vimageGetDepth</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Returns the pixel depth in bits of the image
+<SAMP>image</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vimageGetHeight"><HR><H4>vimageGetHeight</H4></A>
+<PRE>
+        int <B>vimageGetHeight</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Returns the height of the image <SAMP>image</SAMP> in
+pixels. This is also the height of the image map.
+</DD></DL>
+<P>
+<A NAME="vimageGetInstance"><HR><H4>vimageGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vimageGetInstance</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+
+Returns the instance upon which the image <SAMP>image</SAMP>
+is based.
+</DD></DL>
+<P>
+<A NAME="vimageGetLoadable"><HR><H4>vimageGetLoadable</H4></A>
+<PRE>
+        vloadable * <B>vimageGetLoadable</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Returns the loadable upon which the image <SAMP>image</SAMP>
+is based.
+</DD></DL>
+<P>
+<A NAME="vimageGetMap"><HR><H4>vimageGetMap</H4></A>
+<PRE>
+        vpixmap * <B>vimageGetMap</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Returns the pixmap that contains the pixel contents of the
+image <SAMP>image</SAMP>. You can read the contents of this
+pixmap freely and modify certain parts of it safely, but
+you cannot replace it entirely because it is an integral
+part of the image. In general, it is safe to use any Pixmap
+Library function on an image map that does not have an
+Image Library counterpart. Functions that operate on the
+pixel contents of the image map (scanner and bit copying
+functions, for example) must be called from the Pixmap
+Library API because there is no equivalent functionality in
+the Image Library.
+</DD></DL>
+<P>
+<A NAME="vimageGetNumColors"><HR><H4>vimageGetNumColors</H4></A>
+<PRE>
+        int <B>vimageGetNumColors</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Returns the number of colors defined in the image
+<SAMP>image</SAMP>. This is also the size of the image
+palette, if it has a palette. This number is less than
+2^depth where <I>depth</I> is the depth of the image map.
+</DD></DL>
+<P>
+<A NAME="vimageGetObject"><HR><H4>vimageGetObject</H4></A>
+<PRE>
+        vobject * <B>vimageGetObject</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Returns the object upon which the image <SAMP>image</SAMP>
+is based.
+</DD></DL>
+<P>
+<A NAME="vimageGetObservable"><HR><H4>vimageGetObservable</H4></A>
+<PRE>
+        vobservable * <B>vimageGetObservable</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Returns the observable upon which the image <SAMP>image</SAMP>
+is based.
+</DD></DL>
+<P>
+<A NAME="vimageGetPalette"><HR><H4>vimageGetPalette</H4></A>
+<PRE>
+        vcolorPalette * <B>vimageGetPalette</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Returns the palette of the image <SAMP>image</SAMP>. Note
+that this function creates a palette for the image and
+returns it if it has none. To test if a given image has a
+palette or not, you must use <CODE><A HREF="vimage-x.html#vimageHasPalette"><CODE>vimageHasPalette</CODE></A></CODE>.
+This function should only be called on palette images; use
+<CODE><A HREF="vimage-x.html#vimageIsTrueColor"><CODE>vimageIsTrueColor</CODE></A></CODE>, to test if an image is a
+palette image or a true color image.
+</DD></DL>
+<P>
+<A NAME="vimageGetPixmap"><HR><H4>vimageGetPixmap</H4></A>
+<PRE>
+        vpixmap * <B>vimageGetPixmap</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Returns the pixmap upon which the image <SAMP>image</SAMP>
+is based.
+</DD></DL>
+<P>
+<A NAME="vimageGetTransparency"><HR><H4>vimageGetTransparency</H4></A>
+<PRE>
+        vimage * <B>vimageGetTransparency</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Returns the transparency of the image <SAMP>image</SAMP>,
+or <SAMP>NULL</SAMP> if the image is completely opaque.
+</DD></DL>
+<P>
+<A NAME="vimageGetWidth"><HR><H4>vimageGetWidth</H4></A>
+<PRE>
+        int <B>vimageGetWidth</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Returns the width of the image <SAMP>image</SAMP> in
+pixels. This is also the width of the image map.
+</DD></DL>
+<P>
+<A NAME="vimageHasPalette"><HR><H4>vimageHasPalette</H4></A>
+<PRE>
+        int <B>vimageHasPalette</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the image <SAMP>image</SAMP>
+has a palette, <SAMP>FALSE</SAMP> if it does not. This
+function must be used to test if an image has a palette or
+not, because <CODE><A HREF="vimage-x.html#vimageGetPalette"><CODE>vimageGetPalette</CODE></A></CODE> creates a
+palette on demand. This function should only be called on
+palette images---use <CODE><A HREF="vimage-x.html#vimageIsTrueColor"><CODE>vimageIsTrueColor</CODE></A></CODE>, to
+test if an image is a palette image or a true color image.
+</DD></DL>
+<P>
+<A NAME="vimageInit"><HR><H4>vimageInit</H4></A>
+<PRE>
+        void <B>vimageInit</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Initializes an image in the memory addressed by
+<SAMP>image</SAMP>. The attributes of the image are set to
+their default values, as documented in the Image
+ chapter of the <I>Galaxy Programmer's Guide</I>.
+The address can be used in other
+calls to the Image Library as if it were created with
+<CODE><A HREF="vimage-x.html#vimageCreate"><CODE>vimageCreate</CODE></A></CODE>. A call to
+<CODE><A HREF="vimage-x.html#vimageDestroy"><CODE>vimageDestroy</CODE></A></CODE> frees any internal objects
+allocated by the Image Library but does <I>not</I> free the
+structure itself. A map is automatically initialized for
+the image. The pixel contents of the image are initially
+undefined.
+</DD></DL>
+<P>
+<A NAME="vimageInitOfClass"><HR><H4>vimageInitOfClass</H4></A>
+<PRE>
+        void <B>vimageInitOfClass</B>(
+                vimage * image,
+                vimageClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes the uninitialized memory addressed by
+<SAMP>image</SAMP> so that it becomes an image of class
+<SAMP>clas</SAMP>. The attributes of the image are set to
+their default values, according to the class. The Image
+class will not attempt to reclaim the image's storage
+when it is destroyed. This function simply stores the class
+in the image and sends it the message
+<CODE><A HREF="vinstance-x.html#vinstanceINIT"><CODE>vinstanceINIT</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vimageInitSpecific"><HR><H4>vimageInitSpecific</H4></A>
+<PRE>
+        void <B>vimageInitSpecific</B>(
+                vimage * image,
+                int w,
+                int h,
+                int numColors);
+</PRE>
+
+<DL><DD>
+Initializes an image of width <SAMP>w</SAMP> and height
+<SAMP>h</SAMP> in the memory addressed by
+<SAMP>image</SAMP>. The palette of the image is given space
+for <SAMP>numColors</SAMP> colors, and the depth of its map
+is set such that it can represent at least this many pixel
+values. Other attributes of the image are set to their
+defaults, as documented in the Image  chapter of
+the <I>Galaxy Programmer's
+Guide</I>. The address can be used in other calls to the
+Image Library as if it were created with
+<CODE><A HREF="vimage-x.html#vimageCreate"><CODE>vimageCreate</CODE></A></CODE>. A call to
+<CODE><A HREF="vimage-x.html#vimageDestroy"><CODE>vimageDestroy</CODE></A></CODE> frees any internal objects
+allocated by the Image Library but does <I>not</I> free the
+structure itself. A map is automatically initialized for
+the image using the arguments provided. The pixel contents
+of the image are initially undefined.
+</DD></DL>
+<P>
+<A NAME="vimageIsNeverDitherFlagOn"><HR><H4>vimageIsNeverDitherFlagOn</H4></A>
+<PRE>
+        int <B>vimageIsNeverDitherFlagOn</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the image <SAMP>image</SAMP>
+is not dithered when drawn, <SAMP>FALSE</SAMP> if it is
+dithered.
+</DD></DL>
+<P>
+<A NAME="vimageIsTrueColor"><HR><H4>vimageIsTrueColor</H4></A>
+<PRE>
+        int <B>vimageIsTrueColor</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the image <SAMP>image</SAMP>
+is a true color image, <SAMP>FALSE</SAMP> if it is not (and
+therefore a palette image).
+</DD></DL>
+<P>
+<A NAME="vimageLoad"><HR><H4>vimageLoad</H4></A>
+<PRE>
+        vimage * <B>vimageLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads an image from the resource <SAMP>resource</SAMP> and
+returns a pointer to its contents. Storage for the image is
+allocated by the Image Library. Attributes may be
+initialized based on the contents of the resource, or they
+may be set to default values. (Attributes that are stored
+in resources are documented in the Image 
+chapter of the <I>Galaxy 
+Programmer's Guide</I>.) The image map is automatically
+loaded from the resource. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> if the resource was not
+constructed by <CODE><A HREF="vimage-x.html#vimageStore"><CODE>vimageStore</CODE></A></CODE>. This function
+essentially allocates space for a new image and calls
+<CODE><A HREF="vimage-x.html#vimageLoadInit"><CODE>vimageLoadInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vimageLoadInit"><HR><H4>vimageLoadInit</H4></A>
+<PRE>
+        void <B>vimageLoadInit</B>(
+                vimage * image,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads an image from the resource <SAMP>resource</SAMP> and
+stores it in the uninitialized memory addressed by
+<SAMP>image</SAMP>. Attributes may be initialized based on
+the contents of the resource, or they may be set to default
+values. (Attributes that are stored in resources are
+documented in the Image  chapter of the
+<I>Galaxy Programmer's Guide</I>.)
+The image map is automatically loaded from the resource. It
+generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> if the resource
+was not constructed by <CODE><A HREF="vimage-x.html#vimageStore"><CODE>vimageStore</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vimageMakeBuffer"><HR><H4>vimageMakeBuffer</H4></A>
+<PRE>
+        vbuffer * <B>vimageMakeBuffer</B>(
+                vimage * image,
+                const vbufferDevice * device);
+</PRE>
+
+<DL><DD>
+Constructs a buffer for the image <SAMP>image</SAMP> on the
+buffer device <SAMP>device</SAMP> and returns a pointer to
+its contents. This function may create a new buffer or it
+may return an existing buffer, if one exists. The buffer
+must still be validated before its contents can be used.
+Refer to Buffers in the Image  chapter of
+the <I>Galaxy Programmer's
+Guide</I> and the appropriate device documentation for more
+information.
+</DD></DL>
+<P>
+<A NAME="vimageMarkModified"><HR><H4>vimageMarkModified</H4></A>
+<PRE>
+        void <B>vimageMarkModified</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Indicates to the Image Library that the pixel contents of
+the image <SAMP>image</SAMP> have been modified directly in
+the image map and that the window system representation of
+the image (if any) needs reconstruction before the image
+can be drawn again. You only need to call this function if
+you change the contents of the image map buffer
+<I>without</I> using a pixmap scanner. All other changes to
+the image made by Image and Pixmap Library functions
+(including scanners) are tracked automatically. Extraneous
+calls to this function degrade performance.
+</DD></DL>
+<P>
+<A NAME="vimagePackValue24"><HR><H4>vimagePackValue24</H4></A>
+<PRE>
+        vimageValue <B>vimagePackValue24</B>(
+                unsigned int red,
+                unsigned int green,
+                unsigned int blue);
+</PRE>
+
+<DL><DD>
+Returns an image value that is a packed representation of the
+parameters <SAMP>red</SAMP>, <SAMP>green</SAMP>, and <SAMP>blue</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vimageSetData"><HR><H4>vimageSetData</H4></A>
+<PRE>
+        void <B>vimageSetData</B>(
+                vimage * image,
+                const void * data);
+</PRE>
+
+<DL><DD>
+Sets the generic data pointer of the image<SAMP>
+image</SAMP> to <SAMP>data</SAMP>. This can be set to
+any pointer the user chooses to attach to the image and
+may be <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vimageSetDepth"><HR><H4>vimageSetDepth</H4></A>
+<PRE>
+        void <B>vimageSetDepth</B>(
+                vimage * image,
+                int depth);
+</PRE>
+
+<DL><DD>
+Changes the number of legal color values for the pixel
+contents of the image <SAMP>image</SAMP> to 2^depth-1. This
+function also changes the depth of the image map. Has no
+effect if the image is already of depth <SAMP>depth</SAMP>.
+If the image is a palette image color slots from the images
+color palette may be added or removed to match the new
+number of colors. Any new color slots allocated by this
+function are initialized as if by
+<CODE><A HREF="vcolor-x.html#vcolorInitSpec"><CODE>vcolorInitSpec</CODE></A></CODE> (refer to the Color 
+chapter of the <I>Galaxy 
+Programmer's Guide</I> for details). This routine is
+identical to <CODE><A HREF="vimage-x.html#vimageSetNumColors"><CODE>vimageSetNumColors</CODE></A></CODE> where the
+number of new colors is 2^depth-1.
+</DD></DL>
+<P>
+<A NAME="vimageSetNeverDitherFlag"><HR><H4>vimageSetNeverDitherFlag</H4></A>
+<PRE>
+        void <B>vimageSetNeverDitherFlag</B>(
+                vimage * image,
+                int value);
+</PRE>
+
+<DL><DD>
+Sets whether an image should or should not be dithered when
+it is drawn. If the flag <SAMP>value</SAMP> is set to
+<SAMP>TRUE</SAMP>, the image is not dithered; conversely,
+if <SAMP>flag</SAMP> is <SAMP>FALSE</SAMP> the image is
+dithered.
+</DD></DL>
+<P>
+<A NAME="vimageSetNeverDitherFlagOff"><HR><H4>vimageSetNeverDitherFlagOff</H4></A>
+<PRE>
+        void <B>vimageSetNeverDitherFlagOff</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Indicates that the image <SAMP>image</SAMP> should be
+dithered when it is drawn. This does not affect the
+contents of the image, only the manner in which it is
+drawn. This function is useful for reversing the effects of
+<CODE><A HREF="vimage-x.html#vimageSetNeverDitherFlagOn"><CODE>vimageSetNeverDitherFlagOn</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vimageSetNeverDitherFlagOn"><HR><H4>vimageSetNeverDitherFlagOn</H4></A>
+<PRE>
+        void <B>vimageSetNeverDitherFlagOn</B>(
+                vimage * image);
+</PRE>
+
+<DL><DD>
+Indicates that the image <SAMP>image</SAMP> should not be
+dithered when it is drawn. This does not affect the
+contents of the image, only the manner in which it is
+drawn. This function is useful for designating those images
+whose contents degrade so severely during dithering that
+they should not be dithered at all. The image must be drawn
+for this attribute to have a visible effect. Note that
+dithering is enabled by default and is of adequate quality
+for most images.
+</DD></DL>
+<P>
+<A NAME="vimageSetNumColors"><HR><H4>vimageSetNumColors</H4></A>
+<PRE>
+        void <B>vimageSetNumColors</B>(
+                vimage * image,
+                int numColors);
+</PRE>
+
+<DL><DD>
+Changes the number of legal color values for the pixel
+contents of the image <SAMP>image</SAMP> to
+<SAMP>numColors</SAMP>. This function also changes the
+depth of the image map and the size of the image color
+palette, if necessary. Has no effect if the image already
+contains the requested number of colors. If the image is a
+palette image color slots from the images color palette may
+be added or removed to match the new number of colors. Any
+new color slots allocated by this function are initialized
+as if by <CODE><A HREF="vcolor-x.html#vcolorInitSpec"><CODE>vcolorInitSpec</CODE></A></CODE> (refer to the Color
+ chapter of the <I>Galaxy Programmer's Guide</I>
+for details).
+</DD></DL>
+<P>
+<A NAME="vimageSetPalette"><HR><H4>vimageSetPalette</H4></A>
+<PRE>
+        void <B>vimageSetPalette</B>(
+                vimage * image,
+                vcolorPalette * palette);
+</PRE>
+
+<DL><DD>
+Changes the color palette of the image <SAMP>image</SAMP>
+to <SAMP>palette</SAMP>. The image color palette maps pixel
+values of the image map into color values; the Image
+class uses <CODE><A HREF="vcolor-x.html#vcolorGetPaletteSpecAt"><CODE>vcolorGetPaletteSpecAt</CODE></A></CODE> with the
+pixel value as an index to determine the color value of a
+given pixel. Refer to the Color chapter of the
+<I>Galaxy Programmer's Guide</I>
+for more information about color palettes. This function
+changes the number of legal color values for the pixel
+contents of the image to the size of the new palette and
+changes the image map depth accordingly. If
+<SAMP>palette</SAMP> is the current palette attribute of
+the image and the palette is owned (refer to
+<CODE><A HREF="vimage-x.html#vimageSetPaletteOwned"><CODE>vimageSetPaletteOwned</CODE></A></CODE>), then this function
+changes the palette attribute to shared <I>without</I>
+destroying the palette (this is a special case).
+</DD></DL>
+<P>
+<A NAME="vimageSetPaletteOwned"><HR><H4>vimageSetPaletteOwned</H4></A>
+<PRE>
+        void <B>vimageSetPaletteOwned</B>(
+                vimage * image,
+                vcolorPalette * palette);
+</PRE>
+
+<DL><DD>
+Changes the color palette of the image <SAMP>image</SAMP>
+to <SAMP>palette</SAMP> and gives the image ownership of
+the palette. The image color palette maps pixel values of
+the image map into color values: the Image class uses
+<CODE><A HREF="vcolor-x.html#vcolorGetPaletteSpecAt"><CODE>vcolorGetPaletteSpecAt</CODE></A></CODE> with the pixel value as
+an index to determine the color value of a given pixel.
+Refer to the Color  chapter of the <I>Galaxy
+Programmer's Guide</I> for more
+information about color palettes. This function changes the
+number of legal color values for the pixel contents of the
+image to the size of the new palette and changes the image
+map depth accordingly. The palette is destroyed when the
+image is destroyed or the palette is changed. The palette
+is also cloned when the image is cloned or copied.
+</DD></DL>
+<P>
+<A NAME="vimageSetSize"><HR><H4>vimageSetSize</H4></A>
+<PRE>
+        void <B>vimageSetSize</B>(
+                vimage * image,
+                int w,
+                int h);
+</PRE>
+
+<DL><DD>
+Changes the size of the image <SAMP>image</SAMP> to
+<SAMP>w</SAMP> pixels by <SAMP>h</SAMP> pixels. Any
+contents of the image are destroyed by this function; to
+preserve the image contents, use
+<CODE><A HREF="vimage-x.html#vimageSetSizePreserve"><CODE>vimageSetSizePreserve</CODE></A></CODE>. This function has no
+effect if the image is already of the requested size. The
+size of the image map is automatically changed by this
+function. This function generates a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>w</SAMP> or <SAMP>h</SAMP> is less than one or
+greater than the maximum allowable pixmap dimension (at
+least 32767, but maybe greater).
+</DD></DL>
+<P>
+<A NAME="vimageSetSizePreserve"><HR><H4>vimageSetSizePreserve</H4></A>
+<PRE>
+        void <B>vimageSetSizePreserve</B>(
+                vimage * image,
+                int w,
+                int h,
+                int preserve,
+                vimageValue background);
+</PRE>
+
+<DL><DD>
+Changes the size of the image <SAMP>image</SAMP> to
+<SAMP>w</SAMP> pixels by <SAMP>h</SAMP> pixels and
+preserves the image contents. This function has no effect
+if the image is already of the requested size. The size of
+the image map is automatically changed by this function.
+This function generates a <CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE>
+exception if <SAMP>w</SAMP> or <SAMP>h</SAMP> is less than
+one or greater than the maximum allowable pixmap dimension
+(this is at least 32767, but may be greater).
+    <P>
+The flags in <SAMP>preserve</SAMP> specify how the existing
+contents of the image should be positioned in the new
+content area and whether or not to clear parts of the image
+that are exposed by the size change. <SAMP>preserve</SAMP>
+should be <SAMP>vpixmapPRESERVE_NONE</SAMP> or the bitwise
+OR (<SAMP>|</SAMP>) of two or more of the following
+constants:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><SAMP>vpixmapPRESERVE_HORIZ_LEFT</SAMP>
+<DD>Align existing contents left.
+<DT><SAMP>vpixmapPRESERVE_HORIZ_CENTER</SAMP>
+<DD>Align existing contents center.
+<DT><SAMP>vpixmapPRESERVE_HORIZ_RIGHT</SAMP>
+<DD>Align existing contents right.
+<DT><SAMP>vpixmapPRESERVE_VERT_TOP</SAMP>
+<DD>Align existing contents top.
+<DT><SAMP>vpixmapPRESERVE_VERT_CENTER</SAMP>
+<DD>Align existing contents center.
+<DT><SAMP>vpixmapPRESERVE_VERT_BOTTOM</SAMP>
+<DD>Align existing contents bottom.
+<DT><SAMP>vpixmapPRESERVE_CLEAR_EXPOSED</SAMP>
+<DD>Clear exposed area to background.
+</DL>
+</BLOCKQUOTE>
+
+    <P>
+Note that you can specify only one horizontal flag and one
+vertical flag at a time. <SAMP>background</SAMP> is ignored
+if <SAMP>vpixmapPRESERVE_CLEAR_EXPOSED</SAMP> is not set.
+</DD></DL>
+<P>
+<A NAME="vimageSetTransparency"><HR><H4>vimageSetTransparency</H4></A>
+<PRE>
+        void <B>vimageSetTransparency</B>(
+                vimage * image,
+                vimage * transparency);
+</PRE>
+
+<DL><DD>
+Changes the transparency of the image <SAMP>image</SAMP> to
+<SAMP>transparency</SAMP>. The image transparency
+determines which pixels of the image are opaque and which
+are transparent: transparency pixels with the value one
+indicate that the corresponding image pixel is opaque,
+while a pixel value of zero indicates that the
+corresponding image pixel is transparent. During drawing,
+opaque indicates that the image map color value is painted
+on the target device, while transparent indicates that the
+color value is not painted. Use
+<CODE><A HREF="vdraw-x.html#vdrawImageComposite"><CODE>vdrawImageComposite</CODE></A></CODE> or one of its variants to
+draw images with transparency taken into account.
+<p>
+<SAMP>transparency</SAMP> can be <SAMP>NULL</SAMP>, in
+which case the entire image is considered to be opaque. The
+transparency color map is ignored. This function generates
+a <CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if the number
+of legal color values in the transparency image is not two.
+If <SAMP>transparency</SAMP> is the current transparency
+attribute of the image and the transparency is owned (refer
+to <CODE><A HREF="vimage-x.html#vimageSetTransparencyOwned"><CODE>vimageSetTransparencyOwned</CODE></A></CODE>), then this
+function changes the transparency attribute to shared
+<I>without</I> destroying the transparency (this is a
+special case).
+</DD></DL>
+<P>
+<A NAME="vimageSetTransparencyOwned"><HR><H4>vimageSetTransparencyOwned</H4></A>
+<PRE>
+        void <B>vimageSetTransparencyOwned</B>(
+                vimage * image,
+                vimage * transparency);
+</PRE>
+
+<DL><DD>
+Changes the transparency of the image <SAMP>image</SAMP> to
+<SAMP>transparency</SAMP> and gives the image ownership of
+the transparency. The image transparency determines which
+pixels of the image are opaque and which are transparent:
+transparency pixels with the value one indicate that the
+corresponding image pixel is opaque, while a pixel value of
+zero indicates that the corresponding image pixel is
+transparent. During drawing, opaque indicates that the
+image map color value is painted on the target device,
+while transparent indicates that the color value is not
+painted. Use <CODE><A HREF="vdraw-x.html#vdrawImageComposite"><CODE>vdrawImageComposite</CODE></A></CODE> or one of its
+variants to draw images with transparency taken into
+account. The transparency color map is ignored.
+<p>
+This function generates a <CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE>
+exception if the number of legal color values in the
+transparency image is not two. The transparency is
+destroyed when the image is destroyed or the transparency
+is changed. The transparency is also cloned when the image
+is cloned or copied.
+</DD></DL>
+<P>
+<A NAME="vimageSetTrueColor"><HR><H4>vimageSetTrueColor</H4></A>
+<PRE>
+        void <B>vimageSetTrueColor</B>(
+                vimage * image,
+                int flag);
+</PRE>
+
+<DL><DD>
+Changes the image type to true color if <SAMP>flag</SAMP>
+is <SAMP>TRUE</SAMP>, the image type is changed to palette
+if <SAMP>flag</SAMP> is <SAMP>FALSE</SAMP>. A true color
+image is an image where the actual pixel values from the
+image's map represent a color. The pixel values from a
+palette image represent an index into an image's color
+palette---no palette is required for a true color image.
+True color images are only available in depths of one,
+twenty-four, and thirty-two bits. Use
+<CODE><A HREF="vimage-x.html#vimageSetDepth"><CODE>vimageSetDepth</CODE></A></CODE> to specify the depth of an
+image. One bit true color images can be used as masks or
+drawn directly. When a one bit true color image is drawn,
+zero pixels are interpreted as black, and one pixels are
+interpreted as white. Twenty-four and thirty-two bit images
+both interpret pixel values the same way. Eight bits of
+red, green, and blue are packed into the low order bits.
+    <P>
+<BLOCKQUOTE>
+
+<TABLE BORDER>
+<TR>
+<TD><SAMP>xxxx xxxx</SAMP></TD>
+<TD><SAMP>rrrr rrrr</SAMP></TD>
+<TD><SAMP>gggg gggg</SAMP></TD>
+<TD><SAMP>bbbb bbbb</SAMP></TD> 
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+    <P>
+The eight bits of each color component allow a range of
+0-255. A pixel value of 0, 0, 0 would be black and pixel
+value of 255, 255, 255 would be white. This is based on the
+RGB color model. The upper eight bits do not exist on a
+twenty-four bit image, though they may be used for
+application specific data. While it is guaranteed that the
+upper eight bits will always be available to the
+application, future releases of Galaxy may use these bits
+for compositing and possible other operations. However,
+these operations will have to be activated by the API and
+thus Galaxy will not touch these upper eight bits unless
+instructed.
+</DD></DL>
+<P>
+<A NAME="vimageStartup"><HR><H4>vimageStartup</H4></A>
+<PRE>
+        void <B>vimageStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the Image class. Has no effect if the Image
+class is already initialized.
+</DD></DL>
+<P>
+<A NAME="vimageStore"><HR><H4>vimageStore</H4></A>
+<PRE>
+        void <B>vimageStore</B>(
+                vimage * image,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Writes the contents of the image <SAMP>image</SAMP> into
+the resource <SAMP>resource</SAMP>. The image can be
+recovered from the resource at a later time (perhaps by
+another program) with <CODE><A HREF="vimage-x.html#vimageLoad"><CODE>vimageLoad</CODE></A></CODE> or
+<CODE><A HREF="vimage-x.html#vimageLoadInit"><CODE>vimageLoadInit</CODE></A></CODE>. Note that not all of the
+images attributes are stored in the resource. (Attributes
+that are stored in resources are documented in the Image
+chapter of the <I>Galaxy 
+Programmer's Guide</I>.) The image map is automatically
+stored in the resource.
+    <P>
+To make an image into a resource, first call
+<CODE><A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A></CODE> to create an untyped resource in
+the desired location, then call <CODE>vimageStore</CODE> to
+write the image into the resource. This is illustrated in
+Example.
+    <P>
+<BLOCKQUOTE>
+Sample Code: Making an image into a resource</BLOCKQUOTE>
+<BLOCKQUOTE>
+
+
+<PRE>
+vimage   *image;    /* contains an image */
+<A HREF="vresource-x.html#vresource"><CODE>vresource</CODE></A> fileResource, imageResource;
+
+fileResource  = <A HREF="vresource-x.html#vresourceOpenFile"><CODE>vresourceOpenFile</CODE></A>( ... );
+imageResource = <A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A>(fileResource,
+                              <A HREF="vname-x.html#vnameInternGlobalLiteral"><CODE>vnameInternGlobalLiteral</CODE></A>("MyImage"));
+
+vimageStore(image, imageResource);
+<A HREF="vresource-x.html#vresourceCloseFile"><CODE>vresourceCloseFile</CODE></A>(fileResource);
+</PRE>
+</BLOCKQUOTE>
+ 
+    <P>
+</DD></DL>
+<P>
+<A NAME="vimageUnpackValue24"><HR><H4>vimageUnpackValue24</H4></A>
+<PRE>
+        void <B>vimageUnpackValue24</B>(
+                vimageValue value,
+                unsigned int * red,
+                unsigned int * green,
+                unsigned int * blue);
+</PRE>
+
+<DL><DD>
+Unpacks the image value <SAMP>value</SAMP> into the three
+representative components of <SAMP>red</SAMP>, <SAMP>green</SAMP>, and 
+<SAMP>blue</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vimageUnpackValue24Quick"><HR><H4>vimageUnpackValue24Quick</H4></A>
+<PRE>
+        void <B>vimageUnpackValue24Quick</B>(
+                vimageValue value,
+                unsigned int * red,
+                unsigned int * green,
+                unsigned int * blue);
+</PRE>
+
+<DL><DD>
+Unpacks the image value <SAMP>value</SAMP> into the three
+representative components of <SAMP>red</SAMP>, <SAMP>green</SAMP>, and 
+<SAMP>blue</SAMP>.
+<CODE>vimageUnpackValue24Quick</CODE> unpacks an image value
+more quickly than <CODE>vimageUnpackValue24</CODE>, at the
+expense of some accuracy.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vimageSET_NEVER_DITHER_FLAG"><HR><H4>vimageSET_NEVER_DITHER_FLAG</H4></A>
+<PRE>
+        &lt;<B>vimageSET_NEVER_DITHER_FLAG</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets whether an image should or should not be dithered when
+it is drawn. If the flag <SAMP>value</SAMP> is set to
+<SAMP>TRUE</SAMP>, the image is not dithered; conversely,
+if <SAMP>flag</SAMP> is <SAMP>FALSE</SAMP> the image is
+dithered. The function entry point
+<CODE><A HREF="vimage-x.html#vimageSetNeverDitherFlag"><CODE>vimageSetNeverDitherFlag</CODE></A></CODE> is implemented by
+sending this message to the image.
+    <P>
+The default method for the default image class changes the
+dither flag of the image and flushes the window system
+representation, if necessary. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+set the new flag, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vimageSET_NUM_COLORS"><HR><H4>vimageSET_NUM_COLORS</H4></A>
+<PRE>
+        &lt;<B>vimageSET_NUM_COLORS</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the number of legal color values for the pixel
+contents of the image <SAMP>image</SAMP> to
+<SAMP>numColors</SAMP>. This function also changes the
+depth of the image map and the size of the image color
+palette, if necessary. Has no effect if the image already
+contains the requested number of colors. The function entry
+point <CODE><A HREF="vimage-x.html#vimageSetNumColors"><CODE>vimageSetNumColors</CODE></A></CODE> is implemented by
+sending this message to the image.
+    <P>
+The default method for the default image class changes the
+number of colors of the image and flushes the window system
+representation, if necessary. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+set the new color count, then update any subclass-specific
+state.
+</DD></DL>
+<P>
+<A NAME="vimageSET_PALETTE"><HR><H4>vimageSET_PALETTE</H4></A>
+<PRE>
+        &lt;<B>vimageSET_PALETTE</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the color palette of the image <SAMP>image</SAMP>
+to <SAMP>palette</SAMP>. This function changes the number
+of legal color values for the pixel contents of the image
+to the size of the new palette and changes the image map
+depth accordingly. If <SAMP>palette</SAMP> is the current
+palette attribute of the image and the palette is owned
+(refer to <CODE><A HREF="vimage-x.html#vimageSetPaletteOwned"><CODE>vimageSetPaletteOwned</CODE></A></CODE>), then this
+function changes the palette attribute to shared
+<I>without</I> destroying the palette (this is a special
+case). The function entry point
+<CODE><A HREF="vimage-x.html#vimageSetPalette"><CODE>vimageSetPalette</CODE></A></CODE> is implemented by sending
+this message to the image.
+    <P>
+The default method for the default image class changes the
+palette of the image and flushes the window system
+representation, if necessary. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+set the new palette, then update any subclass-specific
+state.
+</DD></DL>
+<P>
+<A NAME="vimageSET_TRANSPARENCY"><HR><H4>vimageSET_TRANSPARENCY</H4></A>
+<PRE>
+        &lt;<B>vimageSET_TRANSPARENCY</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the transparency of the image <SAMP>image</SAMP> to
+<SAMP>transparency</SAMP>. <SAMP>transparency</SAMP> can be
+<SAMP>NULL</SAMP>, in which case the entire image is
+considered to be opaque. This function generates a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if the number
+of legal color values in the transparency image is not two.
+If <SAMP>transparency</SAMP> is the current transparency
+attribute of the image and the transparency is owned (refer
+to <CODE><A HREF="vimage-x.html#vimageSetTransparencyOwned"><CODE>vimageSetTransparencyOwned</CODE></A></CODE>), then this
+function changes the transparency attribute to shared
+<I>without</I> destroying the transparency (this is a
+special case). The function entry point
+<CODE><A HREF="vimage-x.html#vimageSetTransparency"><CODE>vimageSetTransparency</CODE></A></CODE> is implemented by
+sending this message to the image.
+    <P>
+The default method for the default image class changes the
+transparency of the image and flushes the window system
+representation, if necessary. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+set the new transparency, then update any subclass-specific
+state.
+</DD></DL>
+<P>
+<A NAME="vimageSET_TRUE_COLOR"><HR><H4>vimageSET_TRUE_COLOR</H4></A>
+<PRE>
+        &lt;<B>vimageSET_TRUE_COLOR</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the image type to true color if <SAMP>flag</SAMP>
+is <SAMP>TRUE</SAMP>, the image type is changed to palette
+if <SAMP>flag</SAMP> is <SAMP>FALSE</SAMP>. The function
+entry point <CODE><A HREF="vimage-x.html#vimageSetTrueColor"><CODE>vimageSetTrueColor</CODE></A></CODE> is implemented
+by sending this message to the image.
+    <P>
+The default method for the default image class changes the
+true-color flag of the image and flushes the window system
+representation, if necessary. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+set the new true-color flag, then update any
+subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vimageINCLUDED"><HR><H4>vimageINCLUDED</H4></A>
+<PRE>
+        <B>vimageINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vimage.h</SAMP> is
+included.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vimageCLASS"><HR><H4>vimageCLASS</H4></A>
+<PRE>
+        #define <B>vimageCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+This macro contains the method declarations for the image class,
+this macro expands to the contexts of <CODE><A HREF="vimage-x.html#vimageClass"><CODE>vimageClass</CODE></A></CODE>.
+<SAMP>SUPER<\SAMP> is the type identifier of the class being
+declared. This type is used by the class subclasses to refer to
+it. <SAMP>IMAGE</SAMP> is the type identifier of the instances of
+the class being declared. This macro should be used by image
+subclasses to declare the contents of the image class. This
+macro should come first in the subclass structure declaration.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

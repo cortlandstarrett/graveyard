@@ -1,0 +1,481 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vdomainitem prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vdomainitem prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vdomainitem-x.html#section_DataType">Types</A> [3]</TD>
+<TD><A HREF="vdomainitem-x.html#section_Function">Functions</A> [21]</TD>
+<TD><A HREF="vdomainitem-x.html#section_Message">Messages</A> [1]</TD>
+<TD><A HREF="vdomainitem-x.html#section_Constant">Constants</A> [1]</TD>
+<TD><A HREF="vdomainitem-x.html#section_Macro">Macros</A> [3]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vdomainitem"><HR><H4>vdomainitem</H4></A>
+<PRE>
+        typedef ... <B>vdomainitem</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to represent a single
+domain item and its contents. Domain items are referenced
+by a pointer to this type.
+</DD></DL>
+<P>
+<A NAME="vdomainitemClass"><HR><H4>vdomainitemClass</H4></A>
+<PRE>
+        typedef ... <B>vdomainitemClass</B>;
+</PRE>
+
+<DL><DD>
+Describes the behavior of a class of domain items. Domain
+item classes are referenced by a pointer to this type.
+</DD></DL>
+<P>
+<A NAME="vdomainitemDomain"><HR><H4>vdomainitemDomain</H4></A>
+<PRE>
+        typedef ... <B>vdomainitemDomain</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to represent a domain data
+object and its contents within a <SAMP>vdomainitem</SAMP>.
+This class is used exclusively by <SAMP>vdomainitem</SAMP>
+objects. Subclass this class if you must provide a
+specialized domain for a particular domain item to display.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vdomainitemClone"><HR><H4>vdomainitemClone</H4></A>
+<PRE>
+        vdomainitem * <B>vdomainitemClone</B>(
+                vdomainitem * domainitem);
+</PRE>
+
+<DL><DD>
+Creates a copy of the domain item <SAMP>domainItem</SAMP>
+and returns a pointer to the copy. This function is
+essentially a combination of <CODE><A HREF="vdomainitem-x.html#vdomainitemCreate"><CODE>vdomainitemCreate</CODE></A></CODE>
+and <CODE><A HREF="vdomainitem-x.html#vdomainitemCopy"><CODE>vdomainitemCopy</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdomainitemCopy"><HR><H4>vdomainitemCopy</H4></A>
+<PRE>
+        void <B>vdomainitemCopy</B>(
+                vdomainitem * domainitem,
+                vdomainitem * targetItem);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>domainItem</SAMP> into
+<SAMP>target</SAMP> so that the two domain items represent
+equivalent domain items but separate storage. Any objects
+created in <SAMP>domainItem</SAMP> are duplicated in
+<SAMP>target</SAMP> as well.
+</DD></DL>
+<P>
+<A NAME="vdomainitemCopyInit"><HR><H4>vdomainitemCopyInit</H4></A>
+<PRE>
+        void <B>vdomainitemCopyInit</B>(
+                vdomainitem * domainitem,
+                vdomainitem * targetItem);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>domainItem</SAMP> into
+<SAMP>targetItem</SAMP>, so that the memory addressed by
+<SAMP>targetItem</SAMP> is a domain item equivalent to
+<SAMP>domainItem</SAMP>. <SAMP>targetItem</SAMP> should be
+a pointer to uninitialized memory; the Domain class
+initializes it as part of the copy.
+</DD></DL>
+<P>
+<A NAME="vdomainitemCreate"><HR><H4>vdomainitemCreate</H4></A>
+<PRE>
+        vdomainitem * <B>vdomainitemCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new domain item of the default domain item class
+and returns a pointer to the new domain item. (Memory is
+allocated by the Domain class.)
+</DD></DL>
+<P>
+<A NAME="vdomainitemCreateOfClass"><HR><H4>vdomainitemCreateOfClass</H4></A>
+<PRE>
+        vdomainitem * <B>vdomainitemCreateOfClass</B>(
+                vdomainitemClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new domain item of class <SAMP>clas</SAMP> and
+returns a pointer to the new domain item. (Memory is
+allocated by the Domain class.) The new domain item is
+created with a set of default attributes, determined by the
+class.
+</DD></DL>
+<P>
+<A NAME="vdomainitemDestroy"><HR><H4>vdomainitemDestroy</H4></A>
+<PRE>
+        void <B>vdomainitemDestroy</B>(
+                vdomainitem * domainitem);
+</PRE>
+
+<DL><DD>
+Destroys the domain item represented by
+<SAMP>domainItem</SAMP> and all of its sub-objects that
+were allocated by the Domain class. This function
+attempts to free the storage directly occupied by the
+domain item only if it was allocated by
+<CODE><A HREF="vdomainitem-x.html#vdomainitemCreate"><CODE>vdomainitemCreate</CODE></A></CODE> or
+<CODE><A HREF="vdomainitem-x.html#vdomainitemCreateOfClass"><CODE>vdomainitemCreateOfClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdomainitemGetClass"><HR><H4>vdomainitemGetClass</H4></A>
+<PRE>
+        vdomainitemClass * <B>vdomainitemGetClass</B>(
+                vdomainitem * domainitem);
+</PRE>
+
+<DL><DD>
+Returns the Domain item class of the domain item
+<SAMP>domainItem</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdomainitemGetData"><HR><H4>vdomainitemGetData</H4></A>
+<PRE>
+        void * <B>vdomainitemGetData</B>(
+                vdomainitem * domainitem);
+</PRE>
+
+<DL><DD>
+Returns the generic data pointer attached to the domain
+item <SAMP>domainItem</SAMP>, which can be <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdomainitemGetDefaultClass"><HR><H4>vdomainitemGetDefaultClass</H4></A>
+<PRE>
+        vdomainitemClass * <B>vdomainitemGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the class used to create domain items by the
+<CODE><A HREF="vdomainitem-x.html#vdomainitemCreate"><CODE>vdomainitemCreate</CODE></A></CODE> and
+<CODE><A HREF="vdomainitem-x.html#vdomainitemInit"><CODE>vdomainitemInit</CODE></A></CODE> functions. This class can be
+modified to alter the behavior of all domain items
+subsequently created by these functions.
+</DD></DL>
+<P>
+<A NAME="vdomainitemGetDefaultDomainClass"><HR><H4>vdomainitemGetDefaultDomainClass</H4></A>
+<PRE>
+        vdomainClass * <B>vdomainitemGetDefaultDomainClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the Domain class used by domain items when creating
+the domain for the item by <CODE><A HREF="vdomain-x.html#vdomainCreateOfClass"><CODE>vdomainCreateOfClass</CODE></A></CODE>. 
+This class can be modified to alter the behavior of all domains 
+subsequently created by domain items.
+</DD></DL>
+<P>
+<A NAME="vdomainitemGetDomain"><HR><H4>vdomainitemGetDomain</H4></A>
+<PRE>
+        vdomain * <B>vdomainitemGetDomain</B>(
+                vdomainitem * domainitem);
+</PRE>
+
+<DL><DD>
+Returns the domain that the domain item
+<SAMP>domainItem</SAMP> is displaying.
+</DD></DL>
+<P>
+<A NAME="vdomainitemGetItem"><HR><H4>vdomainitemGetItem</H4></A>
+<PRE>
+        void <B>vdomainitemGetItem</B>();
+</PRE>
+
+<DL><DD>
+Returns the <code><A HREF="vdialog-x.html#vdialogItem"><CODE>vdialogItem</CODE></A></code> the domain item 
+<samp>domainitem</samp> is built on.
+</DD></DL>
+<P>
+<A NAME="vdomainitemGetLoadable"><HR><H4>vdomainitemGetLoadable</H4></A>
+<PRE>
+        void <B>vdomainitemGetLoadable</B>();
+</PRE>
+
+<DL><DD>
+Returns the <code><A HREF="vloadable-x.html#vloadable"><CODE>vloadable</CODE></A></code> the domain item 
+<samp>domainitem</samp> is built on.
+</DD></DL>
+<P>
+<A NAME="vdomainitemGetView"><HR><H4>vdomainitemGetView</H4></A>
+<PRE>
+        vdomainview * <B>vdomainitemGetView</B>(
+                vdomainitem * domainitem);
+</PRE>
+
+<DL><DD>
+Returns the domain view that the domain item
+<SAMP>domainItem</SAMP> belongs to.
+</DD></DL>
+<P>
+<A NAME="vdomainitemInit"><HR><H4>vdomainitemInit</H4></A>
+<PRE>
+        void <B>vdomainitemInit</B>(
+                vdomainitem * domainitem);
+</PRE>
+
+<DL><DD>
+Makes the domain item addressed by <SAMP>domainItem</SAMP>
+into a valid domain item of the default domain data class
+in the same manner as <CODE><A HREF="vdomainitem-x.html#vdomainitemInitOfClass"><CODE>vdomainitemInitOfClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdomainitemInitOfClass"><HR><H4>vdomainitemInitOfClass</H4></A>
+<PRE>
+        void <B>vdomainitemInitOfClass</B>(
+                vdomainitem * domainitem,
+                vdomainitemClass * clas);
+</PRE>
+
+<DL><DD>
+Makes the domain item addressed by <SAMP>domainItem</SAMP>
+into a valid domain item of class <SAMP>clas</SAMP>. The
+same address can be used in other calls to the Domain
+class as if it were created with <CODE><A HREF="vdomainitem-x.html#vdomainitemCreate"><CODE>vdomainitemCreate</CODE></A></CODE>. 
+A call to <CODE><A HREF="vdomainitem-x.html#vdomainitemDestroy"><CODE>vdomainitemDestroy</CODE></A></CODE> frees any internal objects
+allocated by the Domain class but does <I>not</I> attempt
+to free the structure itself.
+</DD></DL>
+<P>
+<A NAME="vdomainitemLoad"><HR><H4>vdomainitemLoad</H4></A>
+<PRE>
+        vdomainitem * <B>vdomainitemLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a domain item from the resource <SAMP>resource</SAMP>
+and returns a pointer to its contents, which are allocated
+by the Domain class. An exception is generated if the
+resource has not been constructed properly.
+</DD></DL>
+<P>
+<A NAME="vdomainitemLoadInit"><HR><H4>vdomainitemLoadInit</H4></A>
+<PRE>
+        void <B>vdomainitemLoadInit</B>(
+                vdomainitem * domainitem,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a domain item from the resource <SAMP>resource</SAMP>
+and stores it in the structure addressed by
+<SAMP>domainItem</SAMP>, which should be uninitialized. An
+exception is generated if the resource has not been
+constructed properly.
+</DD></DL>
+<P>
+<A NAME="vdomainitemSetData"><HR><H4>vdomainitemSetData</H4></A>
+<PRE>
+        void <B>vdomainitemSetData</B>(
+                vdomainitem * domainitem,
+                void * data);
+</PRE>
+
+<DL><DD>
+Sets the domain item <SAMP>domainItem</SAMP>'s generic data
+pointer to <SAMP>data</SAMP>. This can be a pointer to
+whatever information the developer wants to attach to the
+domain item; it is not used by the Domain class.
+<SAMP>data</SAMP> can be <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdomainitemStartup"><HR><H4>vdomainitemStartup</H4></A>
+<PRE>
+        void <B>vdomainitemStartup</B>();
+</PRE>
+
+<DL><DD>
+Sets up the domain item portion of the Domain class for
+use. It has no effect if the startup has already been done.
+</DD></DL>
+<P>
+<A NAME="vdomainitemStore"><HR><H4>vdomainitemStore</H4></A>
+<PRE>
+        void <B>vdomainitemStore</B>(
+                vdomainitem * domainitem,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Writes the contents of the domain item
+<SAMP>domainItem</SAMP> into the resource
+<SAMP>resource</SAMP>. The domain item can be recovered
+from the resource at a later time (perhaps by another
+program) with <CODE><A HREF="vdomainitem-x.html#vdomainitemLoad"><CODE>vdomainitemLoad</CODE></A></CODE> or
+<CODE><A HREF="vdomainitem-x.html#vdomainitemLoadInit"><CODE>vdomainitemLoadInit</CODE></A></CODE>. The resource should have
+type <SAMP>vresourceDICT.</SAMP>
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vdomainitemCREATE_DOMAIN"><HR><H4>vdomainitemCREATE_DOMAIN</H4></A>
+<PRE>
+        &lt;<B>vdomainitemCREATE_DOMAIN</B>&gt;
+</PRE>
+
+<DL><DD>
+Creates the domain for the domain item
+<SAMP>domainItem</SAMP>. The method is called when the
+domain item is initialized, and needs to create a domain.
+There is no associated function entry point for this
+message.
+<P>
+The default method for the default domain item class calls
+<CODE><A HREF="vdomain-x.html#vdomainCreateOfClass"><CODE>vdomainCreateOfClass</CODE></A></CODE> with the default domain
+item domain class. Subclasses that override this method can
+perform any subclass-specific operations before or after
+the call to <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE>, depending on the
+desired behavior.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vdomainitemINCLUDED"><HR><H4>vdomainitemINCLUDED</H4></A>
+<PRE>
+        <B>vdomainitemINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vdomitem.h</SAMP> is
+included.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vdomainitemCLASS"><HR><H4>vdomainitemCLASS</H4></A>
+<PRE>
+        #define <B>vdomainitemCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for domain item
+classes. This macro expands to the contents of <CODE><A HREF="vdomainitem-x.html#vdomainitemClass"><CODE>vdomainitemClass</CODE></A></CODE>.
+<SAMP>SUPER</SAMP> is the type identifier of the class being declared (for
+example, <CODE><A HREF="vdomainitem-x.html#vdomainitemClass"><CODE>vdomainitemClass</CODE></A></CODE>). This type is used by the class's
+subclasses to refer to it. <SAMP>ITEM</SAMP> is the type identifier of
+instances of the class being declared (for example, <CODE>vdomainitem</CODE>).
+<SAMP>NOTIFY</SAMP> is the type identifier of the instance notification
+function (for example, <CODE><A HREF="vdialog-x.html#vdialogItemNoteProc"><CODE>vdialogItemNoteProc</CODE></A></CODE>).
+<SAMP>DOMAIN</SAMP> is the type identifier for the domain viewed by the domain item (for example, <CODE>vdomain</CODE>). This macro should be used by domain item subclasses to declare the contents of the domain item class. This macro should come first in the subclass structure declaration.
+</DD></DL>
+<P>
+<A NAME="vdomainitemGetItem"><HR><H4>vdomainitemGetItem</H4></A>
+<PRE>
+        #define <B>vdomainitemGetItem</B>(...) ...
+</PRE>
+
+<DL><DD>
+Returns the dialog item that the domain item is built upon.
+</DD></DL>
+<P>
+<A NAME="vdomainitemGetLoadable"><HR><H4>vdomainitemGetLoadable</H4></A>
+<PRE>
+        #define <B>vdomainitemGetLoadable</B>(...) ...
+</PRE>
+
+<DL><DD>
+Returns the loadable that the domain item is built upon.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

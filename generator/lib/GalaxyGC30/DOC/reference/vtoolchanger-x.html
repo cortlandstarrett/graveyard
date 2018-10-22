@@ -1,0 +1,592 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vtoolchanger prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vtoolchanger prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vtoolchanger-x.html#section_DataType">Types</A> [2]</TD>
+<TD><A HREF="vtoolchanger-x.html#section_Function">Functions</A> [21]</TD>
+<TD></TD>
+<TD><A HREF="vtoolchanger-x.html#section_Constant">Constants</A> [1]</TD>
+<TD><A HREF="vtoolchanger-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vtoolchanger"><HR><H4>vtoolchanger</H4></A>
+<PRE>
+        typedef ... <B>vtoolchanger</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to represent a single tool changer.
+Objects of this type have classes derived from <CODE><A HREF="vtoolchanger-x.html#vtoolchangerClass"><CODE>vtoolchangerClass</CODE></A></CODE>.  
+<P>
+A tool changer is simple container which holds multiple items, 
+but only displays one at a time. It is used primarily in toolbars 
+where you want an item to have a completely different 
+horizontal and vertical manifestation. 
+The most frequently used form is a popdown combo in a horizontal toolbar that
+changes to a button when the toolbar becomes vertical. The
+<CODE>Selection</CODE> attribute determines which item will be shown.
+If two or more items are in the tool changer's item list, the first
+two will be treated respectively as the horizontal and vertical items. 
+The tool changer will automatically switch between the
+two when its parent's <SAMP>Vertical</SAMP> attribute changes.
+Refer to the section <CODE>ChangedParentAttribute</CODE> for more information. 
+</DD></DL>
+<P>
+<A NAME="vtoolchangerClass"><HR><H4>vtoolchangerClass</H4></A>
+<PRE>
+        typedef ... <B>vtoolchangerClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variable bindings for objects of type
+<CODE>vtoolchanger</CODE>. Classes declared with this
+type contain the same set of methods and variables as the
+default tool changer class, but the behavior of methods and 
+the contents of variables may vary. This class type is
+derived from <CODE><A HREF="vcontainer-x.html#vcontainerClass"><CODE>vcontainerClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vtoolchangerClone"><HR><H4>vtoolchangerClone</H4></A>
+<PRE>
+        vtoolchanger * <B>vtoolchangerClone</B>(
+                vtoolchanger * changer);
+</PRE>
+
+<DL><DD>
+Creates a copy of the tool changer <SAMP>changer</SAMP> and
+returns a pointer to its contents. Storage for the tool changer
+object is allocated by the Toolbar Manager. The Toolbar Manager
+reclaims the storage occupied by the tool changer when it
+is destroyed with <CODE><A HREF="vtoolchanger-x.html#vtoolchangerDestroy"><CODE>vtoolchangerDestroy</CODE></A></CODE>. This
+function copies all the copyable attributes of the tool changer and
+clones any attribute objects that are owned by the tool changer. 
+The tool changer to be cloned can 
+be dynamic or static. This function essentially allocates
+space for a new tool changer and calls
+<CODE><A HREF="vtoolchanger-x.html#vtoolchangerCopyInit"><CODE>vtoolchangerCopyInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vtoolchangerCopy"><HR><H4>vtoolchangerCopy</H4></A>
+<PRE>
+        void <B>vtoolchangerCopy</B>(
+                vtoolchanger * changer,
+                vtoolchanger * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>changer</SAMP> into
+<SAMP>target</SAMP> so that the two tool changers represent
+equivalent objects. <SAMP>target</SAMP> must have been
+created or initialized by a Toolbar Manager function.
+<SAMP>changer</SAMP> and <SAMP>target</SAMP> must have
+compatible classes for this to work correctly. This
+function copies all the copyable attributes of the tool changer
+and clones any attribute objects that are owned by the tool changer. 
+This function destroys any objects allocated internally by
+<SAMP>target</SAMP> (including its owned attributes), but
+does <I>not</I> destroy <SAMP>target</SAMP> itself. The
+tool changers to be copied can be dynamic or static. This
+function is implemented by sending the message
+<CODE>vobjectCOPY</CODE> to <SAMP>changer</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vtoolchangerCopyInit"><HR><H4>vtoolchangerCopyInit</H4></A>
+<PRE>
+        void <B>vtoolchangerCopyInit</B>(
+                vtoolchanger * changer,
+                vtoolchanger * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>changer</SAMP> into
+<SAMP>target</SAMP> so that the two tool changers represent
+equivalent objects. <SAMP>target</SAMP> should be a pointer to 
+uninitialized memory---the Toolbar Manager initializes it as part
+of the copy.
+This function copies all the copyable attributes of the tool changer
+and clones any attribute objects that are owned by the tool changer. 
+This function destroys any objects allocated internally by
+<SAMP>target</SAMP> (including its owned attributes), but
+does <I>not</I> destroy <SAMP>target</SAMP> itself. The
+tool changers to be copied can be dynamic or static. 
+This
+function simply stores the class of <SAMP>changer</SAMP> in
+<SAMP>target</SAMP> and sends the message
+<CODE>vobjectCOPY_INIT</CODE> to <SAMP>changer</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vtoolchangerCreate"><HR><H4>vtoolchangerCreate</H4></A>
+<PRE>
+        vtoolchanger * <B>vtoolchangerCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new tool changer of the default tool changer class and
+returns a pointer to its contents. Storage for the tool changer
+object is allocated by the Toolbar Manager. The Toolbar Manager
+reclaims the storage occupied by the tool changer when it
+is destroyed with <CODE><A HREF="vtoolchanger-x.html#vtoolchangerDestroy"><CODE>vtoolchangerDestroy</CODE></A></CODE>. The new
+tool changer is created with a set of default attributes, as
+determined by the default tool changer class. The default
+attributes of the default tool changer class are documented in
+the ``Toolbar Manager'' chapter of the <I>Galaxy Application
+Environment Programmer's Guide</I>. This function
+essentially allocates space for a new tool changer and calls
+<CODE><A HREF="vtoolchanger-x.html#vtoolchangerInit"><CODE>vtoolchangerInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vtoolchangerCreateOfClass"><HR><H4>vtoolchangerCreateOfClass</H4></A>
+<PRE>
+        vtoolchanger * <B>vtoolchangerCreateOfClass</B>(
+                vtoolchangerClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new tool changer of class <SAMP>clas</SAMP> and returns
+a pointer to its contents. Storage for the tool changer object is
+allocated by the Toolbar Manager. The Toolbar Manager
+reclaims the storage occupied by the tool changer when it is
+destroyed with <CODE><A HREF="vtoolchanger-x.html#vtoolchangerDestroy"><CODE>vtoolchangerDestroy</CODE></A></CODE>. 
+The new tool changer 
+is created with a set of default attributes, determined by
+the class. The default attributes of the default tool changer
+class are documented in the ``Toolbar Manager'' chapter of
+the <I>Galaxy Application Environment Programmer's
+Guide</I>. This function essentially allocates space for a
+new tool changer and calls <CODE><A HREF="vtoolchanger-x.html#vtoolchangerInitOfClass"><CODE>vtoolchangerInitOfClass</CODE></A></CODE> 
+on it.
+</DD></DL>
+<P>
+<A NAME="vtoolchangerDestroy"><HR><H4>vtoolchangerDestroy</H4></A>
+<PRE>
+        void <B>vtoolchangerDestroy</B>(
+                vtoolchanger * changer);
+</PRE>
+
+<DL><DD>
+Destroys the tool changer represented by <SAMP>changer</SAMP>,
+which must have been created or initialized by a 
+Toolbar Manager function. Use this function to reclaim the storage
+occupied by a tool changer. The tool changer should not be referenced
+by any other object when it is destroyed. This function
+only attempts to free the storage occupied by the
+tool changer if it was allocated by <CODE><A HREF="vtoolchanger-x.html#vtoolchangerCreate"><CODE>vtoolchangerCreate</CODE></A></CODE>,
+<CODE><A HREF="vtoolchanger-x.html#vtoolchangerCreateOfClass"><CODE>vtoolchangerCreateOfClass</CODE></A></CODE>,
+<CODE><A HREF="vtoolchanger-x.html#vtoolchangerClone"><CODE>vtoolchangerClone</CODE></A></CODE>, or
+<CODE><A HREF="vtoolchanger-x.html#vtoolchangerLoad"><CODE>vtoolchangerLoad</CODE></A></CODE>.
+This function will also destroy any attribute objects that
+are owned by the tool changer. This function is implemented by
+sending the message <CODE>vobjectDESTROY</CODE> to
+the tool changer.
+</DD></DL>
+<P>
+<A NAME="vtoolchangerGetClass"><HR><H4>vtoolchangerGetClass</H4></A>
+<PRE>
+        vtoolchangerClass * <B>vtoolchangerGetClass</B>(
+                vtoolchanger * changer);
+</PRE>
+
+<DL><DD>
+Returns the class of the tool changer.
+</DD></DL>
+<P>
+<A NAME="vtoolchangerGetContainer"><HR><H4>vtoolchangerGetContainer</H4></A>
+<PRE>
+        vcontainer * <B>vtoolchangerGetContainer</B>(
+                vtoolchanger * changer);
+</PRE>
+
+<DL><DD>
+Returns the container upon which the toolchanger is constructed.
+</DD></DL>
+<P>
+<A NAME="vtoolchangerGetDefaultClass"><HR><H4>vtoolchangerGetDefaultClass</H4></A>
+<PRE>
+        vtoolchangerClass * <B>vtoolchangerGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the class used by the
+<CODE><A HREF="vtoolchanger-x.html#vtoolchangerCreate"><CODE>vtoolchangerCreate</CODE></A></CODE> and <CODE><A HREF="vtoolchanger-x.html#vtoolchangerInit"><CODE>vtoolchangerInit</CODE></A></CODE>
+functions to create tool changers.
+<P>
+This class can be modified to alter the behavior of all
+tool changers subsequently created by these functions. Changes to
+this class are not visible to any other applications in the same
+process, or to those sharing the same display server. 
+</DD></DL>
+<P>
+<A NAME="vtoolchangerGetItem"><HR><H4>vtoolchangerGetItem</H4></A>
+<PRE>
+        vdialogItem * <B>vtoolchangerGetItem</B>(
+                vtoolchanger * changer);
+</PRE>
+
+<DL><DD>
+Returns the dialog item upon which the toolchanger is constructed.
+</DD></DL>
+<P>
+<A NAME="vtoolchangerGetMinSize"><HR><H4>vtoolchangerGetMinSize</H4></A>
+<PRE>
+        void <B>vtoolchangerGetMinSize</B>();
+</PRE>
+
+<DL><DD>
+Returns the minimum size of the tool changer in the
+variables addressed by <SAMP>w</SAMP> and <SAMP>h</SAMP>.
+The minimum size of a tool changer is either the minimum size of its
+selection if non-<CODE>NULL</CODE>, or the 
+minimum size according to the superclass. Refer to the sections 
+<CODE>GetSelection</CODE> and <CODE><A HREF="vdialog-x.html#vdialogGetItemMinSize"><CODE>vdialogGetItemMinSize</CODE></A></CODE> 
+for more information about the meaning of minimum size.
+<P>
+Subclasses that override this method should first call the
+parent method to get the tool changer minimum size, then add
+any subclass-specific minimum size to it.
+</DD></DL>
+<P>
+<A NAME="vtoolchangerGetNaturalSize"><HR><H4>vtoolchangerGetNaturalSize</H4></A>
+<PRE>
+        void <B>vtoolchangerGetNaturalSize</B>();
+</PRE>
+
+<DL><DD>
+Returns the natural size of the tool changer in the
+variables addressed by <SAMP>w</SAMP> and <SAMP>h</SAMP>.
+The natural size of a tool changer is either the natural size of its
+selection if non-<CODE>NULL</CODE>, or the 
+natural size according to the superclass. 
+Refer to the sections <CODE>GetSelection</CODE>, and
+<CODE><A HREF="vdialog-x.html#vdialogItem"><CODE>vdialogItem</CODE></A></CODE>
+for more information about the meaning of natural size.
+<P>
+Subclasses that override this method should first call the
+parent method to get the tool changer natural size, then add
+any subclass-specific natural size to it.
+</DD></DL>
+<P>
+<A NAME="vtoolchangerGetObject"><HR><H4>vtoolchangerGetObject</H4></A>
+<PRE>
+        vobjectAttributed * <B>vtoolchangerGetObject</B>(
+                vtoolchanger * changer);
+</PRE>
+
+<DL><DD>
+Returns the object upon which the toolchanger is constructed.
+
+</DD></DL>
+<P>
+<A NAME="vtoolchangerGetObservable"><HR><H4>vtoolchangerGetObservable</H4></A>
+<PRE>
+        vobservable * <B>vtoolchangerGetObservable</B>(
+                vtoolchanger * changer);
+</PRE>
+
+<DL><DD>
+Returns the observable upon which the toolchanger is constructed.
+</DD></DL>
+<P>
+<A NAME="vtoolchangerInit"><HR><H4>vtoolchangerInit</H4></A>
+<PRE>
+        void <B>vtoolchangerInit</B>(
+                vtoolchanger * changer);
+</PRE>
+
+<DL><DD>
+Initializes a tool changer of the default tool changer class in the
+memory addressed by <SAMP>changer</SAMP>. The attributes of
+the tool changer are set to their default values, according to
+the default tool changer class. The default attributes of the
+default tool changer class are documented in the ``Toolbar Manager'' 
+chapter of the <I>Galaxy Application Environment
+Programmer's Guide</I>. The address can be used in other
+calls to the Toolbar Manager as if it were created with
+<CODE><A HREF="vtoolchanger-x.html#vtoolchangerCreate"><CODE>vtoolchangerCreate</CODE></A></CODE>. A call to
+<CODE><A HREF="vtoolchanger-x.html#vtoolchangerDestroy"><CODE>vtoolchangerDestroy</CODE></A></CODE> frees any internal
+objects allocated by the Toolbar Manager but does <I>not</I> free
+the structure itself. This function simply stores the
+default class in the class field of the tool changer and sends it
+the message <CODE>vobjectINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vtoolchangerInitOfClass"><HR><H4>vtoolchangerInitOfClass</H4></A>
+<PRE>
+        void <B>vtoolchangerInitOfClass</B>(
+                vtoolchanger * changer,
+                vtoolchangerClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a tool changer of class <SAMP>clas</SAMP> in the memory
+addressed by <SAMP>changer</SAMP>. The attributes of
+the tool changer are set to their default values, according to
+the class. The default attributes of the
+default tool changer class are documented in the ``Toolbar Manager'' 
+chapter of the <I>Galaxy Application Environment
+Programmer's Guide</I>. The address can be used in other
+calls to the Toolbar Manager as if it were created with
+<CODE><A HREF="vtoolchanger-x.html#vtoolchangerCreateOfClass"><CODE>vtoolchangerCreateOfClass</CODE></A></CODE>. A call to
+<CODE><A HREF="vtoolchanger-x.html#vtoolchangerDestroy"><CODE>vtoolchangerDestroy</CODE></A></CODE> frees any internal
+objects allocated by the Toolbar Manager but does <I>not</I> free
+the structure itself. This function simply stores the
+class in the class field of the tool changer and sends it
+the message <CODE>vobjectINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vtoolchangerLoad"><HR><H4>vtoolchangerLoad</H4></A>
+<PRE>
+        vtoolchanger * <B>vtoolchangerLoad</B>(
+                vresource res);
+</PRE>
+
+<DL><DD>
+Reads a tool changer from the resource <SAMP>resource</SAMP> and
+returns a pointer to its contents. Storage for the tool changer
+object is allocated by the Toolbar Manager. The tool changer's
+class is determined by the value of the ``Class'' tag. It
+generates <CODE><A HREF="vobject-x.html#vobjectUndefinedClassException"><CODE>vobjectUndefinedClassException</CODE></A></CODE> if
+the name does not denote a class in the Class Manager
+registry. Note that this function creates an object based
+on the class of the resource, even if this class is not a
+tool changer class. The object pointer is cast to a tool changer
+pointer, even if the object represents a different data
+type. Attributes may be initialized based on the contents
+of the resource, or they may be set to default values,
+depending on the class. The attributes of the default
+tool changer class which are stored in resources are documented
+in the ``Toolbar Manager'' chapter of the <I>Galaxy
+Application Environment Programmer's Guide</I>. This
+function essentially allocates space for a new instance and
+calls <CODE><A HREF="vtoolchanger-x.html#vtoolchangerLoadInit"><CODE>vtoolchangerLoadInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vtoolchangerLoadInit"><HR><H4>vtoolchangerLoadInit</H4></A>
+<PRE>
+        vtoolchanger * <B>vtoolchangerLoadInit</B>(
+                vtoolchanger * changer,
+                vresource res);
+</PRE>
+
+<DL><DD>
+Reads a tool changer from the resource <SAMP>resource</SAMP> and
+stores it in the uninitialized memory addressed by
+<SAMP>changer</SAMP>. The tool changer's class is determined by
+the value of the ``Class'' tag. It generates
+<CODE><A HREF="vobject-x.html#vobjectUndefinedClassException"><CODE>vobjectUndefinedClassException</CODE></A></CODE> if the name
+does not denote a class in the Class Manager registry. Note
+that this function initializes an object based on the class
+of the resource, even if this class is not a tool changer class.
+The object attempts to initialize itself in the tool changer
+structure provided, even if it is not of the correct size.
+Attributes may be initialized based on the contents of the
+resource, or they may be set to default values, depending
+on the class. The attribute table in the ``Toolbar Manager''
+chapter of the <I>Galaxy Application Environment
+Programmer's Guide</I> documents the attributes of the
+default tool changer class that are stored in resources. This
+function stores the class specified by the resource in the
+class field of the tool changer structure and sends it the
+message <CODE>vobjectLOAD_INIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vtoolchangerSetSelection"><HR><H4>vtoolchangerSetSelection</H4></A>
+<PRE>
+        void <B>vtoolchangerSetSelection</B>();
+</PRE>
+
+<DL><DD>
+Changes the selection of the tool changer to the dialog item specified.
+A tool changer's selection is the item in its item list
+which is shown and enabled. All other items in the tool changer's
+item list will be hidden and disabled, giving the illusion that only
+one item is "on" at a time. If <SAMP>selection</SAMP> is <SAMP>NULL</SAMP> 
+then all items in the tool changer will be hidden and disabled.
+<P>
+Subclasses that override this method should first call the
+parent method to store the selection in the tool changer, then
+update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vtoolchangerStartup"><HR><H4>vtoolchangerStartup</H4></A>
+<PRE>
+        void <B>vtoolchangerStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the tool changer module. It has no effect if the 
+tool changer module is already initialized.
+</DD></DL>
+<P>
+<A NAME="vtoolchangerStore"><HR><H4>vtoolchangerStore</H4></A>
+<PRE>
+        vtoolchanger * <B>vtoolchangerStore</B>(
+                vtoolchanger * changer,
+                vresource res);
+</PRE>
+
+<DL><DD>
+Writes the contents of the tool changer into
+the resource. The tool changer can be
+recovered from the resource at a later time (perhaps by
+another program) with <CODE><A HREF="vtoolchanger-x.html#vtoolchangerLoad"><CODE>vtoolchangerLoad</CODE></A></CODE> or
+<CODE>_typeprefixLoadInit</CODE>. Note that not all of the
+tool changer's attributes are stored in the resource---the
+attributes of the default tool changer class which are stored in
+resources are documented in the ``Toolbar Manager'' chapter
+of the <I>Galaxy Application Environment Programmer's
+Guide</I>. It generates
+<CODE><A HREF="vobject-x.html#vobjectUnnamedClassException"><CODE>vobjectUnnamedClassException</CODE></A></CODE> if the tool changer's
+class is not named. This function is implemented by sending
+the message <CODE>vobjectSTORE</CODE> to the tool changer.
+
+    <P>
+To store a tool changer in a resource, first call
+<CODE><A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A></CODE> to create an untyped resource in
+the desired location, then call <CODE>vtoolchangerStore</CODE>
+to write the tool changer into the resource. For example:
+    <P>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+vtoolchanger  *changer;    /* contains a tool changer */
+<A HREF="vresource-x.html#vresource"><CODE>vresource</CODE></A> fileResource, changerResource;
+
+fileResource   = <A HREF="vresource-x.html#vresourceOpenFile"><CODE>vresourceOpenFile</CODE></A>( ... );
+changerResource = <A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A>(fileResource, 
+			       <A HREF="vname-x.html#vnameInternGlobalLiteral"><CODE>vnameInternGlobalLiteral</CODE></A>("Mychanger"));
+
+vtoolchangerStore(changer, changerResource);
+<A HREF="vresource-x.html#vresourceCloseFile"><CODE>vresourceCloseFile</CODE></A>(fileResource);
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vtoolchangerINCLUDED"><HR><H4>vtoolchangerINCLUDED</H4></A>
+<PRE>
+        <B>vtoolchangerINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vtoolchanger.h</SAMP> is included.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vtoolchangerCLASS"><HR><H4>vtoolchangerCLASS</H4></A>
+<PRE>
+        #define <B>vtoolchangerCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for toolchanger
+classes. This macro expands to the contents of
+<CODE><A HREF="vtoolchanger-x.html#vtoolchangerClass"><CODE>vtoolchangerClass</CODE></A></CODE>. <SAMP>SUPER</SAMP> is the type
+identifier of the class being declared (for example,
+<CODE><A HREF="vtoolchanger-x.html#vtoolchangerClass"><CODE>vtoolchangerClass</CODE></A></CODE>). This type is used by the class's 
+subclasses to refer to it. 
+<SAMP>TOOLCHANGER</SAMP> is the type identifier of instances of the class
+being declared (for example, <CODE>vtoolchanger</CODE>). 
+<SAMP>NOTIFY</SAMP> is the type identifier of the instance notification
+function (for example, <CODE>vtoolchangerNoteProc</CODE>).
+This macro should be used by toolchanger subclasses to
+declare the contents of the toolchanger class. This macro should come
+first in the subclass structure declaration.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

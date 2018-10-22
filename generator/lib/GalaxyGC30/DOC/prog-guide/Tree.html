@@ -1,0 +1,175 @@
+<HTML>
+<HEAD>
+<TITLE>Tree</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Tree</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Toolbar.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Tree_List.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The <EM><B>Tree</B></EM> data class (<TT>vtree</TT>) allows the user to store hierarchical data in a traditional tree data organization. The tree data class can be used by itself to manipulate and control data, without any visual display of the data. It is also used by the Tree List class to provide a list-like view of the tree. This separation follows the Data/Observer/View paradigm common to Galaxy modules such as List, Text, and Domain. Galaxy also provides various tree iterator classes that can traverse the tree structure.<P>
+Since Trees use Iterator subclasses for traversing data, you should be familiar with the Iterator chapter. After reading this chapter, you may wand to read the Tree List chapter for information on graphically displaying the tree data.<P>
+A tree represents a traditional method of storing a collection of hierarchal data. At the top of a tree structure is the <EM><B>root</B></EM> tree, or node. Each of these nodes is represented with the <TT>vtree</TT> class. The root tree can have any number of <EM><B>child</B></EM> trees. These in turn can have any number of their own children. The entire tree organization is made up of each individual vtree node knowing its parent and all of its children. If drawn graphically, the resulting organization resembles a tree:<P>
+<PRE><UL>      ----vtree----
+      |           |  
+    vtree         vtree------
+    |   |         |    |    |
+ vtree vtree  vtree vtree vtree
+
+</UL></PRE>Each of the vtrees can be accessed by traversing the tree. Because all children can be accessed through the root tree, you only need to keep a reference to the root tree.<P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+<A NAME="3613"><H3> Creating and Constructing a Tree</H3></A>
+Suppose you had the following file system directory structure:<P>
+Example Data:<P>
+<PRE><UL>{users}
+   {Amy}
+      {Work Files}
+      {Play Files}
+   {Joe}
+      {Games}
+      {Documentation}
+      {News}
+
+</UL></PRE>If you want to store the file system in a tree structure, you would do the following:<P>
+First create a "root" vtree and use <TT>SetTitle</TT> to set its title to be {users}:<P>
+<PRE><UL>vtree *tRoot = vtreeCreate();
+vtreeSetTitle(tRoot, "{users}");
+
+</UL></PRE>In this case, using <TT>SetTitle</TT> is sufficient to store the desired data. You can later use <TT>GetTitle</TT> to retrieve the stored text. If the data were more complex, it could be encapsulated in a typed structure and assigned to the tree using <TT>SetData</TT>. Later it can be retrieved using <TT>GetData</TT>.<P>
+Next, create two vtree "nodes" and set their data to be {Amy} and {Joe}. Attach them to the root tree by using <TT>AppendChild</TT>.:<P>
+<PRE><UL>vtree *tAmy = vtreeCreate();
+vtree *tJoe = vtreeCreate();
+vtreeSetTitle(tAmy, "{Amy}");
+vtreeSetTitle(tJoe, "{Joe}");
+
+</UL></PRE>Continue to create two more vtree "nodes" and set their data to be {Work Files} and {Play Files} then append them to {Amy}. Do the same for {Joe}'s directories.<P>
+<A NAME="3648"><H3> Adding And Removing Children</H3></A>
+As you can see, a child or parent tree is simply another vtree instance. <TT>AppendChild</TT> is the only method for adding a child to a tree. Any number of children can be appended to a tree.<P>
+Once a child has been added to a tree, it can later be retrieved by using <TT>GetChildAt</TT>, passing in the index number of the child. Children are numbered from zero to the number of children in the tree minus one. To find the number of children in a tree, use <TT>GetChildCount</TT>. To find the index number of a child tree in the current tree, use <TT>GetChildIndex</TT>. <P>
+Use <TT>RemoveChild</TT> and <TT>RemoveChildAt</TT> to remove the child from the tree. Note that both of these methods remove the child from the tree but do not destroy the child tree itself.<P>
+<A NAME="3652"><H3> Tree Traversal</H3></A>
+A tree can be traversed with a <EM><B>breadth first</B></EM> iterator, or a <EM><B>depth first</B></EM> iterator. A breadth first iterator traverses over all the children on the same level of the tree organization before moving to the next level. You can think of the breadth first iterator as traversing the tree organization in a horizontal manner. A depth first iterator traverses to the deepest level of all children before moving to the next child. Think of the depth first iterator traversing the tree organization in a vertical manner.<P>
+<A NAME="3654"><I>Example 165.  Example of using a tree iterator
+</I><P>
+<PRE><UL>{
+   vtree      *my_tree;
+   vtreeIterator   my_iterator;
+
+   /*
+    * Fill my_tree with sub-trees.
+    */
+
+   /* ... */
+
+   /*
+    * Iterator over all the sub-trees in my tree.
+    */
+   vtreeInitBreadthFirstIterator(&amp;my_iterator,
+                                 my_tree);
+
+   while (vtreeNextIterator(&amp;my_iterator))
+   {
+      sub_tree = vtreeGetIterator(&amp;my_iterator);
+
+      /*
+       * do something with the sub_tree
+       */
+
+      /* ... */
+   }
+
+   vtreeDestroyIterator(&amp;my_iterator);
+
+}
+
+</UL></PRE><A NAME="3365"><H2> Additional Functionality</H2></A>
+The <TT>vtree</TT> class is a subclass of <TT>vobservable</TT>. This means that an observer can be installed on the root tree node and used to notify you if changes take place with the tree organization. After an observer is installed, it will be called with the following messages when any of the following take place:<P>
+<UL><LI><TT>vtreeOccurrenceBEHAVIOR_ADD_CHILD<br></TT>A child is added.
+<LI><TT>vtreeOccurrenceBEHAVIOR_CHANGE_DATA<br></TT>The data pointer of a tree node is changed.
+<LI><TT>vtreeOccurrenceBEHAVIOR_CHANGE_TITLE<br></TT>The title of a tree node is changed.
+<LI><TT>vtreeOccurrenceBEHAVIOR_DESTROY<br></TT>A tree node is destroyed.
+<LI><TT>vtreeOccurrenceBEHAVIOR_REMOVE_CHILD<br></TT>A child is removed.
+</UL>See the Observer chapter for more information about using observers.<P>
+Note that an observer is automatically installed when using trees with a Tree List in order to effectively update the display of the tree data. See the Tree List chapter for more information.<P>
+<A NAME="3392"><H2> Avoiding Pitfalls</H2></A>
+While using any of the iterators, and traversing through the tree organization, do not remove or add any trees. If you need to remove any trees, maintain a list of them and then remove them after you are done iterating.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Toolbar.html">Previous Chapter</A> | 
+		<A HREF="Tree_List.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

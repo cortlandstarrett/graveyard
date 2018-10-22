@@ -1,0 +1,279 @@
+<HTML>
+<HEAD>
+<TITLE>Number</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Number</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Notice.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Observable.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="193"></A>
+The <EM><B>Number</B></EM> class provides utilities for converting both integral and floating point numeric values to strings, and vice versa. It also allows you to customize how a number is converted into a string. The numeric format lets you specify information such as what digits are displayed, exponential representation, insertion of non-numeric characters (such as the dollar sign character), and internationalized formats for currency.<P>
+<A NAME="13405"><H2> Creating Strings from Numbers</H2></A>
+To form a string representation of a number in the default format, a scribe is made from the number using a <TT><B>ScribeType</B></TT> call, and then a string is created from a scribe. (Refer to the String chapter for more information about scribes.)<P>
+For example, to create a dynamic string from the number 345, use the following call, which results in dynamicString equaling "<TT>345</TT>" (for the default locale).<P>
+<PRE><UL>   dynamicString = vstrCloneScribed(vnumScribeInt(345));
+
+</UL></PRE>To put a string representation floating point number into a static buffer, use the following call, which results in <TT>staticVCharBuffer</TT> containing the string "2.343e-18" (for the default locale).<P>
+<PRE><UL>   vcharCopyScribed(vnumScribeFloat(234.3e-20), staticVCharBuffer);
+
+</UL></PRE>These two examples both use the default representation for the strings they form. If you need more control over the format the number is printed with, you can call <TT><B>ScribeTypeFormatted</B></TT>, which takes more parameters but gives you more control over the representation used for the number. For example, to turn 8765309 into a money value, use the following call.<P>
+<PRE><UL>   dynamicString =
+     vstrCloneScribed(vnumScribeLongFormatted(8765309,
+                                              vnumGetDecimalDigitSet(),
+                                              vnumGetMoneyFormat(),
+                                              NULL, FALSE, -1));
+
+</UL></PRE>This results in dynamicString equaling <TT>$8,765,309.00</TT>.<P>
+Refer to the Reference Manual for more information about the parameters given to the <TT>ScribeFormatted</TT> calls.<P>
+The precision which you pass to <TT><B>ScribeTypeFormatted</B></TT> represents the number of significant digits in the given digit set which are present in the representation of the number. Digits past this count will be ignored. If trailing digits end up being zeroes after the decimal point, they will be truncated.<P>
+Precision can be specified more flexibly by accessing the scribe returned from <TT><B>Scribe</B></TT>. This scribe will contain the number of digits both before and after the decimal point, and you can examine and set these values. You can also set a flag which tells the number manager not to truncate trailing zeroes after the decimal point.<P>
+The following example creates a dynamic string representing the number <TT>floatNumber</TT>, with exactly three digits after the decimal point (even if they are all zeroes).<P>
+<PRE><UL>   scribe = vnumScribeFloatFormatted(floatNumber,
+                                     vnumGetDecimalDigitSet(),
+                                     vnumGetNormalFormat(),
+                                     NULL, FALSE, -1);
+   vnumSetScribeDigitsAfter(scribe, 3);
+   vnumSetScribeTruncateZeroes(scribe, FALSE);
+
+   dynamicString = vstrCloneScribed(scribe);
+
+</UL></PRE><A NAME="165"><H2> Creating Numbers from Strings</H2></A>
+To read a number from a string when the string contains a number in the default format, use the <TT><B>ParseType</B></TT> call.<P>
+For example, to read an integer n from the string text, use:<P>
+<PRE><UL>   n = vnumParseInt(text, NULL);
+
+</UL></PRE>This generates an exception if the contents of text does not represent a number.<P>
+The second parameter to <TT><B>ParseType</B></TT> is the address of a pointer to set to the end of the text read to form the number, so parsing can continue if there is more than just a single number in the text. For instance, to read a series of integers n from a string text, use the code listed in <A HREF="Number.html#24275">Example 114</A>.<P>
+<A NAME="24275"><I>Example 114.  Reading a series of integers
+</I><P>
+<PRE><UL>   while (*text) {
+      n = vnumParseInt(text, &amp;text);
+      /* do something with n here */
+      while (vcharIsWhiteSpace(*text))
+        text++;
+   }
+
+</UL></PRE>To parse numbers in a format other than the default, you can use <TT><B>ParseTypeFormatted</B></TT>. Like <TT><B>ScribeTypeFormatted</B></TT>, this call takes extra parameters, which give you more control over the allowable format for the number to be represented in.<P>
+There is also a set of calls of the form <TT><B>SizedParseType</B></TT>, which take a string and an explicit size rather than a null terminated string.<P>
+<A NAME="246"><H2> Customizing Number Representations</H2></A>
+There are two ways to customize the textual representation of a number. One is to change the <EM><B>digit set</B></EM> used to print the number. The other is to change the <EM><B>format</B></EM> of the number.<P>
+The digit set of a number is specified by a <TT>vnumDigitSet</TT> data structure. Changing the digit set can change both the numeric base of the number and the actual characters used to represent each of the digits.<P>
+The Number Manager provides predefined internationalized <TT>vnumDigitSets</TT> for decimal, hexadecimal, octal, and binary numbers.<P>
+In addition, the developer can define digit sets by simply listing the digits, from zero to the desired base minus one, in a string. For example to create a base 7 digit set:<P>
+<PRE><UL>   newDigitSet = vnumCreateDigitSetScribed(vcharScribeLiteral("0123456"));
+
+</UL></PRE>If a letter is used as a digit in a digit set, it is matched without regard to case.<P>
+The format of a number is specified by a <TT>vnumFormat</TT> data structure. The format controls how the digits of the number are grouped, the precision used to represent the number, what character to use for the decimal point, how a negative or positive number is indicated, and where the exponent of the number goes. It also specifies any "decorative" characters to appear in the representation of the number (such as a dollar sign) and padding characters used in representing the number.<P>
+The Number Manager provides predefined Internationalized number formats for normal numbers, for currency values, and for the scientific exponent field of numbers.<P>
+If the developer needs more control over the formats used to represent numbers than these predefined formats give, the formats can be examined and modified or new ones created. A format consists of a list of components, each of which makes up a part of the representation of a number. The parts of the number are printed or parsed in the same order they appear in the format. The different types of components are summarized in <A HREF="Number.html#164">Table 31</A>.<P>
+<A NAME="164"><I>Table 31.  Component types for number representation
+<TABLE BORDER="3">
+
+<CAPTION></CAPTION>
+
+<tr><th><B>Component
+</B></th><th><B>Description
+</B></th>
+<tr><td>Text
+</td><td>Text to appear in number.
+</td></tr>
+<tr><td>Positive Text
+</td><td>Text to appear in number, if number is positive.
+</td></tr>
+<tr><td>Negative Text
+</td><td>Text to appear in number, if number is negative.
+</td></tr>
+<tr><td>Padding
+</td><td>Padding characters, to be overwritten by any characters closer to the decimal point.
+</td></tr>
+<tr><td>White Space
+</td><td>Possibly optional white space to appear in number.
+</td></tr>
+<tr><td>Digits
+</td><td>Place for actual digits to appear in the number, before or after the decimal point. 
+This can be a fixed number of digits, or as many digits as are necessary to represent 
+the number. This component may also specify a grouping character (such as a 
+comma) to group digits.
+</td></tr>
+<tr><td>Decimal
+</td><td>Decimal point. This marks the "middle" of the number format. Digit components 
+are filled from the decimal point outward. Padding characters are also overwritten 
+from the decimal point outward. The actual decimal point only appears if at least 
+one digit appears after the decimal point. A format should contain at most one 
+decimal component.
+</td></tr>
+<tr><td>Exponent
+</td><td>Scientific exponent, if any. The format for the exponent is specified by a separate 
+number format. 
+</td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+
+</I><P>
+<P>
+<A HREF="Number.html#24405">Example 115</A> describes one possible way the currency number format might be defined. The format prints numbers in the form <TT>($32,563.00)</TT>, with parentheses around the number to indicate a negative value.<P>
+<A NAME="24405"><I>Example 115.  Using the Number Manager
+</I><P>
+<PRE><UL>   format = vnumCreateFormat();
+
+   //The first thing that would appear in the number is an open parenthesis,
+   //if the number is negative:
+   vnumAddFormatNegTextScribed(format, NULL, vcharScribeLiteral("("),
+                      vregexpCreateScribed(vcharScribeLiteral("( *")));
+
+</UL></PRE>The string "(" specifies the text to be included when printing the number if the number is negative. The regular expression "( *" (which matches an open parenthesis followed by zero or more spaces) specifies the text that is recognized as indicating a negative value when parsed. Note that spaces are allowed to appear between the open parenthesis and the rest of the number when parsing, even though no spaces are printed.<P>
+Next, add the dollar sign, which always appears as part of the number:<P>
+<PRE><UL>   vnumAddFormatTextScribed(format, NULL, vcharScribeLiteral("$"),
+                            NULL);
+
+</UL></PRE>The regular expression is a null pointer, which indicates that the text must be matched exactly when parsing. If you were doing a real number format, you might want to use the regular expression to make the dollar sign optional so the user could enter a number without typing the dollar sign.<P>
+Now allow for optional white space to be recognized after the dollar sign. Note that this white space could have been incorporated into the regular expression for the dollar sign if you had wanted:<P>
+<PRE><UL>   vnumAddFormatWhiteSpace(format, NULL, FALSE, FALSE);
+
+</UL></PRE>The two occurrences of <TT>FALSE</TT> indicate that the white space is not printed and is optional when parsing.<P>
+Now, for the sake of illustration, suppose you want to have a fixed amount of space between the dollar sign and the decimal point. To do this, you can include padding characters in the format:<P>
+<PRE><UL>   vnumAddFormatPadding(format, NULL, vcharFromLiteral(' '), 20);
+
+</UL></PRE>This includes twenty spaces in the number at this point, but the spaces are overwritten (from right to left) by any more characters that appear in the number before the decimal point.<P>
+Now add the digits of the number that come before the decimal point:<P>
+<PRE><UL>   vnumAddFormatDigits(format, NULL, 3, vcharFromLiteral(','), -1);
+
+</UL></PRE>The <TT>3</TT> indicates that the digits should be grouped in threes, with a comma (the next argument) appearing between groups. The <TT>-1</TT> indicates that this digit component should contain all necessary digits (as opposed to a fixed number of digits). Note that when parsing digits in this field, any grouping characters encountered are simply ignored.<P>
+Next comes the decimal point:<P>
+<PRE><UL>   vnumAddFormatDecimal(format, NULL, vcharFromLiteral('.'));
+
+</UL></PRE>Now include the digits after the decimal point:<P>
+<PRE><UL>   vnumAddFormatDigits(format, NULL, 0, 0, 2);
+
+</UL></PRE>You do not want any grouping to occur in these digits, so pass zero for the grouping count (the grouping character is then ignored). The <TT>2</TT> indicates that you want to print exactly two digits, no matter how accurate the number specified to print out is.<P>
+Finally, you have to put in the close parenthesis if the number is positive:<P>
+<PRE><UL>   vnumAddFormatNegTextScribed(format, NULL, vcharScribeLiteral(")"),
+                               NULL);
+
+</UL></PRE>This example, while not complete, illustrates the behavior of all of the components that can be included in number formats.<P>
+It is important to note that when parsing a number in a number format, no backtracking is done. It is the responsibility of the person setting up the number format to make sure that numbers can be parsed unambiguously with the specified components.<P>
+As you can see, number formats may be a bit complicated, so it may be easier to simply customize one of the provided formats than to create your own, as shown in <A HREF="Number.html#24476">Example 116</A>. For instance, suppose you want to print out numbers with a fixed number of digits, say 5, after the decimal point.<P>
+<A NAME="24476"><I>Example 116.  Modifying a number format
+</I><P>
+Start by making a copy of the normal number format so you can modify it:<P>
+<PRE><UL>   format = vnumCloneFormat(vnumGetNormalFormat());
+
+</UL></PRE>Then use a format iterator to iterate through the components in the format until you find the decimal point:<P>
+<PRE><UL>   vnumInitFormatIterator(&amp;formatIterator, format);
+
+   while (vnumNextFormatIterator(&amp;formatIterator)) {
+      if (vnumGetFormatIteratorType(&amp;formatIterator) ==
+          vnumFORMAT_DECIMAL)
+        break;
+
+</UL></PRE>Look for the next digits field, remove it and replace it with a fixed width digits field. Note that you set a flag when you remove a component from the format, because that effectively advances the iterator without having to call <TT><B>vnumNextFormatIterator</B></TT>:<P>
+<PRE><UL>   alreadyAdvanced = FALSE;
+
+   while (vnumNextFormatIterator(&amp;formatIterator)) {
+      if (vnumGetFormatIteratorType(&amp;formatIterator) == vnumFORMAT_DIGITS)
+      {
+         vnumRemoveFormatComponent(format, &amp;formatIterator);
+         vnumAddFormatDigits(format, &amp;formatIterator, 0, 0, 5);
+         alreadyAdvanced = TRUE;
+         break;
+      }
+   }
+
+</UL></PRE>Finally, to be complete, make sure there are no further digit fields in the format:<P>
+<PRE><UL>   while (alreadyAdvanced || vnumNextFormatIterator(&amp;formatIterator)) {
+      alreadyAdvanced = FALSE;
+
+      if (vnumGetFormatIteratorType(&amp;formatIterator) == vnumFORMAT_DIGITS)
+      {
+         vnumRemoveFormatComponent(format, &amp;formatIterator);
+         alreadyAdvanced = TRUE;
+      }
+   }
+
+</UL></PRE><P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Notice.html">Previous Chapter</A> | 
+		<A HREF="Observable.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

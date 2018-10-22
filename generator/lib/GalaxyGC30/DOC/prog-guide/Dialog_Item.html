@@ -1,0 +1,215 @@
+<HTML>
+<HEAD>
+<TITLE>Dialog Item</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Dialog Item</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Dialog.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Dictionary.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="2186"></A>
+The Dialog Item class (<TT>vdialogItem</TT>) provides the base class for deriving all user interface component items within a graphical user interface. User interface elements that are displayed in a dialog and that interact with the user are subclasses of a dialog item. These subclasses include items such as check boxes, labels, listitems, and textitems.<P>
+The base dialog item class is generally an abstract class; the basic dialog item does not have any appearance and does not respond to user interaction; it simply represents a rectangular region of a window. Each subclass of the base dialog item class implements its appearance and behavior. In Galaxy, user interface components within a dialog are often referred to collectively as "dialog items," even though each individual component is actually a subclass of the base dialog item class.<P>
+This chapter discusses dialog item features implemented by the base dialog item class.<P>
+<A NAME="2350"><H2> Relationship to Other Classes</H2></A>
+Dialog items derive from the attributed class. To get the most out of this chapter, you should be familiar with Galaxy objects, subclassing, and object attributes. Refer to the Loadable Manager for more information.<P>
+Dialogs can contain dialog items; a dialog manages the placement of the items contained within the dialog. For more information on managing dialog items in a dialog, refer to the Dialog class.<P>
+The container dialog item is a subclass of a dialog item containing other dialog items. For more information on container items, refer to the Container class.<P>
+Many Galaxy classes implementing specific user interface elements derive from subclasses of dialog items. These classes include the Container class, Combobox class, Control class, Menu Bar class, Notebook class, and the Spinner class.<P>
+The Dialog Item class uses command spaces to associate functions with commands at the dialog level. For more information on command spaces, refer to the Command class.<P>
+The behavior of dialog items in a Galaxy application is determined to a large extent by events in the Galaxy event loop. For a basic understanding of events and the Galaxy event loop, refer to the Event Manager.<P>
+<A NAME="2476"><H3> Default Dialog Item Class</H3></A>
+The dialog item class derives from the attributed class and provides basic functionality common to all Galaxy dialog items, such as object creation and storage, focus policy, item visibility, popup menus, and item-specific cursors. The dialog item class, by default, has no appearance and does not respond to user interaction. You can implement specific behavior in dialog items by overriding methods necessary to draw themselves and respond to user input. Application developers should treat the dialog item class as an abstract class from which to implement new user interface components with item-specific behavior.<P>
+<A NAME="2488"><H3> Dialog Item Attributes</H3></A>
+Dialog items are part of the user interface inheritance hierarchy (UI hierarchy). Many dialog item attributes (foreground color, font, for example) derive from the containers and dialogs that contain the items. Using the UI hierarchy, these attributes are first determined from the dialog item's instance attributes, if any, followed by the dialog item's class attributes. If the dialog item is inside a container, the container's instance and class attributes are searched next, followed by a recursive search through all enclosing containers. Once the dialog object containing the dialog item is reached, the Dialog class examines its attributes according to the leader/follower paradigm introduced by the Window class. For more information on the leader/follower paradigm, refer to the Window class and Dialog class.<P>
+The following list diagrams UI inheritance from highest precedence to lowest precedence. Italics indicate the presence of zero or more containers or dialog leaders at their respective levels. This means that the lookup iterates through all the parent and class objects at that level before moving to the next level in the hierarchy. For example, if <EM>Container1</EM> is inside <EM>Container2</EM>, then the lookup passes from<EM>Container1</EM> to <EM>Container Class1</EM> to <EM>Container2</EM> to <EM>Container Class2</EM> (not from <EM>Container1</EM> to <EM>Container2</EM> to <EM>Container Class1</EM> to <EM>Container Class2</EM>) before continuing to the Dialog level of the hierarchy.<P>
+<DL>
+<DT><DD> Dialog Item
+<DL>
+<DT><DD> Dialog Item Class
+
+</DL>
+<DT><DD> <EM>Container</EM>
+<DL>
+<DT><DD> <EM>Container Class
+</EM>
+</DL>
+<DT><DD> Dialog
+<DL>
+<DT><DD> Dialog Class
+
+</DL>
+<DT><DD> <EM>Dialog Leader</EM>
+<DL>
+<DT><DD> <EM>Dialog Leader Class
+</EM>
+</DL>
+<DT><DD> Application
+<DL>
+<DT><DD> Application Class
+
+</DL>
+</DL>
+<A NAME="2521"><H3> Container Items</H3></A>
+Since dialog items reside in containers as well as in dialogs, it is important that the context of the dialog item be as transparent as possible to the dialog item implementation. The Dialog class accomplishes this by providing a dialog item list type that implements an abstract owner interface. When a dialog item needs to go outside its own scope (to draw directly on its window or to determine a parent UI attribute, for example), it does so through the dialog item list API. Thus, the dialog item list is responsible for interfacing with the object that owns the item list, such as a dialog or container item. Consequently, the owner of a dialog item is the object that owns the item list to which the item belongs. An owner can be a dialog, a container, or some other custom user interface object.<P>
+<A NAME="2676"><H2> Creating Dialog Items</H2></A>
+Dialog items are created, destroyed, copied, loaded and stored the same as other Galaxy objects. Commonly, you build dialog items while laying out a user interface in the Visual Resource Builder. You then load the dialog (or dialog subclasses) containing dialog items into your application from the application resource file created with the Visual Resource Builder. Loading a dialog causes all the items within the dialog to be automatically loaded. You can then obtain a reference to specific dialog items within a dialog or container with the dialog or container's <TT>FindItem</TT> method. For more information on locating dialog items, refer to the Dialog class and the Container class.<P>
+Opening a dialog (displaying it on the screen), also opens all of the dialog items within the dialog. The Dialog class does this automatically by calling each dialog item's <TT>Open</TT> method. You can also manually <TT>Close</TT> a dialog item, hide it with its <TT>Hide</TT> method (re-display it with <TT>Show</TT>), and control the user interaction of the item with its <TT>Enable</TT> and <TT>Disable</TT> methods. Disabling a dialog item often causes it to draw itself "greyed out," indicating that it no longer responds to user interaction.<P>
+<A NAME="2696"><H2> Common Attributes</H2></A>
+Methods are available to get and set the values of commonly used dialog item attributes, such as title, cursor, font, color, image, and mnemonic. For a complete list of dialog item attributes, refer to the<EM> Galaxy Application Environment Reference Manual</EM>.<P>
+Note that a dialog item also has a Menu attribute. Setting this attribute associates a pop-up menu with the dialog item. Set (or clear) the Menu attribute with <TT>SetItemMenu</TT>. You can access the menu with <TT>GetItemMenu</TT>. <P>
+<A NAME="2706"><H2> Sizing Information</H2></A>
+A dialog item has a width and height that can change depending on the information the dialog item is meant to convey. Methods exist to query a dialog item's width and height, as well as its minimum size and natural size. A dialog item's minimum size specifies the minimum width and height the dialog item can shrink to. Natural size is the dialog item's calculated width and height based on its current contents and attributes. For example, a button's natural size is determined by the width and height of its title in the current font. For more information on dialog item sizing, refer to the Spring class.<P>
+<A NAME="2717"><H2> Event Handling</H2></A>
+Dialog items receive and handle a wide variety of events in response to user interaction. These include button-up, button-down, key-up, key-down, drag, detail, and motion events. For a complete list of events, refer to the Event Manager in the<EM> Galaxy Application Environment Reference Manual</EM>.<P>
+There is a method to handle each event received by a dialog item. For example, <TT>HandleButtonDown</TT> handles button-down events. Subclasses of dialog items override these methods to modify the event handling behavior according to the needs of the dialog item. You may want to override event handling methods to alter the behavior of a dialog item or to get more detail notification of events than is possible through the dialog item's notify or command method. For example, you can override the <TT>HandleKeyDown</TT> method to determine when the Tab key is pressed by the user, and define your application's response to this event.<P>
+<A NAME="17396"><H2> Focus Commands</H2></A>
+The Dialog Item class provides a command type that allows you to redirect a given command to the current focus item. When you store a focus command in a command space, any command bound to the focus command when issued or queried is re-dispatched to the current focus item in the dialog containing the command space. If no dialog contains the command space, or the dialog has no current focus item, the focus command has no effect.<P>
+Focus commands are useful for exporting the command functionality of a sophisticated dialog item (often a text item) to another dialog item that is normally outside its scope in the UI inheritance hierarchy (often a menu bar). For example, you can store a focus command under the name "Cut" in a menu attached to a menu bar; the command is redirected to the scope of the current focus item instead of the menu bar's scope. Thus, if a text item has the keyboard focus, then the text item's selection is cut whenever the command "Cut" is issued. Similarly, any queries for the state of the command "Cut" are made of the text item instead of the menu bar. For more information on Focus Commands, refer to the Command class.<P>
+<A NAME="3036"><H2> Avoiding Pitfalls</H2></A>
+There is a distinct difference between dialog item methods that get an attribute and ones that determine a dialog item's attribute. The <TT>Get</TT> methods return the attribute previously set for an item; the <TT>Determine</TT> methods return a default value, regardless if it was set for the item, or inherited from a parent UI item. For example, <TT>GetItemBackground</TT> returns the background color specified for a dialog item. If you never specify a color for the item, <TT>GetItemBackground</TT> returns<TT> NULL</TT>. <TT>DetermineItemBackground</TT>, however, always returns the color the dialog item uses to draw its background, whether the color was specifically set on the item, or is inherited from the dialog containing the item.<P>
+Note that it is possible for a dialog item to obtain a pointer to the dialog or window object in which it is located using <TT><B>DetermineItemDialog</B></TT> and <TT><B>DetermineItemWindow</B></TT>. It is important to avoid these entry points so your code does not depend on the item being at the top-level of its dialog. In most cases, item or item list entry points are available that provide equivalent functionality and work correctly whether the item is in a container or in a dialog. <A HREF="Dialog_Item.html#20480">Example 43</A> shows how to inquire about the current focus item in a dialog, and how to draw on the window containing a dialog item.<P>
+<A NAME="20480"><I>Example 43.  Determining the dialog for a dialog item
+</I><P>
+<PRE><UL>   // ...
+
+   /*
+    * Searches through all item lists in the dialog to find the focused item
+    */
+   vdialogGetItemListFocus(vdialogGetItemItemList(item));
+   
+   /*
+    * Depends on item being at the top level of the dialog
+    */
+   vdialogGetFocus(vdialogDetermineItemDialog(item));
+
+   // ...
+
+   /*
+    * Draws directly on the item's window
+    */
+   vdialogItemDrawDevice(item);
+
+   /*
+    * Depends on item being at the top level of the dialog
+    */
+   vwindowDrawDevice(vdialogDetermineItemWindow(item));
+
+</UL></PRE><A NAME="3252"><H2> Preferences</H2></A>
+Dialog items derive basic attributes such as background color, foreground color, and look-and-feel from the application. Thus dialog items, by default, obey the background, foreground, and look-and-feel preferences.<P>
+<A NAME="3258"><H2> Methods and Subclassing</H2></A>
+Dialog items have the standard set of instance functions inherited from the Attributed Object class. If you add instance data to a subclass of a dialog item, you need to override the following methods.<P>
+<DL>
+<DT><DD> <TT>Init</TT> &#173; Initialize any new instance variables in the <TT>Init</TT> method.
+<DT><DD> <TT>Destroy</TT> &#173; Cleanup any new instance variables the dialog owns in the <TT>Destroy</TT> method.
+<DT><DD> <TT>Copy<br>CopyInit</TT> &#173; Copy new instance variables, if the object is copyable or cloneable, in these methods.
+<DT><DD> <TT>Store</TT> &#173; Store the new variables if the data should be persistent.
+<DT><DD> <TT>LoadInit</TT> &#173; Load persistent variables or initialize non-persistent ones. 
+</DL>
+To control the behavior of the dialog item, override one or more of the following methods.<P>
+<DL>
+<DT><DD> <TT>FocusItem<br>TestFocusItem<br>UnfocusItem<br>TestUnfocusItem</TT> &#173; Give or remove the keyboard focus from a dialog item.
+<DT><DD> <TT>ActivateItem<br>DeactivateItem</TT> &#173; Control the activation of an item.
+<DT><DD> <TT>HandleItemButtonDown<br>HandleItemButtonUp<br>HandleItemKeyDown<br>HandleItemKeyUp<br>HandleItemDrag<br>HandleItemDetail<br>HandleItemMotion</TT> &#173; Respond to user interaction. Override these to alter the default behavior of a dialog item in response to a given event.
+</DL>
+To change the appearance of a dialog item, override the following methods.<P>
+<DL>
+<DT><DD> <TT>DrawItem</TT> &#173; Draws the dialog item. Refer to the Drawing class for more information on drawing.
+<DT><DD> <TT>DrawItemFocus</TT> &#173; Draws the focus indicator for a dialog item.
+<DT><DD> <TT>OutlineAbandonItem</TT> &#173; Draws any special indication that the dialog item is the dialog's abandon item.
+<DT><DD> <TT>OutlineConfirmItem</TT> &#173; Draws any special indication that the dialog item is the dialog's confirm item.
+</DL>
+<A NAME="19487"><H1> Common Dialog Items</H1></A>
+There are several GUI items that are subclasses of the Dialog Item class. For example, the Button, Control, and Iconview classes all inherit the basic Dialog Item methods. For more information on these classes, refer to their individual chapters.<P>
+Some of the more common Dialog Item subclasses that add little to the Dialog Item class but prove useful are as follows:<P>
+<A NAME="19559"><H2> Box Items</H2></A>
+A <EM><B>box item</B></EM> is a subclass of a dialog item draws an "etched-in" box around the entire dialog item in the current look-and-feel. If the box item has been assigned a title, it displays the title at the top-left of the box item overwriting part of the top line.<P>
+Box items are typically used to provide a visual grouping of dialog items in a dialog. Placing a box item behind other dialog items causes it to appear as if the other dialog items are grouped within the box item. However, one should note that the box item does not contain the other dialog items. To provide true containment, see the Container chapter.<P>
+Another common use of a box item is to display an image on a dialog. Create a box item the same size of the image you want to display and set the image on the box item. The box item will display the image with a border around it.<P>
+<A NAME="19491"><H2> Label Items</H2></A>
+A <EM><B>label item</B></EM> is a subclass of a dialog item that displays a text string, or "label", on a dialog. Use it to provide labels for other dialog items, such as text fields. Label items do not interact with the user; that is, they do not respond to mouse clicks or keyboard events.<P>
+Label items are often natural sized. This allows the label item to dynamically change its size when its title changes or the font of the title changes. For more information on natural sizing, see the Spring chapter.<P>
+<A NAME="19494"><H2> Line Items</H2></A>
+A <EM><B>line item</B></EM> is a subclass of a dialog item that simply draws an "etched-in" line on the dialog. If the line item is wider than it is high, the line is drawn horizontally. If the line item is taller than it is wide, the line is drawn vertically. The line extends from edge-to-edge according to the size of the line item. Line items are typically used to provide a visual separation between dialog items in a dialog. <P>
+<A NAME="20535"><H2> Sample Code</H2></A>
+Complete source code demonstrating some of the concepts presented in this chapter is available in your Galaxy distribution in the <TT>samples/docsamps</TT> directory.<P>
+The <TT>dialogitem2</TT> sample program demonstrates how to use a button and a box item. The sample also shows how to subclass a dialog item in order to change its appearance. The program is meant to demonstrate basic use of the Dialog Item class. Rather than exploiting all of the features of the Dialog Item class, this sample demonstrates the use of the common routines you will most likely need to use the Dialog Item class. <P>
+<PRE><UL>
+</UL></PRE>
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Dialog.html">Previous Chapter</A> | 
+		<A HREF="Dictionary.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

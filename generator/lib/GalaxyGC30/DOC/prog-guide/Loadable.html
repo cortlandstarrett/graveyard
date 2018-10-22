@@ -1,0 +1,290 @@
+<HTML>
+<HEAD>
+<TITLE>Loadable</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Loadable</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="List_Ruler.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Look_and_Feel.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="285"></A>
+The <EM><B>Loadable</B></EM> class provides an abstract base type for high-level objects that can be loaded from and stored to Galaxy resources, including resource files. For example, the <TT>Load</TT> method for <TT>vdialog</TT> overrides the <TT>Load</TT> method. The base type of the Loadable class also provides a model for copying and naming these high level objects.<P>
+Much of Galaxy subclassing is provided by the Loadable class; high-level Galaxy classes use the Loadable class behind the scenes when they provide entry points for classes they introduce. Understanding how the Loadable class works provides a basis for understanding subclassing in Galaxy in general. The Loadable class is also useful when creating your own high-level subclasses that are not derived from existing loadable subclasses.<P>
+Many of the "code fragments" in this chapter are included to illustrate the functionality behind the Loadable class, and are not intended to illustrate usage of vloadable entry points in application programming.<P>
+The Loadable class builds upon the minimal functionality available through the Class and Instance classes. It uses the Resource class to store information on individual instances so different applications, or separate executions of the same application, can work from the same starting point. It uses the Name class to give each instance a name, or tag, which can be quickly compared.<P>
+The functionality available in the Loadable class was originally introduced by the Object Manager. However, in Release 3, the Loadable class is introduced as a separate class. This organization reflects the distinction between the basic loading and copying functionality it introduced by the Loadable class and the higher-level attribute and hierarchical features of the Object Manager. <P>
+Additionally, the observable object class is provided by the Observable class in Release 3 as an intermediate class between the loadable object type of the Loadable class and the base object type of the Object Manager. The observable object class implements a general observation model.<P>
+<A NAME="2304"><H3> Object Construction</H3></A>
+The Loadable class supplements the object construction model provided by the Instance class. The vinstance type of the Instance class has only two virtual methods: <TT>Init</TT> and <TT>Destroy</TT>. Since the initialization method does not take any arguments, newly created objects are always constructed with default instance data values. However, sometimes an object can be constructed more directly if it is a copy of an existing object or if there is an extensive set of instructions that can construct the object. <P>
+<A NAME="2839"><H3> Objects in Resources</H3></A>
+Galaxy uses the Resource class to keep script-like instructions for constructing the key attributes of loadable objects. Galaxy uses resources for the following reasons:<P>
+<UL><LI>Resources can hold any type of data
+<LI>Resources are portable across all platforms
+<LI>Resources can be maintained independent of the source code for an application
+</UL><UL><B><I>NOTE:</I></B> Resource files themselves are resources often used to hold other resources. 
+You can use the Visual Resource Builder to browse (and edit) the higher level 
+resources stored in a Galaxy resource file.
+<P>
+</UL>The Loadable class does not provide support for true persistence (attributes are not stored automatically on disk) for the following two reasons. First, the Loadable class does not do any automatic saving of object states during shutdown. If the application does not explicitly store any of its object states, then the starting point for a later execution is the same as the starting point for the current execution. Second, only some of the attributes of Galaxy data types are actually stored in a resource.<P>
+The attribute tables for a data type specify which attributes are stored. In general, however, only those attributes which can be sensibly edited externally (edited in a resource independent from application code) are stored. For more information on attribute tables, refer to the <EM>Galaxy Application Environment Reference Manual</EM>)<P>
+<A NAME="2843"><H2> Attributes</H2></A>
+The only attribute added through the <TT>vloadable</TT> type is the tag attribute. It acts as a name which the Loadable class assumes has been interned into the global name table. For more information about interning names into the global name table, refer to the Name class.<P>
+Interned names can be compared quickly by their pointer values since the name table maintains constant master copies of their strings. Loadable objects have tags so their identity can be established between an external resource editing environment and the ultimate application code. For example, <TT><B>vdialogFindItem</B></TT> locates a dialog item in a dialog by its tag. Note that the Loadable class does not enforce any uniqueness between loadable object tags.<P>
+For more information on the tag attribute, refer to <A HREF="Loadable.html#2544">"Tagging Operations."</A><P>
+<A NAME="3835"><H2> Key Functionality</H2></A>
+<A NAME="2347"><H3> Instance operations</H3></A>
+The vloadable type inherits the basic creation functions (<TT><B>CreateOfClass</B></TT>, <TT><B>InitOfClass</B></TT>, and <TT><B>Destroy</B></TT>) from the <TT>vinstance</TT> type. Refer to the Instance class for more information on these basic creation functions. The Loadable class has no <TT><B>Create</B></TT> and <TT><B>Init</B></TT> entry points. This is because the default <TT>vloadable</TT> class is almost always treated as abstract and thus generally not instantiated.<P>
+<A NAME="3438"><H4> Creating and Initializing</H4></A>
+The <TT>CreateOfClass</TT> function dynamically allocates memory, initializes it with the <TT>Init</TT> function, and then returns the object it created. The <TT>Init</TT> function initializes previously allocated memory.<P>
+As a rule, the class passed to a <TT><B>CreateOfClass</B></TT> function should derive from the corresponding default class. The following calls illustrate that the default <TT>vdialog</TT> class should (and does ultimately) derive from the default <TT>vloadable</TT> class returned by <TT><B>GetDefaultClass</B></TT>. <P>
+<PRE><UL>
+   /* This "code fragment" illustrates equivalent ways of creating a
+    * dialog. The fragment makes no sense in an application, since you
+    * would never create the same dialog three times.
+    */
+   vdialog *dialog;
+
+   // ...
+   /* Create */
+   dialog = vdialogCreate(); /* This is a convenience function for
+                              * CreateOfClass */
+   //...
+   /* CreateOfClass */
+   dialog = vdialogCreateOfClass(vdialogGetDefaultClass());
+   /* This encapsulates vloadableCreateOfClass */
+   //...
+   /* vloadableCreateOfClass */
+   dialog = (vdialog *) vloadableCreateOfClass((vloadableClass *) 
+                                      vdialogGetDefaultClass());
+
+   /* Each returned value actually points to a vdialog instance. The
+    * final version, vloadableCreateOfClass, can be considered an
+    *implementation detail.
+    */
+
+</UL></PRE>The memory pointed to by the first argument of an <TT><B>InitOfClass</B></TT> function must be sufficient to hold an instance of the class passed as the second argument. The following code fragment illustrates <TT><B>InitOfClass</B></TT>.<P>
+<PRE><UL>   vdialog dialog;
+
+   // ...
+
+   vloadableInitOfClass(vdialogGetLoadable(dialog),
+                        (vloadableClass *) vdialogGetDefaultClass());
+
+</UL></PRE><A NAME="3457"><H4> Accessing the Base Object</H4></A>
+Generally, a classed Galaxy type provides access to its immediate base object component. Sometimes, however, a few steps in the inheritance chain are left out for implementation privacy. A Galaxy type derived from <TT>vloadable</TT> provides access to its base object with either a <TT><B>GetLoadable</B></TT> entry point or an entry point that returns an intermediate type from which a <TT>vloadable</TT> pointer can be retrieved. You can use <TT><B>GetInstance</B></TT> to retrieve the vinstance portion of a vloadable object.<P>
+<A NAME="3481"><H4> Destroying vloadable Objects</H4></A>
+The following code fragment illustrates destroying previously created dialog and vloadable objects. Note that <TT><B>vdialogGetLoadable</B></TT> retrieves a pointer to <TT>dialog</TT>.<P>
+<PRE><UL>   vloadableDestroy(loadable);
+   vloadableDestroy(vdialogGetLoadable(dialog));
+
+</UL></PRE><A NAME="3519"><H4> Retrieving Class Information</H4></A>
+Use <TT><B>GetClass</B></TT> to retrieve the class information of a vloadable object. The retrieved class pointer is the same class pointer returned by <TT><B>vinstanceGetClass</B></TT> (and any other <TT><B>GetClass</B></TT> entry point); it is also a compiler-recognized type. The following fragment illustrates the equivalence between <TT><B>GetClass</B></TT> and <TT><B>vinstanceGetClass</B></TT>.<P>
+<PRE><UL>   vloadable *loadable
+
+   // ...
+
+   if (vloadableGetClass(loadable) != (vloadableClass *)
+       vinstanceGetClass(vloadableGetInstance(loadable)))
+     vexGenerateMessaged("big problem!");
+
+</UL></PRE>Galaxy does not provide entry points that cast between different class types. Often entry points are implicitly cast to a generic pointer type (<TT>void *</TT>). This is because all class types, for <EM>most</EM> purposes are conceptually the same type. Since Galaxy does use different types there is useful type-checking in class definition and message dispatching code.<P>
+However, for straightforward argument type identification purposes, all types are equivalent. You can use <TT><B>vinstanceIsKindOf</B></TT> to determine whether an object belongs to a particular class or to any class derived from that class as illustrated in the following code fragment.<P>
+<PRE><UL>
+   vinstance *instance;
+   // ...
+
+   if (vinstanceIsKindOf(instance, vloadableGetDefaultClass()))
+     loadable = vloadableClone((vloadable *) instance);
+   else
+     loadable = NULL;
+
+</UL></PRE>Note that since each class' information is kept in a unique class object, a simple equality test (<TT>==</TT>) determines whether an object's class exactly corresponds to a specific reference class. <P>
+<A NAME="5307"><H3> Copying Operations</H3></A>
+The vloadable type provides two basic types of copy functionality &#173; creating a new instance as a copy of another instance, and modifying an existing instance so its attributes completely or partially match those of another instance.<P>
+<A NAME="3540"><H4> Creating New Instances</H4></A>
+Both <TT><B>Clone</B></TT> and <TT><B>CopyInit</B></TT> create new instances as copies. <TT><B>Clone</B></TT> dynamically allocates enough memory to hold the new instance. <TT><B>CopyInit</B></TT> takes the raw memory for the new instance as its second argument, and assumes that the memory is sufficient for all of the instance data.<P>
+<PRE><UL>   /* These "code fragments" illustrate vloadableClone and
+    * vloadableCopyInit. They are not intended as a model for creating
+    * instances as copies.
+    */
+   vloadable *loadable;
+
+   clone = vloadableClone(loadable);
+   /* The clone's class will be the same as the true class of the
+    * argument object */
+   // ...
+   vloadable *clone;
+   vdialog *originalDialog;
+   dialog copyOfDialog;
+
+   vloadableCopyInit(vdialogGetLoadable(originalDialog),
+                     vdialogGetLoadable(&amp;copyOfDialog));
+   /* The first argument must already have been initialized, but second
+    * must not have been. Also, the raw memory of the second argument
+    * must be at least as large as the memory used by the first
+    * argument's instance data.
+    */
+
+</UL></PRE><A NAME="2449"><H4> Modifying Existing Instances</H4></A>
+<TT><B>Copy</B></TT> modifies existing instances. It follows the general Galaxy convention of placing the source argument before the target argument. The classes of these arguments do not need to be the same, however. The copy only proceeds at those levels where the two instances have compatible classes up to the most derived class that they both have in common.<P>
+<PRE><UL>   /* These "code fragments" illustrate vloadableCopy. It is not
+    * intended as a model for performing copies.
+    */
+   vcontainer *container;
+   vbutton *button;
+   vmenu *menu;
+
+   vloadableCopy(vobjectGetLoadable(vcontainerGetObject(container)),
+                 vobjectGetLoadable(vbuttonGetObject(button)));
+   /* This only copies up until vdialogItem attributes (including
+    * vobject attributes).
+    */
+   // ...
+   vloadableCopy(vobjectGetLoadable(vbuttonGetObject(button)),
+                 vobjectGetLoadable(vmenuGetObject(menu)));
+   /* This only copies up until vobject attributes. */
+
+</UL></PRE>Specific classes can define the semantics of copy operations. In particular, they can define how deep the copy is (copying references and not values) and which attributes are not copied at all (for example, arbitrary generic data pointers returned by <TT><B>GetData</B></TT> entry points).<P>
+<A NAME="2476"><H3> Resource Operations</H3></A>
+The vloadable type provides the base functionality for storing instance-specific attribute information into resources defined by the Resource class. Future executions of the same application or any other process that has access to the same resource information can then create new instances by loading from these resources. Loads are always performed on new instances so that the implementation functions do not need to know how to integrate the new information with existing attributes. You can use a temporary object to transfer information from a stored resource to an existing instance. <P>
+<TT><B>Load</B></TT> dynamically allocates enough memory to hold the new instance. <TT><B>LoadInit</B></TT> takes the raw memory for the new instance as its first argument, and assumes that the memory is sufficient for all of the instance data. The following code fragment illustrate the <TT><B>Load</B></TT> and <TT><B>LoadInit</B></TT> routines.<P>
+<PRE><UL>   /* These "code fragments" illustrate vloadableLoad and
+    * vloadableLoadInit. They are not intended as a model for using these
+    * routines.
+    */
+   vloadable *loadable;
+   vresource res1, res2;
+   vdialog loadedDialog;
+
+   loadable = vloadableLoad(res1);
+   /* The resource must corresponding to one previously written out by
+    * the Store operation on some type whose class derives from the
+    * default vloadable class.
+    */
+
+   // ...
+
+   vloadableLoadInit(vdialogGetLoadable(&amp;loadedDialog), res2);
+   /* The resource cannot represent an object that does not derive from
+    * the default vdialog class, nor an object that has more instance
+    * data than the vdialog instance type defines.
+    */
+
+</UL></PRE>You can call <TT><B>Store</B></TT> any number of times to store information to a resource on a particular instance. The resource passed to the <TT>Store</TT> routine should either be untyped or a dictionary resource. Note that it is generally more efficient and reliable to invoke the <TT><B>Store</B></TT> routine on an empty dictionary. The following code fragment illustrates the <TT><B>Store</B></TT> routine.<P>
+<PRE><UL>   vresource res3;
+   vloadableStore(vdialogGetLoadable(&amp;loadedDialog), res3);
+
+</UL></PRE>Although the contents of a resource are available for inspection after any <TT>Store</TT> operation, it is best to treat the information as private because later releases of Galaxy may store the information differently. For more information on the description of resource types and for instructions on how to manipulate resources, refer to the Resource class. <P>
+The Loadable class also provides a pair of utilities for identifying random resources &#173; <TT><B>GetResourceClass</B></TT> and <TT><B>TestGetResourceClass</B></TT>. <TT><B>TestGetResourceClass</B></TT> returns <TT>NULL</TT> if the resource is not a dictionary resource, if the resource does not contain information on a vloadable-derived instance, or if the class specified in the resource is not known to the current process. <TT><B>GetResourceClass</B></TT> generates a detailed exception instead and never returns <TT>NULL</TT>. The following code fragment illustrates how to use these utilities to identify resources.<P>
+<PRE><UL>   vresource res4;
+   vloadableClass *clas;
+   vslider slider;
+
+   clas = vloadableTestGetResourceClass(res4);
+   if (clas != NULL
+       &amp;&amp; vclassIsKindOf(clas, vsliderGetDefaultClass())
+       &amp;&amp; vclassGetObjectSize(clas) == sizeof(slider))
+     vloadableLoadInit(vsliderGetLoadable(&amp;slider), res4);
+   else
+     vexGenerateMessaged("unexpected!");
+
+</UL></PRE><A NAME="2544"><H3> Tagging Operations</H3></A>
+The vloadable type introduces only one attribute, the tag attribute. These tags are names interned into the global name table defined by the Name class. Since names in the global name table must be unique, equivalence between two tags can be determined by a simple equality (<TT>==</TT>) test, as illustrated in the following code fragment.<P>
+<PRE><UL>   const vname *tag;
+
+   tag = vnameInternGlobalLiteral("Toggle");
+   if (vloadableGetTag(loadable) == tag)
+     vloadableSetTag(loadable, vnameInternGlobalLiteral("NewToggle"));
+
+</UL></PRE>Although there is no automatic mechanism to guarantee the uniqueness of tags between different objects, tags can usually be chosen to provide adequate identification schemes, especially when taken together with the objects' classes.<P>
+Note that the tag of an object should not be confused with the tag of a resource that may happen to contain the information for the object. For example, a dictionary resource in the root of a resource file may have the resource tag "Dialog," even though the vdialog instance stored in that resource has an object tag attribute equal to "MyDialog." Use the resource tag to load the dialog; after it is loaded, use the object tag to identify it.<P>
+<A NAME="2572"><H3> Additional Functionality</H3></A>
+The Loadable class also provides <TT><B>Dump</B></TT> to aid in the development process. <TT><B>Dump</B></TT> has no explicitly defined behavior, but for applications built with the debugging version of the Galaxy library, most Galaxy types write out some useful information to the stream specified by the second argument (usually <TT>stdout</TT> or <TT>stderr</TT>.)<P>
+Future versions of Galaxy may specify a more rigorous format for such dumps. For now, however, the format is undefined; you should not write utilities which rely on current behavior.<P>
+<A NAME="2587"><H2> Pitfalls</H2></A>
+The raw memory passed to <TT>Init</TT> routines must be sufficient to hold all of the instance data for the corresponding class. Since this memory can come from any of a number of sources, the <TT>Init</TT> routines have no way to verify the size.<P>
+Since the typing system for the C language does not provide any support for implementation inheritance, casts are sometimes needed between instance types and between class types. You should avoid casts as much as possible, but if needed, make sure that they do not violate the principles laid down by the Class, Instance, and Loadable classes.<P>
+Currently, the Instance and Loadable classes do not perform any type of reference counting or tracking. Therefore, keep careful track of the ownership of objects you create and those you reference. After <TT>Destroy</TT> has been performed on an object, all references to the object are invalid and must not be used.<P>
+The resources that load and store vloadable-derived objects must be dictionary resources. However in some cases it may be easier to pass a resource to a <TT>Store</TT> routine as untyped; resources passed as untyped are automatically converted to a dictionary resource.<P>
+If you use <TT><B>TestGetResourceClass</B></TT>, you should check whether a <TT>NULL</TT> value is returned to avoid accessing unallocated memory.<P>
+Only use names interned into the global name table as tags. Although this is not a strict functional requirement, not doing so almost certainly leads to subtle problems.<P>
+Do not write any production quality code or utilities that depend on the current format of resource or dumped information, since this format is not guaranteed in future revisions.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="List_Ruler.html">Previous Chapter</A> | 
+		<A HREF="Look_and_Feel.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

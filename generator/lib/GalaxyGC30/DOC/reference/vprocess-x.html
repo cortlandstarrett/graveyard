@@ -1,0 +1,944 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vprocess prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vprocess prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vprocess-x.html#section_DataType">Types</A> [4]</TD>
+<TD><A HREF="vprocess-x.html#section_Function">Functions</A> [39]</TD>
+<TD><A HREF="vprocess-x.html#section_Message">Messages</A> [5]</TD>
+<TD><A HREF="vprocess-x.html#section_Constant">Constants</A> [15]</TD>
+<TD><A HREF="vprocess-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vprocess"><HR><H4>vprocess</H4></A>
+<PRE>
+        typedef ... <B>vprocess</B>;
+</PRE>
+
+<DL><DD>
+Contains the information necessary to represent a single process.
+Objects of this type have classes derived from <CODE><A HREF="vprocess-x.html#vprocessClass"><CODE>vprocessClass</CODE></A></CODE>.
+A process is an independently running application. The process contains
+the information necessary for when a process terminates, or
+to cause termination of that process. Processes can be only created
+dynamically.
+</DD></DL>
+<P>
+<A NAME="vprocessArgumentTemplate"><HR><H4>vprocessArgumentTemplate</H4></A>
+<PRE>
+        typedef ... <B>vprocessArgumentTemplate</B>;
+</PRE>
+
+<DL><DD>
+Data structure used to define command-line arguments.
+It contains a structure member <CODE>argument</CODE> that
+is a <CODE><A HREF="vstr-x.html#vstr"><CODE>vstr</CODE></A>*</CODE> which indicates the argument.
+</DD></DL>
+<P>
+<A NAME="vprocessClass"><HR><H4>vprocessClass</H4></A>
+<PRE>
+        typedef ... <B>vprocessClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and class variable bindings for objects of type
+<CODE>vprocess</CODE>. An instance of the process class provides
+a platform-independent mechanism for launching processes from Galaxy.
+</DD></DL>
+<P>
+<A NAME="vprocessEnvironmentTemplate"><HR><H4>vprocessEnvironmentTemplate</H4></A>
+<PRE>
+        typedef ... <B>vprocessEnvironmentTemplate</B>;
+</PRE>
+
+<DL><DD>
+Data structure used to define environment variables for the process.
+The structure contains two members, <CODE>variable</CODE> and
+<CODE>value</CODE>. <CODE>Variable</CODE> is a string which is the
+environment's varaible name and <CODE>value</CODE> is also string
+containing the environment variable's value.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vprocessCancelWaitForTermination"><HR><H4>vprocessCancelWaitForTermination</H4></A>
+<PRE>
+        void <B>vprocessCancelWaitForTermination</B>(
+                vprocess * process);
+</PRE>
+
+<DL><DD>
+Cancels the wait for termination of a process. If a process has been
+terminated and the application is waiting for the termination of
+that process, this call will indicate that the wait for termination
+should be cancelled. In other words, this method sets a flag on the process 
+saying that the application is not waiting for the termination of the process
+and may continue on; vprocess will then let the process terminate without 
+notification.
+</DD></DL>
+<P>
+<A NAME="vprocessCreate"><HR><H4>vprocessCreate</H4></A>
+<PRE>
+        vprocess * <B>vprocessCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new vprocess object. The process is not running. Call
+<code><A HREF="vprocess-x.html#vprocessStart"><CODE>vprocessStart</CODE></A></code> to execute the process.
+</DD></DL>
+<P>
+<A NAME="vprocessCreateOfClass"><HR><H4>vprocessCreateOfClass</H4></A>
+<PRE>
+        vprocess * <B>vprocessCreateOfClass</B>(
+                vprocessClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new process object of the class <samp>class</samp>. The
+process is nor running. Call <code><A HREF="vprocess-x.html#vprocessStart"><CODE>vprocessStart</CODE></A></code> to execute the
+process.
+</DD></DL>
+<P>
+<A NAME="vprocessDestroy"><HR><H4>vprocessDestroy</H4></A>
+<PRE>
+        void <B>vprocessDestroy</B>(
+                vprocess * process);
+</PRE>
+
+<DL><DD>
+Destroys a process. The process must have already termianted before
+calling this function.
+</DD></DL>
+<P>
+<A NAME="vprocessDump"><HR><H4>vprocessDump</H4></A>
+<PRE>
+        void <B>vprocessDump</B>(
+                vprocess * process,
+                FILE * fp);
+</PRE>
+
+<DL><DD>
+Prints the attributes of a process on a filestream in user-readable form.
+This method is intended for debugging, and should only be used for debugging.
+</DD></DL>
+<P>
+<A NAME="vprocessGetArguments"><HR><H4>vprocessGetArguments</H4></A>
+<PRE>
+        const vprocessArgumentTemplate * <B>vprocessGetArguments</B>(
+                vprocess * process);
+</PRE>
+
+<DL><DD>
+Returns the arguments passed as command-line arguments when the process
+is started. An array of <A HREF="vprocess-x.html#vprocessArgumentTemplate"><CODE>vprocessArgumentTemplate</CODE></A> structures is returned.
+The end of the array is signified by a structure with a NULL argument
+entry. The structure member <CODE>argument</CODE> is a <CODE><A HREF="vstr-x.html#vstr"><CODE>vstr</CODE></A>*</CODE>
+which indicates the argument. The arguments are passed in the same order
+they occupy in the array.
+</DD></DL>
+<P>
+<A NAME="vprocessGetClass"><HR><H4>vprocessGetClass</H4></A>
+<PRE>
+        vprocessClass * <B>vprocessGetClass</B>(
+                vprocess * process);
+</PRE>
+
+<DL><DD>
+Returns the class of the process.
+</DD></DL>
+<P>
+<A NAME="vprocessGetCreationFlags"><HR><H4>vprocessGetCreationFlags</H4></A>
+<PRE>
+        int <B>vprocessGetCreationFlags</B>(
+                vprocess * process);
+</PRE>
+
+<DL><DD>
+Returns the process creation flags used to create the process. The
+possible values of these flags are <CODE>vprocessCREATION_DETACHED
+</CODE> and <CODE>vprocessCREATION_CONSOLE</CODE>.
+</DD></DL>
+<P>
+<A NAME="vprocessGetData"><HR><H4>vprocessGetData</H4></A>
+<PRE>
+        const void * <B>vprocessGetData</B>(
+                vprocess * process);
+</PRE>
+
+<DL><DD>
+Returns the generic data pointer attached to the process,
+<SAMP>process</SAMP>, which can be <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vprocessGetDefaultClass"><HR><H4>vprocessGetDefaultClass</H4></A>
+<PRE>
+        vprocessClass * <B>vprocessGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default class of the process class.
+</DD></DL>
+<P>
+<A NAME="vprocessGetEnvironmentVariables"><HR><H4>vprocessGetEnvironmentVariables</H4></A>
+<PRE>
+        const vprocessEnvironmentTemplate * <B>vprocessGetEnvironmentVariables</B>(
+                vprocess * process);
+</PRE>
+
+<DL><DD>
+Returns the environment variables set when the process is started.
+An array of <A HREF="vprocess-x.html#vprocessEnvironmentTemplate"><CODE>vprocessEnvironmentTemplate</CODE></A> structures is returned.
+The end of the array is signified by a NULL array element.
+The structure contains two members, <CODE>variable</CODE> and
+<CODE>value</CODE>. 
+<P>
+<CODE>Variable</CODE> is a string which is the
+environment's varaible name and <CODE>value</CODE> is also string
+containing the environment variable's value. The array is owned
+by the Process class and should not be destroyed unless the environment
+variables were set with the owned entry point, and then only when
+the process instance is being destroyed.
+</DD></DL>
+<P>
+<A NAME="vprocessGetInstance"><HR><H4>vprocessGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vprocessGetInstance</B>(
+                vprocess * process);
+</PRE>
+
+<DL><DD>
+Returns the instance of the process instance.
+</DD></DL>
+<P>
+<A NAME="vprocessGetPriority"><HR><H4>vprocessGetPriority</H4></A>
+<PRE>
+        int <B>vprocessGetPriority</B>(
+                vprocess * process);
+</PRE>
+
+<DL><DD>
+Returns the priority associated with a process. It will be one of
+the following values:
+
+<PRE>
+    vprocessPRIORITY_HIGH
+    vprocessPRIORITY_NORMAL
+    vprocessPRIORITY_IDLE
+</PRE>
+</DD></DL>
+<P>
+<A NAME="vprocessGetProgramName"><HR><H4>vprocessGetProgramName</H4></A>
+<PRE>
+        const vchar * <B>vprocessGetProgramName</B>(
+                vprocess * process);
+</PRE>
+
+<DL><DD>
+Returns the name of the program to be run when the process is started
+</DD></DL>
+<P>
+<A NAME="vprocessGetProgramPath"><HR><H4>vprocessGetProgramPath</H4></A>
+<PRE>
+        const vfsPath * <B>vprocessGetProgramPath</B>(
+                vprocess * process);
+</PRE>
+
+<DL><DD>
+Returns the path of the program to be run when the process is started.
+The path is owned by the process instance. It may only be destroyed
+if it was set using <CODE>vprocessSetPathOwned</CODE> and the instance
+is also being destroyed.
+</DD></DL>
+<P>
+<A NAME="vprocessGetProgramSignature"><HR><H4>vprocessGetProgramSignature</H4></A>
+<PRE>
+        void * <B>vprocessGetProgramSignature</B>(
+                vprocess * process);
+</PRE>
+
+<DL><DD>
+Gets the program's signature to be run when the process is started when using
+MacOS. This routine will return <samp>NULL</samp> on other platforms.
+</DD></DL>
+<P>
+<A NAME="vprocessGetState"><HR><H4>vprocessGetState</H4></A>
+<PRE>
+        int <B>vprocessGetState</B>(
+                vprocess * process);
+</PRE>
+
+<DL><DD>
+Returns the state, active or inactive, of the process. The possible
+return values are <CODE>vprocessSTATE_ACTIVE</CODE> or
+<CODE>vprocessSTATE_INACTIVE</CODE>.
+</DD></DL>
+<P>
+<A NAME="vprocessGetWorkingPath"><HR><H4>vprocessGetWorkingPath</H4></A>
+<PRE>
+        const vfsPath * <B>vprocessGetWorkingPath</B>(
+                vprocess * process);
+</PRE>
+
+<DL><DD>
+Returns the working path of the program to be run when the process is started.
+This is the path the program will use as its default path for opening and
+saving files.
+<P>
+The path is owned by the process instance. It may only be destroyed
+if it was set using <CODE><A HREF="vprocess-x.html#vprocessSetWorkingPathOwned"><CODE>vprocessSetWorkingPathOwned</CODE></A></CODE> and the instance
+is also being destroyed.
+</DD></DL>
+<P>
+<A NAME="vprocessInit"><HR><H4>vprocessInit</H4></A>
+<PRE>
+        void <B>vprocessInit</B>(
+                vprocess * process);
+</PRE>
+
+<DL><DD>
+Initialized the memory addressed by <samp>process</samp> as a process
+object. The process is not running. Call <code><A HREF="vprocess-x.html#vprocessStart"><CODE>vprocessStart</CODE></A></code> to
+start the process.
+</DD></DL>
+<P>
+<A NAME="vprocessInitOfClass"><HR><H4>vprocessInitOfClass</H4></A>
+<PRE>
+        void <B>vprocessInitOfClass</B>(
+                vprocess * process,
+                vprocessClass * clas);
+</PRE>
+
+<DL><DD>
+Initialized the memory addressed by <samp>process</samp> as a process
+object of class <samp>class</samp>. The process is not running. Call
+<code><A HREF="vprocess-x.html#vprocessStart"><CODE>vprocessStart</CODE></A></code> to start the process. 
+</DD></DL>
+<P>
+<A NAME="vprocessSetArguments"><HR><H4>vprocessSetArguments</H4></A>
+<PRE>
+        void <B>vprocessSetArguments</B>(
+                vprocess * process,
+                vprocessArgumentTemplate * args);
+</PRE>
+
+<DL><DD>
+Sets the arguments passed as command-line arguments when the process
+is started. An array of <A HREF="vprocess-x.html#vprocessArgumentTemplate"><CODE>vprocessArgumentTemplate</CODE></A> structures is passed
+as an argument.
+<P>
+The end of the array is signified by a structure with a NULL argument
+entry. Ownership of the array remains with the caller.
+The structure member <CODE>argument</CODE> is a <CODE><A HREF="vstr-x.html#vstr"><CODE>vstr</CODE></A>*</CODE>
+which indicates the argument. The arguments are passed in the same order
+they occupy in the array.
+</DD></DL>
+<P>
+<A NAME="vprocessSetArgumentsOwned"><HR><H4>vprocessSetArgumentsOwned</H4></A>
+<PRE>
+        void <B>vprocessSetArgumentsOwned</B>(
+                vprocess * process,
+                vprocessArgumentTemplate * args);
+</PRE>
+
+<DL><DD>
+Sets the arguments passed as command-line arguments when the process
+is started. An array of <A HREF="vprocess-x.html#vprocessArgumentTemplate"><CODE>vprocessArgumentTemplate</CODE></A> structures is passed
+as an argument.
+<P>
+The end of the array is signified by a structure with a NULL argument
+entry. Ownership of the array is taken by the process.
+The structure member <CODE>argument</CODE> is a <CODE><A HREF="vstr-x.html#vstr"><CODE>vstr</CODE></A>*</CODE>
+which indicates the argument. The arguments are passed in the same order
+they occupy in the array.
+</DD></DL>
+<P>
+<A NAME="vprocessSetCreationFlags"><HR><H4>vprocessSetCreationFlags</H4></A>
+<PRE>
+        void <B>vprocessSetCreationFlags</B>(
+                vprocess * process,
+                int flags);
+</PRE>
+
+<DL><DD>
+Sets the flags which specify how the process is to be created.
+The possible values for <CODE>flags</CODE> are <CODE>
+vprocessCREATION_DETACHED</CODE> and <CODE>vprocessCREATION_CONSOLE</CODE>.
+Detached indicates a program which has a user-interface and does
+not do i/o through a console window. Console indicates a program
+which does do i/o through a console window.
+</DD></DL>
+<P>
+<A NAME="vprocessSetData"><HR><H4>vprocessSetData</H4></A>
+<PRE>
+        void <B>vprocessSetData</B>(
+                vprocess * process,
+                void * data);
+</PRE>
+
+<DL><DD>
+Sets the generic data pointer attached to a process. This generic
+pointer is for use by the caller and can be retrieved using
+<CODE><A HREF="vprocess-x.html#vprocessGetData"><CODE>vprocessGetData</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vprocessSetEnvironmentVariables"><HR><H4>vprocessSetEnvironmentVariables</H4></A>
+<PRE>
+        void <B>vprocessSetEnvironmentVariables</B>(
+                vprocess * process,
+                vprocessEnvironmentTemplate * args);
+</PRE>
+
+<DL><DD>
+Sets the environment variables to be used by the process when started.
+An array of <A HREF="vprocess-x.html#vprocessEnvironmentTemplate"><CODE>vprocessEnvironmentTemplate</CODE></A> structures is passed as an argument.
+The end of the array is signified by a NULL array element.
+The structure contains two members, <CODE>variable</CODE> and
+<CODE>value</CODE>. <CODE>Variable</CODE> is a string which is the
+environment's varaible name and <CODE>value</CODE> is also string
+containing the environment variable's value.
+Ownership of the array and its strings is that of the caller.
+The caller should only destroy the array and its contained strings
+when the process is being destroyed.
+</DD></DL>
+<P>
+<A NAME="vprocessSetEnvironmentVariablesOwned"><HR><H4>vprocessSetEnvironmentVariablesOwned</H4></A>
+<PRE>
+        void <B>vprocessSetEnvironmentVariablesOwned</B>(
+                vprocess * process,
+                vprocessEnvironmentTemplate * args);
+</PRE>
+
+<DL><DD>
+Sets the environment variables to be used by the process when started.
+An array of <A HREF="vprocess-x.html#vprocessEnvironmentTemplate"><CODE>vprocessEnvironmentTemplate</CODE></A> structures is passed as an argument.
+The end of the array is signified by a NULL array element.
+The structure contains two members, <CODE>variable</CODE> and
+<CODE>value</CODE>. <CODE>Variable</CODE> is a string which is the
+environment's varaible name and <CODE>value</CODE> is also string
+containing the environment variable's value.
+The array is owned by the Process class and should not be destroyed.
+</DD></DL>
+<P>
+<A NAME="vprocessSetNotify"><HR><H4>vprocessSetNotify</H4></A>
+<PRE>
+        void <B>vprocessSetNotify</B>(
+                vprocess * process,
+                vprocessNotifyProc notify);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vprocessSetPriority"><HR><H4>vprocessSetPriority</H4></A>
+<PRE>
+        void <B>vprocessSetPriority</B>(
+                vprocess * process,
+                int priority);
+</PRE>
+
+<DL><DD>
+Sets the priority associated with a process. It may be one of
+the following values:
+
+<PRE>
+    vprocessPRIORITY_HIGH
+    vprocessPRIORITY_NORMAL
+    vprocessPRIORITY_IDLE
+</PRE>
+</DD></DL>
+<P>
+<A NAME="vprocessSetProgramName"><HR><H4>vprocessSetProgramName</H4></A>
+<PRE>
+        void <B>vprocessSetProgramName</B>(
+                vprocess * process,
+                const vchar * name);
+</PRE>
+
+<DL><DD>
+Sets the name of the program to be run when the process is started.
+This would be the name of the executable to be run. The location
+(path) of the program would be set using <CODE>
+<A HREF="vprocess-x.html#vprocessSetProgramPath"><CODE>vprocessSetProgramPath</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vprocessSetProgramNameScribed"><HR><H4>vprocessSetProgramNameScribed</H4></A>
+<PRE>
+        void <B>vprocessSetProgramNameScribed</B>(
+                vprocess * process,
+                vscribe * name);
+</PRE>
+
+<DL><DD>
+Sets the name of the program to be run when the process is started
+using a scribe. This would be the name of the executable to be run. The location
+(path) of the program would be set using <CODE>
+<A HREF="vprocess-x.html#vprocessSetProgramPath"><CODE>vprocessSetProgramPath</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vprocessSetProgramPath"><HR><H4>vprocessSetProgramPath</H4></A>
+<PRE>
+        void <B>vprocessSetProgramPath</B>(
+                vprocess * process,
+                vfsPath * path);
+</PRE>
+
+<DL><DD>
+Sets where the program for a process is to be run.
+The program name is specified using <CODE><A HREF="vprocess-x.html#vprocessSetProgramName"><CODE>vprocessSetProgramName</CODE></A></CODE>.
+Ownership is retained by the caller.
+</DD></DL>
+<P>
+<A NAME="vprocessSetProgramPathOwned"><HR><H4>vprocessSetProgramPathOwned</H4></A>
+<PRE>
+        void <B>vprocessSetProgramPathOwned</B>(
+                vprocess * process,
+                vfsPath * path);
+</PRE>
+
+<DL><DD>
+Sets where the program for a process is to be run.
+The program name is specified using <CODE><A HREF="vprocess-x.html#vprocess"><CODE>vprocess</CODE></A></CODE>.
+Ownership is taken by the process.
+</DD></DL>
+<P>
+<A NAME="vprocessSetProgramSignature"><HR><H4>vprocessSetProgramSignature</H4></A>
+<PRE>
+        void <B>vprocessSetProgramSignature</B>(
+                vprocess * process,
+                void * signature);
+</PRE>
+
+<DL><DD>
+Sets the program's signature to be run when the process is started while the 
+MacOS is operational. This call is meaningless on other platforms.
+</DD></DL>
+<P>
+<A NAME="vprocessSetWorkingPath"><HR><H4>vprocessSetWorkingPath</H4></A>
+<PRE>
+        void <B>vprocessSetWorkingPath</B>(
+                vprocess * process,
+                vfsPath * path);
+</PRE>
+
+<DL><DD>
+Sets the default directory for reading and saving files for the process.
+Ownership is retained by the caller.
+</DD></DL>
+<P>
+<A NAME="vprocessSetWorkingPathOwned"><HR><H4>vprocessSetWorkingPathOwned</H4></A>
+<PRE>
+        void <B>vprocessSetWorkingPathOwned</B>(
+                vprocess * process,
+                vfsPath * path);
+</PRE>
+
+<DL><DD>
+Sets the default directory for reading and saving files for the process.
+Ownership is taken by the process.
+</DD></DL>
+<P>
+<A NAME="vprocessStart"><HR><H4>vprocessStart</H4></A>
+<PRE>
+        vbool <B>vprocessStart</B>(
+                vprocess * process);
+</PRE>
+
+<DL><DD>
+Begins execution of the process described by the program name and
+path attributes. The program name, path, working path, priority,
+and type must be set before a call to start. The program path,
+working path, priority, and type will all be set to default
+values of current path, program path, and normal if not set
+before calling start.
+</DD></DL>
+<P>
+<A NAME="vprocessStartup"><HR><H4>vprocessStartup</H4></A>
+<PRE>
+        void <B>vprocessStartup</B>();
+</PRE>
+
+<DL><DD>
+Starts up the process class. Must be called before using the process class.
+</DD></DL>
+<P>
+<A NAME="vprocessTerminate"><HR><H4>vprocessTerminate</H4></A>
+<PRE>
+        vbool <B>vprocessTerminate</B>(
+                vprocess * process,
+                int status);
+</PRE>
+
+<DL><DD>
+Terminates execution of the program running within the process. The
+state of the process will be set to <CODE>vprocessSTATE_INACTIVE</CODE>
+if the operation succeeds. Likewise a value of <CODE>TRUE</CODE>
+will be returned on success. The status argument is ignored on all
+platforms besides Win32, on which case it is directly passed
+to the Win32 call <CODE>TerminateProcess</CODE>.
+</DD></DL>
+<P>
+<A NAME="vprocessWaitForTermination"><HR><H4>vprocessWaitForTermination</H4></A>
+<PRE>
+        int <B>vprocessWaitForTermination</B>(
+                vprocess * process,
+                vtimestamp * timeout,
+                int * status);
+</PRE>
+
+<DL><DD>
+Requests termination of a process and waits for its actual termination.
+The wait for termination will stop after the amount of time
+specified in the <A HREF="vtimestamp-x.html#vtimestamp"><CODE>vtimestamp</CODE></A> <CODE>timeout</CODE>. The value of
+<CODE>status</CODE> is platform dependent and is the appropriate
+process exit status for the current platform. The value returned will
+be one of:
+
+<P>
+<ul>
+<li>vprocessWAIT_TIMED_OUT
+<li>vprocessWAIT_CANCELLED
+<li>vprocessWAIT_FAILED
+<li>vprocessWAIT_SUCCESS
+</ul>
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vprocessCANCEL_WAIT_FOR_TERMINATION"><HR><H4>vprocessCANCEL_WAIT_FOR_TERMINATION</H4></A>
+<PRE>
+        &lt;<B>vprocessCANCEL_WAIT_FOR_TERMINATION</B>&gt;
+</PRE>
+
+<DL><DD>
+Cancels the wait for termination of a process. If a process has been
+terminated and the application is waiting for the termination of
+that process, this call will indicate that the wait for termination
+should be cancelled. In other words, this method sets a flag on the process 
+saying that the application is not waiting for the termination of the process
+and may continue on; vprocess will then let the process terminate without 
+notification.
+</DD></DL>
+<P>
+<A NAME="vprocessGET_STATE"><HR><H4>vprocessGET_STATE</H4></A>
+<PRE>
+        &lt;<B>vprocessGET_STATE</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns the state, active or inactive, of the process. The possible
+return values are <CODE>vprocessSTATE_ACTIVE</CODE> or
+<CODE>vprocessSTATE_INACTIVE</CODE>.
+</DD></DL>
+<P>
+<A NAME="vprocessSTART"><HR><H4>vprocessSTART</H4></A>
+<PRE>
+        &lt;<B>vprocessSTART</B>&gt;
+</PRE>
+
+<DL><DD>
+Begins execution of the process described by the program name and
+path attributes. The program name, path, working path, priority,
+and type must be set before a call to start. The program path,
+working path, priority, and type will all be set to default
+values of current path, program path, and normal if not set
+before calling start.
+</DD></DL>
+<P>
+<A NAME="vprocessTERMINATE"><HR><H4>vprocessTERMINATE</H4></A>
+<PRE>
+        &lt;<B>vprocessTERMINATE</B>&gt;
+</PRE>
+
+<DL><DD>
+Terminates execution of the program running within the process. The
+state of the process will be set to <CODE>vprocessSTATE_INACTIVE</CODE>
+if the operation succeeds. Likewise a value of <CODE>TRUE</CODE>
+will be returned on success. The status argument is ignored on all
+platforms besides Win32, on which case it is directly passed
+to the Win32 call <CODE>TerminateProcess</CODE>.
+</DD></DL>
+<P>
+<A NAME="vprocessWAIT_FOR_TERMINATION"><HR><H4>vprocessWAIT_FOR_TERMINATION</H4></A>
+<PRE>
+        &lt;<B>vprocessWAIT_FOR_TERMINATION</B>&gt;
+</PRE>
+
+<DL><DD>
+Requests termination of a process and waits for its actual termination.
+The wait for termination will stop after the amount of time
+specified in the <A HREF="vtimestamp-x.html#vtimestamp"><CODE>vtimestamp</CODE></A> <CODE>timeout</CODE>. The value of
+<CODE>status</CODE> is platform dependent and is the appropriate
+process exit status for the current platform. The value returned will
+be one of:
+
+<P>
+<ul>
+<li>vprocessWAIT_TIMED_OUT
+<li>vprocessWAIT_CANCELLED
+<li>vprocessWAIT_FAILED
+<li>vprocessWAIT_SUCCESS
+</ul>
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vprocessCREATION_ALL"><HR><H4>vprocessCREATION_ALL</H4></A>
+<PRE>
+        <B>vprocessCREATION_ALL</B>
+</PRE>
+
+<DL><DD>
+Mask for process creation flags.
+</DD></DL>
+<P>
+<A NAME="vprocessCREATION_CONSOLE"><HR><H4>vprocessCREATION_CONSOLE</H4></A>
+<PRE>
+        <B>vprocessCREATION_CONSOLE</B>
+</PRE>
+
+<DL><DD>
+Indicates the console should be launched using a console window.
+This value is set by <CODE><A HREF="vprocess-x.html#vprocessSetCreationFlags"><CODE>vprocessSetCreationFlags</CODE></A></CODE> and
+retrieved by <CODE><A HREF="vprocess-x.html#vprocessGetCreationFlags"><CODE>vprocessGetCreationFlags</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vprocessCREATION_DETACHED"><HR><H4>vprocessCREATION_DETACHED</H4></A>
+<PRE>
+        <B>vprocessCREATION_DETACHED</B>
+</PRE>
+
+<DL><DD>
+Indicates the process should run detached and performs no console level i/o.
+This value is set by <CODE><A HREF="vprocess-x.html#vprocessSetCreationFlags"><CODE>vprocessSetCreationFlags</CODE></A></CODE> and
+retrieved by <CODE><A HREF="vprocess-x.html#vprocessGetCreationFlags"><CODE>vprocessGetCreationFlags</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vprocessINCLUDED"><HR><H4>vprocessINCLUDED</H4></A>
+<PRE>
+        <B>vprocessINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Indicates the process header has already been included.
+</DD></DL>
+<P>
+<A NAME="vprocessPRIORITY_ALL"><HR><H4>vprocessPRIORITY_ALL</H4></A>
+<PRE>
+        <B>vprocessPRIORITY_ALL</B>
+</PRE>
+
+<DL><DD>
+Mask for process priority flags.
+</DD></DL>
+<P>
+<A NAME="vprocessPRIORITY_HIGH"><HR><H4>vprocessPRIORITY_HIGH</H4></A>
+<PRE>
+        <B>vprocessPRIORITY_HIGH</B>
+</PRE>
+
+<DL><DD>
+Indicates that the process should run with a high priority. This value is
+set with <CODE><A HREF="vprocess-x.html#vprocessSetPriority"><CODE>vprocessSetPriority</CODE></A></CODE> and retrieved with
+<CODE><A HREF="vprocess-x.html#vprocessGetPriority"><CODE>vprocessGetPriority</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vprocessPRIORITY_IDLE"><HR><H4>vprocessPRIORITY_IDLE</H4></A>
+<PRE>
+        <B>vprocessPRIORITY_IDLE</B>
+</PRE>
+
+<DL><DD>
+Indicates the process should run with a low priority. This value is
+set with <CODE><A HREF="vprocess-x.html#vprocessSetPriority"><CODE>vprocessSetPriority</CODE></A></CODE> and retrieved with
+<CODE><A HREF="vprocess-x.html#vprocessGetPriority"><CODE>vprocessGetPriority</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vprocessPRIORITY_NORMAL"><HR><H4>vprocessPRIORITY_NORMAL</H4></A>
+<PRE>
+        <B>vprocessPRIORITY_NORMAL</B>
+</PRE>
+
+<DL><DD>
+Indicates that the process should run with a normal priority. This value is
+set with <CODE><A HREF="vprocess-x.html#vprocessSetPriority"><CODE>vprocessSetPriority</CODE></A></CODE> and retrieved with
+<CODE><A HREF="vprocess-x.html#vprocessGetPriority"><CODE>vprocessGetPriority</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vprocessSTATE_ACTIVE"><HR><H4>vprocessSTATE_ACTIVE</H4></A>
+<PRE>
+        <B>vprocessSTATE_ACTIVE</B>
+</PRE>
+
+<DL><DD>
+Indicates that the process is active or running. Returned by
+<CODE><A HREF="vprocess-x.html#vprocessGetState"><CODE>vprocessGetState</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vprocessSTATE_ALL"><HR><H4>vprocessSTATE_ALL</H4></A>
+<PRE>
+        <B>vprocessSTATE_ALL</B>
+</PRE>
+
+<DL><DD>
+Mask for process state flags.
+</DD></DL>
+<P>
+<A NAME="vprocessSTATE_INACTIVE"><HR><H4>vprocessSTATE_INACTIVE</H4></A>
+<PRE>
+        <B>vprocessSTATE_INACTIVE</B>
+</PRE>
+
+<DL><DD>
+Indicates that the process is not active, meaning it has either not
+been started or has terminated. This value is returned by
+<CODE><A HREF="vprocess-x.html#vprocessGetState"><CODE>vprocessGetState</CODE></A></CODE>
+</DD></DL>
+<P>
+<A NAME="vprocessWAIT_CANCELLED"><HR><H4>vprocessWAIT_CANCELLED</H4></A>
+<PRE>
+        <B>vprocessWAIT_CANCELLED</B>
+</PRE>
+
+<DL><DD>
+Constant used to indicate that the state of waiting for process 
+termination has been cancelled.
+This constant is returned by <CODE><A HREF="vprocess-x.html#vprocessWaitForTermination"><CODE>vprocessWaitForTermination</CODE></A></CODE>.
+The routine which causes this action is <CODE><A HREF="vprocess-x.html#vprocessCancelWaitForTermination"><CODE>vprocessCancelWaitForTermination</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vprocessWAIT_FAILED"><HR><H4>vprocessWAIT_FAILED</H4></A>
+<PRE>
+        <B>vprocessWAIT_FAILED</B>
+</PRE>
+
+<DL><DD>
+Constant used to indicate that the state of waiting for 
+process termination has failed.
+This constant is returned by <CODE><A HREF="vprocess-x.html#vprocessWaitForTermination"><CODE>vprocessWaitForTermination</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vprocessWAIT_SUCCESS"><HR><H4>vprocessWAIT_SUCCESS</H4></A>
+<PRE>
+        <B>vprocessWAIT_SUCCESS</B>
+</PRE>
+
+<DL><DD>
+Constant used to indicate waiting for process termination has succeeded.
+This constant is returned by <CODE><A HREF="vprocess-x.html#vprocessWaitForTermination"><CODE>vprocessWaitForTermination</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vprocessWAIT_TIMED_OUT"><HR><H4>vprocessWAIT_TIMED_OUT</H4></A>
+<PRE>
+        <B>vprocessWAIT_TIMED_OUT</B>
+</PRE>
+
+<DL><DD>
+Constant used to indicate that the state waiting for process termination timed out.
+This constant is returned by <CODE><A HREF="vprocess-x.html#vprocessWaitForTermination"><CODE>vprocessWaitForTermination</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vprocessCLASS"><HR><H4>vprocessCLASS</H4></A>
+<PRE>
+        #define <B>vprocessCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains method and variable bindings for objects of type
+<code>vprocess</code>. Classes declared with this type contain the same
+set of methods and variables as the default process class, but the
+behavior of methods and the contents of variables may vary. This class
+type is derrived from <code><A HREF="vinstance-x.html#vinstance"><CODE>vinstance</CODE></A></code>.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

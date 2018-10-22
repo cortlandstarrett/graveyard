@@ -1,0 +1,749 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vhelphtmllocator prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vhelphtmllocator prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vhelphtmllocator-x.html#section_DataType">Types</A> [2]</TD>
+<TD><A HREF="vhelphtmllocator-x.html#section_Function">Functions</A> [20]</TD>
+<TD><A HREF="vhelphtmllocator-x.html#section_Message">Messages</A> [6]</TD>
+<TD><A HREF="vhelphtmllocator-x.html#section_Constant">Constants</A> [1]</TD>
+<TD><A HREF="vhelphtmllocator-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vhelphtmllocator"><HR><H4>vhelphtmllocator</H4></A>
+<PRE>
+        typedef ... <B>vhelphtmllocator</B>;
+</PRE>
+
+<DL><DD>
+
+References to HTML help text take the form of instances of
+<CODE><A HREF="vhelpref-x.html#vhelpref"><CODE>vhelpref</CODE></A></CODE> containing instances of <CODE><A HREF="vurl-x.html#vurl"><CODE>vurl</CODE></A></CODE>.
+These URL's are not generated directly from the objects.  Instead, the
+locator takes the help context of the object (see
+<CODE><A HREF="vobject-x.html#vobjectBuildHelpContext"><CODE>vobjectBuildHelpContext</CODE></A></CODE> and maps the context or some
+component of it to a URL supplied in a text file.
+
+<P>
+
+When <CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorLocateHelp"><CODE>vhelphtmllocatorLocateHelp</CODE></A></CODE> is called, the locator
+first calls <CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorGetMapDict"><CODE>vhelphtmllocatorGetMapDict</CODE></A></CODE> in an attempt to
+find a text file containing mappings from object contexts to URLs.  By
+default, this file's name is <CODE>helpmap.txt</CODE> but the user can
+specify a different file name (see
+<CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorSetMapFileName"><CODE>vhelphtmllocatorSetMapFileName</CODE></A></CODE>).  The locator will
+search for the mapping file in the following locations in this order
+(shown as UNIX-style paths):
+
+<UL>
+<LI> <CODE>DOCHOME</CODE>/<I>filename</I>
+<LI> <CODE>GALAXYHOME</CODE>/<I>filename</I>
+<LI> <CODE>GALAXYHOME</CODE>/<I>dirname</I>/<I>filename</I>
+<LI> Application Directory/<I>filename</I>
+<LI> Application Directory/<I>dirname</I>/<I>filename</I>
+<LI> Application Directory/../<I>dirname</I>/<I>filename</I>
+<LI> Application Directory/../../<I>dirname</I>/<I>filename</I>
+<LI> Application Directory/../../../<I>dirname</I>/<I>filename</I>
+<LI> until finally, /<I>dirname</I>/<I>filename</I>
+</UL>
+
+<CODE>DOCHOME</CODE> is the value of the <CODE>dochome</CODE>
+preference.  <CODE>dirname</CODE> is the document directory name (see
+<CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorSetDocDirectoryName"><CODE>vhelphtmllocatorSetDocDirectoryName</CODE></A></CODE>).  If <CODE>dirname
+</CODE> is NULL (as it is by default), it is omitted from the above
+paths.  If no file can be found in any of the above locations, no
+mappings can be made and all attempts to locate help text will fail.
+
+<P>
+
+The locator caches the information found in this file in a dictionary
+for more efficient searching (see
+<CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorGetMapDict"><CODE>vhelphtmllocatorGetMapDict</CODE></A></CODE>.  The keys of this dictionary
+are the help context strings and the values are the URL strings.
+Next, the locator searches this dictionary for a mapping between the
+help context and a URL.  If a match is found, the locator creates a
+<A HREF="vurl-x.html#vurl"><CODE>vurl</CODE></A> from the dictionary URL string.  The locator then adds this <A HREF="vurl-x.html#vurl"><CODE>vurl</CODE></A>
+to a newly created <A HREF="vhelpref-x.html#vhelpref"><CODE>vhelpref</CODE></A> instance.  Finally, the locator sets this
+<A HREF="vhelpref-x.html#vhelpref"><CODE>vhelpref</CODE></A> to be the help data of the help request.  If the application
+requires that the mapping file be in another location altogether, the
+locator can use an explicit path (see
+<CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorSetMapFilePathOwned"><CODE>vhelphtmllocatorSetMapFilePathOwned</CODE></A></CODE>.
+
+<P>
+
+The URL's in the text file are often relative file URLs.  The locator
+will try to resolve that URL with respect to some base URL (see
+<CODE>vhelphtmllocatorSetBaseURL</CODE> and
+<CODE><A HREF="vurl-x.html#vurlResolve"><CODE>vurlResolve</CODE></A></CODE>).  This allows the URL's in the file to
+remain relative to some organizational hierarchy.  For instance,
+documentation may be arranged in a hierarchy in a directory called
+"doc".  Documents will generally remain in the same location relative
+to each other in this directory so that links between documents remain
+valid.  However, the doc directory may not be in a set location.  It
+may be in a directory adjacent to the executable or it may be stored
+on a CDROM or it may be located on a web site.  Relative links are
+resolved to a location pointed to by the base URL.
+
+<P>
+
+The base URL can be determined in several ways.  It can be explicitly
+set via <CODE>vhelphtmllocatorSetBaseURL</CODE>.  If it is not
+explicitly set, the locator will attempt to determine one
+automatically.  The locator will search the file system for a
+directory bearing a particular <I>dirname</I> (see
+<CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorSetDocDirectoryName"><CODE>vhelphtmllocatorSetDocDirectoryName</CODE></A></CODE>) using the
+following search pattern (shown in the form of UNIX paths):
+
+<UL>
+<LI> <CODE>GALAXYHOME</CODE>/<I>dirname</I>
+<LI> Application Directory/<I>dirname</I>
+<LI> Application Directory/../<I>dirname</I>
+<LI> Application Directory/../../<I>dirname</I>
+<LI> Application Directory/../../../<I>dirname</I>
+<LI> until it is finally, /<I>dirname</I>
+</UL>
+
+If none of these directories exist, the base URL is set to be an empty
+<A HREF="vurl-x.html#vurl"><CODE>vurl</CODE></A>.  In this case, relative URL's will not resolve.  The base URL
+can also be set using the <CODE>dochome</CODE> preference (see
+<CODE><A HREF="vpref-x.html#vpref"><CODE>vpref</CODE></A></CODE>).  Using the <CODE>dochome</CODE> preference will
+override all other methods of setting the base URL.
+
+<P>
+
+The format of the text file containing URL mappings is very simple.
+Mappings consist of context/URL pairs.  The first string encountered in
+the file is considered to be a context.  The next string is considered
+to be a URL.  The next string is then a context, and so forth.
+Only contexts may contain spaces.  A context containing spaces must
+either be in quotes (e.g. "Context With Spaces") or must escape the
+spaces with the character "\" (e.g. Context\ With\ Spaces).  URL's may
+contain spaces but not newlines.  Any line beginning with a "#"
+character is considered a comment and is not processed.  Below is a
+example of the format of the text file.
+
+<BLOCKQUOTE>
+<PRE>
+# Example contexts
+Main			index.html
+Dialog			dialogs/dialog1.html
+Feedback		http://www.spiffysoft.com/feedback.html
+
+#Contexts with spaces
+"I Like Spam"		cannedmeats/spam.html
+Happy\ Fun \Ball	balls/happyones/fun.html
+
+# A URL with an anchor
+Button1			controls/buttons.html#Button1
+</PRE>
+</BLOCKQUOTE>
+
+<P>
+
+The html locator attempts to find a URL mapping by matching against
+progressively more general object contexts at progressively higher
+levels in the interface hierarchy.  Beginning with the full help
+context, it first successively removes the highest level component.
+If there are still no matches, it removes the lowest level component
+and begins again.  This is best explained with an example.  Given the
+following help context components (reflective of the interface hierarchy):
+
+<BLOCKQUOTE>
+<PRE>
+LeaderDialog:FollowerDialog:Container:Button
+</PRE>
+</BLOCKQUOTE>
+
+the locator will attempt to find a match for each of the following
+contexts, in this order:
+
+<UL>
+<CODE>
+<LI> LeaderDialogFollowerDialogContainerButton
+<LI> FollowerDialogContainerButton
+<LI> ContainerButton
+<LI> Button
+<LI> LeaderDialogFollowerDialogContainer
+<LI> FollowerDialogContainer
+<LI> Container
+<LI> LeaderDialogFollowerDialog
+<LI> FollowerDialog	
+<LI> LeaderDialog
+</CODE>
+</UL>
+
+It is often useful to have a Galaxy program output these contexts when
+it is attempting to find a match.  This is especially useful for
+complex interfaces or when the developer is unsure of the interface
+tag names.  To have Galaxy output this contexts, follow these steps:
+
+<UL>
+<LI> Compile the program using the Galaxy debug libraries.
+<LI> Set the <CODE>vdebugVARIABLES</CODE> environment variable to 
+contain the components <CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocator"><CODE>vhelphtmllocator</CODE></A></CODE> (see
+<CODE>vdebug</CODE> for more information).
+<LI> Run the program and view the output.
+</UL>
+
+To see just the most specific context (the first one, from which
+shorter ones are derived), set <CODE>vdebugVARIABLES</CODE> to contain
+<CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocator"><CODE>vhelphtmllocator</CODE></A></CODE>.
+
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorClass"><HR><H4>vhelphtmllocatorClass</H4></A>
+<PRE>
+        typedef ... <B>vhelphtmllocatorClass</B>;
+</PRE>
+
+<DL><DD>
+Contains message and variable bindings for objects of type
+<CODE>vhelphtmllocator</CODE> . Classes declared with this type 
+contain the same set of methods and variables as the
+default help HTML class, but the behavior of methods and the
+contents of variables may vary. This class type is derived
+from <CODE><A HREF="vhelpreflocator-x.html#vhelpreflocator"><CODE>vhelpreflocator</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vhelphtmllocatorCreate"><HR><H4>vhelphtmllocatorCreate</H4></A>
+<PRE>
+        vhelphtmllocator * <B>vhelphtmllocatorCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates an instance of the default class of vhelphtmllocator and returns
+a pointer to its contents.  Space
+for the object is allocated dynamically.  The Class Manager reclaims 
+the storage occupied by the object when it is destroyed with
+<CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorDestroy"><CODE>vhelphtmllocatorDestroy</CODE></A></CODE>.  Higher-level interfaces based
+on the core vhelphtmllocator type can define a macro to this function
+for their <CODE>Create</CODE> function.  This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorInit"><CODE>vhelphtmllocatorInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorCreateOfClass"><HR><H4>vhelphtmllocatorCreateOfClass</H4></A>
+<PRE>
+        vhelphtmllocator * <B>vhelphtmllocatorCreateOfClass</B>(
+                vhelphtmllocatorClass * helphtmllocatorClass);
+</PRE>
+
+<DL><DD>
+Creates an instance of class <SAMP>helphtmllocatorClass</SAMP> and returns
+a pointer to its contents. Space
+for the object is allocated dynamically based on the object
+size of the class. The Class Manager reclaims the storage
+occupied by the object when it is destroyed with
+<CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorDestroy"><CODE>vhelphtmllocatorDestroy</CODE></A></CODE>. Higher-level interfaces based
+on the core vhelphtmllocator type can define a macro to this function
+for their <CODE>Create</CODE> function. This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorInitOfClass"><CODE>vhelphtmllocatorInitOfClass</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorDestroy"><HR><H4>vhelphtmllocatorDestroy</H4></A>
+<PRE>
+        vhelphtmllocator * <B>vhelphtmllocatorDestroy</B>(
+                vhelphtmllocator * helphtmllocator);
+</PRE>
+
+<DL><DD>
+Destroys the object <SAMP>helphtmllocator</SAMP>, which must have
+been created or initialized by a Class Manager function.
+Interfaces based on the core object class can define a
+macro to this function for their <CODE>Destroy</CODE>
+function. This function is implemented by sending the
+message <CODE><A HREF="vinstance-x.html#vinstanceDESTROY"><CODE>vinstanceDESTROY</CODE></A></CODE> to <SAMP>helphtmllocator</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorGetBaseURL"><HR><H4>vhelphtmllocatorGetBaseURL</H4></A>
+<PRE>
+        vurl * <B>vhelphtmllocatorGetBaseURL</B>(
+                vhelphtmllocator * helplocator);
+</PRE>
+
+<DL><DD>
+
+Returns the base URL used to resolve relative file URLs in the mapping
+file.   
+
+--end-- 
+--begin--
+
+This URL is used as the basis for resolving URLs in the mapping file
+which do not have a scheme.  Developers should override this function
+to change the mechanism used to determine the base URL (including the
+use of the <CODE>dochome</CODE> preference and the automatic file
+system search procedure).
+
+<P> 
+
+This function is implemented by sending the message
+<CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorGET_BASE_URL"><CODE>vhelphtmllocatorGET_BASE_URL</CODE></A></CODE> to <SAMP>helplocator</SAMP>.
+
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorGetClass"><HR><H4>vhelphtmllocatorGetClass</H4></A>
+<PRE>
+        vhelphtmllocatorClass * <B>vhelphtmllocatorGetClass</B>(
+                vhelplocator * helplocator);
+</PRE>
+
+<DL><DD>
+Returns the class of the object <SAMP>helplocator</SAMP>. This
+pointer can be cast to higher-level classes if it is known
+that it is of the appropriate type. Class types can be
+verified with <CODE><A HREF="vclass-x.html#vclassIsKindOf"><CODE>vclassIsKindOf</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorGetDefaultClass"><HR><H4>vhelphtmllocatorGetDefaultClass</H4></A>
+<PRE>
+        vhelphtmllocatorClass * <B>vhelphtmllocatorGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+This class can be modified to alter the behavior
+of subclasses of vhelphtmllocator.  This function can be called to
+explicitly register the default help HTML locator class with the Class
+Manager.
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorGetDocDirectoryName"><HR><H4>vhelphtmllocatorGetDocDirectoryName</H4></A>
+<PRE>
+        const vchar * <B>vhelphtmllocatorGetDocDirectoryName</B>(
+                vhelphtmllocator * helplocator);
+</PRE>
+
+<DL><DD>
+Returns the name of the directory used when the locator is searching
+for the base URL directory on the file system.
+
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorGetLocator"><HR><H4>vhelphtmllocatorGetLocator</H4></A>
+<PRE>
+        vhelpreflocator * <B>vhelphtmllocatorGetLocator</B>(
+                vhelphtmllocator * helphtmllocator);
+</PRE>
+
+<DL><DD>
+
+Returns the help reference locator upon which the help HTML locator
+<SAMP>helphtmllocator</SAMP> is built.
+
+--end-- 
+--begin--
+
+Returns the help reference locator upon which the help HTML locator
+<SAMP>helphtmllocator</SAMP> is built.
+
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorGetMapDict"><HR><H4>vhelphtmllocatorGetMapDict</H4></A>
+<PRE>
+        vdict * <B>vhelphtmllocatorGetMapDict</B>(
+                vhelphtmllocator * helplocator);
+</PRE>
+
+<DL><DD>
+
+This function is responsible for both locating the mapping file and
+caching it in a <A HREF="vdict-x.html#vdict"><CODE>vdict</CODE></A>.  Override this function to change the mechanism
+by which the locator builds the mapping dictionary.
+
+<P>
+
+This function is implemented by sending the message
+<CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorGET_MAP_DICT"><CODE>vhelphtmllocatorGET_MAP_DICT</CODE></A></CODE> to <SAMP>helplocator</SAMP>.
+
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorGetMapFileName"><HR><H4>vhelphtmllocatorGetMapFileName</H4></A>
+<PRE>
+        const vchar * <B>vhelphtmllocatorGetMapFileName</B>(
+                vhelphtmllocator * helplocator);
+</PRE>
+
+<DL><DD>
+This is the name of the file searched for as part of the default
+behavior of <CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorGetMapDict"><CODE>vhelphtmllocatorGetMapDict</CODE></A></CODE>.  The default
+name is "helpmap.txt".
+
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorGetMapFilePath"><HR><H4>vhelphtmllocatorGetMapFilePath</H4></A>
+<PRE>
+        vfsPath * <B>vhelphtmllocatorGetMapFilePath</B>(
+                vhelphtmllocator * helplocator);
+</PRE>
+
+<DL><DD>
+
+This path should not include the file name.  Use
+<CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorSetMapFileName"><CODE>vhelphtmllocatorSetMapFileName</CODE></A></CODE> to set a filename other
+than the default.
+
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorInit"><HR><H4>vhelphtmllocatorInit</H4></A>
+<PRE>
+        vhelphtmllocator * <B>vhelphtmllocatorInit</B>(
+                vhelphtmllocator * helphtmllocator);
+</PRE>
+
+<DL><DD>
+Initializes the memory addressed by <SAMP>helphtmllocator</SAMP> in
+such a way that the resulting structure can be used to
+store any objects whose classes inherit from
+<CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorClass"><CODE>vhelphtmllocatorClass</CODE></A></CODE>. 
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorInitOfClass"><HR><H4>vhelphtmllocatorInitOfClass</H4></A>
+<PRE>
+        vhelphtmllocator * <B>vhelphtmllocatorInitOfClass</B>(
+                vhelphtmllocator * helphtmllocator,
+                vhelphtmllocatorClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes an object of class <SAMP>clas</SAMP> in the
+memory addressed by <SAMP>helphtmllocator</SAMP>.  Interfaces 
+based on the core HTML locator class can
+define a macro to this function for their <CODE>Init</CODE>
+function. This function simply stores the class in the
+class field of the object structure and sends it the
+message <CODE><A HREF="vinstance-x.html#vinstanceINIT"><CODE>vinstanceINIT</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorLocateHelp"><HR><H4>vhelphtmllocatorLocateHelp</H4></A>
+<PRE>
+        vinstance * <B>vhelphtmllocatorLocateHelp</B>(
+                vhelphtmllocator * helplocator,
+                vhelprequest * request);
+</PRE>
+
+<DL><DD>
+
+This function first calls <CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorGetMapDict"><CODE>vhelphtmllocatorGetMapDict</CODE></A></CODE> to
+obtaining a mapping from help context components to URL strings.  It
+then examines the <A HREF="vhelprequest-x.html#vhelprequest"><CODE>vhelprequest</CODE></A> <SAMP>request</SAMP>, if the request
+already has help data containing a context string, the locator will
+attempt to use this string when searching the dictionary.  If the
+request has no context string help data, the locator uses
+<CODE><A HREF="vobject-x.html#vobjectBuildHelpContext"><CODE>vobjectBuildHelpContext</CODE></A></SAMP> to obtain a help context.
+
+<P>
+
+The locator then uses this context to attempt to find a match in the
+dictionary.  If a match is found, the locator creates a
+<CODE><A HREF="vurl-x.html#vurl"><CODE>vurl</CODE></A></CODE> from the URL string.  The locator then resolves this
+URL against a base URL.  This URL is associated with a help reference
+(see <CODE><A HREF="vhelpref-x.html#vhelpref"><CODE>vhelpref</CODE></A></CODE>) and this reference becomes the help data
+for <SAMP>request</SAMP>.
+
+<P>
+
+See the general description of this class for information on exactly
+how the mapping dictionary is generated and searched and how the base
+URL is generated.
+
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorSetBaseURLOwned"><HR><H4>vhelphtmllocatorSetBaseURLOwned</H4></A>
+<PRE>
+        void <B>vhelphtmllocatorSetBaseURLOwned</B>(
+                vhelphtmllocator * helplocator,
+                vurl * url);
+</PRE>
+
+<DL><DD>
+
+Developers should set the base URL when it is not appropriate for the
+locator to automatically find the base URL path in the file system.
+
+<P>
+
+This function is implemented by sending the message
+<CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorSET_BASE_URL_OWNED"><CODE>vhelphtmllocatorSET_BASE_URL_OWNED</CODE></A></CODE> to
+<SAMP>helplocator</SAMP>.
+
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorSetDocDirectoryName"><HR><H4>vhelphtmllocatorSetDocDirectoryName</H4></A>
+<PRE>
+        void <B>vhelphtmllocatorSetDocDirectoryName</B>(
+                vhelphtmllocator * helplocator,
+                const vchar * name);
+</PRE>
+
+<DL><DD>
+The default directory name is "doc".
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorSetDocDirectoryNameScribed"><HR><H4>vhelphtmllocatorSetDocDirectoryNameScribed</H4></A>
+<PRE>
+        void <B>vhelphtmllocatorSetDocDirectoryNameScribed</B>(
+                vhelphtmllocator * helplocator,
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+The default directory name is "doc".
+
+<P>
+
+This function is implemented by sending the message
+<CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorSET_DOC_DIRECTORY_NAME_SCRIBED"><CODE>vhelphtmllocatorSET_DOC_DIRECTORY_NAME_SCRIBED</CODE></A></CODE> to
+<SAMP>helplocator</SAMP>.
+
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorSetMapFileName"><HR><H4>vhelphtmllocatorSetMapFileName</H4></A>
+<PRE>
+        void <B>vhelphtmllocatorSetMapFileName</B>(
+                vhelphtmllocator * helplocator,
+                const vchar * name);
+</PRE>
+
+<DL><DD>
+This is the name of the file searched for as part of the default
+behavior of <CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorGetMapDict"><CODE>vhelphtmllocatorGetMapDict</CODE></A></CODE>.  The default
+name is "helpmap.txt".
+
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorSetMapFileNameScribed"><HR><H4>vhelphtmllocatorSetMapFileNameScribed</H4></A>
+<PRE>
+        void <B>vhelphtmllocatorSetMapFileNameScribed</B>(
+                vhelphtmllocator * helplocator,
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+This is the name of the file searched for as part of the default
+behavior of <CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorGetMapDict"><CODE>vhelphtmllocatorGetMapDict</CODE></A></CODE>.  The default
+name is "helpmap.txt".
+
+<P>
+
+This function is implemented by sending the message
+<CODE>vhelphtmllocatorSET_MAP_FILE_NAME_SCRIBE</CODE> to
+<SAMP>helplocator</SAMP>.
+
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorSetMapFilePathOwned"><HR><H4>vhelphtmllocatorSetMapFilePathOwned</H4></A>
+<PRE>
+        void <B>vhelphtmllocatorSetMapFilePathOwned</B>(
+                vhelphtmllocator * helplocator,
+                vfsPath * path);
+</PRE>
+
+<DL><DD>
+
+Developers should set the path to the mapping file when it is not
+appropriate for the locator to automatically find the file.
+
+<P>
+
+This function is implemented by sending the message
+<CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorSET_MAP_FILE_PATH_OWNED"><CODE>vhelphtmllocatorSET_MAP_FILE_PATH_OWNED</CODE></A></CODE> to
+<SAMP>helplocator</SAMP>.
+
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vhelphtmllocatorGET_BASE_URL"><HR><H4>vhelphtmllocatorGET_BASE_URL</H4></A>
+<PRE>
+        &lt;<B>vhelphtmllocatorGET_BASE_URL</B>&gt;
+</PRE>
+
+<DL><DD>
+
+This URL is used as the basis for resolving URLs in the mapping file
+which do not have a scheme.  Developers should override this function
+to change the mechanism used to determine the base URL (including the
+use of the <CODE>dochome</CODE> preference and the automatic file
+system search procedure).
+
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorGET_MAP_DICT"><HR><H4>vhelphtmllocatorGET_MAP_DICT</H4></A>
+<PRE>
+        &lt;<B>vhelphtmllocatorGET_MAP_DICT</B>&gt;
+</PRE>
+
+<DL><DD>
+This message is responsible for both locating the mapping file and
+caching it in a <A HREF="vdict-x.html#vdict"><CODE>vdict</CODE></A>.  Override this message to change the mechanism
+by which the locator builds the mapping dictionary.
+
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorSET_BASE_URL_OWNED"><HR><H4>vhelphtmllocatorSET_BASE_URL_OWNED</H4></A>
+<PRE>
+        &lt;<B>vhelphtmllocatorSET_BASE_URL_OWNED</B>&gt;
+</PRE>
+
+<DL><DD>
+
+Developers should set the base URL when it is not appropriate for the
+locator to automatically find the base URL path in the file system.
+
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorSET_DOC_DIRECTORY_NAME_SCRIBED"><HR><H4>vhelphtmllocatorSET_DOC_DIRECTORY_NAME_SCRIBED</H4></A>
+<PRE>
+        &lt;<B>vhelphtmllocatorSET_DOC_DIRECTORY_NAME_SCRIBED</B>&gt;
+</PRE>
+
+<DL><DD>
+The default directory name is "doc".
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorSET_MAP_FILE_NAME_SCRIBED"><HR><H4>vhelphtmllocatorSET_MAP_FILE_NAME_SCRIBED</H4></A>
+<PRE>
+        &lt;<B>vhelphtmllocatorSET_MAP_FILE_NAME_SCRIBED</B>&gt;
+</PRE>
+
+<DL><DD>
+This is the name of the file searched for as part of the default
+behavior of <CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocatorGetMapDict"><CODE>vhelphtmllocatorGetMapDict</CODE></A></CODE>.  The default
+name is "helpmap.txt".
+
+</DD></DL>
+<P>
+<A NAME="vhelphtmllocatorSET_MAP_FILE_PATH_OWNED"><HR><H4>vhelphtmllocatorSET_MAP_FILE_PATH_OWNED</H4></A>
+<PRE>
+        &lt;<B>vhelphtmllocatorSET_MAP_FILE_PATH_OWNED</B>&gt;
+</PRE>
+
+<DL><DD>
+Developers should set the path to the mapping file when it is not
+appropriate for the locator to automatically find the file.
+
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vhelphtmllocatorINCLUDED"><HR><H4>vhelphtmllocatorINCLUDED</H4></A>
+<PRE>
+        <B>vhelphtmllocatorINCLUDED</B>
+</PRE>
+
+<DL><DD>
+This constant is intended to be used in this way when including header files:
+
+<BLOCKQUOTE>
+<PRE>
+#ifndef  vhelphtmllocatorINCLUDED
+#include vhelphtmllocatorHEADER
+#endif
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vhelphtmllocatorCLASS"><HR><H4>vhelphtmllocatorCLASS</H4></A>
+<PRE>
+        #define <B>vhelphtmllocatorCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Use this macro to build subclasses of vhelphtmllocator.  See 
+<CODE><A HREF="vclass-x.html#vclass"><CODE>vclass</CODE></A></CODE> for more information on subclassing.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

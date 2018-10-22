@@ -1,0 +1,1535 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vnotice prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vnotice prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vnotice-x.html#section_DataType">Types</A> [3]</TD>
+<TD><A HREF="vnotice-x.html#section_Function">Functions</A> [78]</TD>
+<TD><A HREF="vnotice-x.html#section_Message">Messages</A> [10]</TD>
+<TD><A HREF="vnotice-x.html#section_Constant">Constants</A> [1]</TD>
+<TD><A HREF="vnotice-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vnotice"><HR><H4>vnotice</H4></A>
+<PRE>
+        typedef ... <B>vnotice</B>;
+</PRE>
+
+<DL><DD>
+Represents a notice, a modal confirmation dialog with
+standard buttons and a text item. Notices provide a means
+for forcing the user to respond immediately to a situation.
+</DD></DL>
+<P>
+<A NAME="vnoticeClass"><HR><H4>vnoticeClass</H4></A>
+<PRE>
+        typedef ... <B>vnoticeClass</B>;
+</PRE>
+
+<DL><DD>
+Describes the behavior of a class of notices. The notice
+class is referenced by a pointer to this type. The default
+notice class is a subclass of the default confirmation
+class.
+</DD></DL>
+<P>
+<A NAME="vnoticeHookProc"><HR><H4>vnoticeHookProc</H4></A>
+<PRE>
+        typedef ... <B>vnoticeHookProc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a hook function that is called when a designated
+notice handles an event of importance. A <B><I>hook
+function</I></B>, unlike a notification function, returns a
+value that may alter the behavior of the notice.
+<SAMP>notice</SAMP> is the notice handling the event, and
+<SAMP>event</SAMP> is the event being handled. Notices use
+pointers of this type to represent hook functions that are
+called when a notice's button has been pressed.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vnoticeClone"><HR><H4>vnoticeClone</H4></A>
+<PRE>
+        vnotice * <B>vnoticeClone</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Creates a copy of the notice <SAMP>notice</SAMP> and
+returns a pointer to its contents.
+</DD></DL>
+<P>
+<A NAME="vnoticeClose"><HR><H4>vnoticeClose</H4></A>
+<PRE>
+        void <B>vnoticeClose</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Closes the notice <SAMP>notice</SAMP> so that it is no
+longer visible. This function has no effect if
+<SAMP>notice</SAMP> is already closed.
+</DD></DL>
+<P>
+<A NAME="vnoticeCopy"><HR><H4>vnoticeCopy</H4></A>
+<PRE>
+        void <B>vnoticeCopy</B>(
+                vnotice * notice,
+                vnotice * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>notice</SAMP> into
+<SAMP>target</SAMP> so that the two notices represent
+equivalent objects. <SAMP>target</SAMP> must be created
+with <CODE><A HREF="vnotice-x.html#vnoticeCreate"><CODE>vnoticeCreate</CODE></A></CODE>, <CODE><A HREF="vnotice-x.html#vnoticeInit"><CODE>vnoticeInit</CODE></A></CODE>,
+or an equivalent function. If <SAMP>target</SAMP> is open,
+it will be closed and reopened.
+</DD></DL>
+<P>
+<A NAME="vnoticeCopyInit"><HR><H4>vnoticeCopyInit</H4></A>
+<PRE>
+        void <B>vnoticeCopyInit</B>(
+                vnotice * notice,
+                vnotice * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>notice</SAMP> into
+<SAMP>target</SAMP> so that the memory addressed by
+<SAMP>target</SAMP> is a notice equivalent to
+<SAMP>notice</SAMP>. <SAMP>target</SAMP> should be a
+pointer to uninitialized memory; the Dialog class 
+initializes it as part of the copy.
+</DD></DL>
+<P>
+<A NAME="vnoticeCreate"><HR><H4>vnoticeCreate</H4></A>
+<PRE>
+        vnotice * <B>vnoticeCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new, unopened notice of the default notice class
+and returns a pointer to its contents. (Memory is allocated
+by the Dialog class.)
+</DD></DL>
+<P>
+<A NAME="vnoticeCreateOfClass"><HR><H4>vnoticeCreateOfClass</H4></A>
+<PRE>
+        vnotice * <B>vnoticeCreateOfClass</B>(
+                vnoticeClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new, unopened notice of class <SAMP>clas</SAMP>
+and returns a pointer to its contents. (Memory is allocated
+by the Dialog class.) The new dialog is created with a
+set of default attributes determined by the class.
+</DD></DL>
+<P>
+<A NAME="vnoticeDestroy"><HR><H4>vnoticeDestroy</H4></A>
+<PRE>
+        void <B>vnoticeDestroy</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Destroys the notice represented by <SAMP>notice</SAMP> and
+all of its sub-objects that were allocated by the Dialog 
+class. The dialog is closed first, if it is open. This
+function attempts to free the storage directly occupied by
+the dialog only if it was allocated by
+<CODE><A HREF="vnotice-x.html#vnoticeCreate"><CODE>vnoticeCreate</CODE></A></CODE>, or
+<CODE><A HREF="vnotice-x.html#vnoticeCreateOfClass"><CODE>vnoticeCreateOfClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vnoticeGetCancelHook"><HR><H4>vnoticeGetCancelHook</H4></A>
+<PRE>
+        vnoticeHookProc <B>vnoticeGetCancelHook</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns a pointer to the current hook function that will be
+activated when the Cancel button of a notice is activated.
+<SAMP>NULL</SAMP> can be returned if no such function is
+active.
+</DD></DL>
+<P>
+<A NAME="vnoticeGetCancelMnemonic"><HR><H4>vnoticeGetCancelMnemonic</H4></A>
+<PRE>
+        int <B>vnoticeGetCancelMnemonic</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns a string that is currently the title of the Cancel
+<SAMP>mnemonic</SAMP> on a notice. This value may be
+<SAMP>NULL</SAMP> in which case the <SAMP>mnemonic</SAMP>
+being used is the default, ``C''.
+</DD></DL>
+<P>
+<A NAME="vnoticeGetCancelTitle"><HR><H4>vnoticeGetCancelTitle</H4></A>
+<PRE>
+        const vchar * <B>vnoticeGetCancelTitle</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns a string that is currently the title of the Cancel
+button on a notice. This value may be <SAMP>NULL</SAMP> in
+which case the title being displayed is the default,
+``Cancel.''
+</DD></DL>
+<P>
+<A NAME="vnoticeGetClass"><HR><H4>vnoticeGetClass</H4></A>
+<PRE>
+        vnoticeClass * <B>vnoticeGetClass</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns the class of the notice <SAMP>notice</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnoticeGetConfirm"><HR><H4>vnoticeGetConfirm</H4></A>
+<PRE>
+        vconfirm * <B>vnoticeGetConfirm</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns the confirm upon which the notice
+<SAMP>notice</SAMP> was built. Confirmation class
+operation will affect the notice it came from. All
+Confirmation class will have effect, but some may
+interfere with the notice's behavior.
+</DD></DL>
+<P>
+<A NAME="vnoticeGetData"><HR><H4>vnoticeGetData</H4></A>
+<PRE>
+        void * <B>vnoticeGetData</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Gets a notice's generic data pointer to <SAMP>data</SAMP>.
+This can be a pointer to whatever information the client
+wishes to attach to the dialog; it is not used by the
+Dialog or Confirmation class. The pointer returned can be
+<SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnoticeGetDefaultClass"><HR><H4>vnoticeGetDefaultClass</H4></A>
+<PRE>
+        vnoticeClass * <B>vnoticeGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the class used to create notices by the
+<CODE><A HREF="vnotice-x.html#vnoticeCreate"><CODE>vnoticeCreate</CODE></A></CODE> and <CODE><A HREF="vnotice-x.html#vnoticeInit"><CODE>vnoticeInit</CODE></A></CODE>
+functions. This class can be modified to alter the behavior
+of all notices subsequently created by these functions.
+</DD></DL>
+<P>
+<A NAME="vnoticeGetDialog"><HR><H4>vnoticeGetDialog</H4></A>
+<PRE>
+        vdialog * <B>vnoticeGetDialog</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns the dialog upon which the notice
+<SAMP>notice</SAMP> was built. Dialog class operation
+will affect the notice it came from. All Dialog class 
+will have effect, but some may interfere with the notice's
+behavior.
+</DD></DL>
+<P>
+<A NAME="vnoticeGetHelpHook"><HR><H4>vnoticeGetHelpHook</H4></A>
+<PRE>
+        vnoticeHookProc <B>vnoticeGetHelpHook</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns a pointer to a hook function that is the current
+hook function that will be activated when the Help button
+of a notice is activated. <SAMP>NULL</SAMP> can be returned
+if no such function is active.
+</DD></DL>
+<P>
+<A NAME="vnoticeGetIcon"><HR><H4>vnoticeGetIcon</H4></A>
+<PRE>
+        vimage * <B>vnoticeGetIcon</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns a pointer to the icon, image with mask, currently
+associated with the notice <SAMP>notice</SAMP>. If no icon
+has been set by <CODE><A HREF="vnotice-x.html#vnoticeSetIcon"><CODE>vnoticeSetIcon</CODE></A></CODE>, this function
+will return <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnoticeGetNoHook"><HR><H4>vnoticeGetNoHook</H4></A>
+<PRE>
+        vnoticeHookProc <B>vnoticeGetNoHook</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns a pointer to the current hook function that will be
+activated when the No button of a caution notice is
+activated. <SAMP>NULL</SAMP> can be returned if no such
+function is active.
+</DD></DL>
+<P>
+<A NAME="vnoticeGetNoMnemonic"><HR><H4>vnoticeGetNoMnemonic</H4></A>
+<PRE>
+        int <B>vnoticeGetNoMnemonic</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns a character that is currently the mnemonic of the
+No button on a caution notice. This value may be
+<SAMP>NULL</SAMP> in which case the mnemonic being used is
+the default, ``N.''
+</DD></DL>
+<P>
+<A NAME="vnoticeGetNoTitle"><HR><H4>vnoticeGetNoTitle</H4></A>
+<PRE>
+        const vchar * <B>vnoticeGetNoTitle</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns a string that is currently the title of the No
+button on a caution notice. This value may be
+<SAMP>NULL</SAMP> in which case the title being displayed
+is the default, ``No.''
+</DD></DL>
+<P>
+<A NAME="vnoticeGetOkHook"><HR><H4>vnoticeGetOkHook</H4></A>
+<PRE>
+        vnoticeHookProc <B>vnoticeGetOkHook</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns a pointer to a hook function that is the current
+hook function that will be activated when the OK button of
+an OK Notice is activated. <SAMP>NULL</SAMP> can be
+returned if no such function is active.
+</DD></DL>
+<P>
+<A NAME="vnoticeGetOkMnemonic"><HR><H4>vnoticeGetOkMnemonic</H4></A>
+<PRE>
+        int <B>vnoticeGetOkMnemonic</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns a character that is currently the mnemonic of the
+OK button on an OK Notice. This value may be
+<SAMP>NULL</SAMP> in which case the mnemonic being used is
+the default, ``O''.
+</DD></DL>
+<P>
+<A NAME="vnoticeGetOkTitle"><HR><H4>vnoticeGetOkTitle</H4></A>
+<PRE>
+        const vchar * <B>vnoticeGetOkTitle</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns a string that is currently the title of the OK
+button on an OK Notice. This value may be <SAMP>NULL</SAMP>
+in which case the title being displayed is the default,
+``OK.''
+</DD></DL>
+<P>
+<A NAME="vnoticeGetText"><HR><H4>vnoticeGetText</H4></A>
+<PRE>
+        vstr * <B>vnoticeGetText</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns the text in the notice<SAMP> notice</SAMP> as a
+dynamic <CODE><A HREF="vstr-x.html#vstr"><CODE>vstr</CODE></A></CODE> string. The <CODE><A HREF="vstr-x.html#vstr"><CODE>vstr</CODE></A></CODE>
+string should be destroyed by a call to
+<CODE><A HREF="vstr-x.html#vstrDestroy"><CODE>vstrDestroy</CODE></A></CODE> when it is no longer needed.
+</DD></DL>
+<P>
+<A NAME="vnoticeGetTextScribed"><HR><H4>vnoticeGetTextScribed</H4></A>
+<PRE>
+        vscribe * <B>vnoticeGetTextScribed</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns the text in the notice <SAMP>notice</SAMP> as a
+scribe.
+</DD></DL>
+<P>
+<A NAME="vnoticeGetTextitem"><HR><H4>vnoticeGetTextitem</H4></A>
+<PRE>
+        vtextitem * <B>vnoticeGetTextitem</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns a pointer to the text item displaying the current
+message which was set with <CODE><A HREF="vnotice-x.html#vnoticeSetText"><CODE>vnoticeSetText</CODE></A></CODE> or
+<CODE><A HREF="vnotice-x.html#vnoticeSetTextScribed"><CODE>vnoticeSetTextScribed</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vnoticeGetWindow"><HR><H4>vnoticeGetWindow</H4></A>
+<PRE>
+        vwindow * <B>vnoticeGetWindow</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns the window on which the notice
+<SAMP>notice</SAMP> was built. Window class operation
+will affect the notice it came from. All Window class functions 
+will have effect, but some may interfere with the notice's
+behavior.
+</DD></DL>
+<P>
+<A NAME="vnoticeGetYesHook"><HR><H4>vnoticeGetYesHook</H4></A>
+<PRE>
+        vnoticeHookProc <B>vnoticeGetYesHook</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns a pointer to the current hook function that will be
+activated when the Yes button of a caution notice is
+activated. <SAMP>NULL</SAMP> can be returned if no such
+function is active.
+</DD></DL>
+<P>
+<A NAME="vnoticeGetYesMnemonic"><HR><H4>vnoticeGetYesMnemonic</H4></A>
+<PRE>
+        int <B>vnoticeGetYesMnemonic</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns a character that is currently the mnemonic of the
+Yes button on a caution notice. This value may be
+<SAMP>NULL</SAMP> in which case the mnemonic being used is
+the default, "Y".
+</DD></DL>
+<P>
+<A NAME="vnoticeGetYesTitle"><HR><H4>vnoticeGetYesTitle</H4></A>
+<PRE>
+        const vchar * <B>vnoticeGetYesTitle</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns a string that is currently the title of the Yes
+button on a caution notice. This value may be
+<SAMP>NULL</SAMP> in which case the title being displayed
+is the default, ``Yes.''
+</DD></DL>
+<P>
+<A NAME="vnoticeHandleCancel"><HR><H4>vnoticeHandleCancel</H4></A>
+<PRE>
+        int <B>vnoticeHandleCancel</B>(
+                vnotice * notice,
+                vevent * event);
+</PRE>
+
+<DL><DD>
+When the notice is cancelled, this method is called. The
+default implementation calls the notice's <code>HandleReset</code>
+method.
+</DD></DL>
+<P>
+<A NAME="vnoticeHandleNo"><HR><H4>vnoticeHandleNo</H4></A>
+<PRE>
+        int <B>vnoticeHandleNo</B>(
+                vnotice * notice,
+                vevent * event);
+</PRE>
+
+<DL><DD>
+This method should be overridden to provide application-specific
+action. The method should return <samp>TRUE</samp> for the 
+Notification class to dismiss the notice, or <samp>FALSE</samp> 
+to leave the notice open. If this method is not overridden, 
+the notice is dismissed when the
+user clicks the No button in the notice.
+</DD></DL>
+<P>
+<A NAME="vnoticeHandleYes"><HR><H4>vnoticeHandleYes</H4></A>
+<PRE>
+        int <B>vnoticeHandleYes</B>(
+                vnotice * notice,
+                vevent * event);
+</PRE>
+
+<DL><DD>
+This method should be overridden to provide application-specific
+action. The method should return <samp>TRUE</samp> for the Notification 
+class to dismiss the notice, or <samp>FALSE</samp> to leave the notice open. 
+If this method is not overridden, the notice is dismissed when the
+user clicks the Yes button in the notice.
+</DD></DL>
+<P>
+<A NAME="vnoticeHasCancel"><HR><H4>vnoticeHasCancel</H4></A>
+<PRE>
+        int <B>vnoticeHasCancel</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the notice <SAMP>notice</SAMP>
+has a Cancel button.
+</DD></DL>
+<P>
+<A NAME="vnoticeHasHelp"><HR><H4>vnoticeHasHelp</H4></A>
+<PRE>
+        int <B>vnoticeHasHelp</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the notice <SAMP>notice</SAMP>
+has a Help button.
+</DD></DL>
+<P>
+<A NAME="vnoticeHasIcon"><HR><H4>vnoticeHasIcon</H4></A>
+<PRE>
+        int <B>vnoticeHasIcon</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the notice <SAMP>notice</SAMP>
+has an associated icon set with
+<CODE><A HREF="vnotice-x.html#vnoticeSetIcon"><CODE>vnoticeSetIcon</CODE></A></CODE>. The icon code is not yet
+available within the notification manager. This function is
+provided for convenience so that the API for this feature
+will be defined, however, for now this function will always
+return <SAMP>FALSE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnoticeInit"><HR><H4>vnoticeInit</H4></A>
+<PRE>
+        void <B>vnoticeInit</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Makes the memory addressed by <SAMP>notice</SAMP> into a
+valid notice of the default notice class in the same manner
+as <CODE><A HREF="vnotice-x.html#vnoticeInitOfClass"><CODE>vnoticeInitOfClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vnoticeInitOfClass"><HR><H4>vnoticeInitOfClass</H4></A>
+<PRE>
+        void <B>vnoticeInitOfClass</B>(
+                vnotice * notice,
+                vnoticeClass * clas);
+</PRE>
+
+<DL><DD>
+Makes the memory addressed by <SAMP>notice</SAMP> into a
+valid notice of class <SAMP>clas</SAMP>. The same address
+can be used in other calls to the Dialog class as if the
+notice were created with <CODE><A HREF="vnotice-x.html#vnoticeCreate"><CODE>vnoticeCreate</CODE></A></CODE>. A call
+to <CODE><A HREF="vnotice-x.html#vnoticeDestroy"><CODE>vnoticeDestroy</CODE></A></CODE> frees any internal objects
+allocated by the Dialog class, but does <I>not</I> attempt
+to free the memory itself.
+</DD></DL>
+<P>
+<A NAME="vnoticeIsCaution"><HR><H4>vnoticeIsCaution</H4></A>
+<PRE>
+        int <B>vnoticeIsCaution</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the notice <SAMP>notice</SAMP>
+is a Caution notice or <SAMP>FALSE</SAMP> if the notice is
+a warning notice.
+</DD></DL>
+<P>
+<A NAME="vnoticeIsOpen"><HR><H4>vnoticeIsOpen</H4></A>
+<PRE>
+        int <B>vnoticeIsOpen</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the notice <SAMP>notice</SAMP>
+is open and visible on the screen, otherwise
+<SAMP>FALSE</SAMP> is returned.
+</DD></DL>
+<P>
+<A NAME="vnoticeLoad"><HR><H4>vnoticeLoad</H4></A>
+<PRE>
+        vnotice * <B>vnoticeLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a notice from the resource <SAMP>resource</SAMP> and
+returns a pointer to its contents, which are allocated by
+the Dialog class. This function generates an exception if
+the resource has not been constructed properly.
+</DD></DL>
+<P>
+<A NAME="vnoticeLoadInit"><HR><H4>vnoticeLoadInit</H4></A>
+<PRE>
+        void <B>vnoticeLoadInit</B>(
+                vnotice * notice,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a notice from the resource <SAMP>resource</SAMP> and
+stores it in the structure addressed by
+<SAMP>notice</SAMP>, which should be uninitialized. This
+function generates an exception if the resource has not
+been constructed properly.
+</DD></DL>
+<P>
+<A NAME="vnoticeNoteProc"><HR><H4>vnoticeNoteProc</H4></A>
+<PRE>
+        void <B>vnoticeNoteProc</B>();
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vnoticeOpen"><HR><H4>vnoticeOpen</H4></A>
+<PRE>
+        void <B>vnoticeOpen</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Opens the notice <SAMP>notice</SAMP> so that it is visible
+at its current position and size on the screen. This
+function has no effect if <SAMP>notice</SAMP> is already
+open.
+</DD></DL>
+<P>
+<A NAME="vnoticePlace"><HR><H4>vnoticePlace</H4></A>
+<PRE>
+        void <B>vnoticePlace</B>(
+                vnotice * notice,
+                vdialog * base,
+                int modeX,
+                int modeY);
+</PRE>
+
+<DL><DD>
+Positions the notice <SAMP>notice</SAMP> relative to the
+dialog <SAMP>base</SAMP>. <SAMP>modex</SAMP> and
+<SAMP>modey</SAMP> specify the relation of
+<SAMP>notice</SAMP> to <SAMP>base</SAMP> on each coordinate
+axis. This function is exactly analogous to the Window
+class function <CODE><A HREF="vwindow-x.html#vwindowPlace"><CODE>vwindowPlace</CODE></A></CODE>. (For more
+information, refer to the ``Window Manager'' chapter of the
+<I>Galaxy Application Environment Programmer's Guide</I>
+and to the description of <CODE><A HREF="vrect-x.html#vrectPlace"><CODE>vrectPlace</CODE></A></CODE> in this
+manual for the legal values of <SAMP>modex</SAMP> and
+<SAMP>modey</SAMP>.)
+</DD></DL>
+<P>
+<A NAME="vnoticePlaceWindow"><HR><H4>vnoticePlaceWindow</H4></A>
+<PRE>
+        void <B>vnoticePlaceWindow</B>(
+                vnotice * notice,
+                vwindow * base,
+                int modeX,
+                int modeY);
+</PRE>
+
+<DL><DD>
+Positions the notice <SAMP>notice</SAMP> relative to the
+window <SAMP>base</SAMP>. <SAMP>base</SAMP> may be the
+result of <CODE><A HREF="vwindow-x.html#vwindowGetRoot"><CODE>vwindowGetRoot</CODE></A></CODE>, in which case the
+bounds of the display are used. <SAMP>modex</SAMP> and
+<SAMP>modey</SAMP> specify the relation of
+<SAMP>window</SAMP> to <SAMP>base</SAMP> on each coordinate
+axis; appropriate flags are defined by the Plane Geometry
+class function <CODE><A HREF="vrect-x.html#vrectPlace"><CODE>vrectPlace</CODE></A></CODE>. The new position
+and size of the window is pinned to the dimensions of the
+display. This function, unlike <CODE><A HREF="vwindow-x.html#vwindowMove"><CODE>vwindowMove</CODE></A></CODE> and
+<CODE><A HREF="vwindow-x.html#vwindowSetRect"><CODE>vwindowSetRect</CODE></A></CODE>, may take the window's frame
+into account to obtain correct relative positioning. This
+function does not affect the size of the window unless it
+is larger than the display.
+<P>
+This function is equivalent to 
+<SAMP><A HREF="vwindow-x.html#vwindowPlace"><CODE>vwindowPlace</CODE></A>(<A HREF="vdialog-x.html#vdialogGetWindow"><CODE>vdialogGetWindow</CODE></A>(dialog), base, modeX, modeY)</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnoticeProcess"><HR><H4>vnoticeProcess</H4></A>
+<PRE>
+        const vname * <B>vnoticeProcess</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Opens a blocking notice <CODE>notice</CODE> and waits until
+a confirmation button is activated, and then closes the
+notice. This single call is equivalent to calling:
+
+<ul>
+<li><CODE><A HREF="vnotice-x.html#vnoticeProcessStart"><CODE>vnoticeProcessStart</CODE></A></CODE>
+<li><CODE><A HREF="vnotice-x.html#vnoticeProcessGet"><CODE>vnoticeProcessGet</CODE></A></CODE>
+<li><CODE><A HREF="vnotice-x.html#vnoticeProcessStop"><CODE>vnoticeProcessStop</CODE></A></CODE>
+</ul>
+
+<P>
+This routine is useful when the application does not want to use the standard
+notice hook functions and simply get the tag of the
+confirmation button activated. vnoticeProcess could be used
+as follows:
+    
+<P>
+<BLOCKQUOTE>
+<PRE>
+
+/*
+ * assume notice is created and 
+ * initialized. 
+ * 
+ * open notice and wait for button 
+ */
+
+tag = vnoticeProcess(notice);
+
+/* 
+ * flow will not return here until 
+ * a confirmation button is pressed. 
+ */ 
+
+if (tag == vname_Ok) /* do OK code */ 
+else if (tag == vname_No) /* do No code */ 
+else if (tag == vname_Cancel)  /* do Cancel code */
+
+</PRE>
+</BLOCKQUOTE>
+
+<P>
+It is important to note that when
+<CODE>vnoticeProcess</CODE> is used the hook function will
+not be called. The underlying dialog's close hook will also
+not be called when the dialog closes (since the close
+always happens on a button press and the confirm will be
+closed when control returns). Valid tags consist of:
+
+<P>
+<I>Warning</I> Notice:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><CODE>vname_Ok</CODE>
+<DD>for ok button 
+
+<DT><CODE>vname_Cancel</CODE>
+<DD>for cancel button 
+
+<DT><CODE>vname_Help</CODE>
+<DD>for help button 
+</DL>
+</BLOCKQUOTE>
+
+    <P>
+<I>Caution</I> Notice:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><CODE>vname_Ok</CODE>
+<DD>for yes button 
+
+<DT><CODE>vname_No</CODE>
+<DD>for no button 
+
+<DT><CODE>vname_Cancel</CODE>
+<DD>for cancel button 
+
+<DT><CODE>vname_Help</CODE>
+<DD>for help button 
+</DL>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vnoticeProcessGet"><HR><H4>vnoticeProcessGet</H4></A>
+<PRE>
+        const vname * <B>vnoticeProcessGet</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Returns the tag of a confirmation button pressed within a
+blocking notice <CODE>notice</CODE>. The notice must have
+been opened using <CODE><A HREF="vnotice-x.html#vnoticeProcessStart"><CODE>vnoticeProcessStart</CODE></A></CODE> and
+subsequently closed with <CODE><A HREF="vnotice-x.html#vnoticeProcessStop"><CODE>vnoticeProcessStop</CODE></A></CODE>.
+All calls to <CODE>vnoticeProcessGet</CODE> must be
+enclosed by calls to <CODE><A HREF="vnotice-x.html#vnoticeProcessStart"><CODE>vnoticeProcessStart</CODE></A></CODE> and
+<CODE><A HREF="vnotice-x.html#vnoticeProcessStop"><CODE>vnoticeProcessStop</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vnoticeProcessStart"><HR><H4>vnoticeProcessStart</H4></A>
+<PRE>
+        void <B>vnoticeProcessStart</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Opens a blocking notice <CODE>notice</CODE> and returns. A
+call must be made to <CODE><A HREF="vnotice-x.html#vnoticeProcessGet"><CODE>vnoticeProcessGet</CODE></A></CODE> which
+will block until a confirmation button is activated. To
+close this notice a call to <CODE><A HREF="vnotice-x.html#vnoticeProcessStop"><CODE>vnoticeProcessStop</CODE></A></CODE>
+must be made. Each <CODE>vnoticeProcessStart</CODE> must
+have a matching <CODE><A HREF="vnotice-x.html#vnoticeProcessStop"><CODE>vnoticeProcessStop</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vnoticeProcessStop"><HR><H4>vnoticeProcessStop</H4></A>
+<PRE>
+        void <B>vnoticeProcessStop</B>(
+                vnotice * notice);
+</PRE>
+
+<DL><DD>
+Closes a blocking notice <CODE>notice</CODE> opened with
+<CODE><A HREF="vnotice-x.html#vnoticeProcessStart"><CODE>vnoticeProcessStart</CODE></A></CODE>. Each
+<CODE>vnoticeProcessStop</CODE> call must have a matching
+<CODE><A HREF="vnotice-x.html#vnoticeProcessStart"><CODE>vnoticeProcessStart</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetCancel"><HR><H4>vnoticeSetCancel</H4></A>
+<PRE>
+        void <B>vnoticeSetCancel</B>(
+                vnotice * notice,
+                int flag);
+</PRE>
+
+<DL><DD>
+Controls whether or not the notice has a Cancel button. If
+<SAMP>flag</SAMP> is <SAMP>TRUE</SAMP>, the notice has the
+optional Cancel button; if <SAMP>flag</SAMP> is
+<SAMP>FALSE,</SAMP> it does not.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetCancelHook"><HR><H4>vnoticeSetCancelHook</H4></A>
+<PRE>
+        void <B>vnoticeSetCancelHook</B>(
+                vnotice * notice,
+                vnoticeHookProc cancelProc);
+</PRE>
+
+<DL><DD>
+Changes the Cancel hook procedure for the notice
+<SAMP>notice</SAMP> to <SAMP>cancelProc</SAMP>. Whenever
+the user clicks the Cancel button of the dialog, this
+procedure is called with the notice and the event as
+arguments. <SAMP>cancelProc</SAMP> can be
+<SAMP>NULL</SAMP>, in which case no notification is given.
+The hook function should return <SAMP>TRUE</SAMP> for the
+Notification class to dismiss the notice, or
+<SAMP>FALSE</SAMP> to leave the notice open.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetCancelMnemonic"><HR><H4>vnoticeSetCancelMnemonic</H4></A>
+<PRE>
+        void <B>vnoticeSetCancelMnemonic</B>(
+                vnotice * notice,
+                int mnemonic);
+</PRE>
+
+<DL><DD>
+Changes the mnemonic of the Cancel button of the notice
+<SAMP>notice</SAMP> to <SAMP>mnemonic</SAMP>.
+<SAMP>mnemonic</SAMP> can be 0, in which case the button
+uses the mnemonic ``C.''
+</DD></DL>
+<P>
+<A NAME="vnoticeSetCancelTitle"><HR><H4>vnoticeSetCancelTitle</H4></A>
+<PRE>
+        void <B>vnoticeSetCancelTitle</B>(
+                vnotice * notice,
+                const vchar * title);
+</PRE>
+
+<DL><DD>
+Changes the title of the Cancel button of the notice
+<SAMP>notice</SAMP> to <SAMP>title</SAMP>, if
+function-specific buttons are desirable for the current
+look-and-feel. <SAMP>title</SAMP> can be <SAMP>NULL</SAMP>,
+in which case the button uses the title ``Cancel.'' A copy
+is made of the title before it is stored in the button, and
+the string is freed when the notice is destroyed, or the
+title is changed.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetCancelTitleScribed"><HR><H4>vnoticeSetCancelTitleScribed</H4></A>
+<PRE>
+        void <B>vnoticeSetCancelTitleScribed</B>(
+                vnotice * notice,
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Changes the title of the Cancel button of the notice
+<SAMP>notice</SAMP> to <SAMP>scribe</SAMP>, if
+function-specific buttons are desirable for the current
+look-and-feel. <SAMP>scribe</SAMP> can be
+<SAMP>NULL</SAMP>, in which case the button uses the title
+``Cancel.'' A copy is made of the title before it is stored
+in the button, and the string is freed when the notice is
+destroyed, or the title is changed. This function sets the
+title through a String class scribe.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetCaution"><HR><H4>vnoticeSetCaution</H4></A>
+<PRE>
+        void <B>vnoticeSetCaution</B>(
+                vnotice * notice,
+                int flag);
+</PRE>
+
+<DL><DD>
+Controls whether or not the notice <SAMP>notice</SAMP>
+should be a caution notice. A caution notice has a Yes, No,
+and optional Cancel button. A non-caution (OK) notice has
+only an OK button. Both can have an optional Help button.
+If <SAMP>flag</SAMP> is <SAMP>TRUE</SAMP>, the notice is a
+caution notice; if <SAMP>flag</SAMP> is <SAMP>FALSE,</SAMP>
+it is an OK Notice.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetData"><HR><H4>vnoticeSetData</H4></A>
+<PRE>
+        void <B>vnoticeSetData</B>(
+                vnotice * notice,
+                void * data);
+</PRE>
+
+<DL><DD>
+Sets a notice's generic data pointer to <SAMP>data</SAMP>.
+This can be a pointer to whatever information the client
+wishes to attach to the dialog; it is not used by the
+Dialog or Confirmation class. <SAMP>data</SAMP> can be
+<SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetHelp"><HR><H4>vnoticeSetHelp</H4></A>
+<PRE>
+        void <B>vnoticeSetHelp</B>(
+                vnotice * notice,
+                int flag);
+</PRE>
+
+<DL><DD>
+Controls whether or not the notice <SAMP>notice</SAMP>
+should have a Help button. If <SAMP>flag</SAMP> is
+<SAMP>TRUE</SAMP>, the dialog has a Help button; if
+<SAMP>flag</SAMP> is <SAMP>FALSE,</SAMP> it does not. The
+Help button will be disabled unless a help hook function is
+specified using <CODE><A HREF="vnotice-x.html#vnoticeSetHelpHook"><CODE>vnoticeSetHelpHook</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetHelpHook"><HR><H4>vnoticeSetHelpHook</H4></A>
+<PRE>
+        void <B>vnoticeSetHelpHook</B>(
+                vnotice * notice,
+                vnoticeHookProc helpProc);
+</PRE>
+
+<DL><DD>
+Changes the Help hook procedure for the notice
+<SAMP>notice</SAMP> to <SAMP>helpProc</SAMP>. This routine
+is applicable to all notices. When the user clicks the
+Help button of the dialog, this procedure is called with
+the notice and the event as arguments.
+<SAMP>helpProc</SAMP> can be <SAMP>NULL</SAMP>, in which
+case no notification is given and if the Help button is
+visible, it will be disabled. The hook function may return
+<SAMP>TRUE</SAMP> or <SAMP>FALSE</SAMP> since the notice is
+left open at all times when the Help button is pressed.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetIcon"><HR><H4>vnoticeSetIcon</H4></A>
+<PRE>
+        void <B>vnoticeSetIcon</B>(
+                vnotice * notice,
+                vimage * icon);
+</PRE>
+
+<DL><DD>
+Controls whether the notice <SAMP>notice</SAMP>
+should have an icon. Some applications may wish to decorate
+notices with icons. The icon <SAMP>icon</SAMP> is shown in
+the notice in a position adhering to look-and-feel
+specification. By default, the Motif, Windows, and CUA
+look-and-feel have icons as specified by their respective
+style guides. This function will override that icon and add
+an icon in the OPEN LOOK look-and-feel. <SAMP>NULL</SAMP>
+can be passed for the icon parameter which will reset the
+notices' icon to its default.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetNoHook"><HR><H4>vnoticeSetNoHook</H4></A>
+<PRE>
+        void <B>vnoticeSetNoHook</B>(
+                vnotice * notice,
+                vnoticeHookProc noProc);
+</PRE>
+
+<DL><DD>
+Changes the No hook procedure for the notice
+<SAMP>notice</SAMP> to <SAMP>noProc</SAMP>. This routine is
+applicable to caution notices. When the user clicks the
+No button of the notice, this procedure is called with the
+notice and the event as arguments. <SAMP>noProc</SAMP> can
+be <SAMP>NULL</SAMP>, in which case no notification is
+given. The hook function should return <SAMP>TRUE</SAMP>
+for the Notification class to dismiss the notice, or
+<SAMP>FALSE</SAMP> to leave the notice open.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetNoMnemonic"><HR><H4>vnoticeSetNoMnemonic</H4></A>
+<PRE>
+        void <B>vnoticeSetNoMnemonic</B>(
+                vnotice * notice,
+                int mnemonic);
+</PRE>
+
+<DL><DD>
+Changes the mnemonic of the No button of the caution notice
+<SAMP>notice</SAMP> to <SAMP>mnemonic</SAMP>.
+<SAMP>mnemonic</SAMP> can be zero, in which case the button
+uses the mnemonic ``N.''
+</DD></DL>
+<P>
+<A NAME="vnoticeSetNoTitle"><HR><H4>vnoticeSetNoTitle</H4></A>
+<PRE>
+        void <B>vnoticeSetNoTitle</B>(
+                vnotice * notice,
+                const vchar * title);
+</PRE>
+
+<DL><DD>
+Changes the title of the No button of the caution notice
+<SAMP>notice</SAMP> to <SAMP>title</SAMP> if
+function-specific buttons are desirable for the current
+look-and-feel. <SAMP>title</SAMP> can be <SAMP>NULL</SAMP>,
+in which case the button uses the title ``No.'' A copy is
+made of the title before it is stored in the button, and
+the string is freed when the notice is destroyed, or the
+title is changed.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetNoTitleScribed"><HR><H4>vnoticeSetNoTitleScribed</H4></A>
+<PRE>
+        void <B>vnoticeSetNoTitleScribed</B>(
+                vnotice * notice,
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Changes the title of the No button of the caution notice
+<SAMP>notice</SAMP> to <SAMP>scribe</SAMP> if
+function-specific buttons are desirable for the current
+look-and-feel. <SAMP>scribe</SAMP> can be
+<SAMP>NULL</SAMP>, in which case the button uses the title
+``No.'' A copy is made of the title before it is stored in
+the button, and the string is freed when the notice is
+destroyed, or the title is changed. This function sets the
+title through a String class scribe.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetOkHook"><HR><H4>vnoticeSetOkHook</H4></A>
+<PRE>
+        void <B>vnoticeSetOkHook</B>(
+                vnotice * notice,
+                vnoticeHookProc okProc);
+</PRE>
+
+<DL><DD>
+Changes the Ok hook procedure for the warning notice
+<SAMP>notice</SAMP> to <SAMP>okProc.</SAMP> This routine is
+applicable to warning notices. When the user clicks the
+OK button of the notice, this procedure is called with the
+notice and the event as arguments. <SAMP>okProc</SAMP> can
+be <SAMP>NULL</SAMP>, in which case no notification is
+given. The hook function should return <SAMP>TRUE</SAMP>
+for the Notification class to dismiss the notice, or
+<SAMP>FALSE</SAMP> to leave the notice open.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetOkMnemonic"><HR><H4>vnoticeSetOkMnemonic</H4></A>
+<PRE>
+        void <B>vnoticeSetOkMnemonic</B>(
+                vnotice * notice,
+                int mnemonic);
+</PRE>
+
+<DL><DD>
+Changes the mnemonic of the OK button of the warning notice
+<SAMP>mnemonic</SAMP> to <SAMP>mnemonic</SAMP>, if
+function-specific buttons are desirable for the current
+look-and-feel. mnemonic can be 0, in which case the button
+uses the mnemonic ``O.''
+</DD></DL>
+<P>
+<A NAME="vnoticeSetOkTitle"><HR><H4>vnoticeSetOkTitle</H4></A>
+<PRE>
+        void <B>vnoticeSetOkTitle</B>(
+                vnotice * notice,
+                const vchar * title);
+</PRE>
+
+<DL><DD>
+Changes the title of the OK button of the warning notice
+<SAMP>notice</SAMP> to <SAMP>title</SAMP>, if
+function-specific buttons are desirable for the current
+look-and-feel. <SAMP>title</SAMP> can be <SAMP>NULL</SAMP>,
+in which case the button uses the title ``OK.'' A copy is
+made of the title before it is stored in the button, and
+the string is freed when the notice is destroyed, or the
+title is changed.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetOkTitleScribed"><HR><H4>vnoticeSetOkTitleScribed</H4></A>
+<PRE>
+        void <B>vnoticeSetOkTitleScribed</B>(
+                vnotice * notice,
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Changes the title of the OK or Yes button of the notice
+<SAMP>notice</SAMP> to <SAMP>scribe</SAMP>, if
+function-specific buttons are desirable for the current
+look-and-feel. <SAMP>scribe</SAMP> can be
+<SAMP>NULL</SAMP>, in which case the button uses the title
+``OK.'' A copy is made of the title before it is stored in
+the button, and the string is freed when the notice is
+destroyed, or the title is changed. This function sets the
+title through a String class scribe.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetText"><HR><H4>vnoticeSetText</H4></A>
+<PRE>
+        void <B>vnoticeSetText</B>(
+                vnotice * notice,
+                const vchar * text);
+</PRE>
+
+<DL><DD>
+Changes the text message of the notice <SAMP>notice</SAMP>
+to the string <SAMP>text</SAMP>. This string is displayed
+in the notice as the notification to which the user should
+respond. The text is actually stored within a text item
+which can be retrieved by <CODE><A HREF="vnotice-x.html#vnoticeGetTextitem"><CODE>vnoticeGetTextitem</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetTextScribed"><HR><H4>vnoticeSetTextScribed</H4></A>
+<PRE>
+        void <B>vnoticeSetTextScribed</B>(
+                vnotice * notice,
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Changes the text message of the notice <SAMP>notice</SAMP>
+to the scribe <SAMP>scribe</SAMP>. <SAMP>scribe</SAMP> is
+displayed in the notice as the notification to which the
+user should respond. This function specifies the string
+through a String class scribe. The text is actually
+stored within a text item which can be retrieved by
+<CODE><A HREF="vnotice-x.html#vnoticeGetTextitem"><CODE>vnoticeGetTextitem</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetTitle"><HR><H4>vnoticeSetTitle</H4></A>
+<PRE>
+        void <B>vnoticeSetTitle</B>(
+                vnotice * notice,
+                const vchar * title);
+</PRE>
+
+<DL><DD>
+Changes the title of the notice <SAMP>notice</SAMP> to
+<SAMP>title</SAMP>. The title of a notice may or may not be
+visible depending on the window system and Window class.
+A copy is made of the title before it is stored in the
+notice, and the string is freed when the dialog is
+destroyed, or the title is changed.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetTitleScribed"><HR><H4>vnoticeSetTitleScribed</H4></A>
+<PRE>
+        void <B>vnoticeSetTitleScribed</B>(
+                vnotice * notice,
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Changes the title of the notice <SAMP>notice</SAMP> to
+<SAMP>scribe</SAMP>. <SAMP>scribe</SAMP> can be
+<SAMP>NULL</SAMP>, in which case no title is given to the
+notice. The title of a notice may or may not be visible
+depending on the window system and Window class. A copy
+is made of the title before it is stored in the notice, and
+the string is freed when the dialog is destroyed, or the
+title is changed. This function sets the title through a
+String class scribe.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetYesHook"><HR><H4>vnoticeSetYesHook</H4></A>
+<PRE>
+        void <B>vnoticeSetYesHook</B>(
+                vnotice * notice,
+                vnoticeHookProc yesProc);
+</PRE>
+
+<DL><DD>
+Changes the Yes hook procedure for the caution notice
+<SAMP>notice</SAMP> to <SAMP>yesProc.</SAMP> This routine
+is applicable to caution notices. When the user clicks
+the Yes button of the notice, this procedure is called with
+the notice and the event as arguments. <SAMP>yesProc</SAMP>
+can be <SAMP>NULL </SAMP>, in which case no notification is
+given. The hook function should return <SAMP>TRUE</SAMP>
+for the Notification class to dismiss the notice, or
+<SAMP>FALSE</SAMP> to leave the notice open.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetYesMnemonic"><HR><H4>vnoticeSetYesMnemonic</H4></A>
+<PRE>
+        void <B>vnoticeSetYesMnemonic</B>(
+                vnotice * notice,
+                int mnemonic);
+</PRE>
+
+<DL><DD>
+Changes the mnemonic of the Yes button of the caution
+notice <SAMP>notice</SAMP> to <SAMP>mnemonic</SAMP>, if
+function-specific buttons are desirable for the current
+look-and-feel. mnemonic can be 0, in which case the button
+uses the mnemonic ``Y''.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetYesTitle"><HR><H4>vnoticeSetYesTitle</H4></A>
+<PRE>
+        void <B>vnoticeSetYesTitle</B>(
+                vnotice * notice,
+                const vchar * title);
+</PRE>
+
+<DL><DD>
+Operates identically to <CODE><A HREF="vnotice-x.html#vnoticeSetOkTitle"><CODE>vnoticeSetOkTitle</CODE></A></CODE>. It
+is provided as a convenience for caution notices. The OK
+button of the OK notice is the same as a Yes button from a
+caution notice, and thus these functions can be used
+interchangeably.
+</DD></DL>
+<P>
+<A NAME="vnoticeSetYesTitleScribed"><HR><H4>vnoticeSetYesTitleScribed</H4></A>
+<PRE>
+        void <B>vnoticeSetYesTitleScribed</B>(
+                vnotice * notice,
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Operates identically to <CODE><A HREF="vnotice-x.html#vnoticeSetOkTitleScribed"><CODE>vnoticeSetOkTitleScribed</CODE></A></CODE>. 
+It is provided as a convenience for caution notices. 
+The OK button of the OK notice is the same as a Yes button 
+from a caution notice; thus, these functions can be used interchangeably.
+</DD></DL>
+<P>
+<A NAME="vnoticeStartup"><HR><H4>vnoticeStartup</H4></A>
+<PRE>
+        void <B>vnoticeStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the Notification class. Has no effect if the
+Notification class is already initialized.
+</DD></DL>
+<P>
+<A NAME="vnoticeStore"><HR><H4>vnoticeStore</H4></A>
+<PRE>
+        void <B>vnoticeStore</B>(
+                vnotice * notice,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Writes the contents of the notice <SAMP>notice</SAMP> into
+the resource <SAMP>resource</SAMP>. The dialog can be
+recovered from the resource at a later time (perhaps by
+another program) with <CODE><A HREF="vnotice-x.html#vnoticeLoad"><CODE>vnoticeLoad</CODE></A></CODE> or
+<CODE><A HREF="vnotice-x.html#vnoticeLoadInit"><CODE>vnoticeLoadInit</CODE></A></CODE>. The resource should have type
+<SAMP>vresourceDICT</SAMP>.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vnoticeCALC_TEXT_SIZE"><HR><H4>vnoticeCALC_TEXT_SIZE</H4></A>
+<PRE>
+        &lt;<B>vnoticeCALC_TEXT_SIZE</B>&gt;
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vnoticeHANDLE_CANCEL"><HR><H4>vnoticeHANDLE_CANCEL</H4></A>
+<PRE>
+        &lt;<B>vnoticeHANDLE_CANCEL</B>&gt;
+</PRE>
+
+<DL><DD>
+When the notice is cancelled, this method is called. The
+default implementation calls <code>vnoticeHandleReset</code>
+method.
+</DD></DL>
+<P>
+<A NAME="vnoticeHANDLE_NO"><HR><H4>vnoticeHANDLE_NO</H4></A>
+<PRE>
+        &lt;<B>vnoticeHANDLE_NO</B>&gt;
+</PRE>
+
+<DL><DD>
+This method should be overridden to provide application-specific
+action. The method should return <samp>TRUE</samp> for the Notification class 
+to dismiss the notice, or <samp>FALSE</samp> to leave the notice open. 
+If this method is not overridden, the notice is dismissed when the
+user clicks the No button in the notice.
+</DD></DL>
+<P>
+<A NAME="vnoticeHANDLE_YES"><HR><H4>vnoticeHANDLE_YES</H4></A>
+<PRE>
+        &lt;<B>vnoticeHANDLE_YES</B>&gt;
+</PRE>
+
+<DL><DD>
+This method should be overridden to provide application-specific
+action. The method should return <samp>TRUE</samp> for the Notification class 
+to dismiss the notice, or <samp>FALSE</samp> to leave the notice open. 
+If this method is not overridden, the notice is dismissed when the
+user clicks the Yes button in the notice.
+</DD></DL>
+<P>
+<A NAME="vnoticeSET_CANCEL"><HR><H4>vnoticeSET_CANCEL</H4></A>
+<PRE>
+        &lt;<B>vnoticeSET_CANCEL</B>&gt;
+</PRE>
+
+<DL><DD>
+This message is sent when a Cancel button is to be added or
+deleted from a <CODE>notice</CODE>. If <CODE>flag</CODE> is
+<SAMP>TRUE</SAMP> the button is added, if it is
+<SAMP>FALSE</SAMP>, the button is removed.
+    <P>
+By default this method uses the underlying Confirmation
+class' Cancel button and forces it on for all
+look-and-feels.
+</DD></DL>
+<P>
+<A NAME="vnoticeSET_CAUTION"><HR><H4>vnoticeSET_CAUTION</H4></A>
+<PRE>
+        &lt;<B>vnoticeSET_CAUTION</B>&gt;
+</PRE>
+
+<DL><DD>
+Controls whether the notice <CODE>notice</CODE>
+is a <I>warning</I> notice or <I>caution</I> notice. If
+<CODE>flag</CODE> is <samp>TRUE</samp>, it is a <I>caution</I> notice,
+otherwise it is a <I>warning</I> notice.
+    <P>
+The default method uses the underlying Confirmation class
+OK button for both the OK button of a <I>warning</I> notice
+and the Yes button of a <I>caution</I> notice. Titles are
+set to ``OK'' or ``Yes'' depending on flag. <I>Caution</I>
+notices use a <I>generic</I> confirmation button with a tag
+<CODE>vname_No</CODE> for the No button. This button is
+removed or does not exist for <I>warning</I> notices.
+</DD></DL>
+<P>
+<A NAME="vnoticeSET_ICON"><HR><H4>vnoticeSET_ICON</H4></A>
+<PRE>
+        &lt;<B>vnoticeSET_ICON</B>&gt;
+</PRE>
+
+<DL><DD>
+This message sets the <CODE>icon</CODE> for notice
+<CODE>notice</CODE>. Using <SAMP>NULL</SAMP> will reset the
+icon to its default if one exists for the current look and
+feel. The default method simply sets the icon. If the icon is
+<SAMP>NULL</SAMP> the default icons are retrieved from the
+system resource file.
+</DD></DL>
+<P>
+<A NAME="vnoticeSET_NO_TITLE_SCRIBED"><HR><H4>vnoticeSET_NO_TITLE_SCRIBED</H4></A>
+<PRE>
+        &lt;<B>vnoticeSET_NO_TITLE_SCRIBED</B>&gt;
+</PRE>
+
+<DL><DD>
+Scribe can be <samp>NULL</samp>, in which case the button uses the title "No."  
+A copy of the title is made before it is stored in the button, and the
+string is freed when the notice is deleted, or the title changed.
+This function sets the title through a String class scribe.
+</DD></DL>
+<P>
+<A NAME="vnoticeSET_TEXT_SCRIBED"><HR><H4>vnoticeSET_TEXT_SCRIBED</H4></A>
+<PRE>
+        &lt;<B>vnoticeSET_TEXT_SCRIBED</B>&gt;
+</PRE>
+
+<DL><DD>
+This message sets the <CODE>text</CODE> of the text item
+for <CODE>notice</CODE>. The default method sets the text 
+item's text and rearranges
+the notice to account for the text change.
+</DD></DL>
+<P>
+<A NAME="vnoticeSET_YES_TITLE_SCRIBED"><HR><H4>vnoticeSET_YES_TITLE_SCRIBED</H4></A>
+<PRE>
+        &lt;<B>vnoticeSET_YES_TITLE_SCRIBED</B>&gt;
+</PRE>
+
+<DL><DD>
+Operates identically to
+<CODE><A HREF="vnotice-x.html#vnoticeSetOkTitleScribed"><CODE>vnoticeSetOkTitleScribed</CODE></A></CODE>. It is provided as a
+convenience for caution notices. The OK button of the OK
+notice is the same as a Yes button from a caution notice; 
+thus, these functions can be used interchangeably.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vnoticeINCLUDED"><HR><H4>vnoticeINCLUDED</H4></A>
+<PRE>
+        <B>vnoticeINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vnotice.h</SAMP> is
+included.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vnoticeCLASS"><HR><H4>vnoticeCLASS</H4></A>
+<PRE>
+        #define <B>vnoticeCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+This macro provides the contents of <code><A HREF="vnotice-x.html#vnoticeClass"><CODE>vnoticeClass</CODE></A></code>.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

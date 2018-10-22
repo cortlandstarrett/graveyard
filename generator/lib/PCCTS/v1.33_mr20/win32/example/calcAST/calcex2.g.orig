@@ -1,0 +1,111 @@
+//
+//  calcex2.g
+//
+//  Revised MSVC Build Procedure 2-Oct-98
+//  pccts 1.33MR15
+//
+//  simple calculator using ASTs for operators: + - * /
+//
+//
+
+/*  This file should be accompanied by DISCLAIMER.TXT stating disclaimers */
+
+<<
+#include "myToken.h"
+#include "myAST.h"
+#include "mathAST.h"
+#include "myPanic.h"
+#include "myTokenBuffer.h"
+#include "DLGLexer.h"
+
+int main() {
+
+   DLGFileInput		in(stdin);
+   DLGLexer			lexer(&in,2000);
+   MyTokenBuffer	pipe(&lexer,1);
+   ANTLRToken		aToken( (ANTLRTokenType)0 );
+   P				parser(&pipe);
+   ASTBase *		root;
+   AST *			rootCopy;
+		
+   root=(ASTBase *)0;
+
+   lexer.setToken(&aToken);
+   AST::clearList();		// remove statically constructed ASTs
+   AST::clearCounter();
+   parser.init();
+   parser.statement(&root);
+   rootCopy=(AST *) root;
+
+   if (rootCopy != 0) {
+////     rootCopy->preorder();
+////     rootCopy->dumpTree();
+         rootCopy->destroy();
+   };
+////   AST::dumpList();
+
+   AST::destroyList();
+
+   fclose(stdin);
+   fclose(stdout);
+   return 0;
+}
+>>
+
+#token	Eof	"@"
+
+#token  InvalidNumber
+
+#token	Number	"[.0-9]+{[dDfFlLeE]{\+\-}[0-9]+}"
+		<<double	d;
+		  char *	endptr;
+		  d=strtod(_lextext,&endptr);
+		  if (*endptr != 0) {
+		     return InvalidNumber;
+		  };
+		>>
+#token	WS	"[\ \t]"	<<skip();
+				 if (*_lextext=='\t') {
+				   _endcol=((_endcol-1) & ~7) + 8;
+				   // DLG will add 1 more because it
+				   //   assumes \t is a printing character
+				   // See wstabadjust.cpp for ws strings
+				 };
+				>>
+#token	NL	"\n"		<<newline();set_endcol(0);>>
+
+class P {
+
+<<
+public:
+      virtual void syn(
+	      ANTLRAbstractToken *	tok,
+	      ANTLRChar *		egroup,
+	      SetWordType *		eset,
+	      ANTLRTokenType		etok,
+	      int			k);
+>>
+
+statement : ( e:expr1
+			<<
+			printf("\n-----------------------------\n"
+			       "Result=%f\n",#e->eval());
+			#e->dumpTree();
+			>>
+	      NL)* "@"
+;
+expr1 !	  :  a:expr2	<<#0=#a;>>
+		( "\+"  b:expr2	<<#0=#(new Add,#0,#b);>>
+		| "\-"  c:expr2	<<#0=#(new Sub,#0,#c);>>
+		) *
+;
+expr2 !	  :  a:expr3	<<#0=#a;>>
+		( "\*"  b:expr3	<<#0=#(new Mul,#0,#b);>>
+		| "\/"  c:expr3	<<#0=#(new Div,#0,#c);>>
+		) *
+;
+expr3 	   : n:Number
+	   | "\("! expr1 "\)"!
+;
+
+}

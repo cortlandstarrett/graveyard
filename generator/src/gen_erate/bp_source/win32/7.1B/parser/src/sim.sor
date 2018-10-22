@@ -1,0 +1,2021 @@
+//========================================================================
+//
+// File:      $RCSfile: sim.sor,v $
+// Version:   $Revision: 1.9 $
+// Modified:  $Date: 2013/01/10 23:41:21 $
+//
+// (c) Copyright 1992-2013 by Mentor Graphics Corp. All rights reserved.
+//
+//========================================================================
+// This document contains information proprietary and confidential to
+// Mentor Graphics Corp., and is not for external distribution.
+//======================================================================== 
+//
+
+#header <<
+#include "p_symtbl.hh"
+#include "tokens.h"
+#include "myAST.h"
+#include "p_check.hh"
+#include "p_error.hh"
+#include "P.h"
+#include "vchar.h"
+class GS_var_si;
+class GS_string;
+class I_Object;
+class I_Object_Instance;
+class I_Related_Object_Instance_Pair;
+class I_SM_Evt_Inst;
+class I_object_inst_ref_set_var;
+class I_event_inst_var;
+class Object;
+class Relationship;
+class Referential_attribute;
+class Description;
+typedef AST SORAST;
+>>
+
+<<
+#include "p_types.hh"
+#include "myAST.h"
+#include "SIM_SOR.h"
+
+#include "d_object.hh"
+#include "d_nlevt.hh"
+#include "d_pevt.hh"
+
+#include "i_clock.hh"
+#include "i_einst.hh"     // I_SM_Evt_Inst
+#include "i_oinst.hh"
+
+#include "gs_evt.hh"      // create__I_SM_Evt_Inst
+#include "gs_sizes.hh"    // GS_MAX_NUM_CHAIN_LINKS
+#include "gs_stack.hh"
+#include "gs_sub.hh"
+#include "gs_ui.hh"
+
+#include "sw_index.hh"
+
+#include "u_trace.hh"
+
+>>
+
+
+class SIM_SOR
+{
+<<
+public:
+  SIM_SOR( P *p_p, GS_var_si& p_return_value, const Description& descrip ):
+    p(p_p),
+    st(p_p->st),
+    pck(p_p->pck),
+    er(p_p->er),
+    trace(FALSE),
+    dumpflag(FALSE),
+    C_return_value(p_return_value),
+    C_continue(FALSE),
+    C_break(FALSE),
+    C_return(FALSE),
+    C_descrip(descrip)
+    {}
+
+  ~SIM_SOR()
+    {}
+
+  void init( bool p_instance_sm, I_Object_Instance* p_orig_inst );
+
+  void log_stmt ( SORAST* stmt );
+  void log_expr ( SORAST* stmt, GS_var_si & p_expr_val );
+
+  void interpret_create_event_statement( const vchar *p_var_name,  
+         I_SM_Evt_Inst* p_einst_ptr ); 
+  void interpret_create_object_statement( const vchar *lvalue, const vchar *obj_kl ); 
+  void interpret_delete_statement( const vchar *p_rvalue ); 
+
+  bool interpret_for_initial( const vchar *irv, const vchar *irsv, int lineNo );
+  bool interpret_for_next();
+  void interpret_for_exit();
+
+  void interpret_generate_evt_statement( I_SM_Evt_Inst* p_einst_ptr ); 
+  void interpret_generate_evt_inst_statement_var( const vchar *evt_var ); 
+  void interpret_generate_evt_inst_statement_attr( const vchar *lvalue_str, 
+        GS_var_si& event_inst_var_si); 
+  void interpret_generate_evt_inst_statement( const vchar *p_event_var_str,
+        I_event_inst_var* event_inst_var_ptr,
+        I_SM_Evt_Inst* einst_ptr ); 
+
+  void interpret_if_begin ();
+  void interpret_if_end ();
+
+  void interpret_relate_statement( const vchar *p_inst1_name, 
+       const vchar *p_inst2_name, 
+       const vchar *p_assoc_name, const vchar *p_rel, const vchar *p_phrase ); 
+
+  void interpret_select_any_from_statement( const vchar * obj_kl, 
+         const vchar *irv, SORAST* wc );
+  void interpret_select_many_from_statement( const vchar * obj_kl, 
+         const vchar *irv, SORAST* wc );
+  void interpret_select_any_related_statement( const vchar *irv,
+         I_object_inst_ref_set_var* inst_set,
+         bool any_flag, SORAST* wc );
+  void interpret_select_many_related_statement( const vchar *irv,
+         I_object_inst_ref_set_var* inst_set,
+         SORAST* wc );
+
+
+  void interpret_unrelate_statement( const vchar *p_inst1_name, 
+       const vchar *p_inst2_name, 
+       const vchar *p_assoc_name, const vchar *p_rel, const vchar *p_phrase ); 
+
+  void interpret_while_initial( int lineNo );
+  void interpret_while_next();
+  void interpret_while_exit();
+
+
+  I_Object_Instance* interpret_event_spec_inst_ref ( const vchar * var_name );
+  I_Object_Instance* interpret_event_spec_assigner ( const vchar * obj_kl );
+  Object* interpret_event_spec_creator ( const vchar * obj_kl );
+  void interpret_supp_data ( I_SM_Evt_Inst* einst_ptr, const vchar *supp_data_name, GS_var_si& data_val );
+
+  void set_rel_phrases
+    (I_Related_Object_Instance_Pair* p_roip_ptr, Relationship* p_ooa_rel_ptr);
+
+  void interpret_op_relational_eq ( GS_var_si &p_rvalue, 
+    GS_var_si &operand1, GS_var_si &operand2 );
+  void interpret_op_relational_ne ( GS_var_si &p_rvalue, 
+    GS_var_si &operand1, GS_var_si &operand2 );
+  void interpret_op_relational_lt ( GS_var_si &p_rvalue, 
+    GS_var_si &operand1, GS_var_si &operand2 );
+  void interpret_op_relational_le ( GS_var_si &p_rvalue, 
+    GS_var_si &operand1, GS_var_si &operand2 );
+  void interpret_op_relational_gt ( GS_var_si &p_rvalue, 
+    GS_var_si &operand1, GS_var_si &operand2 );
+  void interpret_op_relational_ge ( GS_var_si &p_rvalue, 
+    GS_var_si &operand1, GS_var_si &operand2 );
+  void interpret_op_addition_plus ( GS_var_si &p_rvalue, 
+    GS_var_si &operand1, GS_var_si &operand2 );
+  void interpret_op_addition_minus ( GS_var_si &p_rvalue, 
+    GS_var_si &operand1, GS_var_si &operand2 );
+  void interpret_op_multiplication_times ( GS_var_si &p_rvalue, 
+    GS_var_si &operand1, GS_var_si &operand2 );
+  void interpret_op_multiplication_div ( GS_var_si &p_rvalue, 
+    GS_var_si &operand1, GS_var_si &operand2 );
+  void interpret_op_multiplication_mod ( GS_var_si &p_rvalue, 
+    GS_var_si &operand1, GS_var_si &operand2 );
+
+  void interpret_op_cardinality ( GS_var_si &p_rvalue, 
+    const vchar *local_var );
+  void interpret_op_empty ( GS_var_si &p_rvalue, 
+    const vchar *local_var );
+  void interpret_op_not_empty ( GS_var_si &p_rvalue, 
+    const vchar *local_var );
+  
+  void interpret_attribute_access ( bool is_rval, GS_var_si &p_rvalue, 
+    const vchar *irv, const vchar *p_attr_name, vchar *& lvalue_str );
+
+  void interpret_param_data_access ( bool is_rval, GS_var_si &p_rvalue, 
+     const vchar *p_supp_data, vchar *& lvalue_str );
+  void interpret_event_data_access ( GS_var_si &p_rvalue, 
+     const vchar *p_supp_data );
+  void interpret_enumerator_literal ( GS_var_si &p_rvalue, 
+     const vchar *p_enum_data_type, const vchar *enumerator );
+  void interpret_bridge_expr( const vchar *eekl, const vchar *func, 
+        int num_params, Description param_names[], GS_var_si param_values[],
+        bool param_readonly[], GS_var_si &p_rvalue ); 
+  void interpret_bridge_descrip( const vchar *eekl, const vchar *func, 
+        int num_params, Description param_names[], GS_var_si param_values[],
+        bool param_readonly[], GS_var_si &p_rvalue ); 
+  void interpret_transform_expr(const vchar *kl, const vchar *func, 
+        int num_params, Description param_names[], GS_var_si param_values[],
+        bool param_readonly[], GS_var_si &p_rvalue ); 
+  void interpret_ib_transform_expr(const vchar *irv, const vchar *func, 
+        int num_params, Description param_names[], GS_var_si param_values[],
+        bool param_readonly[], GS_var_si &p_rvalue ); 
+  static void interpret_synch_service_descrip( const vchar *func, 
+        int num_params, Description param_names[], GS_var_si param_values[],
+        bool param_readonly[], GS_var_si &p_rvalue ); 
+
+  bool interpret_bridge_param ( const vchar *p_din, 
+   Description& p_param_name,  GS_var_si &param_value );
+  bool interpret_transform_param ( const vchar *p_din, 
+   Description& p_param_name,  GS_var_si &param_value );
+  bool interpret_synch_service_param ( const vchar *p_din, 
+   Description& p_param_name,  GS_var_si &param_value );
+
+  void interpret_where_clause( I_object_inst_ref_set_var* p_inst_set_var_ptr,
+       SORAST* p_wc, bool p_any_flag );
+  I_object_inst_ref_set_var* create__from_instances_of__no_push( const vchar * p_obj_kl, 
+       SORAST* p_wc, bool p_any_flag );
+
+  I_object_inst_ref_set_var* interpret_chain_start ( const vchar *p_irv );
+  I_object_inst_ref_set_var* interpret_single_link ( const vchar *p_obj_kl,
+     const vchar *p_rel, const vchar *p_rel_direction_str,
+     I_object_inst_ref_set_var* p_start_inst_set_var_ptr );
+
+>>
+<<
+
+  // need to break these into two action blocks, 
+  // otherwise it's too big for Sorcerer
+
+  void interpret__time__current_date (GS_var_si& p_rvalue_var_si);
+  void interpret__time__create_date
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__time__get_second
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__time__get_minute
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__time__get_hour
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__time__get_day
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__time__get_month
+     (int num_params,  Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__time__get_year
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__time__current_clock (GS_var_si& p_rvalue_var_si);
+  void interpret__time__timer_start
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__time__timer_start_recurring
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__time__timer_remaining_time
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__time__timer_reset_time
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__time__timer_add_time
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__time__timer_cancel
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__mc_dbms__get_env_var
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__mc_dbms__put_env_var ( int num_params, Description p_param_name[], GS_var_si p_param_value[]);
+  void interpret__mc_dbms__shell_command
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__mc_dbms__file_read
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__mc_dbms__file_write
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__mc_dbms__string_to_integer
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__mc_dbms__string_to_real
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__mc_dbms__integer_to_string
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__mc_dbms__real_to_string
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+  void interpret__mc_dbms__boolean_to_string
+     ( int num_params, Description p_param_name[], GS_var_si p_param_value[], GS_var_si& p_rvalue_var_si);
+
+  void panic ( char *msg )
+    { throw msg; }
+
+  void mismatched_range(int looking_for, int upper_token, SORASTBase *found);
+  void missing_wildcard();
+  void mismatched_token(int looking_for, SORASTBase *found);
+  void no_viable_alt(char *rulename, SORASTBase *root);
+
+  int get_inst_var_ptr( const vchar *p_inst_name,  
+        I_Object_Instance*& p_oinst_ptr, Id& p_obj_id );
+  int get_relationship_ptr( const vchar *p_rel_num,  
+        Relationship*& p_ooa_rel_ptr, Id& p_rel_id );
+  int correlate_object_instances ( Relationship* ooa_rel_ptr, 
+	const Id& obj1_id, const Id& obj2_id, const Id& assoc_obj_id,
+	const vchar *p_phrase,
+    Id& oir1_id,
+    t_boolean& is_oir1_many,
+    Id& oir2_id,
+    t_boolean& is_oir2_many,
+    Id& assoc_oir_id,
+    t_boolean& is_assoc_oir_many,
+	int& p_formalizer );
+
+void do_relate_statement (
+	const vchar *p_inst1_name, 
+    const vchar *p_inst2_name, 
+    const vchar *p_assoc_name, 
+    I_Object_Instance* oinst1_ptr,
+	const Id& obj1_id,
+    I_Object_Instance* oinst2_ptr,
+	const Id& obj2_id,
+    I_Object_Instance* assoc_oinst_ptr,
+    const Id& assoc_obj_id,
+    Relationship* ooa_rel_ptr,
+    Relationship* previous_ooa_rel_ptr,
+	const vchar* p_rel,
+	const vchar* p_phrase );
+
+void do_unrelate_statement (I_Object_Instance* oinst1_ptr,
+	const Id& obj1_id,
+    I_Object_Instance* oinst2_ptr,
+	const Id& obj2_id,
+    I_Object_Instance* assoc_oinst_ptr,
+    const Id& assoc_obj_id,
+    Relationship* ooa_rel_ptr,
+    Relationship* previous_ooa_rel_ptr,
+	const vchar* p_phrase );
+
+void find_other_relationships_formalized ( I_Object* p_obj_ptr, Relationship* p_ooa_rel_ptr,
+        mc_dbms_Set<Referential_attribute*>& p_ref_attr_coll );
+
+I_Object_Instance* find_related_instance( 
+		I_Object_Instance* oinst_ptr, Relationship* ooa_rel_ptr, 
+		Description& phrase_str );
+
+protected:
+  P *p;                  // parser
+  BPSymbol_Table *st;    // initialized by al.g
+  P_check *pck;          // initialized by al.g
+  P_error *er;           // initialized by al.g
+  bool trace;
+  bool dumpflag;
+  bool C_instance_sm;
+  I_Object_Instance* C_orig_inst_ptr;
+  GS_var_si& C_return_value;
+  bool C_continue;
+  bool C_break;
+  bool C_return;
+  const Description& C_descrip;
+
+>>
+
+statement[bool tracex, bool dumpflagx]
+  : << trace = tracex;
+       dumpflag = dumpflagx;
+    >>
+  TOK_STATEMENTS
+  ( valid_statement [ !C_return ]
+  )*
+  Eof
+  ;
+
+valid_statement [ bool interp ]
+  :
+    assignment_statement [ interp ]
+  | bridge_statement [ interp ]
+  | control_statement [ interp ]
+  | create_object_statement [ interp ]
+  | delete_statement [ interp ]
+  | empty_statement
+  | synch_service_statement [ interp ]
+  | transform_statement [ interp ]
+  | create_event_statement [ interp ]
+  | generate_statement [ interp ]
+  | relate_statement [ interp ]
+  | select_statement [ interp ]
+  | unrelate_statement [ interp ]
+
+  | if_statement [ interp ]
+
+  | break_statement [ interp ]
+  | continue_statement [ interp ]
+  | for_statement [ interp ]
+  | return_statement [ interp ]
+  | while_statement [ interp ]
+    
+  ;
+
+assignment_statement [ bool interp ]
+  :
+    << 
+       GS_var_si rvalue_si; 
+       vchar *lvalue_str;
+    >>
+    #( stmt: TOK_STMT_ASSIGN
+    <<
+       if ( interp ) 
+       {       
+         log_stmt ( stmt );
+         I_Clock::add_exec_time__stmt__assign();
+       }
+    >>
+       (
+         lv: TOK_LOCAL_VAR
+         expr [ rvalue_si, interp ]
+         << if (interp) GS_stack::place_result_in_stack_var (lv->getVcharText(), &rvalue_si); >>
+       |
+         aa: attribute_access [ FALSE, rvalue_si, lvalue_str, interp ]
+         expr [ rvalue_si, interp ]
+         << 
+            if (interp)
+            {
+              GS_stack::place_result_in_stack_var (lvalue_str, &rvalue_si); 
+              delete [] lvalue_str;
+            }
+         >>
+       |
+         pda: param_data_access [ FALSE, rvalue_si, lvalue_str, interp ]
+         expr [ rvalue_si, interp ]
+         << 
+            if (interp)
+            {
+              GS_stack::place_result_in_stack_var (lvalue_str, &rvalue_si); 
+              delete [] lvalue_str;
+            }
+         >>
+       )
+     )
+  ;
+
+break_statement [ bool interp ]
+  :
+    stmt: TOK_STMT_BREAK
+    <<
+      if ( interp )
+      {
+        log_stmt ( stmt );
+        I_Clock::add_exec_time__stmt__break();
+        C_break = TRUE;
+      }
+    >>
+  ;
+
+bridge_statement [ bool interp ]
+  :
+    << 
+       GS_var_si rvalue_si; 
+    >>
+    #( stmt: TOK_STMT_BRIDGE
+    <<
+       if ( interp )
+       {
+         log_stmt ( stmt );
+         I_Clock::add_exec_time__stmt__bridge();
+       }
+    >>
+       bridge_expr [ rvalue_si, interp ]
+     )
+  ;
+
+control_statement [ bool interp ]
+  :
+    #( stmt: TOK_STMT_CONTROL
+       TOK_STOP
+       <<
+         if ( interp )
+         {
+           log_stmt ( stmt );
+           W_index_window::stop_system_clock_tick();
+         }
+       >>
+     )
+  ;
+
+continue_statement [ bool interp ]
+  :
+    stmt: TOK_STMT_CONTINUE
+    <<
+      if ( interp )
+      {
+        log_stmt ( stmt );
+        I_Clock::add_exec_time__stmt__continue();
+        C_continue = TRUE;
+      }
+    >>
+  ;
+
+create_event_statement [ bool interp ]
+  :
+    << 
+       I_SM_Evt_Inst* einst_ptr = 0;
+    >>
+    #( stmt: TOK_STMT_CREATE_EVENT
+    <<
+       if ( interp )
+       {
+         log_stmt ( stmt );
+         I_Clock::add_exec_time__stmt__create_event_instance ();
+       }
+    >>
+       erv: TOK_EVENT_REF_VAR
+       event_spec [ interp ] > [ einst_ptr ]
+     )
+    << 
+       if ( interp )
+       {
+         if (einst_ptr)
+         {
+           interpret_create_event_statement( erv->getVcharText(), einst_ptr ); 
+         }
+       }
+    >>
+  ;
+
+create_object_statement [ bool interp ]
+  :
+    #( stmt: TOK_STMT_CREATE_OBJECT
+    << 
+       if ( interp )
+       {
+         log_stmt ( stmt );
+         I_Clock::add_exec_time__stmt__create_object_instance ();
+       }
+    >>
+       kl: TOK_KL_OBJECT
+       { irv: TOK_INST_REF_VAR }
+     )
+    << 
+       if ( interp )
+       {
+         if ( irv )
+           interpret_create_object_statement( irv->getVcharText(), kl->getVcharText() ); 
+         else
+           interpret_create_object_statement( vcharGetEmptyString(), kl->getVcharText() ); 
+       }
+    >> 
+  ;
+
+delete_statement [ bool interp ]
+  :
+    #( stmt: TOK_STMT_DELETE
+    << 
+       if ( interp )
+       {
+         log_stmt ( stmt );
+         I_Clock::add_exec_time__stmt__delete_object_instance ();
+       }
+    >>
+       irv: TOK_INST_REF_VAR
+     )
+    << if (interp) interpret_delete_statement( irv->getVcharText() ); >> 
+  ;
+
+empty_statement
+  :
+    TOK_STMT_EMPTY
+  ;
+
+for_statement [ bool interp ]
+  :
+    #( tsf: TOK_STMT_FOR
+       irv: TOK_INST_REF_VAR
+       irsv: TOK_INST_REF_SET_VAR
+       iter: for_iteration [ FALSE ]
+     )
+    << 
+       if ( interp )
+       {
+          log_stmt ( tsf );
+          bool more_inst  = interpret_for_initial ( 
+                  irv->getVcharText(), irsv->getVcharText(), tsf->getLine() );
+          while ( more_inst )
+          {
+             C_continue = FALSE;
+             C_break = FALSE;
+             SORASTBase *iter_root = iter;
+             for_iteration ( &iter_root, TRUE );
+             if ( C_break || C_return )
+             {
+                interpret_for_exit();
+                // set break to FALSE to prevent an enclosing
+                // for statement from also exiting
+                C_break = FALSE;
+                break;
+             }
+             more_inst  = interpret_for_next (); 
+          }
+       }
+    >>
+  ;
+
+for_iteration [ bool interp ]
+  :
+    << bool for_condition = interp;
+    >>
+    #( TOK_CLAUSE_FOR
+       TOK_CONTEXT_PUSH
+       ( valid_statement [ for_condition && !C_break && !C_continue && !C_return ]
+       <<
+          if ( for_condition && (C_break || C_continue || C_return) )
+             for_condition = FALSE;
+       >>
+       )*
+       TOK_CONTEXT_POP
+     )
+  ;
+
+generate_statement [ bool interp ]
+  :
+    << 
+       I_SM_Evt_Inst* einst_ptr = 0;
+       GS_var_si rvalue_si; 
+       vchar *lvalue_str;
+    >>
+    #( stmt: TOK_STMT_GENERATE
+    <<
+       if ( interp )
+       {
+         log_stmt ( stmt );
+         I_Clock::add_exec_time__stmt__generate ();
+       }
+    >>
+       (
+         es: event_spec [ interp ] > [ einst_ptr ]
+           << if (interp) 
+              {
+                if (einst_ptr)
+                {
+                  interpret_generate_evt_statement( einst_ptr );
+                }
+              }
+           >>
+       |
+         erv: TOK_EVENT_REF_VAR
+           << if (interp) interpret_generate_evt_inst_statement_var( erv->getVcharText() ); >> 
+       |
+         aa: attribute_access [ TRUE, rvalue_si, lvalue_str, interp ]
+           << if (interp) interpret_generate_evt_inst_statement_attr( lvalue_str, rvalue_si ); 
+		      delete [] lvalue_str;
+		   >> 
+
+       )
+     )
+  ;
+
+if_statement [ bool interp ]
+  :
+  << GS_var_si cond_val;
+     bool if_condition = FALSE;
+     bool block_executed = FALSE;
+  >>
+    #( if_stmt: TOK_STMT_IF
+       #( TOK_CLAUSE_IF
+       <<
+           if (interp)
+           {
+             log_stmt ( if_stmt );
+             I_Clock::add_exec_time__stmt__if ();
+           }
+       >>
+          expr [ cond_val, interp ]
+       <<
+          if (interp)
+          {
+            if ( cond_val.get_boolean_var_ptr () )
+            {
+              if_condition = cond_val.get_boolean_var_ptr ()->get_value () != FALSE;
+            }
+            else
+            {
+              if_condition = FALSE;
+              GS_ui::inform (UI_INFORM__ERROR, GS_string("if expression isn't of type boolean, using FALSE"));
+              LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+	  	"if expression isn't of type boolean"));
+            }
+          }
+       >>
+          TOK_CONTEXT_PUSH
+          << if (interp && if_condition) interpret_if_begin(); >>
+          ( valid_statement [ interp && if_condition && !C_break && !C_continue && !C_return ]
+          )*
+          TOK_CONTEXT_POP
+          << 
+             if (interp && if_condition)
+             {
+               interpret_if_end();
+               block_executed = TRUE;
+             }
+          >>
+        )
+       (
+         #( elif_stmt: TOK_CLAUSE_ELIF
+        <<
+           if ( interp && !block_executed )
+           {  
+             log_stmt ( elif_stmt );
+             I_Clock::add_exec_time__stmt__elif ();
+           }
+        >>
+            expr [ cond_val, interp && !block_executed ]
+        <<
+           if (interp && !block_executed)
+           {
+             if ( cond_val.get_boolean_var_ptr () )
+             {
+               if_condition = cond_val.get_boolean_var_ptr ()->get_value () != FALSE;
+             }
+             else
+             {
+               if_condition = FALSE;
+               GS_ui::inform (UI_INFORM__ERROR, GS_string("elif expression isn't of type boolean, using FALSE"));
+               LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+                  "elif expression isn't of type boolean"));
+             }
+           }
+        >>
+            TOK_CONTEXT_PUSH
+            << if (interp && !block_executed && if_condition ) interpret_if_begin(); >>
+            ( valid_statement [ interp && !block_executed && if_condition && !C_break && !C_continue && !C_return ]
+            )*
+            TOK_CONTEXT_POP
+            << 
+               if (interp && !block_executed && if_condition)
+               {
+                 interpret_if_end();
+                 block_executed = TRUE;
+               }
+            >>
+         )
+       )*
+       {
+         #( else_stmt: TOK_CLAUSE_ELSE
+        <<
+           if ( interp && !block_executed )
+           {  
+             log_stmt ( else_stmt );
+           }
+        >>
+            TOK_CONTEXT_PUSH
+           << if (interp && !block_executed) interpret_if_begin(); >>
+            ( valid_statement [ interp && !block_executed && !C_break && !C_continue && !C_return ]
+            )*
+            TOK_CONTEXT_POP
+            << 
+               if (interp && !block_executed)
+               {
+                 interpret_if_end();
+                 block_executed = TRUE;
+               }
+            >>
+          )
+        }
+        <<
+          if ( interp )
+          {
+             GS_UI_INFORM (UI_INFORM__STMT, GS_string("END IF;"));
+          }
+        >>
+     )
+  ;
+          
+relate_statement [ bool interp ]
+  :  
+    #( stmt: TOK_STMT_RELATE
+    << 
+       if ( interp )
+       {
+         log_stmt ( stmt );
+         I_Clock::add_exec_time__stmt__relate ();
+       }
+    >>
+       irv1: TOK_INST_REF_VAR      // 1st inst_ref variable
+       irv2: TOK_INST_REF_VAR      // 2nd inst_ref variable
+       rel: TOK_RELID
+       { ph: TOK_PHRASE }
+       { assoc_irv: TOK_INST_REF_VAR }  // using inst_ref variable
+     )
+    <<
+       if ( interp )
+       {
+         if ( assoc_irv == 0 )
+         {
+           interpret_relate_statement( irv1->getVcharText(), irv2->getVcharText(),
+               0, rel->getVcharText(), ph->getVcharText() );
+         }
+         else
+         {
+            interpret_relate_statement( irv1->getVcharText(), irv2->getVcharText(), 
+               assoc_irv->getVcharText(), rel->getVcharText(), ph->getVcharText() );
+         }
+       }
+    >>
+  ;
+
+return_statement [ bool interp ]
+  :
+    #( stmt: TOK_STMT_RETURN
+  << if (interp)
+     {
+       log_stmt ( stmt );
+       I_Clock::add_exec_time__stmt__return();
+     }
+  >>
+       { expr [ C_return_value, interp ] }
+     )
+  << if (interp)
+     {
+       C_return = TRUE; 
+     }
+  >>
+  ;
+
+select_statement [ bool interp ]
+  :
+  (
+    #( stmt1: TOK_STMT_SELECT_ONE
+    << 
+       if (interp)
+       {
+         log_stmt ( stmt1 );
+       }
+    >>
+       irv: TOK_INST_REF_VAR
+       object_spec [ TOK_STMT_SELECT_ONE, irv->getVcharText(), interp ]
+     )
+  |    
+    #( stmt2: TOK_STMT_SELECT_ANY
+    << 
+       if (interp)
+       {
+         log_stmt ( stmt2 );
+       }
+    >>
+       irv: TOK_INST_REF_VAR
+       object_spec [ TOK_STMT_SELECT_ANY, irv->getVcharText(), interp ]
+     )
+  |
+    #( stmt3: TOK_STMT_SELECT_MANY
+    << 
+       if (interp)
+       {
+         log_stmt ( stmt3 );
+       }
+    >>
+       irsv: TOK_INST_REF_SET_VAR
+       object_spec [ TOK_STMT_SELECT_MANY, irsv->getVcharText(), interp ]
+     )
+  )
+  ;
+
+synch_service_statement [ bool interp ]
+  :
+    << 
+       GS_var_si rvalue_si; 
+    >>
+    #( stmt: TOK_STMT_SYNCH_SVC
+    <<
+       if (interp)
+       {
+         log_stmt ( stmt );
+         I_Clock::add_exec_time__stmt__synch_service();
+       }
+    >>
+       synch_service_expr [ rvalue_si, interp ]
+     )
+  ;
+
+transform_statement [ bool interp ]
+  :
+    << 
+       GS_var_si rvalue_si; 
+    >>
+    #( stmt: TOK_STMT_TRANSFORM
+    <<
+       if (interp)
+       {
+         log_stmt ( stmt );
+         I_Clock::add_exec_time__stmt__transformation();
+       }
+    >>
+       transformer_expr [ rvalue_si, interp ]
+     )
+  ;
+
+unrelate_statement [ bool interp ]
+  :
+    #( stmt: TOK_STMT_UNRELATE
+    << 
+       if (interp)
+       {
+         log_stmt ( stmt );
+         I_Clock::add_exec_time__stmt__unrelate();
+       }
+    >>
+       irv1: TOK_INST_REF_VAR      // 1st inst_ref variable
+       irv2: TOK_INST_REF_VAR      // 2nd inst_ref variable
+       rel: TOK_RELID
+       { ph: TOK_PHRASE }
+       { assoc_irv: TOK_INST_REF_VAR }  // using inst_ref variable
+     )
+    <<
+       if (interp)
+       {
+         if ( assoc_irv == 0 )
+         {
+            interpret_unrelate_statement( irv1->getVcharText(), irv2->getVcharText(),
+               0, rel->getVcharText(), ph->getVcharText() );
+         }
+         else
+         {
+            interpret_unrelate_statement( irv1->getVcharText(), irv2->getVcharText(), 
+               assoc_irv->getVcharText(), rel->getVcharText(), ph->getVcharText() );
+         }
+       }
+    >>
+  ;
+
+while_statement [ bool interp ]
+  :
+  << GS_var_si cond_val;
+  >>
+    #( ws: TOK_STMT_WHILE
+       we: expr [ cond_val, FALSE ]
+       iter: while_iteration [ FALSE ]
+     )
+    << 
+       if ( interp )
+       {
+         log_stmt ( ws );
+
+         SORASTBase *expr_root = we;
+         expr ( &expr_root, cond_val, TRUE );
+         bool while_condition;
+         if ( cond_val.get_boolean_var_ptr () )
+         {
+           while_condition = cond_val.
+              get_boolean_var_ptr ()->get_value () != FALSE;  
+         }
+         else
+         {
+           while_condition = FALSE;
+           GS_ui::inform (UI_INFORM__ERROR, GS_string("while expression isn't of type boolean, using FALSE"));
+           LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+	  	"while expression isn't of type boolean"));
+         }
+
+         if ( while_condition )
+         {  
+           interpret_while_initial( ws->getLine() );
+         }
+
+         while ( while_condition )
+         {
+           C_continue = FALSE;
+           C_break = FALSE;
+
+           SORASTBase *iter_root = iter;
+           while_iteration ( &iter_root, TRUE );
+
+           if ( C_break || C_return )
+           {
+              interpret_while_exit();
+              // set break to FALSE to prevent an enclosing
+              // iteration statement from also exiting
+              C_break = FALSE;
+              break;
+           }
+
+           interpret_while_next();
+
+           log_stmt ( ws );
+
+           expr_root = we;
+           expr ( &expr_root, cond_val, TRUE );
+           if ( cond_val.get_boolean_var_ptr () )
+           {
+             while_condition = cond_val.
+                get_boolean_var_ptr ()->get_value () != FALSE;
+           }
+           else
+           {
+             while_condition = FALSE;
+             GS_ui::inform (UI_INFORM__ERROR, GS_string("while expression isn't of type boolean, using FALSE"));
+             LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+	  	"while expression isn't of type boolean"));
+           }
+
+           if ( !while_condition )
+           {  
+             interpret_while_exit();
+           }
+         }
+       }
+  >>
+  ;
+
+while_iteration [ bool interp ]
+  :
+  <<
+     bool while_condition = interp;
+  >>
+    #( TOK_CLAUSE_WHILE
+       TOK_CONTEXT_PUSH
+       ( valid_statement [ while_condition && !C_break && !C_continue && !C_return ]
+       <<
+          if ( while_condition && (C_break || C_continue || C_return) )
+             while_condition = FALSE;
+       >>
+       )*
+       TOK_CONTEXT_POP
+     )
+  ;
+
+event_spec [bool interp] > [ I_SM_Evt_Inst* einst_ptr ]
+  :
+  << 
+     bool to_ext_ent = FALSE;
+     I_Object_Instance* dest_oinst_ptr = 0;
+     Object* ooa_obj_ptr = 0;
+     einst_ptr = 0;
+  >>
+  (
+    #( evt_lbl: TOK_EVENT_LABEL
+       { TOK_TIMES }
+       { TOK_PHRASE }
+     ) 
+    (
+      kla: TOK_KL_OBJECT_ASSIGNER
+      <<
+         if ( interp )
+         {
+           dest_oinst_ptr = interpret_event_spec_assigner ( kla->getVcharText() );
+         }
+      >>
+    | klc: TOK_KL_OBJECT_CREATOR
+      <<
+         if ( interp )
+         {
+           ooa_obj_ptr = interpret_event_spec_creator ( klc->getVcharText() );
+         }
+      >>
+    | irv: TOK_INST_REF_VAR
+      <<
+         if ( interp )
+         {
+           dest_oinst_ptr = interpret_event_spec_inst_ref ( irv->getVcharText() );
+         }
+      >>
+    | TOK_KL_EXTERNAL_ENTITY
+      << to_ext_ent = TRUE; >>
+    )
+    <<
+       if ( interp )
+       {
+         if ( !to_ext_ent )
+         {
+           // HACK! - The validate routines should have found this pointer for us.
+           D_sm_event* ooa_evt_ptr = (D_sm_event*) evt_lbl->getObjPtr();
+
+           // Change non-local events to the polymorphic event they represent
+           if ( ooa_evt_ptr->is_non_local_event() )
+           {
+               D_polymorphic_event* poly_evt_ptr = 
+                   ooa_evt_ptr->get_sem_event_ptr()->get_non_local_event_ptr()->get_aliased_polymorphic_event_ptr();
+               if ( poly_evt_ptr )
+               {
+                   ooa_evt_ptr = poly_evt_ptr;
+               }
+           }
+
+           einst_ptr
+             = GS_sim_evt::create__I_SM_Evt_Inst (ooa_evt_ptr->get_id ());
+
+           if ( ooa_evt_ptr->is_polymorphic_event() )
+           {
+               einst_ptr->set_polymorphic_delivery(TRUE);
+           }
+           if (C_orig_inst_ptr)
+           {
+             C_orig_inst_ptr->relate_R2031 (einst_ptr);
+           }
+
+           if (dest_oinst_ptr)
+           {
+             dest_oinst_ptr->relate_R2032 (einst_ptr);
+           }
+           else
+           {
+             einst_ptr->is_creation_event() = TRUE;
+             if ( ooa_obj_ptr )
+             {
+               einst_ptr->set_creation_Object_ID (ooa_obj_ptr->get_object_id());
+             }
+           }  
+         }
+       }
+    >>
+    (
+    << GS_var_si data_val; >>
+      #(
+         sdn: TOK_SUPP_DATA_NAME
+         expr [ data_val, interp ]
+         << 
+            if (interp)
+            {
+              if ( !to_ext_ent )
+              {
+                interpret_supp_data ( einst_ptr, sdn->getVcharText(), data_val );
+              }
+            }
+         >>
+       )
+    )*
+  )
+  ;
+
+instance_chain [ bool interp ] > [ I_object_inst_ref_set_var* result_set ]
+  :
+    <<
+       int current_link_num = 0;    
+       I_object_inst_ref_set_var* intermediate_set_ptr [GS_MAX_NUM_CHAIN_LINKS];
+       if (interp)
+       {
+         for (t_uint i = 0; (i < GS_MAX_NUM_CHAIN_LINKS); i++)
+         {
+           intermediate_set_ptr [i] = 0;
+         }
+       }
+       bool error_occurred = FALSE;
+    >>
+    final_kl: TOK_INST_REF
+    (
+    irv: TOK_INST_REF_VAR
+    <<
+        if (interp)
+        {
+          intermediate_set_ptr[current_link_num] = interpret_chain_start ( irv->getVcharText() );
+          if ( intermediate_set_ptr[current_link_num] == 0 )
+          {
+            error_occurred = TRUE;
+          }
+        }
+    >>
+    |
+    irsv: TOK_INST_REF_SET_VAR
+    <<
+        if (interp)
+        {
+          intermediate_set_ptr[current_link_num] = interpret_chain_start ( irsv->getVcharText() );
+          if ( intermediate_set_ptr[current_link_num] == 0 )
+          {
+            error_occurred = TRUE;
+          }
+        }
+    >>
+    )
+    ( #( kl: TOK_KL_OBJECT
+         rel: TOK_RELID
+         {
+           ph: TOK_PHRASE
+         }
+    <<
+        if (interp)
+        {
+          if ( ! error_occurred )
+          {
+             intermediate_set_ptr[current_link_num+1] = interpret_single_link ( kl->getVcharText(), 
+               rel->getVcharText(), ph->getVcharText(),
+               intermediate_set_ptr[current_link_num]
+               );
+
+            //  Get rid of the prior intermediate result.
+            //
+            delete intermediate_set_ptr [current_link_num];
+            intermediate_set_ptr[current_link_num] = 0;
+	
+            if (intermediate_set_ptr [current_link_num+1] == 0)
+            {
+	      //  Assume error message printed in interpret_single_link.
+	      //
+              result_set = 0;
+              error_occurred = TRUE;
+            }
+            current_link_num += 1;
+          }
+        }
+    >>
+       )
+    )+
+    <<
+       if (interp)
+       {
+         if ( ! error_occurred )
+         {
+           result_set = intermediate_set_ptr[current_link_num];
+         }
+       }
+    >>
+  ;    
+
+object_spec [  ANTLRTokenType card, const vchar *irv, bool interp ]
+  :
+    select_nowhere [ card, irv, interp ]
+  | select_where [ card, irv, interp ]
+  | select_from [ card, irv, interp ]
+  ;
+
+select_nowhere [  ANTLRTokenType card, const vchar *irv, bool interp ]
+  :
+    << 
+       I_object_inst_ref_set_var* instance_set;
+    >>
+  #( TOK_RELATED
+     instance_chain [ interp ] > [ instance_set ]
+   )
+    << 
+       if (interp)
+       {
+         I_Clock::add_exec_time__stmt__select_related_by ();
+         if ( card == TOK_STMT_SELECT_ONE || card == TOK_STMT_SELECT_ANY )
+         {
+           interpret_select_any_related_statement( irv, instance_set, 
+              card == TOK_STMT_SELECT_ANY, 0  );
+         }
+         else if ( card == TOK_STMT_SELECT_MANY )
+         {
+           interpret_select_many_related_statement( irv, instance_set, 0  );
+         }
+       }
+    >>
+  ;
+
+select_where [  ANTLRTokenType card, const vchar *irv, bool interp ]
+  :
+    << 
+       I_object_inst_ref_set_var* instance_set;
+       GS_var_si where_val; 
+    >>
+  #( TOK_RELATED_WHERE
+     instance_chain [ interp ] > [ instance_set ]
+   )
+  TOK_WHERE
+  wh: expr [ where_val, FALSE ]
+    << 
+       if (interp)
+       {
+         I_Clock::add_exec_time__stmt__select_related_by ();
+
+         if ( card == TOK_STMT_SELECT_ONE || card == TOK_STMT_SELECT_ANY )
+         {
+           interpret_select_any_related_statement( irv, instance_set, 
+              card == TOK_STMT_SELECT_ANY, wh );
+         }
+         else if ( card == TOK_STMT_SELECT_MANY )
+         {
+           interpret_select_many_related_statement( irv, instance_set, wh );
+         }
+       }
+    >>
+  ;
+
+select_from [  ANTLRTokenType card, const vchar *irv, bool interp ]
+  :
+    << 
+       GS_var_si where_val; 
+    >>
+  #( TOK_FROM
+     kl: TOK_KL_OBJECT
+   )
+  {
+    TOK_WHERE
+    wh: expr [ where_val, FALSE ]
+  }
+    << 
+       if (interp)
+       {
+         I_Clock::add_exec_time__stmt__select_from_instances_of ();
+
+         if ( card == TOK_STMT_SELECT_ANY )
+         {
+           interpret_select_any_from_statement( kl->getVcharText(), irv, wh  );
+         }
+         else if ( card == TOK_STMT_SELECT_MANY )
+         {
+           interpret_select_many_from_statement( kl->getVcharText(), irv, wh  );
+         }
+         else
+         {
+           GS_ui::inform (UI_INFORM__ERROR, GS_string("Cardinality must be ANY or MANY in SELECT ... FROM INSTANCES OF"));
+         }
+       }
+    >>
+  ;
+
+expr[ GS_var_si &rvalue, bool interp ]
+  :
+  #( TOK_EXPRESSION
+     sub_expr[ rvalue, interp ]
+   )
+  ;
+
+sub_expr[ GS_var_si &rvalue, bool interp ]
+  :
+  <<
+     // This initialization must occur here, it has no other side effects.
+     if ( interp ) rvalue.replace_var (new I_void_var ());
+  >>
+  (
+    term [ rvalue, interp ]
+  | op_and[ rvalue, interp ]
+  | op_or[ rvalue, interp ]
+  | op_relational[ rvalue, interp ]
+  | op_addition[ rvalue, interp ]
+  | op_boolean_negation[ rvalue, interp ]
+  | op_multiplication[ rvalue, interp ]
+  )
+  ;
+
+op_and[ GS_var_si &p_rvalue, bool interp ]
+  :
+  <<
+     GS_var_si operand1;
+     GS_var_si operand2;
+  >>
+  #( t_exp: TOK_AND
+     sub_expr[ operand1, interp ]
+     sub_expr[ operand2, interp ]
+   )
+  <<
+    if ( interp )
+    {
+      if ( operand1.get_boolean_var_ptr () ) 
+      {
+        if ( operand2.get_boolean_var_ptr () ) 
+        {
+          p_rvalue.replace_var (new I_boolean_var ((t_boolean)
+              (operand1.get_boolean_var_ptr ()->get_value ()
+                  && operand2.get_boolean_var_ptr ()->get_value ())));
+
+          log_expr ( t_exp, p_rvalue );
+  
+          LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+              "BOOLEAN   AND   BOOLEAN"));
+        }
+        else
+        {
+           GS_ui::inform (UI_INFORM__ERROR, GS_string("BOOLEAN  AND    ????"));
+           LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+	  	"BOOLEAN AND    ????"));
+           // HACK! - invalid expression
+        }
+      }
+      else
+      {
+        if ( operand2.get_boolean_var_ptr () ) 
+        {
+          GS_ui::inform (UI_INFORM__ERROR, GS_string("????  AND    BOOLEAN"));
+          LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+            "????   AND    BOOLEAN"));
+          // HACK! - invalid expression
+        }
+        else
+        {
+          GS_ui::inform (UI_INFORM__ERROR, GS_string("????  AND    ????"));
+          LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+            "????   AND    ????"));
+          // HACK! - invalid expression
+        }
+      }
+    }
+  >>
+  ;
+
+op_or[ GS_var_si &p_rvalue, bool interp ]
+  :
+  <<
+     GS_var_si operand1;
+     GS_var_si operand2;
+  >>
+  #( t_exp: TOK_OR
+     sub_expr[ operand1, interp ]
+     sub_expr[ operand2, interp ]
+   )
+  <<
+    if ( interp )
+    {
+      if ( operand1.get_boolean_var_ptr () ) 
+      {
+        if ( operand2.get_boolean_var_ptr () ) 
+        {
+          p_rvalue.replace_var (new I_boolean_var ((t_boolean)
+              (operand1.get_boolean_var_ptr ()->get_value ()
+                  || operand2.get_boolean_var_ptr ()->get_value ())));
+
+          log_expr ( t_exp, p_rvalue );
+
+          LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+              "BOOLEAN   OR   BOOLEAN"));
+        }
+        else
+        {
+           GS_ui::inform (UI_INFORM__ERROR, GS_string("BOOLEAN  OR    ????"));
+           LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+	  	"BOOLEAN OR    ????"));
+           // HACK! - invalid expression
+        }
+      }
+      else
+      {
+        if ( operand2.get_boolean_var_ptr () ) 
+        {
+          GS_ui::inform (UI_INFORM__ERROR, GS_string("????  OR    BOOLEAN"));
+          LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+            "????   OR    BOOLEAN"));
+          // HACK! - invalid expression
+        }
+        else
+        {
+          GS_ui::inform (UI_INFORM__ERROR, GS_string("????  OR    ????"));
+          LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+            "????   OR    ????"));
+          // HACK! - invalid expression
+        }
+      }
+    }
+  >>
+  ;
+
+op_relational[ GS_var_si &p_rvalue, bool interp ]
+  :
+  <<
+     GS_var_si operand1;
+     GS_var_si operand2;
+  >>
+  (
+    #( t_exp: TOK_DOUBLEEQUAL
+       s1: sub_expr [ operand1, interp ]
+       s2: sub_expr [ operand2, interp ]
+     )
+    << 
+      if (interp) 
+      {
+        interpret_op_relational_eq(p_rvalue, operand1, operand2);
+        log_expr ( t_exp, p_rvalue );
+      }
+    >>
+  | #( t_exp: TOK_NOTEQUAL
+       s3: sub_expr [ operand1, interp ]
+       s4: sub_expr [ operand2, interp ]
+     )
+    <<
+      if (interp) 
+      {
+        interpret_op_relational_ne(p_rvalue, operand1, operand2);
+        log_expr ( t_exp, p_rvalue );
+      }
+    >>
+  | #( t_exp: TOK_LESSTHAN
+       s5: sub_expr [ operand1, interp ]
+       s6: sub_expr [ operand2, interp ]
+     )
+    <<
+      if (interp) 
+      {
+        interpret_op_relational_lt(p_rvalue, operand1, operand2);
+        log_expr ( t_exp, p_rvalue );
+      }
+    >>
+  | #( t_exp: TOK_LE
+       s7: sub_expr [ operand1, interp ]
+       s8: sub_expr [ operand2, interp ]
+     )
+    <<
+      if (interp) 
+      {
+        interpret_op_relational_le(p_rvalue, operand1, operand2);
+        log_expr ( t_exp, p_rvalue );
+      }
+    >>
+  | #( t_exp: TOK_GT
+       s9: sub_expr [ operand1, interp ]
+       s10: sub_expr [ operand2, interp ]
+     )
+    <<
+      if (interp) 
+      {
+        interpret_op_relational_gt(p_rvalue, operand1, operand2);
+        log_expr ( t_exp, p_rvalue );
+      }
+    >>
+  | #( t_exp: TOK_GE
+       s11: sub_expr [ operand1, interp ]
+       s12: sub_expr [ operand2, interp ]
+     )
+    <<
+      if (interp) 
+      {
+        interpret_op_relational_ge(p_rvalue, operand1, operand2);
+        log_expr ( t_exp, p_rvalue );
+      }
+    >>
+  )
+  ;
+
+op_addition[ GS_var_si &p_rvalue, bool interp ]
+  :
+  <<
+     GS_var_si operand1;
+     GS_var_si operand2;
+  >>
+  (
+    #( t_exp: TOK_PLUS
+       s1: sub_expr [ operand1, interp ]
+       s2: sub_expr [ operand2, interp ]
+     )
+    <<
+      if (interp) 
+      {
+        interpret_op_addition_plus(p_rvalue, operand1, operand2);
+        log_expr ( t_exp, p_rvalue );
+      }
+    >>
+  | #( t_exp: TOK_MINUS
+       s3: sub_expr [ operand1, interp ]
+       s4: sub_expr [ operand2, interp ]
+     )
+    <<
+      if (interp) 
+      {
+        interpret_op_addition_minus(p_rvalue, operand1, operand2);
+        log_expr ( t_exp, p_rvalue );
+      }
+    >>
+  )
+  ;
+
+op_boolean_negation[ GS_var_si &p_rvalue, bool interp ]
+  :
+  <<
+     GS_var_si operand1;
+  >>
+  #( t_exp: TOK_NOT
+     sub_expr[ operand1, interp ]
+   )
+  <<
+    if (interp)
+    {
+      if ( operand1.get_boolean_var_ptr () ) 
+      {
+        p_rvalue.replace_var (new I_boolean_var ((t_boolean)
+            (!operand1.get_boolean_var_ptr ()->get_value ()) ));
+
+        log_expr ( t_exp, p_rvalue );
+  
+        LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+            "NOT   BOOLEAN"));
+      }
+      else
+      {
+        GS_ui::inform (UI_INFORM__ERROR, GS_string("NOT   ????"));
+        LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+	    "NOT   ????"));
+        // HACK! - invalid expression
+      }
+    }
+  >>
+  ;
+
+op_multiplication[ GS_var_si &p_rvalue, bool interp ]
+  :
+  <<
+     GS_var_si operand1;
+     GS_var_si operand2;
+  >>
+  (
+    #( t_exp: TOK_TIMES
+       s1: sub_expr [ operand1, interp ]
+       s2: sub_expr [ operand2, interp ]
+     )
+    <<
+      if (interp) 
+      {
+        interpret_op_multiplication_times(p_rvalue, operand1, operand2);
+        log_expr ( t_exp, p_rvalue );
+      }
+    >>
+  | #( t_exp: TOK_DIV
+       s3: sub_expr [ operand1, interp ]
+       s4: sub_expr [ operand2, interp ]
+     )
+    <<
+      if (interp) 
+      {
+        interpret_op_multiplication_div(p_rvalue, operand1, operand2);
+        log_expr ( t_exp, p_rvalue );
+      }
+    >>
+  | #( t_exp: TOK_MOD
+       s5: sub_expr [ operand1, interp ]
+       s6: sub_expr [ operand2, interp ]
+     )
+    <<
+      if (interp) 
+      {
+        interpret_op_multiplication_mod(p_rvalue, operand1, operand2);
+        log_expr ( t_exp, p_rvalue );
+      }
+    >>
+  )
+  ;
+
+term[ GS_var_si &p_rvalue, bool interp ]
+  :
+  <<
+     GS_var_si operand1;
+  >>
+  (
+    rval[ p_rvalue, interp ]
+  | #( TOK_UNARY_PLUS
+       term [ p_rvalue, interp ]
+     )
+  | #( TOK_PAREN_EXPR
+       expr [ p_rvalue, interp ]
+     )
+  | #( t_exp: TOK_UNARY_MINUS
+       t1: term [ operand1, interp ]
+     <<
+       if ( interp )
+       {
+         if ( t1->getDatatype() == INTEGER_DATATYPE && 
+              operand1.get_integer_var_ptr () ) 
+         {
+           p_rvalue.replace_var (new I_integer_var ((t_long)
+             (- operand1.get_integer_var_ptr ()->get_value () )));
+           log_expr ( t_exp, p_rvalue );
+           LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+             "-   INTEGER"));
+         }
+         else if ( t1->getDatatype() == REAL_DATATYPE &&
+              operand1.get_real_var_ptr () ) 
+         {
+           p_rvalue.replace_var (new I_real_var ((t_double)
+             (- operand1.get_real_var_ptr ()->get_value () )));
+           log_expr ( t_exp, p_rvalue );
+           LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+             "-   REAL"));
+         }
+         else
+         {
+           GS_ui::inform (UI_INFORM__ERROR, GS_string("-   ????"));
+           LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+	  	"-   ????"));
+           // HACK! - invalid expression
+         }
+       }
+     >>
+     )
+  | #( t_exp: TOK_CARDINALITY
+       lv:TOK_LOCAL_VAR
+     <<
+        if (interp) 
+        {
+          interpret_op_cardinality( p_rvalue, lv->getVcharText() );
+          log_expr ( t_exp, p_rvalue );
+        }
+     >>
+     )
+  | #( t_exp: TOK_EMPTY
+       lv:TOK_LOCAL_VAR
+     <<
+        if (interp)
+        {
+          interpret_op_empty( p_rvalue, lv->getVcharText() );
+          log_expr ( t_exp, p_rvalue );
+        }
+     >>
+     )
+  | #( t_exp: TOK_NOTEMPTY
+       lv:TOK_LOCAL_VAR
+     )
+     <<
+        if (interp)
+        {
+          interpret_op_not_empty( p_rvalue, lv->getVcharText() );
+          log_expr ( t_exp, p_rvalue );
+        }
+     >>
+  )
+  ;
+
+rval[ GS_var_si &p_rvalue, bool interp ]
+  :
+    constant_value[ p_rvalue, interp ]
+  | event_data_access[ p_rvalue, interp ]
+  | << vchar *unused_lvalue = 0;  >>
+       param_data_access[ TRUE, p_rvalue, unused_lvalue, interp ]
+    <<  delete [] unused_lvalue; >>
+  | enumerator_literal[ p_rvalue, interp ]
+  | bridge_expr[ p_rvalue, interp ]
+  | synch_service_expr[ p_rvalue, interp ]
+  | transformer_expr[ p_rvalue, interp ]
+  | << vchar *unused_lvalue = 0; >>
+      attribute_access [ TRUE, p_rvalue, unused_lvalue, interp ]
+    <<  delete [] unused_lvalue; >>
+  | lv:TOK_LOCAL_VAR
+    <<
+       if (interp)
+       {
+         I_var* var_ptr = GS_stack::find_var_ptr (lv->getVcharText());
+         if (! var_ptr)
+         {
+			Description err_msg ("Unable to find '");
+			err_msg += lv->getVcharText();
+			err_msg += "' on stack.";
+			GS_ui::inform (UI_INFORM__ERROR, err_msg);
+             LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+	      "End:  SIM_SOR::rval (VOID_DATATYPE)."));
+         }
+         else
+         {
+           p_rvalue.replace_var (var_ptr);
+			GS_UI_INFORM_START (UI_INFORM__COMP)
+			Description err_msg ("rvalue '");
+			err_msg += lv->getVcharText();
+			err_msg += "' (";
+			err_msg += p_rvalue.get_var_ptr ()->get_data_type_str ();
+			err_msg += ") = ";
+			err_msg += p_rvalue.get_var_ptr ()->get_value_str ();
+			GS_UI_INFORM_END (UI_INFORM__COMP, err_msg)
+           LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+	     "End:  SIM_SOR::rval ()."));
+         }
+       }
+    >>
+  ;
+
+constant_value[ GS_var_si &p_rvalue, bool interp ]
+  :
+    fr:TOK_FRACTION
+    <<
+       if (interp)
+       {
+         t_double tmp_double = vnumParseFloat(fr->getVcharText(), 0);
+         p_rvalue.replace_var (new I_real_var (tmp_double));
+			GS_UI_INFORM_START (UI_INFORM__COMP)
+			Description err_msg ("rvalue '");
+			err_msg += fr->getVcharText();
+			err_msg += "' (";
+			err_msg += p_rvalue.get_var_ptr ()->get_data_type_str ();
+			err_msg += ") = ";
+			err_msg += p_rvalue.get_var_ptr ()->get_value_str ();
+			GS_UI_INFORM_END (UI_INFORM__COMP, err_msg)
+         LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+	   "End:  SIM_SOR::constant_value (REAL_DATATYPE)."));
+       }
+    >>
+  | num:TOK_NUMBER
+    <<
+       if (interp)
+       {
+         t_long tmp_long = vnumParseLong(num->getVcharText(), 0);
+         p_rvalue.replace_var (new I_integer_var (tmp_long));
+			GS_UI_INFORM_START (UI_INFORM__COMP)
+			Description err_msg ("rvalue '");
+			err_msg += num->getVcharText();
+			err_msg += "' (";
+			err_msg += p_rvalue.get_var_ptr ()->get_data_type_str ();
+			err_msg += ") = ";
+			err_msg += p_rvalue.get_var_ptr ()->get_value_str ();
+			GS_UI_INFORM_END (UI_INFORM__COMP, err_msg)
+         LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+	    "End:  SIM_SOR::constant_value (INTEGER_DATATYPE)."));
+       }
+    >>
+  | str:TOK_STRING
+    <<
+       if (interp)
+       {
+         // need to add surrounding quotes back in for parse_token__quoted_str
+         Description tmp_str1 ("\"");
+		 tmp_str1 += str->getVcharText();
+		 tmp_str1 += "\""; 
+		 t_uint tmp_str1_cursor = 0;
+         Description tmp_str2;
+	 tmp_str1.parse_token__quoted_str (tmp_str1_cursor, tmp_str2);
+	     Description& tmp_str3 = GS_substitution::substitute_string
+	        (tmp_str2, FALSE);
+         p_rvalue.replace_var (new I_string_var (tmp_str3));
+			GS_UI_INFORM_START (UI_INFORM__COMP)
+			Description err_msg ("rvalue '");
+			err_msg += tmp_str1;
+			err_msg += "' (";
+			err_msg += p_rvalue.get_var_ptr ()->get_data_type_str ();
+			err_msg += ") = ";
+			err_msg += p_rvalue.get_var_ptr ()->get_value_str ();
+			GS_UI_INFORM_END (UI_INFORM__COMP, err_msg)
+	 LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+	     "End:  SIM_SOR::constant_value (STRING_DATATYPE)."));
+       }
+    >>
+  | tt:TOK_TRUETOKEN
+    <<
+      if (interp)
+      {
+	p_rvalue.replace_var (new I_boolean_var ((t_boolean) TRUE));
+			GS_UI_INFORM_START (UI_INFORM__COMP)
+			Description err_msg ("rvalue '");
+			err_msg += tt->getVcharText();
+			err_msg += "' (";
+			err_msg += p_rvalue.get_var_ptr ()->get_data_type_str ();
+			err_msg += ") = ";
+			err_msg += p_rvalue.get_var_ptr ()->get_value_str ();
+			GS_UI_INFORM_END (UI_INFORM__COMP, err_msg)
+	LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+	    "End:  SIM_SOR::constant_value (BOOLEAN_DATATYPE = TRUE)."));
+      }
+    >>
+  | ft:TOK_FALSETOKEN
+    <<
+      if (interp)
+      {
+	p_rvalue.replace_var (new I_boolean_var ((t_boolean) FALSE));
+			GS_UI_INFORM_START (UI_INFORM__COMP)
+			Description err_msg ("rvalue '");
+			err_msg += ft->getVcharText();
+			err_msg += "' (";
+			err_msg += p_rvalue.get_var_ptr ()->get_data_type_str ();
+			err_msg += ") = ";
+			err_msg += p_rvalue.get_var_ptr ()->get_value_str ();
+			GS_UI_INFORM_END (UI_INFORM__COMP, err_msg)
+	LOG_TRACE (L_N_PROJ_NB, L_FUNCTION_END, (L_log_string,
+	    "End:  SIM_SOR::constant_value (BOOLEAN_DATATYPE = FALSE)."));
+      }
+    >>
+  ;
+
+attribute_access[ bool p_is_rval, GS_var_si &p_rvalue, vchar*& lvalue_str, bool interp ]
+   :
+    #( irv: TOK_INST_REF_VAR
+       oa: TOK_OBJ_ATTR
+     )
+    <<
+       if (interp)
+       {
+         interpret_attribute_access( p_is_rval, p_rvalue, 
+             irv->getVcharText(), oa->getVcharText(), lvalue_str );
+       }
+    >>
+  ;
+
+param_data_access[ bool p_is_rval, GS_var_si &p_rvalue, vchar*& lvalue_str, bool interp ]
+  :
+  (
+    #( TOK_TRANSFORMER_PARAM
+       din: TOK_DATA_ITEM_NAME )
+  |
+    #( TOK_BRIDGE_PARAM
+       din: TOK_DATA_ITEM_NAME )
+  |
+    #( TOK_SYNCH_SVC_PARAM
+       din: TOK_DATA_ITEM_NAME )
+  )
+  <<
+      if ( interp ) 
+      {
+        interpret_param_data_access ( p_is_rval, p_rvalue, 
+            din->getVcharText(), lvalue_str );
+      }
+  >>
+  ;
+
+event_data_access[ GS_var_si &p_rvalue, bool interp ]
+  :
+    TOK_RCVD_EVT
+    sd: TOK_SUPP_DATA_NAME
+    << 
+      if ( interp ) interpret_event_data_access ( p_rvalue, sd->getVcharText() );
+    >>
+  ;
+
+enumerator_literal[ GS_var_si &p_rvalue, bool interp ]
+  :
+    edt: TOK_ENUMERATION
+	enum_value: TOK_ENUMERATOR
+	<<
+      if ( interp ) 
+	    interpret_enumerator_literal ( p_rvalue, 
+	       edt->getVcharText(), enum_value->getVcharText() );
+	>>
+  ;
+
+synch_service_expr[ GS_var_si &p_rvalue, bool interp ]
+  :
+  <<
+     Description param_name[GS_MAX_NUM_PARAMS_PER_FUNC_DEF];
+     GS_var_si param_val[GS_MAX_NUM_PARAMS_PER_FUNC_DEF];
+     bool param_readonly[GS_MAX_NUM_PARAMS_PER_FUNC_DEF];
+     int num_params = 0;
+     bool param_ok = TRUE;
+  >>
+    #( sse: TOK_SYNCH_SVC_EXPR
+       func: TOK_FUNCTION_NAME
+       (
+         #( din: TOK_DATA_ITEM_NAME
+            pe: expr [ param_val[num_params], interp ]
+            <<
+               if (param_ok && interp )
+               {
+                 param_ok = interpret_synch_service_param ( din->getVcharText(), 
+                      param_name[num_params], param_val[num_params] );
+                 param_readonly[num_params] = pe->isReadOnly() != FALSE;
+                 num_params += 1; 
+               }
+            >>
+          )
+       )*
+    )
+     << if (param_ok && interp)
+        {
+          interpret_synch_service_descrip( func->getVcharText(), 
+             num_params, param_name, param_val, param_readonly, p_rvalue );
+        }
+     >>
+  ;
+
+transformer_expr[ GS_var_si &p_rvalue, bool interp ]
+  :
+  <<
+     Description param_name[GS_MAX_NUM_PARAMS_PER_FUNC_DEF];
+     GS_var_si param_val[GS_MAX_NUM_PARAMS_PER_FUNC_DEF];
+     bool param_readonly[GS_MAX_NUM_PARAMS_PER_FUNC_DEF];
+     int num_params = 0;
+     bool param_ok = TRUE;
+	 bool instance_based = FALSE;
+  >>
+     (
+        #( te: TOK_TRANSFORMER_EXPR
+           kl: TOK_KL_OBJECT
+           func: TOK_FUNCTION_NAME
+		   (
+			 #( din: TOK_DATA_ITEM_NAME
+				pe: expr [ param_val[num_params], interp ]
+				<<
+				   if (param_ok && interp )
+				   {
+					 param_ok = interpret_transform_param ( din->getVcharText(), 
+						  param_name[num_params], param_val[num_params] );
+                     param_readonly[num_params] = pe->isReadOnly() != FALSE;
+					 num_params += 1; 
+				   }
+				>>
+			  )
+		   )*
+	     )
+		 <<
+		 instance_based = FALSE;
+		 >>
+	     |
+	    #(
+           s:TOK_TRANSFORMER_IB_EXPR
+           irv:TOK_INST_REF_VAR
+           meth:TOK_FUNCTION_NAME
+		   (
+			 #( din: TOK_DATA_ITEM_NAME
+				pe: expr [ param_val[num_params], interp ]
+				<<
+				   if (param_ok && interp )
+				   {
+					 param_ok = interpret_transform_param ( din->getVcharText(), 
+						  param_name[num_params], param_val[num_params] );
+                     param_readonly[num_params] = pe->isReadOnly() != FALSE;
+					 num_params += 1; 
+				   }
+				>>
+			  )
+		   )*
+	     )
+		 <<
+		 instance_based = TRUE;
+		 >>
+     )
+     << if (param_ok && interp)
+        {
+		  if ( instance_based )
+		  {
+            interpret_ib_transform_expr( irv->getVcharText(), meth->getVcharText(), 
+               num_params, param_name, param_val, param_readonly, p_rvalue );
+          }
+		  else
+		  {
+            interpret_transform_expr( kl->getVcharText(), func->getVcharText(), 
+               num_params, param_name, param_val, param_readonly, p_rvalue );
+		  }
+        }
+     >>
+  ;
+
+bridge_expr[ GS_var_si &p_rvalue, bool interp ]
+  :
+  <<
+     Description param_name[GS_MAX_NUM_PARAMS_PER_FUNC_DEF];
+     GS_var_si param_val[GS_MAX_NUM_PARAMS_PER_FUNC_DEF];
+     bool param_readonly[GS_MAX_NUM_PARAMS_PER_FUNC_DEF];
+     int num_params = 0;
+     bool param_ok = TRUE;
+  >>
+    #( TOK_BRIDGE_EXPR
+       eekl: TOK_KL_EXTERNAL_ENTITY
+       func: TOK_FUNCTION_NAME
+       (
+         #( din: TOK_DATA_ITEM_NAME
+            pe: expr [ param_val[num_params], interp ]
+            <<
+               if ( param_ok && interp )
+               {
+                 param_ok = interpret_bridge_param ( din->getVcharText(), 
+                      param_name[num_params], param_val[num_params] );
+                 param_readonly[num_params] = pe->isReadOnly() != FALSE;
+                 num_params += 1; 
+               }
+            >>
+          )
+       )*
+     )
+     << if (param_ok && interp)
+        {
+          interpret_bridge_expr( eekl->getVcharText(), func->getVcharText(), 
+             num_params, param_name, param_val, param_readonly, p_rvalue );
+        }
+     >>
+  ;
+
+}

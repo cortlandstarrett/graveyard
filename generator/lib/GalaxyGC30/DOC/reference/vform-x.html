@@ -1,0 +1,1522 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vform prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vform prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vform-x.html#section_DataType">Types</A> [5]</TD>
+<TD><A HREF="vform-x.html#section_Function">Functions</A> [86]</TD>
+<TD><A HREF="vform-x.html#section_Message">Messages</A> [16]</TD>
+<TD><A HREF="vform-x.html#section_Constant">Constants</A> [4]</TD>
+<TD><A HREF="vform-x.html#section_Macro">Macros</A> [3]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vform"><HR><H4>vform</H4></A>
+<PRE>
+        typedef ... <B>vform</B>;
+</PRE>
+
+<DL><DD>
+The form also adds several convenience features to containers such
+as automatic scroll bars and automatic scrolling.
+</DD></DL>
+<P>
+<A NAME="vformClass"><HR><H4>vformClass</H4></A>
+<PRE>
+        typedef ... <B>vformClass</B>;
+</PRE>
+
+<DL><DD>
+A container subclass that provides several
+convenience features as well as field support.
+</DD></DL>
+<P>
+<A NAME="vformFieldIterator"><HR><H4>vformFieldIterator</H4></A>
+<PRE>
+        typedef ... <B>vformFieldIterator</B>;
+</PRE>
+
+<DL><DD>
+This iterator provides a way to find out what fields are
+contained in the form.
+</DD></DL>
+<P>
+<A NAME="vformFieldIteratorClass"><HR><H4>vformFieldIteratorClass</H4></A>
+<PRE>
+        typedef ... <B>vformFieldIteratorClass</B>;
+</PRE>
+
+<DL><DD>
+Allows an application to iterate over
+the fields contained in the form.
+</DD></DL>
+<P>
+<A NAME="vformNoteProc"><HR><H4>vformNoteProc</H4></A>
+<PRE>
+        typedef ... <B>vformNoteProc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a notification function that is called when a
+form handles an event of some importance.
+<SAMP>form</SAMP> is the container handling the event,
+and <SAMP>event</SAMP> is the event being handled.
+Importance is determined by the event handlers in the
+form's class; the default form class gives no
+notification. If additional
+notification is required, you should override the
+appropriate handler.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vformAddField"><HR><H4>vformAddField</H4></A>
+<PRE>
+        void <B>vformAddField</B>(
+                vform * form,
+                vfield * field);
+</PRE>
+
+<DL><DD>
+When a field is added to a form, the form takes ownership of the field.
+Fields that have been added to a form can be linked to items in the
+form. They are also stored to the resource file when the form
+is stored.
+</DD></DL>
+<P>
+<A NAME="vformAppendItem"><HR><H4>vformAppendItem</H4></A>
+<PRE>
+        void <B>vformAppendItem</B>(
+                vform * form,
+                vdialogItem * item);
+</PRE>
+
+<DL><DD>
+Appends the dialog item <SAMP>item</SAMP> to the item list
+of the form and invalidates the content rectangle of
+the new item if the form is open. The item is drawn
+behind all other items in the list, and it is given last
+chance at any pointer button events. The item is destroyed
+when the form is destroyed unless it is removed first.
+    <P>
+Subclasses that override this method should first call the
+parent method to append the item to the form, then
+update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vformArrange"><HR><H4>vformArrange</H4></A>
+<PRE>
+        void <B>vformArrange</B>(
+                vform * form,
+                const vrect * rect);
+</PRE>
+
+<DL><DD>
+Arranges the items in the form according to its spring
+solution, using <SAMP>rect</SAMP> as a coordinate system
+for the items. It has no effect if the form has no
+spring solution.
+    <P>
+Subclasses that override this method should first call the
+parent method to arrange the form, then arrange any
+subclass-specific contents.
+</DD></DL>
+<P>
+<A NAME="vformCalcMinSize"><HR><H4>vformCalcMinSize</H4></A>
+<PRE>
+        void <B>vformCalcMinSize</B>(
+                vform * form,
+                int * width,
+                int * height);
+</PRE>
+
+<DL><DD>
+Calculates the minimum size of the form according to
+its spring solution and stores the result in the variables
+addressed by <SAMP>w</SAMP> and <SAMP>h</SAMP>. Stores zero
+in the variables addressed by <SAMP>w</SAMP> and
+<SAMP>h</SAMP> if the form has no spring solution.
+    <P>
+Subclasses that override this method should first call the
+parent method to calculate the form minimum size, then
+add in any subclass-specific requirements.
+</DD></DL>
+<P>
+<A NAME="vformClone"><HR><H4>vformClone</H4></A>
+<PRE>
+        vform * <B>vformClone</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+This duplicates the form's item list as well as all the fields.  The
+field links are duplicated as well.
+</DD></DL>
+<P>
+<A NAME="vformCopy"><HR><H4>vformCopy</H4></A>
+<PRE>
+        void <B>vformCopy</B>(
+                vform * form,
+                vform * target);
+</PRE>
+
+<DL><DD>
+The target, which must already be initialized, will have a duplicate
+of the original form including all it's items and fields.
+</DD></DL>
+<P>
+<A NAME="vformCopyInit"><HR><H4>vformCopyInit</H4></A>
+<PRE>
+        void <B>vformCopyInit</B>(
+                vform * form,
+                vform * target);
+</PRE>
+
+<DL><DD>
+The target will have a copy of the original form's items and fields.
+</DD></DL>
+<P>
+<A NAME="vformCreate"><HR><H4>vformCreate</H4></A>
+<PRE>
+        vform * <B>vformCreate</B>();
+</PRE>
+
+<DL><DD>
+The form will be of the class returned by <A HREF="vform-x.html#vformGetDefaultClass"><CODE>vformGetDefaultClass</CODE></A>.
+</DD></DL>
+<P>
+<A NAME="vformCreateOfClass"><HR><H4>vformCreateOfClass</H4></A>
+<PRE>
+        vform * <B>vformCreateOfClass</B>(
+                vformClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a form of the specified class.
+</DD></DL>
+<P>
+<A NAME="vformDeleteItem"><HR><H4>vformDeleteItem</H4></A>
+<PRE>
+        void <B>vformDeleteItem</B>(
+                vform * form,
+                vdialogItem * item);
+</PRE>
+
+<DL><DD>
+Removes the dialog item <SAMP>item</SAMP> from the item
+list of the form and invalidates the content rectangle
+of the item if the form is open. The item is not
+destroyed. This function generates 
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> if the item
+is not in the item list of the form. 
+    <P>
+Subclasses that override this method should first call the
+parent method to delete the item from the item list, then
+perform any subclass-specific tasks.
+</DD></DL>
+<P>
+<A NAME="vformDestroy"><HR><H4>vformDestroy</H4></A>
+<PRE>
+        void <B>vformDestroy</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+The forms item list and fields will be destroyed.
+</DD></DL>
+<P>
+<A NAME="vformDestroyFieldIterator"><HR><H4>vformDestroyFieldIterator</H4></A>
+<PRE>
+        void <B>vformDestroyFieldIterator</B>(
+                vformFieldIterator * iter);
+</PRE>
+
+<DL><DD>
+Destroys the field iterator.
+</DD></DL>
+<P>
+<A NAME="vformDestroyLater"><HR><H4>vformDestroyLater</H4></A>
+<PRE>
+        void <B>vformDestroyLater</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Although the form will not be destroyed until some point in the
+future, it should be treated as if it has been destroyed.
+</DD></DL>
+<P>
+<A NAME="vformDisable"><HR><H4>vformDisable</H4></A>
+<PRE>
+        void <B>vformDisable</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Makes the form <SAMP>form</SAMP>, including all
+its items and scroll bars, unresponsive to user events. If
+the form's dialog is open, the form's item
+rectangle is invalidated and the form is drawn in an
+inactive state in a subsequent update event. The items in
+the form are effectively disabled by this function.
+This function has no effect if the form is not
+enabled. This function is implemented by sending the
+message <CODE><A HREF="vdialog-x.html#vdialogDISABLE_ITEM"><CODE>vdialogDISABLE_ITEM</CODE></A></CODE> to
+<SAMP>form</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vformEnable"><HR><H4>vformEnable</H4></A>
+<PRE>
+        void <B>vformEnable</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Makes the form <SAMP>form</SAMP>, including all
+its items and scroll bars, responsive to user events. If
+the form's dialog is open, the form's item
+rectangle is invalidated and the form is drawn in an
+active state in a subsequent update event. This function
+has no effect if the form is not disabled. This
+function is implemented by sending the message
+<CODE><A HREF="vdialog-x.html#vdialogENABLE_ITEM"><CODE>vdialogENABLE_ITEM</CODE></A></CODE> to <SAMP>form</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vformFindAllItems"><HR><H4>vformFindAllItems</H4></A>
+<PRE>
+        vsequence * <B>vformFindAllItems</B>(
+                vform * form,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+This searches any nested containers in the form.
+</DD></DL>
+<P>
+<A NAME="vformFindFieldLinkedToItem"><HR><H4>vformFindFieldLinkedToItem</H4></A>
+<PRE>
+        vfield * <B>vformFindFieldLinkedToItem</B>(
+                vform * form,
+                const vname * itemTag);
+</PRE>
+
+<DL><DD>
+<SAMP>NULL</SAMP> is returned if no field is linked to the item.
+</DD></DL>
+<P>
+<A NAME="vformFindItem"><HR><H4>vformFindItem</H4></A>
+<PRE>
+        vdialogItem * <B>vformFindItem</B>(
+                vform * form,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Returns the dialog item with tag <SAMP>tag</SAMP> in the form
+<SAMP>form</SAMP>, or <SAMP>NULL</SAMP> if there is no such item.  If
+multiple items have the tag, the first one encountered in the item
+list will be returned. See <SAMP><A HREF="vform-x.html#vformFindAllItems"><CODE>vformFindAllItems</CODE></A></SAMP> and
+<SAMP><A HREF="vform-x.html#vformFindItemRecursively"><CODE>vformFindItemRecursively</CODE></A></SAMP> for other ways to find items
+within forms.
+</DD></DL>
+<P>
+<A NAME="vformFindItemRecursively"><HR><H4>vformFindItemRecursively</H4></A>
+<PRE>
+        vdialogItem * <B>vformFindItemRecursively</B>(
+                vform * form,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+The search order is undefined so that, if multiple items exist with the
+same tag, there is no way to predict which one will be returned.
+<Samp>NULL</Samp> is returned if no item exists
+with the specified tag. Refer to the section 
+<CODE><A HREF="vform-x.html#vform"><CODE>vform</CODE></A></CODE> for more information.
+</DD></DL>
+<P>
+<A NAME="vformGetBounds"><HR><H4>vformGetBounds</H4></A>
+<PRE>
+        const vrect * <B>vformGetBounds</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Returns the virtual coordinate system of the form.
+This is the same as the form's content rectangle if
+the form is not scrollable.
+</DD></DL>
+<P>
+<A NAME="vformGetClass"><HR><H4>vformGetClass</H4></A>
+<PRE>
+        vformClass * <B>vformGetClass</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Returns the class of the container.
+</DD></DL>
+<P>
+<A NAME="vformGetContainer"><HR><H4>vformGetContainer</H4></A>
+<PRE>
+        vcontainer * <B>vformGetContainer</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+All normal container functions can be called on this pointer.
+</DD></DL>
+<P>
+<A NAME="vformGetContent"><HR><H4>vformGetContent</H4></A>
+<PRE>
+        const vrect * <B>vformGetContent</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+This is the same as the form's
+bounding rectangle if the form is not scrollable.
+</DD></DL>
+<P>
+<A NAME="vformGetData"><HR><H4>vformGetData</H4></A>
+<PRE>
+        const void * <B>vformGetData</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Returns the generic data pointer attached to the form.
+</DD></DL>
+<P>
+<A NAME="vformGetDefFocus"><HR><H4>vformGetDefFocus</H4></A>
+<PRE>
+        vdialogItem * <B>vformGetDefFocus</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Returns the default focus item of the container or <samp>NULL</samp> if there is no
+default focus item.
+</DD></DL>
+<P>
+<A NAME="vformGetDefaultClass"><HR><H4>vformGetDefaultClass</H4></A>
+<PRE>
+        vformClass * <B>vformGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the class used to create forms by <A HREF="vform-x.html#vformCreate"><CODE>vformCreate</CODE></A> and <A HREF="vform-x.html#vformInit"><CODE>vformInit</CODE></A>.
+</DD></DL>
+<P>
+<A NAME="vformGetDefaultFieldIteratorClass"><HR><H4>vformGetDefaultFieldIteratorClass</H4></A>
+<PRE>
+        vformFieldIteratorClass * <B>vformGetDefaultFieldIteratorClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default field iterator class for forms.
+</DD></DL>
+<P>
+<A NAME="vformGetField"><HR><H4>vformGetField</H4></A>
+<PRE>
+        vfield * <B>vformGetField</B>(
+                vform * form,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>NULL</SAMP> if no field exists in the form with the specified tag.
+</DD></DL>
+<P>
+<A NAME="vformGetFieldIteratorClass"><HR><H4>vformGetFieldIteratorClass</H4></A>
+<PRE>
+        vformFieldIteratorClass * <B>vformGetFieldIteratorClass</B>(
+                vformFieldIterator * iter);
+</PRE>
+
+<DL><DD>
+Returns the class of the vfieldIterator.
+</DD></DL>
+<P>
+<A NAME="vformGetFieldIteratorField"><HR><H4>vformGetFieldIteratorField</H4></A>
+<PRE>
+        vfield * <B>vformGetFieldIteratorField</B>(
+                vformFieldIterator * iter);
+</PRE>
+
+<DL><DD>
+Returns the current field in the iteration.
+</DD></DL>
+<P>
+<A NAME="vformGetFieldIteratorIterator"><HR><H4>vformGetFieldIteratorIterator</H4></A>
+<PRE>
+        viterator * <B>vformGetFieldIteratorIterator</B>(
+                vformFieldIterator * iter);
+</PRE>
+
+<DL><DD>
+Returns the <A HREF="viterator-x.html#viterator"><CODE>viterator</CODE></A> upon which vfieldIterator is constructed.
+</DD></DL>
+<P>
+<A NAME="vformGetFocus"><HR><H4>vformGetFocus</H4></A>
+<PRE>
+        vdialogItem * <B>vformGetFocus</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Returns <samp>NULL</samp> if there is no active focus item.
+</DD></DL>
+<P>
+<A NAME="vformGetItem"><HR><H4>vformGetItem</H4></A>
+<PRE>
+        vdialogItem * <B>vformGetItem</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Returns the <A HREF="vdialog-x.html#vdialogItem"><CODE>vdialogItem</CODE></A> upon which vform is constructed.
+</DD></DL>
+<P>
+<A NAME="vformGetItemAt"><HR><H4>vformGetItemAt</H4></A>
+<PRE>
+        vdialogItem * <B>vformGetItemAt</B>(
+                vform * form,
+                int index);
+</PRE>
+
+<DL><DD>
+Form items are
+numbered from zero to the number of items in the item list
+minus one. The debugging libraries generate
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> if the index is less than
+zero or greater than or equal to the number of items in the
+form.
+</DD></DL>
+<P>
+<A NAME="vformGetItemCount"><HR><H4>vformGetItemCount</H4></A>
+<PRE>
+        int <B>vformGetItemCount</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Returns the number of dialog items in the form.
+</DD></DL>
+<P>
+<A NAME="vformGetItemIndex"><HR><H4>vformGetItemIndex</H4></A>
+<PRE>
+        int <B>vformGetItemIndex</B>(
+                vform * form,
+                vdialogItem * item);
+</PRE>
+
+<DL><DD>
+Returns the index of the item within the form's item list.
+</DD></DL>
+<P>
+<A NAME="vformGetItemList"><HR><H4>vformGetItemList</H4></A>
+<PRE>
+        vdialogItemList * <B>vformGetItemList</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Returns the item list for the form.
+</DD></DL>
+<P>
+<A NAME="vformGetMinHeight"><HR><H4>vformGetMinHeight</H4></A>
+<PRE>
+        int <B>vformGetMinHeight</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Returns the minimum height the form is allowed.
+</DD></DL>
+<P>
+<A NAME="vformGetMinWidth"><HR><H4>vformGetMinWidth</H4></A>
+<PRE>
+        int <B>vformGetMinWidth</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Returns the minimum width the form is allowed.
+</DD></DL>
+<P>
+<A NAME="vformGetNotify"><HR><H4>vformGetNotify</H4></A>
+<PRE>
+        vformNoteProc <B>vformGetNotify</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Returns <samp>NULL</samp> if no notify function has been set.
+</DD></DL>
+<P>
+<A NAME="vformGetObject"><HR><H4>vformGetObject</H4></A>
+<PRE>
+        vobject * <B>vformGetObject</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Returns the <A HREF="vobject-x.html#vobject"><CODE>vobject</CODE></A> upon which vform is constructed.
+</DD></DL>
+<P>
+<A NAME="vformGetObservable"><HR><H4>vformGetObservable</H4></A>
+<PRE>
+        vobservable * <B>vformGetObservable</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Returns the <A HREF="vobservable-x.html#vobservable"><CODE>vobservable</CODE></A> upon which vform is constructed.
+</DD></DL>
+<P>
+<A NAME="vformGetSolution"><HR><H4>vformGetSolution</H4></A>
+<PRE>
+        vspringSolution * <B>vformGetSolution</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+<samp>NULL</samp> is returned if the form does not have a spring solution.
+</DD></DL>
+<P>
+<A NAME="vformGetTitle"><HR><H4>vformGetTitle</H4></A>
+<PRE>
+        const vchar * <B>vformGetTitle</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+This can be an empty string but will never be <samp>NULL</samp>.
+</DD></DL>
+<P>
+<A NAME="vformHasAutoScrollFocus"><HR><H4>vformHasAutoScrollFocus</H4></A>
+<PRE>
+        vbool <B>vformHasAutoScrollFocus</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+If "scroll to focus" is enabled the form will automatically scroll
+the focused item into view, if necessary. The default is <samp>vTRUE</samp>.
+</DD></DL>
+<P>
+<A NAME="vformHasAutoScrollbarX"><HR><H4>vformHasAutoScrollbarX</H4></A>
+<PRE>
+        vbool <B>vformHasAutoScrollbarX</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+The default is <samp>vTRUE</samp>.
+</DD></DL>
+<P>
+<A NAME="vformHasAutoScrollbarY"><HR><H4>vformHasAutoScrollbarY</H4></A>
+<PRE>
+        vbool <B>vformHasAutoScrollbarY</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+The default is <samp>vTRUE</samp>.
+</DD></DL>
+<P>
+<A NAME="vformHasBorder"><HR><H4>vformHasBorder</H4></A>
+<PRE>
+        int <B>vformHasBorder</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vformHasField"><HR><H4>vformHasField</H4></A>
+<PRE>
+        vbool <B>vformHasField</B>(
+                vform * form,
+                vfield * field);
+</PRE>
+
+<DL><DD>
+Returns <samp>vTRUE</samp> if the specified field has been added to the form.
+</DD></DL>
+<P>
+<A NAME="vformHasScrollX"><HR><H4>vformHasScrollX</H4></A>
+<PRE>
+        int <B>vformHasScrollX</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Returns <samp>TRUE</samp> if the form draws a border and <samp>FALSE</samp> 
+if the form does not draw a border.
+</DD></DL>
+<P>
+<A NAME="vformHasScrollY"><HR><H4>vformHasScrollY</H4></A>
+<PRE>
+        int <B>vformHasScrollY</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Returns <samp>TRUE</samp> if the form has a vertical scroll bar 
+and <samp>FALSE</samp> if it does not.
+</DD></DL>
+<P>
+<A NAME="vformInit"><HR><H4>vformInit</H4></A>
+<PRE>
+        void <B>vformInit</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Initializes a form using the class returned by <A HREF="vform-x.html#vformGetDefaultClass"><CODE>vformGetDefaultClass</CODE></A>.
+</DD></DL>
+<P>
+<A NAME="vformInitFieldIterator"><HR><H4>vformInitFieldIterator</H4></A>
+<PRE>
+        void <B>vformInitFieldIterator</B>(
+                vformFieldIterator * iter,
+                vform * form);
+</PRE>
+
+<DL><DD>
+Initializes a field iterator using the class returned by
+<code>vformGetDefaultFieldIterator</code>.
+</DD></DL>
+<P>
+<A NAME="vformInitOfClass"><HR><H4>vformInitOfClass</H4></A>
+<PRE>
+        void <B>vformInitOfClass</B>(
+                vform * form,
+                vformClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a form of the specified class.
+</DD></DL>
+<P>
+<A NAME="vformIsDirty"><HR><H4>vformIsDirty</H4></A>
+<PRE>
+        vbool <B>vformIsDirty</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+A form is considered "dirty" when it has observed a change to
+one of its fields. An application can clear this condition
+by calling <code><A HREF="vfield-x.html#vfield"><CODE>vfield</CODE></A>(vFALSE);</code>.
+</DD></DL>
+<P>
+<A NAME="vformIsEnabled"><HR><H4>vformIsEnabled</H4></A>
+<PRE>
+        int <B>vformIsEnabled</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Returns <samp>TRUE</samp> if the form is enabled and 
+<samp>FALSE</samp> if it is disabled.
+</DD></DL>
+<P>
+<A NAME="vformIsFlat"><HR><H4>vformIsFlat</H4></A>
+<PRE>
+        int <B>vformIsFlat</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Tests if a form has a ``flat'' (engraved) or an inset
+(slab) border.
+</DD></DL>
+<P>
+<A NAME="vformIsItemLinked"><HR><H4>vformIsItemLinked</H4></A>
+<PRE>
+        vbool <B>vformIsItemLinked</B>(
+                vform * form,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vformLinkField"><HR><H4>vformLinkField</H4></A>
+<PRE>
+        void <B>vformLinkField</B>(
+                vform * form,
+                const vname * tag,
+                vfield * field);
+</PRE>
+
+<DL><DD>
+This linkage is actually recursive. Both items in the form and
+any nested containers will be linked. The linkage means that
+these items will observe changes to the field. The linkage is also
+persistent; that is, it will be stored and loaded from resource
+files.
+</DD></DL>
+<P>
+<A NAME="vformLoad"><HR><H4>vformLoad</H4></A>
+<PRE>
+        vform * <B>vformLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Creates a form from a resource.
+</DD></DL>
+<P>
+<A NAME="vformLoadInit"><HR><H4>vformLoadInit</H4></A>
+<PRE>
+        void <B>vformLoadInit</B>(
+                vform * form,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Initializes a form from a resource.
+</DD></DL>
+<P>
+<A NAME="vformNextFieldIterator"><HR><H4>vformNextFieldIterator</H4></A>
+<PRE>
+        vbool <B>vformNextFieldIterator</B>(
+                vformFieldIterator * iter);
+</PRE>
+
+<DL><DD>
+Advances the iterator to the next field in the form.
+</DD></DL>
+<P>
+<A NAME="vformRelinkFields"><HR><H4>vformRelinkFields</H4></A>
+<PRE>
+        void <B>vformRelinkFields</B>(
+                vform * form);
+</PRE>
+
+<DL><DD>
+Applications rarely need to call this method. However, if the
+itemlist of the form or any nested containers is changed then
+this function can be called to ensure that the form linkages
+are synchronized.
+</DD></DL>
+<P>
+<A NAME="vformRemoveField"><HR><H4>vformRemoveField</H4></A>
+<PRE>
+        void <B>vformRemoveField</B>(
+                vform * form,
+                vfield * field);
+</PRE>
+
+<DL><DD>
+Any links the field are first severed. Ownership of the field
+is transferred to the caller.
+</DD></DL>
+<P>
+<A NAME="vformSetAutoScrollFocus"><HR><H4>vformSetAutoScrollFocus</H4></A>
+<PRE>
+        void <B>vformSetAutoScrollFocus</B>(
+                vform * form,
+                vbool onOff);
+</PRE>
+
+<DL><DD>
+If set to <samp>vFALSE</samp> then form will not automatically scroll the focused
+item into view. The default is <samp>vTRUE</samp>.
+</DD></DL>
+<P>
+<A NAME="vformSetAutoScrollbarX"><HR><H4>vformSetAutoScrollbarX</H4></A>
+<PRE>
+        void <B>vformSetAutoScrollbarX</B>(
+                vform * form,
+                vbool onOff);
+</PRE>
+
+<DL><DD>
+If set to <samp>vFALSE</samp> the form will not automatically create a 
+scrollbar. The default is <samp>vTRUE</samp>.
+</DD></DL>
+<P>
+<A NAME="vformSetAutoScrollbarY"><HR><H4>vformSetAutoScrollbarY</H4></A>
+<PRE>
+        void <B>vformSetAutoScrollbarY</B>(
+                vform * form,
+                vbool onOff);
+</PRE>
+
+<DL><DD>
+If set to <samp>vFALSE</samp> the form will not automatically create a 
+scrollbar. The default is <samp>vTRUE</samp>.
+</DD></DL>
+<P>
+<A NAME="vformSetBorder"><HR><H4>vformSetBorder</H4></A>
+<PRE>
+        void <B>vformSetBorder</B>(
+                vform * form,
+                int onOff);
+</PRE>
+
+<DL><DD>
+Pass <samp>TRUE</samp> to turn the border on 
+and <samp>FALSE</samp> to turn it off.
+</DD></DL>
+<P>
+<A NAME="vformSetBounds"><HR><H4>vformSetBounds</H4></A>
+<PRE>
+        void <B>vformSetBounds</B>(
+                vform * form,
+                const vrect * bounds);
+</PRE>
+
+<DL><DD>
+Changes the virtual bounding rectangle of the form
+<SAMP>form</SAMP> to <SAMP>bounds</SAMP> in the
+coordinate system of the form's owner. The bounding
+rectangle is interpreted in the same coordinate system as
+the item rectangle of the form. Each item in the
+form is positioned relative to the lower left corner
+of the bounding rectangle. The bounding rectangle can be
+different from the content rectangle only if one or both
+dimensions are scrollable. The rectangle structure is
+copied. If the form's dialog is open, the form is
+invalidated. This function is implemented by sending the
+message <CODE><A HREF="vcontainer-x.html#vcontainerSET_BOUNDS"><CODE>vcontainerSET_BOUNDS</CODE></A></CODE> to
+<SAMP>form</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vformSetData"><HR><H4>vformSetData</H4></A>
+<PRE>
+        void <B>vformSetData</B>(
+                vform * form,
+                const void * data);
+</PRE>
+
+<DL><DD>
+This may be a pointer to any information that you want to attach
+to the form. It is not used by the Form class.
+</DD></DL>
+<P>
+<A NAME="vformSetDirty"><HR><H4>vformSetDirty</H4></A>
+<PRE>
+        void <B>vformSetDirty</B>(
+                vform * form,
+                int onOff);
+</PRE>
+
+<DL><DD>
+The form automatically sets its dirty flag whenever it observes a
+field attribute change. Applications can use the dirty flag to
+know whether the data source backing a form needs updating. The
+application can clear the dirty state by passing in a 
+<samp>vFALSE</samp> argument.
+</DD></DL>
+<P>
+<A NAME="vformSetFlat"><HR><H4>vformSetFlat</H4></A>
+<PRE>
+        void <B>vformSetFlat</B>(
+                vform * form,
+                int onOff);
+</PRE>
+
+<DL><DD>
+Changes the style of the border of a form and also how
+it responds to keyboard traversal. If <SAMP>flag</SAMP> is
+<SAMP>TRUE,</SAMP> the border (if any) of form
+<SAMP>container</SAMP> appears engraved into its dialog,
+and keyboard traversal behaves as if the form were
+part of its owner's item list. If <SAMP>flag</SAMP> is
+<SAMP>FALSE</SAMP>, the border appears inset and keyboard
+traversal behaves as if the form were its own dialog
+(refer to Figure). If the form's dialog is open, the
+form is invalidated. This function is implemented by
+sending the message <CODE><A HREF="vcontainer-x.html#vcontainerSET_FLAT"><CODE>vcontainerSET_FLAT</CODE></A></CODE> to
+<SAMP>form</SAMP>.
+
+<P>
+<BLOCKQUOTE>
+Figure: Form border style
+    <P>
+<IMG SRC="Container_border_style.gif">
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vformSetFocus"><HR><H4>vformSetFocus</H4></A>
+<PRE>
+        void <B>vformSetFocus</B>(
+                vform * form,
+                vdialogItem * item);
+</PRE>
+
+<DL><DD>
+Changes the current keyboard focus of the form
+<SAMP>form</SAMP> to the dialog item
+<SAMP>focus</SAMP>, which must be in the form's item
+list. The form focus is the item that receives all
+normal keystrokes and certain function keys.
+<SAMP>focus</SAMP> can be <SAMP>NULL</SAMP>, in which case
+the form is not given a keyboard focus. This function
+unfocuses the current focus item and focuses the new focus
+item if the form has the keyboard focus. If the
+form is open, the appearance of the current focus item
+and the new focus item may change. 
+<P>
+Note that the current focus item of a form is set to the form's default
+focus item when it is opened, so any changes to the current
+focus item of a closed form is lost. This function
+generates <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> if the item is not
+in the item list of <SAMP>form</SAMP>. This function
+is implemented by sending the message
+<CODE><A HREF="vcontainer-x.html#vcontainerSET_FOCUS"><CODE>vcontainerSET_FOCUS</CODE></A></CODE> to <SAMP>form</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vformSetItemIndex"><HR><H4>vformSetItemIndex</H4></A>
+<PRE>
+        void <B>vformSetItemIndex</B>(
+                vform * form,
+                vdialogItem * item,
+                int index);
+</PRE>
+
+<DL><DD>
+Changes the position of the dialog item <SAMP>item</SAMP>
+in the item list of <SAMP>form</SAMP> and invalidates
+the content rectangle of the item if the form is open.
+Items earlier in the item list are given preference for
+pointer hit detection and are drawn last. This function
+generates <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> if the item is not
+in the item list of <SAMP>form</SAMP>. It generates
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> if <SAMP>index</SAMP> is
+less than zero or greater than or equal to the number of
+items in the form. This function is implemented by
+sending the message <CODE><A HREF="vcontainer-x.html#vcontainerSET_ITEM_INDEX"><CODE>vcontainerSET_ITEM_INDEX</CODE></A></CODE>
+to <SAMP>form</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vformSetMinHeight"><HR><H4>vformSetMinHeight</H4></A>
+<PRE>
+        void <B>vformSetMinHeight</B>(
+                vform * form,
+                int height);
+</PRE>
+
+<DL><DD>
+Sets the minimum height the form is allowed to have.
+</DD></DL>
+<P>
+<A NAME="vformSetMinWidth"><HR><H4>vformSetMinWidth</H4></A>
+<PRE>
+        void <B>vformSetMinWidth</B>(
+                vform * form,
+                int width);
+</PRE>
+
+<DL><DD>
+Sets the minimum width the form is allowed to have.
+</DD></DL>
+<P>
+<A NAME="vformSetNotify"><HR><H4>vformSetNotify</H4></A>
+<PRE>
+        void <B>vformSetNotify</B>(
+                vform * form,
+                vformNoteProc noteProc);
+</PRE>
+
+<DL><DD>
+Changes the instance notification procedure for the
+form <SAMP>form</SAMP> to <SAMP>noteProc</SAMP>.
+This function is called when the form handles an event
+of some importance. Notification is <I>not</I> given for
+every event that is handled by the form. Normal
+forms do not give notification, but form subclasses may
+choose to provide notification for events of importance to those
+subclasses.
+<P>
+The particular item giving notification can
+be retrieved with <CODE><A HREF="vcontainer-x.html#vcontainerGetSelection"><CODE>vcontainerGetSelection</CODE></A></CODE>. If
+additional notification is required, you should override
+the appropriate event handler. <SAMP>noteProc</SAMP> may be
+<SAMP>NULL</SAMP>, in which case no instance notification
+is given. This function is implemented by sending the
+message <CODE><A HREF="vdialog-x.html#vdialogSET_ITEM_NOTIFY"><CODE>vdialogSET_ITEM_NOTIFY</CODE></A></CODE> to
+<SAMP>form</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vformSetScrollX"><HR><H4>vformSetScrollX</H4></A>
+<PRE>
+        void <B>vformSetScrollX</B>(
+                vform * form,
+                int onOff);
+</PRE>
+
+<DL><DD>
+Use <samp>TRUE</samp> to turn the scroll bar on and <samp>FALSE</samp> to turn it off.
+</DD></DL>
+<P>
+<A NAME="vformSetScrollY"><HR><H4>vformSetScrollY</H4></A>
+<PRE>
+        void <B>vformSetScrollY</B>(
+                vform * form,
+                int onOff);
+</PRE>
+
+<DL><DD>
+Use <samp>TRUE</samp> to turn the scroll bar on and 
+<samp>FALSE</samp> to turn it off.
+</DD></DL>
+<P>
+<A NAME="vformSetSolution"><HR><H4>vformSetSolution</H4></A>
+<PRE>
+        void <B>vformSetSolution</B>(
+                vform * form,
+                vspringSolution * solution);
+</PRE>
+
+<DL><DD>
+Changes the spring solution for the form
+<SAMP>form</SAMP> to <SAMP>solution</SAMP>. The spring
+solution is used to reposition and resize the form
+items in <SAMP>form</SAMP> when it is resized. The
+object pointers of the links in <SAMP>solution</SAMP>
+should point to the items in the form. The minimum
+size of the form is computed from the minimum size
+determined by the solution. The solution is destroyed when
+the form is destroyed or the solution is changed. The
+solution is also cloned when the form is cloned or
+copied. <SAMP>solution</SAMP> can be <SAMP>NULL</SAMP>, in
+which case the form's items are not positioned
+automatically,
+<P>
+Refer to the ``Spring Manager'' chapter
+of the <I>Galaxy Application Environment Programmer's
+Guide</I> for more information about spring solutions. This
+function is implemented by sending the message
+<CODE><A HREF="vcontainer-x.html#vcontainerSET_SOLUTION"><CODE>vcontainerSET_SOLUTION</CODE></A></CODE> to
+<SAMP>form</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vformSetTitle"><HR><H4>vformSetTitle</H4></A>
+<PRE>
+        void <B>vformSetTitle</B>(
+                vform * form,
+                const vchar * title);
+</PRE>
+
+<DL><DD>
+Changes the title of the form <SAMP>form</SAMP>
+to <SAMP>title</SAMP>. The title is drawn in the upper left
+corner of the form, superimposed on the border with an
+appropriate margin (refer to Figure ). A copy is made of
+the title before it is stored in the form, and the
+string is freed when the title is destroyed or the title is
+changed.
+</DD></DL>
+<P>
+<A NAME="vformSetTitleScribed"><HR><H4>vformSetTitleScribed</H4></A>
+<PRE>
+        void <B>vformSetTitleScribed</B>(
+                vform * form,
+                vscribe * title);
+</PRE>
+
+<DL><DD>
+Changes the title of the form <SAMP>form</SAMP>
+to <SAMP>title</SAMP> (through a String Manager scribe).
+The title is drawn in the upper left corner of the
+form, superimposed on the border with an appropriate
+margin (refer to Figure). A copy is made of the title
+before it is stored in the form, and the string is
+freed when the title is destroyed or the title is changed.
+You can inhibit copying and share titles between objects by
+using a shared scribe. The form is invalidated if the
+form's dialog is open. This function is implemented by
+sending the message
+<CODE><A HREF="vdialog-x.html#vdialogSET_ITEM_TITLE_SCRIBED"><CODE>vdialogSET_ITEM_TITLE_SCRIBED</CODE></A></CODE> to
+<SAMP>form</SAMP>.
+
+<P>
+<BLOCKQUOTE>
+Figure: Form titles
+    <P>
+<IMG SRC="Container_titles.gif">
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vformStartup"><HR><H4>vformStartup</H4></A>
+<PRE>
+        void <B>vformStartup</B>();
+</PRE>
+
+<DL><DD>
+Startup function for the Form class.
+</DD></DL>
+<P>
+<A NAME="vformStore"><HR><H4>vformStore</H4></A>
+<PRE>
+        void <B>vformStore</B>(
+                vform * form,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+The form can be recovered from the resource at a future time using
+formLoad or <A HREF="vform-x.html#vformLoadInit"><CODE>vformLoadInit</CODE></A>.
+</DD></DL>
+<P>
+<A NAME="vformTestSetFocus"><HR><H4>vformTestSetFocus</H4></A>
+<PRE>
+        vbool <B>vformTestSetFocus</B>(
+                vform * form,
+                vdialogItem * item,
+                vevent * event);
+</PRE>
+
+<DL><DD>
+If the item accepts focus the function returns <samp>TRUE</samp>. 
+If the focus was not changed (usually because the currently 
+focused item will not give up keyboard focus due to validation failure) 
+then <samp>FALSE</samp> is returned.
+</DD></DL>
+<P>
+<A NAME="vformUnlinkField"><HR><H4>vformUnlinkField</H4></A>
+<PRE>
+        void <B>vformUnlinkField</B>(
+                vform * form,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+The field remains as part of form. Links to other items
+are not affected.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vformADD_FIELD"><HR><H4>vformADD_FIELD</H4></A>
+<PRE>
+        &lt;<B>vformADD_FIELD</B>&gt;
+</PRE>
+
+<DL><DD>
+When a field is added to a form, the form takes ownership of the field.
+Fields that have been added to a form can be linked to items in the
+form. They are also stored to the resource file when the form
+is stored.
+</DD></DL>
+<P>
+<A NAME="vformFIND_ALL_ITEMS"><HR><H4>vformFIND_ALL_ITEMS</H4></A>
+<PRE>
+        &lt;<B>vformFIND_ALL_ITEMS</B>&gt;
+</PRE>
+
+<DL><DD>
+This searches any nested containers in the form.
+</DD></DL>
+<P>
+<A NAME="vformFIND_FIELD_LINKED_TO_ITEM"><HR><H4>vformFIND_FIELD_LINKED_TO_ITEM</H4></A>
+<PRE>
+        &lt;<B>vformFIND_FIELD_LINKED_TO_ITEM</B>&gt;
+</PRE>
+
+<DL><DD>
+<SAMP>NULL</SAMP> is returned if no field is linked to the item.
+</DD></DL>
+<P>
+<A NAME="vformFIND_ITEM_RECURSIVELY"><HR><H4>vformFIND_ITEM_RECURSIVELY</H4></A>
+<PRE>
+        &lt;<B>vformFIND_ITEM_RECURSIVELY</B>&gt;
+</PRE>
+
+<DL><DD>
+The search order is undefined so that, if multiple items exist with the
+same tag, there is no way to predict which one will be returned.
+<Samp>NULL</Samp> is returned if no item exists
+with the specified tag. Refer to the section 
+<CODE><A HREF="vform-x.html#vform"><CODE>vform</CODE></A></CODE> for more information.
+</DD></DL>
+<P>
+<A NAME="vformGET_FIELD"><HR><H4>vformGET_FIELD</H4></A>
+<PRE>
+        &lt;<B>vformGET_FIELD</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns <SAMP>NULL</SAMP> if no field exists in the form with the specified tag.
+</DD></DL>
+<P>
+<A NAME="vformIS_ITEM_LINKED"><HR><H4>vformIS_ITEM_LINKED</H4></A>
+<PRE>
+        &lt;<B>vformIS_ITEM_LINKED</B>&gt;
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vformLINK_FIELD"><HR><H4>vformLINK_FIELD</H4></A>
+<PRE>
+        &lt;<B>vformLINK_FIELD</B>&gt;
+</PRE>
+
+<DL><DD>
+This linkage is actually recursive. Both items in the form and
+any nested containers will be linked. The linkage means that
+these items will observe changes to the field. The linkage is also
+persistent; that is, it will be stored and loaded from resource
+files.
+</DD></DL>
+<P>
+<A NAME="vformRELINK_FIELDS"><HR><H4>vformRELINK_FIELDS</H4></A>
+<PRE>
+        &lt;<B>vformRELINK_FIELDS</B>&gt;
+</PRE>
+
+<DL><DD>
+Applications rarely need to call this method. However, if the
+itemlist of the form or any nested containers is changed then
+this function can be called to ensure that the form linkages
+are synchronized.
+</DD></DL>
+<P>
+<A NAME="vformREMOVE_FIELD"><HR><H4>vformREMOVE_FIELD</H4></A>
+<PRE>
+        &lt;<B>vformREMOVE_FIELD</B>&gt;
+</PRE>
+
+<DL><DD>
+Any links the field are first severed. Ownership of the field
+is transferred to the caller.
+</DD></DL>
+<P>
+<A NAME="vformSET_AUTO_SCROLLBAR_X"><HR><H4>vformSET_AUTO_SCROLLBAR_X</H4></A>
+<PRE>
+        &lt;<B>vformSET_AUTO_SCROLLBAR_X</B>&gt;
+</PRE>
+
+<DL><DD>
+If set to <samp>vFALSE</samp> the form will not automatically create a 
+scrollbar. The default is <samp>vTRUE</samp>.
+</DD></DL>
+<P>
+<A NAME="vformSET_AUTO_SCROLLBAR_Y"><HR><H4>vformSET_AUTO_SCROLLBAR_Y</H4></A>
+<PRE>
+        &lt;<B>vformSET_AUTO_SCROLLBAR_Y</B>&gt;
+</PRE>
+
+<DL><DD>
+If set to <samp>vFALSE</samp> the form will not automatically create a 
+scrollbar. The default is <samp>vTRUEM</samp>.
+</DD></DL>
+<P>
+<A NAME="vformSET_AUTO_SCROLL_FOCUS"><HR><H4>vformSET_AUTO_SCROLL_FOCUS</H4></A>
+<PRE>
+        &lt;<B>vformSET_AUTO_SCROLL_FOCUS</B>&gt;
+</PRE>
+
+<DL><DD>
+If set to <samp>vFALSE</samp> then form will not automatically scroll the focused
+item into view. The default is <samp>vTRUE</samp>.
+</DD></DL>
+<P>
+<A NAME="vformSET_DIRTY"><HR><H4>vformSET_DIRTY</H4></A>
+<PRE>
+        &lt;<B>vformSET_DIRTY</B>&gt;
+</PRE>
+
+<DL><DD>
+The form automatically sets its dirty flag whenever it observes a
+field attribute change. Applications can use the dirty flag to
+know whether the data source backing a form needs updating. The
+application can clear the dirty state by passing in a 
+<samp>vFALSE</samp> argument.
+</DD></DL>
+<P>
+<A NAME="vformSET_MIN_HEIGHT"><HR><H4>vformSET_MIN_HEIGHT</H4></A>
+<PRE>
+        &lt;<B>vformSET_MIN_HEIGHT</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the minimum height the form is allowed to have.
+</DD></DL>
+<P>
+<A NAME="vformSET_MIN_WIDTH"><HR><H4>vformSET_MIN_WIDTH</H4></A>
+<PRE>
+        &lt;<B>vformSET_MIN_WIDTH</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the minimum width the form is allowed to have.
+</DD></DL>
+<P>
+<A NAME="vformUNLINK_FIELD"><HR><H4>vformUNLINK_FIELD</H4></A>
+<PRE>
+        &lt;<B>vformUNLINK_FIELD</B>&gt;
+</PRE>
+
+<DL><DD>
+The field remains as part of form and any links to other items
+are not affected.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vformINCLUDED"><HR><H4>vformINCLUDED</H4></A>
+<PRE>
+        <B>vformINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header <SAMP>vform.h</SAMP> is included.
+</DD></DL>
+<P>
+<A NAME="vformNEXT_ID_ATTRIBUTE"><HR><H4>vformNEXT_ID_ATTRIBUTE</H4></A>
+<PRE>
+        <B>vformNEXT_ID_ATTRIBUTE</B>
+</PRE>
+
+<DL><DD>
+Place marker for the end of the object attribute id.
+</DD></DL>
+<P>
+<A NAME="vformNEXT_SELECT"><HR><H4>vformNEXT_SELECT</H4></A>
+<PRE>
+        <B>vformNEXT_SELECT</B>
+</PRE>
+
+<DL><DD>
+Place marker for the end of the Command class selectors defined by
+the Form class.
+</DD></DL>
+<P>
+<A NAME="vform_BooleanInterface"><HR><H4>vform_BooleanInterface</H4></A>
+<PRE>
+        <B>vform_BooleanInterface</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vformCLASS"><HR><H4>vformCLASS</H4></A>
+<PRE>
+        #define <B>vformCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Defines the methods and variables of the form class.
+</DD></DL>
+<P>
+<A NAME="vformFieldIteratorCLASS"><HR><H4>vformFieldIteratorCLASS</H4></A>
+<PRE>
+        #define <B>vformFieldIteratorCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Defines the methods and variables of the form's field iterator class.
+</DD></DL>
+<P>
+<A NAME="vformSetNoteProc"><HR><H4>vformSetNoteProc</H4></A>
+<PRE>
+        #define <B>vformSetNoteProc</B>(...) ...
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

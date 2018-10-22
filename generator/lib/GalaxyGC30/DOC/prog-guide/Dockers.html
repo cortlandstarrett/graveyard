@@ -1,0 +1,235 @@
+<HTML>
+<HEAD>
+<TITLE>Dockers</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Dockers</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Dictionary.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Domain.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+<EM><B>Dockers</B></EM> enable flexible and easily customized user interface designs. A docker can detach from its host dialog to become a separate, floating window, or it can attach to a dialog via a dock, integrating into the dialog's item list hierarchy. Often a docker-aware dialog will have several docks, usually one along each of its four edges, and an application user can rearrange the dockers in those docks and between those docks as desired.<P>
+A docker in essence is just a container that can hold a dialog item, but also knows how to float and dock.<P>
+Dockers cooperate with several other classes to provide the complete docking interface. A dock (<TT>vdock</TT>) is a kind of dropsite which can accept dockers dragged by users. Docks work closely with dock items (<TT>vdockitem</TT>), docker containers that know how to arrange dockers. A dock container (<TT>vdockcontainer</TT>) is a container that maintains dock and dock item pairs on each of its four edges, dynamically modifying its spring solution so that the presence or absence of any of the four dock items is transparent to the programmer. Finally, dockers use a special drag subclass (<TT>vdockerDrag</TT>) in handling dynamic rearranging.<P>
+Usually a dialog designed to work with dockers has a dock container at its top level, with spring connections assigned so that the dock container covers the entire area of the dialog (with the exception of a menubar and statusbar perhaps). The desired docks can then be turned on either programmatically (with <TT>vdockcontainerSetDock</TT>) or with the Visual Resource Builder. The dock container then handles the placement of the dock items and docks so that the programmer need not be concerned with it.<P>
+In order to fully understand the workings of dockers, you should be familiar with the Dialog, Container, and Drag classes.<P>
+The <EM><B>docker</B></EM> class is derived from the container class, but unlike a normal container, a docker is only able to hold one item at a time. Nevertheless, it is possible for the docker's held item to be another container, so the one item limit is not a restriction in practice. A docker maintains its own dialog when in its floating, undocked state.<P>
+The <EM><B>dock</B></EM> class derives from the dropsite class. It keeps its rectangle in sync with its owner item, which is nominally a dialog item, but which in the default dock implementation must be a dock item.<P>
+The <EM><B>dock item</B></EM> class is derived from the dialog item class. It is implemented on top of the dialog item class in a manner similar to the container class, but it can only hold dockers (and one other private item type for providing resize handles) and it arranges its items algorithmically rather than with a spring solution. Also a dock item is aware of a dock that serves as its interface to the drag and drop world of dockers.<P>
+Finally the <EM><B>dock container</B></EM> class is derived from the container class. It acts just like a normal container except it manages up to four dock items and docks. The four dock items (and their corresponding docks) can be turned on and off with a single API call. The existence of the dock items is actually concealed by the API. The API has an entry point for obtaining a reference to the docks used by a dock container, but not to the dock items themselves. This is by design, since nearly all operations that manipulate a dock item should be invoked by by the dock item's dock (which serves as an interface to the dockers). Still, if absolutely necessary, a reference to a dock item can be obtained from its dock.<P>
+When one of a dock container's docks is turned on, a dock item is added to the dock container's item list and is dynamically enmeshed into the dock container's spring solution. The spring solution thus created places the dock item at the outermost position in the container. For instance, if the left dock is turned on, a dock item will be added to the item list, and it will be made the absolute leftmost item in the spring solution. (Essentially, all items connected to the left border of the spring domain will be dynamically reconnected to the right edge of the dock item, and the dock item will then be connected to the left border of the spring domain instead.)<P>
+In the typical scenario, dockers interact with docks, docks interact with dock items, and dock items interact with dock containers. Although a dock could in principle interact with items of any class that knows how to hold and arrange dockers, there is in practice only one such class, the dock item. In order to make a dock work with some other kind of docker-holding container, the dock would have to be subclassed and many methods overridden. A dock really only knows how to work with a dock item. However, despite this limitation a dock serves as a convenient kind of pseudo-interface between the docker and docker-holding items, freeing the docker from having to worry about the details of the item which does the holding.<P>
+Many dock methods simply invoke functionality on their associated dock item. For instance the <TT>vdockAddDocker</TT> method just calls <TT>vdockitemAddDocker</TT> to do the actual work. If a dock were to be made to work with another type of dock-holding container, such methods would have to be subclassed to call the corresponding "implementation" method on the corresponding item.<P>
+<A NAME="3614"><H2> Glossary</H2></A>
+<UL><EM><B>Breadth span</B></EM>	Filling space parallel to the major axis of the docker.
+<P><EM><B>Depth span</B></EM>	Filling space perpendicular to the major axis of the docker..
+<P><EM><B>Docked</B></EM>	Nestled into the item list of a dock item (opposite of 
+"floating").
+<P><EM><B>Floating</B></EM>	Appearing in a separate dialog, apart from the main            
+application dialog (opposite of "docked").
+<P><EM><B>Locked</B></EM>	Restricted from changing from a docked or floating state.
+<P><EM><B>Span</B></EM>	Horizontally or vertically filling space in a dock item.
+<P><EM><B>Span fill</B></EM>	Spanning the breadth of an entire row rather than just the 
+space not occupied by other dockers.
+<P><EM><B>Wrapping</B></EM>	Causes dockers completely obscured by the dock item's 
+edge to be placed on new rows so as to keep them at least 
+partially visible.
+<P></UL><A NAME="3626"><H1> The Docker</H1></A>
+<A NAME="3627"><H2> Key Functionality</H2></A>
+The dialog item held by a docker can be set with <TT>vdockerSetHeldItem</TT>. This will remove any item already held by the docker. Even though dockers are derived from containers, the container API should not be used for adding and removing items from the docker. Use <TT>vdockerSetHeldItem</TT> and <TT>vdockerGetHeldItem</TT>. Set the held item to <TT>NULL</TT> in order to remove a currently held item.<P>
+A docker without a dock is useless. Normally double-clicking on a docker will toggle its docked state, but cannot happen if the docker has no dock. The dock can be set directly by calling <TT>vdockerSetDock</TT> or indirectly by adding a docker to a dock with <TT>vdockAddDocker</TT>.<P>
+Whether a docker is docked or floating can be determined with a call to <TT>vdockerIsFloating</TT>. The docked state can be changed with <TT>vdockerSetFloating</TT>.<P>
+Sometimes it is necessary to prevent a docker from changing its docked state, in response to double clicks for instance. The docker can be "Locked" with a call to <TT>vdockerSetLocked</TT>. This will cause the docker to remain in its current floating or docked state regardless of the user's attempts to alter it.<P>
+A docker has several properties which affect how it is arranged when held by a dock item. The span style determines whether a docker will expand to fill up excess space when it is docked. Since dock items can be either horizontal or vertical, the span style can be set independently for both horizontal and vertical situations.<P>
+Spanning parallel to the docking axis means that the docker will expand along that axis to fill up excess breadth not occupied by other dockers. This is analogous to making the internal connections of the docker springs rather than struts, although dock items do not actually use a spring solution. If two or more dockers in the same row of a dock item all span the breadth of their dock item, then resize handles will appear that allow the user to adjust the amount of breadth occupied by each.<P>
+Spanning perpendicular to the docking axis means that the depth of the docker will be adjustable by the user. A resize handle will appear along the edge of the row of dockers in the dock item allowing the user to resize the depth of the row. Only one docker in a row needs to span perpendicularly in order for the resize handle to appear. Other, non-depth spanning dockers will simply not grow to fill up the new space.<P>
+Sometimes a docker needs to occupy the entire row of a dock item on which it resides. For instance, this might be the case for a docking menubar implemented using dockers -- the menubar should have a whole row to itself. In this case the docker can be set to fill its span using <TT>vdockerSetSpanFillModifiers</TT>. Note that a docker has to span the breadth of its dock item in order for the span fill modifiers to take effect. For instance, to make a docker occupy the whole row when docked in a horizontal dock, but only fill up unused breadth when vertical, one could do the following:<P>
+<PRE><UL>   vdockerSetSpanStyle(docker, vdockerSPAN_BREADTH); 
+   vdockerSetSpanFillModifiers(docker, vdockerSPAN_FILL_X);
+
+</UL></PRE>See the Reference Manual for a complete discussion of these methods and their arguments.<P>
+<A NAME="3642"><H2> Additional Functionality</H2></A>
+When a docker is dragged about, it draws a rectangular outline more or less the size and shape that it will have if it is dropped at that point. Several functions help determine the appearance of the rectangle. <P>
+The functions <TT>vdockerSetOverDockDragLineWidth</TT> and <TT>vdockerSetDragLineWidth</TT> determine the width of the outline. The default is a thin line for the former and a thicker line for the latter.<P>
+During drags the method <TT>vdockerDetermineDragRect</TT> is repeatedly called to determine the size and position of the drag rectangle drawn. The method can be overridden to customize the position and dimensions of the rectangle.<P>
+The default implementation of <TT>vdockerDetermineDragRect</TT> makes use of several remembered rectangles to guess the best dimensions for the docker as it is being dragged: the methods <TT>vdockerGetFloatingRect</TT>, <TT>vdockerGetDockedVerticalRect</TT>, and <TT>vdockerGetDockedHorizontalRect</TT> return the rectangle of the docker when it was last in each of those configurations.<P>
+<A NAME="3647"><H1> The Dock</H1></A>
+<A NAME="3648"><H2> Key Functionality</H2></A>
+The main operations performed on docks are to add and remove dockers. Addition and removal happens automatically in response to users dragging dockers over docks, but often it is necessary to programmatically place dockers into docks. In these situations the two methods <TT>vdockAddDocker</TT> and <TT>vdockRemoveDocker</TT> can be used.<P>
+Removing a docker is simple: just call the <TT>vdockRemoveDocker</TT> method with a pointer to the docker that should be removed from the dock. If only the tag of the docker is known then <TT>vdockFindDocker</TT> can be used to obtain a pointer.<P>
+Adding a docker to a dock is a bit trickier. In addition to a pointer to the docker, a rectangle can also be provided. The rectangle parameter is used to determine the optimal placement for the docker inside the dock's owner.   If the rectangle is <TT>NULL</TT> then the docker will be added to its own row. The rectangle passed in should relative to the dock's coordinates. For instance, if the dock's rectangle in its window is (x=100, y=110, w=222, h=111) and the docker's rectangle relative to the same window after docking should be (140, 120, 133, 44), then <TT>vdockAddDocker</TT> should be called with the rectangle (40, 10, 133, 44). The dock's owner will do its best to place the docker in the requested position, but it is not always possible to be exact because of the row structure.<P>
+Adding a docker to a dock item causes it to become docked. If the docker needs to remain floating, then simply call <TT>vdockerSetDock</TT> instead of <TT>vdockAddDocker</TT>.<P>
+Adding a docker that already belongs to one dock to a different dock will cause an arg exception to be thrown -- the docker must first be removed from its previous dock.<P>
+All three of the dock methods mentioned above (<TT>vdockRemoveDocker</TT>, <TT>vdockFindDocker</TT>, and <TT>vdockAddDocker</TT>) are implemented by calling the corresponding method on their owner item. The owner item should be a dock item. If the owner item is not a dock item, then a module state exception will be thrown by each of the methods.<P>
+<A NAME="3655"><H2> Additional Functionality</H2></A>
+The method <TT>vdockGetDockerCount</TT> is available to determine the number of dockers in a dock.<P>
+<A NAME="3657"><H1> The Dock Item</H1></A>
+<A NAME="3658"><H2> Key Functionality</H2></A>
+In addition to the methods which serve as implementations of dock methods (<TT>AddDocker</TT>, <TT>RemoveDocker</TT>, <TT>FindDocker</TT>, and <TT>GetDockerCount</TT>) there are several other key pieces of functionality in dock items.<P>
+<A NAME="3660"><H3> Adding and Removing Dockers</H3></A>
+Docking in the dock item by dragging and dropping onto its dock can be turned on and off with the "DockingEnabled" attribute. When the attribute's value is <TT>vname_False</TT> the dock item's dock is disabled by setting its window to <TT>NULL</TT>. Dockers can still be added programmatically by calling <TT>vdockAddDocker</TT> or <TT>vdockitemAddDocker</TT>, but there will be no valid dropsite for dockers over the dock item.   The method <TT>vdockitemSetDockingEnabled</TT> can be used in lieu of the attribute API. The attribute ID <TT>vdockitemID_ATTRIBUTE_DOCKING_ENABLED</TT> can be used to refer to this attribute in the context of the dock item class ID attribute dictionary.<P>
+<A NAME="3662"><H3> Vertical Attribute</H3></A>
+The orientation of the dock item can be either vertical or horizontal with the "Vertical" attribute. The globally interned string <TT>vname_Vertical</TT> can be used to refer to this attribute. If the attribute's value is <TT>vname_False</TT>, the dock item will arrange its dockers in horizontal rows. If <TT>vname_True</TT> then the dock item is vertical and will arrange its dockers into columns rather than rows. The method <TT>vdockitemSetVertical</TT> can be used in lieu of the attribute API. The attribute ID <TT>vdockitemID_ATTRIBUTE_VERTICAL</TT> can be used to refer to this attribute in the context of the dock item class ID attribute dictionary.<P>
+<A NAME="3664"><H3> Wrap Attribute</H3></A>
+Usually a dock item is connected to with springy internal connections. In that case the dock item will grow and shrink as its parent dialog or container grows and shrinks. As a dock item shrinks, some of its dockers may become at first partially clipped and eventually completely clipped by the edge of the dock item. The "Wrap" attribute controls what the dock item does with completely clipped dockers. If the attribute is set to <TT>vname_True</TT>, then completely clipped dockers will be wrapped, or moved, onto the next row or column in the layout.   If <TT>vname_False</TT> the dockers will simply remain clipped and hidden until the dock item becomes bigger. The method <TT>vdockitemSetWrap</TT> can be used in lieu of the attribute API. The attribute ID <TT>vdockitemID_ATTRIBUTE_WRAP</TT> can be used to refer to this attribute in the context of the dock item class ID attribute dictionary.<P>
+<A NAME="3666"><H2> Additional Functionality</H2></A>
+<A NAME="3667"><H3> Flush Attribute</H3></A>
+The "Flush" attribute affects whether or not the border on the ends of a dock item can be seen. It accomplishes this by modifying the natural separation of a dock item in certain situations. Setting the attribute to <TT>vname_False</TT> just causes the <TT>GetNaturalSeparation</TT> method to return zero in all cases, but setting it to <TT>vname_True</TT> causes a non-empty dock item to return a negative value in certain cases. Those cases are when the item being connected to is <TT>NULL</TT> (i.e. connecting to a border) and the separation value in question is for the ends of the dock item. The ends of the dock item are the left and right sides for a horizontal dock item and the top and bottom for a vertical one (that is, <TT>vspringRIGHT_TO_RIGHT_SEPARATION</TT> and <TT>vspringLEFT_TO_LEFT_SEPARATION</TT> for horizontal dock items; <TT>vspringTOP_TO_TOP_SEPARATION</TT> and <TT>vspringBOTTOM_TO_BOTTOM_SEPARATION</TT> for vertical dock items). Making the separation less than zero serves to hide the border of the dock item. The overall effect is that the ends of dock item will seem to lie flush against their container rather than slightly inset.<P>
+<A NAME="3669"><H3> Empty Padding Attribute</H3></A>
+When determining which dock a dragged docker is over, the docker manager compares the size of the intersection of the docker's drag outline with each dock. Usually a dock item's dock is the exact same size as the dock item, but this leads to the situation in which an empty dock item would have an empty dock, with which a docker drag will always have an empty intersection. To rectify the situation, when a dock item is empty, it sets its dock to have a small non-zero width. The "EmptyPadding" attribute determines the exact size of the dock's width when the dock item is empty. The value of the attribute is a pointer to a short that specifies the width. The method <TT>vdockitemSetEmptyPadding</TT> can be used in lieu of the attribute API. The attribute ID <TT>vdockitemID_ATTRIBUTE_EMPTY_PADDING</TT> can be used to refer to this attribute in the context of the dock item class ID attribute dictionary.<P>
+In addition to the instance level empty padding attribute, there is also a class variable which holds a default value used in the initialization of all dock item instances.<P>
+<A NAME="3672"><H3> Grow Direction Attribute</H3></A>
+The "GrowPositive" attribute specifies in which direction the dock item is free to expand its depth. Positive refers to the direction along the depth axis: rightward along the X axis is positive as is upward along the Y axis, while left and down are negative directions. There is typically no need to change the "GrowPositive" attribute unless one is implementing his own breed of dock container. A dock container sets up the attributes of the four docks along its edges as follows:<P>
+ 
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="3676"><I>Table 15.  Dock container attributes
+</I><P>
+</CAPTION>
+
+<tr><th><B>
+</B></th><th><B>Vertical
+</B></th><th><B>GrowPositive
+</B></th>
+<tr><td><B>Top
+</B></td><td><TT>vname_False
+</TT></td><td><TT>vname_False
+</TT></td></tr>
+<tr><td><B>Right
+</B></td><td><TT>vname_True
+</TT></td><td><TT>vname_False
+</TT></td></tr>
+<tr><td><B>Bottom
+</B></td><td><TT>vname_False
+</TT></td><td><TT>vname_True
+</TT></td></tr>
+<tr><td><B>Left
+</B></td><td><TT>vname_True
+</TT></td><td><TT>vname_True
+</TT></td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+The method <TT>vdockitemSetGrowDirectionPositive</TT> can be used in lieu of the attribute API. The attribute ID <TT>vdockitemID_ATTRIBUTE_GROW_DIRECTION_POSITIVE</TT> can be used to refer to this attribute in the context of the dock item class ID attribute dictionary.<P>
+<A NAME="3713"><H1> The Dock Container</H1></A>
+A dock container acts basically like a normal container except that it can imbed up to four dock items around its border, updating its spring solution dynamically so as not to disturb the other items in its main content area. The presence or absence of the four docks can be controlled with the method <TT>vdockcontainerSetDock</TT>. There is an attribute for each of the four possible docks as well:<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="3717"><I>Table 16.  Dock Container attributes
+</I><P>
+</CAPTION>
+
+<tr><th><B>Attribute Name
+</B></th><th><B>Attribute Name
+</B></th>
+<tr><td><TT>"Dock Top"
+</TT></td><td><TT>vdockcontainerID_ATTRIBUTE_DOCK_TOP
+</TT></td></tr>
+<tr><td><TT>"Dock Right"
+</TT></td><td><TT>vdockcontainerID_ATTRIBUTE_DOCK_RIGHT
+</TT></td></tr>
+<tr><td><TT>"Dock Bottom"
+</TT></td><td><TT>vdockcontainerID_ATTRIBUTE_DOCK_BOTTOM
+</TT></td></tr>
+<tr><td><TT>"Dock Right"
+</TT></td><td><TT>vdockcontainerID_ATTRIBUTE_DOCK_LEFT
+</TT></td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+<A NAME="3741"><H3> Empty Padding</H3></A>
+Like dock items, dock containers also have an empty padding attribute. A dock item placed inside a dock container will use the dock container's empty padding value in deference to its own. This arrangement makes it simple to arrange the same empty padding value for all dock items in a dock container. The attribute name is "EmptyPadding" and its ID is <TT>vdockcontainerID_ATTRIBUTE_EMPTY_PADDING</TT>.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Dictionary.html">Previous Chapter</A> | 
+		<A HREF="Domain.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

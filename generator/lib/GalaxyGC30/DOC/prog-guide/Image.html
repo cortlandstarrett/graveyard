@@ -1,0 +1,140 @@
+<HTML>
+<HEAD>
+<TITLE>Image</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Image</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Iconview.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Image_Editor.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="8631"></A>
+The <EM><B>Image</B></EM> class lets you store and manipulate two-dimensional arrays of mapped pixel values known as images. The Image library is actually composed of three separate classes: the Image class, the Pixmap class, and the Buffer class. The Buffer class implements a data type that manages multiple representations of the same information. It allows images and pixmaps to be efficiently adapted to different formats. The Pixmap class implements two-dimensional arrays of unmapped pixel values on top of buffers. Pixmap pixel values can be used to represent any application data; they are unmapped in the sense that they are not given any color value by the pixmap itself. The color values must come from an outside source, such as an image or a color palette.<P>
+An image implements two-dimensional arrays of mapped pixel values on top of pixmaps and color palettes. Two types of images are available, palette and true color. A palette image is an image where the pixmap values represent an index into a color palette. A true color image has no palette&#175;the pixmap values themselves represent an actual color. A palette image is typically used in an image where many colors are used repeatedly throughout the image and the total number of colors in the image is low. True color images are desirable when there are a large number of colors in the image. An image with less than 256 colors (a depth eight image) is normally represented in a palette image. A 24-bit image (2e24 possible colors) is typically represented using a true color image. Images are drawn with the Drawing class. Note that if an image is drawn and then subsequently modified through the Image class, it must be drawn again to display the new contents.<P>
+Most users will be interested only in the Image part of this document. The Image lets you manipulate images as discrete units but does not let you modify the pixels of the image itself. All higher-level Galaxy services expect to receive images (as opposed to pixmaps) as arguments, so you do not need to be familiar with any other data type to use these services. The Pixmap gives you access to the actual pixel values of an image. You need to read this section if you want to manipulate the pixel values of an image or pixmap through the Galaxy API. You also need to be familiar with the Color class to specify the color values for pixels. Advanced users may be interested in reading the Buffer class section to better understand how images are implemented, to implement their own pixmap representations, or to fine-tune performance.<P>
+<A NAME="143"><H2> Images</H2></A>
+<EM><B>Images</B></EM> are built from three distinct objects. The image <EM><B>map</B></EM> is a pixmap that specifies the source values of the pixels in the image. Pixel values can be indices into an array of color values (a palette image), or they can be color values themselves (a true color image).<P>
+Palette images contain a <EM><B>color palette</B></EM> which maps image pixel values into color values. The pixel values of a palette image are indices into an array of color objects that are implemented by the Color class. Refer to the Color class for information on how to manipulate color objects and color palettes. True-color images use the pixel values themselves to represent color values and therefore require no color palette.<P>
+An image can optionally have a <EM><B>transparency</B></EM>, which is another image that specifies where the original image is transparent and where it is opaque. The color palette of the transparency image is always ignored, since its pixel values are used directly. If the transparency image itself contains a transparency image, behavior is undefined.<P>
+Palette images are created by default when a new image is created. A palette may be associated with an image by calling <TT><B>SetPalette</B></TT> or <TT><B>SetPaletteOwned</B></TT>. If no color palette is explicitly specified, a black-and-white color palette will be created for the image on demand if its <TT><B>TrueColor</B></TT> attribute is not subsequently set to TRUE. A paletteless non-true-color image will have a default palette created for it when it is drawn, or when <TT><B>GetPalette</B></TT> is called with the image as an argument.<P>
+True color images are only defined for depths one, twenty-four, and thirty-two. True color images of depth one contain only two colors: black and white. Twenty-four bit images represent colors in the RGB color model. The high eight bits represent red, the middle eight green, and the lower eight blue. Each color component can then range from 0 to 255. The following code fragment constructs a pixel value from three RGB component values (r, g, and b).<P>
+<PRE><UL>value = (r&lt;&lt;16) + (g&lt;&lt;8) + b;
+</UL></PRE>Thirty-two bit images are also available. Currently these images are functionally equivalent to twenty-four bit images. Future versions of Galaxy will use the upper eight bits of a thirty-two bit for multi-level transparency information and image composition. An image is marked as true color with a call to <TT><B>SetTrueColor</B></TT>.<P>
+Refer to the modification function corresponding to the attribute name for a detailed description of the attribute (for example, refer to <TT><B>SetPalette</B></TT> for the <TT><B>Palette</B></TT> attribute). Note that the <TT><B>Map</B></TT> attribute can be read and modified but it cannot be replaced entirely: it is an integral part of the image.<P>
+<TT><B>Palette</B></TT> and <TT><B>Transparency</B></TT> attributes can either be owned by the image or shared with other objects. Ownership is specified when the attribute is set. If the entry-point name does not end in <TT><B>Owned</B></TT>, the attribute is shared. Ownership indicates that the attribute object is destroyed when the image is destroyed or the attribute is changed. Owned attributes are also cloned when the image is copied or cloned. Shared attributes are never destroyed or copied. You can change an attribute value from owned to shared by calling the corresponding shared function entry point with the current value of the attribute (this is a special case). You can similarly change an attribute value from shared to owned by calling the corresponding owned function entry point.<P>
+Not all image attributes are stored in resources by the Image class. Attributes that are not stored are given default values when an image is read from a resource by <TT><B>vimageLoad</B></TT> or <TT><B>vimageLoadInit</B></TT>. Attributes marked if owned are only stored if the image owns the given attribute. Note that shared attributes may be stored in resources by a future version of Galaxy, so this behavior should not be depended upon.<P>
+<A NAME="173"><H2> Pixmaps</H2></A>
+A <EM><B>pixmap</B></EM> is built from a set of attributes that specify the size and format of the pixmap, plus zero or more buffers that contain the actual pixels of the pixmap. Pixmaps have multiple buffers when the format required by a particular device (such as the display) does not match the format with which the pixmap was created. In this case, it is unacceptable to change the pixmap format, because information may be lost. It is also unacceptable to translate the pixmap to the new format each time it is used, because this process is usually too time consuming for interactive applications.<P>
+Each pixel in a pixmap has a unique coordinate specified as an (x, y) pair. Pixmap coordinates are always specified relative to the lower left-hand corner of the pixmap. Coordinates range from zero to width-1 horizontally and zero to height-1 vertically, where width and height are the <TT><B>Width</B></TT> and <TT><B>Height</B></TT> attributes of the pixmap, respectively. Pixel values range from zero to 2depth-1 where depth is the <TT><B>Depth</B></TT> attribute of the pixmap. The format attributes of a pixmap (<TT><B>Pad</B></TT>, <TT><B>BigEndianByte</B></TT>, and <TT><B>InverseY</B></TT>) do not affect the range of legal pixel values, nor do they affect the location of the pixmap's logical origin. Note, however, that it is possible to store the scan lines of a pixmap in decreasing y order to accommodate pixmap formats that use this convention. Pixmaps with decreasing y scan lines do not have their origin in the upper right-hand corner, because the pixmap is still drawn with the pixel (0, 0) at the lower left.<P>
+The Pixmap class supports a wide variety of pixmap formats so that pixmaps can be manipulated in the form most appropriate for a given processor architecture and window system. By default, pixmaps are given the most efficient representation for the host platform. You can optionally specify a particular format for a pixmap, but doing so may entail a loss of performance on some platforms. The Pixmap class includes a <EM><B>scanner</B></EM> mechanism that lets you iterate over the pixel values of a pixmap using a format-independent API. However, the pixel formats used by the Pixmap class are public. You can change pixel values in the pixmap buffer itself if the scanner mechanism is not efficient enough. In this case, it is up to you to ensure that the pixmap is in a format your code can handle.<P>
+The Pixmap class remembers whether or not you have requested a particular format for a pixmap. Pixmap formats are always retained exactly if an explicit format request was made. You should avoid doing this if at all possible, however, because it makes your application or library less portable. If you pick the wrong format for a particular platform, the Pixmap class does not function as efficiently as it might otherwise. If you do not specify a particular format, the Pixmap class always uses the most efficient representation for the host platform. Even pixmaps in stored resources are translated on demand, if necessary, to the host platforms most efficient representation.<P>
+Refer to the modification function corresponding to the attribute name for a detailed description of the attribute (for example, refer to <TT><B>SetWidth</B></TT><TT><B></B></TT> for the <TT><B>Width</B></TT> attribute). All pixmap attributes are stored in resources.<P>
+<A NAME="328"><H2> Pixmap Scanners</H2></A>
+The Pixmap class provides the <EM><B>pixmap scanner</B></EM> abstraction to let applications access the contents of a pixmap or an image using a format-independent interface. This lets applications work with the natural representation of a pixmap on a given platform without having to explicitly code for all the possible representations.<P>
+ Scanners are designed for applications where the performance of pixmap operations does not affect the application's overall performance. Scanners are not suitable for pixel-intensive applications such as image processing. In these cases, you must access the pixmap representation directly (refer to Pixmap Formats), because no format-independent API can hope to deliver adequate performance.<P>
+A scanner is an abstract reference type that can refer to any given pixel in a pixmap. You can explicitly set the pixel being referenced by the scanner and move the scanner in various directions through the scanner API.<P>
+Note that moving a scanner one pixel in any given direction is generally more efficient than moving it to a specific (x, y) location. You can read or write the current pixel of a pixmap and optionally increment the pixmap pointer after the read or write operation. You can also read or write any pixel in the pixmap given its (x, y) location without moving the current pixel. Accessing a pixel in this manner is more efficient than moving the scanner to a specific (x, y) position and reading or writing the current position, but it is less efficient than reading or writing the current position and moving one pixel in a given direction. Your application dictates which interface you should use. If the access pattern of your application is linear (up, down, left, right), then you should access pixels through the scanner's current pixel. If the access pattern is non-linear or random, then you should access pixels by their (x, y) position.<P>
+To iterate over all the pixels in a given pixmap, use the scanner read or write with post-increment functions (<TT>ReadMoveRight</TT> and <TT>WriteMoveRight</TT>). The Pixmap class will automatically handle wrapping conditions and skip over any intervening padding in the pixmap. You need to keep a count of the number of pixels that have been enumerated in addition to the scanner itself.<P>
+<A NAME="202"><H2> Pixmap Formats</H2></A>
+The Pixmap class supports a wide variety of pixmap formats so that you can work with the natural pixmap format of a given host system without having to know the specific implementation of that format. The pixmap scanner abstraction provides a convenient and efficient interface to the contents of a pixmap. It should be used whenever possible to ensure cross-platform portability. For optimum performance required of some applications (such as image processing), however, no format-independent interface can possibly be fast enough.<P>
+This section documents the format of Galaxy pixmaps so that you can work directly with the pixmap representation when necessary. Note, however, that you may actually lose performance on some systems by accessing the pixmap representation directly if your code cannot work with the host system's natural pixmap format. You need not read the rest of this section if you do not need to access pixmap representations directly.<P>
+The contents of a given pixmap are manipulated in units of unsigned char, regardless of the size of the pixels themselves. Note that the Pixmap class does not use vchar to store pixels. The Pixmap class is optimized so that it uses larger data types for better performance when one of these data types exactly matches the size of a pixel and the byte order (big-endian or little endian) of the processor matches the byte order of the pixmap. This optimization, however, does not affect the pixmap format itself. Exactly eight bits are stored in each unsigned char, regardless of the number of bits in the unsigned char data type itself.<P>
+ Note that ANSI C guarantees that the number of bits in a character (<TT>CHAR_BIT</TT>) will be at least eight. In the case where <TT>CHAR_BIT</TT> is greater than eight, the extra bits are unused. It is not safe to assume that these bits are zero. It is permitted, however, to "clobber" these bits when performing block operations on a pixmap in order to improve performance.<P>
+Bits within a given character are always stored big-endian. This means that the one-bit pixel set by the value 128 (1&lt;&lt;7) is the leftmost pixel. Multi-character pixels may be stored big-endian or little-endian. Big-endian means that the first character of the pixel is most significant. Little-endian means that the last character of the pixel is most significant.<P>
+Note that the Pixmap class can manipulate pixmaps of both orientations, regardless of the orientation of the host processor. One orientation, however, is normally much more efficient; this orientation is used by default. You should also follow a similar strategy to ensure maximum portability.<P>
+Each scan line of a pixmap may be padded to a multiple of 1, 8, 16, or 32 bits. Since exactly 8 bits are always stored per character, these units correspond to 0 (no padding), 1, 2, and 4 characters, respectively. Note that one-bit padding is not implemented for depths less than 8 in this release of Galaxy, although it may be available in a future release of Galaxy. Padding values must be ignored when reading a pixmap; it is not safe to assume that they are cleared to zero. You are permitted, however, to "clobber" pad values when performing block operations on a pixmap to improve performance.<P>
+The logical origin of a pixmap (coordinate (0, 0)) is always in the lower left-hand corner of the pixmap. Pixmap scan lines, however, may be stored in y-increasing or y-decreasing order so that pixmap formats that assume an upper left-hand origin can be manipulated transparently. Note that pixels are always stored in x-increasing order.<P>
+In the case of a y-increasing pixmap, the base address of the pixmap is the address of the first logical scan line (y coordinate zero). Each successive scan line of pixels increments the scan line logical y coordinate by one. In the case of a y-decreasing pixmap, the base address of the pixmap is the address of the last logical scan line (y coordinate height-1, where height is the height of the pixmap). Each successive scan line of pixels decrements the scan line logical y coordinate by one.<P>
+Obviously, these format parameters cannot accommodate all the possible platform-specific pixmap formats. They are intended, rather, to provide direct access to the pixmap formats of the vast majority of host platforms. Platforms that use a pixmap format that cannot be accommodated by the Pixmap class must use some sort of explicit translation mechanism. The Buffer class may be useful in these cases.<P>
+<A NAME="9925"><H2> Buffers</H2></A>
+A <EM><B>buffer</B></EM> is a particular representation of some piece of information. Buffers allow you to maintain multiple representations of the same information in a data structure called a <EM><B>buffer group</B></EM>. The Pixmap class uses buffer groups to store the pixels of the pixmap in different formats simultaneously; in this case, the pixmap has a single buffer group that contains zero or more buffers. Each buffer, in turn, contains the pixels of the pixmap in a particular format. The Color class uses buffers in a similar fashion to manage different color representations.<P>
+Each buffer contains a pointer to its owner, its device, and its contents. The buffer <EM><B>owner</B></EM> is the object that the buffer is representing the contents of. In the case of a pixmap, the owner is the pixmap itself.<P>
+The buffer <EM><B>device</B></EM> determines the representation of the buffer contents. In the case of a pixmap, it is either the Pixmap class source device, or a device provided by one of the window system drivers.<P>
+The buffer <EM><B>contents</B></EM> are either a pointer to data in the device representation or a scalar identifier for the data. In the case of a pixmap, the contents of a buffer for the source device is a pointer to the pixmap pixels themselves. The contents of a window system driver device may be a pointer to more pixels in a different format or simply an integer identifier. The X Window System drivers, for example, store the 32-bit X resource id of a pixmap in a buffer's scalar contents to denote the server-side representation of a given pixmap.<P>
+Buffer groups are represented as circular linked lists of buffers. Group lists are circular so that any given buffer can locate any other buffer in the group at any given time. The link pointer of a buffer in a singleton group points to itself. An empty group is denoted by a NULL buffer pointer. A buffer group is denoted by a pointer to any buffer in the group.<P>
+A buffer that is <EM><B>valid</B></EM> contains a representation of the buffer groups information that is correct. When a buffer is <EM><B>marked</B></EM>, all other buffers in its group become invalid, and the buffer itself becomes valid. When you change the contents of a pixmap using a scanner, for example, the Pixmap class marks the source device buffer. This causes all other representations of the pixmap to become invalid, because their contents now need to be updated.<P>
+If a request is made for the contents of an invalid buffer, the buffer is <EM><B>validated</B></EM>. Validation consists of locating another valid buffer in the same group and translating the valid contents into the invalid buffer. Each buffer device provides translations from its device representation to certain other device representations. If no valid buffer is found, then the buffer contents are marked valid anyway and garbage is returned; this case indicates that the object itself contains garbage.<P>
+Buffers can be garbage collected by their devices during validation if device resources are running low. A buffer can be <EM><B>locked</B></EM> while it is being used to prevent its device from garbage collecting it. You should lock any buffer whose contents you are using and unlock the buffer as soon as you are finished with it.<P>
+Note that if you permanently lock a buffer, its device may run out of resources. Devices may give preference to certain representations during garbage collection when a choice of which buffer to reclaim must be made among multiple valid representations. In no case does a device reclaim the only valid representation in a buffer group.<P>
+Note that the Pixmap class manages locking and unlocking pixmap buffers for you if you are using the pixmap API.<P>
+Refer to the modification function corresponding to the attribute name for a detailed description of the attribute (for example, refer to <TT><B>SetOwner</B></TT> for the <TT><B>Owner</B></TT> attribute). Note that since buffers cannot be stored in resources, there is no column in the table indicating whether the attribute is stored.<P>
+The buffer attributes <TT><B>Scalar</B></TT> and <TT><B>Pointer</B></TT> cannot be set simultaneously, because they share the same storage. If either attribute type is read after the other attribute type has been set, unpredictable behavior results. It is up to you to ensure that the correct attribute type is used. The attribute <TT><B>ClientFlag</B></TT> may be used to denote which attribute is in use if both <TT><B>Scalar</B></TT> and <TT><B>Pointer</B></TT> attributes are possible.<P>
+Note that all Galaxy modules that use buffers provide wrapper functions for these attributes; it is recommended that these wrappers be used whenever possible because they handle these issues for you.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Iconview.html">Previous Chapter</A> | 
+		<A HREF="Image_Editor.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

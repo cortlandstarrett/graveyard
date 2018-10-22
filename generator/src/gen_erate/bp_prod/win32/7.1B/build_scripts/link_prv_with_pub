@@ -1,0 +1,170 @@
+#!/bin/sh
+#==========================================================================
+#
+# File:      $RCSfile: link_prv_with_pub,v $
+# Version:   $Revision: 1.9 $
+# Modified:  $Date: 2013/01/10 23:42:21 $
+#
+# (c) Copyright 1992-2013 by Mentor Graphics Corp. All rights reserved.
+#
+#==========================================================================
+# This document contains information proprietary and confidential to
+# Mentor Graphics Corp., and is not for external distribution.
+#==========================================================================
+#
+# This script creates a private BP build structure.
+#
+# Parameters:
+#   $1 - Platform for which this build is intended
+#   $2 - Version for which this build is intended
+
+set -e
+set -u
+set +x
+set +v
+
+if [ $# -lt 2 ]; then
+  echo "Usage:
+   `basename $0` <platform> <version>
+"
+  exit 2
+fi
+
+PLATFORM=$1
+export PLATFORM
+VERSION=$2
+export VERSION
+shift
+shift
+
+# Include file with customizable build information
+this_path=`dirname $0`
+if [ "$this_path" = "." ]; then
+  this_path="`pwd`"
+fi
+
+HOST_INFO_INCLUDE=$this_path/get_host_platform.inc
+. $HOST_INFO_INCLUDE
+
+case $RUNNING_PLATFORM in
+  win32 )
+    echo "You must run $0 on Unix"
+    exit 2
+    ;;
+esac
+
+BUILD_INCLUDE=$this_path/build_vars.inc
+. $BUILD_INCLUDE
+
+obj_suffix=".o"
+case $PLATFORM in
+  win32 )
+    obj.suffix=".obj"
+    ;;
+esac
+
+# Assure that the build directories exist
+$this_path/create_prv_and_pub $PLATFORM $VERSION
+
+# subdirectories for source
+sym_name=z_
+
+# create a link from $BP_PRV_PRD to $BP_PRV_SRC to support
+#  build structure embedded in prod makefile.
+rm -f $BP_PRV_PRD/source
+ln -s $BP_PRV_SRC $BP_PRV_PRD/source
+
+lnk_prv_pub(){
+  prv=$1
+  pub=$2
+
+  # Remove symbolic links to files
+  cd $prv
+  echo "Removing old symlinks in $prv"
+  find . -type l -exec rm {} \;
+
+  echo "Pointing $sym_name to $pub for $prv"
+  cd $prv
+  ln -s $pub $sym_name
+  cd $pub
+  dirs=`find . -type d -print | sed 's/^\.//' | sed 's!^/!!' | sort`
+  for dir in $dirs
+    do
+    cd $prv
+    mkdir -p $dir
+    cd $dir
+    echo "adding directory link to $dir"
+    ln -s $pub/$dir $sym_name
+    done
+  
+  # Make symbolic links to all pub files which don't exist in prv
+  cd $prv
+  for dir in "." $dirs
+    do
+    cd $pub/$dir
+    set +e
+    # select only files, not directories
+    # make sure to use /usr/bin/ls.  /usr/ucb/ls doesn't work
+    files=`/usr/bin/ls -1F | sed '/[/@]$/d' | sed 's/\*$//' | sort`
+    set -e
+    cd $prv/$dir
+    echo "adding file links to $dir"
+    for file in $files
+      do
+      if [ -f $file ]; then
+        if [ -w $file ]; then
+          echo "  read/write file $dir/$file already exists"
+        else
+          # rename readonly file
+          echo "Renaming read-only file $dir/$file to $file.bak"
+          rm -f $file.bak
+          mv $file $file.bak
+          ln -s ./$sym_name/$file $file
+        fi
+      else
+        ln -s ./$sym_name/$file $file
+      fi
+      done
+    done
+}
+
+# make links to all the prod subdirectories
+lnk_prv_pub $BP_PRV_PRD $BP_PUB_PRD
+
+# make links to all the source subdirectories
+lnk_prv_pub $BP_PRV_SRC $BP_PUB_SRC
+
+echo "Removing old symlinks in $BUILD_DIR"
+cd $BUILD_DIR
+rm -f $sym_name
+find . -type l -exec rm {} \;
+
+echo "Linking $BUILD_DIR at '$sym_name'"
+cd $BUILD_DIR
+ln -s $BP_PUB_BLD/build $sym_name
+
+# Get a list of all the object files
+cd $BP_PUB_BLD/build
+# make sure to use /usr/bin/ls.  /usr/ucb/ls doesn't work
+set +e
+o_files=`/usr/bin/ls -1F *$obj_suffix | sed '/[/@]$/d' | sed 's/\*$//' | sort`
+set -e
+cd $BUILD_DIR
+echo "Linking $obj_suffix files in $BUILD_DIR
+  from $BP_PUB_BLD/build"
+for file in $o_files
+  do
+  if [ -f $file ]; then
+    if [ -w $file ]; then
+      echo "  read/write file $file already exists"
+    else
+      # remove readonly file
+      echo "Removing read-only file $file"
+      rm -f $file.bak
+      mv $file $file.bak
+      ln -s ./$sym_name/$file $file
+    fi
+  else
+    ln -s ./$sym_name/$file $file
+  fi
+  done  

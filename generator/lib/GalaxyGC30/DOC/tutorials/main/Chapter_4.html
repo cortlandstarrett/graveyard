@@ -1,0 +1,574 @@
+<HTML>
+<HEAD>
+<TITLE>Chapter 4. Buttons</TITLE>
+
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR BGCOLOR="#CCCC66">
+		<!-- Margin Banner -->
+		<TD><CENTER><BR><IMG SRC="../../graphics/logo.gif"><BR> <BR></CENTER>
+      </TD>
+
+      <!-- Title block: DOCUMENT TITLE GOES HERE -->
+      <TD VALIGN=TOP>
+          <BR>
+           <H1><A NAME="Top">Chapter 4. Buttons</A></H1>
+           <BR>
+      </TD>
+      
+   </TR>
+   </TABLE>
+ 		<P>
+
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="4827"></A>
+This chapter shows how to use the Button class to put buttons in a dialog and how to respond to their events. <P>
+<UL><LI>Concepts
+<LI>Button class
+<LI>Dialog class
+<LI>Event class
+<LI>Name class
+</UL><P>
+Our goal is to write a program with three buttons: Grow, Shrink, and Quit. The Grow button should make the dialog a little bigger in both width and height, the Shrink button should make the dialog a little smaller in both width and height, and the Quit button should exit the program. In addition, we want the Grow button to stay in the upper right hand corner, the Shrink button to stay in the lower left hand corner, and the Quit button to stay in the center.<P>
+<A NAME="704"><H1> Source Code</H1></A>
+<PRE><UL>	/*
+	 * tut4a.c
+	 *
+	 * "The Three Buttons"
+	 *
+	 */
+	
+	/* ANSI headers */
+	#include &lt;vstdlib.h&gt;    /* for exit(), EXIT_ codes */
+	
+	/* Galaxy headers */
+	#include &lt;vrect.h&gt;
+	#include &lt;vchar.h&gt;
+	#include &lt;vname.h&gt;
+	#include &lt;vevent.h&gt;
+	#include &lt;vwindow.h&gt;
+	#include &lt;vdialog.h&gt;
+	#include &lt;vbutton.h&gt;
+	#include &lt;vstartup.h&gt;
+	
+	/* forward references */
+	static void shutdownMain (void);
+	static void dialogNoteProc (vdialog *dialog, vevent *event);
+	static void growButtonNoteProc (vbutton *button, vevent *event);
+	static void shrinkButtonNoteProc (vbutton *button, vevent *event);
+	static void quitButtonNoteProc (vbutton *button, vevent *event);
+	static void placeButtons (vdialog *dialog);
+
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(1)	/* Global names */
+	static const vname *name_GrowButton   = NULL;
+	static const vname *name_ShrinkButton = NULL;
+	static const vname *name_QuitButton   = NULL;
+</UL></PRE>
+</FONT><PRE><UL>	/* Constants */
+	#define GROW_AMOUNT          50
+	
+	int main (int argc, char **argv)
+	
+	{
+	
+	  vdialog     *dialog;
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(2)	  vbutton     *button;
+</UL></PRE>
+</FONT><PRE><UL>	
+	  /* Initialize Galaxy */
+	  vstartup (argc, argv);
+	
+	  /*
+	   * Create and set the dialog up
+	   *
+	   */
+	
+	  dialog = vdialogCreate ();
+	  vdialogSetNotify (dialog, dialogNoteProc);
+	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(3)	  vdialogMove (dialog, 200, 200);
+	  vdialogResize (dialog, 100, 100);
+</UL></PRE>
+</FONT><PRE><UL>	
+	  /*
+	   * Create and initialize the buttons
+	   *
+	   */
+	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(4)	  /* Create 'Grow' button */
+	  button = vbuttonCreate ();
+</UL></PRE>
+</FONT><PRE><UL>	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(5)	  /* Add a notify function */
+	  vbuttonSetNotify (button, growButtonNoteProc);
+	  
+	  /* Add a title to it */
+	  vbuttonSetTitleScribed (
+	    button, 
+	    vcharScribeLiteral ("Grow")
+	  );
+</UL></PRE>
+</FONT><PRE><UL>	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(6)	  /* Add a tag to it */
+	  name_GrowButton = vnameInternGlobalLiteral ("grow");
+	  vdialogSetItemTag (vbuttonGetItem (button), name_GrowButton);
+</UL></PRE>
+</FONT><PRE><UL>	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(7)	  /* Add the item to the dialog */
+	  vdialogAppendItem (dialog, vbuttonGetItem (button));
+</UL></PRE>
+</FONT><PRE><UL>
+	  /*
+	   *  Now the Shrink button
+	   *  It's the exact method as before
+	   * 
+	   */
+
+	  button = vbuttonCreate ();
+	  vbuttonSetNotify (button, shrinkButtonNoteProc);
+	  vbuttonSetTitleScribed (
+	    button,
+	    vcharScribeLiteral ("Shrink")
+	  );
+	
+	  name_ShrinkButton = vnameInternGlobalLiteral ("shrink");
+	  vdialogSetItemTag (vbuttonGetItem (button),
+	                    name_ShrinkButton);
+	  vdialogAppendItem (dialog, vbuttonGetItem (button));
+	
+	  /* And again for the Quit button */
+	
+	  button = vbuttonCreate ();
+	  vbuttonSetNotify (button, quitButtonNoteProc);
+	  vbuttonSetTitleScribed (
+	    button,
+	    vcharScribeLiteral ("Quit")
+	  );
+	
+	  name_QuitButton = vnameInternGlobalLiteral ("quit");
+	  vdialogSetItemTag (vbuttonGetItem (button),
+	                     name_QuitButton);
+	  vdialogAppendItem (dialog, vbuttonGetItem (button));
+	
+	  /* Arrange the buttons */
+	  placeButtons (dialog);
+	
+	  /* Open the dialog */
+	  vdialogOpen (dialog);
+	
+	  /* Enter the event loop */
+	  veventProcess ();
+	
+	  /* Return the dialog's resources to the system */
+	  vdialogDestroy (dialog);
+	
+	  exit (EXIT_SUCCESS);
+	  return EXIT_FAILURE;
+	
+	}
+	
+	/*
+	 *  shutdownMain
+	 *  Stop things
+	 *
+	 */
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(8)	static void shutdownMain ()
+	
+	{
+	
+	  veventStopProcessing ();
+	
+	}
+</UL></PRE>
+</FONT><PRE><UL>	
+	/*
+	 *  dialogNoteProc
+	 *
+	 *  The dialog notification procedure gets called whenever any
+	 *  major event applies to the dialog as a whole. We need to
+	 *  look for the event which tells us that the dialog has closed.
+	 *
+	 */
+	
+	static void dialogNoteProc (vdialog *dialog, vevent *event)
+	
+	{
+	
+	  int      et;
+	
+	  et = veventGetType (event);
+	  
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(9)	  if (et == veventWINDOW_STATE &amp;&amp;veventIsClose (event))
+	        shutdownMain ();
+	  else if (et == veventWINDOW_CONFIGURE &amp;&amp; veventIsSize
+	        (event))
+	    placeButtons (dialog);
+</UL></PRE>
+</FONT><PRE><UL>	
+	}
+	
+	/*
+	 *  placeButtons
+	 *
+	 *  Arrange the buttons in the dialog rect so that
+	 *  Grow is in the top left, Quit is centered, and
+	 *  Shrink is in the bottom right.
+	 *
+	 */
+	
+	static void placeButtons (vdialog *dialog)
+	
+	{
+	
+	  vbutton *button;
+	
+	        vrect    buttonRect;
+	  const vrect   *dialogRect;
+	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(10)	  /* get the dialog's rect, we'll use it later */
+	  dialogRect = vwindowGetRect (vdialogGetWindow (dialog));
+</UL></PRE>
+</FONT><PRE><UL>	
+	  /*
+	   * Now let's arrange the Grow button
+	   *
+	   */
+	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(11)	  /* Find the button */
+	  button = (vbutton *) 
+	        vdialogFindItem (dialog, name_GrowButton);
+</UL></PRE>
+</FONT><PRE><UL>	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(12)	  /* Get a copy of its rect */
+	  buttonRect = 
+	        *vdialogGetItemRect (vbuttonGetItem (button));
+</UL></PRE>
+</FONT><PRE><UL>	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(13)	  /* move the Grow button to top left */
+	  buttonRect.x = 0;
+	  buttonRect.y = dialogRect-&gt;h - buttonRect.h;
+	  vdialogSetItemRect (vbuttonGetItem (button), &amp;buttonRect);
+</UL></PRE>
+</FONT><PRE><UL>	
+	 /*
+	  * Now put Shrink in the lower right
+	  *
+	  */
+	
+	  button = (vbutton *) 
+	  vdialogFindItem (dialog, name_ShrinkButton);
+	  buttonRect = *vdialogGetItemRect (vbuttonGetItem (button));
+	
+	  buttonRect.x = dialogRect-&gt;w - buttonRect.w;
+	  buttonRect.y = 0;
+	  vdialogSetItemRect (vbuttonGetItem (button), &amp;buttonRect);
+	
+	 /*
+	  * And put Quit in the center
+	  *
+	  */
+	
+	  button = (vbutton *) 
+	  vdialogFindItem (dialog, name_QuitButton);
+	  buttonRect = *vdialogGetItemRect (vbuttonGetItem (button));
+	
+	  buttonRect.x = (dialogRect-&gt;w - buttonRect.w) / 2;
+	  buttonRect.y = (dialogRect-&gt;h - buttonRect.h) / 2;
+	  vdialogSetItemRect (vbuttonGetItem (button), &amp;buttonRect);
+	
+	}
+	
+	/*
+	 *  quitButtonNoteProc
+	 *
+	 *  Shut things down
+	 *
+	 */
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>	
+(14)	static void quitButtonNoteProc (vbutton *button, vevent *event)
+	
+	{
+	
+	  shutdownMain ();
+	
+	}
+</UL></PRE>
+</FONT><PRE><UL>	
+	/*
+	 *  growButtonNoteProc
+	 *
+	 *  Expand the window by GROW_AMOUNT
+	 *
+	 */
+	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(15)	static void growButtonNoteProc (vbutton *button, vevent *event)
+	
+	{
+	
+	  vdialog *dialog;
+	  vwindow *window;
+	  vrect    rect;
+	
+	  dialog =  vdialogDetermineItemDialog (
+	              vbuttonGetItem (button));
+	  window =  vdialogGetWindow (dialog);
+	  rect   = *vwindowGetRect (window);
+	
+	  rect.w += GROW_AMOUNT;
+	  rect.h += GROW_AMOUNT;
+	  vwindowSetRect (window, &amp;rect);
+	
+	  placeButtons (dialog);
+	
+	}
+</UL></PRE>
+</FONT><PRE><UL>	
+	/*
+	 *  shrinkButtonNoteProc
+	 *
+	 *  Expand the window by GROW_AMOUNT
+	 *
+	 */
+	
+	static void shrinkButtonNoteProc (vbutton *button, vevent *event)
+	
+	{
+	
+	  vdialog *dialog;
+	  vwindow *window;
+	  vrect    rect;
+	
+	  dialog =  vdialogDetermineItemDialog (
+	              vbuttonGetItem (button));
+	  window =  vdialogGetWindow (dialog);
+	  rect   = *vwindowGetRect (window);
+	
+	  rect.w -= GROW_AMOUNT;
+	  rect.h -= GROW_AMOUNT;
+	
+	  vwindowSetRect (window, &amp;rect);
+	
+	  placeButtons (dialog);
+	
+	}
+</UL></PRE><P>
+<A NAME="1014"><H1> Looking at the Program</H1></A>
+Now, let's look at some of the details.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(1)	/* Global names */
+	static const vname *name_GrowButton   = NULL;
+	static const vname *name_ShrinkButton = NULL;
+	static const vname *name_QuitButton   = NULL;
+</UL></PRE>
+</FONT><P>
+This is our first exposure to a <TT><B>vname</B></TT>. A <TT><B>vname</B></TT> is a string that has been hashed into a name table. Names that are part of the same table may be compared for equality using the <TT>==</TT> or <TT>!=</TT> operations instead of the more time consuming string comparison functions. The Dialog class makes extensive use of <TT><B>vnames</B></TT><B> </B>as identifiers for dialog items.<P>
+The comment called these <EM><B>global names</B></EM>. This was meant in two senses. The first is that these variables are global to this program. The second is that the Name class can manage several name tables. These names are stored in Galaxy's global name table. Names that are used with the Dialog class are always part of the global name table.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(2)	  vbutton     *button;
+</UL></PRE>
+</FONT><P>
+A <TT><B>vbutton</B></TT> is a subclass of a <TT><B>vdialogItem</B></TT>. A <TT><B>vbutton</B></TT> is a dialog item that sends an event to your application when it is clicked. It doesn't have a value associated with it; it is not "on" or "off." If you want a dialog item that retains state between clicks you need a <TT><B>vcontrol</B></TT>. We will look at those in a later chapter.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(3)	  vdialogMove (dialog, 200, 200);
+	  vdialogResize (dialog, 100, 100);
+</UL></PRE>
+</FONT><P>
+We set up the dialog much as we did in <TT>tut3c</TT>, but this time we use a different set of functions. The <TT><B>vdialogMove</B></TT> and <TT><B>vdialogResize</B></TT> functions are convenience functions for <TT><B>vwindowSetRect</B></TT>. You don't need to set up a <TT>vrect</TT> to use these functions but internally they call <TT><B>vwindowSetRect</B></TT> for you.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(4)	  /* Create 'grow' button */
+	  button = vbuttonCreate ();
+</UL></PRE>
+</FONT><P>
+Creating a <TT><B>vbutton</B></TT> is similar to creating a <TT><B>vdialogItem</B></TT>.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(5)	  /* Add a notify function */
+	  vbuttonSetNotify (button, growButtonNoteProc);
+
+	  /* Add a title to it */
+	  vbuttonSetTitleScribed (
+	    button, 
+	    vcharScribeLiteral ("Grow")
+	  );
+</UL></PRE>
+</FONT><P>
+Setting the notify procedure and title also parallels the <TT><B>vdialogItem</B></TT>.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(6)	  /* Add a tag to it */
+	  name_GrowButton = vnameInternGlobalLiteral ("grow");
+	  vdialogSetItemTag (vbuttonGetItem (button),
+	                     name_GrowButton);
+</UL></PRE>
+</FONT><P>
+This code creates a <TT><B>vname</B></TT> and attaches it to the button. This is called the dialog item's <EM><B>tag</B></EM>. You can attach a tag to any dialog item, but it is only needed if dialog items are to be located later or if dialog items have commands associated with them (commands are covered later). In this case, we need to locate the button in the future so we want to attach a tag to it.<P>
+The call to <TT><B>vnameInternGlobalLiteral</B></TT> puts the literal string "grow" into the global name table. This process of adding an entry to a name table is called <EM><B>interning</B></EM>. This is the most commonly used of all the <TT><B>vname</B></TT> functions.<P>
+The Button class does not provide an entry point to set the button's tag so we use the Dialog class's function. It is fairly common for managers to provide convenience functions for only the most commonly used functions. Since <TT><B>vdialogSetItemTag</B></TT> is infrequently used, the Button class does not provide its own <TT><B>vbuttonSetTag</B></TT>. Since <TT><B>vbuttons</B></TT> are built on top of <TT><B>vdialogItems</B></TT><B>,</B> we can use any dialog item function, so we extract a pointer to the underlying <TT><B>vdialogItem</B></TT> with <TT><B>vbuttonGetItem</B></TT> and then call <TT><B>vdialogSetItemTag</B></TT> with the dialog item pointer.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(7)	  /* Add the item to the dialog */
+	  vdialogAppendItem (dialog, vbuttonGetItem (button));
+</UL></PRE>
+</FONT><P>
+Again we need to get the underlying dialog item. Since <TT><B>vdialogAppendItem</B></TT> needs a pointer to a <TT><B>vdialogItem</B></TT><B>,</B> and we have a pointer to a <TT><B>vbutton</B></TT><B>,</B> we need to use <TT><B>vbuttonGetItem</B></TT>.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(8)	static void shutdownMain ()
+	
+	{
+	
+	  veventStopProcessing ();
+	
+	}
+</UL></PRE>
+</FONT><P>
+This is a routine which we use to shut down our program. Both the Quit button and the dialog's close event indirectly call this procedure.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(9)	  if (et == veventWINDOW_STATE &amp;&amp; veventIsClose (event))
+	        shutdownMain ();
+	  else if (et == veventWINDOW_CONFIGURE &amp;&amp; veventIsSize
+	        (event))
+	    placeButtons (dialog);
+</UL></PRE>
+</FONT><P>
+This is how <TT>dialogNoteProc</TT> was changed. It now calls <TT>shutdownMain</TT> instead of calling <TT><B>veventStopProcessing</B></TT> directly.<P>
+We also look for a size event. Size events are generated whenever a user resizes a dialog. When a program is notified of a size event, it needs to position the buttons in the appropriate places. The <TT>placeButtons</TT> function does this for us.<P>
+Size events are a subtype of window configure events just as close events are a subtype of window state events.<P>
+<UL><B><I>Note:</I></B> Size events are not generated when the dialog is programmatically resized.
+<P>
+</UL><FONT COLOR="0000BB">
+<PRE><UL>(10)	  /* get the dialog's rect, we'll use it later */
+	  dialogRect = vwindowGetRect (vdialogGetWindow (dialog));
+</UL></PRE>
+</FONT><P>
+This is part of the <TT>placeButtons</TT> function. The function puts a Grow button in the top left, the Shrink button in the lower right, and the Quit button in the center of the dialog.<P>
+To do this positioning, we first need to get the <TT><B>vrect</B></TT> for the dialog. The <TT><B>vwindowGetRect</B></TT> returns a pointer to the window's rectangle.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(11)	  /* Find the button */
+	  button = (vbutton *) 
+	            vdialogFindItem (dialog, name_GrowButton);
+</UL></PRE>
+</FONT><P>
+The <TT><B>vdialogFindItem</B></TT> function returns a pointer to the specified dialog item. Here we use the button tag we set up in <TT>main</TT>. Since <TT><B>vdialogFindItem</B></TT> returns a pointer to a <TT><B>vdialogItem</B></TT>, and we know that this particular item is a <TT><B>vbutton</B></TT><B>,</B> we must cast the return value to a <TT><B>vbutton</B></TT> pointer. This is one of the few places in Galaxy where a cast is required. Defining a <TT><B>vdialogFindButton</B></TT> wouldn't be a good way to eliminate the cast since there is no real guarantee that the item with that tag is a <TT><B>vbutton</B></TT>. A function call instead of a cast could mislead you into believing that you were guaranteed a <TT><B>vbutton</B></TT>. The use of a cast serves to remind us that we are deliberately changing the return type because we know it should be different. If your application needs to check, you can use the Class Manager to verify the class of the dialog item returned and take appropriate action if it isn't correct.<P>
+<UL><B><I>Note:</I></B> We will postpone discussion of classes for a few more chapters.
+<P>
+</UL><FONT COLOR="0000BB">
+<PRE><UL>(12)	  /* Get a copy of its rect */
+	  buttonRect = 
+	        *vdialogGetItemRect (vbuttonGetItem (button));
+</UL></PRE>
+</FONT><P>
+Now we need to get a copy of the <TT><B>vrect</B></TT> for the button so we can modify it. Note that once again we go to the underlying dialog item procedure.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(13)	  /* move the Grow button to top left */
+	  buttonRect.x = 0;
+	  buttonRect.y = dialogRect-&gt;h - buttonRect.h;
+	  vdialogSetItemRect (vbuttonGetItem (button), &amp;buttonRect);
+</UL></PRE>
+</FONT><P>
+We modify our copy of the rectangle to force the button into the upper left corner of the dialog. Remember that all coordinates are relative to the enclosing object, which, in this case, is relative to the dialog. Also remember that the origin of the coordinate system is the lower left corner.<P>
+The rest of the <TT>placeButtons</TT> function does similar operations for the Shrink and Grow buttons.<P>
+This is the notification procedure for the Quit button. All it needs to do is terminate the event loop. It could have called <TT><B>veventStopProcessing</B></TT> directly, but by calling <TT>shutdownMain</TT>, we provide a single interface for cleanly shutting down the program. If we need to do more complicated shutdown code in the future we need only modify one function instead of two.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(14)	static void quitButtonNoteProc (vbutton *button, vevent *event)
+	
+	{
+	
+	  shutdownMain ();
+	
+	}
+</UL></PRE>
+</FONT><P>
+The next notify function is for the Grow button. This function is called when the Grow button is selected. It causes the dialog to grow in height and width by <TT>GROW_AMOUNT</TT>.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(15)	static void growButtonNoteProc (vbutton *button, vevent *event)
+	
+	{
+	
+	  vdialog *dialog;
+	  vwindow *window;
+	  vrect    rect;
+	
+	  dialog =  vdialogDetermineItemDialog (
+	              vbuttonGetItem (button));
+	  window =  vdialogGetWindow (dialog);
+	  rect   = *vwindowGetRect (window);
+	
+	  rect.w += GROW_AMOUNT;
+	  rect.h += GROW_AMOUNT;
+	  vwindowSetRect (window, &amp;rect);
+	
+	  placeButtons (dialog);
+	
+	}
+</UL></PRE>
+</FONT><P>
+The first thing the function does is figure out which dialog the button belongs to. The <TT><B>vdialogDetermineItemDialog</B></TT> function does this. Once we determine the dialog, we get the window pointer from it so we can use it later. Then we get a copy of the window's <TT><B>vrect</B></TT>.<P>
+Then we increase the width and height by <TT>GROW_AMOUNT</TT> and set the window's rectangle to the new values. Lastly, we call <TT>placeButtons</TT> to put the buttons in the correct place on the newly sized dialog.<P>
+The notify function for the Shrink button performs similar operations.<P>
+<A NAME="5098"><I>Figure 3.  The dialog of TUT4A
+</I><P>
+<IMG SRC="Chapter_4.anc.gif"><P>
+<P>
+Compile and run the program. A dialog similar to the one shown in <A HREF="Chapter_4.html#5098">Figure 3</A> is displayed. Try resizing the window and see how the buttons move to their proper location. Click the <B>Grow</B> and <B>Shrink</B> buttons and notice how the dialog changes size as well.<P>
+You may notice that if you click on the Shrink buttons too many times, the program crashes due to an error which in turn generates an exception. The problem occurs when we shrink the dialog to negative sizes. There are two approaches to solving this problem. One solution is discussed in the next chapter and involves using the Spring class.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+   <TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+   <TR BGCOLOR="#CCCC66">
+      <TD>
+      <CENTER>
+      <!-- These are the Navigation buttons -->
+      <A HREF="Chapter_3.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="../../graphics/left.gif"></A>
+      <A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="../../graphics/up.gif"></A>
+      <A HREF="Chapter_5.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="../../graphics/right.gif"></A><BR>
+</CENTER>
+</TD>
+
+      <TD>
+      <BR>
+      <FONT SIZE=-1>
+      <A HREF="Chapter_3.html">Previous Chapter</A> | 
+      <A HREF="Chapter_5.html">Next Chapter</A> <BR>
+      <A HREF="index.html">Tutorial Contents</A><BR>
+      <A HREF="../index.html">Switch to Another Document</A><BR>
+      <BR>
+      </FONT>
+      </TD><TD>
+      <BR>
+      <FONT SIZE=-1>
+      Need help? <a href="../../contact-visix.html">Contact Visix</a>.
+      <BR> <BR>
+      <A HREF="../../copyright.html">Copyright 1996-97</A>, <A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+      <BR>
+      </FONT>
+      </TD>
+   </TR>
+</TABLE>
+
+</BODY>
+</HTML>

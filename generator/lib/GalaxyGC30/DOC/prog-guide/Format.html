@@ -1,0 +1,268 @@
+<HTML>
+<HEAD>
+<TITLE>Format</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Format</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Font_Chooser.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="FormItem.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The <EM><B>Format</B></EM> classes are used in conjunction with Galaxy's database system. With the Format classes, you can do input validation, parse strings to extract typed binary values, and generate formatted output. For example, a spreadsheet could use a <TT>vformatDouble</TT> to specialize the appearance of a cell or column that contains money values. A Digital Clock component could use a <TT>vformatDate</TT> to let the user choose among various date/time presentation forms for display.<P>
+ The Format classes include the following:<P>
+<DL>
+<DT><DD> vformat
+<DT><DD> vformatSegment
+<DT><DD> vformatSegmentIterator
+<DT><DD> vformatParseException
+<DT><DD> vformatDouble
+<DT><DD> vformatLong
+<DT><DD> vformatULong
+<DT><DD> vformatBoolean
+<DT><DD> vformatDate
+</DL>
+To get the most out of this chapter, you should be familiar with the vchar (String), Field, String Item, and Date classes.<P>
+<A NAME="3614"><H3> Format Structure</H3></A>
+A Format can be described best as an adapter between a known binary type and a string: For example:<P>
+<PRE><UL>typed binary data &lt;---&gt; string
+
+</UL></PRE>A Format carries out the above translations by means of its constituent pattern set. Each Format is made up of zero or more ordered <EM><B>patterns</B></EM>:<P>
+<PRE><UL>"&lt;pattern0&gt;"
+"&lt;pattern1&gt;"
+"&lt;pattern2&gt;"
+...
+
+</UL></PRE>Each pattern may further be broken down into one or more semicolon-separated <EM><B>segments</B></EM>, the number of which is determined naturally by the underlying type the Format is meant to represent:<P>
+<PRE><UL>"&lt;segment0&gt;;&lt;segment1&gt;;..."
+
+</UL></PRE>Each pattern segment represents one possible logical state that can be taken on by the underlying type represented by the Format. For instance, a <TT>vformatBoolean</TT> pattern is made up of two segments, one which represents the positive (or true) logical state and the other representing the negative (or false) state:<P>
+<PRE><UL>"&lt;true-segment&gt;;&lt;false-segment&gt;"
+
+</UL></PRE>The mapping between segment ordering and logical state is conventional and is described in detail below.<P>
+A pattern segment is expressed in terms of a type-specific language. See the following section "Format Pattern Languages" for a detailed description of the common language elements as well as the type-specific extensions that are implemented by derivatives of the base Format class.<P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+<A NAME="3633"><H3> Configuring a Format</H3></A>
+The primary way that a Format gets its patterns is via a call to <TT>Insert*Pattern</TT>. For example:<P>
+<PRE><UL>   vformatDate *df = vformatCreateDate();
+
+   vexWITH_HANDLING
+   {
+      vformatInsertDatePattern (df, "mm-dd-yy", 0);
+      vformatInsertDatePattern (df, "mm/dd/yy", 0);
+   }
+   vexON_EXCEPTION
+   {
+      /* failed to set patterns; at least one was invalid */
+
+   } vexEND_HANDLING;
+
+</UL></PRE>Once you've instantiated a Format and populated it's patterns it can be used for parsing, validation, and formatted output generation.<P>
+<A NAME="3649"><H3> Parsing with a Format</H3></A>
+Say that you're developing a console application that requires the user to input their birthday in the following form: m/d/yy. You would first create a <TT>vformatDate</TT> with the appropriate pattern:<P>
+<PRE><UL>   vformatDate *df = vformatCreateDate();
+
+   vexWITH_HANDLING
+   {
+      vformatInsertDatePatterrn (df, "mm/dd/yy");
+   }
+   vexON_EXCEPTION
+   {
+      /* Failed to parse pattern */
+
+   } vexEND_HANDLING;
+
+</UL></PRE>Then, prompt the user for the birthday and obtain the input string:<P>
+<PRE><UL>   vchar *s = Console.promptUser ("Enter your birthday [m/d/yy]: ");
+
+</UL></PRE>Now that you have what the user is offering as their birthday in the given form, you can ask the <TT>vformatDate</TT> if the input string is a valid match for the pattern:<P>
+<PRE><UL>   vdate *bDay;
+
+   vexWITH_HANDLING
+   {
+      bDay = vformatParseDate(df, s);
+      /* was a valid match */
+   }
+   vexON_EXCEPTION
+   {
+      /* was not a valid match! */
+   } vexEND_HANDLING;
+
+</UL></PRE>Alternately, one could first determine the "Validity State" of the input before attempting to convert it to a binary form:<P>
+<PRE><UL>   int validity;
+
+   validity = vformatDetermineDateValidity(df, s);
+
+   switch (validity)
+   {
+      case vformatVALID:
+         /* vdateFormat::Parse guaranteed to succeed */
+         break;
+
+      case vformatPARTIALLY_VALID:
+         /* vdateFormat::Parse guaranteed to fail */
+         break;
+
+      case vformatINVALID:
+         /* vdateFormat::Parse guaranteed to fail */
+         break;
+   }
+
+</UL></PRE>How does a Format translate an input string into a binary value?<P>
+Basically, the Format iterates over all of it's pattern segments, asking each, in turn, if they can create a value from the input string. If any single one of the pattern segments can create a value from the string, the string is considered to be valid, and that newly created value is returned. If none of the pattern segments understood the input string, a <TT>vformatParseException</TT> is thrown. From this exception, details regarding the parse operation can be obtained, such as the index of the Format that understood the greatest portion of the input string or the potion of the input string that was not understood by the Format.<P>
+There are numerous parsing-related convenience methods that ultimately call on a type-specific parse method: <TT>Determine*Validity</TT>, <TT>Is*Valid</TT>, <TT>Is*PartiallyValid</TT>.<P>
+The suite of vstritem-derivatives make use of Formats to provide keystroke-level validation as well as strongly-typed interfaces to the item's intrinsic value. The <TT>vdoubleitem</TT>, <TT>vboolitem</TT>, <TT>vdateitem</TT>, <TT>vlongitem</TT> and <TT>vulongitem</TT> classes each can be configured to validate their string content each time that it is modified by the user, giving the developer the ability to provide the end -user with immediate feedback on the state of the input process.<P>
+<A NAME="3703"><H3> Formatted Output</H3></A>
+Just as a Format's patterns are used for parsing arbitrary input strings, one special pattern is used for generating an output, or presentation, form of a binary value. By default, the first pattern is the <EM><B>output</B></EM> pattern but any pattern can be made the output pattern via <TT>SetOutputPatternIndex</TT>.<P>
+Given a successfully configured Format, the creation of a presentation form of a binary value is guaranteed to succeed.<P>
+<A NAME="3706"><H3> Common Pattern Language Elements</H3></A>
+Two characteristics of formatted textual output are alignment and color.<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="3710"><I>Table 20.  Date Format Pattern Language
+</I><P>
+</CAPTION>
+
+<tr><th><B>To Display/Parse...
+</B></th><th><B>Use this Logical Pattern 
+Component
+</B></th>
+<tr><td>Months as 1-12
+</td><td><TT>m
+</TT></td></tr>
+<tr><td>Months as 01-12
+</td><td><TT>mm
+</TT></td></tr>
+<tr><td>Months as Jan-Dec
+</td><td><TT>mmm
+</TT></td></tr>
+<tr><td>Months as January- December
+</td><td><TT>mmmm
+</TT></td></tr>
+<tr><td>Days as 1-31
+</td><td><TT>d
+</TT></td></tr>
+<tr><td>Days as 01-31
+</td><td><TT>dd
+</TT></td></tr>
+<tr><td>Days as Sun-Mon
+</td><td><TT>ddd
+</TT></td></tr>
+<tr><td>Days as Monday- Sunday 
+</td><td><TT>dddd
+</TT></td></tr>
+<tr><td>Years as 00-99
+</td><td><TT>y
+</TT></td></tr>
+<tr><td>Years as 1900-2078
+</td><td><TT>yy
+</TT></td></tr>
+<tr><td>Hours as 0-23
+</td><td><TT>h
+</TT></td></tr>
+<tr><td>Hours as 00-23
+</td><td><TT>hh
+</TT></td></tr>
+<tr><td>Minutes as 0-59
+</td><td><TT>m
+</TT></td></tr>
+<tr><td>Minutes as 00-59
+</td><td><TT>mm
+</TT></td></tr>
+<tr><td>Seconds as 0-59
+</td><td><TT>s
+</TT></td></tr>
+<tr><td>Seconds as 00-59
+</td><td><TT>ss
+</TT></td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+<A NAME="3782"><H3> Using Formats in the Visual Resource Builder</H3></A>
+The Format class is derived from the vloadable class, giving it the ability to persistently store and load itself into and from a Resource. New Format instances can be dropped into the VRB and configured via type-specific Format editors letting you specify and test the constituent patterns as well as their relative ordering and the index of the special "Presentation" pattern. Other classes that make use of Formats include <TT>vfield</TT> and <TT>vstritem</TT> and its derivatives. The editors for these objects let you specify Formats for their purposes.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Font_Chooser.html">Previous Chapter</A> | 
+		<A HREF="FormItem.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

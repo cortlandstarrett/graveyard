@@ -1,0 +1,291 @@
+<HTML>
+<HEAD>
+<TITLE>String Item</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>String Item</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="String.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Style_Chooser.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="2187"></A>
+A <EM><B>string item</B></EM> (vstritem) is a text item subclass that provides the support necessary for fine-grained textual input validation in an application that uses the database services provided by Galaxy. The string item classes can be used in a GUI interface to present a more natural user interaction for the entry of such datatypes as dates and numbers, offering the end-user keystroke- and field-level input validation. Using a string item also gives you the opportunity to observe the proposed new string content before actually allowing the modifying operation to be carried out.<P>
+The string item classes include the following:<P>
+<UL><LI>vstritem
+<LI>vtypeditem
+<LI>vboolitem
+<LI>vdateitem
+<LI>vdoubleitem
+<LI>vlongitem
+<LI>vulongitem
+</UL><A NAME="3232"><H2> Relationship to Other Classes</H2></A>
+The string item classes closely interact with the Format and Field classes. You may want to refer to those chapters for more information on how the string item classes interface with them.<P>
+<A NAME="3682"><H2> String Item Concepts</H2></A>
+A string item is a dialog item, derived from the text item class, that allows for the validation of its input at the keystroke and field transition level. Some capabilities resulting from development of the string item class are:<P>
+<UL><LI>The ability to prevent modifying operations from taking place on the item's textual content, based on the form of the proposed content. In other words, you can first see what the content string would be if the modifying operation were allowed to take place, before deciding whether the operations should be allowed.
+<LI>The ability to deal with the item as a string, using the Galaxy String and Scribe functions. This shields you from the complexities of the text data object and text selection.
+<LI>Built-in validation feedback facilities that are familiar to the end-user. For example, the ability to generate a audible error tone (beep) when an item is invalid, or to disallow modifying operations that would cause the item to be invalid.
+<LI>A basis for the creation of a suite of type-specific derivatives that present a binary typed-value interface (for example,<TT> vlongitemSetValue</TT>) to support RDBMS forms applications.
+</UL><A NAME="5495"><H2> String Item Structure</H2></A>
+<A NAME="5496"><I>Figure 78.  String Item Class Diagram
+</I><P>
+<IMG SRC="StringItem.anc.gif"><P>
+<A NAME="3299"><I>Figure 79.  String Item Interaction Diagram
+</I><P>
+<IMG SRC="StringItem.anc1.gif"><P>
+<A NAME="3303"><H2> String Item Operations</H2></A>
+<A NAME="3305"><H3> Configuring a String Item</H3></A>
+A string item's behavior can be customized by setting various attributes. For example, use <TT>SetValidateOnChange</TT> to specify that when the item's string content has changed, the proposed content is to be validated via the <TT>Validate</TT> method. The default action of the <TT>Validate</TT> method is to call on the item's formatter, if one has been set, to determine the "validity state" of the input string. The result of any validation is communicated through the <TT>Notify</TT> method.<P>
+<TT>SetBeepIfInvalid</TT> specifies that if the item's string content is determined to be invalid, the item is to generate an audible tone indicating an erroneous condition. Also, <TT>SetKeepFocusIfInvalid</TT> specifies that the item retains the input focus while it is in an invalid state, forcing the end-user to enter a valid value in the item before moving to the next. Use <TT>SetNeverInvalid</TT> to disallow any modifying operation that would lead to an invalid state.<P>
+<TT>SetMaxLength</TT> specifies that the item's string content is never to exceed the given number of characters. This feature is useful in situations where the item's content is ultimately destined to reside in an ASCII database field of a known size.<P>
+<A NAME="3345"><H3> Associating a String Item with a Field</H3></A>
+The Field class, and its type-specific derivatives, are meant to act as the holders of atomic,externally obtained, primitive data such as that commonly retrieved from relational database systems. Any observer can be set to view changes in a field via <TT>vfieldInstallObserver</TT>. <P>
+String items include support for acting as proxies for the Field they are observing. When the Field announces that it is null, an observing string item will clear its string content. When the user alters the string and presents it for acceptance, the string item informs the Field of the new value.<P>
+<A NAME="4545"><H3> Type-specific String Item Derivatives</H3></A>
+The typed item class (vtypeditem) is the base for all type-specific string items that support the increment operation. String items that represent continuous types, such as an integer or date, all respond to CMD - i to increment the item's value up the default amount, and CMD-SHIFT-i to decrease the item's value by the same amount. vlongitem, vulongitem,vdoubleitem, vdateitem, and vboolitem support the increment method. <P>
+Instances of the boolean item class represent a single boolean value. The <TT>Increment</TT> method simply calls <TT>Toggle</TT>. <P>
+The date item extends the base set of incrementing facilities by adding the ability to modify each of the underlying date's component values independently, including month, hour, and second. Instances of the date item class represent a vdate value.<P>
+The default increment key bindings modify the Year component. The other components of a date can be similarly manipulated. The following table present the available keystrokes:<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="6199"><I>Table 36.  Keystrokes to increment and decrement date values in a date item
+</I><P>
+</CAPTION>
+
+<tr><th><B>Value
+</B></th><th><B>Increment
+</B></th><th><B>Decrement
+</B></th>
+<tr><td><B>Years
+</B></td><td><TT>CMD-y
+</TT></td><td><TT>CMD-SHIFT-i
+</TT></td></tr>
+<tr><td><B>Months
+</B></td><td><TT>CMD-m
+</TT></td><td><TT>CMD-SHIFT-m
+</TT></td></tr>
+<tr><td><B>Weeks
+</B></td><td><TT>CMD-w
+</TT></td><td><TT>CMD-SHIFT-w
+</TT></td></tr>
+<tr><td><B>Days
+</B></td><td><TT>CMD-d
+</TT></td><td><TT>CMD-SHIFT-d
+</TT></td></tr>
+<tr><td><B>Hours
+</B></td><td><TT>CMD-h
+</TT></td><td><TT>CMD-SHIFT-h
+</TT></td></tr>
+<tr><td><B>Minutes
+</B></td><td><TT>CMD-n
+</TT></td><td><TT>CMD-SHIFT-n
+</TT></td></tr>
+<tr><td><B>Seconds
+</B></td><td><TT>CMD-s
+</TT></td><td><TT>CMD-SHIFT-s
+</TT></td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+Instances of the long item represent a single long integer value. The default increment magnitude is 1.<P>
+Instances of the ulong item represent a single unsigned long integer value. The default increment magnitude is 1.<P>
+Instances of the double item class represent a double precision value. The default increment magnitude is 1.<P>
+All of the type-specific string item derivatives discussed in this section use a formatter of the appropriate type to validate input and provide the right interface for an item's intrinsic datatype. For example, you can assign a date item with a vdate object, or retrieve the date value of the item using the following calls.<P>
+<PRE><UL>   vdate     now = vdateCreate();
+   vdateitem dateItem = vdateitemCreate();
+
+   vdateSetToCurrent(now);
+   vdateitemSetValue(dateItem, now);
+
+</UL></PRE><A NAME="4261"><H3> Basic Use of String Item</H3></A>
+If you were, for example, developing an employee information management application, you would probably require the end-user to enter an employee's birthday. Instead of using a "plain vanilla" text item to capture the date, use a date item. The date item will be configured with a date formatter customized for the current locale. <P>
+When the end-user indicates that they are finished filling in the form containing the employee's birthday, you can query date item for its current value. The following code sample illustrates this:<P>
+<PRE><UL>   vdate     date;
+   vdateitem dateItem;
+
+   vexWITH_HANDLING
+   {
+      date = vdateitemGetValue(dateItem);
+   } vexON_EXCEPTION {
+      form.tellUser ("Invalid date.");
+      date = null;
+   } vexEND_HANDLING;
+
+</UL></PRE>If the birth date input item requires giving keystroke-level feedback to the user about the input process, then you can extend the date item class to override Notify.<P>
+For example, the DateItem class discussed below assumes that it comes with a LabelItem whose tag consists of the string item tag with the string "Caption" appended. The caption's foreground color will change to indicate the validity of the current input string. <P>
+<UL><LI>Red denotes an invalid input 
+<LI>Yellow indicates a partially valid input
+<LI>Blue denotes a valid input.
+</UL>A completely valid input string is fully parseable and can generate a value of the appropriate type. A partially valid input is fully parseable, but not complete enough to generate a value of the appropriate type. An invalid input cannot be parsed.<P>
+<P>
+<A NAME="4983"><I>Example 142.  Extending the date item class
+</I><P>
+<PRE><UL>vlabelitem *caption;
+vcolor     *red,
+           *blue,
+           *yellow;
+// ...
+{
+   vdateitem *dateitem = vdateitemCreate();
+   //...
+
+   /*
+    * Find a vlabelitem that has our BirthDateItem's name with "Caption"
+    * appended.
+    */
+   caption = (vlabelitem *) FindOurAssociatedCaption ();
+
+   vdateitemSetNotify(dateitem, myNotify);
+   //...
+}
+
+void myNotify (vdateitem *dateitem, int message)
+{
+   if (_caption != null)
+   {
+      vcolor *fg = null;
+
+      switch (message)
+      {
+          case INVALID_MESSAGE;
+            fg = _red;
+            break;
+
+          case PARTIALLY_VALID_MESSAGE:
+            fg = _yellow;
+            break;
+
+          case VALID_MESSAGE:
+            fg = _blue;
+            break;
+      }
+
+      if (fg != null)
+        vlabelitemSetForeground (caption, fg);
+    }
+} // myNotify
+
+</UL></PRE><A NAME="3512"><H3> Controlling User Input</H3></A>
+To control end-user modifications to a string item's content, all insertions and deletions are intercepted and routed through two methods, <TT>InsertString</TT> and <TT>DeleteString</TT>.<P>
+By the time control flow has arrived at these methods, the proposed input string has been filtered through the validation scheme detailed in <A HREF="StringItem.html#3299">Figure 79</A>. In the case of <TT>InsertString</TT>, this is the final opportunity for the user to modify the input string before it is actually inserted into the item's real text data object. The user can now modify the proposed input string. The string item class in the following example filters all non-digit characters from the input stream. <P>
+<A NAME="4986"><I>Example 143.  Using the string item class to filter non-digit characters from the input stream
+</I><P>
+<PRE><UL>vstritemClass *myDigitItem;
+
+{
+   // ...
+   myDigitItem = vclassReproduce(vstritemGetDefaultClass() );
+   vclassSetNameScribed (myDigitItem,
+                         vcharScribeLiteral("myDigitItem"));
+   vclassSet(myDigitItem, vstritemINSERT_STRING, _myInsertString);
+   // ...
+}
+
+void _myInsertString (vstritem *item, int start, int length,
+                      const vchar *input, int inputLen)
+{
+   vstr *newInput = vstrClone (input);
+   int   ci  = 0,
+         nci = 0;
+
+   while (ci &lt; inputLen)
+   {
+     if (!vcharIsDigit (input[ci]))
+       newInput[nci++] = input[ci];
+     ci++;
+   }
+
+   vclassSendSuper(myDigitItem, vstritemINSERT_STRING,
+                   (item, start, length, newInput,
+                    vcharLength(newInput)) );
+}
+
+</UL></PRE>In this example, you would not need to override <TT>DeleteString</TT> since <TT>InsertString</TT> guarantees that the string is made up of digits only.<P>
+<A NAME="4492"><H3> Using String Items in the Visual Resource Builder</H3></A>
+Use a string item, and its derivatives, in the Visual Resource Builder just as you would a text item. The string item attributes listed above (<TT>SetBeepIfInvalid</TT>) can all be set directly from within the properties list in the Object Editor.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="String.html">Previous Chapter</A> | 
+		<A HREF="Style_Chooser.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

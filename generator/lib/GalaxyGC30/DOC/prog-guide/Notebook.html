@@ -1,0 +1,518 @@
+<HTML>
+<HEAD>
+<TITLE>Notebook</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Notebook</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Name.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Notice.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The <EM><B>Notebook</B></EM> classes provide facilities for creating and manipulating notebooks. Notebooks are dialog items that organize and present information to a user so the user can find, display, and edit the information quickly and easily. Notebooks are often used in dialogs that implement preferences or other user settings.<P>
+A notebook resembles a physical notebook in appearance and performance. It contains one or more pages each of which contains dialog items that the user can view or edit. Only one page (the active page) is visible at a time. The remaining pages are "stacked" behind the active page.<P>
+Pages in a notebook can be grouped into sections. A section in a notebook is similar to a page, except its contents are pages or other sections. The contents of a section are only visible when the user steps to that section.<P>
+Each page and section has an associated tab which can be graphically displayed with the notebook. The tab, which corresponds to an index tab in a physical notebook, allows the user to "step" to pages that are not currently visible.<P>
+By using pages and sections to group related items, large amounts of data can be presented to the user in a simple framework that does not sacrifice screen real estate. For example, the Visual Resource Builder (<TT>vre</TT>) uses notebooks to implement resource editors. The dialog editor in <TT>vre</TT> contains three pages; each page represents a set of related features. <A HREF="Notebook.html#5515">Figure 61</A> shows each of the three pages from the dialog editor.<P>
+<IMG SRC="Notebook.anc.gif"><P>
+<A NAME="5515"><I>Figure 61.  Notebook implementation in vre
+</I><P>
+<A NAME="5517"><H2> Glossary</H2></A>
+The following terminology is used throughout this document when discussing notebooks.<P>
+<UL><EM><B>Active or Current Selection</B></EM>	The page (or section) of a notebook that is currently 
+visible. Also referred to as the active page.
+<P><EM><B>Folio</B></EM>	Status line for a notebook that displays the total number of 
+pages in a notebook and the page number of the active 
+page.
+<P><EM><B>Major Tab Set</B></EM>	Manages the major tabs of a notebook.
+<P><EM><B>Major Tabs</B></EM>	Tabs drawn for top-level pages and sections in a notebook.
+<P><EM><B>Minor Tab Set</B></EM>	Manages the minor tabs of a notebook.
+<P><EM><B>Minor Tabs</B></EM>	Tabs drawn for second level pages or sections in a 
+notebook. If a section is at the top level of a notebook tree, 
+and is the active selection (is visible), then tabs are drawn 
+for each page and section contained within the section.
+<P><EM><B>Notebook</B></EM>	Dialog item that presents information to a user in a series 
+of pages and sections. Pages and sections can optionally 
+display tabs which allow quick access to the page or 
+section.<br>
+Notebook items are modeled after physical notebooks.
+<P><EM><B>Notebook Class</B></EM>	Subclass of a section that can hold sections or pages. A 
+notebook item is an instance of this class.
+<P><EM><B>Notebook Tree</B></EM>	Hierarchical representation of an instance of a notebook. 
+A notebook is always at the root of the tree. Sections are 
+organizational branches to pages or other sections in the 
+tree. Pages are the leaves of the tree.
+<P><EM><B>Page</B></EM>	Unit of information displayed by a notebook and is 
+comparable to a sheet from a physical notebook. A page is 
+a subclass of container and can hold any number of dialog 
+items. Pages are typically used to present information to a 
+user that the user can view or edit.<br>
+Pages are always leaves on a notebook tree.
+<P><EM><B>Page Buttons</B></EM>	Buttons displayed with a notebook that allow the user to 
+step forward or backward through the pages of a notebook.
+<P><EM><B>Section</B></EM>	Subclass of a page that holds pages or other sections. Each 
+section contains a current selection which is the last page 
+(or section) visited by the user.<br>
+Sections allow you to group related information in a 
+hierarchical format.
+<P><EM><B>Style</B></EM>	Series of attributes that controls the appearance and 
+behavior of a notebook. The defaults are set by the default 
+laf in the notebook's class but can be overridden per 
+instance.
+<P><EM><B>Tab</B></EM>	Visible extension to a page or section that allows the user 
+direct access to that page or section. Tabs for a notebook 
+are contained in tab sets.
+<P><EM><B>Tab Set</B></EM>	Holds, displays, and manages a collection of tabs. The 
+current state and selection of the notebook is reflected in 
+the tab set. A major and minor tab set is automatically 
+created, if necessary, with each notebook.
+<P></UL><A NAME="5572"><H2> Notebook Tree</H2></A>
+A notebook is built upon a tree structure of sections and pages.<P>
+Pages are always leaves of the tree while sections provide organizational branches to leaves or other sections. Note that a section is a special type of page that holds pages or other sections. The root of the tree is the notebook, which is a special case of section.<P>
+A current selection is the last page (or section) visited by the user in a section. Each section contains information designating its current selection. When the user steps through a notebook, the Notebook class uses an in-order tree traversal algorithm to locate the current selection for each step. <A HREF="Notebook.html#5584">Figure 62</A> illustrates the hierarchy of a typical notebook tree.<P>
+<IMG SRC="Notebook.anc1.gif"><P>
+<A NAME="5584"><I>Figure 62.  Notebook tree
+</I><P>
+<A NAME="5586"><H2> Pages</H2></A>
+A page represents the information presented on one sheet from a physical notebook. A page is a subclass of container and holds any number of dialog items. Typically, the dialog items represent settings that a user can view or edit. Each page contains a tab which is owned by the notebook. The class for a page contains methods that allow the page to be manipulated by the notebook or section that owns it.<P>
+<A NAME="5871"><H2> Sections</H2></A>
+A section provides a way to group and organize information in a notebook. A section is a subclass of a page but can only contain pages and other sections. Since sections can contain other sections, information can be organized into a hierarchical format.<P>
+<A NAME="5874"><H2> Notebook</H2></A>
+A notebook is a subclass of section and inherits from the section and page class that it is built upon. A notebook is at the root of a notebook tree and contains all the pages and sections in the tree.<P>
+A notebook manages the major and minor tab sets, page buttons, and an optional style.<P>
+<A NAME="5878"><H2> Tabs</H2></A>
+Each page and section of a notebook has an associated tab which provides the user access to the page or section. The page or section that a tab represents owns the tab and is responsible for destroying it. Tabs are managed and displayed by tab sets. Refer to the section "Tab Sets" for more information on tab sets.<P>
+Tabs are subclassed from dialog item and inherit all the attributes of a dialog item. Each class of tab contains additional methods to calculate and draw its border and contents. This way you can easily subclass to create a tab that is different than the default.<P>
+<A NAME="5883"><H2> Tab Sets</H2></A>
+Tabs belong to a tab set which is responsible for managing and displaying the tabs. The tab set can be any type of dialog item that can reference the tabs. For example, if a tab set is represented as a list item, then the names for each tab is contained in the list. When the user selects a name from the list, the page corresponding to that tab is displayed in the notebook. Option menus and containers are examples of other dialog items you can use to represent a tab set.<P>
+By overriding the notebook member functions for creating and managing a tab set, there are many different ways that a notebook can be graphically represented. The notebook class provides only one representation, a tab set based on a container that displays tabs similar to an actual tab on a file folder. <A HREF="Notebook.html#5903">Figure 63</A> and <A HREF="Notebook.html#5909">Figure 64</A> show two alternative ways to implement a tab set. <A HREF="Notebook.html#5903">Figure 63</A> shows a list item implementation&#175;a selection from the list at the left corresponds to the page displayed at the right. <A HREF="Notebook.html#5909">Figure 64</A> uses an option menu to select the page to be displayed.<P>
+<IMG SRC="Notebook.anc2.gif"><P>
+<A NAME="5903"><I>Figure 63.  Tab set implemented with a list item
+</I><P>
+<IMG SRC="Notebook.anc3.gif"><P>
+<A NAME="5909"><I>Figure 64.  Tab set implemented with an option menu
+</I><P>
+<A NAME="5911"><H3> Major and Minor Tab Sets</H3></A>
+A tab set is either a major or minor tab set. A major tab set contains all the tabs for pages and sections at the top level of a notebook. A minor tab set contains tabs for pages or sections at the second level of a notebook. (The pages and sections contained within a top level section are at the second level of a notebook.) A minor tab set is displayed only when the section it represents is visible.<P>
+Each notebook can contain a major and minor tab set.<P>
+<A NAME="5915"><H2> Notebook Styles</H2></A>
+Various attributes of a notebook control its behavior and appearance. These attributes are determined from notebook styles. The <TT>vnotebook</TT> class contains a style that is the look-and-feel default for a given look-and-feel. To override one or more of these defaults, a style is installed on the notebook instance. If a style is not present or a style setting is not specified in the notebook's instance, it is retrieved from the class-level style of the notebook.<P>
+The following attributes are defined in a notebook style.<P>
+<UL><EM><B>Major Tab Set Side</B></EM>	Specifies the side of the notebook where the major tab set 
+should appear. Values are <TT>vnotebookTABSET_RIGHT</TT>, 
+<TT>vnotebookTABSET_LEFT</TT>, <TT>vnotebookTABSET_TOP</TT>, 
+<TT>vnotebookTABSET_BOTTOM</TT>.
+<P><EM><B>Minor Tab Set Side</B></EM>	Specifies the side of the notebook where the minor tab set 
+should appear. Values are <TT>vnotebookTABSET_RIGHT</TT>, 
+<TT>vnotebookTABSET_LEFT</TT>, <TT>vnotebookTABSET_TOP</TT>, 
+<TT>vnotebookTABSET_BOTTOM</TT>.
+<P><EM><B>Tabs</B></EM>	Specifies the type of tabs that are to displayed on the 
+notebook. Values are <TT>vnotebookTABS_NONE</TT>, 
+<TT>vnotebookTABS_PAGE</TT>, <TT>vnotebookTABS_MAJOR</TT>, 
+<TT>vnotebookTABS_MAJOR_AND_MINOR</TT>.
+<P><EM><B>Tab Style</B></EM>	Specifies the default border style of a tab. Values are 
+<TT>vnotebookTAB_STYLE_RECT</TT>, 
+<TT>vnotebookTAB_STYLE_ROUND_RECT</TT>, and 
+<TT>vnotebookTAB_STYLE_BEVELED</TT>.
+<P><EM><B>Folio</B></EM>	Specifies if the folio should be shown or not. Values are 
+<TT>TRUE</TT> for shown and <TT>FALSE</TT> for not shown.
+<P><EM><B>Folio Justify</B></EM>	Specifies the justification of the string that appears in the 
+folio. Values are <TT>vnotebookFOLIO_JUSTIFY_RIGHT</TT>, 
+<TT>vnotebookFOLIO_JUSTIFY_CENTER</TT>, and 
+<TT>vnotebookFOLIO_JUSTIFY_LEFT</TT>.
+<P><EM><B>Binding</B></EM>	Specifies the type of binding for the 3D notebook. Values 
+are <TT>vnotebookBINDING_PERFECT</TT> and 
+<TT>vnotebookBINDING_SPIRAL</TT>.
+<P><EM><B>Binding Size</B></EM>	Specifies the number of pixels that the perfect binding 
+occupies.
+<P><EM><B>Page Buttons</B></EM>	Specifies if the page buttons should be shown or not. 
+Values are <TT>TRUE</TT> for shown and <TT>FALSE</TT> for not shown.
+<P><EM><B>Vertical Tabs</B></EM>	Specifies whether or not to draw tabs that are on the 
+vertical side of a notebook rotated. Values are 
+<TT>vnotebookVERTICAL_TABS_NORMAL</TT> and 
+<TT>vnotebookVERTICAL_TABS_ROTATED</TT>.
+<P><EM><B>Pages Wrap</B></EM>	Specifies if traversal of notebook pages should wrap or not 
+from the first page backward to the last page or from the 
+last page forward to the first page. Values are <TT>TRUE</TT> and 
+<TT>FALSE</TT>.
+<P><EM><B>Page Borders</B></EM>	Specifies whether or not borders should be drawn on 
+individual pages. Values are TRUE for borders and FALSE 
+for no borders.
+<P><EM><B>Page Count</B></EM>	Number of virtual pages that are drawn in certain look-
+and-feels to help provide a visual 3D representation of a 
+notebook.
+<P><EM><B>Page Step</B></EM>	The number of pixels that are in between each virtual page 
+of a 3D representation of a notebook.
+<P><EM><B>Tab Set Buttons Centered</B></EM>	Determines if the buttons to scroll the tabs in a tab set are 
+to be centered in the tab set rectangle or aligned flush with 
+the inside border. Values are TRUE for centered or FALSE 
+for flush.
+<P><EM><B>Tab Set Buttons Placement</B></EM>	Determines where the buttons to scroll the tabs in a tab set 
+are displayed. Values are 
+<TT>vnotebookTABSET_BUTTONS_SEPARATE</TT> and 
+<TT>vnotebookTABSET_BUTTONS_ADJACENT</TT>.
+<P><EM><B>Tab Set Partial Tabs</B></EM>	Specifies whether or not tabs that are partially visible in a 
+tab set should be shown or not. Values are <TT>TRUE</TT> to show 
+partial tabs and <TT>FALSE</TT> to not show them.
+<P><EM><B>Page Inset</B></EM>	Specifies the number of pixels that the page is inset when 
+there are no borders are turned on for pages.
+<P><EM><B>Page Inset Border</B></EM>	Specifies the number of pixels that the page is inset when 
+there are borders are turned on for pages.
+<P><EM><B>Tab Spacing</B></EM>	The amount of space that is between each tab in a tab set.
+<P><EM><B>Tab Inset X</B></EM>	The amount of space to inset the tab item rectangle in the 
+x direction to determine the content rectangle.
+<P><EM><B>Tab Inset Y</B></EM>	The amount of space to inset the tab item rectangle in the 
+y direction to determine the content rectangle.
+<P><EM><B>Tab Raise</B></EM>	The amount of space to raise a tab when it is the currently 
+active tab. This is not used in all lafs.
+<P><EM><B>Tab Select Resize</B></EM>	The amount of space to resize a tab when it is the currently 
+active tab. This is not used in all look-and-feels.
+<P><EM><B>Folio Button Margin</B></EM>	The amount of space to leave between the page buttons 
+and folio when both are displayed on the notebook.
+<P><EM><B>Button Margin</B></EM>	The amount of space to leave between the two page 
+buttons.
+<P><EM><B>Button Border Margin</B></EM>	The amount of space to leave between the page buttons 
+and border.A notebook style contains the settings 
+necessary to provide the user a way to override general 
+attributes.
+<P></UL><A NAME="5945"><H3> Visual Representation</H3></A>
+The appearance and visual orientation of a notebook is largely determined by the tab sets and binding. Usually, a notebook resembles a note pad or book with a three dimensional look. A pad or book is held together by a binding on one side and optionally contains tabs along another side (usually the side opposite the binding). The tabs allow you to quickly access to a particular page or section in the notebook.<P>
+The notebook object is similar to this actual physical model; however, there are two levels of tabs, major and minor. The placement of the major and minor tab sets determine the orientation of the notebook. The binding is always placed opposite the side of the major tab set. The minor tab set is placed on either of the adjacent sides.<P>
+To make a notebook appear more three-dimensional, you can specify the number of pages visible from the edge of the pad or book that the notebook represents. The page count attribute of a style defines the number of virtual pages shown, and the page step attribute defines the distance between each virtual page.<P>
+The contents of a tab along the vertical side of a notebook (vertical tab) are normally drawn horizontally. A problem inherent with drawing vertical tabs horizontally is the amount of screen real estate it takes to represent them. You can specify an attribute for a vertical tab that defines whether the tab contents should be drawn horizontally or rotated ninety degrees.<P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+The next three sections follow the class hierarchy of notebooks and discuss pages, sections, and notebooks. (Notebooks are subclassed from sections, which in turn are subclassed from pages.) Next is a discussion on tabs and tab sets, followed by a section on notebook styles.<P>
+<A NAME="5557"><H2> Creating a Notebook</H2></A>
+To create a standard notebook, call <TT><B>Create</B></TT>. Use<TT><B></B></TT> <TT><B>AppendSectionPage</B></TT> to append pages or sections to the notebook. The order of the pages and sections in a notebook determine the order that pages in a notebook are traversed. Use<TT><B></B></TT> <TT><B>GetPageIndex</B></TT> to determine the order (index) of a page. To change the index of a page, and thus the order, use <TT><B>SetPageIndex</B></TT>.<P>
+Use <TT><B>CreatePage</B></TT> and <TT><B>AppendPage</B></TT> to create pages and add them to a notebook. You can also use <TT><B>AppendSectionPage</B></TT> to add pages to a section.The Visual Resource Builder provides facilities to create and edit pages which can be stored in a resource file. To read a page from a resource file, use <TT><B>LoadPage</B></TT>. For more information on using the Visual Resource Builder, refer to Visual Resource Builder User's Guide.<P>
+To retrieve the container that a page is based on use <TT><B>GetPageContainer</B></TT>. Any of the container API entry points can be used to perform operations on the container such as append, delete, or change the index of dialog items. Refer to the Container chapter for more information on the container entry points.<P>
+<A NAME="5601"><H3> Page Methods</H3></A>
+The following methods for pages are commonly used in notebooks.<P>
+<UL><TT>vnotebookPAGE_IS_VALID
+</TT><P>	Returns <TT>TRUE</TT> if a page is in a valid state so that we can 
+change to another page.
+<P><TT>vnotebookSELECT_PAGE
+</TT><P>	This method is called when a page is selected as the current 
+page in the notebook.
+<P><TT>vnotebookUNSELECT_PAGE
+</TT><P>	This method is called when a page is no longer selected as 
+the current page in the notebook.
+<P><TT>vnotebookCREATE_PAGE_TAB
+</TT><P>	This method is called when you create a new tab for a page. 
+This method allows you to have your own subclass of tab.
+<P></UL>Use <TT><B>CreateSection</B></TT> to create a section. To add a section to a notebook or section, you must first retrieve the page from the section with <TT><B>GetSectionPage</B></TT>. Then use either <TT><B>AppendPage</B></TT> or <TT><B>AppendSectionPage</B></TT> to append it to a notebook or section.<P>
+Each section keeps track of its current selection. The current selection is the section or page that was last visited by the user. When a user steps to a section the current selection becomes active. If the current selection is a page, then the page is displayed. If the current selection is itself a section, then the Notebook class gets the current selection for this section.The current selection is the currently visible section or page.<P>
+<TT><B>GetSectionCurrentPage</B></TT> returns the currently active page or section. You can test whether a section or page is returned by this function with <TT><B>IsSection</B></TT>. If you have a notebook and you just want to get the actual page that is in current use, call <TT><B>DetermineCurrentPage</B></TT>. <TT><B>DetermineCurrentPage</B></TT> calls <TT><B>GetSectionCurrentPage</B></TT> until a page is returned, as illustrated in <A HREF="Notebook.html#5653">Example 110</A>.<P>
+<UL><B><I>NOTE:</I></B> Most entry points like <TT><B>SetSectionCurrentPage</B></TT> or <TT><B>AppendSectionPage</B></TT> 
+take a page as the parameter. Since a section is a type of page, you can 
+retrieve the page from the section with <TT><B>GetSectionPage</B></TT>. Use this function 
+to pass a section into any function that takes a page as a parameter.
+<P>
+</UL><A HREF="Notebook.html#5653">Example 110</A> shows the implementation of <TT><B>DetermineCurrentPage</B></TT>.<P>
+<A NAME="5653"><I>Example 110.  DetermineCurrentPage
+</I><P>
+<PRE><UL>vnotebookPage *vnotebookDetermineCurrentPage( vnotebook *notebook )
+{
+   vnotebookPage *page;
+
+   page = vnotebookGetCurrentPage( notebook );
+   while ( page &amp;&amp; vnotebookPageIsSection( page ) )
+     page = vnotebookGetSectionCurrentPage((vnotebookSection *) page );
+
+   return( page );
+}
+
+</UL></PRE><A HREF="Notebook.html#5680">Example 111</A> shows how to count the number of pages in a section. The total returned includes the pages in every subsection.<P>
+<A NAME="5680"><I>Example 111.  Stepping through pages testing for a section
+</I><P>
+<PRE><UL>/*
+ *  Recursively determines the number of actual pages under a section.
+ *  The count includes the page count of any subsections
+ */
+int determineSectionPageCount( vnotebookSection *section )
+{
+   int            count;
+   int            totalPages;
+   int            i;
+   vnotebookPage *page;
+
+   /*
+    *  Initialize page count
+    */
+   totalPages = 0;
+
+   /*
+    *  Get each page from the section and react accordingly
+    */
+   count = vnotebookGetSectionPageCount( section );
+   for ( i = 0; i &lt; count; i++ )
+   {
+      if ( vnotebookPageIsSection( page ) )
+        totalPages += determineSectionPageCount( (vnotebookSection *) page );
+      else
+        totalPages++;
+   }
+
+   return( totalPages );
+}
+
+</UL></PRE>You can set the title of a tab with <TT><B>SetTabTitle.</B></TT> If the title of a tab is not specified, the title is taken from the title of the dialog item that the page is based on.<P>
+A tab can optionally have an image associated with it. There are a series of <TT><B>SetTabImage*</B></TT> functions you can use to add, remove, or modify the behavior of the image associated with a tab. An image does not have to be explicitly set for each tab for a tab to have an image associated with it. The image can be derived from a parent tab by traversing the notebook tree. For example, if we set the image for a section's tab, each page's tab under the section would use the image from its parent section's tab (unless an image was explicitly set for the page's tab). If you do not want a tab to derive an image, call <TT><B>SetTabImageNone</B></TT> with <TT>TRUE</TT>.<P>
+You can set the font for a tab by calling <TT><B>vdialogSetItemFont</B></TT> on a <TT>vnotebookTab</TT> item. If you do not specify a font the default font is used. The font for a tab can also be inherited from a tab's parent object in the same way that an image can be inherited.<P>
+Tab sets are created when the tab style is set with <TT><B>SetStyleTabs</B></TT>. The tab sets are owned by the notebook and are destroyed when the notebook is destroyed. After setting the tab style with <TT><B>SetStyleTabs</B></TT>, add the style to the notebook with <TT><B>SetStyle</B></TT>.<P>
+The Notebook class provides four options for tab set styles which are listed in <A HREF="Notebook.html#5828">Table 30</A>. Pass the indicated constant to <TT><B>SetStyleTabs</B></TT> to specify a tab set style. <A HREF="Notebook.html#5767">Example 112</A> shows how to specify both major and minor tab sets for a notebook.<P>
+<A NAME="5767"><I>Example 112.  Setting a tab style for a notebook
+</I><P>
+<PRE><UL>   // ...
+   vnotebookStyle style;
+   // ...
+
+   vnotebookSetStyleTabs(&amp;style, vnotebookTABS_MAJOR_AND_MINOR);
+   vnotebookSetStyle(notebook, &amp;style);
+   // ...
+
+</UL></PRE><A NAME="5828"><I>Table 30.  Tab set styles
+<TABLE BORDER="3">
+
+<CAPTION></CAPTION>
+
+<tr><th><B>Constant
+</B></th><th><B>Tab Style
+</B></th><th><B>Description
+</B></th>
+<tr><td><TT>vnotebookTABS_NONE
+</TT></td><td>No tab sets are created.
+</td><td>No tabs are visible.
+</td></tr>
+<tr><td><TT>vnotebookTABS_PAGE
+</TT>
+
+</td><td>Major tab set created. 
+Minor tab set not created.
+
+</td><td>Tabs are visible for every page in 
+the notebook.
+
+</td></tr>
+<tr><td><TT>vnotebookTABS_MAJOR
+</TT>
+
+
+</td><td>Major tab set created. 
+Minor tab set not created.
+
+
+</td><td>Tabs are visible for each page and 
+section at the top level of the 
+notebook. Tabs are not visible at 
+the second level.
+</td></tr>
+<tr><td><TT>vnotebookTABS_MAJOR_AND_MINOR
+</TT>
+
+
+
+</td><td>Major and minor tab sets 
+are created.
+
+
+
+</td><td>Tabs are visible at the top level and 
+second level. (If a top level section 
+is visible, then a tab is visible for 
+every page and section in that 
+section.)
+</td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+
+</I><P>
+If you want to have a tab visible for each page in a notebook you do not need to use sections. Specify <TT>vnotebookTABS_PAGE</TT> for notebooks that contain only pages. However, if you want to have both major and minor tabs, your notebook must contain sections. Specify <TT>vnotebookTABS_MAJOR_AND_MINOR</TT> to display tabs on the first and second level.<P>
+Specifying <TT>vnotebookTABS_PAGE</TT> with notebooks that are more than one level deep essentially flattens out the hierarchy of the notebook&#175;tabs for all pages are visible. In this case, the Notebook class uses an in-order traversal of the notebook tree to determine the order of tabs displayed.<P>
+<A NAME="5837"><H3> Overriding Default Styles</H3></A>
+Styles in a notebook control much of its appearance and behavior. The class of a notebook contains a style that defines the default values, If you want to change one or more of the settings from the default, a style is installed on the notebook instance with the new settings defined. For example:<P>
+<PRE><UL>   style2 = vnotebookCreateStyle();
+   vnotebookSetStyleFolio( style2, FALSE );
+   vnotebookSetStylePageButtons( style2, FALSE );
+   vnotebookSetStyleOwned( notebook, style2 );
+
+</UL></PRE>A style only exists on the notebook if you have changed the default of one or more settings. If you want to change the defaults for all notebook instances, you can retrieve the style from the class and change the settings as desired.<P>
+To determine the value of one or more settings you need to use the function <TT><B>DetermineStyle</B></TT>. This function first checks the style of the notebook for each setting requested and, if the setting is still not defined, retrieves the setting from the class style.<P>
+<PRE><UL>   vnotebookInitStyle( &amp;style );
+
+   vnotebookDetermineStyle( notebook, &amp;style, vnotebookSTYLE_FOLIO |
+                           vnotebookSTYLE_PAGE_BUTTONS );
+   pageButtons = vnotebookGetStylePageButtons( &amp;style );
+   folio = vnotebookGetStyleFolio( &amp;style );
+
+   vnotebookDestroyStyle( &amp;style );
+
+</UL></PRE><A NAME="5962"><H2> Tab Sets</H2></A>
+<UL><TT><B>vnotebookRECALC_TABSET_TABS
+</B></TT><P>	Recalculates the tabs that belong in a given tab set. All tabs 
+that do not belong are deleted and the new tabs are added.
+<P><TT><B>vnotebookGET_TABSET_SIZE<br>
+vnotebookCALC_TABSET_RECT
+</B></TT><P>	Calculates the size and position of the tab set.
+<P><TT><B>vnotebookGET_MAX_TABSET_TAB_SIZE
+</B></TT><P>	Returns the maximum tab size for the tabs in a tab set.
+<P><TT><B>vnotebookCREATE_TABSET
+</B></TT><P>	Creates the given type of tab set (major or minor).
+<P><TT><B>vnotebookGET_TABSET_TAB_COUNT<br>
+vnotebookGET_TABSET_TAB_AT<br>
+vnotebookADD_TABSET_TAB<br>
+vnotebookDELETE_TABSET_TAB
+</B></TT><P>	These methods are usually called by the default <TT><B>
+vnotebookRECALC_TABSET_TABS</B></TT> methods when 
+collecting the tabs that belong in the given tab set.
+<P><TT><B>vnotebookGET_TABSET_CLIP_RECTS
+</B></TT><P>	Returns the rectangles that need to clipped out of the 
+notebook binding when drawing.
+<P><TT><B>vnotebookSET_TABSET_TAB_SELECTED
+</B></TT><P>	Sets which tab is selected in a tab set. The tab set should 
+keep track of which tab is selected to save unnecessary 
+redraws and calculations.
+<P><TT><B>vnotebookSCROLL_TABSET_TAB_INTO_VIEW
+</B></TT><P>	Scrolls a tab into view within its tab set.
+<P><TT><B>vnotebookCALC_TABSET_TAB_RECT
+</B></TT><P>	Calculates the rectangle of a tab in a tab set.
+<P></UL><A NAME="6019"><H2> Page Buttons</H2></A>
+<UL><TT><B>vnotebookCREATE_PAGE_BUTTON
+</B></TT><P>	Creates the specified page button.
+<P><TT><B>vnotebookGET_PAGE_BUTTON_SIZE<br>
+vnotebookCALC_PAGE_BUTTON_RECTS
+</B></TT><P>	Calculates the size and position of the page buttons.
+<P></UL><A NAME="6033"><H2> Folios</H2></A>
+<UL><TT><B>vnotebookGET_FOLIO_SIZE<br>
+vnotebookCALC_FOLIO_RECT
+</B></TT><P>	Calculates the size and position of the folio.
+<P><TT><B>
+</B></TT><P>	Draws the folio in the specified rectangle. The default 
+method uses page number and total from the function <TT>
+GetCurrentPageNumber</TT> to construct a string to draw. 
+<P></UL><A NAME="6047"><H2> Drawing</H2></A>
+<UL><TT><B>vdialogDRAW_ITEM
+</B></TT><P>	This function will not usually need to be overridden. The 
+default method draws the page buttons, tab sets, and 
+makes method calls to draw <TT>vnotebookDRAW_BINDER</TT> and 
+<TT>vnotebookDRAW_PAGE_CONTENT</TT>.
+<P><TT><B>vnotebookDRAW_PAGE_BORDER
+</B></TT><P>	This function does nothing in the default implementation.
+<P><TT><B>vnotebookDRAW_PAGE_CONTENT
+</B></TT><P>	Draws the contents of the notebook which corresponds to 
+the current page in the notebook. This method would not 
+usually be overridden.
+<P><TT><B>vnotebookDRAW_BINDER
+</B></TT><P>	Draws the number of graphical pages that is determined 
+from the styles. After setting up the proper clip rects, <TT>
+vnotebookDRAW_PAGE_AT</TT> is called for every graphical 
+page.
+<P><TT><B>vnotebookDRAW_PAGE_AT
+</B></TT><P>	Draws the rectangle that represents one graphical page of 
+the notebook binder.
+<P><TT><B>vnotebookDRAW_FOLIO
+</B></TT><P>	Draws the folio in the specified rectangle. The default 
+method uses page number and total from the function <TT>
+GetCurrentPageNumber</TT> to construct a string to draw.
+<P></UL><A NAME="6086"><H2> Placement and Size</H2></A>
+<UL><TT><B>vnotebookCALC_PAGE_CONTENT_RECT
+</B></TT><P><TT><B>vnotebookGET_PAGE_CONTENT_MIN_SIZE
+</B></TT><P><TT><B>vnotebookGET_PAGE_CONTENT_NATURAL_SIZE
+</B></TT><P><TT><B>vnotebookGET_PAGE_BORDER_SIZES
+</B></TT><P><TT><B>vnotebookGET_PAGE_DECORATION_SIZES
+</B></TT><P><TT><B>vnotebookGET_FOLIO_SIZE
+</B></TT><P><TT><B>vnotebookCALC_FOLIO_RECT
+</B></TT><P><TT><B>vnotebookGET_PAGE_BUTTON_SIZE
+</B></TT><P><TT><B>vnotebookCALC_PAGE_BUTTON_RECTS
+</B></TT><P><TT><B>vnotebookGET_TABSET_SIZE
+</B></TT><P><TT><B>vnotebookCALC_TABSET_RECT
+</B></TT><P><TT><B>vnotebookGET_MAX_TABSET_TAB_SIZE
+</B></TT><P><TT><B>vnotebookCALC_TABSET_TAB_RECT
+</B></TT><P></UL><A NAME="6346"><H2> Sample Code</H2></A>
+Complete source code demonstrating some of the concepts presented in this chapter is available in your Galaxy distribution in the <TT>samples/docsamps</TT> directory.<P>
+The <TT>notebook2</TT> example shows how to us a <TT>vlistitem</TT> as a tab set. Each cell in the <TT>vlistitem</TT> represents a tab in the notebook.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Name.html">Previous Chapter</A> | 
+		<A HREF="Notice.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

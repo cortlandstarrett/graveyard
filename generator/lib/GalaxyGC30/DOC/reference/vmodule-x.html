@@ -1,0 +1,638 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vmodule prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vmodule prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vmodule-x.html#section_DataType">Types</A> [4]</TD>
+<TD><A HREF="vmodule-x.html#section_Function">Functions</A> [25]</TD>
+<TD><A HREF="vmodule-x.html#section_Message">Messages</A> [7]</TD>
+<TD><A HREF="vmodule-x.html#section_Constant">Constants</A> [1]</TD>
+<TD><A HREF="vmodule-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vmodule"><HR><H4>vmodule</H4></A>
+<PRE>
+        typedef ... <B>vmodule</B>;
+</PRE>
+
+<DL><DD>
+A module is an object that represents a named collection of executable
+code fragments. Modules provide the means for dynamically loading
+executable code fragments into an application and for mapping textual
+symbolic names to actual entrypoints in that code. Common examples of
+module are UNIX shared libraries or DLLs under Windows.
+</DD></DL>
+<P>
+<A NAME="vmoduleClass"><HR><H4>vmoduleClass</H4></A>
+<PRE>
+        typedef ... <B>vmoduleClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variable bindings for objects of type
+<CODE>vmodule</CODE>. Classes declared with this type contain
+the same set of methods and variables as the default module class,
+but the behavior of methods and the contents of variables may vary.
+This class type is derived from <CODE><A HREF="vinstance-x.html#vinstanceClass"><CODE>vinstanceClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vmoduleShutdownProc"><HR><H4>vmoduleShutdownProc</H4></A>
+<PRE>
+        typedef ... <B>vmoduleShutdownProc</B>;
+</PRE>
+
+<DL><DD>
+Function pointer type for per-module shutdown functions.
+</DD></DL>
+<P>
+<A NAME="vmoduleStartupProc"><HR><H4>vmoduleStartupProc</H4></A>
+<PRE>
+        typedef ... <B>vmoduleStartupProc</B>;
+</PRE>
+
+<DL><DD>
+Function pointer type for per-module startup function.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vmoduleAddSearchPathOwned"><HR><H4>vmoduleAddSearchPathOwned</H4></A>
+<PRE>
+        void <B>vmoduleAddSearchPathOwned</B>(
+                vfsPath * path);
+</PRE>
+
+<DL><DD>
+Add the path <CODE>path</CODE> to the paths searched when attaching
+the code module. If the path specified when attaching the module
+is not an absolute path, the module will search for a module of the
+given name at certain platform-specific paths and any paths added
+with this function.
+</DD></DL>
+<P>
+<A NAME="vmoduleAttach"><HR><H4>vmoduleAttach</H4></A>
+<PRE>
+        void <B>vmoduleAttach</B>(
+                vmodule * module,
+                vfsPath * path);
+</PRE>
+
+<DL><DD>
+Attach the collection of executable code stored in the file located
+at <CODE>path</CODE> to the currently running process. If the file
+does not exist or is not accessible or is not a valid dynamically-
+loaded code file for the given platform and exception is raised. 
+This function is implemented by sending the <CODE><A HREF="vmodule-x.html#vmoduleATTACH"><CODE>vmoduleATTACH</CODE></A></CODE>
+message to the vmodule.
+</DD></DL>
+<P>
+<A NAME="vmoduleAttachSearchScribed"><HR><H4>vmoduleAttachSearchScribed</H4></A>
+<PRE>
+        void <B>vmoduleAttachSearchScribed</B>(
+                vmodule * module,
+                vscribe * name);
+</PRE>
+
+<DL><DD>
+Attach the collection of executable code stored in the file named
+by <CODE>name</CODE> to the currently running process. The paths
+searched to find a code file of the given name include any paths
+add to the module using <CODE><A HREF="vmodule-x.html#vmoduleAddSearchPathOwned"><CODE>vmoduleAddSearchPathOwned</CODE></A></CODE> and
+any paths specific to the underlying operating system. 
+This function is implemented by sending the
+<CODE><A HREF="vmodule-x.html#vmoduleATTACH_SEARCH"><CODE>vmoduleATTACH_SEARCH</CODE></A></CODE> message to the module.
+</DD></DL>
+<P>
+<A NAME="vmoduleCreate"><HR><H4>vmoduleCreate</H4></A>
+<PRE>
+        vmodule * <B>vmoduleCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new module of the default module class and returns a
+pointer to the new module class. Memory is allocated by the
+Module class.
+</DD></DL>
+<P>
+<A NAME="vmoduleCreateOfClass"><HR><H4>vmoduleCreateOfClass</H4></A>
+<PRE>
+        vmodule * <B>vmoduleCreateOfClass</B>(
+                vmoduleClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new module of class <SAMP>clas</SAMP> and returns a
+pointer to the new module. Memory is allocated by the Module
+class. The new module is created with a set of default attributes,
+determined by the class.
+</DD></DL>
+<P>
+<A NAME="vmoduleDestroy"><HR><H4>vmoduleDestroy</H4></A>
+<PRE>
+        void <B>vmoduleDestroy</B>(
+                vmodule * module);
+</PRE>
+
+<DL><DD>
+Destroys the module represented by <SAMP>module</SAMP>. The code
+module is detached from the current process and freed to the operating
+system; the operating system may or may not immediately remove it
+from the address space of the process at it's discretion.
+</DD></DL>
+<P>
+<A NAME="vmoduleDetach"><HR><H4>vmoduleDetach</H4></A>
+<PRE>
+        void <B>vmoduleDetach</B>(
+                vmodule * module);
+</PRE>
+
+<DL><DD>
+Detach the code module from the current process. The underlying system
+resource for this module may or may not be removed from the address
+space of the process at this time, at the discretion of the underlying
+operating system.
+<P>
+This function is implemented by sending the <CODE><A HREF="vmodule-x.html#vmoduleDETACH"><CODE>vmoduleDETACH</CODE></A></CODE>
+message to the vmodule.
+</DD></DL>
+<P>
+<A NAME="vmoduleDump"><HR><H4>vmoduleDump</H4></A>
+<PRE>
+        void <B>vmoduleDump</B>(
+                vmodule * module,
+                FILE * stream);
+</PRE>
+
+<DL><DD>
+Prints the contents of a vmodule to the file <CODE>stream</CODE> in
+a human-readable format. This method is for debugging purposes only
+and should not be used serialize this object to stable storage.
+<P>
+This function is implemented by sending the <CODE>vmodumeDUMP</CODE>
+message to the vmodule.
+</DD></DL>
+<P>
+<A NAME="vmoduleGetClass"><HR><H4>vmoduleGetClass</H4></A>
+<PRE>
+        vmoduleClass * <B>vmoduleGetClass</B>(
+                vmodule * module);
+</PRE>
+
+<DL><DD>
+Returns the module class of a module.
+</DD></DL>
+<P>
+<A NAME="vmoduleGetDefaultClass"><HR><H4>vmoduleGetDefaultClass</H4></A>
+<PRE>
+        vmoduleClass * <B>vmoduleGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the class used to create modules by the <CODE>vomoduleCreate</CODE>
+and <CODE>vomoduleInit</CODE> functions. This class can be modified to
+alter the behavior of all modules subsequently created by these functions.
+</DD></DL>
+<P>
+<A NAME="vmoduleGetInstance"><HR><H4>vmoduleGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vmoduleGetInstance</B>(
+                vmodule * module);
+</PRE>
+
+<DL><DD>
+Returns the instance a module is built upon.
+</DD></DL>
+<P>
+<A NAME="vmoduleGetPath"><HR><H4>vmoduleGetPath</H4></A>
+<PRE>
+        vfsPath * <B>vmoduleGetPath</B>(
+                vmodule * module);
+</PRE>
+
+<DL><DD>
+Returns the path of the code file the module was attached to
+using <CODE><A HREF="vmodule-x.html#vmoduleAttach"><CODE>vmoduleAttach</CODE></A></CODE>, or <CODE>NULL</CODE> if the
+module has not been attached to a code file.
+</DD></DL>
+<P>
+<A NAME="vmoduleGetSymbol"><HR><H4>vmoduleGetSymbol</H4></A>
+<PRE>
+        void * <B>vmoduleGetSymbol</B>(
+                vmodule * module,
+                const vchar * symbol);
+</PRE>
+
+<DL><DD>
+Lookup a code entry point in the module by it's symbolic name.
+When a code module is built on a given platform a symbolic name
+is associated with each code fragment in the file; this method
+can be used to find code entry points by symbolic name. Typically
+the symbolic names are function names as specified in the source
+code used to compile the dynamic code file or shared library.
+</DD></DL>
+<P>
+<A NAME="vmoduleGetSymbolScribed"><HR><H4>vmoduleGetSymbolScribed</H4></A>
+<PRE>
+        void * <B>vmoduleGetSymbolScribed</B>(
+                vmodule * module,
+                vscribe * symbol);
+</PRE>
+
+<DL><DD>
+Lookup a code entry point in the module by it's symbolic name.
+When a code module is built on a given platform a symbolic name
+is associated with each code fragment in the file; this method
+can be used to find code entry points by symbolic name. Typically
+the symbolic names are function names as specified in the source
+code used to compile the dynamic code file or shared library.
+<P>
+This function is implemented by sending the
+<CODE><A HREF="vmodule-x.html#vmoduleGET_SYMBOL_SCRIBED"><CODE>vmoduleGET_SYMBOL_SCRIBED</CODE></A></CODE> message to the vmodule.
+</DD></DL>
+<P>
+<A NAME="vmoduleInit"><HR><H4>vmoduleInit</H4></A>
+<PRE>
+        void <B>vmoduleInit</B>(
+                vmodule * module);
+</PRE>
+
+<DL><DD>
+Makes the module addressed by <SAMP>module</SAMP> into a valid
+module of the default module class in the same manner as
+<CODE><A HREF="vmodule-x.html#vmoduleInitOfClass"><CODE>vmoduleInitOfClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vmoduleInitOfClass"><HR><H4>vmoduleInitOfClass</H4></A>
+<PRE>
+        void <B>vmoduleInitOfClass</B>(
+                vmodule * module,
+                vmoduleClass * clas);
+</PRE>
+
+<DL><DD>
+Makes the module addressed by <SAMP>module</SAMP> into a valid
+module of class <SAMP>clas</SAMP>. The same address can be used
+in other calls to the Module class as if it were created with
+<CODE><A HREF="vmodule-x.html#vmoduleCreate"><CODE>vmoduleCreate</CODE></A></CODE>. A call to <CODE><A HREF="vmodule-x.html#vmoduleDestroy"><CODE>vmoduleDestroy</CODE></A></CODE>
+frees any internal objects allocated by the Module class, but
+does <I>not</I> attempt to free the structure itself.
+</DD></DL>
+<P>
+<A NAME="vmoduleIsAttached"><HR><H4>vmoduleIsAttached</H4></A>
+<PRE>
+        vbool <B>vmoduleIsAttached</B>(
+                vmodule * module);
+</PRE>
+
+<DL><DD>
+Determine if a module is attached to a code file and return
+<CODE>TRUE</CODE> if attached and <CODE>FALSE</CODE> if not.
+</DD></DL>
+<P>
+<A NAME="vmoduleRegisterShutdown"><HR><H4>vmoduleRegisterShutdown</H4></A>
+<PRE>
+        void <B>vmoduleRegisterShutdown</B>(
+                vmodule * module,
+                vmoduleShutdownProc proc);
+</PRE>
+
+<DL><DD>
+Registers a function to be called when a module is detached from
+the current process. This function entry point is implemented by sending the
+<CODE><A HREF="vmodule-x.html#vmoduleREGISTER_SHUTDOWN"><CODE>vmoduleREGISTER_SHUTDOWN</CODE></A></CODE> message to the module.
+</DD></DL>
+<P>
+<A NAME="vmoduleScribeLibraryNameFromBaseScribed"><HR><H4>vmoduleScribeLibraryNameFromBaseScribed</H4></A>
+<PRE>
+        vscribe * <B>vmoduleScribeLibraryNameFromBaseScribed</B>(
+                vscribe * base);
+</PRE>
+
+<DL><DD>
+Starting with the specified base name, build a file name that is
+appropriate for naming a dynamic code file on a given platform.
+The returned name will include any expected file name extensions,
+such as <SAMP>.dll</SAMP> or <SAMP>.so</SAMP>, and any required
+prefixes, such as <SAMP>lib</SAMP>. This function allows an
+application to specify the same base name for all platforms and
+allow the Module class to determine the appropriate platform-
+specific manipulations.
+</DD></DL>
+<P>
+<A NAME="vmoduleScribeLibraryNameFromVersionedBaseScribed"><HR><H4>vmoduleScribeLibraryNameFromVersionedBaseScribed</H4></A>
+<PRE>
+        vscribe * <B>vmoduleScribeLibraryNameFromVersionedBaseScribed</B>(
+                vscribe * base,
+                int version);
+</PRE>
+
+<DL><DD>
+Starting with the specified base name and version number, build a
+file name that is appropriate for naming a dynamic code file on a
+given platform. The returned name will include any expected file
+name extensions, such as <SAMP>.dll</SAMP> or <SAMP>.so</SAMP>,
+and any required prefixes, such as <SAMP>lib</SAMP>. This function
+allows an application to specify the same base name for all platforms
+and allow the Module class to determine the appropriate platform-
+specific manipulations.
+</DD></DL>
+<P>
+<A NAME="vmoduleScribeVisixLibraryNameFromBaseScribed"><HR><H4>vmoduleScribeVisixLibraryNameFromBaseScribed</H4></A>
+<PRE>
+        vscribe * <B>vmoduleScribeVisixLibraryNameFromBaseScribed</B>(
+                vscribe * base);
+</PRE>
+
+<DL><DD>
+Starting with the specified base name, build a file name that is
+appropriate for naming a dynamic code file on a given platform, and
+which conforms to the version/codeset/debug-mode naming conventions
+followed by the Galaxy libraries. The returned name will include any
+expected file name extensions, such as <SAMP>.dll</SAMP> or
+<SAMP>.so</SAMP>, any required prefixes, such as <SAMP>lib</SAMP>,
+and any addtional naming elements added by Galaxy libraries to
+indicate codeset or debugging level. This function allows an
+application to specify the same base name for all platforms and
+allow the Module class to determine the appropriate platform-
+specific, and Visix-specific manipulations.
+</DD></DL>
+<P>
+<A NAME="vmoduleScribeVisixLibraryNameFromVersionedBaseScribed"><HR><H4>vmoduleScribeVisixLibraryNameFromVersionedBaseScribed</H4></A>
+<PRE>
+        vscribe * <B>vmoduleScribeVisixLibraryNameFromVersionedBaseScribed</B>(
+                vscribe * base,
+                int version);
+</PRE>
+
+<DL><DD>
+Starting with the specified base name and version number, build a
+file name that is appropriate for naming a dynamic code file on a
+given platform, and which conforms to the version/codeset/debug-mode
+naming conventions followed by the Galaxy libraries. The returned
+name will include any expected file name extensions, such as
+<SAMP>.dll</SAMP> or <SAMP>.so</SAMP>, any required prefixes, such
+as <SAMP>lib</SAMP>,and any addtional naming elements added by Galaxy
+libraries to indicate codeset or debugging level. This function allows
+an application to specify the same base name for all platforms and
+allow the Module class to determine the appropriate platform-specific
+and Visix-specific manipulations.
+</DD></DL>
+<P>
+<A NAME="vmoduleSetStartupSymbol"><HR><H4>vmoduleSetStartupSymbol</H4></A>
+<PRE>
+        void <B>vmoduleSetStartupSymbol</B>(
+                vmodule * module,
+                vchar * name);
+</PRE>
+
+<DL><DD>
+Set the symbolic name of the per-module startup function. When the
+module is first attached to the current process the startup function
+is looked up by name and called if found.
+</DD></DL>
+<P>
+<A NAME="vmoduleSetStartupSymbolScribed"><HR><H4>vmoduleSetStartupSymbolScribed</H4></A>
+<PRE>
+        void <B>vmoduleSetStartupSymbolScribed</B>(
+                vmodule * module,
+                vscribe * name);
+</PRE>
+
+<DL><DD>
+Set the symbolic name of the per-module startup function. When the
+module is first attached to the current process the startup function
+is looked up by name and called if found. 
+This function entry point is implemented by sending the message 
+<CODE><A HREF="vmodule-x.html#vmoduleSET_STARTUP_SYMBOL_SCRIBED"><CODE>vmoduleSET_STARTUP_SYMBOL_SCRIBED</CODE></A></CODE> to the module.
+</DD></DL>
+<P>
+<A NAME="vmoduleStartup"><HR><H4>vmoduleStartup</H4></A>
+<PRE>
+        void <B>vmoduleStartup</B>();
+</PRE>
+
+<DL><DD>
+Sets up the Module class for use. It has no effect if the
+setup has already occured.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vmoduleATTACH"><HR><H4>vmoduleATTACH</H4></A>
+<PRE>
+        &lt;<B>vmoduleATTACH</B>&gt;
+</PRE>
+
+<DL><DD>
+Attach the collection of executable code stored in the file located
+at <CODE>path</CODE> to the currently running process. If the file
+does not exist or is not accessible or is not a valid dynamically-
+loaded code file for the given platform and exception is raised. 
+The function entry point <CODE><A HREF="vmodule-x.html#vmoduleAttach"><CODE>vmoduleAttach</CODE></A></CODE> is implemented by
+sending this message to the vmodule.
+</DD></DL>
+<P>
+<A NAME="vmoduleATTACH_SEARCH"><HR><H4>vmoduleATTACH_SEARCH</H4></A>
+<PRE>
+        &lt;<B>vmoduleATTACH_SEARCH</B>&gt;
+</PRE>
+
+<DL><DD>
+Attach the collection of executable code stored in the file named
+by <CODE>name</CODE> to the currently running process. The paths
+searched to find a code file of the given name include any paths
+add to the module using <CODE><A HREF="vmodule-x.html#vmoduleAddSearchPathOwned"><CODE>vmoduleAddSearchPathOwned</CODE></A></CODE> and
+any paths specific to the underlying operating system. 
+The function <CODE><A HREF="vmodule-x.html#vmoduleAttachSearchScribed"><CODE>vmoduleAttachSearchScribed</CODE></A></CODE> is implemented
+by sending this message to the module.
+</DD></DL>
+<P>
+<A NAME="vmoduleDETACH"><HR><H4>vmoduleDETACH</H4></A>
+<PRE>
+        &lt;<B>vmoduleDETACH</B>&gt;
+</PRE>
+
+<DL><DD>
+Detach the code module from the current process. The underlying system
+resource for this module may or may not be removed from the address
+space of the process at this time, at the discretion of the underlying
+operating system.
+<P>
+The function entry point <CODE><A HREF="vmodule-x.html#vmoduleDetach"><CODE>vmoduleDetach</CODE></A></CODE> is implemented by
+sending this message to the vmodule.
+</DD></DL>
+<P>
+<A NAME="vmoduleDUMP"><HR><H4>vmoduleDUMP</H4></A>
+<PRE>
+        &lt;<B>vmoduleDUMP</B>&gt;
+</PRE>
+
+<DL><DD>
+Prints the contents of a vmodule to the file <CODE>stream</CODE> in
+a human-readable format. This method is for debugging purposes only
+and should not be used serialize this object to stable storage.
+<P>
+The function entry point <CODE>vmodumeDump</CODE> is implemented by
+sending this message to the vmodule.
+</DD></DL>
+<P>
+<A NAME="vmoduleGET_SYMBOL_SCRIBED"><HR><H4>vmoduleGET_SYMBOL_SCRIBED</H4></A>
+<PRE>
+        &lt;<B>vmoduleGET_SYMBOL_SCRIBED</B>&gt;
+</PRE>
+
+<DL><DD>
+Lookup a code entry point in the module by it's symbolic name.
+When a code module is built on a given platform a symbolic name
+is associated with each code fragment in the file; this method
+can be used to find code entry points by symbolic name. Typically
+the symbolic names are function names as specified in the source
+code used to compile the dynamic code file or shared library.
+<P>
+The function <CODE><A HREF="vmodule-x.html#vmoduleGetSymbolScribed"><CODE>vmoduleGetSymbolScribed</CODE></A></CODE> is implemented by
+sending this message to the vmodule.
+</DD></DL>
+<P>
+<A NAME="vmoduleREGISTER_SHUTDOWN"><HR><H4>vmoduleREGISTER_SHUTDOWN</H4></A>
+<PRE>
+        &lt;<B>vmoduleREGISTER_SHUTDOWN</B>&gt;
+</PRE>
+
+<DL><DD>
+Registers a function to be called when a module is detached from
+the current process. The function entry point <CODE><A HREF="vmodule-x.html#vmoduleRegisterShutdown"><CODE>vmoduleRegisterShutdown</CODE></A></CODE> is
+implemented by sending this message to the module.
+</DD></DL>
+<P>
+<A NAME="vmoduleSET_STARTUP_SYMBOL_SCRIBED"><HR><H4>vmoduleSET_STARTUP_SYMBOL_SCRIBED</H4></A>
+<PRE>
+        &lt;<B>vmoduleSET_STARTUP_SYMBOL_SCRIBED</B>&gt;
+</PRE>
+
+<DL><DD>
+Set the symbolic name of the per-module startup function. When the
+module is first attached to the current process the startup function
+is looked up by name and called if found. 
+The function entry point <CODE><A HREF="vmodule-x.html#vmoduleSetStartupSymbolScribed"><CODE>vmoduleSetStartupSymbolScribed</CODE></A></CODE>
+is implemented by sending this message to the module.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vmoduleINCLUDED"><HR><H4>vmoduleINCLUDED</H4></A>
+<PRE>
+        <B>vmoduleINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined with the header file <SAMP>vmodule.h</SAMP> is included.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vmoduleCLASS"><HR><H4>vmoduleCLASS</H4></A>
+<PRE>
+        #define <B>vmoduleCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for module classes.
+This macro expands to the contents of <CODE><A HREF="vmodule-x.html#vmoduleClass"><CODE>vmoduleClass</CODE></A></CODE>.
+<SAMP>SUPER</SAMP> is the type identifier of the class being declared
+(for example, <CODE>vmodulewClass</CODE>). This type is used by the
+class's subclasses to refer to it. <SAMP>OBJECT</SAMP> is the type
+identifier of instances of the class being declared (for example,
+<CODE>vmodule</CODE>). This macro should be used by module subclasses
+to declare the contents of the module class. This macro should come
+first in the subclass structure declaration.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

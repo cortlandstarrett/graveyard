@@ -1,0 +1,230 @@
+/*
+** HEADER
+**    mgls_client_defs.h --  This file contains all #define's needed by 
+**                           clients of MGLS.
+**
+** COPYRIGHT
+**
+**  Copyright Mentor Graphics Corporation 2004
+**  All Rights Reserved.
+**
+** WRITTEN BY:
+**   Mahmood TahanPesar
+**
+** DESCRIPTION
+**    This file contains the definition of some #define values used by
+**    MGLS client applications.
+**
+** USER GUIDE
+**
+*/
+#ifndef INCLUDED_MGLS_CLIENT_DEFS
+#define INCLUDED_MGLS_CLIENT_DEFS
+
+
+/*
+**  All core_Mheap_... calls return either of the two values
+**  defined below
+*/
+
+#define MGLS_ERR       -1       /* return this value on error     */
+#define MGLS_OK         0       /* this value says "it worked OK" */
+
+/*
+**  Strings holding MGLS error message should point to at 256 
+**  bytes of allocated memory
+*/
+#define SIZE_OF_MGLS_ERROR_STRING 256
+
+/*
+**  other values returned by core_Mheap_stat system call
+*/
+#define MGLS_REQ_OK         0     /* Indicates a license has been granted    */
+#define MGLS_REQ_PENDING    1     /* Indicates request is being worked on    */
+#define MGLS_REQ_IN_QUEUE   2     /* Indicates request is waiting in a queue */
+#define MGLS_EXP_WARNING    3     /* Indicates license expiration is near    */
+
+
+
+/*
+**  Following are #define's used as the first parameter of the
+**  core_Mheap_set and core_Mheap_get calls that set and return
+**  various attributes of MGLS. For names that contain _ENV_,
+**  the UNIX envrionment is searched for a value when MGLS
+**  starts. Values from the environment are assumed to be
+**  "The User Speaking"; once they are set, core_Mheap_set
+**  calls do not change them.
+*/
+#define MGLS_FIRST_ATTR_NUMBER       1
+
+#define MGLS_ATTR_CHECK_INTERVAL       1
+#define MGLS_ATTR_RETRY_INTERVAL       2
+#define MGLS_ATTR_RETRY_COUNT          3
+#define MGLS_ATTR_RECONNECT            4
+#define MGLS_ATTR_RECONNECT_DONE       5
+#define MGLS_ATTR_EXIT_CALL            6
+#define MGLS_ENV_CONN_TIMEOUT          7
+#define MGLS_ENV_LICENSE_FILE          8
+#define MGLS_ATTR_QUEUE                9
+#define MGLS_ENV_MGLS_HOME            10
+#define MGLS_ENV_PKGINFO_FILE         11
+#define MGLS_ENV_EXP_WARN_DAYS        12
+#define MGLS_ENV_LICENSE_TEST         13
+#define MGLS_ENV_LICENSE_SOURCE       14
+#define MGLS_ENV_NO_WARNING           15
+#define MGLS_ATTR_NO_ASYNCH           16
+#define MGLS_ATTR_SIGACTION           17
+#define MGLS_ATTR_DISPLAY             18
+#define MGLS_ATTR_FEATURE_TIMEOUT     19
+#define MGLS_ATTR_MAX_TIMEOUT	        20
+#define MGLS_ATTR_FFDATE              21
+#define MGLS_ATTR_MULTIPLE_COUNTS     22
+#define MGLS_ATTR_MGLS_ASYNCH_CONTROL 23
+#define MGLS_ATTR_LIC_PER_INVOKE      24
+
+#define MGLS_LAST_ATTR_NUMBER         24
+
+/* this is included for backward compatibility. This attribute may no
+   longer be set from the end-user's environment. */
+#define MGLS_ENV_NO_ASYNCH          MGLS_ATTR_NO_ASYNCH
+
+
+/*
+**  Following are the default and min/max values
+**  for some of the above attributes
+*/
+
+/* for MGLS_ATTR_CHECK_INTERVAL attribute */
+#define MGLS_CHECK_INT_MIN      30	/* seconds */
+#define MGLS_CHECK_INT_DEFAULT  180	/* seconds - 3 minutes */
+#define MGLS_CHECK_INT_MAX      3600	/* seconds - 60 minutes - 1 hour */
+/*
+ * MGLS_CHECK_INT_DEFAULT is the interval for
+ * mgls_asynch checking on the mgcld/lmgrd server
+ * to notice whether it is still there.
+ *
+ * MGLS_CHECK_INT_DEFAULT of 3 minutes is intended to be
+ * a low-frequency, low-cost, but non-ignorable check.
+ */
+
+
+/* for MGLS_ATTR_RETRY_INTERVAL attribute */
+#define MGLS_RETRY_INT_MIN      30	/* seconds */
+#define MGLS_RETRY_INT_DEFAULT  180	/* seconds - 3 minutes */
+#define MGLS_RETRY_INT_MAX      3600	/* seconds - 60 minutes - 1 hour */
+/*
+ * MGLS_RETRY_INT_DEFAULT is the interval for
+ * mgls_asynch to re-establish contact with a license server
+ * and re-acquire the application's licenses when mgls_asynch
+ * has noticed that the mgcld/lmgrd server has gone away
+ * (or communication has been lost).
+ *
+ * MGLS_RETRY_INT_DEFAULT of 3 minutes is intended to allow
+ * lots of time for manual recovery/restart of the lmgrd server
+ * if it goes down, but with some attempt at licensing effectiveness.
+ */
+
+
+/* for MGLS_ATTR_RETRY_COUNT attribute */
+#define MGLS_RETRY_CNT_MIN      1
+#define MGLS_RETRY_CNT_DEFAULT  20
+#define MGLS_RETRY_CNT_MAX      20
+/*
+ * The combined effect of MGLS_CHECK_INT_DEFAULT, MGLS_RETRY_INT_DEFAULT,
+ * and MGLS_RETRY_CNT_DEFAULT allows by default about an hour between the
+ * time a connection to a license server is lost, and the end user is
+ * presented with a dialog box (for CUI-based applications) informing him/her
+ * of that fact. During this one hour period, the MGLS child process tries 20
+ * times (once every three minutes) to re-establish communication with the
+ * license server.
+ *
+ * During this time, mgls_asynch transparently tries to re-acquire the lost
+ * licenses. If completely successful, then MGLS_CHECK_INT_DEFAULT restarts.
+ * If only partially successful, then the licenses that are re-acquired
+ * through retries help maintain the effectiveness of licensing (they are
+ * unavailable for other processes to [over-]use), which reduces the number
+ * of processes that eventually will be forced to exit because licenses
+ * have become over-subscribed due to the license server going down and
+ * new licenses being granted before existing processes have re-acquired
+ * their licenses.
+ */
+
+/* In the initial release of MGLS, the use of redundant license servers was
+ * not recommended. The default values provided allowed for much more time
+ * to re-establish communication with the license server. At the time MGC
+ * began recommending the use of redundant servers, the default values were
+ * changed to these values.
+ */
+
+/* for MGLS_ATTR_CONN_TIMEOUT attribute */
+#define MGLS_CONN_TOUT_DEFAULT  10      /* seconds */
+#define MGLS_CONN_TOUT_MAX	600	/* seconds = 10 minutes */
+
+
+/* for MGLS_ATTR_QUEUE  attribute */
+#define MGLS_QUEUE_DEFAULT    2         /* Or any non-zero value */
+#define MGLS_QUEUE_NOT        0         /* Disable queuing       */
+
+
+/* used in conjection with MGLS_ATTR_EXIT_CALL (set up client exit handler) */
+#define MGLS_ENOSERVER        1   /* Possible status returned to client's   */
+#define MGLS_ENOLICENSE       2   /* exit handler routine                   */
+#define MGLS_ENOASYNCH        3   /* used to indicate the mgls_asynch process*/
+                                  /* was abnormally terminated - possibly by */
+                                  /* a user issuing the Unix kill command    */
+
+#define MGLS_CLIENT_RETRY    10   /* Possible values that the client's exit */
+#define MGLS_CLIENT_IGNORE   20   /* handler may return to MGLS, specifying */
+#define MGLS_CLIENT_EXIT     40   /* what actions MGLS to take              */
+
+
+/*
+**  Following are the environment variable related defines
+*/
+
+/* MGLS_ATTR_LICENSE_FILE attribute & LM_LICENSE_FILE environment variable   */
+#define MGLS_LICENSE_PATH   "etc/cust/mgls/mgc.licenses" /* at '$MGLS_HOME/' */
+
+
+/* for MGLS_LICENSE_SOURCE environment variable */
+#define MGLS_LICENSE_SOURCE_DEFAULT "ANY"        /* Any license source is OK */
+
+
+/* for MGLS_EXP_WARN_DAYS environment variable */
+#define MGLS_EXP_WARN_MIN           1           /* Day  */
+#define MGLS_EXP_WARN_DEFAULT       15          /* Days */
+#define MGLS_EXP_WARN_MAX           90          /* Days */
+
+/* for MGLS_LICENSE_TEST environment variable */
+#define MGLS_LICENSE_TEST_DEFAULT   0 /* 0->normal operation, -1->test only */
+
+/* for MGLS_NO_WARNING environment variable */
+#define MGLS_NO_WARNING_DEFAULT     0 /* 0->OK to output warnings, -1->don't */
+
+#define MGLS_MAX_FEATURE_LEN 60 /* this is twice the value for Flex (30) */
+
+typedef enum MGLS_LICTYPE
+{
+    MGLS_floating,
+    MGLS_nodelocked_counted,
+    MGLS_nodelocked_uncounted
+} mgls_lictype;
+
+/* structure containing license information returned by the                 */
+/* core_Mheap_licinfo function                                              */
+typedef struct MGLS_LICINFO
+{
+   char         feature_name[MGLS_MAX_FEATURE_LEN];
+   mgls_lictype license_type;
+   int          next_count;
+   int          expiration_info;
+} mgls_licinfo;
+
+/* for MGLS_ATTR_SIGACTION */
+#define MGLS_AS_preexist	0	/* preserve original behavior */
+#define MGLS_AS_restart		1	/* add SA_RESTART to sa_flags */
+#define MGLS_AS_interrupt	2	/* add SA_INTERRUPT to sa_flags */
+
+
+#endif
+

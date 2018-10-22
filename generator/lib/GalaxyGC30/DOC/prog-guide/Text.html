@@ -1,0 +1,1397 @@
+<HTML>
+<HEAD>
+<TITLE>Text</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Text</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Style_Chooser.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Text_Ruler.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="48106"></A>
+ Galaxy provides classes for processing, formatting and displaying text in Galaxy applications. The Text class separates text data storage from display functionality. This means you can strictly manage text data (insert, delete, process, and search without displaying any text) or also manage the display of text data. For example, different views of the same text data can customize the display of the text. Refer to <A HREF="Text.html#11787">Figure 81</A> for an example of different ways to display text.<P>
+<A NAME="11787"><I>Figure 81.  Sample views of text
+</I><P>
+Galaxy also provides text styles (including font, typeface, size, and location), and text rulers (used to specify attributes such as justification, margins, and tab stops), and text tags (to specify a location or selection in the text data). The Text classes also includes a convenience class called a textitem; this is useful for constructing user input fields.<P>
+<A NAME="5090"><H2> Relationship to Other Classes</H2></A>
+The Text classes also use aspects of the String classes to insert and collect text. You should be familiar with the String classes before reading this chapter.<P>
+After reading this chapter, you may want to read the chapter on the Undo class to learn about implementing undo and redo actions. You may also want to read the Text Ruler Item chapter to find out how graphical rulers interface with text rulers.<P>
+<A NAME="6336"><H2> Glossary</H2></A>
+<UL><EM><B>iterator</B></EM>	Type used to loop through different aspects of text, such as 
+styles, text rulers, and selections. Iterators are often used to 
+collect ranges of text that follow a certain behavior.
+<P><EM><B>observer</B></EM>	A "pipeline" or object between text data and the display of 
+the text. An observer determines if the text has changed, 
+and if so, notifies the textview.
+<P><EM><B>position</B></EM>	Location in text data.
+<P><EM><B>selection</B></EM>	Arbitrary pair of starting and ending text positions that 
+denote a range of text.
+<P><EM><B>style</B></EM>	Describes the way text is displayed. A style consists of 
+attributes such as font, size, descent, and ascent.
+<P><EM><B>text ruler</B></EM>	A text ruler specifies information on indentation, 
+justification, and tab settings to change the way text is 
+displayed.
+<P><EM><B>text tag</B></EM>	Denotes an assigned location or range in text.
+<P><EM><B>textview</B></EM>	Display of the text. It is through a textview that the end-
+user manipulates and edits text.
+<P></UL><A NAME="42877"><H2> Primary Text Classes</H2></A>
+There are three primary text classes: text data, textview, and textitem. Text data is the actual text and related information about the text. A textview, using the related information of the text data, displays the text, and also handles user input. For convenience, Galaxy provides a textitem class A textitem is a textview subclass that contains a text data object. A textitem combines the functionality of both text data and a textview without the overhead of using two different objects.<P>
+For most applications, textitems are sufficient for user input fields and one line interaction. The display of textitems is consistent with expected behavior of dialog items. However, for complete control of the behavior of text fields and the display of text, use textviews and text data objects.<P>
+<A NAME="23584"><H1> Textitems</H1></A>
+A textitem (<TT>vtextitem</TT>) is a textview subclass that also references a text data object. Textitems are convenient to use when gathering input from an end-user, or for simple text manipulation. Textitems are usually created through the Visual Resource Builder, but you can also create them programmatically with <TT><B>vtextitemCreate</B></TT>.<P>
+<A NAME="23586"><H3> Retrieving Textitem Text</H3></A>
+The textitem provides functions to access and set the text for the textitem. Use <TT><B>GetText</B></TT> to retrieve the text in the textitem. For example, the following code fragment retrieves the text located in a textitem:<P>
+<PRE><UL>{
+   vtextitem *textitem;
+   vchar     *buffer = vmemAlloc(20);
+
+   // ...
+   vtextitemGetText(textitem, buffer, 20);
+   // ...
+}
+
+</UL></PRE>Text in a text item can also be retrieved into other types. For example, <TT><B>GetTextAsFloat</B></TT> returns a <TT>double</TT> and <TT><B>GetTextAsInt</B></TT> returns an <TT>int</TT>. <TT><B>GetTextAsString</B></TT> retrieves the text as a string (<TT>vstr</TT>). For example:<P>
+<PRE><UL>{
+   vstr *string;
+   // ...
+
+   string = vtextitemGetTextAsString(textitem);
+
+   /* Do stuff with string */
+
+   /* Clean up memory */
+   vstrDestroy(string);
+   // ...
+}
+
+</UL></PRE>You can also use <TT><B>ScribeText</B></TT>, retrieving the text as a scribe.<P>
+<A NAME="23610"><H3> Assigning Textitem Text</H3></A>
+Text can be assigned to a textitem by using <TT><B>SetText</B></TT> or <TT><B>SetTextScribed</B></TT>. For example:<P>
+<PRE><UL>   vtextitemSetTextScribed(textitem, vcharScribeLiteral("None (N/A)"));
+
+</UL></PRE><A NAME="23614"><H3> Textitem Attributes</H3></A>
+Textitems have attributes in addition to the normal dialog item attributes, Textitem attributes can be set either in the Visual Resource Builder or programmatically. <P>
+For example, to restrict text entry to one line, use <TT><B>SetOneLine</B></TT>. Use <TT><B>SetModifiable</B></TT> to prevent the end-user from modifying the text from the keyboard (although you can still modify it programmatically).<P>
+To apply justification to a textitem, use <TT><B>SetJustification</B></TT>, alternatively passing in:<P>
+<UL><LI><TT>vtextLEFT_JUSTIFICATION</TT>
+</UL><DL>
+<DT><DD> Set text to be left justified (default).
+</DL>
+<UL><LI><TT>vtextRIGHT_JUSTIFICATION</TT>
+</UL><DL>
+<DT><DD> Set text to be right justified.
+</DL>
+<UL><LI><TT>vtextCENTER_JUSTIFICATION</TT>
+</UL><DL>
+<DT><DD> Set text to be centered in the textitem.
+</DL>
+Refer to the vtextitem section in the<EM> Galaxy Application Environment Reference Manual</EM> for a complete list of attributes.<P>
+Text rulers can be assigned to a textitem by using <TT><B>SetRuler</B></TT>. Refer to <A HREF="Text.html#12376">"Examples Using Text Rulers" on page 779</A> for more information on using text rulers.<P>
+<A NAME="23630"><H3> Textitem Notification</H3></A>
+A textitem's notification function is called whenever an important event needs to be processed. <A HREF="Text.html#23637">Example 145</A> illustrates a skeleton <TT>vtextitemNotify</TT> that distinguishes different possible <TT>ACCEPT_NOTIFY</TT> cases, such as return, or lost window focus.<P>
+Note that in <A HREF="Text.html#23637">Example 145</A>, the text item is assumed to be in the dialog's item list, not in a container's list.<P>
+<A NAME="23637"><I>Example 145.  Textitem notification
+</I><P>
+<PRE><UL>static void textitemNotify (vtextitem *textitem, vevent *event,
+                            int message)
+{
+   if (message == vtextviewACCEPT_NOTIFY) {
+      vdialogItemList *itemList;
+      vdialogItem     *item;
+      vdialog         *dialog;
+
+      item = vtextitemGetItem (textitem);
+      itemList = vdialogGetItemItemList (item);
+      dialog = vdialogDetermineItemDialog (item);
+
+      if (vwindowGetFocusWindow() == vdialogGetWindow(dialog)) {
+         if (vdialogGetItemListFocus(itemList) == item) {
+            if (event != NULL) {
+               /* user pressed return */
+            } else {
+               /* window class made me do it */
+            }
+         } else {
+            /* textitem lost focus by the tab key or mouse */
+         }
+      } else {
+         /* user waved mouse out of window */
+      }
+   }
+}
+
+</UL></PRE><A NAME="23667"><H3> Inserting Tabs in a Textitem</H3></A>
+Textviews allow for the Tab key to be used to insert a tab character into text. However textitems, by default, interpret the Tab key event as a request to move focus to another dialog item. To insert Tab characters in a textitem, subclass and override <TT>vdialogHANDLE_ITEM_KEY_DOWN</TT>. <A HREF="Text.html#23673">Example 146</A> shows you how to insert a tab character into a textitem.<P>
+<A NAME="23673"><I>Example 146.  Handling the Tab key in a textitem
+</I><P>
+<PRE><UL>int MyHandleItemKeyDown (vdialogItem *item, vevent *event)
+{
+   vkey       key;
+   vtextitem *textitem = (vtextitem *)item;
+
+   key = vkeyGetStrokeKey(veventGetKeyStroke(event));
+
+   if (key == vkeyTAB) {
+      /*
+       * It was the Tab key, so have the textview handle it (which
+       * inserts it as a Tab key).
+       */
+      return (vclassSend(vtextviewGetDefaultClass(),
+                         vdialogHANDLE_ITEM_KEY_DOWN,
+                         (vtextitemGetView(textitem), event)) );
+   } else {
+      /*
+       * Have the regular textitem handle it
+       */
+      return (vclassSendSuper(vtextitemGetDefaultClass(),
+                              vdialogHANDLE_ITEM_KEY_DOWN,
+                              (textitem, event)) );
+   }
+   return TRUE;
+}
+
+</UL></PRE><A NAME="6349"><H1> Text Data</H1></A>
+The text data object (<TT>vtext</TT>) contains the actual text with related information. Related information includes the following:<P>
+<UL><LI><B>Selections<br></B>Text between two character positions. Usually, selections are linear, and contain all the text between the positions. However, rectangular selections contain only the text that also falls within a specified (rectangular) area.
+<LI><B>Styles<br></B>Font, color, and other information that determines the text's appearance.
+<LI><B>Text rulers<br></B>Relative positioning information for a line of text, including justification, tab stops, and first line indents.
+<LI><B>Text tags<br></B>Markers for tracking text information. Text markers can be used to "bookmark" ranges of text positions.
+<LI><B>Text metrics<br></B>Layout information for drawing a line of text. This includes information such as the actual text in the line, the length of the line, its geometric dimensions, and whether the line is the first line in paragraph. 
+</UL><A NAME="17012"><H2> Accessing Text Data</H2></A>
+TextData methods usually accept arguments specifying the line number, position, and text selection of the text data. <A HREF="Text.html#19110">Table 37</A> describes the arguments used to access text data.<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="19147"><I>Table 37.  Text data access
+</I><P>
+</CAPTION>
+
+<tr><th><B>Argument
+</B></th><th><B>Type/Class
+</B></th><th><B>Description
+</B></th>
+<tr><td>Line Number
+</td><td><TT>int
+</TT></td><td>Specifies the line number in the text data object. Line one corresponds to the 
+first line in the text.
+
+Lines are also referenced by line ranges, a series of lines with a starting and 
+ending line number.
+</td></tr>
+<tr><td>Position
+</td><td><TT>long
+</TT></td><td>Specifies a location in the text data object, starting at <TT>zero</TT> and continuing to 
+<TT>n</TT>, where <TT>n</TT> is the number of characters in the text data. Position <TT>zero</TT> is before 
+the first text character; position <TT>n</TT> is after the last text character.
+</td></tr>
+<tr><td>Selection
+</td><td><TT>vtextSelection
+</TT><TT>
+</TT></td><td>Specifies a selection of text, or if the length of the selection is zero, an insertion 
+point. For more information, refer to <A HREF="Text.html#12980">"If successful, Search returns the starting 
+position of the found text; otherwise it returns 
+vtextSEARCH_FAILED.Selections" on page 771</A>.
+</td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+<A NAME="12015"><H2> Adding, Inserting, and Deleting Text</H2></A>
+To append text to an empty text object, use <TT><B>AppendBlock</B></TT>, passing in a <TT>vchar</TT> pointer to the data, the length of the data, and the allocated size of the data. <TT><B>AppendBlock</B></TT> passes ownership of the buffer to the text data object. After appending all of the text, inform the text data object that all of the text has been inserted by calling <TT><B>Calculate</B></TT>. Calculating text causes the text data object to update information such as the number of lines, the location of line breaks, and the length of the text. The code fragment in <A HREF="Text.html#92803">Example 147</A> shows how to append a string of text to a text data object.<P>
+<A NAME="92803"><I>Example 147.  Appending a text string to a text data object
+</I><P>
+<PRE><UL>{
+   // ...
+
+   vchar *buffer = vmemAlloc(vtextTEXT_BLOCK_SIZE * sizeof(vchar));
+
+   vcharAppendScribed(buffer,
+                      vcharScribeLiteral("I function as a channel "
+                        "through which music emerges from the chaos "
+                        "of noise. - Vangelis"));
+
+   vtextAppendBlock(text, buffer, sizeof(buffer), vtextTEXT_BLOCK_SIZE);
+
+   vtextCalculate(text);
+   // ...
+}
+
+</UL></PRE>Use <TT><B>Insert</B></TT> to insert a text string into a position within a text data object. When using <TT><B>Insert</B></TT>, specify the selection (the insertion point), the text to insert, and the length of the text. <TT><B>Insert</B></TT> creates a copy of the given text. Anything currently contained in the selection is replaced with the given text. Note that if a text selection has a length of zero, the selection acts as an insertion point. Refer to <A HREF="Text.html#20188">"Using Selections" on page 771</A> for more information on selections and insertion points.<P>
+The code fragment in <A HREF="Text.html#19480">Example 148</A> shows you how to use <TT><B>Insert</B></TT> to replace selected text with a text string.<P>
+<A NAME="19480"><I>Example 148.  Replacing selected text with a text string 
+</I><P>
+<PRE><UL>{
+   vtext          *text;
+   vtextSelection *selection;
+   vstr           *sInsert;
+
+   // ...
+
+   /*
+    * Create the string to insert through a scribe
+    */
+   sInsert = vstrCloneScribed(vcharScribeLiteral("This too shall pass."));
+
+   /*
+    * Insert the text into the text object
+    */
+   vtextInsert(text, selection, sInsert, sizeof(sInsert));
+
+   /*
+    * Now clean up
+    */
+   vstrDestroy(sInsert);
+
+   /*
+    * You can also use "Insert" to delete a selection.
+    */
+   vtextInsert(text, selection, NULL, 0);
+
+   /*
+    * However, "Delete" is a more concise way to delete selected text.
+    */
+   vtextDelete(text, selection);
+
+   // ...
+}
+
+</UL></PRE><A NAME="14579"><H2> Searching Text Data</H2></A>
+You can use <TT><B>Search</B></TT> to search for a literal or regular expression in text data.You can specify the following types of searches:<P>
+<UL><LI><TT>vtextFORWARD_SEARCH</TT> <br>Search forward for the given literal text.
+<LI><TT>vtextBACKWARD_SEARCH<br></TT>Search backward for the given literal text.
+<LI><TT>vtextREGEXP_SEARCH</TT> <br>Search forward for a given regular expression.
+<LI><TT>vtextREGEXP_BACKWARD_SEARCH<br></TT>Search backward for a given regular expression.
+</UL>Refer to the Regular Expression class for information on regular expressions.<P>
+The Text class automatically provides a search function, but you can also specify that <TT><B>Search</B></TT> use a function that you provide. Search functions must be of type <TT>vtextSearchFunc</TT>. To use the Text class's search function, pass in<TT> NULL</TT> for the <TT>vtextSearchFunc</TT> argument to <TT><B>Search</B></TT>.<P>
+<A NAME="12980"><H2> If successful, Search returns the starting position of the found text; otherwise it returns vtextSEARCH_FAILED.Selections</H2></A>
+A text selection (<TT>vtextSelection</TT>) consists of two character positions, and text between the two positions.<P>
+A <EM><B>linear</B></EM> selection includes all text between the starting and ending positions. A <EM><B>rectangular</B></EM> selection only includes text contained within a specified rectangular area. <A HREF="Text.html#86733">Figure 82</A> illustrate linear and rectangular selections.<P>
+<A NAME="86733"><I>Figure 82.  Linear and rectangular selections
+</I><P>
+<IMG SRC="Text.anc.gif"><P>
+<A NAME="16593"><H3> Insertion Point</H3></A>
+A selection is a text data object's <EM><B>insertion point</B></EM>. A selection is empty if the starting position for the selection is the same as its ending position. By default, when a selection is empty, it is marked with a blinking caret. When inserting text into a text data object, any selected text you have selected will be replaced with the inserted text.<P>
+<A NAME="12993"><H3> Selections and Textviews</H3></A>
+You can create any number of selections and assign them to a single text data object. Multiple textviews can then each register a single selection with the text data object. Textviews that observe the same text data can also share a single selection.<P>
+Although a selection can be manipulated by the end-user through a textview, it is the text data object that owns the selection. The textview communicates any end-user actions to the text data object, which then manipulates the selection.<P>
+For more information on textviews, refer to <A HREF="Text.html#11881">"Textviews" on page 784</A>.<P>
+<A NAME="20188"><H3> Using Selections</H3></A>
+Use <TT><B>SetSelectMethod</B></TT> to assign the selection method, passing in one of the following:<P>
+<UL><LI><TT>vtextSELECT_NORMAL<br></TT>Linear selection.
+<LI><TT>vtextSELECT_RECTANGULAR<br></TT>Rectangular selection.
+</UL>Use <TT><B>SelectLines</B></TT> to place a range of lines into a selection, <TT><B>SelectRange</B></TT> to place a range of text characters into a selection, and <TT><B>SelectTag</B></TT> to place a range designated by a text tag into a selection. Refer to <A HREF="Text.html#48167">"Text Tags" on page 772</A> for more information on text tags.<P>
+The Text class provides several functions that analyze selections. For example, <TT><B>SelectionStart</B></TT> returns the beginning position of a selection, <TT><B>SelectionEnd</B></TT> returns the ending position of a selection, and <TT><B>SelectionLength</B></TT> returns the total length of a selection. You can use <TT><B>CurrLineNum</B></TT> to find the first line number in a selection and <TT><B>SelectedLines</B></TT> to find the number of lines in a selection. <A HREF="Text.html#16626">Example 149</A> shows how to print out various information about the current selection in a textview. For more information on textviews, refer to <A HREF="Text.html#11881">"Textviews" on page 784</A>.<P>
+<A NAME="16626"><I>Example 149.  Finding the information about the current selection
+</I><P>
+<PRE><UL>void PrintCurrentSelectionInformation (vtextview *tvSample)
+{
+   vtextSelection *selection;
+
+   /*
+    * Get the current selection from the textview
+    */
+   selection = vtextviewGetSelection(tvSample);
+
+   /*
+    * Print out the selection information
+    */
+   vdebugMInform(("Selection:ntStarting Position: %ln",
+                  vtextSelectionStart(selection)));
+   vdebugMInform(("tEnding Position: %ln",
+                  vtextSelectionEnd(selection)));
+   vdebugMInform(("tLength: %ln",
+                  vtextSelectionLength(selection)));
+}
+
+</UL></PRE><A NAME="48167"><H2> Text Tags</H2></A>
+Text tags (<TT>vtextTag</TT>) mark locations or ranges of text. Galaxy uses text tag subclasses to track style and text ruler ranges in a text data object. A text tag contains the following information:<P>
+<UL><LI>Starting position
+</UL><DL>
+<DT><DD> Starting character position of the tag.
+</DL>
+<UL><LI>Ending position
+</UL><DL>
+<DT><DD> Ending character position of the tag.
+</DL>
+<UL><LI>Name (<TT>const vname *</TT>)
+</UL><DL>
+<DT><DD> Unique hashed name assigned to a tag. For more information on names, refer to the Name chapter.
+</DL>
+When created, a text tag has a starting and ending position that are both set to <TT>zero</TT>. Use <TT><B>SetTagRange</B></TT> to change the range of a text tag and <TT><B>SetTagName</B></TT> to assign the text tag a name.<P>
+<UL><B><I>NOTE:</I></B> The Text class uses text tags with the names "Style" and "Ruler" to track style 
+and text ruler specifications in a text data object. To avoid name collision 
+with these tags, do not use these names when defining names for your text 
+tags.
+<P>
+</UL><A HREF="Text.html#95409">Example 150</A> shows how to assign a text marker to the position defined by the current selection in a textview. For more information on textviews, refer to <A HREF="Text.html#11881">"Textviews" on page 784</A>.<P>
+<A NAME="95409"><I>Example 150.  Assign a text tag to a selection
+</I><P>
+<PRE><UL>void InsertUserTag (vtextview *tvSample, const vname *name)
+{
+   /*
+    * Mark areas of text that have been selected by the user.
+    * The text tags can later be used to revisit the marked text
+    */
+   vtextTag *tag;
+
+   /*
+    * Find the current selection from the textview
+    */
+   vtextSelection *selection = vtextviewGetSelection(tvSample);
+
+   /*
+    * Create a new text tag
+    */
+   tag = vtextCreateTag();
+
+   /*
+    * Assign the name to the text tag
+    */
+   vtextSetTagName(tag, name);
+
+   /*
+    * Assign the text tag's position based upon the selection
+    */
+   vtextSetTagRange(tag, vtextSelectionStart(selection),
+                    vtextSelectionEnd(selection));
+
+}
+
+</UL></PRE><A NAME="95442"><H3> Locating Text Marker Tags</H3></A>
+Text marker tags in a text data object can be located with a text marker tag iterator (<TT>vtextTagIterator</TT>). <A HREF="Text.html#15049">Example 153 on page 778</A> shows how to use a text marker tag iterator to locate a specific text style. A similar process can be used to locate a tag that can be identified by its name.<P>
+<A NAME="24310"><H2> Styles and Text Rulers</H2></A>
+Styles (<TT>vtextStyle</TT>) and text rulers (<TT>vtextRuler</TT>) are specifications that, when applied to a range of text, modify the way the text is displayed. Styles specify attributes such as font, font size, ascent, descent, bold, italic and underline. Text rulers specify attributes such as margins, tab stops, ascent, descent, and justification.<P>
+Since the implementation of styles and text rulers is similar, they are discussed together in this section.<P>
+To specify styles (or text rulers) for text data, do the following:<P>
+<OL>
+<LI>Create the style or text ruler. Styles and text rulers are created separately from a text 
+data object.
+<BR>
+<LI>Set the attributes for the style or text ruler. A style or text ruler consists of a set of 
+attributes that define how the text is displayed. You need to make a separate API call 
+for each attribute you want to add to the style or text ruler.
+<BR>
+<LI>Install the style or text ruler. Installing the style or text ruler associates it with a 
+specific text data object. You do not need to install a style or text ruler if you do not 
+need to save it with the text data object. For more information on installing styles 
+and text rulers, refer to <A HREF="Text.html#21587">"Installing Styles and Text Rulers" on page 776</A>.
+<BR>
+<LI>Apply the style or text ruler. Apply styles to a range of characters in the text data; 
+apply text rulers to a range of lines.
+<BR>
+</OL>
+Note that you can set the attributes after a style or text ruler has been applied. However, this usually involves additional overhead, especially when setting font attributes.<P>
+<A NAME="21176"><H3> Style Attributes</H3></A>
+<A HREF="Text.html#93474">Table 38</A> lists the available style attributes. <A HREF="Text.html#21311">Figure 83</A> illustrates the Ascent and Descent attributes.<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="93349"><I>Table 38.  Style attributes
+</I><P>
+</CAPTION>
+
+<tr><th><B>Attribute
+</B></th><th><B>Attribute Type
+</B></th><th><B>Type/Value
+</B></th><th><B>Description
+</B></th>
+<tr><td><TT><TT>vtext_Ascent
+</TT></TT></td><td><TT>vtextATTR_INTEGER
+</TT></td><td><TT><TT>int
+</TT></TT></td><td>Space above the base line. A large 
+ascent value increases the distance 
+from a line of type to the line 
+above it. Refer to <A HREF="Text.html#21311">Figure 83</A>
+</td></tr>
+<tr><td><TT><TT>vtext_BackgroundColor
+</TT></TT></td><td><TT>vtextATTR_COLOR
+</TT></td><td><TT><TT>vcolor *
+</TT></TT></td><td>Background color of the text.
+</td></tr>
+<tr><td><TT><TT>vtext_Bold
+</TT></TT></td><td><TT>vtextATTR_NAME
+</TT></td><td><TT><TT>vname_On</TT> or 
+<TT>vname_Off
+</TT></TT></td><td>Applies bold font to text.
+</td></tr>
+<tr><td><TT><TT>vtext_Color
+</TT></TT></td><td><TT>vtextATTR_COLOR
+</TT></td><td><TT><TT>vcolor *
+</TT></TT></td><td>Foreground color of the text.
+</td></tr>
+<tr><td><TT><TT>vtext_Descent
+</TT></TT></td><td><TT>vtextATTR_INTEGER
+</TT></td><td><TT><TT>int
+</TT></TT></td><td>Space below the base line. A large 
+descent value increases the 
+distance from a line of type to the 
+line below it. Refer to <A HREF="Text.html#21311">Figure 83</A>
+</td></tr>
+<tr><td><TT><TT>vtext_Font
+</TT></TT></td><td> <TT>vtextATTR_FONT
+</TT></td><td><TT><TT>vfont *
+</TT></TT></td><td>Applies specified font.
+</td></tr>
+<tr><td><TT><TT>vtext_Graphic
+</TT></TT></td><td><TT>vtextATTR_GRAPHIC</TT> 
+</td><td><TT><TT>vtextGraphic *
+</TT></TT></td><td>Designates a graphic.
+</td></tr>
+<tr><td><TT><TT>vtext_Hidden
+</TT></TT></td><td><TT>vtextATTR_NAME
+</TT></td><td><TT><TT>vname_On</TT> or 
+<TT>vname_Off
+</TT></TT></td><td>Text that is not displayed.
+</td></tr>
+<tr><td><TT><TT>vtext_Invert
+</TT></TT></td><td><TT>vtextATTR_NAME
+</TT></td><td><TT><TT>vname_On</TT> or 
+<TT>vname_Off
+</TT></TT></td><td>Inverts foreground and 
+background colors.
+</td></tr>
+<tr><td><TT><TT>vtext_Italic
+</TT></TT></td><td><TT>vtextATTR_NAME
+</TT></td><td><TT><TT>vname_On</TT> or 
+<TT>vname_Off
+</TT></TT></td><td>Applies italic font
+</td></tr>
+<tr><td><TT><TT>vtext_Size
+</TT></TT></td><td><TT>vtextATTR_INTEGER
+</TT></td><td><TT><TT>int
+</TT></TT></td><td>Font size.
+</td></tr>
+<tr><td><TT><TT>vtext_Strikethru
+</TT></TT></td><td><TT>vtextATTR_NAME
+</TT></td><td><TT><TT>vname_On</TT> or 
+<TT>vname_Off
+</TT></TT></td><td>Draws text with super-imposed 
+strike-through characters.
+</td></tr>
+<tr><td><TT><TT>vtext_Underline
+</TT></TT></td><td><TT>vtextATTR_NAME
+</TT></td><td><TT><TT>vname_On</TT> or 
+<TT>vname_Off
+</TT></TT></td><td>Draws text underlined.
+</td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+<P>
+<A NAME="21311"><I>Figure 83.  Font ascent and descent
+</I><P>
+<IMG SRC="Text.anc1.gif"><P>
+<A NAME="22170"><H3> Text Ruler Attributes</H3></A>
+<A HREF="Text.html#93645">Table 39</A> lists the available text ruler attributes. Refer to <A HREF="Text.html#21555">Figure 84</A> for an illustration of text ruler attributes. Note that in <A HREF="Text.html#21555">Figure 84</A>, the ruler is provided in the figure only to illustrate text ruler attributes.<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="93558"><I>Table 39.  Text ruler attributes
+</I><P>
+</CAPTION>
+
+<tr><th><B>Attribute
+</B></th><th><B>Attribute Type
+</B></th><th><B>Type/Value
+</B></th><th><B>Description
+</B></th>
+<tr><td><TT><TT>vtext_LeftIndent
+</TT></TT></td><td><TT>vtextATTR_FIXED
+</TT></td><td><TT><TT>vfixed
+</TT></TT></td><td>Space from the left margin 
+to the text.
+</td></tr>
+<tr><td><TT><TT>vtext_RightIndent
+</TT></TT></td><td><TT>vtextATTR_FIXED
+</TT></td><td><TT><TT>vfixed
+</TT></TT></td><td>Space from the right 
+margin to the text.
+</td></tr>
+<tr><td><TT><TT>vtext_FirstLineIndent
+</TT></TT></td><td><TT>vtextATTR_FIXED
+</TT></td><td><TT><TT>vfixed
+</TT></TT></td><td>Space from the left margin 
+to the first line in a 
+paragraph.
+</td></tr>
+<tr><td><TT><TT>vtext_Justification
+</TT></TT></td><td><TT>vtextATTR_NAME
+</TT></td><td><TT>vtextLEFT_JUSTIFY, 
+vtextRIGHT_JUSTIFY, 
+vtextFULL_JUSTIFY, or 
+vtextCENTER_JUSTIFY.
+</TT></td><td>Justification for the 
+paragraph.
+
+</td></tr>
+<tr><td><TT><TT>vtext_Ascent
+</TT></TT></td><td><TT>vtextATTR_INTEGER
+</TT></td><td><TT><TT>int
+</TT></TT></td><td>Space above the base line. 
+A large ascent value 
+increases the distance 
+from a line of type to the 
+line above it. Refer to 
+<A HREF="Text.html#21311">Figure 83</A>
+</td></tr>
+<tr><td><TT><TT>vtext_Descent
+</TT></TT></td><td><TT>vtextATTR_INTEGER
+</TT></td><td><TT><TT>int
+</TT></TT></td><td>Space below the base line. 
+A large descent value 
+increases the distance 
+from a line of type to the 
+line below it. Refer to 
+<A HREF="Text.html#21311">Figure 83</A>
+</td></tr>
+<tr><td><TT><TT>vtext_TabWidth
+</TT></TT></td><td><TT>vtextATTR_FIXED</TT> 
+</td><td><TT><TT>vfixed
+</TT></TT></td><td>The default tab width 
+applies after the last tab 
+setting in the text ruler.
+</td></tr>
+<tr><td><TT><TT>vtext_Wrap
+</TT></TT></td><td><TT>vtextATTR_NAME
+</TT></td><td><TT><TT>vname_On</TT> or 
+</TT><TT><TT>vname_Off
+</TT></TT></td><td>Determines whether the 
+text should wrap.
+</td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+<P>
+<A NAME="21555"><I>Figure 84.  Text ruler attributes
+</I><P>
+<IMG SRC="Text.anc2.gif"><P>
+<UL><B><I>NOTE:</I></B> The Text class does not actually draw the graphic ruler.
+<P>
+</UL><P>
+<A NAME="22175"><H3> Text Ruler Tabs</H3></A>
+A text ruler has predefined tabstops. However, you can also assign tabs to a text ruler using <TT><B>RulerAddTab</B></TT>.<P>
+For example, the following code fragment places a tab at a position ten pixels from the left:<P>
+<PRE><UL>vtextRulerAddTab(text, ruler, 10, vtextFLUSH_LEFT_TAB);
+
+</UL></PRE>Use <TT>RulerRemoveTab</TT> to remove specific tabstops previously set, and <TT>RulerResetTabs</TT> to clear all tabstops from a text ruler.<P>
+<UL><B><I>NOTE:</I></B> At this stage, left-flush tab stops are the only type of tab stops available in 
+the default text ruler. Future implementations of Galaxy may change this 
+behavior to include flush-right, center, and decimal tabs.
+<P>
+</UL><A NAME="20402"><H3> Applying Styles and Text Rulers</H3></A>
+Applying a style or text ruler to a range of text displays text according to the specifications of the style or text ruler. You can apply a single style or text ruler to multiple selections of text.<P>
+Styles are applied to character ranges; text rulers to line ranges. The Text class tracks styles and text rulers with style tags (<TT>vtextStyleTag</TT>) and text ruler tags (<TT>vtextRulerTag</TT>). Style tags and text ruler tags are each a text tag subclass.<P>
+Style tags and text ruler tags mark the beginning and ending range of text, as well as the style or text ruler specification. Text inserted into a marked range is displayed according to the style or text ruler specified by the tags.<P>
+<A NAME="21587"><H3> Installing Styles and Text Rulers</H3></A>
+In most cases, styles and text rulers are installed into a text data object. Installed styles and text rulers are persistent; they are saved with the text data object and are copied when the text data is copied. Additionally, all observers of text data objects are aware of any changes to installed styles. You cannot, however, apply a style or text ruler installed with one text data object to another text data object.<P>
+It is not necessary for you to install a style or text ruler to apply the style to a text data object. This feature is useful when you do not want to save the style with the text data. However, if you change the attribute of a style that has not been installed, you must force recalculation of the text data object by using <TT>Calculate</TT>.<P>
+<A NAME="15902"><H3> Displaying Styles and Text Rulers</H3></A>
+Text data is displayed according to the styles and rulers applied to the text data. If none are applied, then Galaxy will use a default style or text ruler. Additional styles or text rulers may be super-imposed on, or replace, any existing styles or text rulers. Use <TT>SetDefaultStyle</TT> and <TT>SetDefaultRuler</TT> to specify default styes and text rulers. The Text class then checks for additional styles or text rulers that have been applied or installed for the text data.<P>
+<A NAME="93799"><H3> Transition Iterators</H3></A>
+Transition iterators (<TT>vtextStyleTransitionIterator</TT> and <TT>vtextRulerTransitionIterator</TT>) help determine the style or text ruler applied to a specified location in text. Transition iterators record changes in styles or text rulers to determine the style or text ruler in effect at a given position. <P>
+<A NAME="12247"><H2> Examples Using Styles</H2></A>
+This section shows examples of text modified using different styles. For examples on using text rulers, refer to <A HREF="Text.html#12376">"Examples Using Text Rulers" on page 779</A>. <A HREF="Text.html#23246">Example 151</A> shows how to create a style, set some of its attributes, and apply it to a range of text. It also shows how to apply a style to a selection, and how to locate a style and find it in the text.<P>
+<A NAME="23246"><I>Example 151.  Using styles
+</I><P>
+<PRE><UL>{
+
+   // ...
+
+   vtext   *text;
+   int      fontSize = 12;
+
+   // ...
+
+   /*
+    * Create a style. Initially, this is a global style, that is,
+    * it is not attached to any specific text data object.
+    */
+   vtextStyle *style = vtextCreateStyle();
+
+   /*
+    * Now install the style into the text data object, making it
+    * local to that text data object.
+    */
+   vtextInstallStyle (text, style);
+
+   /*
+    * Change some of the style's attributes (bold and font size)
+    */
+   vtextSetStyleAttribute(style, vtext_Bold, vname_On);
+   vtextSetStyleAttribute(style, vtext_Size, &amp;fontSize);
+
+   /*
+    * Apply this style to the first eight characters in the text
+    * data object.
+    */
+   vtextApplyStyleRange(text, 1, 8, style);
+
+   // ...
+}
+
+
+/*
+ * This function takes whatever selection is currently selected by
+ * the end-user in the textview and bolds it if passed TRUE. If it
+ * is passed false, it unapplies the bold style.
+ */
+void BoldCurrentSelection (vtextview *tvSample, int state)
+{
+   vtextSelection *selection;
+   vtextStyle     *style;
+
+   /*
+    * Create and set style to bold
+    */
+   style = vtextCreateStyle();
+   vtextSetStyleAttribute(style, vtext_Bold, vname_On);
+
+   /*
+    * Get the current textview selection
+    */
+   selection = vtextviewGetSelection(tvSample);
+
+   /*
+    * Apply on Unapply style according to what we were given
+    */
+   if (state == TRUE)
+     vtextApplyStyle(vtextviewGetTextData(tvSample), selection, style);
+   else
+     vtextUnapplyStyle(vtextviewGetTextData(tvSample), selection, style);
+
+}
+
+</UL></PRE><A NAME="13497"><H4> Locating Styles</H4></A>
+The Text class tracks styles by using style tags (<TT>vtextStyleTag</TT>, a <TT>vtextTag</TT> subclass). A style tag has the name <TT>vtext_Style</TT> and a pointer to the style. You can scan for styles at a particular position by using a text style transition iterator (<TT>vtextStyleTransitionIterator</TT>). Use <TT><B>GetStyleTransitionIteratorStyles</B></TT> to find all of the styles currently applied at the iterator's position, and <TT><B>GetStyleTransitionIteratorCount</B></TT> to find the number of styles at that position. Example 71 shows you how to use a style transition iterator to find out if a style is applied at a given position.<P>
+<A NAME="93865"><I>Example 152.  Using style iterators
+</I><P>
+<PRE><UL>/*
+ * This function searches for a particular style in the text at the
+ * given position. vTRUE is returned if it is found, vFALSE if it is
+ * not.
+ */
+vbool IsStyleOnAtPosition (vtext *text, vtextStyle *toFind,
+                           long start)
+{
+   vtextStyleTransitionIterator iterator;
+   vtextStyleTag              **styles;
+   int                          styleCount;
+
+   /*
+    * Initialize the iterator, starting at the given value
+    */
+   vtextInitStyleTransitionIterator(&amp;iterator, text, start);
+
+   /*
+    * Now get the style and styleCount
+    */
+   styles = vtextGetStyleTransitionIteratorStyles(&amp;iterator);
+   styleCount = vtextGetStyleTransitionIteratorCount(&amp;iterator);
+
+   /*
+    * Go through all of the styles at this position. If a style
+    * matches the given style, return vTRUE.
+    */
+   while (styleCount-- &gt; 0) {
+      if (vtextCompareStyles((*styles)-&gt;style, toFind) )
+        return(vTRUE);
+      styles++;
+   }
+
+   vtextDestroyStyleTransitionIterator(&amp;iterator);
+
+   /*
+    * If we got here, it wasn't found, so return vFALSE
+    */
+   return (vFALSE);
+}
+
+</UL></PRE>Use <TT><B>StyleAtPosition</B></TT> to retrieve a composite style that contains all of the attributes of all the styles located at that position. To replace one style with another, use <TT><B>ReplaceStyle</B></TT>.<P>
+To find a particular style in the text data, use a text tag iterator (<TT>vtextTagIterator</TT>), testing the text tag's name to see if it matches <TT>vtext_Style</TT>. If so, you can then use a text style transition iterator to gather all styles at that position and determine if the given style is applied at that position. <A HREF="Text.html#15049">Example 153</A> illustrates this process, locating and returning a given style's position.<P>
+<A NAME="15049"><I>Example 153.  Finding a style's position
+</I><P>
+<PRE><UL>/*
+ * This function locates the next position in the text where the given
+ * style is applied. It returns -1 if it is not found.
+ */
+long FindNextStylePosition (vtext *text, vtextStyle *toFind, long start)
+{
+   vtextTag        *tag;
+   vtextTagIterator iterator;
+   long             position;
+
+   /*
+    * Initialize the iterator to start at the given position
+    */
+   vtextInitTagIterator(&amp;iterator, text, start);
+
+   /*
+    * Loop through the text tags, and see if they are a style
+    * (vtext_Style)
+    */
+   while (vtextNextTagIterator(&amp;iterator)) {
+      tag = vtextGetTagIteratorTag(&amp;iterator);
+      if (vtextGetTagName(tag) == vtext_Style) {
+         /*
+          * Found a style, so check if the style we want is here by
+          * calling IsStyleOnAtPosition (user defined, illustrated in
+          * above example.
+          */
+         position = vtextGetStyleTransitionIteratorPosition(&amp;iterator);
+         if (IsStyleOnAtPosition(text, toFind, position))
+           return (position);
+      }
+   }
+
+   vtextDestroyTagIterator(&amp;iterator);
+
+   /*
+    * If we made it here, it was not found, so return vFALSE
+    */
+   return(vFALSE);
+}
+
+</UL></PRE><A NAME="12376"><H2> Examples Using Text Rulers</H2></A>
+This section provides examples of using text rulers. For examples on using styles, refer to <A HREF="Text.html#12247">"Examples Using Styles" on page 776</A>. <A HREF="Text.html#23312">Example 154</A> shows how to create a text ruler, set some of its attributes, and apply it to a range of text.<P>
+<A NAME="23312"><I>Example 154.  Using text rulers
+</I><P>
+<PRE><UL>{
+   // ...
+
+   /*
+    * Create a text ruler. The ruler is created as a global ruler
+    */
+   vtextRuler *ruler = vtextCreateRuler();
+
+   /*
+    * Install the ruler in the text data object, making it local
+    * to that text data object.
+    */
+   vtextInstallRuler (text, ruler);
+
+   /*
+    * Set some of the ruler attributes, such as full justification
+    * and adding a tab stop ten pixels from the left margin
+    */
+   vtextSetRulerAttribute(ruler, vtext_Justification, vtextFULL_JUSTIFY);
+
+   vtextRulerAddTab(text, ruler, 10, vtextDECIMAL_TAB);
+}
+
+void SomeFunction2 (vtext *text)
+{
+   /*
+    * Apply the ruler to a selection of text
+    */
+   vtextSelection *selection;
+   vtextRuler     *ruler;
+
+   // ...
+
+   vtextApplyRuler(text, selection, ruler);
+
+   /*
+    * Apply the ruler from line 1 to line 10
+    */
+   vtextApplyRulerRange(text, 1, 10, ruler);
+
+   // ...
+}
+
+</UL></PRE><A NAME="93974"><H4> Locating Text Rulers</H4></A>
+You can scan text ruler changes by using a text ruler transition iterator (<TT>vtextRulerTransitionIterator</TT>). <A HREF="Text.html#93980">Example 155</A> uses a text ruler transition iterator to add a tab stop to all text rulers from a given position.<P>
+<A NAME="93980"><I>Example 155.  Using text ruler iterators
+</I><P>
+<PRE><UL>void AddTabFromHereOn (vtext *text, int start, vfixed tabPos, int tabType)
+{
+   vtextRulerTransitionIterator  iterator;
+   vtextRuler                   *newRuler = vtextCreateRuler();
+   int                           line;
+
+   vtextRulerAddTab(text, newRuler, tabPos, tabType);
+
+   /*
+    * Initialize the text ruler to go from the given position
+    */
+   vtextInitRulerTransitionIterator(&amp;iterator, text, start);
+
+   /*
+    * Now loop through and add the new tab stop where ever a text ruler is
+    */
+   while (vtextNextRulerTransitionIterator(&amp;iterator) ) {
+      line = vtextGetRulerTransitionIteratorLine(&amp;iterator);
+      vtextApplyRulerRange(text, line, line, newRuler);
+   }
+}
+
+</UL></PRE>Since text ruler and style transition iterators are very similar, refer to <A HREF="Text.html#13497">"Locating Styles" on page 777</A> for more examples of using transition iterators. You can also call <TT><B>RulerAtLine</B></TT> to retrieve the composite text ruler containing all of the attributes of the applied text rulers at a given line. To replace a text ruler with another, use <TT><B>ReplaceRuler</B></TT>.<P>
+Unless you specify a default text ruler for the text data object with <TT><B>SetDefaultRuler</B></TT>, text that does not have an applied text ruler uses the global default text ruler. The global default text ruler can be obtained with <TT><B>GetGlobalDefaultRuler</B></TT>.<P>
+<A NAME="16030"><H2> Graphics</H2></A>
+Galaxy allows insertion of graphics (<TT>vtextGraphic</TT>) into text. Use <TT><B>CreateGraphic</B></TT> to create a graphic. You can assign your graphics a width, height, and descent by using <TT><B>SetGraphicHeight</B></TT>, <TT><B>SetGraphicWidth</B></TT>, and <TT><B>SetGraphicDescent</B></TT>, or set all three at the same time by using <TT><B>SetGraphicMetrics</B></TT>. Insert the graphic into the text by using <TT><B>InsertGraphicObject</B></TT> or <TT><B>InsertGraphicObjectOwned</B></TT>, specifying the selection (insertion point). <A HREF="Text.html#16036">Example 156</A> shows how to create a basic graphic object, assign the metrics, and insert it into the text.<P>
+<A NAME="16036"><I>Example 156.  Creating and inserting a graphic
+</I><P>
+<PRE><UL>void AddGraphicToText (vtext *text, vtextSelection *selection)
+{
+   vtextGraphic *graphic = vtextCreateGraphic();
+
+   /*
+    * Assign the graphic it's width (15), height (15), and descent (0)
+    */
+   vtextSetGraphicMetrics(graphic, 15, 15, 0);
+
+   /*
+    * Place the graphic into the text data at the given selection.
+    * Give the text data object ownership of the graphic, so that it is
+    * automatically destroyed when it's time to clean up.
+    */
+   vtextInsertGraphicObjectOwned(text, selection, graphic);
+
+}
+
+</UL></PRE>The Text class uses style tags to track graphics, and automatically creates a style tag when you insert a graphic.The Text class assigns the graphic to the <TT>vtext_Graphic</TT> attribute of the style. Use a style transition iterator (<TT>vtextStyleTransitionIterator</TT>) to locate graphics in the text. <A HREF="Text.html#94112">Example 157</A> shows how to use a style transition iterator to locate the next graphic from a given position in a text data object.<P>
+<A NAME="94112"><I>Example 157.  Locating graphics
+</I><P>
+<PRE><UL>long FindNextGraphicPosition (vtext *tText, long start)
+{
+   vtextStyleTransitionIterator iterator;
+   vtextStyleTag              **styles;
+   int                          styleCount;
+
+   vtextInitStyleTransitionIterator(&amp;iterator, tText, start);
+
+   /*
+    * Loop through all of the style transitions, getting the style tags
+    * and number of style tags at that position.
+    */
+   while (vtextNextStyleTransitionIterator(&amp;iterator)) {
+      styles = vtextGetStyleTransitionIteratorStyles(&amp;iterator);
+      styleCount = vtextGetStyleTransitionIteratorCount(&amp;iterator);
+
+      /*
+       * Check all of the styles at this position for the vtext_Graphic
+       * being set. If so, return the position.
+       */
+      while (styleCount-- &gt; 0) {
+         if (vtextGetStyleAttribute((*styles)-&gt;style, 
+vtext_Graphic)              != NULL) {
+            return(vtextGetStyleTransitionIteratorPosition(&amp;iterator));
+         }
+         styles++;
+      }
+   }
+   return (-1);
+}
+
+</UL></PRE><A NAME="16092"><H3> Drawing Graphics</H3></A>
+By default, a graphic is represented by a rectangle the width and height of the created graphic. To draw more than just an empty rectangle, subclass the <TT>vtextGraphicClass</TT> and override the <TT>vtextGraphicDRAW</TT> method. <A HREF="Text.html#16098">Example 158</A> creates a new graphic class called "Image Graphic," which draws an assigned image.<P>
+<A NAME="16098"><I>Example 158.  Overriding vtextGraphicDRAW
+</I><P>
+<PRE><UL>vtextGraphicClass *ImageGraphicClass = NULL;
+
+/*
+ * This routine overrides vtextGraphicDRAW for the ImageGraphicClass.
+ * It simply retrieves the image from the graphic data and draws it.
+ */
+void ImageGraphicDraw (vtextGraphic *graphic)
+{
+   /*
+    * Get the image from the graphic data pointer
+    */
+   vimage *image = (vimage *)vtextGetGraphicData(graphic);
+
+   /*
+    * Draw the image at the current location
+    */
+   vdrawImageIdent(image);
+}
+
+
+void AddGraphicAtSelection (vtext *tText, vtextSelection *selection)
+{
+   vtextGraphic *graphic;
+   vimage *image;
+
+   /*
+    * Create a new vtextGraphic class called ImageGraphicClass,
+    * so that we can override the drawing function so it does more than
+    * drawing a rectangle.
+    */
+   if (ImageGraphicClass == NULL) {
+      ImageGraphicClass = vclassReproduce(vtextGetDefaultGraphicClass());
+
+      vclassSetNameScribed(ImageGraphicClass,
+                           vcharScribeLiteral("Image Graphic"));
+      vclassSet(ImageGraphicClass, vtextGraphicDRAW, ImageGraphicDraw);
+   }
+
+   /*
+    * Set up the graphic according to our new class, assign the image, and
+    * set up the size (width and height of the image) and descent (0)
+    */
+   graphic = vtextCreateGraphicOfClass(ImageGraphicClass);
+   image = vimageLoad(vresourceGet(rRoot,
+                                   vnameInternGlobalLiteral("Image")));
+
+   vtextSetGraphicData(graphic, (void *)image);
+   vtextSetGraphicMetrics(graphic, vimageGetWidth(image),
+                          vimageGetHeight(image), 0);
+
+   /*
+    * Now put the graphic into the text data object
+    */
+   vtextInsertGraphicObjectOwned(tText, selection, graphic);
+}
+
+
+/*
+ * Clean up memory by going through all of the graphics and destroying
+ * the images assigned to them.
+ */
+void CleanupImages (vtext *tText)
+{
+   vtextStyleTransitionIterator iterator;
+   vtextGraphic    *graphic;
+   vimage          *image;
+   vtextStyleTag  **styles;
+   int              styleCount;
+
+   vtextInitStyleTransitionIterator(&amp;iterator, tText, 0);
+
+   while (vtextNextStyleTransitionIterator(&amp;iterator)) {
+      styles = vtextGetStyleTransitionIteratorStyles(&amp;iterator);
+      styleCount = vtextGetStyleTransitionIteratorCount(&amp;iterator);
+
+      while (styleCount-- &gt; 0) {
+         if (vtextGetStyleAttribute((*styles)-&gt;style, 
+vtext_Graphic)              != NULL) {
+            graphic = (vtextGraphic *)vtextGetStyleAttribute
+              ((*styles)-&gt;style, vtext_Graphic);
+            image = (vimage *)vtextGetGraphicData(graphic);
+            vimageDestroy(image);
+         }
+         styles++;
+      }
+   }
+}
+
+</UL></PRE><A NAME="88901"><H3> Text Data Exceptions</H3></A>
+The following exceptions are thrown by the Text class:<P>
+<UL><LI><TT>vtextNoSuchAttributeException</TT>
+</UL><DL>
+<DT><DD> A style or text ruler attribute does not exist.
+</DL>
+<UL><LI><TT>vtextGetNoAppliedRulerException</TT>
+</UL><DL>
+<DT><DD> No applied text ruler.
+</DL>
+<UL><LI><TT>vtextGetNoAppliedStyleException</TT>
+</UL><DL>
+<DT><DD> No applied style.
+</DL>
+<UL><LI><TT>vtextviewNoTextDataException</TT>
+</UL><DL>
+<DT><DD> No text data object associated with a textview.
+</DL>
+Refer to the Exception chapter for more information and examples on handling exceptions.<P>
+<A NAME="94252"><H2> Text Data Methods and Subclassing</H2></A>
+The Text class allows you to customize functionality for almost any application, from simple one-line editing to complex word processing. The textview and text data classes provide methods that you can override to implement specific behavior. Some of the more commonly overridden methods follow.<P>
+<A NAME="94254"><H3> Word Breaks</H3></A>
+The Text class uses <TT>vtextWORD_BREAK</TT> to determine where to break text for word wrapping and mouse selections (double-clicking on a word). This method determines if the given location within the text is considered a word. The default implementation considers any alphanumeric as part of a word.<P>
+The word break method contains pointers to text and its length because it may be necessary to know the context in order to make the word character determination. Note that the edit rectangle for the text can also be used to determine a word break. <A HREF="Text.html#94260">Example 159</A> shows how to override the word break method so it considers C++ comments (// and /* */) as well as alphanumeric characters as part of a word. <P>
+<A NAME="94260"><I>Example 159.  Overriding the word break method
+</I><P>
+<PRE><UL>vbool CWordBreak(vtext *editRec, vchar *text, short length)
+{
+   register vchar ch, ch2;
+
+   ch = *text;
+
+   if (length &gt;= 2) {
+      ch2 = text[1];
+
+      if ( (ch == '/' &amp;&amp; (ch2 == '/' || ch2 == '*')) ||
+          (ch == '*' &amp;&amp; ch2 == '/') )
+        return(TRUE);
+   }
+
+   return(vcharIsAlphaNumeric(*text));
+}
+
+</UL></PRE><A NAME="11881"><H1> Textviews</H1></A>
+A textview (<TT>vtextview</TT>) is a dialog item that displays a text data object, allowing an end-user to select, edit, and manipulate text. The textview communicates with the text data through an observer, which is automatically created and implemented when a textview is assigned to a text data object.<P>
+A textview represents a unique selection of the text data and is represented as a visible highlight. The textview responds to events in the textview, such as editing of text by a user. As a result of these events, it modifies both the visible selection and the text data.<P>
+Note that a textview does not own the text itself. Instead, a textview uses text data routines to obtain information (such as styles assigned to ranges of text, text rulers assigned to ranges of text, and how many lines are in the text). This information is then used to display and edit the text accordingly. Similarly, text is never inserted or deleted from a textview; rather, it is inserted and deleted from the text data object, and this change is reflected in all associated textviews.<P>
+<A NAME="11997"><H2> Text Observers</H2></A>
+Text observers act as "messengers" between the text data and textviews associated with the text. Whenever a change is detected in the text data, the observer notifies the appropriate textview of the change. The text data object then implements the request. Note that a text data object can have multiple textviews; each textview can respond appropriately to editing actions from other textviews.<P>
+Although it is possible to manipulate observers, most manipulation is transparent and handled automatically through textviews.<P>
+<A NAME="5578"><H2> Textview Functionality</H2></A>
+Most textviews are created in the Visual Resource Builder, although it is possible to create a textview programmatically by using <TT><B>vtextviewCreate</B></TT>.<P>
+After a textview has been created or referenced from an existing dialog, assign the text data object to be displayed using <TT><B>SetTextData</B></TT>. A previously assigned text data object can be retrieved by calling <TT><B>GetTextData</B></TT>.<P>
+A textview should be assigned a selection (created through <TT><B>vtextCreateSelection</B></TT>), so it knows where to draw the insertion point caret. A selection is assigned by using <TT><B>SetSelection</B></TT>. To control the blinking rate of the insertion point caret, use <TT><B>SetBlink</B></TT>.<P>
+Like any other dialog item, textviews have attributes that can be manipulated, such as size, background and foreground color, and bordering options. Refer to the Dialog Item chapter for more information on standard dialog item attributes. Refer to the textview section in the<EM> Galaxy Application Environment Reference Manual</EM> for a complete list of textview attributes.<P>
+<A NAME="5989"><H2> Textview Attributes</H2></A>
+Textviews have some attributes in addition to those inherited from a standard dialog item. For example, use <TT><B>SetVertBar</B></TT> and <TT><B>SetHorzBar</B></TT> to assign scroll bars to a text view. The scroll bars can then be manipulated by the end-user to scroll through the displayed text. A textview also implements a "grabbing hand," allowing the user to grab the text, and by moving the mouse, scroll vertically or horizontally. Use <TT><B>SetGrabbingHand</B></TT> to control whether a textview has this attribute turned on or off.<P>
+<A HREF="Text.html#13996">Example 160</A> creates a text data object, selection, and textview; it then assigns scroll bars and turns off the grabbing hand (so that users have to use the scroll bars to scroll through the text):<P>
+<A NAME="13996"><I>Example 160.  Working with textviews
+</I><P>
+<PRE><UL>void InitializeText (void)
+{
+   vtextview *tvText;
+
+   /*
+    * Set up the text data object
+    */
+   vtext *tText = vtextCreate();
+
+   /*
+    * Now create a textview and assign it to the text and a new selection
+    */
+   tvText = vtextviewCreate();
+   vtextviewSetTextData(tvText, tText);
+   vtextviewSetSelection(tvText, vtextCreateSelection(tText));
+
+   vtextviewSetVertBar(tvText, TRUE);
+   vtextviewSetHorzBar(tvText, TRUE);
+   vtextviewSetGrabbingHand(tvText, FALSE);
+
+}
+
+</UL></PRE><A NAME="15188"><H2> Textview Information</H2></A>
+The Textview class provides access to the information being displayed in a textview, and to the relative position of the text within it. To find the current horizontal position for the textview, use <TT><B>GetHPosition</B></TT>. Use <TT><B>GetTopLineNum</B></TT> to find the line number of the topmost line currently being displayed. Find the number of lines being displayed in the textview by using <TT><B>Lines</B></TT>. If you know a text line number, use <TT><B>LineInScreen</B></TT> to determine if the line is currently being displayed.<P>
+Note that lines in a text data object start at one and go up to the total number of lines in the text data. There is no line number zero.<P>
+<A NAME="6322"><H3> Scrolling</H3></A>
+If you want to programmatically scroll the textview, use <TT><B>PageScroll</B></TT> (scroll by a page), and <TT><B>Scroll</B></TT> (scroll vertically to a line and/or horizontally to a position). If you want to scroll the textview so that the top of the current selection is visible, use <TT><B>ScrollToStart</B></TT>.<P>
+By default, a textview scrolls when the end-user selects text with a mouse and, while still holding down the select mouse button, moves the pointer outside of the content rectangle. You can enable or disable this functionality by using <TT><B>SetAutoScroll</B></TT>, passing in<TT> TRUE</TT> or<TT> FALSE</TT>.<P>
+Refer to the Print chapter for some sample code of programmatically scrolling in a textview to accomplish multiple page printing.<P>
+<A NAME="94611"><H2> Textview Preferences</H2></A>
+The following preference affects the Textview class:<P>
+<UL><LI><B>Caret Blink Interval</B>
+</UL><DL>
+<DT><DD> Controls the blinking interval for the insertion point caret.
+</DL>
+<UL><B><I>NOTE:</I></B> Note that the Textview class frequently responds to events generated with 
+keys and keystrokes. These can be controlled through the Preference class. 
+Refer to the Event Manager for more information on keys. Refer to the 
+Preference chapter for more information on preferences.
+<P>
+</UL><A NAME="12912"><H3> Textview Notification</H3></A>
+The Textview class calls the textview notify method when an important event occurs in a textview. The following events are handled in a notify method. Override the notify method if your textview needs to take appropriate action in response to these events.<P>
+<UL><LI><TT>vtextviewVSCROLL_NOTIFY</TT>
+</UL><DL>
+<DT><DD> Text was scrolled vertically.
+</DL>
+<UL><LI><TT>vtextviewHSCROLL_NOTIFY</TT>
+</UL><DL>
+<DT><DD> Text was scrolled horizontally.
+</DL>
+<UL><LI><TT>vtextviewACCEPT_NOTIFY</TT>
+</UL><DL>
+<DT><DD> A return was entered, or focus was lost.
+</DL>
+<UL><LI><TT>vtextviewSELECT_NOTIFY</TT>
+</UL><DL>
+<DT><DD> Selection has changed.
+</DL>
+<UL><LI><TT>vtextviewUPDATE_NOTIFY</TT>
+</UL><DL>
+<DT><DD> Text has been updated.
+</DL>
+<A NAME="11540"><H3> Drawing Text</H3></A>
+The textview class provides several methods to use when drawing the textual data. Overriding these methods allows you to control the display of text. Methods commonly overridden include the following:<P>
+<UL><LI><TT>vdialogDRAW_ITEM</TT>
+</UL><DL>
+<DT><DD> Called whenever a dialog item needs to be drawn.
+</DL>
+<UL><LI><TT>vtextviewDRAW_BACKGROUND</TT>
+</UL><DL>
+<DT><DD> Draws the background of the textview. Called by <TT>vdialogDRAW_ITEM</TT>.
+</DL>
+<UL><LI><TT>vtextviewDRAW_BORDER</TT>
+</UL><DL>
+<DT><DD> Draws the border of the textview. Called by <TT>vdialogDRAW_ITEM</TT>.
+</DL>
+<UL><LI><TT>vtextviewDRAW_CARET</TT>
+</UL><DL>
+<DT><DD> Draws the caret (insertion point) in the textview. Called by <TT>vdialogDRAW_ITEM</TT>.
+</DL>
+<UL><LI><TT>vtextviewDRAW_LINE</TT>
+</UL><DL>
+<DT><DD> Draws a line of text in the textview. Called by <TT>vdialogDRAW_ITEM</TT>.
+</DL>
+<UL><LI><TT>vtextviewDRAW_RUN_EXTRA</TT>
+</UL><DL>
+<DT><DD> Draws the state and style of a "run" or range of text. Called by <TT>vtextviewDRAW_LINE</TT>.<TT></TT>
+</DL>
+<UL><LI><TT>vtextviewDRAW_HILITE</TT>
+</UL><DL>
+<DT><DD> Draws the highlight color for the text. Called by <TT>vtextviewDRAW_RUN_EXTRA</TT>.
+</DL>
+<UL><LI><TT>vtextviewDRAW_RUN</TT>
+</UL><DL>
+<DT><DD> Draws the actual text through a certain "run" or range of text. Called by <TT>vtextviewDRAW_RUN_EXTRA</TT>.
+</DL>
+Note that <TT>vtextviewDRAW_HILITE</TT> and <TT>vtextviewDRAW_CARET</TT> are sometimes called independently of the usual drawing hierarchy to handle situations such as drawing selections and changing insertion points. The entire textview is not redrawn to handle a change in the location of the insertion point or the on-screen selection.<P>
+For example, the Textview class currently does not provide a "blinking" style. You can create a new style attribute for the text data object, and override <TT>vtextviewDRAW_RUN</TT> to implement your own drawing routines. <A HREF="Text.html#143497">Example 161</A> shows how a new blinking text style is implemented, overriding the <TT>vtextviewDRAW_RUN</TT> to draw the new blinking text style.<P>
+<A NAME="143497"><I>Example 161.  Creating a new style
+</I><P>
+<PRE><UL>vtextStyleClass   *BlinkStyleClass = NULL;
+vtextStyle        *style;
+vtextAttributeSet *BlinkAttributeSet = NULL;
+vtextviewClass    *MyTextViewClass = NULL;
+vtimer            *BlinkTimer;
+
+/*
+ * This routine overrides vtextviewDRAW_RUN for the class MyTextView.
+ * It handles the blinking text attribute.
+ */
+void MyDrawRun (vtextview *view, vchar *text, int length,
+                vtextStyle *style)
+{
+   const void *value;
+
+   /*
+    * Check for the blink style attribute
+    */
+   if ((value = vtextGetStyleAttribute(style,
+                                       vnameInternGlobalLiteral("Blink")))
+       != NULL) {
+      /*
+       * Set up the proper colors for drawing, depending on whether
+       * the attribute is on (vname_On) or off (vname_Off).
+       */
+      vcolorScheme scheme;
+
+      vdialogDetermineItemColorSchemeState(vtextviewGetItem(view),
+                                           vcolorFLAG_BACKGROUND |
+                                           vcolorFLAG_FOREGROUND,
+                                           &amp;scheme);
+
+      if (value == vname_On) {
+         vtextSetStyleAttribute(style, vnameInternGlobalLiteral("Blink"),
+                                vname_Off);
+         vdrawSetColor(vcolorGetSchemeForeground(&amp;scheme));
+      } else {
+         vtextSetStyleAttribute(style, vnameInternGlobalLiteral("Blink"),
+                                vname_On);
+         vdrawSetColor(vcolorGetSchemeBackground(&amp;scheme));
+      }
+   }
+
+   /*
+    * Call the super class, drawing the text with the assigned color
+    */
+   vclassSendSuper(MyTextViewClass, vtextviewDRAW_RUN,
+                   (view, text, length, style));
+}
+
+
+/*
+ * Creates a new textview class, overriding the drawing method
+ */
+void CreateMyTextViewClass (void)
+{
+   if (MyTextViewClass == NULL) {
+      MyTextViewClass = vclassReproduce(vtextviewGetDefaultClass());
+
+      vclassSetNameScribed(MyTextViewClass,
+                           vcharScribeLiteral("Blink Textview"));
+      vclassSet(MyTextViewClass, vtextviewDRAW_RUN, MyDrawRun);
+   }
+}
+
+
+/*
+ * This routine is called when the timer expires, and invalidates the
+ * textview so that the text is redrawn (and appears to blink)
+ */
+void BlinkTimerNotify (vtimer *timer)
+{
+   vtextviewInval( (vtextview *)vtimerGetData(timer));
+}
+
+
+void ApplyBlinkToSelection (vtext *text, vtextview *tvText,
+                            vtextSelection *selection)
+{
+   /*
+    * Create a new style, overriding the style's attribute set variable
+    */
+   if (BlinkStyleClass == NULL) {
+
+      BlinkStyleClass = vclassReproduce(vtextGetDefaultStyleClass());
+
+      vclassSetNameScribed(BlinkStyleClass,
+                           vcharScribeLiteral("Blink Style"));
+
+      /*
+       * Create a new attribute set, adding a "Blink" attribute
+       */
+      if (BlinkAttributeSet == NULL) {
+         BlinkAttributeSet = vtextCreateAttributeSet();
+         vtextAddAttribute(BlinkAttributeSet,
+                           vnameInternGlobalLiteral("Blink"),
+                           vtextATTR_NAME);
+      }
+
+      /*
+       * Now override the style's default attribute set with
+       * the new attribute set.
+       */
+      vclassSet(BlinkStyleClass, vtextStyleATTRIBUTE_SET,
+                BlinkAttributeSet);
+
+      /*
+       * Create a recurrent timer that expires every second, thereby
+       * invalidating the textview and making the text appear to blink.
+       */
+      BlinkTimer = vtimerCreate();
+      vtimerSetPeriod(BlinkTimer, 1, 0);
+      vtimerSetRecurrent(BlinkTimer);
+      vtimerSetData(BlinkTimer, (void *)tvText);
+      vtimerSetNotify(BlinkTimer, BlinkTimerNotify);
+   }
+   vtimerStart(BlinkTimer);
+
+   /*
+    * Make a new style based on the new style class with the blink
+    * attribute
+    */
+   style = vtextCreateStyleOfClass(BlinkStyleClass);
+
+   /*
+    * Turn the attribute on.
+    */
+   vtextSetStyleAttribute(style, vnameInternGlobalLiteral("Blink"),
+                          vname_On);
+
+   /*
+    * Apply the style to the selection
+    */
+   vtextApplyStyle(text, selection, style);
+}
+
+int main (int argc, char **argv)
+{
+   // ...
+   vstartup(argc, argv);
+
+   CreateMyTextViewClass();
+
+   // ...
+
+   veventProcess();
+
+   // ...
+
+   vtimerDestroy(BlinkTimer);
+   vtextDestroyAttributeSet(BlinkAttributeSet);
+   vtextDestroyStyle(style);
+
+   exit(EXIT_SUCCESS);
+   return EXIT_FAILURE;
+}
+
+</UL></PRE><A NAME="96708"><H1> Pitfalls</H1></A>
+<A NAME="96712"><H3> Auto Calculation</H3></A>
+By default, styles and text rulers are assigned an <EM><B>auto calculation</B></EM> attribute. This means that attributes are inherited from the user interface. For example, if the dialog background color is gray, and the color style is not set, the textview uses a gray background color. If a dialog uses a particular font, and the font style is not set, the textview uses the same font.<P>
+Although auto calculation can be turned off, this can cause random behavior if the style is unable to determine what style attributes should be used. For example, if you turn off auto calculation for a default local style, but neglect to set a style attribute, such as the font, the textitem is unable to determine what font should be used. A random font is chosen, resulting in undefined behavior and display.<P>
+<A NAME="96716"><H3> Performance</H3></A>
+When making changes to a text data object, an application is slowed down by the number of calculations performed by observers and the textview. You can improve your application's performance by using <TT><B>Lock</B></TT>, making the changes, and then using <TT><B>Unlock</B></TT> to notify the observers that the changes are complete.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Style_Chooser.html">Previous Chapter</A> | 
+		<A HREF="Text_Ruler.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

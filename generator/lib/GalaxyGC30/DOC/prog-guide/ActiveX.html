@@ -1,0 +1,266 @@
+<HTML>
+<HEAD>
+<TITLE>ActiveX</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>ActiveX</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/trans.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Application.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+Galaxy supports the inclusion of ActiveX controls by providing an OLEControlSite class, a DialogItem subclass. The control site houses the specified type of ActiveX control, thereby seamlessly integrating its functionality into the dialog. In addition, a control site can also function as an OLE Automation controller, which is essentially a subset of ActiveX control with no GUI component to it. All ActiveX controls provide method invocation, property gets and puts, and event notifications, which are all supported through the Galaxy API.<P>
+ActiveX controls can be anything from a simple GUI component, such as a button, to a spreadsheet item, or even a web browser. To use any of these controls here, you must ensure that the control is present, properly installed, and licensed on your machine. See system documentation or documentation provided with a particular control for more information on this aspect.<P>
+<A NAME="3732"><H2> Key Functionality</H2></A>
+There are several ways to create a usable instance of a control. The simplest is through VRB, although it is not too difficult to do it programmatically. Using VRB allows you to take advantage of features like springs and struts for resizing, plus provides a toolbar containing icons for all controls registered on your system. However, for the purposes of complete explanation, this chapter discusses the programmatic approach.<P>
+Creation of a minimally functioning control requires three steps:<P>
+<OL>
+<LI>Create an instance of a generic control site
+<BR>
+<LI>Set the site's contained control type
+<BR>
+<LI>Add the control site to a dialog.
+<BR>
+</OL>
+The following example uses Microsoft's Grid control, a simple spreadsheet-like control. Every control has a unique id called a CLSID (class id). By either consulting the system registry, or using a tool such as Microsoft's freely available OLE Object Viewer, you can easily determine the text representation of the control's CLSID. For the grid control, the CLSID is specified as the string:<P>
+<PRE><UL>
+{A8C3B720-0B5A-101B-B22E-00AA0037B2FC}
+
+</UL></PRE>Note that brackets are required in the specification. The following examples illustrate the steps necessary to create the Grid control.<P>
+<PRE><UL>
+</UL></PRE>Follow the steps previously outlined. Note that these steps are often done in the constructor for the dialog you want to attach the control to.<P>
+<PRE><UL>   // Create an instance of the control site
+   voleControlSite *myGrid = voleCreateControlSite();
+   
+   // Set the types contained control type
+   voleSetControlSiteObjectType(myGrid,
+                     "{A8C3B720-0B5A-101B-B22E-00AA0037B2FC}");
+
+   // Add the control to a dialog
+   vdialogAppendItem(dialog,(vdialogItem *)myGrid);
+
+</UL></PRE>Alternatively, the <TT>SetControlSiteObjectType</TT> method can also accept the actual name of the control as it appears in the system registry. In the previous example, you could have used the following to set the type:<P>
+<PRE><UL>   voleSetControlSiteObjectType(myGrid,
+                                "MSGrid.Grid");
+
+</UL></PRE>That's all you need to do to create a live control, however, the control as such is not too useful. This is because no notification will be given to you when a cell is changed, nor do you have a way of checking a cell value, or setting its value. The following sections explain how to hook up method invocation, property gets and puts, and event notification to your control.<P>
+<A NAME="3611"><H2> Variant Arguments and Variant Lists</H2></A>
+Before discussing the specifics of events and methods, some background information on the abstraction for OLE Automation parameters is necessary. All event notifications, method invocations, and property puts/gets can be thought of as language-independent remote function invocations of a sort. Each of these functions, its arguments and argument types are "documented" in a Type Library corresponding to a control or automation object. Actually, the "documentation' is a binary file, containing these specifications.<P>
+OLE Automation uses the notion of a VARIANT record to encapsulate each parameter to a function invocation, and then builds up an array of these records to pass to the other side (the control to the control site, or vice-versa). Essentially, each VARIANT record is a discriminated union, recording the data type and the data itself.<P>
+To address these issues, the OLE API introduces the <TT>volevariant</TT> and <TT>volevariantList</TT> classes. Conceptually, the <TT>volevariant</TT> class is quite similar to the VARIANT record described above. An <TT>volevariant</TT> can hold numerous types of data, for example, an integer, a boolean, a string, or even a pointer to another <TT>volevariant</TT>. To set a variant to contain a particular value, you just invoke a "set" method on it. For example, to create an <TT>volevariant</TT> record, and set it to contain an integer, do the following:<P>
+<PRE><UL>   volevariant *v = volevariantCreate();
+   
+   volevariantSetInt(v, 7);
+
+</UL></PRE>The object <TT>v</TT> now contains the integer <TT>7</TT>. To retrieve its value, do the following:<P>
+<PRE><UL>   int i = volevariantGetInt(v);
+
+</UL></PRE>If <TT>v</TT> does not contain an integer, an attempt is made to coerce the data into the desired type using the Win32 call <TT>VariantChangeType</TT>. All type coercions documented in the system documentation (<EM>OLE Programmer's Reference</EM>) are supported.<P>
+Some automation functions expect references (pointers in C) to data, so that their values may be changed by the called routine. To do this you need to copy the original data, and pass the copy's address to OLE. Unlike real references, you must then access the data back to get the new value. Use the <TT>Set&lt;type&gt;Ref</TT> API to set the reference and the same <TT>Get</TT> methods as before. For example, to set a reference to an integer, and later get its new value, you would do the following:<P>
+<PRE><UL>   int i = 3;
+   volevariant *v = volevariantCreate();
+   
+   volevariantSetIntRefVal(v, i);
+   
+   // call OLE Automation function here
+   // -- this may change the value
+   i = volevariantGetInt(v);
+
+</UL></PRE>Automation functions which have a return value fill in a supplied <TT>volevariant</TT> with the result. The variant parameter can be ignored if there is no return value.<P>
+Parameter lists are a little more complicated. All the parameters are appended to an (initially empty) <TT>volevariantList</TT>, and the API does the necessary conversion of the list to a VARIANT array when it invokes the function in OLE. Typically, you might use just a few of the <TT>volevariantList</TT> methods: <TT>Append</TT>, <TT>GetAt</TT>, and possibly <TT>RemoveAt</TT> (to keep from destroying data you want to keep around).<P>
+The following example builds a variant list containing an integer and a string:<P>
+<PRE><UL>   volevariant *v1 = volevariantCreate();
+   volevariant *v2 = volevariantCreate();
+   volevariantList *l = volevariantCreateList();
+   
+   volevariantSetInt(v1, 5);
+   volevariantSetString(v2, (vchar *)"hello");
+   
+   volevariantAppendList(l, v1);
+   volevariantAppendList(l, v2);
+
+</UL></PRE><A NAME="3652"><H3> Handling Optional Parameters</H3></A>
+Some parameters in OLE Automation are optional. These are usually of type VARIANT*, meaning the VARIANT contains a pointer to another VARIANT. In Galaxy, if you choose to use this optional parameter, you can call <TT>SetVariant</TT> on a variant. If you choose not to use the parameter, use <TT>SetError</TT>. The following example illustrates handling optional parameters.<P>
+<PRE><UL>   // A nested variant for an optional parameter
+   volevariant *v1 = volevariantCreate();
+   volevariant *opt = volevariantCreate();
+   // An unused optional parameter
+   volevariant *v2 = volevariantCreate();
+
+   volevariantSetInt(v1, 7);
+   volevariableSetVariant(v1, opt);
+
+   volevariantSetError(v2, 1);
+
+</UL></PRE><A NAME="3666"><H2> Event Notification</H2></A>
+Most controls have a predefined sets of events of which they notify the control site when the events occur. See the documentation for the specific events supported by a particular control.<P>
+In general, an event notification consists of a numeric identifier, called a dispID, plus possibly parameters relevant to the event. An event notification may be thought of as a function call made by the control to the control site. The function is always a void function (has no return value). Certain events, such as mouse motion events, might happen with extreme frequency. Others, such as a particular spreadsheet cell changing, are likely to be rarer. Event notifications require a certain amount of system overhead. Hence, by default, all event notifications start out disabled in the control, and the desired events must be individually enabled.<P>
+In the Galaxy API, an voleControlSite enables and disables events using the <TT>SetControlSiteNotifyEvent</TT> method. The signature for this method is:<P>
+<PRE><UL>void voleSetControlSiteNotifyEvent(voleControlSite *site, 
+                                   DISPID dispid,
+                                   vbool set);
+
+</UL></PRE><TT>dispid</TT> is the event number of interest; <TT>set</TT> specifies whether to enable (<TT>true</TT>) or disable it. The effect of enabling an event is to cause the control site's event handler method, <TT>NotifyEvent</TT>, to be called. The signature for this method is:<P>
+<PRE><UL>void myNotifyEvent(voleControlSite *site, DISPID dispid,
+                   volevariantList *list);
+
+</UL></PRE>You must assign a <TT>NotifyEvent</TT> method, or else the desired events will simply get swallowed by the default method. Typically, your <TT>NotifyEvent</TT> method will have a switch statement for each event <TT>dispid</TT> you have chosen to enable.<P>
+For example, suppose you want to be notified of MouseDown events. If you check the documentation provided for the Grid control, you can determine that MouseDown is supported and <TT>dispid</TT> is <TT>-605 </TT>(<TT>DISPID_MOUSEDOWN</TT>, as defined by OLE). Further, its signature is as follows:<P>
+<PRE><UL>void MouseDown(short Button, short Shift, int X, int Y);
+
+</UL></PRE>To enable the event and set up a notification method for the site, do the following:<P>
+<PRE><UL>{
+   // ...
+   voleSetControlSiteNotifyEvent(site,
+                                 DISPID_MOUSEDOWN, vTRUE);
+   // ...
+}
+
+// notifyEvent method overridden from OLEControlSite
+void myNotifyEvent(voleControlSite *site, DISPID dispid,
+                   volevariantList *list)
+{
+   switch(dispid) {
+      case DISPID_MOUSEDOWN:
+      {
+         short button, shift;
+         int x, y;
+        
+         button =
+           volevariantGetShort(volevariantGetListAt(list, 0));
+         shift  =
+           volevariantGetShort(volevariantGetListAt(list, 1));
+         x = volevariantGetInteger(volevariantGetListAt(list, 2));
+         y = volevariantGetInteger(volevariantGetListAt(list, 3));
+         // Do something with data here.
+      }
+      // ...
+   }
+}
+
+</UL></PRE>The only other issue to mention here is parameters which are passed as reference parameters. For example, for the <TT>KeyDown</TT> method, the <TT>KeyCode</TT> and <TT>shift</TT> parameters are both short references. To get the value of one of these parameters, you can just call the <TT>GetShort</TT> method. To change the value, use <TT>SetShortRef</TT> on the variant.<P>
+<A NAME="4302"><H2> Methods and Properties</H2></A>
+OLE Automation method invocation and property puts/gets all use the same mechanism. They are distinguished by a flag passed in to OLE, which in Galaxy is set to any of the following:<P>
+<UL><LI><TT>DISPATCH_METHOD</TT>
+<LI><TT>DISPATCH_PROPERTYGET</TT>
+<LI><TT>DISPATCH_PROPERTYPUT</TT>
+<LI><TT>DISPATCH_PROPERTYPUTREF</TT>
+</UL>Like, events, each method and property put/get has an integer <TT>dispID</TT> for identification. One reason the flag is needed in addition to the dispID is that a given property get and property put often share the same dispID, and the flag is what distinguishes them.<P>
+These mechanisms have names which pretty well describe them. A method is any arbitrary function you might call on a control, for example to tell a web browser control to fetch a certain URL. Property gets and puts are used to get and set the value of a certain attribute, such as caption or foreground color. The putref is put by reference; the property is put, but the control may change the value on return.<P>
+All of these functions may be called via the control site's <TT>Invoke</TT> method. However, since property gets generally have no parameters and property puts have no return values, shortcut methods exist for these. There is also a shortcut method for invoking methods, as well as a shortcut method for methods which have no parameters, nor a return value.<P>
+The following example is a property get for the Grid control to get its foreground color: According to the documentation, the dispid is <TT>-513</TT> (also, <TT>DISPID_FORECOLOR</TT>).<P>
+<PRE><UL>   int          color;
+   vcolor      *gridColor;
+   volevariant *result = volevariantCreate();
+
+   voleGetControlSiteProperty(site, DISPID_FORECOLOR, result);
+   color = voloevariantGetInt(result);
+
+   // For completeness, this example shows how to convert the color
+   // from the OLE representation to the Galaxy representation
+   gridColor = voleGetColor(color);
+
+</UL></PRE>The put is just as simple:<P>
+<PRE><UL>   // Again, first convert Galaxy color representation
+   // to OLE representation
+   int color = voleGetOleColor(gridColor);
+   volevariant *param = volevariantCreate();
+
+   volevariantSetInt(param, color);
+   voleSetControlSiteProperty(site, DISPID_FORECOLOR, param);
+
+</UL></PRE>Methods are a little more complicated, only because you must build up a list of parameters. For the Grid control, the <TT>RemoveItem</TT> method removes a row. It returns the new row count. The dispID is <TT>30</TT> and the signature is as follows:<P>
+<PRE><UL>short RemoveItem(short RemRow)
+
+</UL></PRE>Here is the code:<P>
+<PRE><UL>   short row = 12;
+   short retVal;
+   volevariant *rowVar = volevariantCreate();
+   volevariant *result = volevariantCreate();
+   volevariantList *args = volevariantCreateList();
+   voledispatch *disp = voledispatchCreate();
+   
+   volevariantSetShort(rowVar, row);
+   volevariantAppendList(args, rowVar);
+   voledispatchInvoke(disp, 30, 0, args, result);
+   retVal = volevariantGetShort(result);
+
+</UL></PRE><A NAME="4363"><H2> Controls Versus Automation </H2></A>
+As mentioned, you can use an OLEControlSite to house an OLE Automation object. This object may have methods and/or events, but no GUI component. To use the control site, you need to create an instance and set its type. You do not need to attach it to a dialog at that point. Usage is identical to that described for controls above. For example, Microsoft's Internet Explorer has an OLE Automation interface such that an outside program can control the operation of the browser through the interface.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Application.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

@@ -1,0 +1,286 @@
+<HTML>
+<HEAD>
+<TITLE>Dialog</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Dialog</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Debugging.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Dialog_Item.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="285"></A>
+The Dialog class allows you to create and manipulate top-level application windows called dialogs. Dialogs are the windows that a user interacts with on the screen. The dialog's primary purpose is to hold, display, and manage dialog items - the basic user interface objects. An application with a graphical user interface consists of one or more dialogs, each with its own group of dialog items to display and manage.<P>
+The DialogItemList class helps you efficiently manage the contents of dialogs.<P>
+The dialog is the most often used, ubiquitous, user interface object in Galaxy. Virtually all user interaction with, and on-screen drawing for, an application occurs within dialogs or subclasses of dialogs.<P>
+<A NAME="2249"><H2> Relationship to Other Classes</H2></A>
+A dialog is a Galaxy window subclass. The Dialog class adds methods to the window class to manage dialog items contained within the dialog. Window geometry, window styles, cursors, and other base level window functionality are left to the Window class.<P>
+Users interact with an application using dialog items, such as buttons, check boxes, and list items contained within a dialog. For this chapter, however, a dialog item is treated as a Galaxy object representing a rectangular area of the screen allowing some user interaction. For more information on dialog items, refer to the Dialog Item class.<P>
+Each dialog uses the Spring class to manage the layout of its dialog items. The Spring class provides Galaxy connections (springs and struts) that control the placement and size of dialog items in a dialog. You should be familiar with the basic concepts introduced by the Spring class. Note that you can specify the placement and size of dialog items interactively using the Visual Resource Builder.<P>
+The Dialog class use command spaces to associate functions with commands at the dialog level. For more information on command spaces, refer to the Command chapter <P>
+The behavior of dialogs in a Galaxy application is determined to a large extent by events in the Galaxy event loop. For a basic understanding of events and the Galaxy event loop, refer to the Event chapter.<P>
+The dialog class introduced by the Dialog class is the base class for the Confirmation class, and from that the base for all standard notice dialogs and Galaxy choosers. For more information on these subclasses of dialogs, refer to the Confirmation class, Notification class, and Standard Choosers.<P>
+You can build dialogs for your application interactively using the Visual Resource Builder, and save them in a resource file. This separates the building and maintenance of a dialog from your application's source code. For information on using the Visual Resource Builder, refer to the <EM>Visual Resource Builder User's Guide</EM>.<P>
+<A NAME="2438"><H2> Dialogs and Windows</H2></A>
+<EM><B>Dialogs</B></EM> represent basic application objects, such as windows, documents, and error windows. Dialogs are based on windows and inherit basic look-and-feel properties such as borders and window styles. A dialog can contain user interface items (dialog items) and manage their visibility and placement within the boundaries of the dialog. When a dialog is resized, the dialog ensures that the items within it get re-arranged according to a spring solution that defines the size and relative positions of the items.<P>
+Dialogs also inherit the leader/follower relationship from the Window class. Two windows can have a leader/follower relationship; actions on a leader window affect any of its follower windows. Each dialog can have one leader and multiple followers.<P>
+Dialogs have a set of attributes that define properties such as foreground and background colors, fonts, and key bindings. Attributes are inherited according to a user interface hierarchy (UI hierarchy). The dialog items contained within a dialog inherit many of the dialog's attributes while dialogs themselves inherit attributes and bindings from the window on which they are based. The UI hierarchy is an inheritance mechanism separate from the class inheritance mechanism provided by the object-oriented programming paradigm. For more information on the UI hierarchy, refer to the Window chapter.<P>
+Note that windows and dialogs inherit attributes from their classes as well as their instances. Refer to the Window chapter for more information about window inheritance.<P>
+<A NAME="2604"><H3> Dialog Item Lists</H3></A>
+Each dialog contains a<EM><B> dialog item list</B></EM>. Many actions performed on a dialog are, in fact performed with the dialog's dialog item list. The dialog item list references the dialog items that are displayed within the dialog. The dialog item list also contains the spring solution for the dialog. Most applications have no need to directly access a dialog item list, since most common functionality is provided through the dialog API.<P>
+Note that the Container class also uses dialog items lists to manage dialogs items placed within a container dialog item. For more information on containers, refer to the Container class.<P>
+<A NAME="2674"><H2> Using the Visual Resource Builder to Build Dialogs</H2></A>
+Commonly, you use the Visual Resource Builder application to lay out a dialog, specify much of its behavior, and test the dialog &#173; all independent of any application code. Once a dialog is built with the Visual Resource Builder and stored in a resource file, you can load and display the dialog by using the dialog's <TT>Load</TT> method. Load reads a vresource and creates a new dialog. Refer to the Resource class for more information on locating a dialog within a resource file.<P>
+Use a dialog's <TT>Open</TT> method to display a dialog on the screen. The dialog's <TT>Close</TT> method removes the dialog from the display but doesn't actually destroy the dialog. Closed dialogs can be later reopened and displayed; the state of a dialog is preserved when it is closed.<P>
+Destroy the dialog. Use the dialog's <TT>Destroy</TT> method when the application no longer needs to use the dialog. <TT>Destroy</TT> releases all resources held by the dialog. Typically, dialogs are destroyed during program shutdown.<P>
+<A HREF="Dialog.html#4921">Example 36</A> illustrates how to load and display a dialog created with the Visual Resource Builder.<P>
+<A NAME="4921"><I>Example 36.  Loading a dialog from a resource file
+</I><P>
+<PRE><UL>   vresource  dialog_res;
+   vdialog   *dialog;
+
+   dialog_res = vresourceGet(vapplicationGetResources
+                             (vapplicationGetCurrent()),
+                             vnameInternGlobalLiteral ("My Dialog"));
+
+   dialog = vdialogLoad(dialog_res);
+   vdialogOpen(dialog);
+
+   veventProcess ();
+
+   vdialogClose(dialog);
+   vdialogDestroy(dialog);
+
+</UL></PRE><A NAME="2869"><H2> Dialog Placement</H2></A>
+You can use the <TT>Place</TT> method inherited from <TT>vwindow</TT> to control the relative positioning of dialogs on the display. You can specify that a dialog be centered on the screen, centered over another dialog, or placed to the left or right of another dialog. The code fragment in <A HREF="Dialog.html#2943">Example 37</A> illustrates placement of dialogs. <P>
+<A NAME="2943"><I>Example 37.  Placement of dialogs
+</I><P>
+<PRE><UL>   // ...
+
+   /*
+    * Center dialog 1 over dialog 2
+    */
+   vdialogPlace(dialog2, dialog1, vrectPLACE_CENTER, vrectPLACE_CENTER);
+
+   /*
+    * Center dialog 3 on the display
+    */
+   vwindowPlace (vdialogGetWindow (dialog3), vwindowGetRoot (),
+                 vrectPLACE_CENTER, vrectPLACE_CENTER);
+   // ...
+
+</UL></PRE>Many other placement options are available. Refer to the documentation for <TT><B>vrectPlace</B></TT> in the<EM> Galaxy Application Environment Reference Manual</EM> for details.<P>
+<A NAME="2958"><H2> Dialog Notification</H2></A>
+An application may need to respond to a number of user actions upon a dialog, such as resizing, moving, iconifying, and closing. You can override a dialog's notify method to receive notification of important events as they are received by the dialog. The code fragments in <A HREF="Dialog.html#3040">Example 38</A> illustrates how to capture and respond to a close event. <P>
+<A NAME="3040"><I>Example 38.  Notification of a close event on a dialog
+</I><P>
+<PRE><UL>{
+   vdialog *dialog;
+   // ...
+
+   dialog = vdialogLoad (dialog_res);
+   vdialogSetNotify (dialog, dialogNotify);
+   // ...
+}
+
+/*
+ * Dialog Notify functions
+ */
+void dialogNotify (vdialog *dialog, vevent *event)
+{
+   if (veventIsClose (event))
+   {
+      /*
+       * The dialog is being closed,
+       * so take action here.
+       */
+   }
+}
+
+</UL></PRE>Refer to the vevent module in the<EM> Galaxy Reference Manual</EM> for a detailed list of events handled by dialogs and windows, and to the Event chapter for more information on working with events.<P>
+<A NAME="2985"><H2> Finding Dialog Items</H2></A>
+Use the <TT>FindItem</TT> method of a dialog to find dialog items contained by a dialog. <TT>FindItem</TT> operates on a dialog and takes the tag name of the dialog item you are looking for. If the dialog item is found it returns a pointer to it; otherwise it returns <TT>NULL</TT>. The code fragment in <A HREF="Dialog.html#2993">Example 39</A> illustrates how to find a dialog item in a dialog.<P>
+<A NAME="2993"><I>Example 39.  Finding a dialog item in a dialog
+</I><P>
+<PRE><UL>   vdialogItem *my_item;
+   vdialog *dialog;
+
+   // ...
+   my_item =
+      vdialogFindItem (dialog, vnameInternGlobalLiteral ("My Item"));
+   // ...
+
+</UL></PRE><A NAME="16396"><H2> Command Spaces</H2></A>
+It is often desirable to have certain actions take place within an application in response to user interaction with the items within a dialog. Each dialog item has slightly different semantics in this regard, but many of them issue commands in response to user interaction. You can attach a command space to a dialog to associate functions with commands issued at the dialog level. Typically, you use the <TT>SetSpaceOwned</TT> method of <TT>vwindow</TT> to attach command spaces to a dialog, as illustrated in <A HREF="Dialog.html#16407">Example 40</A>. For more information on commands and command spaces, refer to the Command chapter.<P>
+<A NAME="16407"><I>Example 40.  Attaching a command space to a dialog
+</I><P>
+<PRE><UL>   vdialog *dialog;
+   vcommandSpace *space;
+
+   // ...
+   vwindowSetSpaceOwned (vdialogGetWindow (dialog), space);
+   // ...
+
+</UL></PRE><UL><B><I>NOTE:</I></B> Although the command space is associated with a dialog, it is really attached 
+to the window underlying the dialog.
+<P>
+</UL><A NAME="3182"><H2> Leader Follower Relationship</H2></A>
+Dialogs inherit the leader/follower relationship from the Window class. Two windows can have a leader/follower relationship; actions on a leader window affect any of its follower windows. Each dialog can have one leader and multiple followers. If a dialog is iconified, then all of its followers are also iconified. Additionally, dialogs inherit (through the UI hierarchy) attributes and bindings from their leader window, which in turn inherits attributes from its leader window. Inheritance continues in this manner until a window with no leader is reached (this could also be the original dialog itself), at which point the window inherits from its application object.<P>
+Applications can establish a leader/follower relationship between dialogs. As with command spaces, the leader/follower relationship really exists between the windows underlying the dialogs. <A HREF="Dialog.html#3189">Example 41</A> shows how to make <TT>dialog2</TT> the follower of <TT>dialog1</TT>.<P>
+<A NAME="3189"><I>Example 41.  Establishing a leader/follower relationship
+</I><P>
+<PRE><UL>   vwindowSetLeader (vdialogGetWindow (dialog2),
+                     vdialogGetWindow (dialog1));
+
+</UL></PRE><A NAME="3221"><H2> Constructing Dialogs Programmatically</H2></A>
+Although dialogs are usually built using the Visual Resource Builder, and then loaded from a resource file, there are times when you may want to build a dialog programmatically "from scratch." You usually build a dialog from scratch when a dialog's contents or layout are determined at runtime. Use the following steps to create a dialog in your application completely in your source code:<P>
+<OL>
+<LI>Create a new dialog using the <TT>Create</TT> method of the dialog.
+<BR>
+<LI>Set the dialog to the desired size using the <TT><B>Resize</B></TT> method. Additionally, you can 
+use the dialog's methods to specify many of the dialog's attributes, such as its title, 
+cursor, foreground and background colors and font. For a complete list of a dialog's 
+attributes, refer to the<EM> Galaxy Application Environment Reference Manual</EM>.
+<BR>
+<LI>Add dialog items to the dialog using the <TT>AppendItem</TT> method of the dialog. 
+Appending an item to a dialog "attaches" the dialog item to the dialog. The dialog 
+owns the dialog item and automatically destroys it when the dialog is destroyed. 
+Dialog items are placed according to their underlying rectangles. For more 
+information on placement of dialog items, refer to the Dialog Item class.
+<BR>
+<LI>Open the dialog and enter (or reenter) the Galaxy event loop. You initially enter the 
+event loop by calling <TT><B>veventProcess</B></TT>. If the dialog was opened in a notification 
+function, you automatically reenter the event loop upon return from the 
+notification function. Refer to the Event chapter for more information on the 
+Galaxy Event loop.
+<BR>
+<LI>Close and destroy the dialog when it is no longer needed.
+<BR>
+</OL>
+<A NAME="3352"><H2> Additional Functionality</H2></A>
+The <TT>IsOpen</TT> method is useful for determining if the dialog is currently visible on the display. If you want to iterate over all the dialogs within an application, you can use the window iterator provided by the Application class. Additionally, you can use the follower iterator provided by the Window class to iterate over all the dialogs that follow a given dialog.<P>
+<A NAME="3394"><H2> Avoiding Pitfalls</H2></A>
+Use the <TT>DestroyLater</TT> method instead of <TT>Destroy</TT> to destroy a dialog from within a dialog's or dialog item's notification function. Since there may still be references to a dialog after returning from a notification function,using <TT>DestroyLater</TT> allows any pending events against the dialog to complete.<P>
+Note that a dialog's spring solution is dependent on the order of the dialog items within the dialog. Whenever you add or remove a dialog item from a dialog, don't forget to clean up the spring solution. Also, simply "replacing" a dialog item with calls to <TT>RemoveItem</TT>, <TT>AddItem</TT>, and <TT>SetItemIndex</TT> requires that the dialog's spring solution be restored, even though the actual order of the items has not changed. To restore a spring solution, use <TT>GetSolution</TT> to get the solution from the dialog before adding, removing, or replacing an item. Then <TT>Clone</TT> or <TT>Copy</TT> the solution, add or replace the item, and use <TT>SetSolution</TT> after the dialog item has been replaced.<P>
+<A NAME="3486"><H1> Dialog Item Lists</H1></A>
+A <EM><B>dialog item list</B></EM> is a storage management facility that helps you efficiently manage collections of dialog items. It consists of the ordered collection of unique dialog items indexed from <TT>zero</TT> to <TT>n - 1</TT>, where <TT>n</TT> is the number of items in the list. Each dialog uses a dialog item list to manage the dialog items that it contains. The container and notebook dialog items also uses dialog item lists to manage their dialog items.<P>
+You do not typically create and use a dialog item list directly, although methods for doing so exist. The Dialog class automatically creates and sets up a dialog item list for you when you create or load a dialog. Usually, an application acquires a reference to a dialog item list using the <TT>GetItemList</TT> method of a dialog. Use <TT>GetItemListItemCount</TT> and <TT>GetItemListItemAt</TT> to iterate over the dialog items held by the dialog item list, as illustrated in <A HREF="Dialog.html#3502">Example 42</A>.<P>
+<A NAME="3502"><I>Example 42.  Iterating over a dialog item list
+</I><P>
+<PRE><UL>   itemlist = vdialogGetItemList (dialog);
+
+   for (i = 0; i &lt; vdialogGetItemListItemCount (itemlist); i++) {
+      item = vdialogGetItemListItemAt (itemlist, i);
+   }
+
+</UL></PRE>In many cases, you may want to access dialog items using the dialog item list rather than through the dialog's methods. The advantage of using a dialog item list is that it allows you to use the same code to manipulate or search for dialog items regardless of whether the dialog item list came from a dialog, container, notebook item, or some other customized object that uses dialog item lists.<P>
+<A NAME="3598"><H2> Preferences</H2></A>
+Through the UI hierarchy, dialogs inherit basic attributes such as background color, foreground color, and look-and-feel from the application. Thus dialogs, by default, obey the background, foreground, and look-and-feel preferences from the application.<P>
+<A NAME="3604"><H2> Methods and Subclassing</H2></A>
+Dialogs are subclassed for a variety of reasons. You may want to alter the behavior of one or more of the default dialog methods or add application-specific data to the dialog class to facilitate access to dialog-specific information.<P>
+As with any Galaxy object, you should override the following methods when adding instance data to an object. You may want to override <TT>Init</TT>, <TT>Destroy</TT>, and <TT>LoadInit</TT> to perform some common actions, such as an automatic save for the application, when a dialog is created, loaded, or destroyed.<P>
+<DL>
+<DT><DD> <TT>Init</TT> - Initialize any new instance variables in the <TT>Init</TT> method.
+<DT><DD> <TT>Destroy</TT> - Cleanup any new instance variables the dialog owns in the <TT>Destroy</TT> method.
+<DT><DD> <TT>Copy<br>CopyInit</TT> - Copy new instance variables, if the object is copyable or cloneable, in these methods.
+<DT><DD> <TT>Store</TT> - Store the new variables if the data should be persistent.
+<DT><DD> <TT>LoadInit</TT> - Load persistent variables or initialize non-persistent ones. 
+</DL>
+To change how a dialog appears in size or layout, the following methods are relevant.<P>
+<DL>
+<DT><DD> <TT>Arrange</TT> - This method arranges the items in a dialog. Override this to receive notification and take action whenever a dialog's item positions are adjusted.
+<DT><DD> <TT>CalcMinSize</TT> - Override this method to control the minimum size of a dialog. 
+</DL>
+Override the <TT>Handle</TT> methods to control the behavior of the dialog.<P>
+<DL>
+<DT><DD> <TT>Handle</TT> methods - (from <TT>vwindow</TT>) Use these methods to alter the behavior of the dialog when, for instance, it acquires focus (<TT>HandleAcquire</TT>).
+</DL>
+To respond to changes in a dialog's visual state you can override the following methods.<P>
+<DL>
+<DT><DD> <TT>Open</TT> - Opens the dialog.
+<DT><DD> <TT>Close</TT> - Closes the dialog.
+<DT><DD> <TT>Iconify</TT>, <TT>Uniconify</TT> - Iconifies/uniconifies a dialog.
+<DT><DD> <TT>Notify</TT>, <TT>Observe</TT> - Notification of important configure and state events.
+<DT><DD> 
+</DL>
+<A NAME="3846"><H1> Sample Code</H1></A>
+Complete source code demonstrating some of the concepts presented in this chapter is available in your Galaxy distribution in the <TT>samples/docsamps</TT> directory. The sample program <TT>dialog2</TT> demonstrates how to construct a dialog "from scratch" and display it. Rather than exploiting all of the features of the Dialog class, the <TT>dialog2</TT> sample demonstrates common routines needed to create and use dialogs.<P>
+Note that while the program below constructs a dialog programmatically, it is usually much easier to construct dialogs using the Visual Resource Builder, and then load the dialogs into your program as demonstrated previously.<P>
+<PRE><UL>
+
+</UL></PRE>
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Debugging.html">Previous Chapter</A> | 
+		<A HREF="Dialog_Item.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

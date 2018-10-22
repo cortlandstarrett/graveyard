@@ -1,0 +1,482 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vtimestamp prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vtimestamp prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vtimestamp-x.html#section_DataType">Types</A> [1]</TD>
+<TD><A HREF="vtimestamp-x.html#section_Function">Functions</A> [23]</TD>
+<TD></TD>
+<TD><A HREF="vtimestamp-x.html#section_Constant">Constants</A> [2]</TD>
+<TD></TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vtimestamp"><HR><H4>vtimestamp</H4></A>
+<PRE>
+        typedef ... <B>vtimestamp</B>;
+</PRE>
+
+<DL><DD>
+An object which holds a relative time value (with a
+resolution of one nanosecond). A timestamp is not a
+portable value. The base time (the time corresponding to a
+0 timestamp) may differ between platform and even between
+runs of the same program, however it will be constant
+during any single run so comparison of timestamps is a
+useful operation. To get a portable representation, convert
+it to a <A HREF="vdate-x.html#vdate"><CODE>vdate</CODE></A> (using vdateFromTimestamp). When extracted
+from a <SAMP><A HREF="vevent-x.html#vevent"><CODE>vevent</CODE></A></SAMP>, it represents the time that the
+event is scheduled to be dispatched.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vtimestampAdd"><HR><H4>vtimestampAdd</H4></A>
+<PRE>
+        vtimestamp <B>vtimestampAdd</B>(
+                vtimestamp timestamp,
+                long seconds,
+                unsigned long nanoseconds);
+</PRE>
+
+<DL><DD>
+Adds the offset in <SAMP>seconds</SAMP> and
+<SAMP>nanoseconds</SAMP> to <SAMP>timestamp</SAMP> and
+returns the result.
+</DD></DL>
+<P>
+<A NAME="vtimestampAssert"><HR><H4>vtimestampAssert</H4></A>
+<PRE>
+        void <B>vtimestampAssert</B>(
+                const vtimestamp t);
+</PRE>
+
+<DL><DD>
+Asserts that the <CODE>vtimestamp</CODE> <SAMP>t</SAMP> is valid.  If it is
+not, the program will be terminated by calling <CODE><A HREF="vdebug-x.html#vdebugAbort"><CODE>vdebugAbort</CODE></A></CODE> with an
+appropriate message.  See also <CODE><A HREF="vtimestamp-x.html#vtimestampHandledAssert"><CODE>vtimestampHandledAssert</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimestampCompare"><HR><H4>vtimestampCompare</H4></A>
+<PRE>
+        int <B>vtimestampCompare</B>(
+                vtimestamp t1,
+                vtimestamp t2);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>1</SAMP> if <SAMP>timestamp1</SAMP> is
+greater than <SAMP>timestamp2</SAMP>. It returns
+<SAMP>-1</SAMP> if <SAMP>timestamp1</SAMP> is less than
+<SAMP>timestamp2</SAMP>. If they are equal, it returns
+<SAMP>0</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vtimestampDiffer"><HR><H4>vtimestampDiffer</H4></A>
+<PRE>
+        void <B>vtimestampDiffer</B>(
+                vtimestamp t1,
+                vtimestamp t2,
+                long * seconds,
+                unsigned long * nanoseconds);
+</PRE>
+
+<DL><DD>
+Finds the difference of <SAMP>timestamp1</SAMP> and
+<SAMP>timestamp2</SAMP> and returns the result by reference
+into <SAMP>seconds</SAMP> and <SAMP>nanoseconds</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vtimestampEqualTo"><HR><H4>vtimestampEqualTo</H4></A>
+<PRE>
+        vbool <B>vtimestampEqualTo</B>(
+                vtimestamp t1,
+                vtimestamp t2);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if <SAMP>timestamp1</SAMP>
+represents the same time as (is equal to)
+<SAMP>timestamp2</SAMP>, else returns <SAMP>FALSE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vtimestampFromMacTicks"><HR><H4>vtimestampFromMacTicks</H4></A>
+<PRE>
+        vtimestamp <B>vtimestampFromMacTicks</B>(
+                long ticks);
+</PRE>
+
+<DL><DD>
+Returns a vtimestamp object containing the time represented
+by the Macintosh ticks.
+</DD></DL>
+<P>
+<A NAME="vtimestampGetNanoseconds"><HR><H4>vtimestampGetNanoseconds</H4></A>
+<PRE>
+        unsigned long <B>vtimestampGetNanoseconds</B>(
+                vtimestamp timestamp);
+</PRE>
+
+<DL><DD>
+Returns the nanosecond remainder of the given
+<SAMP>timestamp</SAMP>. Should always return a value less
+than 1,000,000,000.
+</DD></DL>
+<P>
+<A NAME="vtimestampGetNow"><HR><H4>vtimestampGetNow</H4></A>
+<PRE>
+        vtimestamp <B>vtimestampGetNow</B>();
+</PRE>
+
+<DL><DD>
+Returns the current time as a vtimestamp. This call is more accurate than
+<CODE><A HREF="vtimestamp-x.html#vtimestampGetRecent"><CODE>vtimestampGetRecent</CODE></A></CODE>, but may be slower as well. Subsequent calls
+to <CODE>vtimestampGetNow</CODE> or <CODE><A HREF="vtimestamp-x.html#vtimestampGetRecent"><CODE>vtimestampGetRecent</CODE></A></CODE> are
+gauranteed to return monotonicly increasing values with respect to themselves
+and each other.
+<P>
+<CODE><A HREF="vtimestamp-x.html#vtimestampGetRaw"><CODE>vtimestampGetRaw</CODE></A></CODE> exhibits the same behavior, but does not
+guarantee monotonicly increasing values.
+<P>
+The value returned is only valid for the duration of execution of the
+program. It may not be stored or passed to another program as it may not be
+valid in other contexts. <CODE><A HREF="vdate-x.html#vdateSetTimestamp"><CODE>vdateSetTimestamp</CODE></A></CODE> may be used if you need
+a more portable representation. Depending on the platform, the value returned
+may wrap if you leave the program running for more than 40 years.
+</DD></DL>
+<P>
+<A NAME="vtimestampGetRaw"><HR><H4>vtimestampGetRaw</H4></A>
+<PRE>
+        vtimestamp <B>vtimestampGetRaw</B>();
+</PRE>
+
+<DL><DD>
+Returns the current time as a <CODE>vtimestamp</CODE>.  This call is more
+accurate than <CODE><A HREF="vtimestamp-x.html#vtimestampGetRecent"><CODE>vtimestampGetRecent</CODE></A></CODE>, but may be slower as well.
+Subsequent calls may return the same value on platforms where the system clock
+does not tick fast enough.  (For example, the clock on Windows only changes 18
+times per second.  The clock on OS/2 changes 32 times per second.)
+<P>
+<CODE><A HREF="vtimestamp-x.html#vtimestampGetNow"><CODE>vtimestampGetNow</CODE></A></CODE> and <CODE><A HREF="vtimestamp-x.html#vtimestampGetRecent"><CODE>vtimestampGetRecent</CODE></A></CODE> guarantee
+their return values to be monotonicly increasing with respect to themselves and
+to each other.
+<P>
+The value returned is only valid for the duration of execution of the
+program. It may not be stored or passed to another program as it may not be
+valid in other contexts. <CODE><A HREF="vdate-x.html#vdateSetTimestamp"><CODE>vdateSetTimestamp</CODE></A></CODE> may be used if you need
+a more portable representation. Depending on the platform, the value returned
+may wrap if you leave the program running for more than 40 years.
+</DD></DL>
+<P>
+<A NAME="vtimestampGetRecent"><HR><H4>vtimestampGetRecent</H4></A>
+<PRE>
+        vtimestamp <B>vtimestampGetRecent</B>();
+</PRE>
+
+<DL><DD>
+Returns an approximation of the current time based upon the last time
+<CODE><A HREF="vtimestamp-x.html#vtimestampGetNow"><CODE>vtimestampGetNow</CODE></A></CODE> was called.  This call may be faster than
+<CODE><A HREF="vtimestamp-x.html#vtimestampGetNow"><CODE>vtimestampGetNow</CODE></A></CODE>, but may also be less accurate. Subsequent calls
+to <CODE><A HREF="vtimestamp-x.html#vtimestampGetNow"><CODE>vtimestampGetNow</CODE></A></CODE> or <CODE>vtimestampGetRecent</CODE> are
+gauranteed to return monotonicly increasing values with respect to themselves
+and each other.
+<P>
+See also <CODE><A HREF="vtimestamp-x.html#vtimestampGetRaw"><CODE>vtimestampGetRaw</CODE></A></CODE>.
+<P>
+ The value returned is only valid for the duration of execution of the
+program. It may not be stored or passed to another program as it may not be
+valid in other contexts. <CODE><A HREF="vdate-x.html#vdateSetTimestamp"><CODE>vdateSetTimestamp</CODE></A></CODE> may be used if you need
+a more portable representation. Depending on the platform, the value returned
+may wrap if you leave the program running for more than 40 years.
+</DD></DL>
+<P>
+<A NAME="vtimestampGetSeconds"><HR><H4>vtimestampGetSeconds</H4></A>
+<PRE>
+        long <B>vtimestampGetSeconds</B>(
+                vtimestamp timestamp);
+</PRE>
+
+<DL><DD>
+Returns the number of seconds represented by
+<SAMP>timestamp</SAMP>. Can be negative.
+</DD></DL>
+<P>
+<A NAME="vtimestampGreaterThan"><HR><H4>vtimestampGreaterThan</H4></A>
+<PRE>
+        vbool <B>vtimestampGreaterThan</B>(
+                vtimestamp t1,
+                vtimestamp t2);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if <SAMP>timestamp1</SAMP> is
+later than (greater than) <SAMP>timestamp2</SAMP>, else
+returns <SAMP>FALSE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vtimestampHandledAssert"><HR><H4>vtimestampHandledAssert</H4></A>
+<PRE>
+        void <B>vtimestampHandledAssert</B>(
+                const vtimestamp t,
+                vdebugAssertionHandler h,
+                void * data);
+</PRE>
+
+<DL><DD>
+Asserts that the <CODE>vtimestamp</CODE> <SAMP>t</SAMP> is valid.  If it is
+not, the <CODE><A HREF="vdebug-x.html#vdebugAssertionHandler"><CODE>vdebugAssertionHandler</CODE></A></CODE> <SAMP>h</SAMP> will be called.
+See also <CODE><A HREF="vtimestamp-x.html#vtimestampAssert"><CODE>vtimestampAssert</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimestampInit"><HR><H4>vtimestampInit</H4></A>
+<PRE>
+        void <B>vtimestampInit</B>(
+                vtimestamp * timestamp);
+</PRE>
+
+<DL><DD>
+Initialized the given <CODE>vtimestamp</CODE> to a base time of zero seconds
+and zero nanoseconds.
+</DD></DL>
+<P>
+<A NAME="vtimestampLessThan"><HR><H4>vtimestampLessThan</H4></A>
+<PRE>
+        vbool <B>vtimestampLessThan</B>(
+                vtimestamp t1,
+                vtimestamp t2);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if <SAMP>timestamp1</SAMP> is
+earlier than (less than) <SAMP>timestamp2</SAMP>, else
+returns <SAMP>FALSE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vtimestampMake"><HR><H4>vtimestampMake</H4></A>
+<PRE>
+        vtimestamp <B>vtimestampMake</B>(
+                long seconds,
+                unsigned long nanoseconds);
+</PRE>
+
+<DL><DD>
+Creates and returns a <SAMP>vtimestamp</SAMP> representing
+the sum of <SAMP>seconds</SAMP> and
+<SAMP>nanoseconds</SAMP>. The field
+<SAMP>nanoseconds</SAMP> should not be greater than or
+equal to 1,000,000,000.
+</DD></DL>
+<P>
+<A NAME="vtimestampSet"><HR><H4>vtimestampSet</H4></A>
+<PRE>
+        void <B>vtimestampSet</B>(
+                vtimestamp * timestamp,
+                long seconds,
+                unsigned long nanoseconds);
+</PRE>
+
+<DL><DD>
+Sets the <CODE>vtimestamp</CODE> <SAMP>timestamp</SAMP> to <SAMP>seconds</SAMP>
+seconds and <SAMP>nanoseconds</SAMP> nanoseconds.
+<P>
+When linking with the debugging libraries, this function will trigger an
+assertion failure if <SAMP>nanoseconds</SAMP> is greater than
+<CODE>vtimestampSECOND</CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimestampSetNanoseconds"><HR><H4>vtimestampSetNanoseconds</H4></A>
+<PRE>
+        void <B>vtimestampSetNanoseconds</B>(
+                vtimestamp * timestamp,
+                unsigned long nanoseconds);
+</PRE>
+
+<DL><DD>
+Sets the nanoseconds component of <SAMP>timestamp</SAMP> to
+<SAMP>nanoseconds</SAMP>.
+<P>
+When linking with the debugging libraries, this function will trigger an
+assertion failure if <SAMP>nanoseconds</SAMP> is greater than
+<CODE>vtimestampSECOND</CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimestampSetSeconds"><HR><H4>vtimestampSetSeconds</H4></A>
+<PRE>
+        void <B>vtimestampSetSeconds</B>(
+                vtimestamp * timestamp,
+                long seconds);
+</PRE>
+
+<DL><DD>
+Sets the seconds component of <SAMP>timestamp</SAMP> to <SAMP>seconds</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vtimestampStartup"><HR><H4>vtimestampStartup</H4></A>
+<PRE>
+        void <B>vtimestampStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the timestamp manager.  Has no effect if the timestamp manager is
+already initialized.
+</DD></DL>
+<P>
+<A NAME="vtimestampSubtract"><HR><H4>vtimestampSubtract</H4></A>
+<PRE>
+        vtimestamp <B>vtimestampSubtract</B>(
+                vtimestamp timestamp,
+                long seconds,
+                unsigned long nanoseconds);
+</PRE>
+
+<DL><DD>
+Subtracts the offset in <SAMP>seconds</SAMP> and
+<SAMP>nanoseconds</SAMP> from <SAMP>timestamp</SAMP> and
+returns the result.
+</DD></DL>
+<P>
+<A NAME="vtimestampToMacTicks"><HR><H4>vtimestampToMacTicks</H4></A>
+<PRE>
+        long <B>vtimestampToMacTicks</B>(
+                vtimestamp timestamp);
+</PRE>
+
+<DL><DD>
+Returns the number of Macintosh ticks represented by the
+vtimestamp object <SAMP>timestamp</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vtimestampValidate"><HR><H4>vtimestampValidate</H4></A>
+<PRE>
+        vbool <B>vtimestampValidate</B>(
+                const vtimestamp t);
+</PRE>
+
+<DL><DD>
+Returns <CODE>vTRUE</CODE> if <SAMP>t</SAMP> is a valid
+<CODE>vtimestamp</CODE>, <CODE>vFALSE</CODE> otherwise.  See also
+<CODE><A HREF="vtimestamp-x.html#vtimestampAssert"><CODE>vtimestampAssert</CODE></A></CODE> and <CODE><A HREF="vtimestamp-x.html#vtimestampHandledAssert"><CODE>vtimestampHandledAssert</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vtimestampINCLUDED"><HR><H4>vtimestampINCLUDED</H4></A>
+<PRE>
+        <B>vtimestampINCLUDED</B>
+</PRE>
+
+<DL><DD>
+This macro is defined when the header file
+<SAMP>vtimestamp.h</SAMP> is included by another file. You
+can test this macro with the <SAMP>#ifdef</SAMP> directive
+to determine if <SAMP>vtimestamp.h</SAMP> has been
+included.
+</DD></DL>
+<P>
+<A NAME="vtimestampMICROSECOND"><HR><H4>vtimestampMICROSECOND</H4></A>
+<PRE>
+        <B>vtimestampMICROSECOND</B>
+</PRE>
+<A NAME="vtimestampMILLISECOND"><PRE>
+        <B>vtimestampMILLISECOND</B>
+</PRE>
+</A>
+<A NAME="vtimestampSECOND"><PRE>
+        <B>vtimestampSECOND</B>
+</PRE>
+</A>
+
+<DL><DD>
+These constants represent an interval in time in units of
+nanoseconds. (<CODE>vtimestampSECOND</CODE> is equal to one
+billion nanoseconds.)
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

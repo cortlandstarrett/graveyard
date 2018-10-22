@@ -1,0 +1,395 @@
+<HTML>
+<HEAD>
+<TITLE>Command</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Command</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Combo.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Communication.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The <EM><B>Command</B></EM> classes work with the Class Manager to abstract application code. Rather than providing a series of notification functions for each user interface object, you can use the Command classes to centrally locate code to handle interaction with the interface. An application written with the Command classes need not refer to user interface objects directly; the functionality behind user interface objects is centrally implemented.<P>
+A lookup mechanism automatically resolves the relationship between interface objects and commands. This allows you to create the user interface objects with a graphical interface builder (such as the Visual Resource Builder) independent of any application code.<P>
+To better understand this chapter, you should be familiar with the Class Manager chapter. <P>
+<A NAME="5817"><H2> Command Objects</H2></A>
+<EM><B>Command objects</B></EM> have two main responsibilities: to encapsulate the actions an application can perform, and to control the availability and state of those actions.<P>
+The encapsulation of application functionality in command objects abstracts application-specific code away from general user interface objects. For example, if at some point in the application development cycle, the programmer decides to replace all buttons with menu items, he/she can do this without having to change application code if the functionality behind the buttons is encapsulated in command objects.<P>
+Command objects are tied to the application's user interface by tags; where a tag is considered a unique named (<TT>vname</TT>) id (tags are usually assigned to the user-interface objects in the Visual Resource Builder). A command tag is dispatched when the Command class attempts to find a command object corresponding to the given tag. If a matching command object is found, its <TT>vcommandISSUE</TT> method is executed, and we say that the command has been issued. The command corresponding to a given tag is determined by a command lookup mechanism which will be described later in this document. A command tag can be dispatched programmatically or, more typically, by interaction with a user interface object. A command is dispatched, for example, when a user clicks on a button in a dialog.<P>
+The second responsibility of command objects is to control the actual availability and state of particular application functionality at any given time. Further, the command can synchronize the visual appearance of user interface objects as they reflect a particular functions state.<P>
+For example, many user interface objects update all of their named attributes when they open; some common named attributes, vname_State for example, affect the appearance of the object (enabled or disabled in our example). The user interface objects update their attributes by using the attribute lookup mechanism to be fully described later in this document.<P>
+One aspect of the lookup mechanism, however, is that the user interface object tries to find a corresponding command object (using the command lookup mechanism referred to earlier in this document) and ask the command object for the current state of the attribute bindings. When a command object is asked for the current state of an attribute, we say that the command object is queried. A check box item, for example, queries a command object to determine its current state when its dialog is opened.<P>
+The details of what happens when a command is issued or queried depends on the class of the particular command. All command objects are instances of <TT>vcommandClass</TT> or one of its subclasses. <TT>vcommandClass</TT> has two important methods: <TT>vcommandISSUE</TT> and <TT>vcommandQUERY</TT>. Any command subclass can override these two methods and implement them for the subclass. The issue method will be called when the command object is issued and the query method will be called when the command object is queried. <TT>vcommandClass</TT> serves as an abstract class and must be subclassed to be useful since its issue and query methods do nothing by default.<P>
+<A NAME="5823"><H3> vcommand</H3></A>
+The default command class ( <TT>vcommandClass</TT>) implements no issue or query functionality but is useful as a base for new command classes. The Command and Class Managers provide several <TT>vcommandClass</TT> subclasses that are useful to Command class users. Refer to the "Galaxy Hierarchy Diagram" for visual information on the relationships of the command classes.<P>
+<A NAME="5828"><H3> vcommandFunction</H3></A>
+The function command class (<TT>vommandFunctionClass</TT>) allows pointers to global functions to be attached to command objects. The <TT>vcommandISSUE</TT> method simply calls the associated issue function when the command is issued, and the <TT>vcommandQUERY</TT> method simply calls the associated query function when the command is queried.<P>
+<A NAME="9323"><H3> vcommandSelector</H3></A>
+The selector command class (<TT>vcommandSelectorClass</TT>), like the default command class, has no built-in functionality but adds an additional <EM><B>selector value</B></EM> to the base command object. This selector value essentially allows the programmer to use a single command subclass to implement many, usually related, commands.<P>
+Instances of a single <TT>vcommandSelectorClass</TT> subclass implement each selector in the set associated with the subclass. When one of these selector commands is issued, the <TT>vcommandISSUE</TT> method should determine which selector value is being triggered (using a <TT>switch</TT> statement, for example). The same technique can be used inside the <TT>vcommandQUERY</TT> method. The default selector command class must be subclassed for selector commands to be useful.<P>
+<A NAME="5839"><H3> vcommandSynthetic</H3></A>
+<EM><B>Synthetic commands</B></EM> are essentially commands defined in terms of other commands. A synthetic command (<TT>vcommandSyntheticClass</TT>) specifies other already defined commands which are to be dispatched when the synthetic command is issued.<P>
+You associate these component commands with the synthetic command by their corresponding tags via <TT><B>vcommandAddSyntheticTag</B></TT>. You can add information to the context of a synthetic command's invocation with <TT><B>vcommandAddSyntheticPair</B></TT>; this is useful for specifying arguments to the commands that the synthetic command is built from. The arguments take the form of key/value pairs in the context dictionary that is passed into the issue and query functions of the synthetic command.<P>
+Synthetic commands are especially useful for situations in which a command is simply a variant of an existing command. For example, some class-level <TT>vtextview</TT> commands are implemented as synthetic commands, combining a basic command such as Shift with an argument such as the context dictionary entry Direction/Left.<P>
+<A NAME="5844"><H3> vobjectCommand</H3></A>
+The Class Manager interface provides a selector command subclass that is useful for sending commands to objects (<TT>vobjectCommandClass</TT>). When one of these commands is issued or queried, it calls either <TT><B>vobjectISSUE_SELECTOR</B></TT> or <TT><B>vobjectQUERY_SELECTOR</B></TT> of the object that dispatched the command. Thus, object commands essentially delegate the responsibility for the command implementation back to the object itself instead of abstracting it away. This is useful for commands that are really "built-in" to a particular object in the sense that the behavior associated with the command is always present in objects of that type or its subclasses. For example, Help is a built-in command that will always be acknowledged by user interface objects inheriting from <TT>vobjectClass</TT>. These commands are also called "class-level" commands since they are automatically included in the class command spaces of attributed objects. All commands documented in the Galaxy Application Environment Reference Manual are class-level commands.<P>
+<A NAME="5848"><H3> vdialogFocusCommand</H3></A>
+The Dialog class provides a command subclass (<TT>vdialogFocusCommandClass</TT>) that is useful for redirecting the lookup mechanism for command objects. The purpose of focus commands is discussed in the section <A HREF="Command.html#5869">"The Command Lookup Mechanism."</A><P>
+<A NAME="5855"><H2> Command Bindings, Attribute Bindings, and Keystroke Bindings</H2></A>
+Before discussing exactly how command tags are dispatched, you should understand one more class that plays an important role in the association of command objects to tags, the command space (<TT>vcommandSpaceClass</TT>). <P>
+<EM><B>Command space</B></EM> objects hold dictionaries (<TT>vdict</TT>s) that bind tags with command objects and/or attribute values. Command spaces can be attached to objects in the user interface inheritance hierarchy and/or to user interface classes. Each dictionary in a command space is homogeneous in that it specifies bindings of a single type; for example, a dictionary in a command space can bind commands to tags, attribute values to tags, or keystrokes to tags, but a single dictionary cannot bind commands to tags and attribute values to tags. <P>
+There are three major kinds of dictionaries that can be added to a command space: command, named attribute, and keystroke. <P>
+<UL><LI>Command dictionaries provide bindings between tags and command objects and are of type of <TT>vname_Command</TT>. 
+<LI>Named attribute dictionaries provide bindings between tags and named attribute values and are of the type of whatever named attribute is being bound (<TT>vname_State</TT> for example). 
+<LI>Keystroke dictionaries provide bindings between tags and keystrokes and are of type <TT>vname_Key</TT>. 
+</UL>When a dictionary is added to a command space with <TT><B>vcommandAddSpaceDict</B></TT>, the dictionary's type is passed in as a parameter.<P>
+<EM><B>Named attributes</B></EM> are a subset of all of a user interface object's attributes. Each of the standard Galaxy user interface objects specifies a set of attributes that are most useful to programmers using the vcommand API. These special attributes are the named attributes for that object. Any named attribute can be bound in a command space dictionary. <P>
+For example, many user interface objects specify a state attribute (<TT>vname_State</TT>) as a named attribute. The user interface objects are either enabled or disabled based on whether their state attribute is bound to <TT>vname_Enabled</TT> or <TT>vname_Disabled</TT>. All attributes and all named attributes for any particular subclass of <TT>vobjectAttributedClass</TT> are listed in tables in this manual.<P>
+See the Class Manager for a more detailed discussion of named attributes and their relationship to attributed objects.<P>
+A <EM><B>keystroke</B></EM> (<TT>vkeyStroke</TT>) is an identifier for a keyboard key and any modifiers applied to that key. For instance, if a user presses the F7 key while holding down the ctrl key, the keystroke represented is <TT>vkeyComputeStroke(vkeyF7, vkeyMODIFIER_KEY_CTRL)</TT>.<P>
+A <TT>vcommandKey</TT> is a collection of keystrokes. <TT>vcommandKey</TT>s do not represent a particular sequence of strokes; each keystroke in a <TT>vcommandKey</TT> object indicates a distinct keystroke.<P>
+Key bindings are used to implement keystroke shortcuts for command dispatch. Key bindings are also used by those items (menu items, for example) that display their keyboard accelerators graphically. To specify command tags that have keystroke equivalents, simply bind the tags to <TT>vcommandKey</TT> objects representing the corresponding keystrokes (zero or more). Put these bindings in a <TT>vname_Key</TT> dictionary in a command space.<P>
+A command space can be thought of as a union of all bindings in a collection of typed dictionaries. The dictionaries in a command space can be manipulated at runtime to give the application great flexibility (see <TT><B>vcommandReplaceSpaceDict</B></TT>).<P>
+There is no limit (except practicality) on the number of command dictionaries, attribute dictionaries, or key dictionaries that can be present in a command space at any given time. However, if a tag is bound in more than one dictionary of the same type (two bindings for the tag, SampleButton, in different command dictionaries, for example), the binding which really takes affect for that tag is non-deterministic. Therefore, multiple bindings of a single tag in the same type of dictionary in a single command space is not a good idea.<P>
+<A NAME="5869"><H2> The Command Lookup Mechanism</H2></A>
+As stated earlier, command objects are tied to the application by unique ids called <EM><B>tags</B></EM>. There is a direct correspondence between these tags and user interface object tags. A command object bound to a particular tag encapsulates the behavior (and transient attribute settings) of any user interface object having that same tag. <P>
+Every user interface object (actually, every object that inherits at some level from <TT>vobject</TT>) has an associated tag. When a user interface object is manipulated in a predefined way, standard Galaxy classes respond by calling the object's notification function and dispatching a command tag that is the same as the object's tag.<P>
+If a command binding is found somewhere in the user interface inheritance hierarchy (scoped by the manipulated object), that command will be issued with context information indicating the source of the command. If no command binding is found, no action takes place.<P>
+For example, assume that a menu item has the tag "PrintDocument."When that menu item is chosen by the application user, the Command class will search for a binding between that tag and a command object in a command dictionary. If a binding is found, the command object will be issued (its <TT><B>vcommandISSUE</B></TT> method will be called). The command could implement the printing of the document of which the menu is a part. <P>
+This search for a binding between a tag and a command object is the<EM><B> command lookup mechanism</B></EM>.<P>
+<A NAME="5871"><H3> User Interface Hierarchy</H3></A>
+User interface objects are organized into a hierarchy by the Class Manager and Command classes so that command bindings can be shared among many objects at once. This user interface hierarchy is not the same as the class inheritance hierarchy. The user interface hierarchy is structured loosely on the criteria of containment; an interface object that contains or somehow controls another interface object is the parent of that object.<P>
+<UL><B><I>NOTE:</I></B> It is easy to confuse the idea of user interface hierarchy with that of class 
+inheritance hierarchy&#175;be careful!
+<P>
+</UL>Each child user interface object "inherits" all the command bindings of its parent user interface object. This "inheritance" means that if the child object does not bind a particular command tag, its parent object is asked for a binding.<P>
+For example, each user interface object (<TT>vdialogItem</TT> or <TT>vmenuItem</TT>, including subclasses like <TT>vbutton</TT>) inherits all the command bindings of the window (<TT>vwindow</TT>, including subclasses like <TT>vdialog</TT>, or <TT>vmenu</TT>) in which it is located. Since dialog items can also be placed in containers, each dialog item also inherits the command bindings of any containers it might be in.<P>
+As examples of parent-child relationships based on control and not containment, consider that each window inherits all the command bindings of the application object that owns it. Also, if a window is a follower of another window, it inherits from its leader window first, then from its application.<P>
+Any command bindings that are in a command space at the class level of an object are assumed to be part of that object's bindings; but, any bindings in the object instance take precedence over bindings in the class. The lookup sequence of command bindings can be diagrammed as follows, from first object searched to last object searched. Italics indicate that zero or more objects can be present at that level. As soon as one command binding is found for a particular dispatched tag, the search is stopped.<P>
+<DL>
+<DT><DD> Item command space<br>Item Class command space
+<DT><DD> <EM>Container command space<br>Container Class command space</EM>
+<DT><DD> Window command space<br>Window Class command space
+<DT><DD> <EM>Window Leader command space<br>Window Leader Class command space</EM>
+<DT><DD> Application command space<br>Application Class command space
+</DL>
+Note that if multiple containers or leaders are present, then lookup passes from parent1 to class1 to parent2 to class2, not from parent1 to parent2 to class1 to class2.<P>
+As a specific example, the typical sequence of binding lookups for a dialog item in a dialog are as follows:<P>
+<DL>
+<DT><DD> Dialog Item command space<br>Dialog Item Class command space
+<DT><DD> Dialog command space<br>Dialog Class command space
+<DT><DD> Application command space<br>Application Class command space
+</DL>
+The typical sequence of lookups for a menu item whose menu is in a menu bar is as follows (note that menu item instances never have command spaces):<P>
+<DL>
+<DT><DD> Menu Item Class command space
+<DT><DD> Menu command space<br>Menu Class command space
+<DT><DD> Dialog command space<br>Dialog Class command space
+<DT><DD> Application command space<br>Application Class command space
+</DL>
+<A NAME="5894"><H3> Focus Commands</H3></A>
+The sequence of the lookups for a menu item brings us back to the role of focus commands (<TT>vdialogFocusCommandClass</TT>). Focus commands are useful when the command tag dispatched by a menu item must be handled by the dialog item in the menu's dialog that has the current keyboard focus.<P>
+As you can see from the sequence above, the normal command lookup mechanism will never reach dialog items in the menu's dialog. So, the solution is to bind a focus command to the dispatched tag in a command space at the dialog instance level. The focus command, because it is bound to the dispatched tag, will cause the command to be dispatched to the dialog item with the current keyboard focus. The sequence of lookups would be:<P>
+<DL>
+<DT><DD> Menu Item Class command space
+<DT><DD> Menu command space<br>Menu Class command space
+<DT><DD> Dialog command space (focus command binding found)
+<DT><DD> Focused dialog item command space<br>Focused dialog item Class command space
+</DL>
+The focused dialog item should have a binding for the dispatched tag in either its instance or class command space. This binding should associate the tag with a function command or selector command that encapsulates the actions associated with the dispatched command tag.<P>
+<UL><B><I>NOTE:</I></B> If there is no binding for the redirected dispatched tag in the focused dialog 
+item's instance or class-level command space, the search will continue on up 
+the user interface hierarchy from there. In this case, there is a great potential 
+for an infinite loop since the search for a binding will continue on up until 
+it reaches the dialog instance command space where it will again find the 
+binding to the focus command, redirect the dispatch, and so on, and so on. 
+Therefore, in general, do not redirect a command dispatch via a focus 
+command unless all dialog items that can have focus bind the redirected tag.
+<P>
+</UL>By convention, command objects bound in class-level command spaces are instances of <TT>vobjectCommandClass</TT> so their implementations are in methods of the user interface objects themselves.<P>
+<A NAME="5907"><H2> The Attribute Lookup Mechanism</H2></A>
+Most user interface objects, when they are first opened, use a lookup mechanism to initialize some of their named attributes. This attribute lookup mechanism is identical in sequence to the command lookup mechanism described earlier. <P>
+When a user interface object is opened, it first searches up the user interface hierarchy for a command bound to its tag in a command space dictionary. If it finds one, it queries the command object for the current state of named attribute bindings. The <TT><B>vcommandQUERY</B></TT> method of the command object derives any named attribute bindings that are dependent on current application state and passes back these bindings in its dictionary parameter. <P>
+Then, the user interface object searches up the user interface hierarchy again, this time checking for bindings for all of its named attributes in attribute dictionaries in command spaces. When it finds a binding, it collects that binding in the dictionary that it got back from the earlier Query of the command object, overwriting any duplicate entries that exist in the dictionary. The search continues until there are no further command spaces to search, then the object's attributes are set to the attribute values collected. <P>
+This attribute lookup mechanism is useful in that it allows parent objects in the user interface hierarchy to affect child user interface objects simply by binding child attributes in the parent command space. <P>
+Persistent attribute bindings need only be provided in one of the two ways mentioned above: by a command query function, or by bindings in attribute dictionaries in a command space. If, however, they are provided in both ways, the attribute bindings in command spaces take precedence over attribute bindings derived by Query functions.<P>
+The usefulness of the attribute lookup mechanism will be more apparent in the example code provided in the "Propagating Attribute Changes" section.<P>
+Remember that each user interface object encapsulates its own attributes. These attributes are set to default values or values read from a resource file when the object is created. When the object is opened, the attribute lookup mechanism is used to change one or more attribute settings that must respond to some aspect of the application state. If no attributes need respond to application state, then no bindings need be present in attribute dictionaries or recognized by Query functions.<P>
+For example, consider a dialog that contains a single button with tag MyButtonTag. When the dialog is opened, it calls <TT><B>vdialogOPEN_ITEM</B></TT> on all of its dialog items. When the button is opened, it first searches up the user interface hierarchy looking for a binding that associates MyButtonTag with a command object in a command dictionary in a command space. It doesn't find a command binding, it then checks for bindings for all of its named attributes by searching up the user interface inheritance hierarchy looking for bindings in attribute dictionaries associating MyButtonTag with an attribute value. If it finds a binding of MyButtonTag to <TT>vname_Disabled</TT> in a <TT>vname_State</TT> dictionary in the dialog's command space, it sets its own <TT>vname_State</TT> attribute to <TT>vname_Disabled</TT>, and draws itself grayed out in the dialog.<P>
+<A NAME="5911"><H3> Propagating Attribute Changes</H3></A>
+User interface objects will only use the attribute lookup mechanism when they are opened. However, attribute changes can be propagated explicitly to user interface objects, forcing them to update attribute(s) that changed.<P>
+A common example of this propagation technique is the disabling or enabling of menu items or buttons in response to application changes. Consider, for example, a dialog where the button "Send String" should be enabled when the user enters a valid string in a text item. Once the string is validated, a single call (<TT><B>vobjectPropagateChange</B></TT>) from within the text validation procedure will broadcast the change by sending an attribute name/tag/attribute value triple through the user interface hierarchy. Every user interface object reached will pay attention to this attribute broadcast if the tag matches its own tag.<P>
+You can propagate a single attribute change or a whole dictionary of attribute changes. The change is propagated from the scope of the object that the propagation function is called on. This means that if you propagate from a user interface object that is a parent of other user interface objects (a dialog, for example), all of that parent item's children (dialog items in our example) will receive the change and be able to respond to it if they choose.<P>
+One very important thing to remember when propagating attribute changes is that propagation by itself will not necessarily cause a permanent change in a named attribute. The attribute change must also be stored in an attribute dictionary in a command space or must be recognized by a query function so that when user interface items are opened and they use the attribute lookup mechanism to set their attributes, the settings that they find through the attribute lookup mechanism are consistent with attribute value changes caused by propagation.<P>
+You can think of the attribute bindings in command space dictionaries or query functions as giving persistence to attribute changes, so that even when user interface objects are closed and reopened later, their attributes remain consistent with the current application state.<P>
+For example, if a menu is closed when it receives propagated attribute changes, it does not respond to these changes immediately. Instead, it marks itself as needing to be updated, and it uses the attribute lookup mechanism to determine bindings for itself and its menu items the next time it is opened (popped up) by the user.<P>
+<A NAME="5914"><H3> Attribute Changes</H3></A>
+When an attribute of a user interface object is changed, this change can affect attributes of objects that are parents or children of the object in the user interface hierarchy.<P>
+For example, if a container object in a dialog becomes disabled, all of its contained objects (children) will also become disabled.<P>
+As another example, if the text of a label item (its title attribute) inside a container changes, the container must reapply its spring solution to correctly display the longer or shorter new title.<P>
+These reactions to attribute change happen automatically because whenever a user interface object changes one of its attributes that could affect other user interface objects, it notifies all of its parents and children (if any) to allow them to respond to the change. This notification is done through one of the <TT>Changed*</TT> functions in that module, usually called <TT><B>ChangedAttribute</B></TT>.<P>
+If you add attributes to your subclasses of Galaxy user interface objects and these new attributes could affect other user interface objects, you should call one of the <TT>Changed*</TT> functions whenever a new attribute changes to allow parent and children objects to react to the change. Also, subclasses which must react to attribute changes differently than their superclass, must override <TT><B>vobjectCHANGED_ATTRIBUTE</B></TT> and perhaps <TT><B>vobjectCHANGED_PARENT_ATTRIBUTE</B></TT> and/or <TT><B>vobjectCHANGED_CHILD_ATTRIBUTE</B></TT>.<P>
+<A NAME="5921"><H2> The Keystroke Lookup Mechanism</H2></A>
+When a key is pressed while a Galaxy application is active, the application that owns the active window handles the key press. The application then uses a key lookup mechanism to try to find a command object corresponding to that keystroke.<P>
+The application first looks for a binding for the keystroke in its instance and class level key dictionaries. If the keystroke is bound by the application, it dispatches the corresponding command tag. If the application does not bind the keystroke, it passes it along according to the following lookup sequence:<P>
+<DL>
+<DT><DD> Application command space<br>Application Class command space
+<DT><DD> Active Window command space<br>Active Window Class command space
+<DT><DD> Confirmation/Abandon Item command space<br>Confirmation/Abandon Item Class command space
+<DT><DD> Focused Item command space<br>Focused Item Class command space
+</DL>
+If a binding is found, the tag bound to the keystroke is dispatched. Thus, pressing a key on the keyboard can easily become a shortcut to dispatching a command tag. <P>
+A <EM><B>key map</B></EM> is basically a reverse mapping of the union of all of the key dictionaries in a command space. Instance-level key maps are created for efficiency when user interface objects are opened. Class-level key maps are created on module initialization.<P>
+In actuality, the key map is consulted for the key bindings, not the individual key dictionaries. If you add keystroke bindings programmatically to any class-level command space of a subclass of a standard Galaxy class, you must create the key map for your class by explicitly mapping the new bindings into a copy of the superclass's key map (use <TT><B>MapKeyDict</B></TT>).<P>
+You will notice that the lookup sequence for key bindings is essentially the opposite of the lookup sequence for command bindings. Some look-and-feels (lafs) only allow a limited set of user interface objects to have keyboard focus (only text items, for example). Under these lafs, it is essential that key bindings be set at a higher level in the user interface hierarchy so that items which are not allowed to have keyboard focus can still respond to keystroke shortcuts.<P>
+In general, an application need only specify key bindings on the document or application level to assure portability across lafs. Confirmation items and abandon items are a special case as they always respond to the laf-defined <TT>&lt;confirm&gt;</TT> or <TT>&lt;abandon&gt;</TT> keys (usually Return or Enter and Escape or Cancel).<P>
+Accelerators and Mnemonics are special kinds of key bindings. Any dialog item can have a mnemonic. Any menu item can have an accelerator and/or a mnemonic. Depending on look-and-feel, dialog items and menu items will visually display their mnemonics and/or accelerators.<P>
+Accelerators and mnemonics work automatically; the required dictionary bindings are set up when dialog items (including menu bars) are opened. If you assign accelerators and/or mnemonics to dialog or menu items programmatically or in your resource file (with the Visual Resource Editor),these keystrokes will cause the command tags for their items to be dispatched immediately. <P>
+Accelerators and Mnemonics always take precedence over programmer-installed key bindings. For example, if 'g' is a menu item accelerator for a menu item with the tag "grow" and the 'g' keystroke is also explicitly bound in a key binding dictionary to the command tag "getSolution", the "grow" command will always be the one dispatched when the 'g' key is pressed.<P>
+<UL><B><I>NOTE:</I></B> You should rarely need to programmatically set up key dictionaries in 
+command spaces. Keystroke bindings really belong in a resource file. 
+Standard Galaxy classes read their key dictionaries from the system level 
+resource file <TT>Preferences</TT> dictionary when the modules they belong to are 
+initialized. All class-level commands (commands already built in to standard 
+Galaxy classes) have keystroke bindings that are laf dependent. For example, 
+Help is bound to a keystroke by <TT>vapplicationClass</TT>, Print is bound to a 
+keystroke by <TT>vwindowClass</TT>, and Cut and Paste are bound to keystrokes by 
+<TT>vdialogItemClass</TT>. Usually, you will want to keep keystroke bindings for 
+your application in the <TT>Preferences</TT> dictionary of your application's 
+resource file.
+<P>
+</UL>One important point to remember when adding keystroke bindings yourself is that no keystroke shortcuts will dispatch command tags unless the dispatch is explicitly enabled. (Again, this does not apply to accelerators or mnemonics). Dispatch of all command tags corresponding to built-in class-level commands is automatically enabled. However, you must explicitly enable the dispatch of any of your own command tags.<P>
+To enable dispatch of a command tag in response to a keystroke, bind the tag corresponding to the command to <TT>vname_Enabled</TT> in a <TT>vname_Dispatch</TT> attribute dictionary or provide a query function which inserts this binding (<TT>vname_Dispatch</TT> bound to <TT>vname_Enabled</TT>) into the context dictionary. This mechanism allows you complete control over whether keystroke shortcuts can be used according to application state.<P>
+There may be cases in which you want to disable dispatch of certain command tags in response to keystrokes. To do this, simply bind the tag to <TT>vname_Disabled</TT> in a <TT>vname_Dispatch</TT> attribute dictionary (or provide an equivalent query function).<P>
+<A NAME="5936"><H2> Context Dictionaries</H2></A>
+When a command is issued or queried, Galaxy constructs a <EM><B>context dictionary</B></EM> for the command to provide the command issue function with information about how the command was invoked and the state of the object issuing the command. If the command needs more information than the command itself can provide, it can retrieve additional attribute bindings from this dictionary.<P>
+To construct a context dictionary, the Command class first retrieves the context attributes of the object issuing the command (a button or menu item, for example). Context attributes are those aspects of an object that are external to the object itself. The containing dialog of a menu item, for example, is a context attribute. Context attributes are retrieved with the function <TT><B>vobjectGetContextAttributes</B></TT>.<P>
+If the command is being issued, the Command class adds the named attributes of the object in question to the context dictionary. Remember that named attributes are the subset of an object's attributes that can be manipulated through attribute binding interfaces.<P>
+For example, a window exports <TT><B>Title</B></TT> as a named attribute, but not <TT><B>Leader</B></TT>. The choice of which attributes are named is left up to the module implementor. Usually only those attributes that will most benefit from the Command class are named.<P>
+Other useful context attributes sometimes are stored in the context dictionary based on the method of command dispatch. The event causing object notification, for example, is often stored by user interface object classes. You can also effectively add entries directly to context dictionaries by defining additional context attributes for user interface item subclasses. This is a way to make additional information available within the command issue function <P>
+Only context attributes, not named attributes, are stored by the Command class in the context dictionary when a command is queried. It is expected that when a command is queried, it will store its knowledge of the object's named attributes in the context dictionary parameter so that the user interface object that caused the query can update its contents.<P>
+<A HREF="Command.html#6002">Table 6</A> summarizes some of the more useful attributes stored in a context dictionary during command issue. Note that not all objects will provide this information. Refer to the appropriate class documentation (the <TT>vmenu</TT> section, for example) for a complete description of named attributes and context attributes of specific Galaxy user interface objects.<P>
+
+<TABLE BORDER="3">
+
+<CAPTION>Possible context dictionary attributes<P>
+</CAPTION>
+
+<tr><th><B>Attribute
+</B></th><th><B>Dictionary
+</B></th>
+<tr><td><TT><B>Operator
+</B></TT></td><td>The object that issued the command.
+</td></tr>
+<tr><td><TT><B>Operand
+</B></TT></td><td>The object that defines the command.
+</td></tr>
+<tr><td><TT><B>Event
+</B></TT></td><td>The event that caused the command to be issued.
+</td></tr>
+<tr><td><TT><B>Tag
+</B></TT></td><td>The name of the command (tag of the issuing object).
+</td></tr>
+<tr><td><TT><B>Command
+</B></TT></td><td>The command object itself.
+</td></tr>
+<tr><td><TT><B>Dialog
+</B></TT></td><td>The closest parent dialog of the object.
+</td></tr>
+<tr><td><TT><B>Document
+</B></TT></td><td>The farthest parent window of the object.
+</td></tr>
+<tr><td><TT><B>Data
+</B></TT></td><td>The client data pointer of the issuing object.
+</td></tr>
+<tr><td><TT><B>State
+</B></TT></td><td>The state of the issuing object.
+</td></tr>
+<tr><td><TT><B>Title
+</B></TT></td><td>The title of the issuing object.
+</td></tr>
+<tr><td><TT><B>Toggle
+</B></TT></td><td>The toggle value of the issuing object ("On" or "Off").
+</td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+Common examples of objects that dispatch command tags (and thus potentially issue commands) include buttons or menu items that are triggered by the user. Common examples of objects that bind commands are dialogs or applications that contain command spaces.<P>
+Context dictionary attributes have the types shown in <A HREF="Command.html#6063">Table 7</A>, although all are stored as <TT>const void*</TT> in the given dictionary.<P>
+
+<TABLE BORDER="3">
+
+<CAPTION>Command class context attribute types
+</CAPTION>
+
+<tr><th><B>Attribute
+</B></th><th><B>Type
+</B></th>
+<tr><td><TT><B>Operator
+</B></TT></td><td><TT><TT>vobject*
+</TT></TT></td></tr>
+<tr><td><TT><B>Operand
+</B></TT></td><td><TT><TT>vobject*
+</TT></TT></td></tr>
+<tr><td><TT><B>Event
+</B></TT></td><td><TT><TT>vevent*
+</TT></TT></td></tr>
+<tr><td><TT><B>Tag
+</B></TT></td><td><TT><TT>const vname*
+</TT></TT></td></tr>
+<tr><td><TT><B>Command
+</B></TT></td><td><TT><TT>vcommand*
+</TT></TT></td></tr>
+<tr><td><TT><B>Dialog
+</B></TT></td><td><TT><TT>vdialog*
+</TT></TT></td></tr>
+<tr><td><TT><B>Document
+</B></TT></td><td><TT><TT>vwindow*
+</TT></TT></td></tr>
+<tr><td><TT><B>Data
+</B></TT></td><td><TT><TT>const void*
+</TT></TT></td></tr>
+<tr><td><TT><B>State
+</B></TT></td><td><TT><TT>const vname*
+</TT></TT></td></tr>
+<tr><td><TT><B>Title
+</B></TT></td><td><TT><TT>const vchar
+</TT></TT></td></tr>
+<tr><td><TT><B>Toggle
+</B></TT></td><td><TT><TT>const vname*
+</TT></TT></td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+Use the Visual Resource Builder to construct the user interface for your application. Tag the user interface objects that will be dispatching your application command tags with appropriate tag names (for example, "SaveDocument," "GetEmployeeInfo," "CheckSpelling").<P>
+Then use the API of the Command classes to construct command spaces that bind these tags to command objects and possibly to attribute values and/or keystrokes. Subclass <TT><B>vcommandClass</B></TT> or <TT><B>vcommandSelectorClass</B></TT> or <TT><B>vcommandSyntheticClass</B></TT> to provide implementations for your commands.<P>
+There are several convenience functions in the Command class that make setting up command spaces much easier. You can use the command "template" types (<TT>vcommandFunctionTemplate</TT>, <TT>vcommandSelectorTemplate</TT>) to declare static arrays of function commands or selector commands that the Command class can directly create command dictionaries from.<P>
+For example, to use <TT><B>vcommandCreateDictOfClassSelectorTemplates</B></TT>:<P>
+<PRE><UL>#define comGROW 1
+#define comQUIT 2
+#define comSHRINK 3
+
+static vcommandSelectorInitializer initialCommands[] = {
+   {"grow", comGROW},
+   {"quit", comQUIT},
+   {"shrink", comSHRINK}
+};
+
+void SomeFunction (void)
+{
+   // ...
+   vcommandSelectorClass *selectorClass =
+     vclassReproduce(vcommandGetDefaultSelectorClass());
+   vdict *commandDict =
+     vcommandCreateDictOfClassSelectorTemplates(selectorClass,
+                                                initialCommands,
+                                                3);
+   vcommandSpace *space = vcommandCreateSpace();
+   vcommandAddSpaceDictOwned(space, vname_Command, commandDict);
+   // ...
+}
+
+</UL></PRE><A NAME="6250"><H2> Function Commands</H2></A>
+Galaxy provides a type of command known as a <EM><B>function command to </B></EM>attach a single function to a command object.<P>
+The initialization code of your application should define tag/command object bindings. These bindings should map the command names into fragments of application code that implement the appropriate functionality. The simplest way to do this is to write a C function for each command, store a pointer to the function in a function command, and define the command in a command space.<P>
+The function should return <TT>TRUE</TT> to indicate that it understood the command.<P>
+The <TT>savenotice</TT> source code (available in your Galaxy distribution in the <TT>samples/docsamps</TT> directory) shows how to implement a function command ("SaveDocument") and bind it in a command space.<P>
+The function <TT><B>SaveDocument</B></TT> will be called when a user interface object with the tag "SaveDocument" dispatches a command. If a menu item, for example, was given the tag "SaveDocument" in the user interface builder, the function <TT><B>SaveDocument</B></TT> would be called in response to the user selecting the menu item.<P>
+<A NAME="6461"><H2> Selector Commands</H2></A>
+If an application wants to define many commands, it is often inconvenient to define a single function for each command. Galaxy provides a type of command known as a <EM><B>selector command</B></EM> to let a single function serve as the dispatch point of many different commands. The individual commands are distinguished by integral selector values contained in the command instances. Selector commands are particularly useful for menu items, check boxes, and radio buttons, since these often occur in large numbers.<P>
+The <TT>command2</TT> source code (available in your Galaxy distribution in the <TT>samples/docsamps</TT> directory) shows how to shows how to define a set of selector commands for a menu.<P>
+<TT><B>IssueCommand</B></TT><TT></TT> will be called when a user interface object with a tag equal to any of the defined command tags dispatches a command. The function is then responsible for switching on the selector value of the command to determine which functionality to execute.<P>
+If a menu item, for example, was given the tag "Cut" in the user interface builder, the function <TT><B>IssueCommand</B></TT><TT></TT> will be called in response to the user selecting the menu item. The selector command will contain the selector value <TT>CUT</TT> in this case.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Combo.html">Previous Chapter</A> | 
+		<A HREF="Communication.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

@@ -1,0 +1,209 @@
+<HTML>
+<HEAD>
+<TITLE>The Galaxy Help Server</TITLE>
+</HEAD>
+
+<BODY background="../vrb/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="../graphics/logo.gif">
+		<IMG WIDTH="130" SRC="../graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="../graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>The Galaxy Help Server</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="../graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="../graphics/trans.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="../graphics/up.gif"></A>
+		<A HREF="Help_Compiler.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="../graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="../graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="1562"></A>
+<A NAME="1879"><H1> Providing Help for Galaxy Applications</H1></A>
+The Galaxy Help Server (<TT>vhelpsrv</TT>) is the engine that provides help for Galaxy applications. <TT>vhelpsrv</TT> must be running before it can service a help request. If the help server is not running at the time of a help request, then the Galaxy application automatically starts the help server. The help server continues to run until a time-out period elapses. In order for a user to invoke help, <TT>vhelpsrv</TT> must be in the path for the user. Note that one instance of the help server can service help requests for any number of Galaxy applications that are concurrently running.<P>
+<UL><B><I>NOTE:</I></B> <TT>vhelpsrv</TT> does not supply native help to your application. However, the 
+Galaxy API does provide a way to access native help on platforms where 
+native help is available. For more information on providing native help to 
+your applications, refer to the Reference Manual. In C++, refer to 
+<TT><B>vhelpWindow::UseNativeHelpSystem</B></TT> and related entry points; in C 
+refer to <TT><B>vhelpUseNativeHelpSystem</B></TT> and related entry points.
+<P>
+</UL><A HREF="Help_Server.html#3397">Figure 21</A> illustrates how various components interact with the Galaxy Help Server to provide online help.<P>
+<A NAME="3397"><I>Figure 21.  How the Galaxy Help Server works
+</I><P>
+<IMG SRC="Help_Server.anc.gif"><P>
+<A NAME="2278"><H1> Previewing Documents with the Galaxy Help Server</H1></A>
+You can use the help server to preview a help document set. To do this, run the help server from the command line using the name of the document set as a command line argument. The syntax for previewing help documents on a UNIX platform is given here. Other platforms may use different conventions to specify arguments to the help server.<P>
+<PRE><UL><TT>vhelpsrv myapp1.vhs [myapp2.vhs...] [-noserver]
+</TT></UL></PRE>This opens each specified help document set (<TT>myappN.vhs</TT>) in a Help Browser Window.<P>
+The optional <TT>-noserver</TT> argument does not register the help server. Consequently, this instance of the help server is not available to other Galaxy applications. The <TT>-noserver</TT> argument also means the help server shuts down immediately when you close your last Help Browser Window.<P>
+<A NAME="1948"><H1> Invoking Online Help from an Application</H1></A>
+To invoke online help from a Galaxy application, do any of the following:<P>
+<UL><LI>Press F1
+<LI>Press Ctrl-F1
+<LI>Press a designated help key
+<LI>Select a help object in the application
+<LI>Select a help menu item in the application
+</UL>Ctrl-F1 is a toggle between live mode and query mode. All of the other methods invoke help in query mode. <P>
+A designated help key is only available on those platforms that define a Help key on the keyboard.<P>
+A help object is an object that has been programmatically designated to generate help queries. For more on help objects, refer to the Reference Manual. In C++, refer to <TT><B>vobjectedAttributed::Help</B></TT>; in C, refer to <TT><B>vobjectHelp</B></TT>.<P>
+Help menu items are menu items that have been designated as help objects.<P>
+<A NAME="2672"><H1> Servicing Help Requests</H1></A>
+When the help server processes the first help request from an application, it looks for a help document set with the same base name as the application that requested help. For example, if you request help in the Galaxy application "myapp," then the help server looks for a document set named "myapp.vhs." If the help server finds this document set, then a session with the help server is started. The help server then looks for the context of the help request (help contexts are explained in the following <A HREF="Help_Server.html#1981">section, "Context-sensitive Help"</A>). Once a context is found, a Help Browser Window opens displaying the help entry from the help document set corresponding to the context. Note that a help entry is a subject or section from a help document set.<P>
+Subsequent help requests are similarly processed. If the help server is running because of a previous help request in this or another application, you can expect a relatively quick response time. However, if the help server has timed out, it must start a new session before it can service the request.<P>
+<UL><B><I>NOTE:</I></B> When searching for an application's help document set, the help server 
+searches the same paths that Galaxy applications use to search for a resource 
+file. For more information, refer to the vinst module in the Reference Manual.
+<P>
+</UL><A NAME="1981"><H1> Context-sensitive Help</H1></A>
+Galaxy Help Services provide context-sensitive help to Galaxy applications with a scheme that uses context strings. When a user requests help on an item in a Galaxy application, the help server generates a context string for the item. If the generated context string matches a context string defined in the help source file, the entry for that context is displayed by the help server.<P>
+When generating the context string, the help server determines which item is making the request. Normally, the help server generates a context string for the item with the current focus. However, if the help server is in live help mode, then the help server generates the context string for the item located beneath the pointer. <P>
+<A NAME="1988"><H2> Context Strings</H2></A>
+To generate a context string for an item, the help server concatenates the resource tag name for the item with the resource tag name of all containers or dialogs in which the item is located. For example, suppose a dialog contains a button which is placed inside a container and the resource tag names for the items are, respectively, "MainDialog," "MyButton," and "MyContainer." <A HREF="Help_Server.html#3226">Table 8</A> lists the context strings for these items.<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="2433"><I>Table 8.  Context strings
+</I><P>
+</CAPTION>
+
+<tr><th><B>Item
+</B></th><th><B>Context String
+</B></th>
+<tr><td><TT><B>button
+</B></TT></td><td><TT>MainDialogMyContainerMyButton
+</TT></td></tr>
+<tr><td><TT><B>container
+</B></TT></td><td><TT>MainDialogMyContainer
+</TT></td></tr>
+<tr><td><TT><B>dialog
+</B></TT></td><td><TT>MainDialog
+</TT></td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+<P>
+When a request is made for help on an item, the help server first searches the help document for a help entry (a subject or section in the help document) with a context that matches the context string generated for the item. If a help entry is not found, then a new search is made with the context string of the item's parent. The search continues until a help entry is found, or the context string is exhausted. When a help entry is found, the help server displays the entry in a Help Browser Window.<P>
+<A NAME="2002"><H2> Leader Windows</H2></A>
+If the dialog is a follower from another dialog or window-based resource, the tag name for the leader dialog is included as the first "element" in the context string.<P>
+In some circumstances, you may not be able to include the tag for the leader window of a dialog in the context string. For example, consider a confirmation dialog that you reuse in several applications. This confirmation dialog can be called from various leader windows, depending on the application. If you want to create a help document for this confirmation dialog that you can later reuse in various applications, then you need to determine all possible context strings that can be generated for the confirmation dialog. This means knowing in advance the tag name of any leader window that calls the confirmation dialog.<P>
+Since it may not be possible to know the tag names of all leader windows to this confirmation dialog, you need to prevent the help server from including this tag name in the generated context string. To do this, subclass the confirmation dialog and override the member function (C++) or method (C) that gets the help parent. In C++, override <TT><B>vobjectAttributed::GetHelpParentObject</B></TT> so it returns <TT>NULL</TT>; in C, override <TT><B>vobjectGET_HELP_PARENT</B></TT> so it returns <TT>NULL</TT>.<P>
+<A NAME="2010"><H2> Specifying Contexts</H2></A>
+In help source files, use the following help syntax commands to specify contexts for context-sensitive help:<P>
+<UL><LI><TT>@subject</TT>
+<LI><TT>@section</TT>
+<LI><TT>@context</TT>
+<LI><TT>@link</TT>
+<LI><TT>@popup</TT>
+<LI>@external
+</UL>Each of these commands take a context string argument; this argument corresponds to the context string generated by the help server during a help request.<P>
+<A NAME="2022"><H2> Determining Context Strings</H2></A>
+When specifying context strings for help syntax commands, you need to determine the resource tag names of objects in an application. You can do any of the following to determine the resource tag names:<P>
+<UL><LI>Examine the application's resource file with the Visual Resource Builder
+<LI>Use the Dump Resource File Tags... option of the Galaxy Help Compiler
+<LI>Use Galaxy debugging information to determine the context string generated by the help server
+</UL>
+
+<A NAME="2034"><H3> Visual Resource Builder</H3></A>
+If the application has a resource file, you can use the Visual Resource Builder to determine 
+the tag names.<P>
+To determine resource tag names with the Visual Resource Builder, open the editor for the resource. The tag name 
+for any window resource, or any item subclassed from a window, is displayed in the Tag text field. 
+Dialogs, confirms, notices, and containers are all subclassed from windows. 
+<P>
+The tag names for dialog items are displayed in the Order Items Panel of the dialog containing the dialog items. 
+The tag name can also be found in the Tag text field of the Dialog Item Panel. 
+<P>
+For more information on the Visual Resource Builder, refer to the <A HREF="../vrb/index.html">Visual 
+Resource Builder Online Help</A>.<P>
+
+
+<A NAME="2063"><H3> Galaxy Help Compiler</H3></A>
+To print the tag names of an application's resource file using the Galaxy Help Compiler, select Dump Resource File Tags... from the compiler's File Menu. <P>
+<A NAME="2066"><H3> Generating Debug Information</H3></A>
+You can take advantage of Galaxy debugging information to find the help context strings generated by a help request in your application. To do this, you need to compile your application with the debugging libraries and run the application with the proper debug level in your environment. The help server then prints information on the context strings it generates while servicing help requests.<P>
+For example, compile a debugging version of the <TT>vdrawres</TT> sample located in the <TT>samples</TT> directory of your Galaxy installation directory. (The following example uses UNIX conventions for compiling and setting environment variables. Be sure to use the conventions appropriate for your platform.)<P>
+<PRE><UL>% make vdrawres VBUILDTYPE=debug
+</UL></PRE>Before running the newly built sample, set the debug variable level in your environment as follows:<P>
+<PRE><UL>% setenv vdebugVARIABLES vhelp:1000:vhelpGalaxy:1000
+</UL></PRE>Now, run the <TT>vdrawres</TT> sample. Once the sample is completely displayed, press the Tab key repeatedly until the focus is on the "Start" button. Now press F1 to request help on the Start button. When the help server processes the request, it generates the following debug information:<P>
+<PRE><UL>vhelpGalaxy: sent nested context change to window (0x3cc488):
+vhelpGalaxy:   DrawDemoStartBtn
+vhelpGalaxy:  pieces are:
+vhelpGalaxy:   DrawDemo:StartBtn
+</UL></PRE>The debug information relates that the help server uses the context string "DrawDemoStartBtn" to locate a matching help entry. If a matching entry isn't found, then the help server drops the piece "StartBtn" from the context string and now uses "DrawDemo" to search for a matching entry.<P>
+Since the help document set, <TT>vdrawres.vhs</TT>, does have a matching entry for the context "DrawDemoStartBtn," the help server displays this entry. If there were not a matching entry for this context, then the help server would have displayed the help entry for "DrawDemo."<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Help_Compiler.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../../index.html">Switch to Another Document</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

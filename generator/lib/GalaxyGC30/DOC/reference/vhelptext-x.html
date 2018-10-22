@@ -1,0 +1,382 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vhelptext prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vhelptext prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vhelptext-x.html#section_DataType">Types</A> [3]</TD>
+<TD><A HREF="vhelptext-x.html#section_Function">Functions</A> [13]</TD>
+<TD><A HREF="vhelptext-x.html#section_Message">Messages</A> [1]</TD>
+<TD><A HREF="vhelptext-x.html#section_Constant">Constants</A> [1]</TD>
+<TD><A HREF="vhelptext-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vhelptext"><HR><H4>vhelptext</H4></A>
+<PRE>
+        typedef ... <B>vhelptext</B>;
+</PRE>
+
+<DL><DD>
+vhelptext is nothing more than a vkindTyped wrapper for a <A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A>
+string. The vhelptext class also provides some additional
+convenience functions for dealing with multiple vhelptexts.
+</DD></DL>
+<P>
+<A NAME="vhelptextClass"><HR><H4>vhelptextClass</H4></A>
+<PRE>
+        typedef ... <B>vhelptextClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variable bindings for objects of type
+<CODE>vhelptext</CODE> . Classes declared with this type 
+contain the same set of methods and variables as the
+default help text class, but the behavior of methods and the
+contents of variables may vary. This class type is derived
+from <CODE><A HREF="vinstance-x.html#vinstanceClass"><CODE>vinstanceClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vhelptextTemplate"><HR><H4>vhelptextTemplate</H4></A>
+<PRE>
+        typedef ... <B>vhelptextTemplate</B>;
+</PRE>
+
+<DL><DD>
+This structure is usually used in the following way. It is
+initialized statically:
+
+<BLOCKQUOTE>
+<PRE>
+  vhelptextTemplate	 helptext[] =
+  {
+    {"Item 1",		"Tooltip Text for Item 1"},
+    {"Item 2",		"Tooltip Text for Item 2"},
+    {"Item 3",		""}
+  };
+</PRE>
+</BLOCKQUOTE>
+
+In the above example, Item 3 has an empty vhelptext. This is useful
+for container objects whose components have tooltips because it
+prevents the tooltip timer from restarting (refer to
+<CODE><A HREF="vhelptooltip-x.html#vhelptooltip"><CODE>vhelptooltip</CODE></A></CODE>).
+<P>
+And the dictionary is created with a call to
+<CODE><A HREF="vhelptext-x.html#vhelptext"><CODE>vhelptext</CODE></A></CODE>. This dictionary
+is then placed in a command space where a
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocator"><CODE>vhelptextlocator</CODE></A></CODE> can find it. While the dictionary can
+be owned by the command space, its contents are not owned by the
+dictionary. As a result, it is necessary to call
+<CODE><A HREF="vhelptext-x.html#vhelptext"><CODE>vhelptext</CODE></A></CODE> to free the vhelptexts in the dictionary.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vhelptextClearDict"><HR><H4>vhelptextClearDict</H4></A>
+<PRE>
+        void <B>vhelptextClearDict</B>(
+                vdict * dict);
+</PRE>
+
+<DL><DD>
+Takes a <A HREF="vdict-x.html#vdict"><CODE>vdict</CODE></A> filled with instances of vhelptext and destroys its contents.
+</DD></DL>
+<P>
+<A NAME="vhelptextCreate"><HR><H4>vhelptextCreate</H4></A>
+<PRE>
+        vhelptext * <B>vhelptextCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates an instance of the default class of vhelptext and returns
+a pointer to its contents. Space
+for the object is allocated dynamically. The Class Manager reclaims 
+the storage occupied by the object when it is destroyed with
+<CODE><A HREF="vhelptext-x.html#vhelptextDestroy"><CODE>vhelptextDestroy</CODE></A></CODE>. Higher-level interfaces based
+on the core vhelptext type can define a macro to this function
+for their <CODE>Create</CODE> function. This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vhelptext-x.html#vhelptextInit"><CODE>vhelptextInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vhelptextCreateDictFromTemplates"><HR><H4>vhelptextCreateDictFromTemplates</H4></A>
+<PRE>
+        vdict * <B>vhelptextCreateDictFromTemplates</B>(
+                const vhelptextTemplate * templates,
+                size_t count);
+</PRE>
+
+<DL><DD>
+This dictionary can be placed in an appropriate command space for use
+with a <CODE><A HREF="vhelptextlocator-x.html#vhelptextlocator"><CODE>vhelptextlocator</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vhelptextCreateOfClass"><HR><H4>vhelptextCreateOfClass</H4></A>
+<PRE>
+        vhelptext * <B>vhelptextCreateOfClass</B>(
+                vhelptextClass * helptextClass);
+</PRE>
+
+<DL><DD>
+Creates an instance of class <SAMP>helptextClass</SAMP> and returns
+a pointer to its contents. Space
+for the object is allocated dynamically based on the object
+size of the class. The Class Manager reclaims the storage
+occupied by the object when it is destroyed with
+<CODE><A HREF="vhelptext-x.html#vhelptextDestroy"><CODE>vhelptextDestroy</CODE></A></CODE>. Higher-level interfaces based
+on the core vhelptext type can define a macro to this function
+for their <CODE>Create</CODE> function. This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vhelptext-x.html#vhelptextInitOfClass"><CODE>vhelptextInitOfClass</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vhelptextDestroy"><HR><H4>vhelptextDestroy</H4></A>
+<PRE>
+        vhelptext * <B>vhelptextDestroy</B>(
+                vhelptext * helptext);
+</PRE>
+
+<DL><DD>
+Destroys the object <SAMP>helptext</SAMP>, that must have
+been created or initialized by a Class Manager function.
+Interfaces based on the core object class can define a
+macro to this function for their <CODE>Destroy</CODE>
+function. This function is implemented by sending the
+message <CODE><A HREF="vinstance-x.html#vinstanceDESTROY"><CODE>vinstanceDESTROY</CODE></A></CODE> to <SAMP>helptext</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vhelptextGetClass"><HR><H4>vhelptextGetClass</H4></A>
+<PRE>
+        vhelptextClass * <B>vhelptextGetClass</B>(
+                vhelptext * helptext);
+</PRE>
+
+<DL><DD>
+Returns the class of the object <SAMP>helptext</SAMP>. This
+pointer can be cast to higher-level classes if it is known
+that it is of the appropriate type. Class types can be
+verified with <CODE><A HREF="vclass-x.html#vclassIsKindOf"><CODE>vclassIsKindOf</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vhelptextGetDefaultClass"><HR><H4>vhelptextGetDefaultClass</H4></A>
+<PRE>
+        vhelptextClass * <B>vhelptextGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+This class can be modified to alter the behavior
+of subclasses of vhelptext. This function can be called to
+explicitly register the default help text class with the Class
+Manager.
+</DD></DL>
+<P>
+<A NAME="vhelptextGetInstance"><HR><H4>vhelptextGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vhelptextGetInstance</B>(
+                vhelptext * helptext);
+</PRE>
+
+<DL><DD>
+Returns the instance on which the help text <SAMP>helptext</SAMP> 
+is built.
+</DD></DL>
+<P>
+<A NAME="vhelptextGetString"><HR><H4>vhelptextGetString</H4></A>
+<PRE>
+        const vchar * <B>vhelptextGetString</B>(
+                vhelptext * helptext);
+</PRE>
+
+<DL><DD>
+Return the NULL-terminated <A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A> string contained in this vhelptext.
+</DD></DL>
+<P>
+<A NAME="vhelptextInit"><HR><H4>vhelptextInit</H4></A>
+<PRE>
+        vhelptext * <B>vhelptextInit</B>(
+                vhelptext * helptext);
+</PRE>
+
+<DL><DD>
+Initializes the memory addressed by <SAMP>helptext</SAMP> in
+such a way that the resulting structure can be used to
+store any objects whose classes inherit from
+<CODE><A HREF="vhelptext-x.html#vhelptextClass"><CODE>vhelptextClass</CODE></A></CODE>. 
+</DD></DL>
+<P>
+<A NAME="vhelptextInitOfClass"><HR><H4>vhelptextInitOfClass</H4></A>
+<PRE>
+        vhelptext * <B>vhelptextInitOfClass</B>(
+                vhelptext * helptext,
+                vhelptextClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes an object of class <SAMP>clas</SAMP> in the
+memory addressed by <SAMP>helptext</SAMP>. Interfaces 
+based on the core text class can
+define a macro to this function for their <CODE>Init</CODE>
+function. This function simply stores the class in the
+class field of the object structure and sends it the
+message <CODE><A HREF="vinstance-x.html#vinstanceINIT"><CODE>vinstanceINIT</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vhelptextSetString"><HR><H4>vhelptextSetString</H4></A>
+<PRE>
+        void <B>vhelptextSetString</B>(
+                vhelptext * helptext,
+                const vchar * string);
+</PRE>
+
+<DL><DD>
+Set the NULL-terminated <A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A> string <SAMP>string</SAMP> for this vhelptext.
+</DD></DL>
+<P>
+<A NAME="vhelptextSetStringScribed"><HR><H4>vhelptextSetStringScribed</H4></A>
+<PRE>
+        void <B>vhelptextSetStringScribed</B>(
+                vhelptext * helptext,
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Set the string for this vhelptext to be the string contained in
+<SAMP>scribe</SAMP>.
+
+<P>
+
+This function is implemented by sending the message 
+<CODE><A HREF="vhelptext-x.html#vhelptextSET_STRING_SCRIBED"><CODE>vhelptextSET_STRING_SCRIBED</CODE></A></CODE> to <SAMP>helptext</SAMP>.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vhelptextSET_STRING_SCRIBED"><HR><H4>vhelptextSET_STRING_SCRIBED</H4></A>
+<PRE>
+        &lt;<B>vhelptextSET_STRING_SCRIBED</B>&gt;
+</PRE>
+
+<DL><DD>
+Set the string for this vhelptext to be the string contained in
+<SAMP>scribe</SAMP>.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vhelptextINCLUDED"><HR><H4>vhelptextINCLUDED</H4></A>
+<PRE>
+        <B>vhelptextINCLUDED</B>
+</PRE>
+
+<DL><DD>
+This constant is intended to be used in this way when including header files:
+
+<BLOCKQUOTE>
+<PRE>
+#ifndef  vhelptextINCLUDED
+#include vhelptextHEADER
+#endif
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vhelptextCLASS"><HR><H4>vhelptextCLASS</H4></A>
+<PRE>
+        #define <B>vhelptextCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Use this macro to build subclasses of vhelptext. Refer to 
+<CODE><A HREF="vclass-x.html#vclass"><CODE>vclass</CODE></A></CODE> for more information on subclassing.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

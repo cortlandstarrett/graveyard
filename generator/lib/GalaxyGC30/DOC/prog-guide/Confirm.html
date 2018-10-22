@@ -1,0 +1,200 @@
+<HTML>
+<HEAD>
+<TITLE>Confirm Dialog</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Confirm Dialog</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Condition.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Container.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="14683"></A>
+Use the <EM><B>Confirm</B></EM> class to create special purpose dialogs often referred to as <EM><B>confirms</B></EM>. Confirms typically accept or reject the setting of properties contained within a dialog. For example, if the application is a terminal emulator, a confirmation dialog might be used for setting the communication speed and other communication values. The Confirm class provides a set of standard buttons that allow the user to accept, reject, revert to defaults, or request help. The application can control what buttons are visible for a given confirmation dialog, and take the appropriate action if the user accepted, rejected, or requested a return to the default values. Further, the Confirm class respects look-and-feel requirements with this single API. <A HREF="Confirm.html#23394">Figure 7</A> illustrates a typical confirmation dialog.<P>
+<A NAME="23394"><I>Figure 7.  A typical confirmation dialog
+</I><P>
+<IMG SRC="Confirm.anc.gif"><P>
+In its basic form, a confirmation dialog provides the functionality for acceptance or rejection. With single API calls the application developer can add standard buttons for reverting to defaults and requesting help. Additional standard buttons, providing duplicate functionality with slightly different behavior, can also be added. Standard confirmation buttons are explicitly maintained by the Confirm class.<P>
+Advanced users of the Confirm class can add their own generic buttons, change the title or order of the confirmation buttons, and arrange the buttons either horizontally or vertically. The application developer is responsible for maintaining the attributes of any generic buttons added to a confirmation dialog. Advanced use of the Confirm class is discussed in detail later in this document.<P>
+Hook methods are used to notify the application that some action has occurred related to the confirmation dialog. Four standard hook methods&#175;apply, reset, set defaults, and help&#175;are available for accepting changes, rejecting changes, reverting to some default state, or requesting help. A <EM><B>hook method</B></EM>, unlike a notification method, returns a value indicating the success or failure of its task. For confirmation hook methods, the value returned indicates whether the confirmation should carry on as normal (possibly close the confirm) or halt normal processing and leave the confirm in its current state (most importantly, leave the confirm open).<P>
+The different buttons available from different look-and-feels call one of these four hook methods. A default confirmation dialog will only use the apply and reset hooks. The defaults and help hook will only be used if the appropriate standard button is turned on.<P>
+The four hook functions map to an apply, reset, defaults, or help action. <EM><B>Apply</B></EM> indicates that all changes made in the confirm should be applied as defined by the application. <EM><B>Reset</B></EM> indicates that all changes made since the last apply should be ignored, and the dialog should be set to its last applied state. <EM><B>Defaults</B></EM> is an optional hook method; it indicates that the state of the confirm should be reset to its original "factory" setting. <EM><B>Help</B></EM> is another optional hook method which indicates the user has pressed the Help button in the confirmation dialog. A default help hook function automatically dispatches a help command.<P>
+The set of standard buttons available to the application developer is customizable. The default set of buttons for Motif and Windows is OK and Cancel. For OPEN LOOK, a single Apply button appears by default. (The pushpin, which is automatically attached to an OPEN LOOK confirmation dialog, performs the operation of dismissing the confirmation dialog.) Optional buttons that may be enabled for a confirmation dialog are Apply (Motif), Reset (all look-and-feels), Defaults (all look-and-feels), and Help (all look-and-feels). Notice that inappropriate buttons, such as an OK button under OPEN LOOK, are automatically blocked by the Confirm class. Using the Confirm class always provides the user with full functionality while maintaining look-and-feel independence.<P>
+In addition to application notification, the Confirm class also automatically takes care of dismissing the confirmation dialog. For example, when the OK button is pressed under Motif, the application receives an <EM><B>Apply</B></EM> notify, and then the Confirm class closes the dialog. However, if the application detects an error situation, the closing of the confirm may be blocked. The closing of the confirm is determined by the hook method which returns <TT>TRUE</TT> (all went well, close the window) or <TT>FALSE</TT> (something went wrong, leave the window open). See the vconfirm section in the Galaxy Application Environment Reference Manual for more details.<P>
+The Confirm class provides an attribute which disables a button when no hook method exists for it. For example, if your confirm contains a reset button but your application has not set a reset hook method (via <TT><B>SetResetHook</B></TT><TT><B></B></TT>), the Reset button will be disabled; the user will not be able to activate it. Under MOTIF, all buttons can be disabled except OK and Cancel. These buttons are necessary to dismiss a confirm. (It is possible to get all disabled buttons under OPEN LOOK, however the confirm can still be dismissed by pulling out the pushpin.) To enable this attribute use <TT><B>SetDisabledButtons</B></TT>.<P>
+<A NAME="228"><H2> Standard Buttons</H2></A>
+This section describes all available confirmation buttons and their action and behavior.<P>
+<A NAME="23401"><I>Figure 8.  OK button 
+</I><P>
+<IMG SRC="Confirm.anc1.gif"><P>
+The <EM><B>OK button</B></EM> is available for all look-and-feels. However, under OPEN LOOK, the title of the default OK button is named "Apply" by the Confirm class. Consequently, a button with the tag <TT>vname_OK</TT> is always available, unless explicitly removed from an application. The OK button closes the window after the application is notified. This button is required and is placed by default in the confirmation dialog in all look-and-feels.<P>
+<A NAME="23408"><I>Figure 9.  Cancel button 
+</I><P>
+<IMG SRC="Confirm.anc2.gif"><P>
+The <EM><B>Cancel button</B></EM> is not available under the OPEN LOOK look-and-feel. In the other look-and-feels, the Cancel button closes the window after the application is notified. This button is required and is placed by default in the confirmation dialog in all look-and-feels except OPEN LOOK. Consequently, a button with the tag <TT>vname_Cancel</TT> is always available (except for OPEN LOOK), unless explicitly removed from an application.<P>
+<A NAME="23415"><I>Figure 10.  Apply button 
+</I><P>
+<IMG SRC="Confirm.anc3.gif"><P>
+The <EM><B>Apply button</B></EM> is optional for all look-and-feels except OPEN LOOK, where it is not available.The Apply button does not close the window, but it can be closed using the Cancel or OK buttons or a window class specific close control. The Apply button has the tag <TT>vname_Apply</TT>.<P>
+<A NAME="23422"><I>Figure 11.  Reset button 
+</I><P>
+<IMG SRC="Confirm.anc4.gif"><P>
+The <EM><B>Reset button</B></EM> is available under all look-and-feels. In OPEN LOOK, the pushpin in the window header determines if the window will be closed. If the window is pinned, the window will not be closed; otherwise, the window will be closed. In other look-and-feels, the window is not closed, but it can be closed using the Cancel or OK buttons or a window class specific close control. This button is optional under all look-and-feels. The Reset button has the tag <TT>vname_Reset</TT>.<P>
+<A NAME="23429"><I>Figure 12.  Defaults button 
+</I><P>
+<IMG SRC="Confirm.anc5.gif"><P>
+The <EM><B>Defaults button</B></EM> is available under all look-and-feels. In OPEN LOOK, the pushpin in the window header determines if the window will be closed. If the window is pinned, the window will not be closed; otherwise, the window will be closed. In the other look-and-feels, the window is not closed, but it can be closed using the <TT><B>Cancel</B></TT> or <TT><B>OK</B></TT> buttons or a Window class specific close control. This button is optional for all look-and-feels. The Defaults button has the tag <TT>vname_Defaults</TT>.<P>
+<A NAME="23436"><I>Figure 13.  Help button 
+</I><P>
+<IMG SRC="Confirm.anc6.gif"><P>
+The <EM><B>Help button</B></EM> is available under all look-and-feels. The Help button activates the help system. This button is optional for all look-and-feels and is not placed in the confirmation dialog by default. The confirmation dialog is typically not closed when this button is pressed. Use <TT><B>SetHelp</B></TT> to provide a Help button. The Help button has the tag <TT>vname_Help</TT>.<P>
+<A NAME="9147"><H2> Creating and Implementing a Confirmation Dialog</H2></A>
+To create a confirmation dialog call <TT><B>Create</B></TT> or use a resource function to read the dialog in from a resource file created by the Visual Resource Builder . The latter approach is more convenient, but the former approach is demonstrated here in order to more completely illustrate the Confirm class entry points.<P>
+A confirmation dialog can be treated as any other dialog. The bottom or right portion of the dialog is reserved for the confirmation items. The height or width of these items is included in the minimum size calculated by <TT><B>vdialogCalcMinSize</B></TT>. Dialog class calls for adding dialog items or manipulating the dialog can be made using <TT><B>GetDialog</B></TT> as the dialog parameter to Dialog class calls. Note that for Motif/Windows, the Confirm outline is drawn outside of the dialog's rectangle. <P>
+<A NAME="37977"><H1> Sample Code</H1></A>
+The <TT>confirm1</TT> example (located in your Galaxy distribution under <TT>samples/docsamps</TT>) illustrates a typical implementation of a confirmation dialog. The base dialog has two buttons, one to open the confirmation dialog, the other to exit. The confirmation dialog has three toggle items in addition to the buttons maintained by the Confirm class. The example demonstrates three common uses of the Confirm class. First, it shows how to make use of the apply and reset hook functions. Second, it demonstrates how to handle an error situation in the apply hook. Third, it shows how to destroy both application data and the confirmation dialog itself anytime the confirmation dialog is closed.<P>
+<A NAME="30492"><H2> Non-standard Confirmation Buttons</H2></A>
+The Confirm class provides advanced functionality for applications that demand it. An application may require non-standard buttons that are not available from the provided standard buttons. The application can then add generic buttons to the list of confirmation buttons managed by the Confirm class.<P>
+Before using these advanced features it is important to understand how the Confirm class manages its buttons. The buttons themselves are actually of the <TT>vconfirmButton</TT> class, a subclass of <TT>vbutton</TT>. The behavior of the <TT>vconfirmButton</TT> class is not exported beyond the fact that it is a subclass and may be retrieved using <TT><B>ButtonGetDefaultClass.</B></TT><P>
+Confirm buttons are not stored in the confirm's (dialog's) item list. Instead, a container item is used to group these buttons making the buttons part of the container's item list. This container may be retrieved from the confirmation dialog using <TT><B>GetContainer</B></TT>. (See the Container chapter for more on using containers.)<P>
+Any of the standard buttons, as well as generic buttons, may be retrieved from the container's item list. Each standard button has a unique, predefined tag. Each generic button must have a unique tag assigned by the application. <A HREF="Confirm.html#38529">Table 10</A> lists the standard buttons and their associated tag. (Note that some buttons may not be available in all look-and-feels. For example, the Apply and Cancel buttons do not appear under OPEN LOOK.)<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="38498"><I>Table 10.  Confirmation button tags
+</I><P>
+</CAPTION>
+
+<tr><th><B>Button 
+</B></th><th><B>Tag
+</B></th>
+<tr><td><TT><B>OK
+</B></TT></td><td><TT>vname_Ok
+</TT></td></tr>
+<tr><td><TT><B>Apply
+</B></TT></td><td><TT>vname_Apply
+</TT></td></tr>
+<tr><td><TT><B>Reset
+</B></TT></td><td><TT>vname_Reset
+</TT></td></tr>
+<tr><td><TT><B>Cancel
+</B></TT></td><td><TT>vname_Cancel
+</TT></td></tr>
+<tr><td><TT><B>Defaults
+</B></TT></td><td><TT>vname_Defaults
+</TT></td></tr>
+<tr><td><TT><B>Help
+</B></TT></td><td><TT>vname_Help
+</TT></td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+Use the tag name to retrieve the button. For example, use the following statement to retrieve the OK button from the container item list of the confirmation dialog:<P>
+<PRE><UL>okButton = (vbutton *) vconfirmGetButton(confirm, vname_Ok);
+
+</UL></PRE>Even if a non-null pointer is returned, the button may still not be included in the current button arrangement. You must check that the shown and enabled attributes of the button are set. If they are not, the button will be excluded from the button list (making it hidden to the user). This technique may be used to temporarily hide buttons in the confirm's button list.<P>
+A generic button can be added to the confirm's button list using <TT><B>SetGeneric</B></TT> which takes three parameters, the confirm, a unique tag, and a flag indicating whether the button is to be added or removed.<P>
+The order of the buttons in the container's item list is important. It determines the order in which the buttons will be displayed. The set of standard buttons is automatically ordered according to look and feel specifications by the Confirm class. Any generic buttons defined by an application will appear after the standard buttons in the order they were added. To change the ordering of buttons, the application should subclass the confirmation dialog and override the <TT>ORDER_BUTTONS</TT><TT></TT> method. This method arranges the buttons within the container's item list as determined by the application. Any default confirm button (for the dialog) or default abandon buttons should also be set using this method. For details on creating subclasses, see the Class Manager.<P>
+<A NAME="39981"><H2> Blocking Confirmation Dialogs</H2></A>
+A <EM><B>blocking confirm</B></EM> is a modal confirmation dialog that blocks when opened. Special blocking calls must be made to process a blocking confirm. The typical open, hook, and close functions cannot be used. When using a blocking confirm, the statement after the call to process the confirm is not executed until the user actually presses a button. The tag of the button pressed by the user is returned by the call that processes the confirm. Note that the other notify functions and draw methods are called as with any confirmation dialog.<P>
+For the convenience of the application developer, four blocking calls are provided:<P>
+<DL>
+<DT><DD> <TT><B>Process</B></TT>
+<DT><DD> <TT><B></B></TT><TT><B>ProcessStart</B></TT>
+<DT><DD> <TT><B></B></TT><TT><B>ProcessGet</B></TT>
+<DT><DD> <TT><B></B></TT><TT><B>ProcessStop</B></TT>
+</DL>
+<TT><B></B></TT>These methods open a confirm, wait until one of the confirm buttons is activated, and then return the tag of the button selected.<P>
+<TT><B>Process</B></TT> is intended to be used alone. When called, it opens the confirmation dialog and waits for a button to be selected. Once a button is selected the confirm is closed and the tag of the selected button is returned. Use this method when the application merely needs to determine which button has been pressed. The confirmation dialog closes regardless of the button selected.<P>
+The other three blocking confirmation methods are used to keep a confirmation dialog open even after a button is pressed. This allows the user to make several selections before closing the confirmation dialog. These three functions provide this capability without continually opening and closing the confirmation dialog (as would be necessary with <TT><B>Process</B></TT>). <TT><B>ProcessStart</B></TT> opens the confirm and does not block. <TT><B>ProcessGet</B></TT> waits until a confirm button is selected and returns the tag of that button. It does not close the confirmation dialog and must be between calls to <TT><B>ProcessStart</B></TT> and <TT><B>ProcessStop</B></TT>. <TT><B>ProcessStop</B></TT> closes the confirmation dialog and must be called after a call to <TT><B>ProcessStart</B></TT>.<P>
+A blocking confirm differs from a typical confirm in several ways. First, any function registered as a confirmation hook function is not called when a button is pressed. The tag of the selected button is returned and it is the application's responsibility to handle the return directly. Second, the confirmation dialog is set to be modal, no input is accepted by other application windows. Third, the confirmation dialog's close hook is not called since the application is explicitly controlling when the confirm is to be closed.<P>
+<A NAME="38768"><H1> Advanced Sample Code</H1></A>
+The <TT>confirm2</TT> example (located in your Galaxy distribution under <TT>samples/docsamps</TT>) demonstrates the following:<P>
+<UL><LI>Subclassing a confirm
+<LI>Using generic buttons in a confirmation dialog
+<LI>Using blocking confirms
+<LI>Ordering buttons
+</UL><P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Condition.html">Previous Chapter</A> | 
+		<A HREF="Container.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

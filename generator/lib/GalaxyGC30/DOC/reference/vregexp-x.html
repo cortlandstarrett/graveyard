@@ -1,0 +1,495 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vregexp prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vregexp prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vregexp-x.html#section_DataType">Types</A> [1]</TD>
+<TD><A HREF="vregexp-x.html#section_Function">Functions</A> [22]</TD>
+<TD></TD>
+<TD><A HREF="vregexp-x.html#section_Constant">Constants</A> [2]</TD>
+<TD><A HREF="vregexp-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vregexp"><HR><H4>vregexp</H4></A>
+<PRE>
+        typedef ... <B>vregexp</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to represent a regular
+expression. Regular expressions are referenced by a pointer
+to this type.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vregexpClearAllSegments"><HR><H4>vregexpClearAllSegments</H4></A>
+<PRE>
+        void <B>vregexpClearAllSegments</B>(
+                vregexp * regExpression);
+</PRE>
+
+<DL><DD>
+Clears all of the segment pointers for the regular
+expression <SAMP>regExpression</SAMP> to <SAMP>NULL</SAMP>.
+A subsequent call to <CODE><A HREF="vregexp-x.html#vregexpSearch"><CODE>vregexpSearch</CODE></A></CODE> will define
+new segments if a match to the entire regular expression is
+found and the search pattern has tagged parts. Currently,
+all regular expressions share the same set of global
+segment pointers, so clearing or setting these pointers for
+one expression is the same as doing either for a different
+expression. This will change in future releases of Galaxy.
+</DD></DL>
+<P>
+<A NAME="vregexpClone"><HR><H4>vregexpClone</H4></A>
+<PRE>
+        vregexp * <B>vregexpClone</B>(
+                vregexp * regExpression);
+</PRE>
+
+<DL><DD>
+Creates a copy of the regular expression
+<SAMP>regExpression</SAMP>. The two regular expressions
+represent equivalent expressions but have separate storage.
+</DD></DL>
+<P>
+<A NAME="vregexpCopy"><HR><H4>vregexpCopy</H4></A>
+<PRE>
+        void <B>vregexpCopy</B>(
+                vregexp * regExpression,
+                vregexp * target);
+</PRE>
+
+<DL><DD>
+Copies the information in the regular expression
+<SAMP>regExpression</SAMP> into <SAMP>target</SAMP>, so
+that the two regular expressions represent equivalent
+expressions but have separate storage.
+</DD></DL>
+<P>
+<A NAME="vregexpCreate"><HR><H4>vregexpCreate</H4></A>
+<PRE>
+        vregexp * <B>vregexpCreate</B>(
+                vchar * pattern);
+</PRE>
+
+<DL><DD>
+Creates a new regular expression using the pattern
+<SAMP>pattern</SAMP>. A <SAMP><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></SAMP> is generated if
+the given pattern is not a valid regular expression.
+</DD></DL>
+<P>
+<A NAME="vregexpCreateScribed"><HR><H4>vregexpCreateScribed</H4></A>
+<PRE>
+        vregexp * <B>vregexpCreateScribed</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Creates a new regular expression from the scribe
+<SAMP>scribe</SAMP>.  A <SAMP><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></SAMP> is generated if
+the given pattern is not a valid regular expression.
+</DD></DL>
+<P>
+<A NAME="vregexpDestroy"><HR><H4>vregexpDestroy</H4></A>
+<PRE>
+        void <B>vregexpDestroy</B>(
+                vregexp * regExpression);
+</PRE>
+
+<DL><DD>
+Destroys a regular expression. You should call this when
+you are completely through using a regular expression.
+</DD></DL>
+<P>
+<A NAME="vregexpGetData"><HR><H4>vregexpGetData</H4></A>
+<PRE>
+        void * <B>vregexpGetData</B>(
+                vregexp * regExpression);
+</PRE>
+
+<DL><DD>
+Returns the generic data pointer attached to the regular
+expression <SAMP>regExpression</SAMP>, which can be
+<SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vregexpGetDirection"><HR><H4>vregexpGetDirection</H4></A>
+<PRE>
+        int <B>vregexpGetDirection</B>(
+                vregexp * regExpression);
+</PRE>
+
+<DL><DD>
+Returns <CODE>vregexpFORWARD</CODE> if the searching
+direction for the regular expression
+<SAMP>regExpression</SAMP> is forward and
+<CODE>vregexpBACKWARD</CODE> if it is backward.
+</DD></DL>
+<P>
+<A NAME="vregexpGetPattern"><HR><H4>vregexpGetPattern</H4></A>
+<PRE>
+        const vchar * <B>vregexpGetPattern</B>(
+                vregexp * regexp);
+</PRE>
+
+<DL><DD>
+Returns the search pattern of the regular expression object.
+</DD></DL>
+<P>
+<A NAME="vregexpGetSegment"><HR><H4>vregexpGetSegment</H4></A>
+<PRE>
+        vchar * <B>vregexpGetSegment</B>(
+                vregexp * regExpression,
+                int segment);
+</PRE>
+
+<DL><DD>
+Returns the specified segment pointer for the regular
+expression <SAMP>regExpression</SAMP>. These pointers are
+set when <CODE><A HREF="vregexp-x.html#vregexpSearch"><CODE>vregexpSearch</CODE></A></CODE> finds a match to the
+entire regular expression and the search pattern has tagged
+parts. Valid values for <SAMP>segment</SAMP> are between 0
+and 9, inclusive. Currently, all regular expressions share
+the same set of global segment pointers, so clearing or
+setting these pointers for one expression is the same as
+doing either for a different expression. This will change
+in future releases of Galaxy.
+</DD></DL>
+<P>
+<A NAME="vregexpIsCaseSensitive"><HR><H4>vregexpIsCaseSensitive</H4></A>
+<PRE>
+        vbool <B>vregexpIsCaseSensitive</B>(
+                vregexp * regExpression);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the regular expression
+<SAMP>regExpression</SAMP> is case sensitive,
+<SAMP>FALSE</SAMP> if it is not.
+</DD></DL>
+<P>
+<A NAME="vregexpLoad"><HR><H4>vregexpLoad</H4></A>
+<PRE>
+        vregexp * <B>vregexpLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a regular expression from the resource
+<SAMP>resource</SAMP> and returns a pointer to its
+contents, which will be allocated by the Regular Expression
+Manager. An exception is generated if the resource has not
+been constructed properly.
+</DD></DL>
+<P>
+<A NAME="vregexpMatch"><HR><H4>vregexpMatch</H4></A>
+<PRE>
+        vbool <B>vregexpMatch</B>(
+                vregexp * regExpression,
+                vchar ch);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the character <SAMP>ch</SAMP>
+is a match to the first character in the regular expression
+<SAMP>regExpression</SAMP>. For example, if the regular
+expression is:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><SAMP>[a-z][a-z0-9]+</SAMP> 
+</DL>
+</BLOCKQUOTE>
+
+    <P>
+Then calling <CODE>vregexpMatch</CODE> would return
+<SAMP>TRUE</SAMP> for the characters ``a'' through ``z,''
+<SAMP>FALSE</SAMP> for any other characters.
+</DD></DL>
+<P>
+<A NAME="vregexpSearch"><HR><H4>vregexpSearch</H4></A>
+<PRE>
+        vchar * <B>vregexpSearch</B>(
+                vregexp * regExpression,
+                const vchar * text,
+                int length,
+                int * resultLength);
+</PRE>
+
+<DL><DD>
+Searches the text pointed to by <SAMP>text</SAMP>, of
+length <SAMP>length</SAMP>, for the regular expression
+<SAMP>regExpression</SAMP>. If the regular expression is
+found, then the location in the text where the regular
+expression was found is returned, and
+<SAMP>resultLength</SAMP> contains the length of the found
+expression. If the regular expression is not found, then
+<SAMP>NULL</SAMP> is returned.
+</DD></DL>
+<P>
+<A NAME="vregexpSearchLiteral"><HR><H4>vregexpSearchLiteral</H4></A>
+<PRE>
+        vchar * <B>vregexpSearchLiteral</B>(
+                const vchar * literalTarget,
+                const vchar * text,
+                int length,
+                int caseSensitive,
+                int direction);
+</PRE>
+
+<DL><DD>
+Searches the text pointed to by <SAMP>text</SAMP>, of
+length <SAMP>length</SAMP>, for the <I>literal</I> text
+<SAMP>literalTarget</SAMP>. If the
+<SAMP>literalTarget</SAMP> is found, then the location in
+the text where <SAMP>literalTarget</SAMP> was found is
+returned. If the <SAMP>literalTarget</SAMP> is not found,
+then <SAMP>NULL</SAMP> is returned. If
+<SAMP>caseSensitive</SAMP> is <SAMP>TRUE</SAMP>, then
+alphabetic characters in the pattern match only if the case
+is the same as that specified in the regular expression. If
+<SAMP>direction</SAMP> is <CODE>vregexpFORWARD</CODE>, then
+the search starts at the beginning of <SAMP>text</SAMP> and
+proceeds forward. If <SAMP>direction</SAMP> is
+<CODE>vregexpBACKWARD</CODE>, then the search starts at the
+end of <SAMP>text</SAMP> and proceeds backward.
+    <P>
+When performing a literal search, the target text is taken
+character for character, with no special interpretation.
+</DD></DL>
+<P>
+<A NAME="vregexpSetCaseSensitive"><HR><H4>vregexpSetCaseSensitive</H4></A>
+<PRE>
+        void <B>vregexpSetCaseSensitive</B>(
+                vregexp * regExpression,
+                int caseSensitive);
+</PRE>
+
+<DL><DD>
+Designates whether or not the regular expression
+<SAMP>regExpression</SAMP> is case sensitive or not. If
+<SAMP>caseSensitive</SAMP> is <SAMP>TRUE</SAMP>, then
+alphabetic characters in the pattern match only if the case
+is the same as that specified in the regular expression.
+</DD></DL>
+<P>
+<A NAME="vregexpSetData"><HR><H4>vregexpSetData</H4></A>
+<PRE>
+        void <B>vregexpSetData</B>(
+                vregexp * regExpression,
+                void * data);
+</PRE>
+
+<DL><DD>
+Sets a regular expression's generic data pointer to
+<SAMP>data</SAMP>. This can be a pointer to whatever
+information the client wants to attach to the regular
+expression; it is not used by the Regular Expression
+Manager. <SAMP>data</SAMP> can be <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vregexpSetDirection"><HR><H4>vregexpSetDirection</H4></A>
+<PRE>
+        void <B>vregexpSetDirection</B>(
+                vregexp * regExpression,
+                int direction);
+</PRE>
+
+<DL><DD>
+Designates the searching direction for the regular
+expression <SAMP>regExpression</SAMP>. If
+<SAMP>direction</SAMP> is <CODE>vregexpFORWARD</CODE>, then
+all searches using this regular expression begin at the
+start of the text and proceed forward. If
+<SAMP>direction</SAMP> is <CODE>vregexpBACKWARD</CODE>,
+then all searches begin at the end of the text and proceed
+backward.
+</DD></DL>
+<P>
+<A NAME="vregexpSetPattern"><HR><H4>vregexpSetPattern</H4></A>
+<PRE>
+        void <B>vregexpSetPattern</B>(
+                vregexp * regexp,
+                const vchar * pattern);
+</PRE>
+
+<DL><DD>
+Sets the search pattern for the regular expression object with the
+specified string.
+<P>
+A <SAMP><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></SAMP> is generated if the given pattern is
+not a valid regular expression.
+</DD></DL>
+<P>
+<A NAME="vregexpSetPatternScribed"><HR><H4>vregexpSetPatternScribed</H4></A>
+<PRE>
+        void <B>vregexpSetPatternScribed</B>(
+                vregexp * regexp,
+                vscribe * pattern);
+</PRE>
+
+<DL><DD>
+Sets the search pattern for the regular expression object with the
+specified scribe.
+<P>
+A <SAMP><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></SAMP> is generated if the given pattern is
+not a valid regular expression.
+</DD></DL>
+<P>
+<A NAME="vregexpStartup"><HR><H4>vregexpStartup</H4></A>
+<PRE>
+        void <B>vregexpStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the Regular Expression Manager. Has no effect
+if the Regular Expression Manager is already initialized.
+</DD></DL>
+<P>
+<A NAME="vregexpStore"><HR><H4>vregexpStore</H4></A>
+<PRE>
+        void <B>vregexpStore</B>(
+                vregexp * regExpression,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Writes the contents of the regular expression
+<SAMP>regExpression</SAMP> into the resource
+<SAMP>resource</SAMP>. The regular expression can be
+recovered from the resource at a later time (perhaps by
+another program) with <CODE><A HREF="vregexp-x.html#vregexpLoad"><CODE>vregexpLoad</CODE></A></CODE> or
+<CODE>vregexpLoadInit</CODE>. The resource should have type
+<CODE>vresourceSTRING</CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vregexpFORWARD"><HR><H4>vregexpFORWARD</H4></A>
+<PRE>
+        <B>vregexpFORWARD</B>
+</PRE>
+<A NAME="vregexpBACKWARD"><PRE>
+        <B>vregexpBACKWARD</B>
+</PRE>
+</A>
+
+<DL><DD>
+Specify the searching direction for regular expressions.
+These values are passed to <CODE><A HREF="vregexp-x.html#vregexpSetDirection"><CODE>vregexpSetDirection</CODE></A></CODE>
+and returned by <CODE><A HREF="vregexp-x.html#vregexpGetDirection"><CODE>vregexpGetDirection</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vregexpINCLUDED"><HR><H4>vregexpINCLUDED</H4></A>
+<PRE>
+        <B>vregexpINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vregexp.h</SAMP> is
+included.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vregexpCLASS"><HR><H4>vregexpCLASS</H4></A>
+<PRE>
+        #define <B>vregexpCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for the base regular
+expression class.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

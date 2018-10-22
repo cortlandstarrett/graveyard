@@ -1,0 +1,271 @@
+<HTML>
+<HEAD>
+<TITLE>Memory</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Memory</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Mainview.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Menu.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The <EM><B>Memory </B></EM>classes provide an operating-system-independent interface to the dynamic memory management facilities of the host system. With the Memory classes, you can allocate, free, and resize blocks of dynamic memory. Blocks are allocated and manipulated based on a pointer to the beginning of the usable contents of the block. The contents of the block will never move throughout its lifetime, unless you explicitly resize it. The Memory classes provide extensive debugging facilities, including leak detection, deliberate clobbering of free blocks, and overwrite detection. The Memory classes's debugging facilities are compiled out of production code to optimize performance.<P>
+The <EM><B>Pool Library</B></EM> is a service provided by Galaxy that allows you to efficiently allocate and free dynamic blocks of memory whose size is fixed in advance. A <EM><B>pool</B></EM> is a collection of dynamic memory blocks that have identical sizes. The fixed size restriction allows blocks to be allocated from a pool much more efficiently than through the Memory classes's more general facilities. Pool elements also tend to be more compact than dynamic memory blocks, since housekeeping information is allocated only in the pool itself, not in each element. Pools are used extensively by higher-level Galaxy modules that allocate dynamic objects. All object instances created by the Class Manager, for example, are allocated from pools.<P>
+The Memory classes's debugging facility is configured to create a deliberately vicious environment for the application to help ensure that dynamic memory-related bugs are discovered immediately. All dynamic memory that is returned to the Memory class is immediately randomized so that application code which depends on access to the contents of free blocks may immediately fail. All new blocks of memory that are not explicitly initialized by the Memory class are also randomized so that application code that depends on the contents of "garbage" may immediately fail. No resize request on a memory block succeeds in place; they all force the block to move. The debugging facilities can also be configured to create the "pristine" conditions of the production environment expected by third party "memory debuggers" such as Purify or Code Center.<P>
+You should use the Memory class to allocate dynamic memory instead of the standard C library functions. <A HREF="Memory.html#3976">Table 28</A> shows Galaxy equivalents for standard C library functions. The Memory classes have three significant advantages over the standard C libraries.<P>
+<UL><LI>The debugging facilities provided by Galaxy are much more powerful than those found in most standard C libraries. Note that since the Memory class is typically implemented on top of the standard C libraries, you should not lose any existing debugging services by using the Memory classes.
+<LI>The Memory classes generate an exception when a given operation fails instead of returning a failure result code. This means that your code can assume that a given allocation will always succeed instead of checking a result code. You can trap exceptions, if necessary, with the Exception class's services. This allows recovery from out-of-memory conditions to be isolated in a single location, rather than scattered throughout your application code.
+<LI>Memory services are guaranteed to be available and properly implemented, whereas the standard C libraries may not be available, or they may be poorly implemented for the architecture of the host platform. Galaxy may take advantage of the memory management facilities of the host operating system if the implementation of the standard C libraries is inadequate.
+<LI>The Memory class can be used to register notification functions to be called when the application is running out of memory. This allows the application to specify action to take to avoid an out-of-memory condition before the out-of-memory condition occurs.
+</UL>Note that the dynamic blocks of memory allocated by the Memory class are not interchangeable with those allocated by the C libraries or the host operating system. If you need to pass a pointer to some non-Galaxy service that expects a block of dynamic memory, you must allocate it using host facilities, not the Memory class.<P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+Equivalent C library functions for Galaxy Memory class functions are listed in <A HREF="Memory.html#3976">Table 28</A>.<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="3931"><I>Table 28.  Galaxy equivalents to C memory functions
+</I><P>
+</CAPTION>
+
+<tr><th><B>C Library function
+</B></th><th><B>Memory class function
+</B></th>
+<tr><td><TT><TT>malloc
+</TT></TT></td><td><TT>vmemAlloc
+</TT></td></tr>
+<tr><td><TT><TT>free
+</TT></TT></td><td><TT>vmemFree
+</TT></td></tr>
+<tr><td><TT><TT>realloc
+</TT></TT></td><td><TT>vmemRealloc
+</TT></td></tr>
+<tr><td><TT><TT>calloc
+</TT></TT></td><td><TT>vmemAllocAndClear
+</TT></td></tr>
+<tr><td><TT><TT>memset
+</TT></TT></td><td><TT>vmemSet
+</TT></td></tr>
+<tr><td><TT><TT>memcpy
+</TT></TT></td><td><TT>vmemCopy
+</TT></td></tr>
+<tr><td><TT><TT>memmove
+</TT></TT></td><td><TT>vmemMove
+</TT></td></tr>
+<tr><td><TT><TT>memcmp
+</TT></TT></td><td><TT>vmemCompare
+</TT></td></tr>
+<tr><td><TT><TT>memchr
+</TT></TT></td><td><EM><B>none
+</B></EM></td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+When a Galaxy application that has been compiled with memory debugging exits (<TT>vmemDEBUG</TT> is TRUE), the Memory class prints a list of all the blocks that have been allocated and not freed on the standard output stream. This information lets you track down any dynamic memory "leaks" that have occurred over the lifetime of your application. The block information includes the address of the block, the module that allocated it, and the line number on which the allocation occurred. Note that you may have to free allocated blocks when your application exits just to satisfy the debugging facilities of the Memory class. Since this code is unnecessary in a production application, you can compile it out by testing the constant <TT>vmemBALANCE</TT>. For an example, refer to <A HREF="Memory.html#3985">Example 99</A>.<P>
+<A NAME="3985"><I>Example 99.  Testing the constant <TT>vmemBALANCE
+</TT></I><P>
+<PRE><UL>int main(int argc, char **argv)
+{
+   int *block1, *block2;
+
+   /*
+    * allocate some integers
+    */
+   block1 = vmemAlloc(100*sizeof(int));
+   block2 = vmemAlloc(1000*sizeof(int));
+
+   /*
+    * do some things with the integers
+    */
+
+   // ...
+
+   /*
+    * free the integers
+    * only do this when checking for leaks,
+    * since we're exiting anyway
+    */
+#if vmemBALANCE
+   vmemFree(block1);
+   vmemFree(block2);
+#endif
+
+   exit (EXIT_SUCCESS);
+   return (EXIT_FAILURE);
+}
+
+</UL></PRE><A NAME="4044"><H2> Using Free Functions</H2></A>
+An application can register an arbitrary number of functions with the Memory class that will free memory in low memory situations. These functions are added with the <TT><B>RegisterFreeFunction</B></TT> call, and assigned a priority. Lower priority functions are called first; higher priority functions are called only when the lower priority functions do not free enough memory. The lowest base priority is <TT>vmemPRIORITY_GARBAGE</TT>; the highest is <TT>vmemPRIORITY_EMERGENCY</TT>. As with all priorities, you can use the modifiers <TT>vmemPRIORITY_MODIFIER_LOW</TT> and <TT>vmemPRIORITY_MODIFIER_HIGH</TT> to lower or raise the base priority by one third. (Refer to the Galaxy Application Environment Reference Manual for details on the list of base priorities.)<P>
+Functions can be unregistered at any time by calling <TT><B>UnregisterFreeFunction</B></TT> with the same arguments passed to <TT><B>RegisterFreeFunction</B></TT>. The function returns <TT>TRUE</TT> if it could free some memory and <TT>FALSE</TT> otherwise. There is no obligation for a function to return <TT>TRUE</TT>. <A HREF="Memory.html#4051">Example 100</A> shows a sample free function to destroy global cache.<P>
+<A NAME="4051"><I>Example 100.  Free function to destroy global cache
+</I><P>
+<PRE><UL>static   *_bufferCache = NULL;
+
+static vbool _moduleDestroyCache()
+{
+   vbool  result;
+
+   if ((result = (_bufferCache != NULL)) )
+     vmemFree(_bufferCache);
+
+   return result;
+}
+
+void SomeFunction (void)
+{
+   // ...
+
+   /*
+    * the following is module initialization code
+    */
+
+   // ...
+
+   vmemRegisterFreeFunction(_moduleDestroyCache, vmemPRIORITY_GARBAGE);
+
+   // ...
+}
+</UL></PRE><A NAME="4073"><H2> Configuring the Memory Class's Debugging Facilities</H2></A>
+The Memory class's debugging facilities can be configured to eliminate behavior of independent features. This is particularly desirable when debugging in an environment that is monitoring writes into unallocated memory, or reading from uninitialized memory. Some behavior can be reconfigured at any time during execution. Other behavior cannot be reconfigured once a block is allocated. <A HREF="Memory.html#4156">Table 29</A> shows the various options, any other options they depend on, and whether they can be changed during execution. If a bad configuration is given to the Memory class, it will make note of this to the Debugging class advise stream, and correct the arguments. Refer to <A HREF="Debugging.html#3867">Debug Streams</A> for more information on the Debugging class advise stream.<P>
+The environment variable <TT>vmemFLAGS</TT> is consulted for the default configuration. The <TT>vmemFLAGS</TT> is the value of a bitwise-or of the flags to set. It can be set with a decimal, octal, or hexadecimal representation. If the variable is not present, then the default configuration is to have all the debugging features on.<TT><B> SetDefaultDebuggingFlags</B></TT> can be used to reconfigure programmatically. This call can also be used to override the <TT>vmemFLAGS</TT> environment variable, if used before any other Galaxy call causes the Memory class to configure its debugging facilities. When debugging is not enabled, the call is treated as a no-op.<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="4085"><I>Table 29.  Memory debugging options
+</I><P>
+</CAPTION>
+
+<tr><th><B>Symbol
+</B></th><th><B>Value
+</B></th><th><B>Reconfigurable
+</B></th><th><B>Requires Header
+</B></th>
+<tr><td><TT>vmemFLAG_RANDOMIZE_ALLOC
+</TT></td><td>0x1
+</td><td>YES
+</td><td>NO
+</td></tr>
+<tr><td><TT>vmemFLAG_RANDOMIZE_FREE
+</TT></td><td>0x2
+</td><td>YES
+</td><td>YES
+</td></tr>
+<tr><td><TT>vmemFLAG_MOVE_REALLOC
+</TT></td><td>0x4
+</td><td>YES
+</td><td>YES
+</td></tr>
+<tr><td><TT>vmemFLAG_USE_OVERWRITE
+</TT></td><td>0x8
+</td><td>NO
+</td><td>YES
+</td></tr>
+<tr><td><TT>vmemFLAG_MONITOR_LEAKS
+</TT></td><td>0x10
+</td><td>YES
+</td><td>YES
+</td></tr>
+<tr><td>reserved
+</td><td>0x60
+</td><td>N/A
+</td><td>N/A
+</td></tr>
+<tr><td><TT>vmemFLAG_USE_HEADER
+</TT></td><td>0x80
+</td><td>NO
+</td><td>N/A 
+</td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Mainview.html">Previous Chapter</A> | 
+		<A HREF="Menu.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

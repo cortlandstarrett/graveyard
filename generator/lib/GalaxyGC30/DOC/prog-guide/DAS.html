@@ -1,0 +1,194 @@
+<HTML>
+<HEAD>
+<TITLE>DAS</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>DAS</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Cursor.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Datatag.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="4119"></A>
+The <EM><B>Galaxy</B></EM> <EM><B>Distributed Application Services</B></EM> (DAS) is a collection of libraries, tools, and runtime services for exporting, locating, and using network services to build distributed applications within Galaxy. Most of this support is currently directed toward inter-operability with other Galaxy applications, regardless of platform. When support for other, non-Galaxy mechanisms is not provided directly, the "native" API can be used directly, or "wrapped" using a DAS wrapper, until DAS provides the appropriate support in future releases.<P>
+DAS provides a high-level API for writing applications that run on any Galaxy platform, but also for writing applications that communicate with any other Galaxy application, regardless of the platform either application is running on. The default mechanisms used with DAS are asynchronous; applications do not need to block while waiting for the outcome of a request.<P>
+The core of DAS is a subset of the Galaxy Application Environment and is accessible to all Galaxy applications. DAS is currently composed of six libraries, a runtime component, and a chooser dialog:<P>
+<UL><LI>Communication
+<LI>Datatag
+<LI>Service
+<LI>Session
+<LI>Signature
+<LI>Service Broker Manager
+<LI>Service Broker (runtime component)
+<LI>Service Chooser Dialog
+</UL>Refer to the each of these chapters for a more detailed description of how the different components work together.<P>
+<A NAME="3783"><H2> Glossary</H2></A>
+DAS introduces some new concepts and accompanying terminology. The following terminology is used throughout this manual.<P>
+<UL><EM><B>client-server</B></EM>	A model of distributed computing where a single 
+application implements a service (the server) which is 
+accessible to multiple clients. See also master-slave and 
+peer-to-peer.
+<P><EM><B>client	</B></EM><EM>See</EM> service consumer.
+<P><EM><B>datatag	</B></EM>An abstract description of a type. A scrap should export its 
+value to a datatag type. Datatags are denoted by 
+<TT>vdatatag</TT>.
+<P><EM><B>distributed computing	</B></EM>A model of computing where an application might require 
+the help of other applications, perhaps located on other 
+computers, to perform a task.
+<P><EM><B>interoperable	</B></EM>A term describing two applications which are able to work 
+together, particularly by sending messages back and forth 
+between executing processes (as opposed to taking an 
+output file of one process and using it as an input file to the 
+other).
+<P><EM><B>master-slave</B></EM>	A model of distributed computing where a single 
+application is a consumer (master) of multiple identical 
+service providers (slaves). See also client-server and peer-to-
+peer.
+<P><EM><B>peer-to-peer</B></EM>	A model of distributed computing where two applications 
+may freely talk back and forth making requests of one 
+another. Both applications are service providers and 
+service consumers to one another. See also client-server and 
+master-slave.
+<P><EM><B>primitive	</B></EM>An entry point to a service. Primitives are defined by 
+service providers to be callable by service consumers that 
+send a statement. Primitives are denoted by 
+<TT>vservicePrimitive</TT>.
+<P><EM><B>protocol</B></EM>	The set of rules governing communication and the transfer 
+of data between machines. Distributed systems typically 
+build upon several levels of protocols. For example, the 
+protocols used within the Communication class (network 
+level) are different from the protocols used within the 
+Session class (application level). Typically, network 
+protocols ensure the integrity of the data being transferred; 
+application protocols give semantic meaning to it.
+<P><EM><B>scrap	</B></EM>A piece of typed data. Scraps are discussed in the 
+Representation chapter and denoted by <TT>vscrap</TT>.
+<P><EM><B>service	</B></EM>An abstracted application component which is accessible 
+to other applications on a network. The application 
+becomes a service provider by exporting its service. 
+Services are denoted by <TT>vservice</TT>.
+<P><EM><B>service consumer	</B></EM>An application, or session, that is using a service provided 
+by another application. This is the client in a client-server 
+model.
+<P><EM><B>service broker	</B></EM>An application which is used by DAS service providers to 
+register themselves so they can be located by DAS service 
+consumers. Service consumers use the service broker to 
+locate service providers. The service broker is implemented 
+by the component <TT>vdasserv</TT>.
+<P><EM><B>service provider	</B></EM>The subset of an application that implements a service that 
+it exports for other applications to use. This is the server in 
+a client-server model.
+<P><EM><B>server	</B></EM><EM>See</EM> service provider.
+<P><EM><B>session</B></EM>	A context shared between a service consumer and service 
+provider. The same applications can have multiple sessions 
+between them, but each of the sessions is unique. Sessions 
+are used to send statements from a consumer to a provider, 
+and to return results from a provider back to a consumer. 
+Sessions are denoted by <TT>vsession</TT>.
+<P><EM><B>signature	</B></EM>An abstract description of the syntax used to define a 
+function. Signatures include the name, return type, and 
+argument types. Signatures are denoted by <TT>vsignature</TT>.
+<P><EM><B>statement	</B></EM>An encapsulated request to be sent to a service provider to 
+invoke a primitive. Statements are denoted by 
+<TT>vsessionStatement</TT>.
+<P></UL><A NAME="3820"><H1> Component Overview</H1></A>
+This section describes the relationships of the various Galaxy components in a DAS session between a service consumer and a service provider. <P>
+Some components are shared between the consumer and the provider. These include the Communication and Session classes. The Communication class is used for raw data exchange. The Session class is used to process the data, define a protocol, perform physical session management, and provide a high level API that abstracts all of this.<P>
+The Signature and Datatag classes are also used by both the consumer and provider. The connection between "statement" in the consumer and "primitive" in the provider reflects the signature's role of specifying the primitive to the consumer.<P>
+The Service class is used by service providers. It contains a subclass to define primitives. Service consumers do not define primitives.<P>
+Consumers use a subclass of the Session class to define statements. Although providers also use the Session class, they do not define statements. Consumers also use the Service Broker component and Service Chooser to select service providers.<P>
+The Service Broker (application) is also a service provider. When a service provider application registers itself with the service broker, the application is acting as a service consumer. (The service provider application is using the service provided by the Service Broker to register itself with the broker.)<P>
+<A NAME="3851"><H2> Communication</H2></A>
+The <EM><B>Communication</B></EM> class provides a low level API to the network. While some applications use the Communication class directly, most applications use the higher-level Session class instead. The Communication class provides a connection-oriented view of the network and allows applications to send and receive opaque data. Applications which directly access the Communication class have to implement their own protocols on top of this data to allow different machine architectures to share data.<P>
+<A NAME="3854"><H2> Datatag</H2></A>
+The <EM><B>Datatag</B></EM> class provides a bridge between the scrap class (Representation) and the data types of the native language (). Datatags are primarily used as abstract types to specify signatures and attributes, but are also useful for creating scraps in general.<P>
+<A NAME="3862"><H2> Service</H2></A>
+The <EM><B>Service</B></EM> library is used to define service providers. Within the Service library is the Service Primitive class (<TT><B>vservicePrimitive</B></TT>) which is used to abstract entry points into the service. Service consumers use these entry points to make requests of the service. The Service class uses the Session class for communication between the consumer and provider.<P>
+<A NAME="3872"><H2> Service Broker</H2></A>
+A <EM><B>Service Broker</B></EM> is an application that implements a DAS service that knows about other available DAS services. Service providers register themselves with the Service Broker. Service consumers query the Service Broker for appropriate service providers that have registered themselves. Applications can use the Service Broker Library to obtain signatures, statements, and scraps needed to communicate with the Service Broker.<P>
+<A NAME="4049"><H2> Service Broker Manager</H2></A>
+The<EM><B> Service Broker Manager</B></EM> provides a high level interface to the Service Broker from an application. It provides an attribute scrap used to begin a session with a broker, signatures for sending statements to the broker, and high level functions on top of those signatures to form statements that can be sent to the broker. The Service Broker Manager uses the Session class for communication between the service consumer and the Service Broker.<P>
+<A NAME="3884"><H2> Service Chooser</H2></A>
+The <EM><B>Service Chooser</B></EM> is a confirmation dialog that uses the Confirm class and the Service Broker Manager to provide a graphical interface for choosing service providers from those currently available on the network. For more information on confirms, refer to the Confirmation chapter.<P>
+<A NAME="3891"><H2> Session</H2></A>
+The <EM><B>Session</B></EM> library provides a bridge between applications while hiding the network from each application. Within the Session library is the Session Statement class (<TT><B>vsessionStatement</B></TT>), which is used to abstract requests that one application may make of another by forming a statement and sending it to a service consumer. Sessions provide the framework and the link between the service consumer and the service provider. Unlike the Communication class, users of the Session classes do not implement protocols.<P>
+<A NAME="3898"><H2> Signature</H2></A>
+The <EM><B>Signature</B></EM> class provides a bridge between statements and primitives. Signatures are primarily used to specify the prototypes for primitives. The statements use the prototypes to help form the actual parameter list used to invoke the primitives, and to identify the return result (if any). The primitives use the prototypes to identify their arguments and help form the return result (if any).<P>
+Refer to the each of these chapters for a more detailed description of how the different components work together.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Cursor.html">Previous Chapter</A> | 
+		<A HREF="Datatag.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

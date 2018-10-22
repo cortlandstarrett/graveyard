@@ -1,0 +1,137 @@
+<HTML>
+<HEAD>
+<TITLE>Style Chooser</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Style Chooser</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="StringItem.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Text.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The style chooser provides a common interface to the user for specifying styles for text in text items. The style chooser, shown in <A HREF="Style_Chooser.html#3714">Figure 80</A>, can be created and used by any Galaxy application and is the recommended method for requesting text styles from the user.<P>
+<IMG SRC="Style_Chooser.anc.gif"><P>
+<A NAME="3714"><I>Figure 80.  A style chooser
+</I><P>
+To apply styles to text, the text must first be selected in the text item. With the style chooser, the user has the choice of interactively specifying the following text attributes using tri-state check boxes:<P>
+<UL><LI>Bold
+<LI>Italic
+<LI>Underline
+<LI>Hidden
+<LI>Strikethru
+</UL>Tri-state check boxes have three states: select, unselect, or no selection. The select state applies the specified text attribute to highlighted text. The unselect state removes the specified attribute. The no selection, or "fuzzy" state, leaves the current attribute unchanged.<P>
+The style chooser also contains two check boxes for specifying font and color. Selecting the Font or Color check boxes enables the Set Font or Set Color buttons. The user presses these buttons to open a font chooser and a color chooser. These choosers further define the appearance of selected text in the text item. (The font chooser and the color chooser are also stand-alone Galaxy choosers.)<P>
+The style chooser has three fields to define the ascent, descent, and size of selected text in a text item. <EM><B>Ascent</B></EM> is the amount type rises above the base line; <EM><B>descent</B></EM> is the amount type descends below the base line. <EM><B>Size</B></EM> represents the font size. These fields are initially set to <TT>Auto</TT>; the default values of the font define the attribute. To override the default values for selected text, the user enters a value, in points, in the appropriate fields. For more information on ascent, descent, and other attributes of text, refer to the Text chapter.<P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+This section contains an example to help you get started using the style chooser in an application. Rather than exploiting all of the features of the style chooser, this example demonstrates the most useful base-level routines.<P>
+To use the style chooser, you need to write an apply function. <A HREF="Style_Chooser.html#3757">Example 144</A> shows an apply function that changes the style of selected text in a text item.<P>
+<A NAME="3757"><I>Example 144.  A simple style chooser
+</I><P>
+<PRE><UL>int applyStyle(vstylechsr *styleChooser, vtextStyle *style)
+{
+   vtextitem     *textItem;
+   vtextStyle    *newStyle;
+
+   //First, get the text item from the data pointer
+   textItem = (vtextitem *) vstylechsrGetData(styleChooser);
+
+   // Now create a new style, copy the chosen style into the new style,
+   // and install it into the text data owned by the text.
+   newStyle = vtextCreateStyle();
+   vtextCopyStyle(style, newStyle);
+   vtextInstallStyleOwned(vtextitemGetTextData(textItem), newStyle);
+
+   // Apply the new style with the chosen style attributes to the
+   // selected text in the text item.
+   vtextApplyStyle(vtextitemGetTextData(textItem),
+                   vtextitemGetSelection(textItem), style);
+
+   return(vTRUE);
+}
+
+</UL></PRE>After the apply function is written, you can then create a style chooser that allows the style of the selected text in a text item to be changed.<P>
+<PRE><UL>   vstylechsr *styleChooserWindow = vstylechsrCreate();
+
+   vstylechsrSetData(styleChooserWindow, myTextItem);
+   vstylechsrSetApply(styleChooserWindow, applyStyle);
+   vstylechsrOpen(styleChooserWindow);
+
+</UL></PRE>The style chooser is created, the data pointer for the style chooser is set to point to the text item you want to change the styles for, apply function is set to the apply function, and the style chooser is opened. Any time a style is chosen and a confirm button is pressed, the selected text in the text item changes to the chosen style.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="StringItem.html">Previous Chapter</A> | 
+		<A HREF="Text.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

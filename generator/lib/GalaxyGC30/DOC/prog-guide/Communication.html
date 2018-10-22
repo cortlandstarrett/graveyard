@@ -1,0 +1,726 @@
+<HTML>
+<HEAD>
+<TITLE>Communication</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Communication</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Command.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Condition.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The <EM><B>Communication</B></EM> Module consists of a collection of classes that provide inter-process communication. The API and behavior of the module is consistent across transports and platforms. Both asynchronous and synchronous modes of communication are available as well as object-level multi-threaded operation.<P>
+Knowledge of the Event, Exception and Thread classes is required to take full advantage of the power of the Communication classes. It is recommended that you are at least familiar with these modules.<P>
+The class hierarchy for the Communication classes is as follows:<P>
+<PRE><UL>vobjectAttributed
+     |
+     |__vcommBase_____
+     |                |_vcommStream__
+     |                |              |_vcommTCPStream
+     |                |              |_vcommPipeStream
+     |                |              |_vcommSharedMemoryStream
+     |                |
+     |                |_vcommDatagram_
+     |                               |_vcommUDPDatagram
+     |                               |_vcommMailboxDatagram
+     |
+     |__vcommLocator__
+                      |_vcommTCPLocator
+                      |_vcommUDPLocator
+                      |_vcommPipeLocator
+                      |_vcommMailboxLocator
+                      |_vcommSharedMemoryLocator
+
+</UL></PRE>All communication is performed through <EM><B>transport objects</B></EM>. The <TT>vcommBase</TT> type represents the root class for all transport objects in the Communication Module. The transports supported are separated into two main classes, <TT>vcommDatagram</TT> and <TT>vcommStream</TT>. The vcommDatagram class represents those transports that are message based. UDP and mail slots are examples of datagram transports. The <TT>vcommStream</TT> class represents connection-oriented transports as TCP and named pipes.<P>
+Objects of type <TT>vcommLocator</TT> are used to specify the location of transport objects. Each transport object has a locator which specifies the location at which the transport object will be performing communication. The location is used by other transport objects that which to send and receive data to and from this transport object.<P>
+<A NAME="7809"><H2> Key Functionality</H2></A>
+To understand a typical session, it is necessary to distinguish datagram and stream communication. With stream communication, a connection is established with the peer through which communication occurs. The data is then sent to the peer through the established connection in an orderly fashion.<P>
+In datagram communication, a connection may or may not exist at any moment. Instead, the information is packaged and sent off to arrive when the connection is available. Hence, the packets of information, or datagrams, may arrive at any time and in any order.<P>
+<A NAME="7811"><H3> Stream Object Communication</H3></A>
+Typical use of a stream transport object is a follows:<P>
+<OL>
+<LI>Configure the object's locator to specify the location at which communication will 
+occur.
+<BR>
+<LI>Establish a connection with a peer transport object, which is either:
+<BR>
+<DL>
+<DT><DD> a) Connect to a transport object at a given location, or,
+
+<DT><DD> b) Listen for a connecting transport object.
+
+</DL>
+<LI>Send / receive data.
+<BR>
+<LI>Disconnect from the peer.
+<BR>
+</OL>
+<A NAME="7819"><H3> Datagram Communication</H3></A>
+Typical use of a datagram transport object involves:<P>
+<OL>
+<LI>Configure the object's locator to specify the location at which communication will 
+occur.
+<BR>
+<LI>Send / receive data (the location of the receiver is specified as when sending data, 
+the location of the send is obtained when receiving data).
+<BR>
+</OL>
+<A NAME="7823"><H3> The Role Of Locators</H3></A>
+The locator that specifies the location at which communication will occur is referred to as a transport object's "local locator." Each transport object (stream or datagram) has a local locator.<P>
+Stream objects also posses a "remote locator" which specifies the location of the peer transport object. When establishing a connection with a peer, the stream object can either "connect" to the peer or "listen" for the peer to connect.<P>
+To make a stream listen for a connection, leave the remote locator as unspecified. When the stream is enabled, this is an indication to the Communication Module that this transport object wishes to listen for connection at the location specified by the local locator. Once a peer connects, the remote locator is populated with the location of the peer. To connect to a peer, the remote address is specified. In either case, the local locator need not be specified, the Communication Module will pick valid location if one is not specified.<P>
+Datagram objects do not have a remote locator. Rather, a locator object is used as part of the send and receive operations. A locator is configured by the user with the location of the remote transport object when sending data. A locator is populated by the Communication Module with the location of the remote transport object when receiving data.<P>
+These concepts are illustrated in the code below.<P>
+<A NAME="7829"><H3> Stream Example</H3></A>
+The following code modules represent a client and a server. The server listens for the client to connect. Once the connection is established, some data is exchanged, and the session is then ended.<P>
+<A NAME="7831"><H4> Server Code:</H4></A>
+<PRE><UL>   //
+   // Enable a stream. Listen on port 3333 for a connection.
+   //
+   vcommStream *stream = 
+     vcommCreateStreamOfClass(vcommTCPStreamClass);
+   vcommLocator *locator;
+   vbyte buffer[5];
+
+   vcommSetStreamAttribute(stream,
+                           vcomm_Synchronous, vname_True);
+   locator = vcommGetStreamLocator(stream);
+   vcommSetLocatorAttributeScalar(locator, vcomm_Port, 3333);
+
+   // blocks waiting for peer to connect
+   vcommEnableStream(stream);
+
+   //
+   // Stream is enabled (vcommEnabled). Read data from peer.
+   //
+   vcommReceiveStreamBuffer(stream, buffer, 5);
+
+   //
+   // Disable and destroy stream;
+   //
+   vcommDisableStream(stream);
+   vcommDestroyStream(stream);
+
+</UL></PRE><A NAME="7853"><H4> Client Code:</H4></A>
+<PRE><UL>   //
+   // Enable a stream. Connect to port 3333.
+   //
+   vcommStream *stream = 
+     vcommCreateStreamOfClass(vcommTCPStreamClass);
+   vcommLocator *locator;
+   vbyte buffer[5];
+
+   vcommSetStreamAttribute(stream,
+                           vcomm_Synchronous, vname_True);
+   locator = vcommGetStreamRemoteLocator(stream);
+   vcommSetLocatorAttributeScalar(locator, vcomm_Port, 3333);
+
+   // blocks waiting for peer to connect
+   vcommEnableStream(stream);
+
+   //
+   // Stream is enabled (vcommEnabled). Read data from peer.
+   //
+   vcommSendStreamBuffer(stream, buffer, 5);
+
+   //
+   // Disable and destroy stream;
+   //
+   vcommDisableStream(stream);
+   vcommDestroyStream(stream);
+
+</UL></PRE><A NAME="7875"><H3> Datagram Example</H3></A>
+The following code module illustrates two datagram objects. One sends the other a message.<P>
+<A NAME="7877"><H4> Code for "One":</H4></A>
+<PRE><UL>   //
+   // Enable a datagram for communication at port 3333
+   //
+   vcommDatagram *datagram =
+     vcommCreateDatagramOfClass(vcommUDPDatagramClass);
+   vcommLocator  *locator;
+   vcommLocator  *recv_locator;
+   vbyte          buffer[5];
+
+   vcommSetDatagramAttribute(datagram,
+                             vcomm_Synchronous, vname_True);
+   locator = vcommGetDatagramLocator(datagram);
+   vcommSetLocatorAttributeScalar(locator, vcomm_Port, 3333);
+   datagram-&gt;Enable();
+
+   //
+   // Datagram is enabled (vcommEnabled). Receive data.
+   //
+   recv_locator = vcommCreateLocatorOfClass(vcommLocatorClass);
+   vcommReceiveDatagramBuffer(datagram, locator, buffer, 5);
+
+   //
+   // Disable and destroy datagram
+   //
+   vcommDisableDatagram(datagram);
+   vcommDestroyLocator(recv_locator);
+   vcommDestroyDatagram(datagram);
+
+</UL></PRE><A NAME="7901"><H4> Code for "Two":</H4></A>
+<PRE><UL>   //
+   // Enable a datagram for communication at port 3333
+   //
+   vcommDatagram *datagram =
+     vcommCreateDatagramOfClass(vcommUDPDatagramClass);
+   vcommLocator  *locator;
+   vbyte          buffer[5];
+
+   vcommSetDatagramAttribute(datagram,
+                             vcomm_Synchronous, vname_True);
+   // Block until connect is complete
+   vcommEnableDatagram(datagram);
+
+   //
+   // Datagram is enabled (vcommEnabled). Receive data.
+   //
+   locator = vcommCreateLocatorOfClass(vcommLocatorClass);
+   vcommSetLocatorAttributeScalar(locator, vcomm_Port, 3333);
+   vcommSendDatagramBuffer(datagram, locator, buffer, 5);
+
+   //
+   // Disable and destroy datagram
+   //
+   vcommDisableDatagram(datagram);
+   vcommDestroyLocator(locator);
+   vcommDestroyDatagram(datagram);
+</UL></PRE><A NAME="7924"><H2> Transport Object States</H2></A>
+As can be seen with previous code samples, the main methods of the transport object classes are <TT>Enable</TT>, <TT>Send</TT>, <TT>Receive</TT> and <TT>Disable</TT>. The use of these methods is restricted by the state of the transport object. For example, a stream transport object cannot be used to send data to a peer until a connection has been established with that peer.<P>
+A transport object has the following states:<P>
+<UL><TT>vcommENABLING</TT>	Not completely enabled for doing communication 
+(listening for a peer or connection to a peer).
+<P><TT>vcommENABLED</TT>	Completely enabled for communication. For a stream, this 
+means that it is connected to a peer. For a datagram, this 
+means that is has established a location for 
+communication.
+<P><TT>vcommDISABLING</TT>	Not completely disabled.
+<P><TT>vcommDISABLED</TT>	Completely disabled.
+<P></UL>Query the <TT>vcomm_State</TT> attribute to determine the current state of a transport object.<P>
+The <TT>Enable</TT> method is used to take a transport object from the <TT>vcommDISABLED</TT> state to the <TT>vcommENABLED</TT> state. A transport object enters the <TT>vcommEnabling</TT> state only when configured for asynchronous operation and the enabling operation is unable to complete immediately (refer to the section on Asynchronous and Synchronous Operation for more information). Once in the <TT>vcommEnabled</TT> state, it is legal to send and receive data to and from remote transport objects.<P>
+The <TT>Disable</TT> method is used to take a transport object from the <TT>vcommDISABLED</TT> state to the <TT>vcommDISABLED</TT> state. A transport object enters the <TT>vcommDisabling</TT> state only when configured for asynchronous operation and the disabling operation is unable to complete immediately (refer to the section on Asynchronous and Synchronous Operation for more information). All transport objects are in the <TT>vcommDisabled</TT> state when created.<P>
+<A NAME="7934"><H2> Asynchronous And Synchronous Operation</H2></A>
+Transport objects can be used in one of two modes, synchronous or asynchronous mode. In synchronous mode, when a transport object is asked to perform an operation, execution of thread from which the method was invoked blocks until that operation completes. In asynchronous mode, all operations are non-blocking. That is, if the operation cannot complete immediately, the function returns with the operation partially completed.<P>
+To change the mode of a transport object, set the attribute <TT>vcomm_Synchronous</TT> to <TT>true</TT> (to make the mode synchronous) or <TT>false</TT> (to make the mode asynchronous). The following methods are affected by the mode of the transport object:<P>
+<UL><LI><TT>Enable</TT>
+<LI><TT>Disable</TT>
+<LI><TT>Send</TT>
+<LI><TT>Receive</TT>
+</UL>The default mode for transport objects is asynchronous.<P>
+<A NAME="7942"><H2> Notification Of Events</H2></A>
+The notification method of a transport object is invoked when events of interest occur. These event are:<P>
+<UL><TT>vcommENABLED</TT>	The transport object has become completely enabled for	
+communication. That is, a call to <TT>Enable</TT> has completed 
+successfully. For a stream object, this means that 
+connection to a peer has completed. For datagram objects, 
+this means the transport object is enabled to send and 
+receive messages from the location specified by its local 
+locator.
+<P><TT>vcommDISABLED</TT>	The transport object has become completely disabled from 
+communication. That is, a call to <TT>Disable</TT> has completed 
+successfully.
+<P><TT>vcommRECEIVE</TT>	Data is available for reading.
+<P><TT>vcommSEND</TT>	Data can be sent, that is, a flow control situation has been 
+rectified.
+<P><TT>vcommERROR</TT>	An error has occurred. For example, this event is sent to 
+stream transport objects when the peer disconnects.
+<P></UL>The receiving of these events is ultimately controlled by the attribute <TT>vcomm_Notification</TT>. To receive events, this attribute must have the value <TT>vname_True</TT>. By default, the <TT>vcomm_Notification</TT> is set to <TT>vname_True</TT> when the mode is asynchronous and set to <TT>vname_False</TT> in asynchronous mode. If the user sets this attribute, however, notification is no longer a function of the mode of the transport object.<P>
+In addition, you need to assign a notification function to a transport using <TT>SetBaseNotify</TT>, <TT>SetDatagramNotify</TT>, and <TT>SetStreamNotify</TT>.<P>
+A typical notification method looks like the following:<P>
+<PRE><UL>void _myTransportNotify (vcommStream *transport, vcommEvent *event)
+{
+   switch (vcommGetEventType(event)) 
+   {
+      case vcommENABLED:
+        // ready to send and receive data
+        break;
+
+      case vcommRECEIVE:
+        // data is available to receive
+        break;
+
+      case vcommSEND:
+        // data can be sent
+        break;
+
+      case vcommDISABLED:
+        // disabled from doing communication
+        break;
+
+      case vcommERROR:
+         // something has gone wrong
+         switch (vcommGetEventError(event))
+         {
+           case vcommERROR_NONE:
+             // unknown error
+             break;
+           case vcommERROR_TRANSPORT:
+             // a system error has occurred
+             break;
+           case vcommERROR_CONNECTION:
+             // the connection to peer has been lost (streams only)
+             break;
+         }
+      break;
+      }
+   }
+
+</UL></PRE>It is important to note that it is illegal to destroy a transport object in its notification method (see the method <TT>DeleteLater</TT> for obtaining similar behavior). <P>
+<A NAME="7990"><H2> Exceptions And Error Handling</H2></A>
+Exceptions of class <TT>vcommBaseException</TT> are thrown when errors occur when invoking the following methods:<P>
+<DL>
+<DT><DD> <TT>Enable</TT>
+<DT><DD> <TT>Disable</TT>
+<DT><DD> <TT>Receive</TT>
+<DT><DD> <TT>Send</TT>
+<DT><DD> <TT>Halt</TT>
+<DT><DD> <TT>Wait</TT>
+<DT><DD> <TT>Copy</TT>
+</DL>
+From the exception, the a general error code can be obtained which describes the nature of the error. These error codes include:<P>
+<UL><TT>vcommERROR_HALT</TT>	a blocking operation was interrupted by <TT>Halt</TT>.
+<P><TT>vcommERROR_ADDRINUSE</TT>	the address location that this transport object is being 
+enabled is being used by another transport object.
+<P><TT>vcommERROR_CONNECTION</TT>	the peer no longer exist or has disconnected.
+<P><TT>vcommERROR_STATE</TT>	the operation can not be performed in the current state of 
+the transport object (for example, attempting to call <TT>Send</TT> 
+in the <TT>vcommDISABLED</TT> state.
+<P><TT>vcommERROR_TRANSPORT</TT>	a system call has failed, obtain the <TT>vexERRNO</TT> attribute of 
+the exception to obtain the system specific error code
+<P></UL>The reference manual entry for each of methods above lists the possible errors that can be generated for that operation. Use <TT>GetBaseExceptionError</TT> to obtain the error code from the exception object when thrown.<P>
+<A NAME="8006"><H2> Attributes</H2></A>
+Both locators and transport objects have named attributes. That is, these attributes are obtained and set using the <TT>GetAttribute</TT> and <TT>SetAttribute</TT> methods. Each of these methods takes the name of the attribute as an argument. It is the responsibility of the user to interpret the type of the attributes correctly.<P>
+Each transport supports a set of attributes. Depending on the platform, some of these attributes may be ignored. The tables below list all of the attributes of the Communication classes and their availability to the various transports.<P>
+<A NAME="8202"><H4> 
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="8011"><I>Table 8.  Locator Attributes
+</I><P>
+</CAPTION>
+
+<tr><th><B>Name
+</B></th><th><B>Description
+</B></th><th><B>Type
+</B></th><th><B>TCP
+</B></th><th><B>Pipe
+</B></th><th><B>Shm
+</B></th><th><B>UDP
+</B></th><th><B>Mbx
+</B></th>
+<tr><td><TT><B>vcomm_URL
+</B></TT></td><td>address as URL
+</td><td><TT>vchar *
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td></tr>
+<tr><td><TT><B>vcomm_Port
+</B></TT></td><td>IP port id
+</td><td><TT>short
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_Server
+</B></TT></td><td>name of service (telnet, ftp, and so forth)
+</td><td><TT>vchar *
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_Internet
+</B></TT></td><td>x.x.x.x form of IP address
+</td><td><TT>vchar *
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_Number
+</B></TT></td><td>4 byte IP address in host byte order
+</td><td><TT>long
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_Hostname
+</B></TT></td><td>fully qualified host name
+</td><td><TT>vchar *
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td></tr>
+<tr><td><TT><B>vcomm_Path
+</B></TT></td><td>path to file resource
+</td><td><TT>vchar *
+</TT></td><td><TT>
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>X
+</TT></td></tr>
+<tr><td><TT><B>vcomm_Key
+</B></TT></td><td>descriptive string
+</td><td><TT>vchar *
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_LocalAddresses
+</B></TT></td><td>array of 4 byte IP addresses of interfaces of 
+multi-homed host (read only)
+</td><td><TT>u_long
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_
+</B></TT><TT><B>LocalAddressCount
+</B></TT></td><td>number of interfaces of multi-homed host 
+(read only)
+</td><td><TT>integer
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+</H4></A>
+<A NAME="8575"><H4> 
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="8205"><I>Table 9.  Locator Attributes
+</I><P>
+</CAPTION>
+
+<tr><th><B>Name
+</B></th><th><B>Description
+</B></th><th><B>Type
+</B></th><th><B>TCP
+</B></th><th><B>Pipe
+</B></th><th><B>Shm
+</B></th><th><B>UDP
+</B></th><th><B>Mbx
+</B></th>
+<tr><td><TT><B>vcomm_Commands
+</B></TT></td><td>object issues commands
+</td><td><TT>vname_True or
+</TT><TT>vname_False
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td></tr>
+<tr><td><TT><B>vcomm_State
+</B></TT></td><td>State of object (read only)
+</td><td><TT>integer
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td></tr>
+<tr><td><TT><B>vcomm_
+</B></TT><TT><B>Synchronous
+</B></TT></td><td>object is in synchronous mode
+</td><td><TT>vname_True or
+</TT><TT>vname_False
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td></tr>
+<tr><td><TT><B>vcomm_
+</B></TT><TT><B>Notification
+</B></TT></td><td>object receives notification of events
+</td><td><TT>vname_True or
+</TT><TT>vname_False
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td></tr>
+<tr><td><TT><B>vcomm_Descriptor
+</B></TT></td><td>file descriptor of underlying socket object
+</td><td><TT>long
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td></tr>
+<tr><td><TT><B>vcomm_Available
+</B></TT></td><td>number of bytes of data available to be read
+</td><td><TT>long
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td><td><TT>X
+</TT></td></tr>
+<tr><td><TT><B>vcomm_Reuseaddr
+</B></TT></td><td>equivalent to SO_REUSEADDR
+</td><td><TT>long
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_Dontroute
+</B></TT></td><td>equivalent to SO_DONTROUTE
+</td><td><TT>long
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_Loopback
+</B></TT></td><td>equivalent to SO_USELOOPBACK
+</td><td><TT>long
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_Broadcast
+</B></TT></td><td>equivalent to SO_BROADCAST
+</td><td><TT>long
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_SendBufSize
+</B></TT></td><td>equivalent to SO_SNDBUF
+</td><td><TT>long
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_RecvBufSize
+</B></TT></td><td>equivalent to SO_RCVBUF
+</td><td><TT>long
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_SendLowWater
+</B></TT></td><td>equivalent to SO_SNDLOWAT
+</td><td><TT>long
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_RecvLowWater
+</B></TT></td><td>equivalent to SO_RCVLOWAT
+</td><td><TT>long
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_SendTimeout
+</B></TT></td><td>equivalent to SO_SNDTIMEO
+</td><td><TT>vtimestamp *
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_
+</B></TT><TT><B>RecvTimeout
+</B></TT></td><td>equivalent to SO_RCVTIMEO
+</td><td><TT>vtimestamp *
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_Keepalive
+</B></TT></td><td>equivalent to SO_KEEPALIVE
+</td><td><TT>long
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_Linger
+</B></TT></td><td>equivalent to SO_LINGER
+</td><td><TT>long
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_OobInline
+</B></TT></td><td>equivalent to SO_OOBINLINE
+</td><td><TT>long
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_
+</B></TT><TT><B>SharedMemoryID
+</B></TT></td><td>id of shared memory segment
+</td><td><TT>long
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td></tr>
+<tr><td><TT><B>vcomm_SemaphoreID
+</B></TT></td><td>id of semaphore
+</td><td><TT>long
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>
+</TT></td><td><TT>X
+</TT></td><td><TT>
+</TT></td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+</H4></A>
+<A NAME="8599"><H2> Advanced Functionality</H2></A>
+<A NAME="8600"><H3> Use With Multiple Threads</H3></A>
+The Communication classes allow the reading and writing from a transport object from multiple threads. The following methods may be called from multiple threads simultaneously:<P>
+<DL>
+<DT><DD> <TT>Receive</TT>
+<DT><DD> <TT>Send</TT>
+<DT><DD> <TT>Halt</TT>
+</DL>
+Use the <TT>Halt</TT> method to interrupt any blocking operations in any thread. Any invocation will throw an exception with the error code <TT>vcommERROR_HALT</TT> when <TT>Halt</TT> is invoked in the other thread. The transport object is not guaranteed to be usable after the <TT>Halt</TT> method has been invoked and it is the responsibility of the application programmer to invoke <TT>Disable</TT> to properly inactivate the transport object.<P>
+The thread in which the <TT>Enable</TT> was performed on the transport object is unique in that:<P>
+<UL><LI>Methods other than <TT>Receive</TT>, <TT>Send</TT> and <TT>Halt</TT> must be invoked with-in the context of this thread.
+<LI>Invocation of the notification method occurs in the context of this thread.
+</UL><P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Command.html">Previous Chapter</A> | 
+		<A HREF="Condition.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

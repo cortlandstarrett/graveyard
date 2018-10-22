@@ -1,0 +1,897 @@
+<HTML>
+<HEAD>
+<TITLE>The Galaxy Help Compiler</TITLE>
+</HEAD>
+
+<BODY background="../vrb/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="../graphics/logo.gif">
+		<IMG WIDTH="130" SRC="../graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="../graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>The Galaxy Help Compiler</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="../graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Help_Server.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="../graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="../graphics/up.gif"></A>
+		<IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="../graphics/trans.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="../graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="9776"></A>
+<A NAME="395"><H1> Overview of the Galaxy Help Compiler</H1></A>
+The Galaxy Help Compiler is a translator and a linker that creates a help document set from help source files. The help compiler uses help project (<TT>.vhp</TT>) files to group help source files into help documents. (Help project files are similar to project files in many popular language compilers.) Help documents are subsequently built into help document sets. Each help document can contain up to 55 help source files.<P>
+Help source files can be in either <TT>.hs</TT> or <TT>.rtf</TT> format and are translated into help object (<TT>.vho</TT>) files. Images in Galaxy resource (<TT>.vr</TT>) files can also be used as source files. The object files are linked into help document (<TT>.vhd</TT>) files, which are then built into a help document set (<TT>.vhs</TT>). The help server uses the help document set to provide online help for an application.<P>
+<A HREF="Help_Compiler.html#15858">Figure 9</A> shows the components of the Galaxy Help Compiler. <P>
+<A NAME="15858"><I>Figure 9.  Galaxy Help Compiler components
+</I><P>
+<IMG SRC="Help_Compiler.anc.gif"><P>
+<A NAME="11204"><H1> Starting the Galaxy Help Compiler</H1></A>
+You can use the Galaxy Help Compiler in interactive or stand-alone mode.<P>
+Interactive mode opens the Help Compiler Window and the Help Project Window. Use these windows to create and build help documents sets.<P>
+Stand-alone mode invokes the compiler from the command line without any interactive editors or windows. Stand-alone mode is useful for quickly updating changes to a help project and also allows the project to be incorporated into a makefile for automatic builds. Note that a project must be created in an interactive session before it can be built in stand-alone mode.<P>
+<A NAME="10204"><H2> Command Line Options</H2></A>
+Command line options should be specified as appropriate for your platform. If no stand-alone options are specified, then the compiler opens in interactive mode.<P>
+The command-line for starting the Galaxy Help Compiler is:<P>
+<PRE><UL><TT><B>vhelpcmp </B></TT><TT>[[</TT><EM>filename</EM><TT>.vhp...] [[-</TT><EM>option</EM><TT> [</TT><EM>specification</EM><TT>]]...]]
+</TT></UL></PRE>filename<TT>.vhp...</TT> specifies optional help project files to open for editing. One or more file names can be specified on the command line (the .vhp extension must be included). If no file names are specified, an "empty" Help Project File Window with the name New0.vhp opens.<P>
+option represents any of the user-interface or stand-alone options listed in <A HREF="Help_Compiler.html#12523">Table 6</A> and <A HREF="Help_Compiler.html#12456">Table 7</A>. Options available to any Galaxy application can also be used. Refer to the "Preference Manager" in the Galaxy Application Environment Programmer's Guide for details.<P>
+specification represents any of the option specifications listed in <A HREF="Help_Compiler.html#12456">Table 7</A>.<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="13152"><I>Table 6.  User-interface options for the Galaxy Help compiler
+</I><P>
+</CAPTION>
+
+<tr><th><B>UI Option [Specification]
+</B></th><th><B>Summary
+</B></th>
+<tr><td><TT><B>-face face
+</B></TT></td><td>Specifies a typeface for text.
+</td></tr>
+<tr><td><TT><B>-font font
+</B></TT></td><td>Specifies a font for plain (non-bold) text. You can use any font 
+available on your system.
+</td></tr>
+<tr><td><TT><B>-nomenucolor
+</B></TT></td><td>Do not colorize the menu bar in Motif look-and-feel.
+</td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="12400"><I>Table 7.  Stand-alone options for the Galaxy Help Compiler
+</I><P>
+</CAPTION>
+
+<tr><th><B>Stand-alone Option [Specification]
+</B></th><th><B>Summary
+</B></th>
+<tr><td><TT><B>-build set.vhs "Set Name"     
+doc.vhd [doc.vhd...]
+</B></TT></td><td>Collects a group of document files into a help document set file 
+(set.vhs). The help document set is given the name Set 
+Name.
+</td></tr>
+<tr><td><TT><B>-buildDocSet filename.vhp
+</B></TT></td><td>Constructs a help document set without invoking the user 
+interface. filename.vhp is a previously created help project 
+file. The extension .vhp must be specified.
+</td></tr>
+<tr><td><TT><B>-compile filename.ext ...
+</B></TT><TT><B>
+</B></TT></td><td>Translates the specified help source files into help object files 
+(using the same basename as the source files: filename.vho). 
+ext must be an .hs, .rtf, or .vr file. Any combination of 
+help source files can be specified. Currently, there is no checking 
+for name collision (<TT>.hs</TT>, .rtf, or .vr files with the same 
+filename). The object files are created in the same directory as 
+the source files.
+</td></tr>
+<tr><td><TT><B>-compileAllSources
+</B></TT></td><td>Forces all files to be compiled rather than looking at their out-of-
+date status. Used only with <TT>buildDocSet</TT>.
+</td></tr>
+<tr><td><TT><B>-dumptags resfile.vr  
+outtextfile
+</B></TT></td><td>Writes the resource tag names and related information for 
+objects <TT>resfile.vr</TT> to the text file <TT>outtextFile</TT>. The 
+resource tag names can be used to provide context-sensitive 
+help in help source files.
+</td></tr>
+<tr><td><TT><B>-help
+</B></TT></td><td>Display options for using the help compiler.
+</td></tr>
+<tr><td><TT><B>-link doc.vhd <TT>"</TT>Doc Name<TT>"  
+</TT>obj.vho [obj.vho...]
+</B></TT></td><td>Links the specified help object files into a document file 
+(doc.vhd). The document is given the name Doc Name. There 
+is a limit of 55 files in a document, but this limit is not checked.
+</td></tr>
+<tr><td><TT><B>-version
+</B></TT></td><td>Displays version information about the Galaxy Help Compiler.
+</td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+<A NAME="11608"><H2> Interactive Mode</H2></A>
+<DL>
+<DT><DD> <EM><B>To start the Galaxy Help Compiler in interactive mode:</B></EM>
+<OL>
+<LI>On platforms that use a command line, type:
+<BR>
+</OL>
+<DL>
+<DT><DD> <TT><B>vhelpcmp </B></TT><TT>[filename.vhp...]
+</TT>
+</DL>
+<OL>
+<LI>Press Return or <B>Enter</B>.
+<BR>
+</OL>
+<DL>
+<DT><DD> The Help Compiler Window and Help Project File Window open, as shown in 
+<A HREF="Help_Compiler.html#15843">Figure 10</A> and <A HREF="Help_Compiler.html#15852">Figure 11</A>. These figures show the windows that open if the project 
+file <TT>vdrawres.vhp</TT> is specified.
+
+<DT><DD> <EM>or:
+</EM>
+</DL>
+<OL>
+<LI>Run the Galaxy Help compiler executable using the conventions of your 
+platform.
+<BR>
+</OL>
+</DL>
+<A NAME="15843"><I>Figure 10.  Galaxy Help Compiler Window
+</I><P>
+<IMG SRC="Help_Compiler.anc1.gif"><P>
+<A NAME="15852"><I>Figure 11.  Help Project File Window
+</I><P>
+<IMG SRC="Help_Compiler.anc2.gif"><P>
+<A NAME="14462"><H2> Stand-alone Mode</H2></A>
+For information on running the help compiler in stand-alone mode, refer to <A HREF="Help_Compiler.html#15037">"Compiling Help from a Command Line"</A>.<P>
+<A NAME="11331"><H2> Displaying Help Project File Icons</H2></A>
+You can display help project files in the Galaxy Help Compiler Window by icon or by name. When viewed by icon (the default), an icon appears above the name of the resource file. When viewed by name, a small icon appears to the left of the file name. You can also display the full pathnames of help project files.<P>
+<DL>
+<DT><DD> <EM><B>To change the icon display of help project files:</B></EM>
+<OL>
+<LI>Select <B>by Icon</B> or <B>by Name</B> from the View Menu in the Galaxy Help Compiler 
+Window.
+<BR>
+</OL>
+<DL>
+<DT><DD> The files are displayed accordingly.
+
+</DL>
+</DL>
+<P>
+<DL>
+<DT><DD> <EM><B>To display the full pathnames of help project files:</B></EM>
+<OL>
+<LI>Select <B>Full Path Name</B> from the View Menu.
+<BR>
+</OL>
+<DL>
+<DT><DD> The full pathnames of the files are displayed.
+
+</DL>
+<DT><DD> <EM><B>To change the position of help project file icons:</B></EM>
+<OL>
+<LI>Drag the icons to new positions. 
+<BR>
+</OL>
+<DL>
+<DT><DD> <EM>or:
+</EM>
+</DL>
+<OL>
+<LI>Select <B>Clean Up</B> from the View Menu in the Galaxy Help Compiler Window.
+<BR>
+</OL>
+<DL>
+<DT><DD> The icons are neatly repositioned, with the most recently opened help project 
+file in the upper left corner of the window.
+
+</DL>
+</DL>
+<A NAME="1922"><H2> Quitting</H2></A>
+<DL>
+<DT><DD> <EM><B>To quit the Galaxy Help Compiler:</B></EM>
+<OL>
+<LI>Select <B>Quit</B> from any File Menu in the Galaxy Help Compiler.
+<BR>
+</OL>
+<DL>
+<DT><DD> If you have not made any changes or have already saved your changes, the 
+compiler exits and any open windows close.
+
+<DT><DD> If you have made changes but have not saved them, a confirmation dialog 
+appears, asking if you want to save changes before quitting. Select the 
+appropriate confirmation button in the confirmation dialog.
+
+<DT><DD> This confirmation dialog may vary, depending on your look-and-feel.
+
+</DL>
+</DL>
+<A NAME="10294"><H1> Building online Help</H1></A>
+The following steps are necessary to create a help document set:<P>
+<ol><OL>
+<LI>Create a help project.
+<BR>
+<LI>Organize the documents in the help project file.
+<BR>
+<LI>Compile (update) the help project.
+<BR>
+<LI>Correct any errors and recompile.
+<BR>
+</OL>
+</ol>The following sections describe how to work with help project files and help documents. Some operations with help projects require the use of a file chooser. Depending on your platform, the native file chooser or the Galaxy File Chooser is used.<P>
+<UL><B><I>NOTE:</I></B> When building online help in stand-alone mode, help projects are not 
+always necessary. For more information, refer to <A HREF="Help_Compiler.html#15037">"Compiling Help from a 
+Command Line"</A>.
+<P>
+</UL><A NAME="10297"><H1> Working with Help Projects</H1></A>
+Help projects contain one or more help documents which together form a help document set. Each help document contains one or more help source files. The contents of a help project file are displayed in a Help Project Window, as illustrated in <A HREF="Help_Compiler.html#15885">Figure 12</A>. For more information on help documents, refer to <A HREF="Help_Compiler.html#10319">"Working with Help Documents"</A>.<P>
+<A NAME="15885"><I>Figure 12.  Help project in Help Project Window
+</I><P>
+<IMG SRC="Help_Compiler.anc3.gif"><P>
+<A NAME="14747"><H2> Contents of a Galaxy Help Project</H2></A>
+A Galaxy help project contains the following types of files. Each type of file in a help project is designated by its extension.<P>
+<UL><LI>Help Project File
+<UL>
+<LI><EM>myapp</EM><TT>.vhp</TT>
+</UL>
+<LI>Help Document File
+<UL>
+<LI>Document<TT>.vhd</TT>
+</UL>
+<LI>Help Source Files
+<UL>
+<LI>sourcefile1<TT>.hs</TT> (Visix Help Syntax)
+<LI>sourcefile2<TT>.rtf</TT> (RTF format)
+<LI>sourcefile3<TT>.vr</TT> (Galaxy resource file containing images)
+</UL>
+<LI>Help Object File
+<UL>
+<LI><EM>sourcefile.vho</EM>
+</UL>
+<LI>Help Document Set
+<UL>
+<LI><EM>myapp</EM><TT>.vhs</TT>
+</UL>
+</UL>Note that the help document set should have the same base name as the application it provides help for. Additionally, the base names of help source files should be unique. This is because the base name is used to generate the name of the corresponding help object file. (For example, the files <TT>overview.rtf</TT> and <TT>overview.hs</TT> are both translated into <TT>overview.vho</TT>.)<P>
+<A NAME="10298"><H2> Creating, Saving, and Opening Help Projects</H2></A>
+<DL>
+<DT><DD> <EM><B>To create a help project:</B></EM>
+<OL>
+<LI>Select <B>New Project </B>from any File Menu in the various windows of the Galaxy 
+Help Compiler.
+<BR>
+</OL>
+<DL>
+<DT><DD> A new Help Project Window appears with the name of the new help project file 
+in the title bar. New help project files are named sequentially, starting with 
+New0.vhp.
+
+</DL>
+<DT><DD> <EM><B>To save a help project:</B></EM>
+<OL>
+<LI>Select <B>Save </B>from the File Menu in the Help Project File Window.
+<BR>
+</OL>
+<DL>
+<DT><DD> A file chooser opens. Use the file chooser to specify the location and name for 
+the help project file. By convention, help project files end in <TT>.vhp</TT>. If you do not 
+specify this extension, it is automatically added for you.
+
+</DL>
+<UL><B><I>NOTE:</I></B> Use the Save As... option from the File Menu to rename a help project or 
+write it to another location.
+<P>
+<B><I>NOTE:</I></B> The path to the project file is also used when generating <TT>.vhd</TT> and <TT>.vhs</TT> 
+files. If a newly created project has not been saved, then the path to your 
+user directory is used when generating these files. The path to your user 
+directory may vary, depending on your Galaxy installation.
+<P>
+</UL><DT><DD> <EM><B>To open a help project:</B></EM>
+<OL>
+<LI>Select <B>Open Project... </B>from any File Menu in the Galaxy Help Compiler.
+<BR>
+</OL>
+<DL>
+<DT><DD> A file chooser opens. Use the file chooser to select the help project you want to 
+open.
+
+</DL>
+<UL><B><I>NOTE:</I></B> When opening a help project, the compiler checks to see if there are any 
+current object files for source files in the project. The compiler places a 
+check next to any source file that has a current object file. If a check is 
+not displayed next to a source file in the project, then the object file for 
+the source file is either out of date or missing. For more information on 
+current object files, refer to <A HREF="Help_Compiler.html#11173">"Updating a Help Project"</A>.
+<P>
+</UL><DT><DD> <EM><B>To close a help project:</B></EM>
+<OL>
+<LI>Select <B>Close </B>from the File Menu in the Help Project Window for the help project 
+you want to close.
+<BR>
+</OL>
+<DL>
+<DT><DD> The Help Project Window closes. If changes were made to the help project since 
+it was last saved, a confirmation dialog appears asking if you want to save the 
+changes.
+
+</DL>
+</DL>
+<A NAME="10306"><H2> Project Information Window</H2></A>
+Each help project file generates a help document set. The title and filename for the document set is specified in the Project Information Window which is available from the Project Menu. <A HREF="Help_Compiler.html#15892">Figure 13</A> shows the Project Information Window for a typical help project.<P>
+<A NAME="15892"><I>Figure 13.  Project Information Window
+</I><P>
+<IMG SRC="Help_Compiler.anc4.gif"><P>
+<DL>
+<DT><DD> To open the Project Information Window:
+<OL>
+<LI>From the Project Menu in the Help Project Window, select <B>Project Info...</B>.
+<BR>
+</OL>
+<DL>
+<DT><DD> The Project Information Window opens.
+
+</DL>
+</DL>
+The Project Information Window contains the following components:<P>
+<A NAME="10309"><H3> Document Set Name </H3></A>
+Specifies the title of a help document set. (At this time, the document set title is not used by Galaxy Help Services.)<P>
+<A NAME="10310"><H3> Document Set File Name</H3></A>
+Specifies the file name for a help document set, which must be a valid operating system file name. Help document set file names end with a <TT>.vhs</TT> extension. If you do not specify the extension, it is automatically added to the specified name.<P>
+If you do not specify a document set file name, the compiler constructs the file name based on the project file name. Do not specify a pathname here&#175;the document set is saved using the path to the project file.<P>
+<A NAME="10313"><H3> Number of Documents</H3></A>
+Indicates the number of documents in your project. You cannot edit this field.<P>
+<A NAME="10478"><H3> Number of Source Files</H3></A>
+Indicates the number of source files in your project. You cannot edit this field.<P>
+<A NAME="10317"><H3> Confirm Buttons</H3></A>
+Apply editing changes made in the Project Information Window. These buttons may vary, depending on the look-and-feel of your system.<P>
+<A NAME="10319"><H1> Working with Help Documents</H1></A>
+A Galaxy help project represents a help document set that contains one or more documents. Each document can contain up to 55 help source files. Source files can be in help syntax format (<TT>.hs</TT> files), RTF format (<TT>.rtf</TT> files), or Galaxy resource files (<TT>.vr</TT> files) containing Galaxy images. Galaxy Help Services does not limit the number of documents in a help project file.<P>
+During compilation, the help compiler generates a help document file (with the extension <TT>.vhd</TT>) for each document in a help project. The title and file name for the document are specified in the Document Information Window. For details on the Document Information Window, refer to <A HREF="Help_Compiler.html#13551">page 65</A>.<P>
+<DL>
+<DT><DD> <EM><B>To add a document to a help project:</B></EM>
+<OL>
+<LI>Select New Document from the Document Menu in the Help Project Window.
+<BR>
+</OL>
+<DL>
+<DT><DD> A new document is added to your project. New help documents are named 
+sequentially, starting with Document1.
+
+</DL>
+<DT><DD> <EM><B>To add source files to a document:</B></EM>
+<OL>
+<LI>From the Help Project Window, select the document you want to add source files 
+to.
+<BR>
+</OL>
+<DL>
+<DT><DD> The document is highlighted, indicating it is the current selection.
+
+</DL>
+<OL>
+<LI>If the document is not expanded, expand the document by selecting the 
+directional arrow to the left of the document name.
+<BR>
+</OL>
+<DL>
+<DT><DD> Expanded documents list their contents. If the directional arrow is pointing 
+down (expanded document), and no source files are listed, then the document 
+is empty.
+
+</DL>
+<OL>
+<LI>Select Add File... from the Source Menu.
+<BR>
+A file chooser appears.<P>
+</OL>
+<UL><B><I>NOTE:</I></B> On some platforms the default file chooser is the native file chooser for 
+that platform. On others, the Galaxy File Chooser is the default file 
+chooser. 
+<P>
+</UL><OL>
+<LI>Select one or more source files from the file chooser.
+<BR>
+</OL>
+<DL>
+<DT><DD> The selected files are added to the document.
+
+</DL>
+<UL><B><I>NOTE:</I></B> You may want to use the Filters option in the file chooser to display the 
+type of source file you want to add. Options are available for <TT>.hs</TT> files, 
+<TT>.rtf</TT> files, and <TT>.vr</TT> files.
+<P>
+</UL><DT><DD> <EM><B>To remove source files from a document:</B></EM>
+<OL>
+<LI>Select the source files you want to remove from the document.
+<BR>
+</OL>
+<DL>
+<DT><DD> (You can remove more than one source file at a time.)
+
+</DL>
+<OL>
+<LI>Select Remove File from the Source Menu in the Help Project Window.
+<BR>
+</OL>
+<DL>
+<DT><DD> The selected source files are removed from the document.
+
+</DL>
+<DT><DD> <EM><B>To remove documents from a project:</B></EM>
+<OL>
+<LI>Select the documents you want to remove.
+<BR>
+</OL>
+<DL>
+<DT><DD> (You can remove more than one document at a time.)
+
+</DL>
+<OL>
+<LI>Select Remove Document from the Document Menu in the Help Project 
+Window.
+<BR>
+</OL>
+<DL>
+<DT><DD> The selected documents are removed from the project.
+
+</DL>
+<UL><B><I>NOTE:</I></B> Removing a document removes all the source files contained in the 
+document.
+<P>
+</UL><DT><DD> <EM><B>To display the full pathname of the source files in a document:</B></EM>
+<OL>
+<LI>Select the Display Full Path Name toggle from the Source Menu in the Help 
+Project Window.
+<BR>
+</OL>
+<DL>
+<DT><DD> <EM>or:
+</EM>
+</DL>
+<OL>
+<LI>Select the Full Path Name toggle in the View Menu of the Help Compiler Main 
+Window.
+<BR>
+</OL>
+<DL>
+<DT><DD> When either of these toggles is selected, the full pathnames of the source files 
+are displayed. Otherwise, only the source file names are displayed.
+
+</DL>
+</DL>
+<A NAME="13548"><H2> Rearranging Contents of a Help Project</H2></A>
+The order of documents and source files in a project determine the order in which the help entries are displayed by the Galaxy Help Server. The order of help documents and help entries follows the order of the help source files in the help project, except that child entries are always displayed after their parents.<P>
+To rearrange documents or source files in a help project, select the document or source file you want to move, and drag it to a new position in the project. Note that you cannot move source files or documents across different projects.<P>
+<A NAME="13551"><H2> Document Information Window</H2></A>
+The help compiler generates a help document file with the extension <TT>.vhd</TT> for each document in a help project. The title and filename for the document is specified in the Document Information Window, which is accessed from the Document Menu. <A HREF="Help_Compiler.html#15913">Figure 14</A> shows the Document Information Window.<P>
+<A NAME="15913"><I>Figure 14.  Document Information Window
+</I><P>
+<IMG SRC="Help_Compiler.anc5.gif"><P>
+<DL>
+<DT><DD> <EM><B>To open the Document Information Window:</B></EM>
+<OL>
+<LI>In the Help Project Window, select the document you want information on.
+<BR>
+</OL>
+<DL>
+<DT><DD> The document you select is highlighted.
+
+</DL>
+<OL>
+<LI>From the Document Menu in the Help Project Window, select <B>Document Info...</B> .
+<BR>
+</OL>
+<DL>
+<DT><DD> The Document Information Window opens.
+
+</DL>
+</DL>
+The Document Information Window contains the following components:<P>
+<A NAME="13562"><H3> Document Name</H3></A>
+Specifies the title of a help document. When providing online help for your application, the Galaxy Help Server displays the title of a help document in the Table of Contents.<P>
+The title can be any literal string, including spaces and special characters. However, if a document file name is not specified, the compiler generates a file name from the document title. The compiler removes spaces and special characters in the title to form a valid file name.<P>
+In Visix help syntax, the document title is used to specify an external link to a document.<P>
+You should provide unique document names to each document in a document set. This will ensure that any external links to a document are correctly resolved.<P>
+<A NAME="13569"><H3> Document File Name</H3></A>
+Specifies the file name for a help document, which must be a valid operating system file name. Help document file names end with a <TT>.vhd</TT> extension. If you do not specify the extension, it is automatically added to the specified name.<P>
+If you do not specify a file name, the compiler constructs the file name based on the document name. Do not specify a pathname here - the document file is saved using the path to the project file.<P>
+<A NAME="13572"><H3> Number of Source Files</H3></A>
+Indicates the number of source files in your document. You cannot edit this field.<P>
+<A NAME="13574"><H3> Confirm Buttons</H3></A>
+Applies editing changes made in the Document Information Window. These buttons may vary, depending on your current look-and-feel.<P>
+<A NAME="11171"><H2> Adding Images to a Document</H2></A>
+You can add images to a help document using the Galaxy Help Compiler; however, you must first convert any image you add to a Galaxy <TT>vimage</TT>. Use the Visual Resource Builder to convert or create images in this format. The name of an image must match the argument to the <TT>@image</TT> command that references the image in the help syntax source file.<P>
+Place your images in a resource file and add this resource file to your document using the procedure for adding source files. The compiler extracts the images from the resource file when creating the help document. The help compiler treats the resource file containing images as a help source file and counts it toward the 55 source file limit.<P>
+Galaxy Help Services provides several default images you can use in help documents. You do not need to add default images to a help document. The compiler automatically links any specified default image into the document. <P>
+<A HREF="Help_Compiler.html#15924">Figure 15</A> shows a resource file containing images for a help document. The resource file was created with the Visual Resource Builder.<P>
+<UL><B><I>NOTE:</I></B> Use any valid operating system file name for the resource file containing 
+images, but to avoid name collision do not use names that match the name 
+of any help source file. For example, the resource file <TT>images.vr</TT> and the 
+help source file <TT>images.hs</TT> are both translated into the object file 
+<TT>images.vho</TT>.
+<P>
+</UL><A NAME="15924"><I>Figure 15.  Image resource file
+</I><P>
+<IMG SRC="Help_Compiler.anc6.gif"><P>
+<A NAME="12035"><H3> Specifying Images for Different Look-and-Feels</H3></A>
+You can specify images to display in a help document according to the look-and-feels available to your users. This is useful if you want to include screen shots or other images that are platform-specific. To include platform-specific images your image resource file needs to have a separate dictionary for each look-and-feel. The resource tag names of the look-and-feel dictionaries are:<P>
+<UL><LI><TT>CUA</TT>
+<LI><TT>Macintosh</TT>
+<LI><TT>Motif</TT>
+<LI><TT>Open Look</TT>
+<LI><TT>Windows</TT>
+<LI><TT>Default</TT>
+</UL>Within each look-and-feel dictionary, place the image you want displayed when that look-and-feel is running. Note that the corresponding images in each dictionary must have identical names since they are all being referenced by one <TT>@image</TT> command in the help source file.<P>
+Images placed in the <TT>Default</TT> dictionary are displayed under all look-and-feels. If an image is at the top-level of the resource file, it is displayed on all platforms.<P>
+<A HREF="Help_Compiler.html#15930">Figure 16</A> shows a resource file specifying platform-specific images for a help document. The image with the tag name "Sample Image" is at the top-level and will be displayed on all platforms. This image could also have been placed in the Default dictionary. The images with the tag name "Laf-specific Image" are all placed in look-and-feel dictionaries. The help server displays the appropriate "Laf-specific Image" image for the platform on which it is running.<P>
+<A NAME="15930"><I>Figure 16.  Conditional specification of images in an image resource file
+</I><P>
+<IMG SRC="Help_Compiler.anc7.gif"><P>
+<A NAME="11173"><H1> Updating a Help Project</H1></A>
+Updating a help project creates a help document set for your help project. The help compiler translates the help source files into help object files, then links the object files into help document files. Finally, the help document files are built into a help document set.<P>
+When updating a project, the help compiler checks to see if any help object files are current, and only generates new ones if necessary. A help object file is current if its timestamp (time and date of creation) is more recent than its corresponding source file.<P>
+<DL>
+<DT><DD> <EM><B>To update a help project:</B></EM>
+<OL>
+<LI>Select Update Project from the Project Menu in the Help Project Window.
+<BR>
+</OL>
+<DL>
+<DT><DD> The project is compiled and linked into a help document set.
+
+<DT><DD> During the compilation process, the Compiler Queue Window opens, displaying 
+the steps remaining to build your help document set.
+
+<DT><DD> Additionally, the Compiler Status Window opens, displaying errors, warnings, 
+or other information according to the current compiler    preferences.
+
+</DL>
+</DL>
+If the compiler successfully creates an object file for a source file, it places a check next to the source file in the Help Project Window. If the compiler encounters an error and cannot create an object file, it places an "X" next to the source file.<P>
+<A HREF="Help_Compiler.html#15936">Figure 17</A> shows a Help Project Window with the results of a successful compilation.<P>
+<A NAME="15936"><I>Figure 17.  Project File Window showing results of compilation
+</I><P>
+<IMG SRC="Help_Compiler.anc8.gif"><P>
+<A NAME="10350"><H2> Forcing Recompilation</H2></A>
+You can force recompilation of a project by deleting the object files and updating the project. You can also force a partial remake by removing only some of the object files before updating the project.<P>
+You may want to force recompilation of help projects that were built with a previous version of the compiler. You should also force recompilation whenever the current status of a project is in question.<P>
+You can use operating system commands to delete object files, or you can use options from the help compiler. The following procedures show you how to use the Galaxy Help Compiler to remove object files and force recompilation.<P>
+<DL>
+<DT><DD> <EM><B>To remove object files and force recompilation of a help project:</B></EM>
+<OL>
+<LI>Select Remove All Object Files from the Project Menu in the Help Project 
+Window.
+<BR>
+</OL>
+<DL>
+<DT><DD> All help object files for the project are deleted from disk. Any check mark 
+(indicating a current object file) next to a source file in the Help Project Window 
+is removed.
+
+</DL>
+<OL>
+<LI>Select Update Project from the Project Menu.
+<BR>
+</OL>
+<DL>
+<DT><DD> The project is compiled and linked into a help document set.
+
+</DL>
+<DT><DD> <EM><B>To remove selected object files and force a partial recompilation:</B></EM>
+<OL>
+<LI>In the Help Project Window, select the source files whose object files you want 
+to delete.
+<BR>
+<LI>Select Remove Object File from the Source Menu.
+<BR>
+</OL>
+<DL>
+<DT><DD> The object files for the selected source files are deleted from disk. Any check mark 
+(indicating a current object file) next to a selected source file in the Help Project 
+Window is removed.
+
+</DL>
+</DL>
+<UL><B><I>NOTE:</I></B> After successfully building, testing, and implementing a help document set, 
+you may want to remove the object files to conserve disk space.
+<P>
+</UL><A NAME="11177"><H2> Updating Individual Source Files</H2></A>
+You can update editing changes to one or more source files without having to rebuild a whole document set. To do this, use the Update File option from the Source Menu.<P>
+<DL>
+<DT><DD> <EM><B>To update individual files:</B></EM>
+<OL>
+<LI>In the Help Project Window, select the source files you want to update.
+<BR>
+<LI>Select Update File from the Source Menu.
+<BR>
+</OL>
+<DL>
+<DT><DD> Object files are created for the selected source.
+
+</DL>
+<UL><B><I>NOTE:</I></B> Updating individual files does not link them into the help document. 
+Update the project when you want to incorporate the newly built 
+objects into the document set.
+<P>
+</UL></DL>
+<A NAME="10610"><H2> The Compiling Queue Window</H2></A>
+The Compiling Queue Window, shown in <A HREF="Help_Compiler.html#15950">Figure 18</A>, is displayed when you update a help project file. It lists the steps necessary to compile and link your project. As each step is completed, the compiler removes the completed step from the Compiling Queue Window. You can pause compilation and remove additional steps from the compiling queue from this window.<P>
+<A NAME="15950"><I>Figure 18.  Compiling Queue Window
+</I><P>
+<IMG SRC="Help_Compiler.anc9.gif"><P>
+You may want to remove steps from the compiling queue if you know that one or more source files that previously compiled successfully now have an error and will not compile. Removing the steps to compile these source files forces the compiler to link with the previously generated object files. You may also want to remove steps from the compiling queue simply to abort the process.<P>
+<DL>
+<DT><DD> <EM><B>To pause compiling a project:</B></EM>
+<OL>
+<LI>While the Compiling Queue Window is active, select the Pause Compiling 
+toggle from the Control Menu.
+<BR>
+</OL>
+<DL>
+<DT><DD> Compilation pauses. The remaining steps in the queue are displayed in the 
+Compiling Queue Window.
+
+</DL>
+<DT><DD> <EM><B>To remove steps from the compiling queue:</B></EM>
+<OL>
+<LI>While compilation is paused, select the steps you want to remove from the 
+compiling queue.
+<BR>
+</OL>
+<DL>
+<DT><DD> (You can remove more than one step at a time.)
+
+</DL>
+<OL>
+<LI>Select Remove Entry from the Control Menu of the Compiling Queue Window.
+<BR>
+</OL>
+<DL>
+<DT><DD> The steps are removed from the queue.
+
+</DL>
+<OL>
+<LI>Unselect the Pause Compiling toggle from the Control Menu.
+<BR>
+</OL>
+<DL>
+<DT><DD> Compilation continues.
+
+</DL>
+</DL>
+<A NAME="10633"><H2> The Compiling Status Window</H2></A>
+The Compiling Status Window, shown in <A HREF="Help_Compiler.html#15959">Figure 19</A>, reports the status of your help project as it is compiling. This window only opens if messages occur during compilation. Depending on the preferences selected in the Preferences Window, errors, warnings, information, and/or noise messages are generated. By default, errors and warnings are reported. For information on setting preferences, refer to <A HREF="Help_Compiler.html#10378">"Setting Compiler Preferences"</A>.<P>
+<A NAME="15959"><I>Figure 19.  Compiling Status Window
+</I><P>
+<IMG SRC="Help_Compiler.anc10.gif"><P>
+For each message reported, the Compiling Status Window lists the type of the message and the source file and line number responsible for generating the message. When the steps in linking are listed, the document and step number are reported. You can use the messages displayed in the Compiling Status Window for debugging your help source files.<P>
+You can save, sort, and filter the messages in the Compiling Status Window. If the Compiling Status Window is closed (or not visible), you can reopen it.<P>
+<DL>
+<DT><DD> <EM><B>To save compiler messages:</B></EM>
+<OL>
+<LI>From the File Menu in the Status Window, select Save Messages....
+<BR>
+</OL>
+<DL>
+<DT><DD> A file chooser opens.
+
+</DL>
+<OL>
+<LI>In the file chooser, select a destination for your saved messages.
+<BR>
+</OL>
+<DL>
+<DT><DD> The compiler messages are saved as a text file at the specified location.
+
+</DL>
+<DT><DD> <EM><B>To sort messages in the Status Window:</B></EM>
+<OL>
+<LI>From the Filter Menu in the Status Window, select Sort by Type.
+<BR>
+</OL>
+<DL>
+<DT><DD> The messages are sorted according to the type of the message.
+
+</DL>
+<DT><DD> <EM><B>To filter messages in the Status Window:</B></EM>
+<OL>
+<LI>From the Filter Menu in the Status Window, select the type of messages you want 
+displayed.
+<BR>
+</OL>
+<DL>
+<DT><DD> Only messages of the type selected in the Filter Menu are displayed.
+
+</DL>
+<UL><B><I>NOTE:</I></B> This option does not affect the type of messages generated by the 
+compiler. It only specifies which messages to display. Use the Preferences 
+Window to specify the type of messages generated during compilation.
+<P>
+</UL><DT><DD> <EM><B>To display the Status Window:</B></EM>
+<OL>
+<LI>From the Project Menu select Show Status Window.
+<BR>
+</OL>
+<DL>
+<DT><DD> The Status Window opens. Messages from the last project update during the 
+current compiler session are displayed in the Status Window.
+
+</DL>
+</DL>
+<A NAME="10368"><H2> Types of Messages</H2></A>
+The Compiling Status Window reports four types of messages:<P>
+<UL><LI>Errors
+<LI>Warnings
+<LI>Information
+<LI>Noise
+</UL><A NAME="10374"><H3> Errors</H3></A>
+The compiler reports errors when either translating or linking failed, and no document set is built. Use the error messages to help find the error and fix it before updating the project again.<P>
+<A NAME="10375"><H3> Warnings</H3></A>
+When warnings are reported, the document set is built, but it may not perform as expected. Use the warning messages to determine if any remedial action needs to be taken.<P>
+<A NAME="10376"><H3> Information</H3></A>
+Information messages report details of the translation and linking process. These messages do not indicate a problem with compilation.<P>
+<A NAME="10377"><H3> Noise</H3></A>
+Noise messages report further details of compilation. As with information messages, noise messages do not indicate a problem with compilation.<P>
+<A NAME="10378"><H1> Setting Compiler Preferences</H1></A>
+The Galaxy Help Compiler has preferences to specify the level of messages generated when updating a project and for setting the compiling/linking timeslice. Use the Preferences... option from the File Menu to open the Preferences Window. The Preferences Window is displayed in <A HREF="Help_Compiler.html#15964">Figure 20</A>.<P>
+<A NAME="15964"><I>Figure 20.  Help Compiler Preferences Window
+</I><P>
+<IMG SRC="Help_Compiler.anc11.gif"><P>
+<A NAME="10379"><H2> Specifying Display Messages</H2></A>
+To specify the level of messages displayed during translating and linking, select the appropriate toggles in the Display Messages section. Refer to <A HREF="Help_Compiler.html#10368">"Types of Messages"</A> for a description of these messages. By default, Errors and Warnings are selected.<P>
+When using the compiler in stand-alone mode, you cannot specify the level of displayed messages. In stand-alone mode only errors and warnings are displayed.<P>
+<A NAME="10386"><H2> Compiling/Linking Timeslice</H2></A>
+The help compiler does internal multitasking, dividing its time between the user interface (UI) and compiling. A faster UI means that compiling is slower, but the UI is more responsive. A slower UI means that compiling is faster, but the UI may take longer to respond to user actions.<P>
+To set the compiling timeslice, adjust the slider bar in the Preferences Window.<P>
+<A NAME="10389"><H1> Generating Resource Tags</H1></A>
+To provide context-sensitive help to an application, you need to reference resource tag names from the application's resource file. The Dump Resource File Tags command prints a text file of all the resource tags in an application's resource file. <P>
+<DL>
+<DT><DD> <EM><B>To print resource tags for an application's resource file:</B></EM>
+<OL>
+<LI>From the File Menu in the Help Compiler Window or the Help Project Window, 
+select Dump Resource File Tags....
+<BR>
+</OL>
+<DL>
+<DT><DD> A file chooser opens.
+
+</DL>
+<OL>
+<LI>In the file chooser, select the resource file that contains the resource tags you 
+want to print.
+<BR>
+</OL>
+<DL>
+<DT><DD> After you make your selection, the file chooser chooser closes and then reopens.
+
+</DL>
+<OL>
+<LI>In the file chooser, select a destination for the text file containing the resource 
+tags.
+<BR>
+</OL>
+<DL>
+<DT><DD> The compiler copies the resource tags to the specified file.
+
+</DL>
+</DL>
+Note that you can also use the <TT>dumptags</TT> option to the compiler in stand-alone mode to print resource tags for an application's resource file. For details on specifying stand-alone options, refer to the <A HREF="Help_Compiler.html#14462">section "Stand-alone Mode"</A>.<P>
+<A NAME="15037"><H1> Compiling Help from a Command Line</H1></A>
+Stand-alone mode invokes the compiler from the command line without any interactive editors or windows. It is useful for quickly updating changes to a help project and also allows the project to be incorporated into a makefile for automatic builds.<P>
+You cannot specify the level of messages generated by the compiler for stand-alone mode - only error and warning messages are generated. Error and warning messages can be saved to disk on platforms that allow redirection of the output.<P>
+The following options are available from stand-alone mode. Refer to <A HREF="Help_Compiler.html#10204">"Command Line Options"</A> for details on specifying stand-alone options.<P>
+<A NAME="14175"><H3> compile</H3></A>
+The <TT>compile</TT> option creates help object (<TT>.vho</TT>) files from help source files. Any combination of <TT>.hs</TT> or .<TT>rtf</TT> source files can be specified with this option.<P>
+<A NAME="14177"><H3> link</H3></A>
+The <TT>link</TT> option creates a help document (<TT>.vhd</TT>) file from help object (<TT>.vho</TT>) files.<P>
+<A NAME="14179"><H3> build</H3></A>
+The <TT>build</TT> option creates a help document set (<TT>.vhs</TT>) file from help document (<TT>.vhd</TT>) files.<P>
+<A NAME="14181"><H3> buildDocSet</H3></A>
+The <TT>buildDocSet</TT> option creates a help document set (<TT>.vhs</TT>) file from a help project (<TT>.vhp</TT>) file. Use the -<TT>compileAllSources</TT> option with this option to force compilation regardless of the out-of-date status of any object files.<P>
+<A NAME="15022"><H3> compileAllSources</H3></A>
+The <TT>compileAllSources</TT> option can only be used with the <TT>buildDocSet</TT> option. <TT>compileAllSources</TT> forces compilation regardless of the out-of-date status of any object files.<P>
+<A NAME="10390"><H2> Command Line Examples</H2></A>
+When building a help document set in stand-alone mode, first compile the source files into help object files. Next, link the object files into help documents. Finally, link the help documents into a help document set. <A HREF="Help_Compiler.html#14154">Example 18</A> illustrates how to build a help document set in stand-alone mode. (This example illustrates command line options for the UNIX platform - be sure to specify options appropriately for your platform.)<P>
+<A NAME="14154"><I>Example 18.  Building a help document set from the command line
+</I><P>
+<PRE><UL>% vhelpcmp -compile *.hs
+% vhelpcmp -link myapp.vhd "My App" *.vho
+% vhelpcmp -build myapp.vhs "My App" *.vhd
+
+</UL></PRE>Note that in <A HREF="Help_Compiler.html#14154">Example 18</A>, you do not need to use a help project to build the help document set. However, you can build a help document set from a help project file in stand-alone mode by specifying the <TT>buildDocSet</TT> option. The help project file must have been previously created in an inter-active session with the compiler. <A HREF="Help_Compiler.html#14163">Example 19</A> illustrates using the <TT>buildDocSet</TT> option.<P>
+<A NAME="14163"><I>Example 19.  Building a help document set from the command line (using a project file)
+</I><P>
+<PRE><UL>% vhelpcmp -buildDocSet myapp.vhp
+
+</UL></PRE><P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Help_Server.html">Previous Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../../index.html">Switch to Another Document</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

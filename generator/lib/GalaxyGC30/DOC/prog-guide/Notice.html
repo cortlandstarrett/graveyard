@@ -1,0 +1,184 @@
+<HTML>
+<HEAD>
+<TITLE>Notification</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Notification</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Notebook.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Number.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="19664"></A>
+The <B></B><EM><B>Notification</B></EM> class is used to handle special informational dialogs. Typically these <EM><B>notification dialogs</B></EM>, or <EM><B>notices</B></EM>, inform the user of an error or some irrevocable action just initiated by the user. A notice usually has either a single OK button, or a Yes and No button. Both can have an optional Cancel button and a Help button. Above these buttons is a static text item containing text describing the situation to which the user must respond. Notices are decorated according to the current look-and-feel and are application modal. Applications can add their own icon, an image with a mask, to any notice.<P>
+Two types of notices are available to applications, the warning notice and the caution notice. The <EM><B>Warning notice</B></EM> consists of a text item, an OK button, and an optional cancel button. The warning notice simply informs the user of a particular situation; the user responds with OK or possibly by canceling the action. <A HREF="Notice.html#12619">Figure 65</A> shows an example Warning notice.<P>
+<A NAME="12619"><I>Figure 65.  A typical warning notice
+</I><P>
+<IMG SRC="Notice.anc.gif"><P>
+The <EM><B>caution notice</B></EM> consists of a text item, a Yes button, a No button, and an optional Cancel button. The caution notice is used in situations when the user has a choice of actions or may possibly cancel the current operation. <A HREF="Notice.html#12627">Figure 66</A> shows an example caution notice.<P>
+<A NAME="12627"><I>Figure 66.  A typical caution notice
+</I><P>
+<IMG SRC="Notice.anc1.gif"><P>
+Note that some notification dialog attributes cannot be manipulated through Notification class entry points&#175;these attributes can be manipulated through Window class entry points instead. You can call any Window class function on a notification dialog by passing it the result of <TT><B>GetWindow</B></TT>. For example, the function call vwindowSetBackground(vnoticeGetWindow (notice), background) changes the background color of the notice notice to background. Notification dialog attributes that overlap window attributes refer to the same piece of information.For example, <TT><B>vwindowSetData</B></TT> changes the same attribute as <TT><B>vconfirmSetData</B></TT>.<P>
+The <TT><B>Title</B></TT> attribute is copied internally by the dialog when it is set unless its scribe indicates that the title should be shared. Notification dialogs never take over ownership of Title attributes.<P>
+<A NAME="194"><H2> Creating and Implementing a Notice</H2></A>
+To create a notice, you can call <TT><B>Create</B></TT><TT></TT> or use a resource function to read the notice from a resource file created by the Visual Resource Builder. The latter approach is more convenient, but the former approach is demonstrated here in order to more completely illustrate the Notification class entry points.<P>
+<A NAME="198"><I>Example 113.  The following code fragment illustrates the components necessary to 
+implement the caution notice. A warning notice would be constructed similarly but 
+without a call to<TT><B>SetCaution</B></TT>.Implementing a caution notice
+</I><P>
+<PRE><UL>/*
+ * Notice hook routines.
+ */
+static int cautionNoticeYes(vnotice *notice, vevent *event)
+{
+   /*
+    * Perform action based on a yes response.
+    * Return TRUE and the notice will close.
+    * Return FALSE and it will remain open.
+    */
+   return TRUE;
+}
+
+
+static int cautionNoticeNo(vnotice *notice, vevent *event)
+{
+   /*
+    * Perform action based on a no response
+    */
+   return TRUE;
+}
+
+int main(int argc, char *argv)
+{
+   // ...
+   vnotice *notice;
+
+   /*
+    * Create the notice
+    */
+   notice = vnoticeCreate();
+
+   /*
+    * Set notice to be a caution notice
+    */
+   vnoticeSetCaution(notice, TRUE);
+
+   /*
+    * Set hook functions.
+    */
+   vnoticeSetYesHook(notice, cautionYesNotice);
+   vnoticeSetNoHook(notice, cautionNoNotice);
+
+   /*
+    * notice can be opened at any time ...
+    */
+   vnoticeOpen(notice);
+
+   /*
+    * Place real code here, need to enter event loop to
+    * actually open notice and have hook functions called
+    */
+
+   /*
+    * when finished, release memory...
+    */
+   vnoticeDestroy(notice);
+
+   exit(EXIT_SUCCESS);
+   return EXIT_FAILURE;
+}
+
+</UL></PRE><A NAME="20341"><H2> Sample Code</H2></A>
+Complete source code demonstrating some of the concepts presented in this chapter is available in your Galaxy distribution in the <TT>samples/docsamps</TT> directory.<P>
+The <TT>notice2</TT> example presents a complete program that creates a base window with a single button. The program prompts the user with a notice before quitting. To do this, a dialog is subclassed with the window state method substituted. This lets you catch a window close event and still put up a notice. This example is common for document-based applications that need to ask the user if changes should be saved.<P>
+<A NAME="13127"><H1> Advanced Use of the Notification Class</H1></A>
+Before discussing advanced use of the Notification class it is important to understand how the class is designed. The Notification class is a subclass of the Confirm class. Many of the Confirm class features can also be used with notices. The following paragraphs describe how both warning and caution notices make use of the Confirm class. Refer to Confirmation class for more information.<P>
+<A NAME="178"><H2> Warning Notices</H2></A>
+A warning notice uses the OK button from the Confirm class. The OK button must appear in warning notices for all look and feels, and is never hidden. (Under OPEN LOOK, the title of an OK button is "Apply.") A warning notice's cancel button corresponds directly to the Confirm class's cancel button. A call to <TT><B>S</B></TT> ensures that the cancel button will always be visible. The warning notice implements the <TT>okHook</TT> and <TT>cancelHook</TT> methods from the Confirm class.<P>
+<A NAME="183"><H2> Caution Notices</H2></A>
+A caution notice uses the Confirm class's OK button. A caution notice simply switches the title of the OK button to "Yes." The notice's No button is a generic confirmation button with a tag of <TT>vname_No</TT>. The cancel button for a caution notice is implemented like the cancel button for a warning notice.<P>
+<A NAME="18791"><H2> Additional Notice Features</H2></A>
+The Notification class uses the Confirm class's <TT>vconfirmORDER_BUTTONS</TT><TT><B></B></TT> method to arrange the buttons in a notice. An application may also add other generic confirmation buttons using the underlying confirm. Vertical arrangement may also be implemented from the Confirm class.<P>
+<A NAME="202"><H2> Blocking Notices</H2></A>
+Blocking notices directly use the Confirm class's blocking confirmation dialog entry points. These routines will open a notice and wait until one of the confirmation buttons is activated, and then return the tag of the button selected. Refer to the Confirm class for more on blocking confirmation dialogs.<P>
+<TT><B>Process</B></TT> is intended to be used alone. When called, it opens the notice and waits for a button to be selected. Once a button is selected the notice is closed and the tag of the selected button is returned. Use this routine when the application simply wants to know which button has been pressed. The notice closes regardless of the button selected.<P>
+The other three blocking confirmation routines are used to keep a notice open even after a button is pressed. This allows the user to make several selections before closing the notice. These three functions provide this capability without continually opening and closing the notice (as would be necessary with <TT><B>Process</B></TT>). <TT><B>ProcessStart</B></TT> opens the notice and does not block. <TT><B>ProcessGet</B></TT> waits until a confirmation button is selected and returns the tag of that button. It does not close the notice and must be between calls to <TT><B>ProcessStart</B></TT> and <TT><B>ProcessStop</B></TT>. <TT><B>ProcessStop</B></TT> closes the notice and must be called after a call to <TT><B>ProcessStart</B></TT>.<P>
+A blocking notice differs from a typical notice in two primary ways. First, any not called when a button is pressed. The tag of the selected button is returned and it is the application's responsibility to handle this directly. Second, the dialog's <TT>Close</TT> method is not called since the application is explicitly controlling when the notice is to be closed.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Notebook.html">Previous Chapter</A> | 
+		<A HREF="Number.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

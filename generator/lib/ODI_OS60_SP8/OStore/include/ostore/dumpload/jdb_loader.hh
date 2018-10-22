@@ -1,0 +1,62 @@
+/*
+    ObjectStore Release 6.0 Service Pack 8/VC 6.0
+
+    Copyright (c) eXcelon Corporation 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002
+    All Rights Reserved.  Patent Pending.
+*/
+
+
+#ifndef JDB_LOADER_HH
+#define JDB_LOADER_HH
+
+/***********************************************************************
+*                                                                      *
+* Copyright (c) 1997-2001 by eXcelon Corporation. All Rights Reserved. *
+*                                                                      *
+* eXcelon Corporation Confidential Restricted material.  This work     *
+* contains confidential trade secrets of eXcelon Corp..  Use,          *
+* examination, copying, transfer and/or disclosure to others are       *
+* prohibited, except with the express written agreement of eXcelon     *
+* Corp.                                                                *
+*                                                                      *
+* THIS WORK IS PROVIDED AS IS, WHERE IS, WITH ABSOLUTELY NO WARRANTIES *
+* WHATSOEVER, WHETHER EXPRESS OR IMPLIED.                              *
+*                                                                      *
+***********************************************************************/
+
+//-- Include files -----------------------------------------------------
+
+#include <ostore/ostore.hh>
+#include <ostore/dumpload/db_loader.hh>
+
+
+//-- Forward Declarations ----------------------------------------------
+
+
+/***********************************************************************
+  class osji_Database_entry_loader
+***********************************************************************/
+
+class osji_Database_entry_loader : public os_Database_entry_loader {
+
+  public: // Construction
+    osji_Database_entry_loader (os_Databases_loader&, 
+				os_boolean should_use_current_directory);
+    ~osji_Database_entry_loader ();
+
+  public: // Accessors
+  //    virtual Kind get_kind () const;
+
+  public: // Modifiers
+
+  public: // Actions
+
+  protected: // Embedded data
+
+  protected: // Actions
+    virtual void create (os_Loader_info&);
+
+  };
+
+
+#endif /* JDB_LOADER_HH */

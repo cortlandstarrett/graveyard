@@ -1,0 +1,288 @@
+<HTML>
+<HEAD>
+<TITLE>Print</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Print</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Preference.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Process.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="4388"></A>
+The Print class, combined with Galaxy's device-independent drawing capabilities, allows you to print from Galaxy applications without having to know details of any specific printer. Anything you can draw in Galaxy, you can also print.<P>
+<A NAME="9530"><H2> Relationship to Other Classes</H2></A>
+The Print class uses the rendering model of the Draw class to handle the construction of the printed page, and provides only those services that are needed for printed output. Since the printing and drawing models are identical, most applications share a great deal of code between printing and screen drawing. Consequently, you should be familiar with the material in the Draw class before reading this section.<P>
+Exception handling is an essential part of using the Print class. Refer to the Exception class for details on how to handle general exceptions.<P>
+<A NAME="4394"><H2> Glossary</H2></A>
+<UL><EM><B>device-independence</B></EM>	The quality of using abstract drawing mechanisms that do 
+not depend on the resolution or other characteristics of a 
+specific output device.
+<P><EM><B>pagination</B></EM>	The process of dividing printed output into pages.
+<P></UL><A NAME="4398"><H1> Basic Use of the Class</H1></A>
+The Print class creates a representation of a printer, and allows you to examine and manipulate its attributes (such as the size of the page). The Print class also lets you tell the printer to begin printing a document, a new page, or perform other tasks. The number of methods in the Print class is relatively small because most of the actual work of printing is done using the Draw class or the <TT>Draw</TT> methods of dialog items.<P>
+Essentially, the Print class deals with the aspects of drawing a printed page that differ from drawing a window (for example, dividing the output into documents and pages). Once you open a page with the Print class, anything drawn is directed to the printer until you close the page.<P>
+While it is possible to create all of an application's printed pages by using the Drawing class calls directly, it is generally more effective to use the built-in drawing functionality of dialog items. If you want to print formatted text, first set up a textview or textitem. Then call its <TT>Draw</TT> method in your printing routine so it draws to the printer. Similarly, if you want to print information formatted in columns, use a listview.<P>
+Note that if you have created a subclass to customize the appearance of a dialog item for your application's display, you can use the same drawing methods for your printing. Refer to the Dialog Item chapter for details on generic dialog item drawing, and the individual chapters (such as the Text class or List class) for details on how those classes direct and control their drawing.<P>
+The Print class also provides methods to display a platform's native print dialogs. The <EM><B>setup dialog</B></EM> allows you to set page-layout properties, such as paper size and orientation. The <EM><B>confirm style dialog</B></EM> is known as the "Page Setup" or "Print Setup" dialog on various platforms.<P>
+The <EM><B>print dialog</B></EM> shows the print dialog that allows the end-user to confirm printing and set properties such as designating a printer, or a page range to print.<P>
+<A NAME="4797"><H3> Exceptions</H3></A>
+Since the Print class deals with an external device, it can encounter unexpected conditions and generate exceptions. Thus, handling exceptions and cleaning up properly is even more important in the Print class than in some other classes. On some platforms, dealing with printer errors improperly can interfere with the ability of other applications to use the printer. Refer to <A HREF="Print.html#4599">"Exceptions."</A> for information on how to properly handle printer exceptions.<P>
+<A NAME="5183"><H3> Page Setup Dialog</H3></A>
+Use <TT>ConfirmStyle</TT> to bring up the Setup dialog. After the user modifies the desired attributes for the printer, such as paper size and orientation, the Print class sets these attributes for the printer variable and calls.<P>
+<A NAME="17725"><H3> Print Dialog</H3></A>
+Use <TT>C</TT><TT><B>onfirmJob</B></TT> to initiate printing, causing the Print class to do the following:<P>
+<UL><LI>On platforms with native print dialogs, the Print class displays a Print dialog, allowing the user to confirm a print job.
+<LI>The Print class calls an assigned job confirm procedure that actually does the printing.
+</UL>Use <TT><B>SetJobNotify</B></TT> to assign a job confirm procedure of type <TT>vprintNoteProc</TT> to a printer. For example:<P>
+<PRE><UL>{
+   // ...
+   vprint *printer = vprintCreate();
+
+   /*
+    * Assign a job confirm procedure to this printer
+    */
+   vprintSetJobNotify(printer, PrintAJob);
+
+   // ...
+}
+
+</UL></PRE>Note that the Print class always calls an assigned job confirmation procedure, whether the Print dialog was accepted or canceled. This allows you to clean up from any action (such as cloning an object) that was done before making the call to open the Print dialog. Since the user can confirm or cancel printing, it is important to pay attention to the flag parameter in your confirmation procedure.<P>
+<A HREF="Print.html#5191">Example 121</A> demonstrates a skeleton job confirm procedure.<P>
+<A NAME="5191"><I>Example 121.  Skeleton code for printing a print job
+</I><P>
+<PRE><UL>void PrintAJob (vprint *printer, int flag)
+{
+   /*
+    * Check to see if they said OK. If so, print...
+    */
+   if (flag) {
+      int eachPage;
+      /*
+       * Save the current drawing state
+       */
+      vdrawGSave();
+
+      /*
+       * Tell the printer you have a document to print
+       */
+      vprintOpenDocument(printer);
+
+      for (eachPage;;) {
+         /*
+          * Set up objects for current page
+          */
+         // ...
+
+         /*
+          * Open a page on the printer
+          */
+         vprintOpenPage(printer);
+
+         /*
+          * Do the drawing on the printer
+          */
+         // ...
+
+         /*
+          * Tell the printer that you are done with this page
+          */
+         vprintClosePage(printer);
+      }
+
+      /*
+       * Tell the printer that you are done with this document
+       */
+      vprintCloseDocument(printer);
+
+      /*
+       * Restore the drawing state
+       */
+      vdrawGRestore();
+   }
+}
+
+</UL></PRE>Note that <TT><B>OpenPage</B></TT> changes the graphics state (gstate) for drawing to the printer. The <TT><B>vdrawGSave</B></TT> and <TT><B>vdrawGRestore</B></TT> calls save and then restore the gstate. For more information on the gstate, refer to the Draw class.<P>
+<A NAME="4828"><H3> Printing a Page Using a Textitem</H3></A>
+The most effective way to format printed output is to use a dialog item's <TT>Draw</TT> method. This section discusses the basics of printing formatted text by using a textview's <TT>Draw</TT> method. For more information on textviews, refer to the Text chapter. <P>
+Since you do not want to confuse the dialog that contains the textview, create a copy of the textview. The copied textview can be manipulated independent of the dialog. Note that this does not copy the data, so memory is not wasted duplicating a potentially large document.<P>
+Now resize the textview to the size of the printed page with one of the following procedures:<P>
+<UL><LI><TT><B>GetPage<br></B></TT>To get a rectangle for the printable area of the page. 
+<LI><TT><B>GetPaper<br></B></TT>To get a rectangle for the entire page.
+</UL>Using <TT><B>GetPage</B></TT> is usually sufficient for simple printing.<P>
+Use <TT><B>GetPaper</B></TT> to add margins relative to the edges of the paper. Use <TT><B>GetPaper</B></TT> to find the entire page's rectangle, and then add the margins. If you are adding specific margins, compare the final rectangle you want to print to the rectangle returned by <TT><B>G</B></TT><TT>etPage</TT> to make certain that all of your text is printed.<P>
+Since you only want the <EM>contents</EM> of the view (that is, just the text), you need to turn off all the controls and decorations of the textview, such as scrollbars and borders. It is also a good idea to set the item foreground and background to be black-on-white, rather than using the platform's standard dialog item colors. This ensures that the printer doesn't use a gray-scale version of the dialog item's colors.<P>
+<A NAME="4834"><H3> Printing a Multi-Page Document</H3></A>
+Sometimes data might be too large to fit onto a single page. To print data on multiple pages, use the scrolling features of various dialog items as illustrated by the following procedure:<P>
+<OL>
+<LI>Open a page.
+<BR>
+<LI>Draw the view.
+<BR>
+<LI>Close the page.
+<BR>
+<LI>Scroll the dialog item by the size of the page, and repeat until all of the data has been 
+printed.
+<BR>
+</OL>
+Note that boundary conditions must be handled properly to avoid drawing clipped portions of data. If you do not adjust the size of the view to match the number of whole lines or columns displayed on the current page, you may see half a line of text at the bottom of the page, or a column of a spreadsheet clipped by the right margin. Alternatively, you can subclass the view so that it does not draw the clipped portions.<P>
+Textviews (and most other views) do not scroll past the end of the contents. To control the boundary of the document itself, subclass the view to allow scrolling past the end. If there is less than a full page left, then simply resize the view.<P>
+<A NAME="4861"><H3> Page Ranges</H3></A>
+Depending on the platform, the user may be able to select a page range in a job confirm dialog. Simple applications do not need to do anything to handle this. This is because <TT><B>OpenPage</B></TT> checks to see if the current page is in the selected page range. If it is not, it a "null device," which discards any drawing. This approach is useful for situations when your pagination and drawing code does not do anything time-consuming or resource-intensive.<P>
+If an application does time-consuming work to format a page, it explicitly handle page ranges. For example, an application that accesses a database to fill the contents of a page should avoid formatting pages that are not printed. Use <TT><B>GetFirstPageNumber</B></TT> and <TT><B>GetLastPageNumber</B></TT> to get the selected page range.<P>
+<UL><B><I>NOTE:</I></B> For example, after calling <TT><B>O</B></TT><TT>penDocument</TT> (which resets the page number to 
+zero) but before calling <TT><B>O</B></TT><TT>penPage</TT>, use <TT>SetPageNumber</TT> to set the page 
+number to the value returned by <TT><B>G</B></TT><TT>etFirstPageNumber</TT>. Begin output with 
+this page. Then use <TT><B>G</B></TT><TT>etPageNumber</TT> on each subsequent page to determine 
+when the last page has been printed and the document can be closed. 
+Alternatively, an application could check <TT>PageIsDiscarded</TT> after each 
+<TT><B>O</B></TT><TT>penPage</TT>, and skip formatting and drawing for discarded pages.A printer 
+has no concept of the total number of pages in the document, so either end 
+of the page range selected may be beyond the end of the document. 
+Applications should be prepared to handle this case, and not attempt to 
+print non-existent pages.
+<P>
+</UL><A NAME="4599"><H2> Exceptions</H2></A>
+When using the Print class, exception handling is necessary to construct well-behaved applications. Exceptions signal conditions that a method or API does not know how to handle. Since printing deals with an external device, many such unexpected conditions are possible. Two exception classes specific to printing are <TT>vprintNoDefaultPrinter</TT> and <TT>vprintJobCanceled</TT>.<P>
+A <TT>vprintNoDefaultPrinter</TT> exception can occur when using <TT><B>OpenDocument</B></TT>, <TT><B>OpenConnection</B></TT>, or <TT>C</TT><TT><B>onfirm</B></TT>. You should provide an exception handler for this type of exception on these calls, and display an appropriate warning notice.<P>
+A <TT>vprintJobCanceled</TT> exception can occur at any time between <TT><B>OpenDocument</B></TT> and <TT>C</TT><TT><B>loseDocument</B></TT>. It is generated as a result of mechanisms provided by the system to let users cancel printing. In addition, you may see more generic exceptions from the lower levels of printing that are trying to write to files or pipes, so you should be prepared to handle those as well.<P>
+The correct handling of printing exceptions is straightforward. If you get an exception while drawing to a printer, stop drawing. If you get an exception when opening or closing a page, do not open any more pages. In your exception handler, check whether a page is currently open (<TT><B>PageIsOpen</B></TT>); if it is open, close it (<TT>C</TT><TT><B>losePage</B></TT>). Then check if a document is open (<TT><B>DocumentIsOpen</B></TT>); if it is, close it (<TT>C</TT><TT><B>loseDocument</B></TT>).<P>
+<UL><B><I>NOTE:</I></B> Some platforms are quite particular about having printers closed properly. 
+Leaving a document or page open on such platforms may interfere with 
+another application's use of the printer.
+<P>
+</UL>You should also ensure that your drawing and paging code does not leak memory on an exception.<P>
+<A NAME="4917"><H2> Avoiding Pitfalls</H2></A>
+Note that the Print class always calls a confirm notification procedure after it opens a Page Setup dialog or Print dialog. Be sure to check the flag for information on whether the dialog was accepted (the end-user clicked on OK) or cancelled (the end-user clicked on Cancel). If you ignore the flag, your application will print even when the user presses Cancel.<P>
+When specifying margins, remember that some printers may not be able to print within a certain range margin near the edge of a page. Avoid this by comparing the current margins to the rectangle returned by <TT><B>GetPage</B></TT>.<P>
+Do not create a printer of a specific class (using <TT><B>vprintCreateOfClass</B></TT>) except for certain specialized uses; a particular print class may not be appropriate if you build your application on a different platform.<P>
+<A NAME="16945"><H3> Device-Independent Drawing Specifics</H3></A>
+The prerequisite for effective and trouble-free printing is device-independent drawing. In general terms, this means the drawing methods should not make assumptions about the kind of device to which the application is drawing. For example, do not assume you are drawing in a window, and avoid using functions that work with device coordinates directly. Refer to <A HREF="Print.html#16984">Table 33</A> for some specific functions to avoid in your drawing methods. Most of these have their uses in other areas of your code, but they should not be used in a drawing method that might be used to draw printing content.<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="16953"><I>Table 33.  API calls to avoid when using the Print class
+</I><P>
+</CAPTION>
+
+<tr><th><B>API call
+</B></th><th><B>Reason
+</B></th>
+<tr><td><TT><B>vdrawSetDevice
+</B></TT><TT><B>vdrawNullDevice
+</B></TT><TT><B>vdrawImageDevice 
+</B></TT><TT><B>vdrawMaskDevice,
+</B></TT><TT><B>vdialogItemDrawDevice
+</B></TT></td><td><TT>Changes the drawing device
+</TT></td></tr>
+<tr><td><TT><B>vwindowScrollRect
+</B></TT></td><td><TT>Uses Window coordinates
+</TT></td></tr>
+<tr><td><TT><B>vdrawSetComplement
+</B></TT><TT><B>vdrawSetFunction
+</B></TT><TT><B>vdrawRectsViewClip
+</B></TT><TT><B>vdrawViewClip
+</B></TT></td><td><TT>Works only for certain devices (not printers)
+</TT></td></tr>
+<tr><td><TT><B>vdrawSetMatrix
+</B></TT><TT><B>vdrawUnround
+</B></TT></td><td><TT>Changes transformation to device coordinates 
+(use vdrawTransform, vdrawScale, and so 
+forth. instead)
+</TT></td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+<UL><B><I>NOTE:</I></B> Standard dialog items all conform to device-independent drawing. If you use 
+a dialog item to draw the printed content, without having subclassed the 
+dialog item's <TT>Draw</TT> methods, your printed output is automatically device-
+independent.
+<P>
+</UL><A NAME="16986"><H3> Avoid Buffer Images and Offscreen Drawing</H3></A>
+Buffer images (see <TT><B>vwindowCreateBufferImage</B></TT>) and offscreen drawing are sometimes used in drawing code to improve user-interface response and avoid flicker when updating the display. They are appropriate for drawing on the screen, but should be avoided when drawing to the printer. This is because buffer images are closely linked to the screen resolution and thus not device-independent. They cannot be relied upon to produce correct results on a printer (though they may happen to work on some platforms). Furthermore, since images are generally slower to print, these screen "optimizations" reduce the speed and quality of printed output.<P>
+<A NAME="4912"><H3> Limitations</H3></A>
+On UNIX systems, the Printer class sends PostScript source code to the command <TT>lpr</TT>. You should configure your <TT>lpr</TT> command and your PRINTER environment so that printed documents are sent to a PostScript printer. If lpr sends its output to a non-PostScript printer, PostScript source code will be printed instead of your document.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Preference.html">Previous Chapter</A> | 
+		<A HREF="Process.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

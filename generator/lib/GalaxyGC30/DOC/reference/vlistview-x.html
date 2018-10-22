@@ -1,0 +1,3494 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vlistview prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vlistview prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vlistview-x.html#section_DataType">Types</A> [7]</TD>
+<TD><A HREF="vlistview-x.html#section_Function">Functions</A> [141]</TD>
+<TD><A HREF="vlistview-x.html#section_Message">Messages</A> [52]</TD>
+<TD><A HREF="vlistview-x.html#section_Constant">Constants</A> [9]</TD>
+<TD><A HREF="vlistview-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vlistview"><HR><H4>vlistview</H4></A>
+<PRE>
+        typedef ... <B>vlistview</B>;
+</PRE>
+
+<DL><DD>
+Denotes an instance of the class derived from
+<CODE><A HREF="vlistview-x.html#vlistviewClass"><CODE>vlistviewClass</CODE></A></CODE>. This type is a derivation of
+<CODE><A HREF="vdialog-x.html#vdialogItem"><CODE>vdialogItem</CODE></A></CODE>, <CODE>vlistview</CODE> displays a
+list object in a dialog. This can also be used to create
+subclasses for custom needs.
+</DD></DL>
+<P>
+<A NAME="vlistviewClass"><HR><H4>vlistviewClass</H4></A>
+<PRE>
+        typedef ... <B>vlistviewClass</B>;
+</PRE>
+
+<DL><DD>
+The class definition for the list view object, it is
+derived from <CODE><A HREF="vdialog-x.html#vdialogItemClass"><CODE>vdialogItemClass</CODE></A></CODE>. When an object
+of this class is created, it creates an observer in the
+list object that it is displaying. Through the observer the
+display of the list is maintained.
+</DD></DL>
+<P>
+<A NAME="vlistviewDrawCellProc"><HR><H4>vlistviewDrawCellProc</H4></A>
+<PRE>
+        typedef ... <B>vlistviewDrawCellProc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a procedure that draws the content of the specified
+cell in the given rectangle on the current graphic port.
+<SAMP>row</SAMP> and <SAMP>column</SAMP> specify which cell
+of the list to draw, <SAMP>selected</SAMP> is set to
+<SAMP>TRUE</SAMP> if the cell is in the list view
+<SAMP>listview</SAMP>'s displayed selection,
+<SAMP>FALSE</SAMP> otherwise; and <SAMP>rect</SAMP> is the
+rectangle in which to draw the cell's content.
+</DD></DL>
+<P>
+<A NAME="vlistviewListObserver"><HR><H4>vlistviewListObserver</H4></A>
+<PRE>
+        typedef ... <B>vlistviewListObserver</B>;
+</PRE>
+
+<DL><DD>
+A specialized list observer used by list view objects to
+monitor their lists. See <CODE><A HREF="vlist-x.html#vlistObserver"><CODE>vlistObserver</CODE></A></CODE> for
+information on list observers.
+</DD></DL>
+<P>
+<A NAME="vlistviewNoteProc"><HR><H4>vlistviewNoteProc</H4></A>
+<PRE>
+        typedef ... <B>vlistviewNoteProc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a list view notify procedure. This is called
+whenever <SAMP>listview</SAMP> handles an interesting event
+(as defined by the Dialog Manager), <SAMP>event</SAMP> is
+the event that is being handled.
+</DD></DL>
+<P>
+<A NAME="vlistviewSelectNoteProc"><HR><H4>vlistviewSelectNoteProc</H4></A>
+<PRE>
+        typedef ... <B>vlistviewSelectNoteProc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a list view selection-notify procedure. This is
+called when <SAMP>listview</SAMP> selection is about to
+change, when it is changing, and when the user commits to
+the selection change. <SAMP>state</SAMP> is one of the
+following values
+<CODE>vlistviewSELECTION_WILL_CHANGE</CODE>,
+<CODE>vlistviewSELECTION_IS_CHANGING</CODE>,
+<CODE>vlistviewSELECTION_HAS_CHANGED</CODE>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSelectionFilterProc"><HR><H4>vlistviewSelectionFilterProc</H4></A>
+<PRE>
+        typedef ... <B>vlistviewSelectionFilterProc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a list view selection filter procedure that is
+called before selections are committed during mouse
+tracking. <SAMP>listview</SAMP> is the list view in which
+the selection is changing, and <SAMP>selection</SAMP> is
+the selection that is to be filtered.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vlistviewClip"><HR><H4>vlistviewClip</H4></A>
+<PRE>
+        void <B>vlistviewClip</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Sets the clipping region for the current drawing
+environment to the rectangle enclosing the contents of the
+specified list view (refer to Figure ).
+    <P>
+<BLOCKQUOTE>
+Figure: A list view's clipping rectangle.
+    <P>
+<IMG SRC="List.A_list_views_clipping.gif"></BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vlistviewClipContext"><HR><H4>vlistviewClipContext</H4></A>
+<PRE>
+        void <B>vlistviewClipContext</B>(
+                vlistview * listview,
+                vdrawcontext * context);
+</PRE>
+
+<DL><DD>
+Sets the clipping region for the context 
+to the rectangle enclosing the contents of the
+specified list view (refer to Figure ).
+    <P>
+<BLOCKQUOTE>
+Figure: A list view's clipping rectangle.
+    <P>
+<IMG SRC="List.A_list_views_clipping.gif"></BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vlistviewClone"><HR><H4>vlistviewClone</H4></A>
+<PRE>
+        vlistview * <B>vlistviewClone</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns a pointer to a newly allocated a list view, and
+makes it a copy of the list view <SAMP>listview</SAMP>.
+This function is essentially a combination of
+<CODE><A HREF="vlistview-x.html#vlistviewCreate"><CODE>vlistviewCreate</CODE></A></CODE> and
+<CODE><A HREF="vlistview-x.html#vlistviewCopy"><CODE>vlistviewCopy</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vlistviewCopy"><HR><H4>vlistviewCopy</H4></A>
+<PRE>
+        void <B>vlistviewCopy</B>(
+                vlistview * listview,
+                vlistview * target);
+</PRE>
+
+<DL><DD>
+Copies the information from <SAMP>listview</SAMP> into
+<SAMP>target</SAMP>, so that the two list views represent
+equivalent list views but separate storage. Any objects
+created in <SAMP>listview</SAMP> are duplicated in
+<SAMP>target</SAMP> as well. The <SAMP>vlist</SAMP> object
+that <SAMP>listview</SAMP> is displaying is also copied
+(<CODE><A HREF="vlist-x.html#vlistClone"><CODE>vlistClone</CODE></A></CODE>).
+</DD></DL>
+<P>
+<A NAME="vlistviewCopyInit"><HR><H4>vlistviewCopyInit</H4></A>
+<PRE>
+        void <B>vlistviewCopyInit</B>(
+                vlistview * listview,
+                vlistview * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>listview</SAMP> into
+<SAMP>target</SAMP> so the memory addressed by
+<SAMP>target</SAMP> is a dialog item equivalent to
+<SAMP>listview</SAMP>. <SAMP>target</SAMP> should be a
+pointer to uninitialized memory---the List Manager will
+initialize it as a part of the copy. This function copies
+all of the attributes of the item, and it will clone the
+list contents by calling <CODE><A HREF="vlist-x.html#vlistClone"><CODE>vlistClone</CODE></A></CODE> on the
+list owned by <SAMP>listitem</SAMP>. This function is
+implemented by sending the message
+<CODE>vobjectCOPY_INIT</CODE> to <SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewCreate"><HR><H4>vlistviewCreate</H4></A>
+<PRE>
+        vlistview * <B>vlistviewCreate</B>();
+</PRE>
+
+<DL><DD>
+Returns a pointer to a newly allocated list view of the
+default list view class. (Same as calling
+<CODE><A HREF="vlistview-x.html#vlistviewCreateOfClass"><CODE>vlistviewCreateOfClass</CODE></A></CODE><SAMP>(<CODE><A HREF="vlistview-x.html#vlistviewGetDefaultClass"><CODE>vlistviewGetDefaultClass</CODE></A></CODE>())</SAMP>.)
+</DD></DL>
+<P>
+<A NAME="vlistviewCreateOfClass"><HR><H4>vlistviewCreateOfClass</H4></A>
+<PRE>
+        vlistview * <B>vlistviewCreateOfClass</B>(
+                vlistviewClass * clas);
+</PRE>
+
+<DL><DD>
+Returns a pointer to a newly allocated list view of the
+class <SAMP>clas</SAMP>. The new list view is created with
+a set of default attributes determined by the class.
+</DD></DL>
+<P>
+<A NAME="vlistviewDestroy"><HR><H4>vlistviewDestroy</H4></A>
+<PRE>
+        void <B>vlistviewDestroy</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Destroys the list view represented by <SAMP>listview</SAMP>
+and all of its sub-objects that were allocated by the List
+Manager. This function attempts to free the storage
+directly occupied by the list view <I>only</I> if it was
+allocated by <CODE><A HREF="vlistview-x.html#vlistviewCreate"><CODE>vlistviewCreate</CODE></A></CODE> or
+<CODE><A HREF="vlistview-x.html#vlistviewCreateOfClass"><CODE>vlistviewCreateOfClass</CODE></A></CODE>. This function does not
+affect the list object that the list view is observing.
+</DD></DL>
+<P>
+<A NAME="vlistviewDetermineCellSize"><HR><H4>vlistviewDetermineCellSize</H4></A>
+<PRE>
+        void <B>vlistviewDetermineCellSize</B>(
+                vlistview * listview,
+                int row,
+                int column,
+                int * width,
+                int * height);
+</PRE>
+
+<DL><DD>
+Returns the natural size of a particular cell. The width
+and height of the cell are returned in <SAMP>width</SAMP>
+and <SAMP>height</SAMP> respectively. If the cell does not
+have a natural size, <CODE>vlistviewDONT_CARE</CODE> is
+returned in <SAMP>width</SAMP> and/or <SAMP>height</SAMP>.
+<CODE>vlistviewDONT_CARE</CODE> is guaranteed to be less
+than zero. List views do not use this function, but
+subclasses of list view (such as list item) use this to
+perform automatic row and column sizing. This function is
+implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewDETERMINE_CELL_SIZE"><CODE>vlistviewDETERMINE_CELL_SIZE</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewDraw"><HR><H4>vlistviewDraw</H4></A>
+<PRE>
+        void <B>vlistviewDraw</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Draws the specified list view. This function is implemented
+by sending the message <CODE><A HREF="vdialog-x.html#vdialogDRAW_ITEM"><CODE>vdialogDRAW_ITEM</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewDrawBorder"><HR><H4>vlistviewDrawBorder</H4></A>
+<PRE>
+        void <B>vlistviewDrawBorder</B>(
+                vlistview * listview,
+                vrect * rect);
+</PRE>
+
+<DL><DD>
+Draws the list view's border appropriate for the current
+look-and-feel. <SAMP>rect</SAMP> is the maximum area
+available for drawing the list contents. This function is
+implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewDRAW_BORDER"><CODE>vlistviewDRAW_BORDER</CODE></A></CODE> to <SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewDrawBorderWith"><HR><H4>vlistviewDrawBorderWith</H4></A>
+<PRE>
+        void <B>vlistviewDrawBorderWith</B>(
+                vlistview * listview,
+                vrect * rect,
+                vdrawcontext * context);
+</PRE>
+
+<DL><DD>
+Draws the list view border in the context.
+</DD></DL>
+<P>
+<A NAME="vlistviewDrawCell"><HR><H4>vlistviewDrawCell</H4></A>
+<PRE>
+        void <B>vlistviewDrawCell</B>(
+                vlistview * listview,
+                int row,
+                int column);
+</PRE>
+
+<DL><DD>
+Draws the cell specified by <SAMP>row</SAMP>,
+<SAMP>column</SAMP> immediately, without waiting for a
+redraw event. If the specified cell is outside of the list,
+the exception <SAMP>/Arg/Range</SAMP> is generated. It is
+not necessary to set up a drawing context before calling
+this function.
+</DD></DL>
+<P>
+<A NAME="vlistviewDrawCellBackground"><HR><H4>vlistviewDrawCellBackground</H4></A>
+<PRE>
+        void <B>vlistviewDrawCellBackground</B>(
+                vlistview * listview,
+                int row,
+                int column,
+                int selected,
+                vrect * rect);
+</PRE>
+
+<DL><DD>
+Draws the cell background for cell (<SAMP>row</SAMP>,
+<SAMP>column</SAMP>) immediately, without waiting for a
+redraw event. This function is implemented by sending the
+message <CODE><A HREF="vlistview-x.html#vlistviewDRAW_CELL_BACKGROUND"><CODE>vlistviewDRAW_CELL_BACKGROUND</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewDrawCellBackgroundWith"><HR><H4>vlistviewDrawCellBackgroundWith</H4></A>
+<PRE>
+        void <B>vlistviewDrawCellBackgroundWith</B>(
+                vlistview * listview,
+                int row,
+                int column,
+                int selected,
+                vrect * rect,
+                vdrawcontext * context);
+</PRE>
+
+<DL><DD>
+Draws the cell background in the context.
+</DD></DL>
+<P>
+<A NAME="vlistviewDrawCellContents"><HR><H4>vlistviewDrawCellContents</H4></A>
+<PRE>
+        void <B>vlistviewDrawCellContents</B>(
+                vlistview * listview,
+                int row,
+                int column,
+                int selected,
+                vrect * rect);
+</PRE>
+
+<DL><DD>
+Draws the cell contents for cell (<SAMP>row</SAMP>,
+<SAMP>column</SAMP>) in the specified <SAMP>rect</SAMP>
+immediately, without waiting for a redraw event.
+<SAMP>selected</SAMP> is set to <SAMP>TRUE</SAMP> in the
+cell is in the list view's visible selection,
+<SAMP>FALSE</SAMP> otherwise. This works by calling the
+<SAMP>CellContentProc</SAMP>. The rectangle passed to this
+procedure has been inset to lie within any selection
+highlighting that might exist for the current
+look-and-feel. To get the rectangle for the entire cell
+(which includes the space for the selection highlighting),
+call <CODE><A HREF="vlistview-x.html#vlistviewGetCellRect"><CODE>vlistviewGetCellRect</CODE></A></CODE>. The amount of inset
+is stored in the class variable
+<CODE><A HREF="vlistview-x.html#vlistviewSELECTION_INSET"><CODE>vlistviewSELECTION_INSET</CODE></A></CODE>. This function is
+implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewDRAW_CELL_CONTENTS"><CODE>vlistviewDRAW_CELL_CONTENTS</CODE></A></CODE> to
+<SAMP>listview</SAMP>. The default implementation of this
+method calls the <SAMP>CellContentProc</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewDrawCellContentsWith"><HR><H4>vlistviewDrawCellContentsWith</H4></A>
+<PRE>
+        void <B>vlistviewDrawCellContentsWith</B>(
+                vlistview * listview,
+                int row,
+                int column,
+                int selected,
+                vrect * rect,
+                vdrawcontext * context);
+</PRE>
+
+<DL><DD>
+Draws the cell contents in the context.
+</DD></DL>
+<P>
+<A NAME="vlistviewDrawCellFocus"><HR><H4>vlistviewDrawCellFocus</H4></A>
+<PRE>
+        void <B>vlistviewDrawCellFocus</B>(
+                vlistview * listview,
+                int row,
+                int column,
+                vrect * rect);
+</PRE>
+
+<DL><DD>
+Draws the keyboard traversal focus indicator for the given
+cell. <SAMP>rect</SAMP> designates the cell rectangle to
+draw the focus around. If the list referenced by
+<SAMP>listview</SAMP> is empty or has not been set yet,
+<SAMP>row</SAMP> and <SAMP>column</SAMP> will have the
+valuse <CODE>vlistviewEMPTY_LIST</CODE>, and rect will be
+the rectangle returned by
+<CODE><A HREF="vlistview-x.html#vlistviewGetListRect"><CODE>vlistviewGetListRect</CODE></A></CODE>. Typically keyboard focus
+for an empty list is drawn as a rectangle inside of the
+given rectangle. This function is implemented by sending
+the message <CODE><A HREF="vlistview-x.html#vlistviewDRAW_CELL_FOCUS"><CODE>vlistviewDRAW_CELL_FOCUS</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewDrawCellFocusWith"><HR><H4>vlistviewDrawCellFocusWith</H4></A>
+<PRE>
+        void <B>vlistviewDrawCellFocusWith</B>(
+                vlistview * listview,
+                int row,
+                int column,
+                vrect * rect,
+                vdrawcontext * context);
+</PRE>
+
+<DL><DD>
+Draws the cell focus in the context.
+</DD></DL>
+<P>
+<A NAME="vlistviewDrawCellGrid"><HR><H4>vlistviewDrawCellGrid</H4></A>
+<PRE>
+        void <B>vlistviewDrawCellGrid</B>(
+                vlistview * listview,
+                int row,
+                int column,
+                vrect * rect);
+</PRE>
+
+<DL><DD>
+Draws the horizontal and/or vertical grid lines for the
+indicated cell. <SAMP>rect</SAMP> designates the space that
+is available for the cell and the grid lines. This function
+is implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewDRAW_CELL_GRID"><CODE>vlistviewDRAW_CELL_GRID</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewDrawCellGridWith"><HR><H4>vlistviewDrawCellGridWith</H4></A>
+<PRE>
+        void <B>vlistviewDrawCellGridWith</B>(
+                vlistview * listview,
+                int row,
+                int column,
+                vrect * rect,
+                vdrawcontext * context);
+</PRE>
+
+<DL><DD>
+Draws the cell grid in the context.
+</DD></DL>
+<P>
+<A NAME="vlistviewDrawCellSelection"><HR><H4>vlistviewDrawCellSelection</H4></A>
+<PRE>
+        void <B>vlistviewDrawCellSelection</B>(
+                vlistview * listview,
+                int row,
+                int column,
+                vrect * rect);
+</PRE>
+
+<DL><DD>
+Draws the selection highlighting for the specified cell
+appropriate for the current look-and-feel in the specified
+rectangle. This function is implemented by sending the
+message <CODE><A HREF="vlistview-x.html#vlistviewDRAW_CELL_SELECTION"><CODE>vlistviewDRAW_CELL_SELECTION</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewDrawCellSelectionWith"><HR><H4>vlistviewDrawCellSelectionWith</H4></A>
+<PRE>
+        void <B>vlistviewDrawCellSelectionWith</B>(
+                vlistview * listview,
+                int row,
+                int column,
+                vrect * rect,
+                vdrawcontext * context);
+</PRE>
+
+<DL><DD>
+Draws the cell selection in the context.
+</DD></DL>
+<P>
+<A NAME="vlistviewDrawFocus"><HR><H4>vlistviewDrawFocus</H4></A>
+<PRE>
+        void <B>vlistviewDrawFocus</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Draws the keyboard traversal focus cursor in the cell that
+currently has keyboard focus in the list view's visible
+selection.
+</DD></DL>
+<P>
+<A NAME="vlistviewDrawFocusWith"><HR><H4>vlistviewDrawFocusWith</H4></A>
+<PRE>
+        void <B>vlistviewDrawFocusWith</B>(
+                vlistview * listview,
+                vdrawcontext * context);
+</PRE>
+
+<DL><DD>
+Draws the list view focus indicator in the context.
+</DD></DL>
+<P>
+<A NAME="vlistviewDrawMoveCursor"><HR><H4>vlistviewDrawMoveCursor</H4></A>
+<PRE>
+        void <B>vlistviewDrawMoveCursor</B>(
+                vlistview * listview,
+                int oldindex,
+                int newindex);
+</PRE>
+
+<DL><DD>
+Draws the row/column rearranging the cursor. This cursor is
+drawn when the list view is tracking a row or column
+rearranging operation. <SAMP>oldindex</SAMP> is the
+previous location of the move cursor that needs to be
+redrawn or invalidated. <SAMP>oldindex</SAMP> is
+<SAMP>-1</SAMP> if this is the initial drawing of the move
+cursor. <SAMP>newindex</SAMP> is the location to draw the
+cursor. The axis of rearranging (row or column) is
+determined by <CODE><A HREF="vlistview-x.html#vlistviewHasRowRearrange"><CODE>vlistviewHasRowRearrange</CODE></A></CODE> or
+<CODE><A HREF="vlistview-x.html#vlistviewHasColumnRearrange"><CODE>vlistviewHasColumnRearrange</CODE></A></CODE>. This function is
+implemented by sending the message
+<CODE>vlistivewDRAW_MOVE_CURSOR</CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewDrawWith"><HR><H4>vlistviewDrawWith</H4></A>
+<PRE>
+        void <B>vlistviewDrawWith</B>(
+                vlistview * listview,
+                vdrawcontext * context);
+</PRE>
+
+<DL><DD>
+Draws the list view in the context.
+</DD></DL>
+<P>
+<A NAME="vlistviewFilterSelection"><HR><H4>vlistviewFilterSelection</H4></A>
+<PRE>
+        void <B>vlistviewFilterSelection</B>(
+                vlistview * listview,
+                vlistSelection * selection);
+</PRE>
+
+<DL><DD>
+The default implementation for list view objects passes the
+selection <SAMP>selection</SAMP> to the list view
+<SAMP>listview</SAMP>'s selection filter function. The
+selection filter can then modify <SAMP>selection</SAMP>.
+The selection <SAMP>selection</SAMP> does not have to be
+the list view's displayed selection. This function is
+implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewFILTER_SELECTION"><CODE>vlistviewFILTER_SELECTION</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetBottomRow"><HR><H4>vlistviewGetBottomRow</H4></A>
+<PRE>
+        int <B>vlistviewGetBottomRow</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the bottommost row of the visible area of the
+specified list view.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetCellContentProc"><HR><H4>vlistviewGetCellContentProc</H4></A>
+<PRE>
+        vlistviewDrawCellProc <B>vlistviewGetCellContentProc</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the current cell content drawing procedure for the
+specified list view. The default cell content drawing
+procedure assumes that the cell values are of type
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A>*</SAMP> and draws the string aligned left and
+centered vertically in the rectangle <SAMP>rect</SAMP>. The
+string is inset from the left edit of the cell by a margin
+of the class variable <CODE><A HREF="vlistview-x.html#vlistviewBORDER_INSET"><CODE>vlistviewBORDER_INSET</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetCellRect"><HR><H4>vlistviewGetCellRect</H4></A>
+<PRE>
+        void <B>vlistviewGetCellRect</B>(
+                vlistview * listview,
+                int row,
+                int column,
+                vrect * rect);
+</PRE>
+
+<DL><DD>
+Retrieves the rectangle that encloses the specified cell
+into the rectangle <SAMP>rect.</SAMP>
+</DD></DL>
+<P>
+<A NAME="vlistviewGetClass"><HR><H4>vlistviewGetClass</H4></A>
+<PRE>
+        vlistviewClass * <B>vlistviewGetClass</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the class of the list view <SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetColumnWidth"><HR><H4>vlistviewGetColumnWidth</H4></A>
+<PRE>
+        int <B>vlistviewGetColumnWidth</B>(
+                vlistview * listview,
+                int column);
+</PRE>
+
+<DL><DD>
+Returns the width of the given column. The value returned
+does not include the space added for selection
+highlighting. To obtain the actual column width including
+extra space, use <CODE><A HREF="vlistsize-x.html#vlistsizeGetColumnWidth"><CODE>vlistsizeGetColumnWidth</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetContentNaturalSize"><HR><H4>vlistviewGetContentNaturalSize</H4></A>
+<PRE>
+        void <B>vlistviewGetContentNaturalSize</B>(
+                vlistview * listview,
+                int * w,
+                int * h);
+</PRE>
+
+<DL><DD>
+Returns the natural size of the content region of a list
+view. By default, this returns the largest possible area
+that shows all of the list view's contents. Override this
+method to exert control in list view natural sizing. The
+natural size of a list view is the natural size of its
+contents added to the decoration sizes (determined by
+<CODE><A HREF="vlistview-x.html#vlistviewGetDecorationSizes"><CODE>vlistviewGetDecorationSizes</CODE></A></CODE>). This function is
+implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewGET_CONTENT_NATURAL_SIZE"><CODE>vlistviewGET_CONTENT_NATURAL_SIZE</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetData"><HR><H4>vlistviewGetData</H4></A>
+<PRE>
+        const void * <B>vlistviewGetData</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the data field of the <SAMP><A HREF="vdialog-x.html#vdialogItem"><CODE>vdialogItem</CODE></A></SAMP> that
+<SAMP>listview</SAMP> is built on. This convenience
+function is equivalent to
+<SAMP><CODE><A HREF="vdialog-x.html#vdialogGetItemData"><CODE>vdialogGetItemData</CODE></A></CODE>(<CODE><A HREF="vlistview-x.html#vlistviewGetItem"><CODE>vlistviewGetItem</CODE></A></CODE>(listview))</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetDecorationSizes"><HR><H4>vlistviewGetDecorationSizes</H4></A>
+<PRE>
+        void <B>vlistviewGetDecorationSizes</B>(
+                vlistview * listview,
+                int * top,
+                int * left,
+                int * bottom,
+                int * right);
+</PRE>
+
+<DL><DD>
+Returns the amount of room necessary to draw a list view's
+decorations (border, scroll bar, scroll bar margin) The
+natural size of a listview is the natural size of its
+contents (determined by
+<CODE><A HREF="vlistview-x.html#vlistviewGetContentNaturalSize"><CODE>vlistviewGetContentNaturalSize</CODE></A></CODE>) added to the
+decoration sizes. The content rectangle (accessed by
+<CODE><A HREF="vlistview-x.html#vlistviewGetListRect"><CODE>vlistviewGetListRect</CODE></A></CODE>) is calculated by
+subtracting the decoration sizes from the list view's
+bounding rectangle.
+    <P>
+<BLOCKQUOTE>
+would an illustration be good here?
+</BLOCKQUOTE>
+
+    <P>
+This function is implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewGET_DECORATION_SIZES"><CODE>vlistviewGET_DECORATION_SIZES</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetDefaultCellContentProc"><HR><H4>vlistviewGetDefaultCellContentProc</H4></A>
+<PRE>
+        vlistviewDrawCellProc <B>vlistviewGetDefaultCellContentProc</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the default cell content drawing procedure for the
+class of the specified list view. The cell content drawing
+procedure for the <CODE><A HREF="vlistview-x.html#vlistviewClass"><CODE>vlistviewClass</CODE></A></CODE> assumes that
+the cell values are <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A>*</SAMP> and draws the
+string aligned left and centered vertically in the cell
+rectangle. The string is inset from the left edit of the
+cell by a margin of the class variable
+<CODE><A HREF="vlistview-x.html#vlistviewBORDER_INSET"><CODE>vlistviewBORDER_INSET</CODE></A></CODE>. This function is
+implemented by sending the message
+<CODE>vlistviewGET_DEFUALT_CONTENT_PROC</CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetDefaultClass"><HR><H4>vlistviewGetDefaultClass</H4></A>
+<PRE>
+        vlistviewClass * <B>vlistviewGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the class used to create list views by the
+<CODE><A HREF="vlistview-x.html#vlistviewCreate"><CODE>vlistviewCreate</CODE></A></CODE> and <CODE><A HREF="vlistview-x.html#vlistviewInit"><CODE>vlistviewInit</CODE></A></CODE>
+functions. This class can be modified to alter the behavior
+of all list views subsequently created by these functions.
+This is normally used to spawn or reproduce a class to make
+a new subclass.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetDefaultObserverClass"><HR><H4>vlistviewGetDefaultObserverClass</H4></A>
+<PRE>
+        vlistObserverClass * <B>vlistviewGetDefaultObserverClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the class that contains the default observer class
+methods. List views register this observer class with the
+list data object to receive notification of list data
+changes. You should set the methods of this class to
+override/subclass or enhance observer methods. 
+    <P>
+(Refer to ``Observers'' in the ``List Manager'' chapter of
+the <I>Galaxy Application Environment Programmer's
+Guide</I> for more information about list observers.)
+</DD></DL>
+<P>
+<A NAME="vlistviewGetDrawingOffsets"><HR><H4>vlistviewGetDrawingOffsets</H4></A>
+<PRE>
+        void <B>vlistviewGetDrawingOffsets</B>(
+                vlistview * listview,
+                int * xoffset,
+                int * yoffset);
+</PRE>
+
+<DL><DD>
+Returns in <SAMP>xoffset</SAMP> and <SAMP>yoffset</SAMP>
+the offset into the top left cell currently visible for the
+list view (refer to Figure ). These values are nonzero when
+cells straddle the left or top sides of the list view's
+visible area. <SAMP>xoffset</SAMP> is always zero or
+negative, and <SAMP>yoffset</SAMP> is always zero or
+positive.
+    <P>
+<BLOCKQUOTE>
+Figure: Current top left cell's drawing offsets
+    <P>
+<IMG SRC="List.Current_top_left_cell.gif"></BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vlistviewGetFocus"><HR><H4>vlistviewGetFocus</H4></A>
+<PRE>
+        void <B>vlistviewGetFocus</B>(
+                vlistview * listview,
+                int * row,
+                int * column);
+</PRE>
+
+<DL><DD>
+Returns in <SAMP>row</SAMP> and <SAMP>column</SAMP> the
+current location of the keyboard focus for the specified
+list view.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetHorzScrollbar"><HR><H4>vlistviewGetHorzScrollbar</H4></A>
+<PRE>
+        vsliderScrollBar * <B>vlistviewGetHorzScrollbar</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the horizontal scroll bar. This returns
+<SAMP>NULL</SAMP> if there is no horizontal scroll bar.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetItem"><HR><H4>vlistviewGetItem</H4></A>
+<PRE>
+        vdialogItem * <B>vlistviewGetItem</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the <CODE><A HREF="vdialog-x.html#vdialogItem"><CODE>vdialogItem</CODE></A></CODE> object that
+<SAMP>listview</SAMP> is based upon.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetLastPointerClickCount"><HR><H4>vlistviewGetLastPointerClickCount</H4></A>
+<PRE>
+        int <B>vlistviewGetLastPointerClickCount</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the pointer click count of the most recent mouse
+event in the specified list view. This function should only
+be called from within a selection notification procedure.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetLastPointerPosition"><HR><H4>vlistviewGetLastPointerPosition</H4></A>
+<PRE>
+        void <B>vlistviewGetLastPointerPosition</B>(
+                vlistview * listview,
+                int * lastX,
+                int * lastY);
+</PRE>
+
+<DL><DD>
+Returns the position of the pointer for the most recent
+mouse-related event during selection tracking in the given
+list view. If this function is called outside of selection
+tracking, <SAMP>-1</SAMP> is returned in <SAMP>lastX</SAMP>
+and <SAMP>lastY</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetLeftColumn"><HR><H4>vlistviewGetLeftColumn</H4></A>
+<PRE>
+        int <B>vlistviewGetLeftColumn</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the leftmost column of the visible area of the
+specified list view.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetList"><HR><H4>vlistviewGetList</H4></A>
+<PRE>
+        vlist * <B>vlistviewGetList</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the list object that is being displayed by the
+specified list view.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetListRect"><HR><H4>vlistviewGetListRect</H4></A>
+<PRE>
+        const vrect * <B>vlistviewGetListRect</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the rectangle enclosing the contents of the
+specified list view's drawing area (refer to Figure).
+    <P>
+<BLOCKQUOTE>
+Figure: A list view's drawing content rectangle
+    <P>
+<IMG SRC="List.A_list_views_drawing.gif"></BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vlistviewGetNotify"><HR><H4>vlistviewGetNotify</H4></A>
+<PRE>
+        vlistviewNoteProc <B>vlistviewGetNotify</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the dialog item notification procedure for the list
+view. If no notification function has been set,
+<SAMP>NULL</SAMP> is returned.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetObserverClass"><HR><H4>vlistviewGetObserverClass</H4></A>
+<PRE>
+        vlistObserverClass * <B>vlistviewGetObserverClass</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the list observer class for the list view
+<SAMP>listview</SAMP>. This is the observer class used to
+create new observers.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetRearrange"><HR><H4>vlistviewGetRearrange</H4></A>
+<PRE>
+        int <B>vlistviewGetRearrange</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns <CODE>vlistviewROW_REARRANGE</CODE> if row
+rearranging is enabled, or
+<CODE>vlistviewCOLUMN_REARRANGE</CODE> if column
+rearranging is enabled, or
+<CODE>vlistviewNO_REARRANGE</CODE> if all rearranging is
+turned off for the listview <SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetRearrangement"><HR><H4>vlistviewGetRearrangement</H4></A>
+<PRE>
+        void <B>vlistviewGetRearrangement</B>(
+                vlistview * listview,
+                int * from,
+                int * to,
+                int * type);
+</PRE>
+
+<DL><DD>
+When called in the selection notify procedure, this
+function returns the rows or columns that were affected by
+a rearrangement operation. <SAMP>from</SAMP> and
+<SAMP>to</SAMP> contain the rows or columns that
+participated in the rearrangement. <SAMP>from</SAMP> is the
+row or column that was clicked on, <SAMP>to</SAMP> is the
+row or column released over. <SAMP>type</SAMP> indicates
+the type of rearrangement and takes one of the following
+values:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><CODE>vlistviewROW_REARRANGE</CODE>
+<DD>Rows have been moved.
+<DT><CODE>vlistviewCOLUMN_REARRANGE</CODE>
+<DD>Columns have been moved.
+<DT><CODE>vlistviewNO_REARRANGE</CODE>
+<DD>No rearrangement happened.
+</DL>
+</BLOCKQUOTE>
+
+    <P>
+This function should be called in the selection notify
+procedure if you receive a
+<CODE>vlistviewSELECTION_HAS_CHANGED</CODE> message and you
+know that the list is rearrangeable.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetRearrangingFrom"><HR><H4>vlistviewGetRearrangingFrom</H4></A>
+<PRE>
+        int <B>vlistviewGetRearrangingFrom</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vlistviewGetRearrangingTo"><HR><H4>vlistviewGetRearrangingTo</H4></A>
+<PRE>
+        int <B>vlistviewGetRearrangingTo</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vlistviewGetRearrangingType"><HR><H4>vlistviewGetRearrangingType</H4></A>
+<PRE>
+        int <B>vlistviewGetRearrangingType</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vlistviewGetRect"><HR><H4>vlistviewGetRect</H4></A>
+<PRE>
+        const vrect * <B>vlistviewGetRect</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the rectangle enclosing the specified list view.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetRightColumn"><HR><H4>vlistviewGetRightColumn</H4></A>
+<PRE>
+        int <B>vlistviewGetRightColumn</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the rightmost column of the visible area of the
+specified list view.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetRowHeight"><HR><H4>vlistviewGetRowHeight</H4></A>
+<PRE>
+        int <B>vlistviewGetRowHeight</B>(
+                vlistview * listview,
+                int row);
+</PRE>
+
+<DL><DD>
+Returns the height of the given row. The value returned
+does not include the space added for selection
+highlighting. To obtain the actual row height including
+extra space, use  <CODE><A HREF="vlistsize-x.html#vlistsizeGetRowHeight"><CODE>vlistsizeGetRowHeight</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetScrollBarMargin"><HR><H4>vlistviewGetScrollBarMargin</H4></A>
+<PRE>
+        int <B>vlistviewGetScrollBarMargin</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the scroll bar margin for the specified list view,
+which is the space between the scroll bar and the border of
+the list cell area. By default, the scroll bar margin is
+zero.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetSelectNotify"><HR><H4>vlistviewGetSelectNotify</H4></A>
+<PRE>
+        vlistviewSelectNoteProc <B>vlistviewGetSelectNotify</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the list view's selection-notify procedure. It a
+notification procedure has not been set, <SAMP>NULL</SAMP>
+is returned.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetSelection"><HR><H4>vlistviewGetSelection</H4></A>
+<PRE>
+        vlistSelection * <B>vlistviewGetSelection</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the currently visible selection for the specified
+list view.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetSelectionFilter"><HR><H4>vlistviewGetSelectionFilter</H4></A>
+<PRE>
+        vlistviewSelectionFilterProc <B>vlistviewGetSelectionFilter</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the selection filter function currently associated
+with the list view <SAMP>listview</SAMP>. If the filter has
+not been set then <SAMP>NULL</SAMP> is returned.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetSizes"><HR><H4>vlistviewGetSizes</H4></A>
+<PRE>
+        vlistsize * <B>vlistviewGetSizes</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the size structure being used by the list view. A
+size structure is automatically added when a list view is
+created.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetTopRow"><HR><H4>vlistviewGetTopRow</H4></A>
+<PRE>
+        int <B>vlistviewGetTopRow</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the topmost row of the visible area of the
+specified list view.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetUpdateMode"><HR><H4>vlistviewGetUpdateMode</H4></A>
+<PRE>
+        int <B>vlistviewGetUpdateMode</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the update mode for the listview
+<SAMP>listview</SAMP>. The return value is
+<CODE>vlistviewSCROLL</CODE>, <CODE>vlistviewINVAL</CODE>,
+or <CODE>vlistviewDO_NOTHING</CODE>. See
+<CODE><A HREF="vlistview-x.html#vlistviewSetUpdateMode"><CODE>vlistviewSetUpdateMode</CODE></A></CODE> for more information.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetVertScrollbar"><HR><H4>vlistviewGetVertScrollbar</H4></A>
+<PRE>
+        vsliderScrollBar * <B>vlistviewGetVertScrollbar</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the vertical scroll bar. This returns
+<SAMP>NULL</SAMP> if there is no vertical scroll bar.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetVisibleRange"><HR><H4>vlistviewGetVisibleRange</H4></A>
+<PRE>
+        void <B>vlistviewGetVisibleRange</B>(
+                vlistview * listview,
+                int * row,
+                int * column,
+                int * rows,
+                int * columns);
+</PRE>
+
+<DL><DD>
+Returns the range of cells currently visible in the
+specified list view. The upper left visible cell is
+returned in <SAMP>row</SAMP> and <SAMP>column</SAMP>, the
+number of visible rows is returned in <SAMP>rows</SAMP>,
+and the number of visible columns is returned in
+<SAMP>columns</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewGetVolatileSelection"><HR><H4>vlistviewGetVolatileSelection</H4></A>
+<PRE>
+        vlistSelection * <B>vlistviewGetVolatileSelection</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the ``volatile'' selection, which is the selection
+defined while the user is changing the selection in the
+specified list view, before committing to an actual
+selection. The volatile selection information can be used
+to provide information about the currently selected cells;
+for example, by graying out selected cells for which the
+application has no current use, or by updating other dialog
+items to reflect the value of the currently selected cells.
+An undefined selection is returned if this function is
+called outside of tracking a change to the selection.
+</DD></DL>
+<P>
+<A NAME="vlistviewHasAutoScroll"><HR><H4>vlistviewHasAutoScroll</H4></A>
+<PRE>
+        int <B>vlistviewHasAutoScroll</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the list view
+<SAMP>listview</SAMP> automatically scrolls its contents
+when the user clicks and drags outside of the list view,
+<SAMP>FALSE</SAMP> if it does not.
+</DD></DL>
+<P>
+<A NAME="vlistviewHasBorder"><HR><H4>vlistviewHasBorder</H4></A>
+<PRE>
+        int <B>vlistviewHasBorder</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if <SAMP>listview</SAMP> draws a
+border around the list view, <SAMP>FALSE</SAMP> if it does
+not draw a border.
+</DD></DL>
+<P>
+<A NAME="vlistviewHasColumnRearrange"><HR><H4>vlistviewHasColumnRearrange</H4></A>
+<PRE>
+        int <B>vlistviewHasColumnRearrange</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the list view
+<SAMP>listview</SAMP> rearranges columns when the user
+clicks and drags in the list view with the drag button
+down, <SAMP>FALSE</SAMP> if it does not rearrange.
+</DD></DL>
+<P>
+<A NAME="vlistviewHasDrawingSelection"><HR><H4>vlistviewHasDrawingSelection</H4></A>
+<PRE>
+        int <B>vlistviewHasDrawingSelection</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the setting of the list view
+<SAMP>listview</SAMP>'s <SAMP>DrawingSelection</SAMP>
+attribute. If Drawing Selection is enabled, the user can
+click and draw over any shape or area of cells, and the
+selection is not increased to be a rectangle.
+</DD></DL>
+<P>
+<A NAME="vlistviewHasGrabbingHand"><HR><H4>vlistviewHasGrabbingHand</H4></A>
+<PRE>
+        int <B>vlistviewHasGrabbingHand</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the list view is in
+grabbing-hand mode, <SAMP>FALSE</SAMP> if it is not. If
+Grabbing Hand is enabled, the user can grab-click in the
+list view area, and then drag the list around to scroll it.
+</DD></DL>
+<P>
+<A NAME="vlistviewHasHorzBar"><HR><H4>vlistviewHasHorzBar</H4></A>
+<PRE>
+        int <B>vlistviewHasHorzBar</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the list view has a horizontal
+scroll bar, <SAMP>FALSE</SAMP> if not.
+</DD></DL>
+<P>
+<A NAME="vlistviewHasHorzGrid"><HR><H4>vlistviewHasHorzGrid</H4></A>
+<PRE>
+        int <B>vlistviewHasHorzGrid</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if horizontal grid lines are
+drawn, <SAMP>FALSE</SAMP> if no horizontal grid lines are
+drawn.
+</DD></DL>
+<P>
+<A NAME="vlistviewHasRearrange"><HR><H4>vlistviewHasRearrange</H4></A>
+<PRE>
+        int <B>vlistviewHasRearrange</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the list view rearranges
+columns or rows when the user clicks and drags in the list,
+<SAMP>FALSE</SAMP> if it does not rearrange either rows or
+columns in this way.
+</DD></DL>
+<P>
+<A NAME="vlistviewHasRowRearrange"><HR><H4>vlistviewHasRowRearrange</H4></A>
+<PRE>
+        int <B>vlistviewHasRowRearrange</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the list view rearranges rows
+when the user clicks and drags in the list view with the
+drag button down, <SAMP>FALSE</SAMP> if it does not
+rearrange.
+</DD></DL>
+<P>
+<A NAME="vlistviewHasSelectionSense"><HR><H4>vlistviewHasSelectionSense</H4></A>
+<PRE>
+        int <B>vlistviewHasSelectionSense</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns the setting of the list view's
+<SAMP>SelectionSense</SAMP> attribute.
+</DD></DL>
+<P>
+<A NAME="vlistviewHasTraversalWrap"><HR><H4>vlistviewHasTraversalWrap</H4></A>
+<PRE>
+        int <B>vlistviewHasTraversalWrap</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the list view wraps the
+keyboard focus at the ends of the list, <SAMP>FALSE</SAMP>
+if it pins the focus at the ends.
+</DD></DL>
+<P>
+<A NAME="vlistviewHasUseKeyboardSelection"><HR><H4>vlistviewHasUseKeyboardSelection</H4></A>
+<PRE>
+        int <B>vlistviewHasUseKeyboardSelection</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the list view allows keyboard
+selection through the keyboard focus, <SAMP>FALSE</SAMP>
+otherwise.
+</DD></DL>
+<P>
+<A NAME="vlistviewHasUseKeyboardTraversal"><HR><H4>vlistviewHasUseKeyboardTraversal</H4></A>
+<PRE>
+        int <B>vlistviewHasUseKeyboardTraversal</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the list view uses keyboard
+traversal, <SAMP>FALSE</SAMP> if it does not.
+</DD></DL>
+<P>
+<A NAME="vlistviewHasVertBar"><HR><H4>vlistviewHasVertBar</H4></A>
+<PRE>
+        int <B>vlistviewHasVertBar</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the list view has a vertical
+scroll bar, <SAMP>FALSE</SAMP> if it does not.
+</DD></DL>
+<P>
+<A NAME="vlistviewHasVertGrid"><HR><H4>vlistviewHasVertGrid</H4></A>
+<PRE>
+        int <B>vlistviewHasVertGrid</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if vertical grid lines are drawn,
+<SAMP>FALSE</SAMP> if no vertical grid lines are drawn.
+</DD></DL>
+<P>
+<A NAME="vlistviewInit"><HR><H4>vlistviewInit</H4></A>
+<PRE>
+        void <B>vlistviewInit</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Makes the list view pointed to by <SAMP>listview</SAMP>
+into a valid list view of the default list view class in
+the same manner as
+<CODE><A HREF="vlistview-x.html#vlistviewInitOfClass"><CODE>vlistviewInitOfClass</CODE></A></CODE><SAMP>(listview,
+<CODE><A HREF="vlistview-x.html#vlistviewGetDefaultClass"><CODE>vlistviewGetDefaultClass</CODE></A></CODE>())</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewInitOfClass"><HR><H4>vlistviewInitOfClass</H4></A>
+<PRE>
+        void <B>vlistviewInitOfClass</B>(
+                vlistview * listview,
+                vlistviewClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes the list view <SAMP>listview</SAMP> to be a
+valid list view object of the class <SAMP>clas</SAMP>. A
+call to <CODE><A HREF="vlistview-x.html#vlistviewDestroy"><CODE>vlistviewDestroy</CODE></A></CODE> frees any internal
+objects allocated by the List Manager but does not attempt
+to free the structure itself.
+</DD></DL>
+<P>
+<A NAME="vlistviewInval"><HR><H4>vlistviewInval</H4></A>
+<PRE>
+        void <B>vlistviewInval</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Invalidates the list view drawing area. This causes a
+refresh event to be queued and causes the list view to be
+redrawn later. The invalidation type used is
+<CODE>vwindowINVAL_OPAQUE</CODE>.
+</DD></DL>
+<P>
+<A NAME="vlistviewInvalCell"><HR><H4>vlistviewInvalCell</H4></A>
+<PRE>
+        void <B>vlistviewInvalCell</B>(
+                vlistview * listview,
+                int row,
+                int column);
+</PRE>
+
+<DL><DD>
+Invalidates the drawing area for the specified cell. A
+refresh event is queued for the cell and causes the cell to
+be redrawn later. The invalidation type used is
+<CODE>vwindowINVAL_OPAQUE</CODE>.
+</DD></DL>
+<P>
+<A NAME="vlistviewInvalColumn"><HR><H4>vlistviewInvalColumn</H4></A>
+<PRE>
+        void <B>vlistviewInvalColumn</B>(
+                vlistview * listview,
+                int column);
+</PRE>
+
+<DL><DD>
+Invalidates the drawing area for the specified column. A
+refresh event is queued for the column and causes the
+column to be redrawn later. The invalidation type used is
+<CODE>vwindowINVAL_OPAQUE</CODE>.
+</DD></DL>
+<P>
+<A NAME="vlistviewInvalRow"><HR><H4>vlistviewInvalRow</H4></A>
+<PRE>
+        void <B>vlistviewInvalRow</B>(
+                vlistview * listview,
+                int row);
+</PRE>
+
+<DL><DD>
+Invalidates the drawing area for the specified row. A
+refresh event is queued for the row and causes the row to
+be redrawn later. The invalidation type used is
+<CODE>vwindowINVAL_OPAQUE</CODE>.
+</DD></DL>
+<P>
+<A NAME="vlistviewInvalSelection"><HR><H4>vlistviewInvalSelection</H4></A>
+<PRE>
+        void <B>vlistviewInvalSelection</B>(
+                vlistview * listview,
+                vlistSelection * selection);
+</PRE>
+
+<DL><DD>
+Invalidates all of the cells in the list view
+<SAMP>listview</SAMP> that are selected in
+<SAMP>selection</SAMP> using the
+<CODE>vwindowINVAL_OPAQUE</CODE> invalidation flag. This
+function is implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewINVAL_SELECTION"><CODE>vlistviewINVAL_SELECTION</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewIsRearranging"><HR><H4>vlistviewIsRearranging</H4></A>
+<PRE>
+        int <B>vlistviewIsRearranging</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the list view is currently in
+the process of tracking a rearrangement operation,
+<SAMP>FALSE</SAMP> if it is not. This call is used to check
+if the user is rearranging a list from within a
+<SAMP>SelectionNotify</SAMP> procedure.
+</DD></DL>
+<P>
+<A NAME="vlistviewLoad"><HR><H4>vlistviewLoad</H4></A>
+<PRE>
+        vlistview * <B>vlistviewLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a list view object from the resource
+<SAMP>resource</SAMP> and returns a pointer to its
+contents. The memory for the list view is allocated by the
+List Manager. An exception is generated if the resource has
+not been constructed properly, or if the class in
+<SAMP>resource</SAMP> is not defined.
+</DD></DL>
+<P>
+<A NAME="vlistviewLoadInit"><HR><H4>vlistviewLoadInit</H4></A>
+<PRE>
+        void <B>vlistviewLoadInit</B>(
+                vlistview * listview,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a list view object from the resource
+<SAMP>resource</SAMP> and stores it in the structure
+addressed by <SAMP>listview</SAMP>. <SAMP>listview</SAMP>
+should be an area of uninitialized memory. An exception is
+generated if the resource has not been constructed
+properly, or if the class in the resource is not defined.
+</DD></DL>
+<P>
+<A NAME="vlistviewMapPointToCell"><HR><H4>vlistviewMapPointToCell</H4></A>
+<PRE>
+        void <B>vlistviewMapPointToCell</B>(
+                vlistview * listview,
+                vpoint * point,
+                int * row,
+                int * column);
+</PRE>
+
+<DL><DD>
+Returns the cell location in the list view that is
+underneath the point <SAMP>point</SAMP>. The values of
+<SAMP>row</SAMP> and <SAMP>column</SAMP> are undefined if
+<SAMP>point</SAMP> is not enclosed by the list view's cell
+area rectangle. <SAMP>point</SAMP> must be in the same
+coordinate system as the container containing the list
+view.
+</DD></DL>
+<P>
+<A NAME="vlistviewMoveFocus"><HR><H4>vlistviewMoveFocus</H4></A>
+<PRE>
+        void <B>vlistviewMoveFocus</B>(
+                vlistview * listview,
+                int direction);
+</PRE>
+
+<DL><DD>
+Moves the keyboard focus one increment in the given
+direction. <SAMP>direction</SAMP> takes one of the
+following values:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><CODE>vlistviewUP</CODE>
+<DD>Move up.
+<DT><CODE>vlistviewDOWN</CODE>
+<DD>Move down.
+<DT><CODE>vlistviewLEFT</CODE>
+<DD>Move left.
+<DT><CODE>vlistviewRIGHT</CODE>
+<DD>Move right.
+</DL>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vlistviewNoteProc"><HR><H4>vlistviewNoteProc</H4></A>
+<PRE>
+        void <B>vlistviewNoteProc</B>();
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vlistviewNotify"><HR><H4>vlistviewNotify</H4></A>
+<PRE>
+        void <B>vlistviewNotify</B>(
+                vlistview * listview,
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Notifies the list view <SAMP>listview</SAMP> that the event
+<SAMP>event</SAMP> was handled by the list view. Typically,
+this means that the list view's instance notification
+function is called with the event as an argument.
+Notification is given only for important events, as
+determined by the class of the view. The events that
+dispatch a notification are mouse button-up events,
+keyboard events that change the selection, and the Enter
+and Return key. If
+<CODE><A HREF="vlistview-x.html#vlistviewGetLastPointerClickCount"><CODE>vlistviewGetLastPointerClickCount</CODE></A></CODE> returns a
+value greater than one, then the user has indicated that
+some action is to be taken on the current selection. This
+function is implemented by sending the
+<CODE><A HREF="vdialog-x.html#vdialogSET_ITEM_NOTIFY"><CODE>vdialogSET_ITEM_NOTIFY</CODE></A></CODE> message to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewNotifyScroll"><HR><H4>vlistviewNotifyScroll</H4></A>
+<PRE>
+        void <B>vlistviewNotifyScroll</B>(
+                vlistview * listview,
+                int horzDistance,
+                int vertDistance);
+</PRE>
+
+<DL><DD>
+Notifies the list view <SAMP>listview</SAMP> that the list
+view's contents have been scrolled. The number of user
+space units scrolled horizontally is passed in
+<SAMP>horzDistance</SAMP>, and the vertical amount is
+passed in <SAMP>vertDistance</SAMP>. Both distances are
+relative. This function is implemented by sending the
+message <CODE><A HREF="vlistview-x.html#vlistviewNOTIFY_SCROLL"><CODE>vlistviewNOTIFY_SCROLL</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+    <P>
+</DD></DL>
+<P>
+<A NAME="vlistviewNotifySelect"><HR><H4>vlistviewNotifySelect</H4></A>
+<PRE>
+        void <B>vlistviewNotifySelect</B>(
+                vlistview * listview,
+                int state);
+</PRE>
+
+<DL><DD>
+Notifies the list view <SAMP>listview</SAMP> that the
+selection could change, is changing, or has changed.
+Typically, this means that the list view's selection-notify
+function is called with <SAMP>state</SAMP> as an argument.
+This function is usually not called by clients. This
+function is implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewNOTIFY_SELECT"><CODE>vlistviewNOTIFY_SELECT</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewRedrawSelection"><HR><H4>vlistviewRedrawSelection</H4></A>
+<PRE>
+        void <B>vlistviewRedrawSelection</B>(
+                vlistview * listview,
+                vlistSelection * selection,
+                vlistSelection * selectedCells);
+</PRE>
+
+<DL><DD>
+Redraws all of the cells in the list view
+<SAMP>listview</SAMP> that are selected in
+<SAMP>selection</SAMP>. Cells are drawn in a selected state
+if they are also selected in the <SAMP>selectedCells</SAMP>
+selection. This function is implemented by sending the
+message <CODE><A HREF="vlistview-x.html#vlistviewREDRAW_SELECTION"><CODE>vlistviewREDRAW_SELECTION</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewRedrawSelectionDifference"><HR><H4>vlistviewRedrawSelectionDifference</H4></A>
+<PRE>
+        void <B>vlistviewRedrawSelectionDifference</B>(
+                vlistview * listview,
+                vlistSelection * selection,
+                vlistSelection * anotherSelection);
+</PRE>
+
+<DL><DD>
+Redraws all cells that are in either selection
+<SAMP>selection</SAMP> or selection
+<SAMP>anotherSelection</SAMP>, but not in both selections.
+The cells that are in <SAMP>selection</SAMP> but not
+<SAMP>anotherSelection</SAMP> are drawn unselected, and the
+cells in <SAMP>anotherSelection</SAMP> but not in
+<SAMP>selection</SAMP> are drawn selected.
+</DD></DL>
+<P>
+<A NAME="vlistviewScroll"><HR><H4>vlistviewScroll</H4></A>
+<PRE>
+        void <B>vlistviewScroll</B>(
+                vlistview * listview,
+                int deltaRows,
+                int deltaColumns);
+</PRE>
+
+<DL><DD>
+Scrolls the list view by <SAMP>deltaRows</SAMP> and
+<SAMP>deltaColumns</SAMP>. The List Manager always attempts
+to keep as much of the list visible as possible in case
+<SAMP>deltaRows</SAMP> or <SAMP>deltaColumns</SAMP> would
+cause the list to scroll out of view.
+</DD></DL>
+<P>
+<A NAME="vlistviewScrollAbsolute"><HR><H4>vlistviewScrollAbsolute</H4></A>
+<PRE>
+        void <B>vlistviewScrollAbsolute</B>(
+                vlistview * listview,
+                int xoffset,
+                int yoffset);
+</PRE>
+
+<DL><DD>
+Scrolls the list view to an absolute position. All list
+view scrolling routines end up calling
+<CODE>vlistviewScrollAbsolute</CODE>. <SAMP>xoffset</SAMP>
+and <SAMP>yoffset</SAMP> denote the the portion relative to
+the upper-left of the total cell area to place at the
+upper-left of the list view's cell content area. This
+function is implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewSCROLL_ABSOLUTE"><CODE>vlistviewSCROLL_ABSOLUTE</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+    <P>
+</DD></DL>
+<P>
+<A NAME="vlistviewScrollFocusIntoView"><HR><H4>vlistviewScrollFocusIntoView</H4></A>
+<PRE>
+        void <B>vlistviewScrollFocusIntoView</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Scrolls the list view so that the cell that possesses the
+keyboard focus is visible.
+</DD></DL>
+<P>
+<A NAME="vlistviewScrollRelative"><HR><H4>vlistviewScrollRelative</H4></A>
+<PRE>
+        void <B>vlistviewScrollRelative</B>(
+                vlistview * listview,
+                int hdelta,
+                int vdelta);
+</PRE>
+
+<DL><DD>
+Scrolls the list view <SAMP>hdelta</SAMP> user space units
+horizontally and <SAMP>vdelta</SAMP> user space units
+vertically.
+</DD></DL>
+<P>
+<A NAME="vlistviewScrollSelectionIntoView"><HR><H4>vlistviewScrollSelectionIntoView</H4></A>
+<PRE>
+        void <B>vlistviewScrollSelectionIntoView</B>(
+                vlistview * listview);
+</PRE>
+
+<DL><DD>
+Scrolls the list view so that at least part of the visible
+selection is in the list view's dialog item area. Nothing
+happens if the selection is empty.
+</DD></DL>
+<P>
+<A NAME="vlistviewScrollToCell"><HR><H4>vlistviewScrollToCell</H4></A>
+<PRE>
+        void <B>vlistviewScrollToCell</B>(
+                vlistview * listview,
+                int row,
+                int column);
+</PRE>
+
+<DL><DD>
+Scrolls the list view so that the cell denoted by
+<SAMP>row</SAMP>, <SAMP>column</SAMP> is visible in the
+upper left corner of the list view.
+</DD></DL>
+<P>
+<A NAME="vlistviewScrollToCellWithOffset"><HR><H4>vlistviewScrollToCellWithOffset</H4></A>
+<PRE>
+        void <B>vlistviewScrollToCellWithOffset</B>(
+                vlistview * listview,
+                int row,
+                int column,
+                int xoffset,
+                int yoffset);
+</PRE>
+
+<DL><DD>
+Scrolls the list view so that the cell denoted by
+<SAMP>row</SAMP>, <SAMP>column</SAMP> is in the upper left
+corner of the list view, the view is further scrolled by
+<SAMP>xoffset</SAMP> and <SAMP>yoffset</SAMP> user units
+within the cell. <SAMP>xoffset</SAMP> must be non-positive,
+and <SAMP>yoffset</SAMP> must be non-negative (refer to
+Figure).
+    <P>
+<BLOCKQUOTE>
+Figure: Scrolling to a cell with offsets into the cell
+    <P>
+<IMG SRC="List.Scrolling_to_a_cell_with.gif"></BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vlistviewSetAutoScroll"><HR><H4>vlistviewSetAutoScroll</H4></A>
+<PRE>
+        void <B>vlistviewSetAutoScroll</B>(
+                vlistview * listview,
+                int isAutoScroll);
+</PRE>
+
+<DL><DD>
+Specifies whether or not the list view auto-scrolls when
+the user drags the mouse outside of the area currently
+visible in the list view. This function is implemented by
+sending the message <CODE><A HREF="vlistview-x.html#vlistviewSET_AUTO_SCROLL"><CODE>vlistviewSET_AUTO_SCROLL</CODE></A></CODE>
+to <SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetBorder"><HR><H4>vlistviewSetBorder</H4></A>
+<PRE>
+        void <B>vlistviewSetBorder</B>(
+                vlistview * listview,
+                int hasBorder);
+</PRE>
+
+<DL><DD>
+Specifies whether or not the list view draws a border
+around the list contents. If there is no border, the list
+contents occupy the space where the border would have been.
+If you need to have the border's space reserved without
+having the border drawn, override the
+<CODE><A HREF="vlistview-x.html#vlistviewDRAW_BORDER"><CODE>vlistviewDRAW_BORDER</CODE></A></CODE> method on the list view
+class.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetCellContentProc"><HR><H4>vlistviewSetCellContentProc</H4></A>
+<PRE>
+        void <B>vlistviewSetCellContentProc</B>(
+                vlistview * listview,
+                vlistviewDrawCellProc proc);
+</PRE>
+
+<DL><DD>
+Installs <SAMP>proc</SAMP> as the cell content drawing
+procedure for the specified list view. This function is
+called by the method
+<CODE><A HREF="vlistview-x.html#vlistviewDRAW_CELL_CONTENTS"><CODE>vlistviewDRAW_CELL_CONTENTS</CODE></A></CODE>. This function is
+implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewSET_CELL_CONTENT_PROC"><CODE>vlistviewSET_CELL_CONTENT_PROC</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetColumnRearrange"><HR><H4>vlistviewSetColumnRearrange</H4></A>
+<PRE>
+        void <B>vlistviewSetColumnRearrange</B>(
+                vlistview * listview,
+                int isColumnRearrange);
+</PRE>
+
+<DL><DD>
+Specifies whether or not the list view permits
+rearrangement of its contents by the user. For example, if
+<SAMP>isColumnRearrange</SAMP> is set to <SAMP>TRUE</SAMP>,
+then mouse drags with the drag button down by the user
+moves the column under the initial click to the column
+specified at the completion of the drag. The List Manager
+draws a cursor to indicate the ending position of the row.
+    <P>
+Row and column rearrangement cannot both be true at the
+same time. If row rearrangement is set to <SAMP>TRUE</SAMP>
+and column rearrangement is then also set, row
+rearrangement is disabled.
+    <P>
+To find out if a row or column has been rearranged, call
+<CODE><A HREF="vlistview-x.html#vlistviewGetRearrangement"><CODE>vlistviewGetRearrangement</CODE></A></CODE> in your selection
+notify procedure.
+    <P>
+If the user clicks on a cell without dragging, that cell is
+selected and no rearrangement takes place.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetColumnWidth"><HR><H4>vlistviewSetColumnWidth</H4></A>
+<PRE>
+        void <B>vlistviewSetColumnWidth</B>(
+                vlistview * listview,
+                int column,
+                int width);
+</PRE>
+
+<DL><DD>
+Sets the width of column <SAMP>column</SAMP> to be
+<SAMP>width</SAMP>. The width of all columns can be set to
+the same value by passing <CODE>vlistviewALL_COLUMNS</CODE>
+in the column parameter. This sets the <I>usable</I> width.
+Space is added to <SAMP>width</SAMP> to accommodate
+selection highlighting. The default column width is equal
+to the width of the content area of the list view (that is,
+it displays one column). The cell content area is adjusted
+by the mechanism set by <CODE><A HREF="vlistview-x.html#vlistviewSetUpdateMode"><CODE>vlistviewSetUpdateMode</CODE></A></CODE>
+if <SAMP>column</SAMP> is visible. This function is
+implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewSET_COLUMN_WIDTH"><CODE>vlistviewSET_COLUMN_WIDTH</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetData"><HR><H4>vlistviewSetData</H4></A>
+<PRE>
+        void <B>vlistviewSetData</B>(
+                vlistview * listview,
+                void * data);
+</PRE>
+
+<DL><DD>
+Sets the data field of the <CODE><A HREF="vdialog-x.html#vdialogItem"><CODE>vdialogItem</CODE></A></CODE>
+<SAMP>listview</SAMP> is built on to be <SAMP>data</SAMP>.
+The List Manager does not use this field, and the value can
+be <SAMP>NULL</SAMP>. This convenience function is
+equivalent to
+<CODE><A HREF="vdialog-x.html#vdialogSetItemData"><CODE>vdialogSetItemData</CODE></A></CODE><SAMP>(<CODE><A HREF="vlistview-x.html#vlistviewGetItem"><CODE>vlistviewGetItem</CODE></A></CODE>(listview),
+data)</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetDrawingSelection"><HR><H4>vlistviewSetDrawingSelection</H4></A>
+<PRE>
+        void <B>vlistviewSetDrawingSelection</B>(
+                vlistview * listview,
+                int onOff);
+</PRE>
+
+<DL><DD>
+Sets the <SAMP>DrawingSelection</SAMP> attribute of the
+list view <SAMP>listview</SAMP> to <SAMP>onOff</SAMP>. If
+DrawingSelection is disabled, dragging the mouse during
+selection sweeps out a rectangular area, if it is enabled,
+dragging the mouse selects only those cells the mouse
+pointer passes over. This function is implemented by
+sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewSET_DRAWING_SELECTION"><CODE>vlistviewSET_DRAWING_SELECTION</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetFocus"><HR><H4>vlistviewSetFocus</H4></A>
+<PRE>
+        void <B>vlistviewSetFocus</B>(
+                vlistview * listview,
+                int row,
+                int column);
+</PRE>
+
+<DL><DD>
+Moves the keyboard focus for the list view
+<SAMP>listview</SAMP> to the given row and column.
+Implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewSET_FOCUS"><CODE>vlistviewSET_FOCUS</CODE></A></CODE> to <SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetGrabbingHand"><HR><H4>vlistviewSetGrabbingHand</H4></A>
+<PRE>
+        void <B>vlistviewSetGrabbingHand</B>(
+                vlistview * listview,
+                int onOff);
+</PRE>
+
+<DL><DD>
+Designates whether clicking and dragging the mouse in the
+list view <SAMP>listview</SAMP> invokes the ``grabbing
+hand'' or whether it selects cells. The grabbing hand
+tracks the mouse while the mouse button is down and scrolls
+the list view as if you grabbed it, so that the scrolling
+of the list view and the movement of the mouse are
+synchronous. If <SAMP>onOff</SAMP> is <SAMP>TRUE</SAMP>,
+the grabbing hand is turned on; if <SAMP>FALSE</SAMP>, the
+grabbing hand is turned off. Aside from this setting there
+is a look-and-feel click and drag binding, this property
+does not affect the look-and-feel drag, which is always
+available. This function is implemented by sending the
+message <CODE><A HREF="vlistview-x.html#vlistviewSET_GRABBING_HAND"><CODE>vlistviewSET_GRABBING_HAND</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetHorzBar"><HR><H4>vlistviewSetHorzBar</H4></A>
+<PRE>
+        void <B>vlistviewSetHorzBar</B>(
+                vlistview * listview,
+                int onOff);
+</PRE>
+
+<DL><DD>
+Designates whether or not the list view
+<SAMP>listview</SAMP> has a horizontal scroll bar. If
+<SAMP>onOff</SAMP> is <SAMP>TRUE</SAMP>, the scroll bar is
+turned on. If <SAMP>FALSE</SAMP>, the scroll bar is turned
+off. For a list view both scroll bars are off by default.
+This function is implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewSET_HORZ_BAR"><CODE>vlistviewSET_HORZ_BAR</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetHorzGrid"><HR><H4>vlistviewSetHorzGrid</H4></A>
+<PRE>
+        void <B>vlistviewSetHorzGrid</B>(
+                vlistview * listview,
+                int onOff);
+</PRE>
+
+<DL><DD>
+Designates whether horizontal grid lines are drawn. If
+<SAMP>onOff</SAMP> is <SAMP>TRUE</SAMP>, horizontal grid
+lines are drawn between every row. If <SAMP>FALSE</SAMP>,
+no horizontal grid lines are drawn. This function is
+implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewSET_HORZ_GRID"><CODE>vlistviewSET_HORZ_GRID</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetList"><HR><H4>vlistviewSetList</H4></A>
+<PRE>
+        void <B>vlistviewSetList</B>(
+                vlistview * listview,
+                vlist * list);
+</PRE>
+
+<DL><DD>
+Sets the list object to be displayed by list view
+<SAMP>listview</SAMP> to the list object specified by
+<SAMP>list</SAMP>. The old list displayed by the list view
+is <I>not</I> destroyed. <SAMP>list</SAMP> can be
+<SAMP>NULL</SAMP>, which tells the list view that nothing
+is to be displayed. This function is implemented by sending
+the message <CODE><A HREF="vlistview-x.html#vlistviewSET_LIST"><CODE>vlistviewSET_LIST</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetListOwned"><HR><H4>vlistviewSetListOwned</H4></A>
+<PRE>
+        void <B>vlistviewSetListOwned</B>(
+                vlistview * listview,
+                vlist * list);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vlistviewSetNotify"><HR><H4>vlistviewSetNotify</H4></A>
+<PRE>
+        void <B>vlistviewSetNotify</B>(
+                vlistview * listview,
+                vlistviewNoteProc noteProc);
+</PRE>
+
+<DL><DD>
+Sets the dialog item notification procedure for the list
+view to <SAMP>noteProc</SAMP>. All events that the list
+view handles are passed to this function. Since user
+functions do not necessarily have a one-to-one
+correspondence to selection changes, you should use a
+selection-notify function to track changes to the list
+view's selection. The events that dispatch a notification
+are mouse button-up events, keyboard events that change the
+selection, and the enter and return key. If
+<CODE><A HREF="vlistview-x.html#vlistviewGetLastPointerClickCount"><CODE>vlistviewGetLastPointerClickCount</CODE></A></CODE> returns a
+value greater than one, then the user has indicated that
+some action is to be taken on the current selection. This
+function is implemented by sending the
+<CODE><A HREF="vdialog-x.html#vdialogSET_ITEM_NOTIFY"><CODE>vdialogSET_ITEM_NOTIFY</CODE></A></CODE> message to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetObserverClass"><HR><H4>vlistviewSetObserverClass</H4></A>
+<PRE>
+        void <B>vlistviewSetObserverClass</B>(
+                vlistview * listview,
+                vlistObserverClass * observerClass);
+</PRE>
+
+<DL><DD>
+Sets the list observer class for the list view
+<SAMP>listview</SAMP> to <SAMP>observerClass</SAMP>. This
+new observer class dictates the class of all subsequently
+created observers.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetRearrange"><HR><H4>vlistviewSetRearrange</H4></A>
+<PRE>
+        void <B>vlistviewSetRearrange</B>(
+                vlistview * listview,
+                int type);
+</PRE>
+
+<DL><DD>
+Tells the list view <SAMP>listview</SAMP> what kind of
+rearranging actions to allow. If <SAMP>type</SAMP> is
+<CODE>vlistviewROW_REARRANGE</CODE>, users can rearrange
+rows. If <SAMP>type</SAMP> is
+<CODE>vlistviewCOLUMN_REARRANGE</CODE>, users can rearrange
+columns. If <SAMP>type</SAMP> is
+<CODE>vlistviewNO_REARRANGE</CODE>, users cannot rearrange
+anything. This function is implemented by sending the
+message <CODE><A HREF="vlistview-x.html#vlistviewSET_REARRANGE"><CODE>vlistviewSET_REARRANGE</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetRowHeight"><HR><H4>vlistviewSetRowHeight</H4></A>
+<PRE>
+        void <B>vlistviewSetRowHeight</B>(
+                vlistview * listview,
+                int row,
+                int height);
+</PRE>
+
+<DL><DD>
+Sets the height of row <SAMP>row</SAMP> to be
+<SAMP>height</SAMP>. The height of all rows can be set to
+the same value by passing <CODE>vlistviewALL_ROWS</CODE> in
+the <SAMP>row</SAMP> parameter. This sets the <I>usable</I>
+height. Space is added to <SAMP>height</SAMP> to
+accommodate selection highlighting. If the client never
+sets the row height, the default row height which is
+calculated from the list view's font is used. The cell
+content area is adjusted by the mechanism set by
+<CODE><A HREF="vlistview-x.html#vlistviewSetUpdateMode"><CODE>vlistviewSetUpdateMode</CODE></A></CODE> if <SAMP>row</SAMP> is
+visible. This function is implemented by sending the
+message <CODE><A HREF="vlistview-x.html#vlistviewSET_ROW_HEIGHT"><CODE>vlistviewSET_ROW_HEIGHT</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetRowRearrange"><HR><H4>vlistviewSetRowRearrange</H4></A>
+<PRE>
+        void <B>vlistviewSetRowRearrange</B>(
+                vlistview * listview,
+                int isRowRearrange);
+</PRE>
+
+<DL><DD>
+Specifies whether or not the list view permits
+rearrangement of its contents by the user. For example, if
+<SAMP>onOff</SAMP> is set to <SAMP>TRUE</SAMP>, then mouse
+drags with the drag button down by the user move the row
+under the initial click to the row specified at the
+completion of the drag. The List Manager draws a cursor to
+indicate the ending position of the row.
+    <P>
+Row and column rearrangement cannot both be true at the
+same time. If row rearrangement is set to <SAMP>TRUE</SAMP>
+and column rearrangement is then also set, row
+rearrangement is disabled.
+    <P>
+To find out if a row or column has been rearranged, call
+<CODE><A HREF="vlistview-x.html#vlistviewGetRearrangement"><CODE>vlistviewGetRearrangement</CODE></A></CODE> in your selection
+notify procedure.
+    <P>
+If the user clicks on a cell without dragging, that cell is
+selected and no rearrangement takes place.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetScrollBarMargin"><HR><H4>vlistviewSetScrollBarMargin</H4></A>
+<PRE>
+        void <B>vlistviewSetScrollBarMargin</B>(
+                vlistview * listview,
+                int margin);
+</PRE>
+
+<DL><DD>
+Sets the margin between the scroll bars and the list view
+contents. The default margin is zero (refer to Figure).
+    <P>
+<BLOCKQUOTE>
+Figure: Scroll bar margin
+    <P>
+<IMG SRC="List.Scroll_bar_margin.gif"></BLOCKQUOTE>
+
+    <P>
+This function is implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewSET_SCROLL_BAR_MARGIN"><CODE>vlistviewSET_SCROLL_BAR_MARGIN</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetSelectNotify"><HR><H4>vlistviewSetSelectNotify</H4></A>
+<PRE>
+        void <B>vlistviewSetSelectNotify</B>(
+                vlistview * listview,
+                vlistviewSelectNoteProc noteProc);
+</PRE>
+
+<DL><DD>
+Sets list view's selection-notify procedure to
+<SAMP>noteProc</SAMP>. This procedure gets called whenever
+the list view's selection changes. The
+<SAMP>noteProc</SAMP> gets called at the start of the
+change with <CODE>vlistviewSELECTION_WILL_CHANGE</CODE> to
+allow any pre-selection setup, with
+<CODE>vlistviewSELECTION_IS_CHANGING</CODE> while the
+selection is being modified, and then
+<CODE>vlistviewSELECTION_HAS_CHANGED</CODE> when the
+operation is complete. During the selection change, the
+original selection is accessible to the
+<SAMP>noteProc</SAMP> by way of
+<CODE><A HREF="vlistview-x.html#vlistviewGetSelection"><CODE>vlistviewGetSelection</CODE></A></CODE>, and the selection under
+construction is available by way of
+<CODE><A HREF="vlistview-x.html#vlistviewGetVolatileSelection"><CODE>vlistviewGetVolatileSelection</CODE></A></CODE>. The
+<SAMP>noteProc</SAMP> is called when the change to the
+selection is a result of user action or API calls.
+    <P>
+<BLOCKQUOTE>
+Sample Code: Selection-notify procedure</BLOCKQUOTE>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+void exampleSelectNotify(vlistview *listview, int type)
+{
+int                row, column;
+
+if ((type == vlistviewSELECTION_WILL_CHANGE) ||
+    (type == vlistviewSELECTION_IS_CHANGING)) {
+
+        /* since this is a vlistONE_ONLY_SELECTION list,
+         * vlistGetSelectCell will return the only selected cell. */
+        <A HREF="vlist-x.html#vlistGetSelectedCell"><CODE>vlistGetSelectedCell</CODE></A>(<A HREF="vlistview-x.html#vlistviewGetList"><CODE>vlistviewGetList</CODE></A>(listview),
+                                 
+<A HREF="vlistview-x.html#vlistviewGetVolatileSelection"><CODE>vlistviewGetVolatileSelection</CODE></A>(listview),
+                                  &row, &column);
+        if ((row != vlistNO_CELLS_SELECTED) &&
+            (column != vlistNO_CELLS_SELECTED)) {
+                <A HREF="vdebug-x.html#vdebugInform"><CODE>vdebugInform</CODE></A>("Cell (%d,%d) = %x\n", row, column,
+                             <A HREF="vlist-x.html#vlistGetCellValue"><CODE>vlistGetCellValue</CODE></A>(<A HREF="vlistview-x.html#vlistviewGetList"><CODE>vlistviewGetList</CODE></A>(listview),
+                             row, column))
+         }
+    }
+} /* exampleSelectNotify */
+
+</PRE>
+</BLOCKQUOTE>
+ 
+    <P>
+This function is implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewSET_SELECT_NOTIFY"><CODE>vlistviewSET_SELECT_NOTIFY</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetSelection"><HR><H4>vlistviewSetSelection</H4></A>
+<PRE>
+        void <B>vlistviewSetSelection</B>(
+                vlistview * listview,
+                vlistSelection * selection);
+</PRE>
+
+<DL><DD>
+Changes the visible selection for the list view
+<SAMP>listview</SAMP> to the selection
+<SAMP>selection</SAMP>. The selection notification
+procedure is <I>not</I> notified of this change. List views
+automatically create a selection for you when you call
+<CODE><A HREF="vlistview-x.html#vlistviewSetList"><CODE>vlistviewSetList</CODE></A></CODE>, so it is unnecessary for you
+to create a selection and set it yourself. The list view
+takes over ownership of <SAMP>selection</SAMP>, and
+destroys it when the list view, or the list being viewed,
+is destroyed. This function is implemented by sending the
+message <CODE><A HREF="vlistview-x.html#vlistviewSET_SELECTION"><CODE>vlistviewSET_SELECTION</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetSelectionFilter"><HR><H4>vlistviewSetSelectionFilter</H4></A>
+<PRE>
+        void <B>vlistviewSetSelectionFilter</B>(
+                vlistview * listview,
+                vlistviewSelectionFilterProc proc);
+</PRE>
+
+<DL><DD>
+Sets the list view's selection filter procedure to
+<SAMP>proc</SAMP>. The filter procedure is called while the
+selection is volatile, as the user is changing the
+selection before committing to an actual selection. The
+filter procedure can then prevent cells from becoming part
+of the selection or add cells to the selection. This
+function is implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewSET_SELECTION_FILTER"><CODE>vlistviewSET_SELECTION_FILTER</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetSelectionSense"><HR><H4>vlistviewSetSelectionSense</H4></A>
+<PRE>
+        void <B>vlistviewSetSelectionSense</B>(
+                vlistview * listview,
+                int onOff);
+</PRE>
+
+<DL><DD>
+Sets the <SAMP>SelectionSense</SAMP> attribute of the list
+view <SAMP>listview</SAMP> to <SAMP>onOff</SAMP>. If
+<SAMP>SelectionSense</SAMP> is active and the user
+adjust-clicks on a selected cell, mouse tracking removes
+cells from the current selection instead of adding cells to
+the selection. When <SAMP>SelectionSense</SAMP> is off,
+clicking with the mouse only adds cells to the selection.
+This function is implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewSET_SELECTION_SENSE"><CODE>vlistviewSET_SELECTION_SENSE</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetSizes"><HR><H4>vlistviewSetSizes</H4></A>
+<PRE>
+        void <B>vlistviewSetSizes</B>(
+                vlistview * listview,
+                vlistsize * size);
+</PRE>
+
+<DL><DD>
+Instructs the list view <SAMP>listview</SAMP> to use
+<SAMP>size</SAMP> as its repository for row heights and
+column widths. This function transfers ownership of
+<SAMP>size</SAMP> to the list view, meaning that the list
+view destroys <SAMP>size</SAMP> when it is destroyed. This
+function is implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewSET_SIZES"><CODE>vlistviewSET_SIZES</CODE></A></CODE> to <SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetTraversalWrap"><HR><H4>vlistviewSetTraversalWrap</H4></A>
+<PRE>
+        void <B>vlistviewSetTraversalWrap</B>(
+                vlistview * listview,
+                int onOff);
+</PRE>
+
+<DL><DD>
+Determines whether the keyboard focus for the list view
+<SAMP>listview</SAMP> wraps around the ends of the list
+being displayed by the list view. If <SAMP>onOff</SAMP> is
+<SAMP>FALSE</SAMP>, the focus is pinned at the list's
+extremes; if <SAMP>TRUE</SAMP>, the focus wraps.This
+function is implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewSET_TRAVERSAL_WRAP"><CODE>vlistviewSET_TRAVERSAL_WRAP</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetUpdateMode"><HR><H4>vlistviewSetUpdateMode</H4></A>
+<PRE>
+        void <B>vlistviewSetUpdateMode</B>(
+                vlistview * listview,
+                int mode);
+</PRE>
+
+<DL><DD>
+Changes the update mode for the list view
+<SAMP>listview</SAMP>. Certain list operations, such as
+row/column insertion and deletion, as well as adjustment to
+row heights and column widths, can be made more efficient
+by scrolling the visible list contents rather than
+redrawing drawing. There are times when scrolling is not
+appropriate and invalidation is sufficient. There are yet
+other times where the List Manager should not do anything,
+where client code causes a redraw of the proper areas.
+<SAMP>mode</SAMP> should be <CODE>vlistviewSCROLL</CODE> if
+list contents should be scrolled,
+<CODE>vlistviewINVAL</CODE> if invalidations should be used
+instead of scrolling, and <CODE>vlistviewDO_NOTHING</CODE>
+if the List Manager should do nothing at all. This function
+is implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewSET_UPDATE_MODE"><CODE>vlistviewSET_UPDATE_MODE</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetUseKeyboardSelection"><HR><H4>vlistviewSetUseKeyboardSelection</H4></A>
+<PRE>
+        void <B>vlistviewSetUseKeyboardSelection</B>(
+                vlistview * listview,
+                int onOff);
+</PRE>
+
+<DL><DD>
+Sets the <SAMP>UseKeyboardSelection</SAMP> attribute of the
+list view <SAMP>listview</SAMP> to <SAMP>onOff</SAMP>. When
+disabled, all characters typed are ignored; when enabled,
+typing a cell value changes the list view's selection to
+that cell. This function is implemented by sending the
+message <CODE><A HREF="vlistview-x.html#vlistviewSET_USE_KEYBOARD_SELECTION"><CODE>vlistviewSET_USE_KEYBOARD_SELECTION</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetUseKeyboardTraversal"><HR><H4>vlistviewSetUseKeyboardTraversal</H4></A>
+<PRE>
+        void <B>vlistviewSetUseKeyboardTraversal</B>(
+                vlistview * listview,
+                int onOff);
+</PRE>
+
+<DL><DD>
+Determines whether keyboard traversal (using arrow keys to
+move the list view's keyboard focus) is active. If
+<SAMP>onOff</SAMP> is <SAMP>FALSE</SAMP>, all keyboard
+traversal commands are ignored, and the keyboard focus is
+not drawn. If <SAMP>onOff</SAMP> is <SAMP>TRUE</SAMP>,
+keyboard traversal commands are active, and the keyboard
+focus is drawn. Default drawing routine for the list view's
+keyboard focus follows the Galaxy application's
+look-and-feel. This function is implemented by sending the
+message <CODE><A HREF="vlistview-x.html#vlistviewSET_USE_KEYBOARD_TRAVERSAL"><CODE>vlistviewSET_USE_KEYBOARD_TRAVERSAL</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetVertBar"><HR><H4>vlistviewSetVertBar</H4></A>
+<PRE>
+        void <B>vlistviewSetVertBar</B>(
+                vlistview * listview,
+                int onOff);
+</PRE>
+
+<DL><DD>
+Designates whether or not the list view
+<SAMP>listview</SAMP> has a vertical scroll bar. If
+<SAMP>onOff</SAMP> is <SAMP>TRUE</SAMP>, the scroll bar is
+turned on, if <SAMP>FALSE</SAMP>, the scroll bar is turned
+off. For a list view both scroll bars are off by default.
+This function is implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewSET_VERT_BAR"><CODE>vlistviewSET_VERT_BAR</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSetVertGrid"><HR><H4>vlistviewSetVertGrid</H4></A>
+<PRE>
+        void <B>vlistviewSetVertGrid</B>(
+                vlistview * listview,
+                int onOff);
+</PRE>
+
+<DL><DD>
+Designates whether vertical grid lines are drawn. If
+<SAMP>onOff</SAMP> is <SAMP>TRUE</SAMP>, vertical grid
+lines are drawn between every column. If
+<SAMP>FALSE</SAMP>, no vertical grid lines are drawn. This
+function is implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewSET_VERT_GRID"><CODE>vlistviewSET_VERT_GRID</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewStartup"><HR><H4>vlistviewStartup</H4></A>
+<PRE>
+        void <B>vlistviewStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the <CODE>vlistview</CODE> class of the List
+Manager.
+</DD></DL>
+<P>
+<A NAME="vlistviewStore"><HR><H4>vlistviewStore</H4></A>
+<PRE>
+        void <B>vlistviewStore</B>(
+                vlistview * listview,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Writes the contents of the list view <SAMP>listview</SAMP>
+into the resource <SAMP>resource</SAMP>. The resource
+<SAMP>resource</SAMP> should be an untyped resource created
+with <CODE><A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A></CODE>. The list view object can
+be recovered from the resource at a later time with
+<CODE><A HREF="vlistview-x.html#vlistviewLoad"><CODE>vlistviewLoad</CODE></A></CODE> or
+<CODE><A HREF="vlistview-x.html#vlistviewLoadInit"><CODE>vlistviewLoadInit</CODE></A></CODE>. The row heights and column
+widths are not currently saved.
+</DD></DL>
+<P>
+<A NAME="vlistviewTraverseVector"><HR><H4>vlistviewTraverseVector</H4></A>
+<PRE>
+        void <B>vlistviewTraverseVector</B>(
+                vlistview * listview,
+                int rowDelta,
+                int columnDelta);
+</PRE>
+
+<DL><DD>
+Moves the keyboard focus for the list view
+<SAMP>listview</SAMP> relative to its current position by
+<SAMP>rowDelta</SAMP> and <SAMP>columnDelta</SAMP> columns.
+This function is implemented by sending the message
+<CODE><A HREF="vlistview-x.html#vlistviewTRAVERSE_VECTOR"><CODE>vlistviewTRAVERSE_VECTOR</CODE></A></CODE> to
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vlistviewBORDER_INSET"><HR><H4>vlistviewBORDER_INSET</H4></A>
+<PRE>
+        &lt;<B>vlistviewBORDER_INSET</B>&gt;
+</PRE>
+
+<DL><DD>
+A class constant that determines the width that the border
+will take. It is used in calculating minimum and natural
+sizes for instances of the list view class.
+</DD></DL>
+<P>
+<A NAME="vlistviewCELL_CONTENT_INDENT"><HR><H4>vlistviewCELL_CONTENT_INDENT</H4></A>
+<PRE>
+        &lt;<B>vlistviewCELL_CONTENT_INDENT</B>&gt;
+</PRE>
+
+<DL><DD>
+A class constant that determines how far away from the
+border of a cell that a cell's contents should be drawn.
+The default cell content drawing procedure indents the text
+of the cell by this amount prior to drawing.
+</DD></DL>
+<P>
+<A NAME="vlistviewCREATE_SCROLL_BAR"><HR><H4>vlistviewCREATE_SCROLL_BAR</H4></A>
+<PRE>
+        &lt;<B>vlistviewCREATE_SCROLL_BAR</B>&gt;
+</PRE>
+
+<DL><DD>
+Creates a scrollbar for the listview.
+</DD></DL>
+<P>
+<A NAME="vlistviewDETERMINE_CELL_SIZE"><HR><H4>vlistviewDETERMINE_CELL_SIZE</H4></A>
+<PRE>
+        &lt;<B>vlistviewDETERMINE_CELL_SIZE</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns the natural size of a particular cell. The width
+and height of the cell are returned in <SAMP>width</SAMP>
+and <SAMP>height</SAMP> respectively. This method is used
+by ``automatic sizing'' functions (see
+<CODE><A HREF="vlistitem-x.html#vlistitemSetAutowidth"><CODE>vlistitemSetAutowidth</CODE></A></CODE>).
+    <P>
+If the cell does not have a natural size,
+<CODE>vlistviewDONT_CARE</CODE> is returned in
+<SAMP>width</SAMP> and/or <SAMP>height</SAMP>.
+<CODE>vlistviewDONT_CARE</CODE> is guaranteed to be less
+than zero. List views do not use this function, but
+subclass of list view (such as list item) use this to
+perform automatic row and column sizing. Subclasses
+overriding this method do not need to call the superclass.
+</DD></DL>
+<P>
+<A NAME="vlistviewDRAW_BORDER"><HR><H4>vlistviewDRAW_BORDER</H4></A>
+<PRE>
+        &lt;<B>vlistviewDRAW_BORDER</B>&gt;
+</PRE>
+
+<DL><DD>
+Draws the list view's border appropriate for the current
+look-and-feel. <SAMP>rect</SAMP> is the maximum area
+available for drawing the list contents.
+</DD></DL>
+<P>
+<A NAME="vlistviewDRAW_BORDER_WITH"><HR><H4>vlistviewDRAW_BORDER_WITH</H4></A>
+<PRE>
+        &lt;<B>vlistviewDRAW_BORDER_WITH</B>&gt;
+</PRE>
+
+<DL><DD>
+Draws the list view border in the context.
+</DD></DL>
+<P>
+<A NAME="vlistviewDRAW_CELL_BACKGROUND"><HR><H4>vlistviewDRAW_CELL_BACKGROUND</H4></A>
+<PRE>
+        &lt;<B>vlistviewDRAW_CELL_BACKGROUND</B>&gt;
+</PRE>
+
+<DL><DD>
+Draws the given cell's background, the default method
+erases the cell rectangle (<SAMP>rect</SAMP>) and fills it
+in. The color to fill the cell with is chosen by the
+current look-and-feel and by the setting of
+<SAMP>selected</SAMP> to see if the cell is in the list
+view's currently visible selection. Only the area of
+<SAMP>rect</SAMP> that intersects the invalidated area of
+the list view is drawn. It is not necessary for subclasses
+overriding this method to call the superclass.
+</DD></DL>
+<P>
+<A NAME="vlistviewDRAW_CELL_BACKGROUND_WITH"><HR><H4>vlistviewDRAW_CELL_BACKGROUND_WITH</H4></A>
+<PRE>
+        &lt;<B>vlistviewDRAW_CELL_BACKGROUND_WITH</B>&gt;
+</PRE>
+
+<DL><DD>
+Draws the cell background in the context.
+</DD></DL>
+<P>
+<A NAME="vlistviewDRAW_CELL_CONTENTS"><HR><H4>vlistviewDRAW_CELL_CONTENTS</H4></A>
+<PRE>
+        &lt;<B>vlistviewDRAW_CELL_CONTENTS</B>&gt;
+</PRE>
+
+<DL><DD>
+Draws the given cell's contents. The default method calls
+the current cell content drawing procedure for
+<SAMP>listview</SAMP>. It is not necessary for subclasses
+overriding this method to call the superclass.
+</DD></DL>
+<P>
+<A NAME="vlistviewDRAW_CELL_CONTENTS_WITH"><HR><H4>vlistviewDRAW_CELL_CONTENTS_WITH</H4></A>
+<PRE>
+        &lt;<B>vlistviewDRAW_CELL_CONTENTS_WITH</B>&gt;
+</PRE>
+
+<DL><DD>
+Draws the cell contents in the context.
+</DD></DL>
+<P>
+<A NAME="vlistviewDRAW_CELL_FOCUS"><HR><H4>vlistviewDRAW_CELL_FOCUS</H4></A>
+<PRE>
+        &lt;<B>vlistviewDRAW_CELL_FOCUS</B>&gt;
+</PRE>
+
+<DL><DD>
+Draws the keyboard traversal focus indicator for the given
+cell. <SAMP>rect</SAMP> designates the cell rectangle to
+draw the focus around. If the list referenced by
+<SAMP>listview</SAMP> is empty or has not been set yet,
+<SAMP>row</SAMP> and <SAMP>column</SAMP> will have the
+valuse <CODE>vlistviewEMPTY_LIST</CODE>, and rect will be
+the rectangle returned by
+<CODE><A HREF="vlistview-x.html#vlistviewGetListRect"><CODE>vlistviewGetListRect</CODE></A></CODE>. Typically keyboard focus
+for an empty list is drawn as a rectangle inside of the
+given rectangle.
+</DD></DL>
+<P>
+<A NAME="vlistviewDRAW_CELL_FOCUS_WITH"><HR><H4>vlistviewDRAW_CELL_FOCUS_WITH</H4></A>
+<PRE>
+        &lt;<B>vlistviewDRAW_CELL_FOCUS_WITH</B>&gt;
+</PRE>
+
+<DL><DD>
+Draws the cell focus in the context.
+</DD></DL>
+<P>
+<A NAME="vlistviewDRAW_CELL_GRID"><HR><H4>vlistviewDRAW_CELL_GRID</H4></A>
+<PRE>
+        &lt;<B>vlistviewDRAW_CELL_GRID</B>&gt;
+</PRE>
+
+<DL><DD>
+Draws the horizontal and/or vertical grid lines for the
+indicated cell. <SAMP>rect</SAMP> designates the space that
+is available for the cell and the grid lines. It is not
+necessary for subclasses overriding this method to call the
+superclass.
+</DD></DL>
+<P>
+<A NAME="vlistviewDRAW_CELL_GRID_WITH"><HR><H4>vlistviewDRAW_CELL_GRID_WITH</H4></A>
+<PRE>
+        &lt;<B>vlistviewDRAW_CELL_GRID_WITH</B>&gt;
+</PRE>
+
+<DL><DD>
+Draws the cell grid in the context.
+</DD></DL>
+<P>
+<A NAME="vlistviewDRAW_CELL_SELECTION"><HR><H4>vlistviewDRAW_CELL_SELECTION</H4></A>
+<PRE>
+        &lt;<B>vlistviewDRAW_CELL_SELECTION</B>&gt;
+</PRE>
+
+<DL><DD>
+Draws the cell's selection highlighting. This method is
+called only when the cell at <SAMP>row</SAMP> and
+<SAMP>column</SAMP> is currently selected and needs to be
+redrawn. The rectangle passed to this method,
+<SAMP>rect</SAMP>, is the original cell rectangle, not the
+shrunken rectangle used by the background method.
+</DD></DL>
+<P>
+<A NAME="vlistviewDRAW_CELL_SELECTION_WITH"><HR><H4>vlistviewDRAW_CELL_SELECTION_WITH</H4></A>
+<PRE>
+        &lt;<B>vlistviewDRAW_CELL_SELECTION_WITH</B>&gt;
+</PRE>
+
+<DL><DD>
+Draws the cell selection in the context.
+</DD></DL>
+<P>
+<A NAME="vlistviewDRAW_MOVE_CURSOR"><HR><H4>vlistviewDRAW_MOVE_CURSOR</H4></A>
+<PRE>
+        &lt;<B>vlistviewDRAW_MOVE_CURSOR</B>&gt;
+</PRE>
+
+<DL><DD>
+Draws the list-view's move cursor. This cursor is drawn
+when the listview is tracking a row or column rearranging
+operation. The orientation of the move cursor is determined
+by the status of <CODE><A HREF="vlistview-x.html#vlistviewHasRowRearrange"><CODE>vlistviewHasRowRearrange</CODE></A></CODE> and
+<CODE><A HREF="vlistview-x.html#vlistviewHasColumnRearrange"><CODE>vlistviewHasColumnRearrange</CODE></A></CODE>.
+<SAMP>oldIndex</SAMP> is the index of the previously drawn
+move cursor, or <SAMP>-1</SAMP> if this is the initial
+drawing. The method is responsible for undrawing the
+previous cursor during tracking, but the List Manager will
+redraw the appropriate parts of the listview when the move
+is committed to by the user.
+</DD></DL>
+<P>
+<A NAME="vlistviewFILTER_SELECTION"><HR><H4>vlistviewFILTER_SELECTION</H4></A>
+<PRE>
+        &lt;<B>vlistviewFILTER_SELECTION</B>&gt;
+</PRE>
+
+<DL><DD>
+Called whenever <SAMP>listview</SAMP> wants
+<SAMP>selection</SAMP> filtered. The default implementation
+of <CODE>vlistviewFILTER_SELECTION</CODE> calls the filter
+procedure set by <CODE><A HREF="vlistview-x.html#vlistviewSetSelectionFilter"><CODE>vlistviewSetSelectionFilter</CODE></A></CODE>.
+Subclasses overriding this method do not need to call the
+superclass.
+</DD></DL>
+<P>
+<A NAME="vlistviewGET_CONTENT_NATURAL_SIZE"><HR><H4>vlistviewGET_CONTENT_NATURAL_SIZE</H4></A>
+<PRE>
+        &lt;<B>vlistviewGET_CONTENT_NATURAL_SIZE</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns the natural size of the content region of a list
+view. By default, this returns the largest possible area
+that shows all of the list view's contents. Override this
+method to exert control in list view natural sizing. The
+natural size of a list view is the natural size of its
+contents added to the decoration sizes (determined by
+<CODE><A HREF="vlistview-x.html#vlistviewGetDecorationSizes"><CODE>vlistviewGetDecorationSizes</CODE></A></CODE>). Subclasses
+overriding this method do not need to call the superclass.
+</DD></DL>
+<P>
+<A NAME="vlistviewGET_DECORATION_SIZES"><HR><H4>vlistviewGET_DECORATION_SIZES</H4></A>
+<PRE>
+        &lt;<B>vlistviewGET_DECORATION_SIZES</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns the amount of room necessary to draw a list view's
+decorations (border, scroll bar, scroll bar margin) The
+natural size of a list view is the natural size of its
+contents (determined by
+<CODE><A HREF="vlistview-x.html#vlistviewGetContentNaturalSize"><CODE>vlistviewGetContentNaturalSize</CODE></A></CODE>) added to the
+decoration sizes. The content rectangle (accessed by
+<CODE>vlistivewGetListRect</CODE>) is calculated by
+subtracting the decoration sizes from the list view's
+bounding rectangle. Subclasses overriding this method do
+not need to call the superclass, although they should to
+ensure enough room is left for the decorations the subclass
+is providing.
+</DD></DL>
+<P>
+<A NAME="vlistviewGET_DEFAULT_CONTENT_PROC"><HR><H4>vlistviewGET_DEFAULT_CONTENT_PROC</H4></A>
+<PRE>
+        &lt;<B>vlistviewGET_DEFAULT_CONTENT_PROC</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns the default cell-content drawing procedure
+appropriate for the current look-and-feel of the specified
+list view. The List Manager drawing procedure assumes that
+the cell values of the list being displayed are of type
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A>*</SAMP> and draws them aligned left and
+centered vertically in the cell rectangle.
+</DD></DL>
+<P>
+<A NAME="vlistviewINVAL_SELECTION"><HR><H4>vlistviewINVAL_SELECTION</H4></A>
+<PRE>
+        &lt;<B>vlistviewINVAL_SELECTION</B>&gt;
+</PRE>
+
+<DL><DD>
+Invalidates all of the cells in <CODE>listview</CODE> that
+are selected in <SAMP>selection</SAMP> using the
+<CODE>vwindowINVAL_OPAQUE</CODE> invalidation flag.
+Subclasses overriding this method do not need to call the
+superclass.
+</DD></DL>
+<P>
+<A NAME="vlistviewNOTIFY_SCROLL"><HR><H4>vlistviewNOTIFY_SCROLL</H4></A>
+<PRE>
+        &lt;<B>vlistviewNOTIFY_SCROLL</B>&gt;
+</PRE>
+
+<DL><DD>
+Called whenever the list view's contents are scrolled.
+<SAMP>horzDistance</SAMP> and <SAMP>vertDistance</SAMP> are
+the number of user space units the list has scrolled
+<I>relative</I> to its previous position. This method is
+called immediately after the list itself scrolls.
+</DD></DL>
+<P>
+<A NAME="vlistviewNOTIFY_SELECT"><HR><H4>vlistviewNOTIFY_SELECT</H4></A>
+<PRE>
+        &lt;<B>vlistviewNOTIFY_SELECT</B>&gt;
+</PRE>
+
+<DL><DD>
+Calls the list view's selection notify function with the
+specified notification type
+(<CODE>vlistviewSELECTION_WILL_CHANGE</CODE>,
+<CODE>vlistviewSELECTION_IS_CHANGING</CODE>,
+<CODE>vlistviewSELECTION_HAS_CHANGED</CODE>).
+</DD></DL>
+<P>
+<A NAME="vlistviewREDRAW_SELECTION"><HR><H4>vlistviewREDRAW_SELECTION</H4></A>
+<PRE>
+        &lt;<B>vlistviewREDRAW_SELECTION</B>&gt;
+</PRE>
+
+<DL><DD>
+Redraws all of the cells in <SAMP>listview</SAMP> that are
+selected in <SAMP>selection</SAMP>. Cells will be drawn in
+a selected state if they are also selected in the
+<SAMP>selectedCells</SAMP> selection. It is not necessary
+for subclasses that override this method to call the
+superclass.
+</DD></DL>
+<P>
+<A NAME="vlistviewSCROLL_ABSOLUTE"><HR><H4>vlistviewSCROLL_ABSOLUTE</H4></A>
+<PRE>
+        &lt;<B>vlistviewSCROLL_ABSOLUTE</B>&gt;
+</PRE>
+
+<DL><DD>
+Scrolls a list view to an absolute position. All list view
+scrolling routines end up calling
+<CODE><A HREF="vlistview-x.html#vlistviewScrollAbsolute"><CODE>vlistviewScrollAbsolute</CODE></A></CODE>. <SAMP>xoffset</SAMP>
+and <SAMP>yoffset</SAMP> denote the the <I>absolute</I>
+position relative to the upper-left of the total cell area
+to place at the upper-left of <SAMP>listview</SAMP>'s cell
+content area. Subclasses can override this method to find
+out about a scrolling operation before it happens. To find
+out about a scrolling operation after it happens, override
+<CODE><A HREF="vlistview-x.html#vlistviewNOTIFY_SCROLL"><CODE>vlistviewNOTIFY_SCROLL</CODE></A></CODE>. In this case the
+superclass should be called to do the scrolling. If the
+subclass is completely replacing the scrolling code, the
+superclass should not be called.
+</DD></DL>
+<P>
+<A NAME="vlistviewSELECTION_INSET"><HR><H4>vlistviewSELECTION_INSET</H4></A>
+<PRE>
+        &lt;<B>vlistviewSELECTION_INSET</B>&gt;
+</PRE>
+
+<DL><DD>
+A class constant that determines how much a cell's
+rectangle should be inset to lie within any selection
+highlighting.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_AUTO_SCROLL"><HR><H4>vlistviewSET_AUTO_SCROLL</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_AUTO_SCROLL</B>&gt;
+</PRE>
+
+<DL><DD>
+Specifies whether or not the list view auto-scrolls when
+the user drags the mouse outside of the area currently
+visible in the list view. Subclasses overriding this method
+should call the superclass so that the attribute change
+will be recorded in <SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_CELL_CONTENT_PROC"><HR><H4>vlistviewSET_CELL_CONTENT_PROC</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_CELL_CONTENT_PROC</B>&gt;
+</PRE>
+
+<DL><DD>
+Installs <SAMP>proc</SAMP> as the cell content drawing
+procedure for the specified list view. This function is
+called by the method
+<CODE><A HREF="vlistview-x.html#vlistviewDRAW_CELL_CONTENTS"><CODE>vlistviewDRAW_CELL_CONTENTS</CODE></A></CODE>. Subclasses
+overriding this method should call the superclass so that
+the attribute change will be recorded in
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_COLUMN_WIDTH"><HR><H4>vlistviewSET_COLUMN_WIDTH</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_COLUMN_WIDTH</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the width of column <SAMP>column</SAMP> to be
+<SAMP>width</SAMP>. The width of all columns can be set to
+the same value by passing <CODE>vlistviewALL_COLUMNS</CODE>
+in the column parameter. This sets the <I>usable</I> width.
+Space is added to <SAMP>width</SAMP> to accommodate
+selection highlighting. The default column width is equal
+to the width of the content area of the list view (that is,
+it displays one column). The cell content area will be
+adjusted by the mechanism set by
+<CODE><A HREF="vlistview-x.html#vlistviewSetUpdateMode"><CODE>vlistviewSetUpdateMode</CODE></A></CODE> if <SAMP>column</SAMP>
+is visible. Subclasses overriding this method should call
+the superclass so that the column width change will be
+recorded in <SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_DRAWING_SELECTION"><HR><H4>vlistviewSET_DRAWING_SELECTION</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_DRAWING_SELECTION</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the <SAMP>DrawingSelection</SAMP> attribute of the
+list view <SAMP>listview</SAMP> to <SAMP>onOff</SAMP>. If
+<SAMP>DrawingSelection</SAMP> is disabled, dragging the
+mouse during selection sweeps out a rectangular area. If it
+is enabled, dragging the mouse selects only those cells the
+mouse pointer passes over. Subclasses overriding this
+method should call the superclass so that the attribute
+change will be recorded in <SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_FOCUS"><HR><H4>vlistviewSET_FOCUS</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_FOCUS</B>&gt;
+</PRE>
+
+<DL><DD>
+Moves the keyboard focus for the list view
+<SAMP>listview</SAMP> to the given row and column.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_GRABBING_HAND"><HR><H4>vlistviewSET_GRABBING_HAND</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_GRABBING_HAND</B>&gt;
+</PRE>
+
+<DL><DD>
+Designates whether clicking and dragging the mouse in the
+list view <SAMP>listview</SAMP> invokes the ``grabbing
+hand'' or whether it selects cells. The grabbing hand
+tracks the mouse while the mouse button is down and scrolls
+the list view as if you grabbed it, so that the scrolling
+of the list view and the movement of the mouse are
+synchronous. If <SAMP>onOff</SAMP> is <SAMP>TRUE</SAMP>,
+the grabbing hand is turned on; if <SAMP>FALSE</SAMP>, the
+grabbing hand is turned off. Aside from this setting there
+is a look-and-feel click and drag binding. This property
+does not affect the look-and-feel drag, which is always
+available. Subclasses overriding this method should call
+the superclass so that the attribute change will be
+recorded in <SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_HORZ_BAR"><HR><H4>vlistviewSET_HORZ_BAR</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_HORZ_BAR</B>&gt;
+</PRE>
+
+<DL><DD>
+Designates whether or not <SAMP>listview</SAMP> has a
+horizontal scroll bar. If <SAMP>onOff</SAMP> is
+<SAMP>TRUE</SAMP>, the scroll bar is turned on. If
+<SAMP>FALSE</SAMP>, the scroll bar is turned off. For a
+list view both scroll bars are off by default. Subclasses
+overriding this method should call the superclass so that
+the attribute change will be recorded in
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_HORZ_GRID"><HR><H4>vlistviewSET_HORZ_GRID</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_HORZ_GRID</B>&gt;
+</PRE>
+
+<DL><DD>
+Designates whether horizontal grid lines will be drawn. If
+<SAMP>onOff</SAMP> is <SAMP>TRUE</SAMP>, horizontal grid
+lines will be drawn between every row. If
+<SAMP>FALSE</SAMP>, no horizontal grid lines will be drawn.
+Subclasses overriding this method should call the
+superclass so that the attribute change will be recorded in
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_LIST"><HR><H4>vlistviewSET_LIST</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_LIST</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the list object to be displayed by list view
+<SAMP>listview</SAMP> to the list object specified by
+<SAMP>list</SAMP>. The old list displayed by the list view
+is <I>not</I> destroyed. <SAMP>list</SAMP> can be
+<SAMP>NULL</SAMP>, which tells the list view that nothing
+is to be displayed. Subclasses overriding this method
+should call the superclass so that the attribute change
+will be recorded in <SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_LIST_OWNED"><HR><H4>vlistviewSET_LIST_OWNED</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_LIST_OWNED</B>&gt;
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_REARRANGE"><HR><H4>vlistviewSET_REARRANGE</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_REARRANGE</B>&gt;
+</PRE>
+
+<DL><DD>
+Tells the list view <SAMP>listview</SAMP> what kind of
+rearranging actions to allow. If <SAMP>type</SAMP> is
+<CODE>vlistviewROW_REARRANGE</CODE>, users will be allowed
+to rearrange rows. If <SAMP>type</SAMP> is
+<CODE>vlistviewCOLUMN_REARRANGE</CODE>, users will be
+allowed to rearrange columns. If <SAMP>type</SAMP> is
+<CODE>vlistviewNO_REARRANGE</CODE>, users will not be
+allowed to rearrange anything. Subclasses overriding this
+method should call the superclass so that the attribute
+change will be recorded in <SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_ROW_HEIGHT"><HR><H4>vlistviewSET_ROW_HEIGHT</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_ROW_HEIGHT</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the height of row <SAMP>row</SAMP> to be
+<SAMP>height</SAMP>. The height of all rows can be set to
+the same value by passing <CODE>vlistviewALL_ROWS</CODE> in
+the <SAMP>row</SAMP> parameter. This sets the <I>usable</I>
+height. Space is added to <SAMP>height</SAMP> to
+accommodate selection highlighting. If the client never
+sets the row height, the default row height which is
+calculated from the list view's font is used. The cell
+content area will be adjusted by the mechanism set by
+<CODE><A HREF="vlistview-x.html#vlistviewSetUpdateMode"><CODE>vlistviewSetUpdateMode</CODE></A></CODE> if <SAMP>row</SAMP> is
+visible. Subclasses overriding this method should call the
+superclass so that the row height will be recorded in
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_SCROLL_BAR_MARGIN"><HR><H4>vlistviewSET_SCROLL_BAR_MARGIN</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_SCROLL_BAR_MARGIN</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the margin between the scroll bars and the list view
+contents. Subclasses overriding this method should call the
+superclass so that the scroll bar margin will be recorded
+in <SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_SELECTION"><HR><H4>vlistviewSET_SELECTION</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_SELECTION</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the visible selection for the list view
+<SAMP>listview</SAMP> to the selection
+<SAMP>selection</SAMP>. The selection notification
+procedure is <I>not</I> notified of this change. List views
+automatically create a selection for you when you call
+<CODE><A HREF="vlistview-x.html#vlistviewSetList"><CODE>vlistviewSetList</CODE></A></CODE>, so it is unnecessary for you
+to create a selection and set it yourself.
+<SAMP>listview</SAMP> takes over ownership of
+<SAMP>selection</SAMP>, and will destroy it when the list
+view, or the list being viewed, is destroyed. Subclasses
+overriding this method should call the superclass so that
+the new selection will be stored in <SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_SELECTION_FILTER"><HR><H4>vlistviewSET_SELECTION_FILTER</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_SELECTION_FILTER</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the list view's selection filter procedure to
+<SAMP>proc</SAMP>. The filter procedure is called while the
+selection is volatile, as the user is changing the
+selection before committing to an actual selection. The
+filter procedure can then prevent cells from becoming part
+of the selection or add cells to the selection. Subclasses
+overriding this method should call the superclass so that
+the selection filter will be recorded in
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_SELECTION_SENSE"><HR><H4>vlistviewSET_SELECTION_SENSE</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_SELECTION_SENSE</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the <SAMP>SelectionSense</SAMP> attribute of the list
+view <SAMP>listview</SAMP> to <SAMP>onOff</SAMP>. If
+SelectionSense is active and the user adjust-clicks on a
+selected cell, mouse tracking removes cells from the
+current selection instead of adding cells to the selection.
+When <SAMP>SelectionSense</SAMP> is off, clicking with the
+mouse only adds cells to the selection. Subclasses
+overriding this method should call the superclass so that
+the attribute change will be recorded in
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_SELECT_NOTIFY"><HR><H4>vlistviewSET_SELECT_NOTIFY</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_SELECT_NOTIFY</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets list view's selection-notify procedure to
+<SAMP>noteProc</SAMP>. This procedure gets called whenever
+the list view's selection changes. The
+<SAMP>noteProc</SAMP> gets called at the start of the
+change with <CODE>vlistviewSELECTION_WILL_CHANGE</CODE> to
+allow any pre-selection setup, with
+<CODE>vlistviewSELECTION_IS_CHANGING</CODE> while the
+selection is being modified, and then
+<CODE>vlistviewSELECTION_HAS_CHANGED</CODE> when the
+operation is complete. During the selection change, the
+original selection is accessible to the
+<SAMP>noteProc</SAMP> by way of
+<CODE><A HREF="vlistview-x.html#vlistviewGetSelection"><CODE>vlistviewGetSelection</CODE></A></CODE>, and the selection under
+construction is available by way of
+<CODE><A HREF="vlistview-x.html#vlistviewGetVolatileSelection"><CODE>vlistviewGetVolatileSelection</CODE></A></CODE>. The
+<SAMP>noteProc</SAMP> is called when the change to the
+selection is a result of user action or API calls.
+Subclasses overriding this method should call the
+superclass so that the selection-notify procedure will be
+recorded in <SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_SIZES"><HR><H4>vlistviewSET_SIZES</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_SIZES</B>&gt;
+</PRE>
+
+<DL><DD>
+Instructs <SAMP>listview</SAMP> to use <SAMP>size</SAMP> as
+its repository for row heights and column widths. This
+function transfers ownership of <SAMP>size</SAMP> to
+<SAMP>listview</SAMP>, meaning that <SAMP>listview</SAMP>
+will destroy <SAMP>size</SAMP> when it is destroyed.
+Subclasses overriding this method should call the
+superclass so that the attribute change will be recorded in
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_TRAVERSAL_WRAP"><HR><H4>vlistviewSET_TRAVERSAL_WRAP</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_TRAVERSAL_WRAP</B>&gt;
+</PRE>
+
+<DL><DD>
+Determines whether the keyboard focus for the list view
+<SAMP>listview</SAMP> wraps around the ends of the list
+being displayed by the list view. If <SAMP>onOff</SAMP> is
+<SAMP>FALSE</SAMP>, the focus is pinned at the list's
+extremes; if <SAMP>TRUE</SAMP>, the focus wraps. Subclasses
+overriding this method should call the superclass so that
+the attribute change will be recorded in
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_UPDATE_MODE"><HR><H4>vlistviewSET_UPDATE_MODE</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_UPDATE_MODE</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the update mode for <SAMP>listview</SAMP>. Certain
+list operations, such as row/column insertion and deletion,
+as well as adjustment to row heights and column widths, can
+be made more efficient by scrolling the visible list
+contents rather than redrawing drawing. There are times
+when scrolling is not appropriate and invalidation is
+sufficient. There are yet other times where the List
+Manager should not do anything, where client code will
+cause a redraw of the proper areas. <SAMP>mode</SAMP>
+should be <CODE>vlistviewSCROLL</CODE> if list contents
+should be scrolled, <CODE>vlistviewINVAL</CODE> if
+invalidations should be used instead of scrolling, and
+<CODE>vlistviewDO_NOTHING</CODE> if the List Manager should
+do nothing at all. Subclasses overriding this method should
+call the superclass so that the attribute change will be
+recorded in <SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_USE_KEYBOARD_SELECTION"><HR><H4>vlistviewSET_USE_KEYBOARD_SELECTION</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_USE_KEYBOARD_SELECTION</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the <SAMP>UseKeyboardSelection</SAMP> attribute of the
+list view <SAMP>listview</SAMP> to <SAMP>onOff</SAMP>. When
+disabled, all characters typed are ignored; when enabled,
+typing a cell value changes the list view's selection to
+that cell. Subclasses overriding this method should call
+the superclass so that the attribute change will be
+recorded in <SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_USE_KEYBOARD_TRAVERSAL"><HR><H4>vlistviewSET_USE_KEYBOARD_TRAVERSAL</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_USE_KEYBOARD_TRAVERSAL</B>&gt;
+</PRE>
+
+<DL><DD>
+Determines whether keyboard traversal (using arrow keys to
+move the list view's keyboard focus) is active. If
+<SAMP>onOff</SAMP> is <SAMP>FALSE</SAMP>, all keyboard
+traversal commands are ignored, and the keyboard focus is
+not drawn. If <SAMP>onOff</SAMP> is <SAMP>TRUE</SAMP>,
+keyboard traversal commands are active, and the keyboard
+focus is drawn. Default drawing routine for the list view's
+keyboard focus follows the Galaxy application's
+look-and-feel. Subclasses overriding this method should
+call the superclass so that the attribute change will be
+recorded in <SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_VERT_BAR"><HR><H4>vlistviewSET_VERT_BAR</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_VERT_BAR</B>&gt;
+</PRE>
+
+<DL><DD>
+Designates whether or not the list view
+<SAMP>listview</SAMP> has a vertical scroll bar. If
+<SAMP>onOff</SAMP> is <SAMP>TRUE</SAMP>, the scroll bar is
+turned on, if <SAMP>FALSE</SAMP>, the scroll bar is turned
+off. For a list view both scroll bars are off by default.
+Subclasses overriding this method should call the
+superclass so that the attribute change will be recorded in
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSET_VERT_GRID"><HR><H4>vlistviewSET_VERT_GRID</H4></A>
+<PRE>
+        &lt;<B>vlistviewSET_VERT_GRID</B>&gt;
+</PRE>
+
+<DL><DD>
+Designates whether vertical grid lines will be drawn. If
+<SAMP>onOff</SAMP> is <SAMP>TRUE</SAMP>, vertical grid
+lines will be drawn between every column. If
+<SAMP>FALSE</SAMP>, no vertical grid lines will be drawn.
+Subclasses overriding this method should call the
+superclass so that the attribute change will be recorded in
+<SAMP>listview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistviewTRAVERSE_VECTOR"><HR><H4>vlistviewTRAVERSE_VECTOR</H4></A>
+<PRE>
+        &lt;<B>vlistviewTRAVERSE_VECTOR</B>&gt;
+</PRE>
+
+<DL><DD>
+Called whenever the list view's keyboard focus cursor is
+changed. The change is expressed as a delta of rows and
+columns between its current position and its intended
+position. This method actually moves the focus to the new
+location, this method should follow the traversal wrap
+settings.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vlistviewALL_ROWS"><HR><H4>vlistviewALL_ROWS</H4></A>
+<PRE>
+        <B>vlistviewALL_ROWS</B>
+</PRE>
+<A NAME="vlistviewALL_COLUMNS"><PRE>
+        <B>vlistviewALL_COLUMNS</B>
+</PRE>
+</A>
+
+<DL><DD>
+Used with <CODE><A HREF="vlistview-x.html#vlistviewSetRowHeight"><CODE>vlistviewSetRowHeight</CODE></A></CODE> and
+<CODE><A HREF="vlistview-x.html#vlistviewSetColumnWidth"><CODE>vlistviewSetColumnWidth</CODE></A></CODE> respectively. When
+these are passed in place of the row or column number, the
+width or height for all rows or columns is set.
+</DD></DL>
+<P>
+<A NAME="vlistviewDONT_CARE"><HR><H4>vlistviewDONT_CARE</H4></A>
+<PRE>
+        <B>vlistviewDONT_CARE</B>
+</PRE>
+
+<DL><DD>
+When returned in the width and/or height field of
+<CODE><A HREF="vlistview-x.html#vlistviewDetermineCellSize"><CODE>vlistviewDetermineCellSize</CODE></A></CODE> indicates that the
+cell can be of any arbitrary size---it does not have a
+favorite width or height as indicated.
+</DD></DL>
+<P>
+<A NAME="vlistviewEMPTY_LIST"><HR><H4>vlistviewEMPTY_LIST</H4></A>
+<PRE>
+        <B>vlistviewEMPTY_LIST</B>
+</PRE>
+
+<DL><DD>
+Passed to <CODE><A HREF="vlistview-x.html#vlistviewDrawCellFocus"><CODE>vlistviewDrawCellFocus</CODE></A></CODE> to indicate
+that keyboard focus hiliting should be drawn, but there is
+no specific cell to draw the focus around because the
+listview's list is empty or not set.
+</DD></DL>
+<P>
+<A NAME="vlistviewINCLUDED"><HR><H4>vlistviewINCLUDED</H4></A>
+<PRE>
+        <B>vlistviewINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vlistview.h</SAMP> is
+included.
+</DD></DL>
+<P>
+<A NAME="vlistviewLEFT"><HR><H4>vlistviewLEFT</H4></A>
+<PRE>
+        <B>vlistviewLEFT</B>
+</PRE>
+<A NAME="vlistviewUP"><PRE>
+        <B>vlistviewUP</B>
+</PRE>
+</A>
+<A NAME="vlistviewRIGHT"><PRE>
+        <B>vlistviewRIGHT</B>
+</PRE>
+</A>
+<A NAME="vlistviewDOWN"><PRE>
+        <B>vlistviewDOWN</B>
+</PRE>
+</A>
+
+<DL><DD>
+Used with <CODE><A HREF="vlistview-x.html#vlistviewMoveFocus"><CODE>vlistviewMoveFocus</CODE></A></CODE> to specify the
+direction to move the focus cell of a list view.
+</DD></DL>
+<P>
+<A NAME="vlistviewNO_REARRANGE"><HR><H4>vlistviewNO_REARRANGE</H4></A>
+<PRE>
+        <B>vlistviewNO_REARRANGE</B>
+</PRE>
+<A NAME="vlistviewROW_REARRANGE"><PRE>
+        <B>vlistviewROW_REARRANGE</B>
+</PRE>
+</A>
+<A NAME="vlistviewCOLUMN_REARRANGE"><PRE>
+        <B>vlistviewCOLUMN_REARRANGE</B>
+</PRE>
+</A>
+
+<DL><DD>
+Signify the rearrangement that is legal in a list view.
+They are returned for the rearrangement type from
+<CODE><A HREF="vlistview-x.html#vlistviewGetRearrange"><CODE>vlistviewGetRearrange</CODE></A></CODE>, and are used to specify
+a rearrangement type for
+<CODE><A HREF="vlistview-x.html#vlistviewSetRearrange"><CODE>vlistviewSetRearrange</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vlistviewSCROLL"><HR><H4>vlistviewSCROLL</H4></A>
+<PRE>
+        <B>vlistviewSCROLL</B>
+</PRE>
+<A NAME="vlistviewINVAL"><PRE>
+        <B>vlistviewINVAL</B>
+</PRE>
+</A>
+<A NAME="vlistviewDO_NOTHING"><PRE>
+        <B>vlistviewDO_NOTHING</B>
+</PRE>
+</A>
+
+<DL><DD>
+Behavioral parameters to
+<CODE><A HREF="vlistview-x.html#vlistviewSetUpdateMode"><CODE>vlistviewSetUpdateMode</CODE></A></CODE> that indicate that
+certain list operations either scroll the previous contents
+around, invalidate the affected rectangle, or do nothing.
+</DD></DL>
+<P>
+<A NAME="vlistviewSELECTION_WILL_CHANGE"><HR><H4>vlistviewSELECTION_WILL_CHANGE</H4></A>
+<PRE>
+        <B>vlistviewSELECTION_WILL_CHANGE</B>
+</PRE>
+<A NAME="vlistviewSELECTION_IS_CHANGING"><PRE>
+        <B>vlistviewSELECTION_IS_CHANGING</B>
+</PRE>
+</A>
+<A NAME="vlistviewSELECTION_HAS_CHANGED"><PRE>
+        <B>vlistviewSELECTION_HAS_CHANGED</B>
+</PRE>
+</A>
+
+<DL><DD>
+Passed to the <CODE>vlistviewSelectNotifyProc</CODE> while
+the user is changing the selection, or after the selection
+has been changed by an API call.
+</DD></DL>
+<P>
+<A NAME="vlistviewSELECT_EXTEND_RIGHT"><HR><H4>vlistviewSELECT_EXTEND_RIGHT</H4></A>
+<PRE>
+        <B>vlistviewSELECT_EXTEND_RIGHT</B>
+</PRE>
+<A NAME="vlistviewSELECT_EXTEND_LEFT"><PRE>
+        <B>vlistviewSELECT_EXTEND_LEFT</B>
+</PRE>
+</A>
+<A NAME="vlistviewSELECT_EXTEND_UP"><PRE>
+        <B>vlistviewSELECT_EXTEND_UP</B>
+</PRE>
+</A>
+<A NAME="vlistviewSELECT_EXTEND_DOWN"><PRE>
+        <B>vlistviewSELECT_EXTEND_DOWN</B>
+</PRE>
+</A>
+<A NAME="vlistviewSELECT_TRIGGER_ACTION"><PRE>
+        <B>vlistviewSELECT_TRIGGER_ACTION</B>
+</PRE>
+</A>
+<A NAME="vlistviewNEXT_SELECT"><PRE>
+        <B>vlistviewNEXT_SELECT</B>
+</PRE>
+</A>
+
+<DL><DD>
+Denote selectors for list view commands. These commands are
+dispatched by the function
+<CODE><A HREF="vobject-x.html#vobjectIssueCommand"><CODE>vobjectIssueCommand</CODE></A></CODE>. Each selector constant
+has integral type. Refer to the section ``Commands'' for a
+detailed description of each command.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vlistviewCLASS"><HR><H4>vlistviewCLASS</H4></A>
+<PRE>
+        #define <B>vlistviewCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for the list view
+class. This macro expands to the contents of <CODE><A HREF="vlistview-x.html#vlistviewClass"><CODE>vlistviewClass</CODE></A></CODE>.
+<SAMP>SUPER</SAMP> is the type identifier of the class being declared; for
+example, <CODE><A HREF="vlistview-x.html#vlistviewClass"><CODE>vlistviewClass</CODE></A></CODE>. This type is used by the class's
+subclasses to refer to it. <SAMP>ITEM</SAMP> is the type identifier of
+instances of the class being declared; for example, <CODE>vlistview</CODE>.
+<P>
+<SAMP>NOTIFY</SAMP> is the type identifier of the instance notification
+function; for example, <CODE><A HREF="vlistview-x.html#vlistviewNoteProc"><CODE>vlistviewNoteProc</CODE></A></CODE>. 
+This macro should be used by text view subclasses to
+declare the contents of the text view class. This macro should come
+first in the subclass structure declaration.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

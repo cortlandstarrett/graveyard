@@ -1,0 +1,700 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vhelprequest prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vhelprequest prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vhelprequest-x.html#section_DataType">Types</A> [2]</TD>
+<TD><A HREF="vhelprequest-x.html#section_Function">Functions</A> [21]</TD>
+<TD><A HREF="vhelprequest-x.html#section_Message">Messages</A> [7]</TD>
+<TD><A HREF="vhelprequest-x.html#section_Constant">Constants</A> [1]</TD>
+<TD><A HREF="vhelprequest-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vhelprequest"><HR><H4>vhelprequest</H4></A>
+<PRE>
+        typedef ... <B>vhelprequest</B>;
+</PRE>
+
+<DL><DD>
+An instance of the base vhelprequest may encapsulate the following
+information:
+
+<UL>
+<LI> the type of help being requested (for example, hypertext, status, phrase)
+<LI> the help data (either the actual help text or a reference to help
+text)
+<LI> coordinates of the request for help, relative to the containing
+object
+<LI> whether the request should be attempted more than once
+<LI> whether the request has been attempted at least once
+</UL>
+
+<P>
+vhelprequests are created by entities interested in fulfilling the
+user's request for help.  For instance, the default implementation of
+the "Help" command creates a help request.
+<P>
+Once the help request is created, it is usually passed to an object to
+be serviced by <CODE><A HREF="vobject-x.html#vobjectDisplayHelp"><CODE>vobjectDisplayHelp</CODE></A></CODE>.  The object may
+reroute the request to other objects (for example, a GUI container object may
+route the request to an object it contains) until eventually some
+object passes the request to a <CODE><A HREF="vhelpobject-x.html#vhelpobject"><CODE>vhelpobject</CODE></A></CODE>.  This help object 
+is usually obtained by a call to 
+<CODE><A HREF="vhelpregistry-x.html#vhelpregistrySearchFromObject"><CODE>vhelpregistrySearchFromObject</CODE></A></CODE>.
+<P>
+The help object will pass the help request to a
+<CODE><A HREF="vhelplocator-x.html#vhelplocator"><CODE>vhelplocator</CODE></A></CODE> and then to a <CODE><A HREF="vhelpdisplay-x.html#vhelpdisplay"><CODE>vhelpdisplay</CODE></A></CODE>.
+The help object and help locator may add information (outlined above)
+to the help request for use by the help display.
+<P>
+The actual type of the help data is vkind.  This allows for the
+help data to easily be an instance of an existing Galaxy class
+(for example, <A HREF="vtext-x.html#vtext"><CODE>vtext</CODE></A>).  In practice, the help data is often an instance of
+either <CODE><A HREF="vhelptext-x.html#vhelptext"><CODE>vhelptext</CODE></A></CODE> or <CODE><A HREF="vhelpref-x.html#vhelpref"><CODE>vhelpref</CODE></A></CODE>.  <A HREF="vhelptext-x.html#vhelptext"><CODE>vhelptext</CODE></A> 
+encapsulates a string that is the actual help data.  <A HREF="vhelpref-x.html#vhelpref"><CODE>vhelpref</CODE></A> 
+encapsulates a reference to help
+text.  This reference usually takes the form of either a help context
+(refer to <CODE><A HREF="vobject-x.html#vobjectBuildHelpContext"><CODE>vobjectBuildHelpContext</CODE></A></CODE>) or a <CODE><A HREF="vurl-x.html#vurl"><CODE>vurl</CODE></A></CODE>.  The 
+vhelprequest may own the help data if necessary.
+<P>
+A request for help is usually initiated in the following manner:
+
+<BLOCKQUOTE>
+<PRE>
+  <A HREF="vobject-x.html#vobject"><CODE>vobject</CODE></A>		*object;
+  vhelprequest		 request;
+  
+  <A HREF="vhelprequest-x.html#vhelprequestInit"><CODE>vhelprequestInit</CODE></A>(&request);
+  <A HREF="vhelprequest-x.html#vhelprequestSetName"><CODE>vhelprequestSetName</CODE></A>(&request, vname_Hypertext);
+  <A HREF="vobject-x.html#vobjectDisplayHelp"><CODE>vobjectDisplayHelp</CODE></A>(object, &request);
+  <A HREF="vhelprequest-x.html#vhelprequestDestroy"><CODE>vhelprequestDestroy</CODE></A>(&request);
+</PRE>
+</BLOCKQUOTE>
+
+If coordinates are available at the time of the request, these may be
+supplied before the time call to <A HREF="vobject-x.html#vobjectDisplayHelp"><CODE>vobjectDisplayHelp</CODE></A>.
+</DD></DL>
+<P>
+<A NAME="vhelprequestClass"><HR><H4>vhelprequestClass</H4></A>
+<PRE>
+        typedef ... <B>vhelprequestClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variable bindings for objects of type
+<CODE>vhelprequest</CODE> . Classes declared with this type 
+contain the same set of methods and variables as the
+default help request class, but the behavior of methods and the
+contents of variables may vary. This class type is derived
+from <CODE><A HREF="vinstance-x.html#vinstanceClass"><CODE>vinstanceClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vhelprequestCreate"><HR><H4>vhelprequestCreate</H4></A>
+<PRE>
+        vhelprequest * <B>vhelprequestCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates an instance of the default class of vhelprequest and returns
+a pointer to its contents.  Space
+for the object is allocated dynamically.  The Class Manager reclaims 
+the storage occupied by the object when it is destroyed with
+<CODE><A HREF="vhelprequest-x.html#vhelprequestDestroy"><CODE>vhelprequestDestroy</CODE></A></CODE>.  Higher-level interfaces based
+on the core vhelprequest type can define a macro to this function
+for their <CODE>Create</CODE> function.  This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vhelprequest-x.html#vhelprequestInit"><CODE>vhelprequestInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vhelprequestCreateOfClass"><HR><H4>vhelprequestCreateOfClass</H4></A>
+<PRE>
+        vhelprequest * <B>vhelprequestCreateOfClass</B>(
+                vhelprequestClass * helprequestClass);
+</PRE>
+
+<DL><DD>
+Creates an instance of class <SAMP>helprequestClass</SAMP> and returns
+a pointer to its contents. Space
+for the object is allocated dynamically based on the object
+size of the class. The Class Manager reclaims the storage
+occupied by the object when it is destroyed with
+<CODE><A HREF="vhelprequest-x.html#vhelprequestDestroy"><CODE>vhelprequestDestroy</CODE></A></CODE>. Higher-level interfaces based
+on the core vhelprequest type can define a macro to this function
+for their <CODE>Create</CODE> function. This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vhelprequest-x.html#vhelprequestInitOfClass"><CODE>vhelprequestInitOfClass</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vhelprequestDestroy"><HR><H4>vhelprequestDestroy</H4></A>
+<PRE>
+        vhelprequest * <B>vhelprequestDestroy</B>(
+                vhelprequest * helprequest);
+</PRE>
+
+<DL><DD>
+Destroys the object <SAMP>helprequest</SAMP>, that must have
+been created or initialized by a Class Manager function.
+Interfaces based on the core object class can define a
+macro to this function for their <CODE>Destroy</CODE>
+function. This function is implemented by sending the
+message <CODE><A HREF="vinstance-x.html#vinstanceDESTROY"><CODE>vinstanceDESTROY</CODE></A></CODE> to <SAMP>helprequest</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vhelprequestGetClass"><HR><H4>vhelprequestGetClass</H4></A>
+<PRE>
+        vhelprequestClass * <B>vhelprequestGetClass</B>(
+                vhelprequest * helprequest);
+</PRE>
+
+<DL><DD>
+Returns the class of the object <SAMP>helprequest</SAMP>. This
+pointer can be cast to higher-level classes if it is known
+that it is of the appropriate type. Class types can be
+verified with <CODE><A HREF="vclass-x.html#vclassIsKindOf"><CODE>vclassIsKindOf</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vhelprequestGetCoordinates"><HR><H4>vhelprequestGetCoordinates</H4></A>
+<PRE>
+        void <B>vhelprequestGetCoordinates</B>(
+                vhelprequest * helprequest,
+                int * x,
+                int * y);
+</PRE>
+
+<DL><DD>
+If the coordinates were never set, these values will be vportINT_MIN.
+</DD></DL>
+<P>
+<A NAME="vhelprequestGetDefaultClass"><HR><H4>vhelprequestGetDefaultClass</H4></A>
+<PRE>
+        vhelprequestClass * <B>vhelprequestGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+This class can be modified to alter the behavior
+of subclasses of vhelprequest.  This function can be called to
+explicitly register the default dialog class with the Class
+Manager.
+</DD></DL>
+<P>
+<A NAME="vhelprequestGetHelpData"><HR><H4>vhelprequestGetHelpData</H4></A>
+<PRE>
+        vinstance * <B>vhelprequestGetHelpData</B>(
+                vhelprequest * helprequest);
+</PRE>
+
+<DL><DD>
+
+The help data can be an instance of any Galaxy class (for example, <A HREF="vtext-x.html#vtext"><CODE>vtext</CODE></A>).  In
+practice, the help data is often an instance of either
+<CODE><A HREF="vhelptext-x.html#vhelptext"><CODE>vhelptext</CODE></A></CODE> or <CODE><A HREF="vhelpref-x.html#vhelpref"><CODE>vhelpref</CODE></A></CODE>.  <A HREF="vhelptext-x.html#vhelptext"><CODE>vhelptext</CODE></A>
+encapsulates a string that is the actual help data.  <A HREF="vhelpref-x.html#vhelpref"><CODE>vhelpref</CODE></A>
+encapsulates a reference to help text.  This reference usually takes
+the form of either a help context (refer to
+<CODE><A HREF="vobject-x.html#vobjectBuildHelpContext"><CODE>vobjectBuildHelpContext</CODE></A></CODE>) or a <CODE><A HREF="vurl-x.html#vurl"><CODE>vurl</CODE></A></CODE>.  The
+vhelprequest may own the help data if necessary.
+<P>
+Use <CODE><A HREF="vinstance-x.html#vinstanceIsKindOf"><CODE>vinstanceIsKindOf</CODE></A></CODE> or <CODE><A HREF="vclass-x.html#vclassIsKindOf"><CODE>vclassIsKindOf</CODE></A></CODE> to
+determine the class of the help data.
+
+</DD></DL>
+<P>
+<A NAME="vhelprequestGetInstance"><HR><H4>vhelprequestGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vhelprequestGetInstance</B>(
+                vhelprequest * helprequest);
+</PRE>
+
+<DL><DD>
+Returns the instance on which the help request <SAMP>helprequest</SAMP> 
+is built.
+</DD></DL>
+<P>
+<A NAME="vhelprequestGetName"><HR><H4>vhelprequestGetName</H4></A>
+<PRE>
+        const vname * <B>vhelprequestGetName</B>(
+                vhelprequest * helprequest);
+</PRE>
+
+<DL><DD>
+The name of the help request determines what help object is used to
+service it.  Current names include:
+<UL>
+<LI> <CODE>vname_Hypertext</CODE>: hypertext documents, (refer to
+<CODE><A HREF="vhelpdefault-x.html#vhelpdefault"><CODE>vhelpdefault</CODE></A></CODE> and <CODE><A HREF="vhelpgalaxy-x.html#vhelpgalaxy"><CODE>vhelpgalaxy</CODE></A></CODE>)
+<LI> <CODE>vname_Status</CODE>: status information (refer to <CODE><A HREF="vhelpstatus-x.html#vhelpstatus"><CODE>vhelpstatus</CODE></A></CODE>)
+<LI> <CODE>vname_Phrase</CODE>: very brief information (refer to <CODE><A HREF="vhelptooltip-x.html#vhelptooltip"><CODE>vhelptooltip</CODE></A></CODE>)
+</UL>
+This call can return <CODE>NULL</CODE> but a help request whose name
+is not set is not terribly useful because it cannot be bound
+automatically to a help object.
+
+</DD></DL>
+<P>
+<A NAME="vhelprequestGetObject"><HR><H4>vhelprequestGetObject</H4></A>
+<PRE>
+        vobject * <B>vhelprequestGetObject</B>(
+                vhelprequest * helprequest);
+</PRE>
+
+<DL><DD>
+Help requests (particularly context-sensitive requests) are often
+associated with a particular object.  If this is the case, this call
+will return that object.  Calls to <CODE><A HREF="vobject-x.html#vobjectDisplayHelp"><CODE>vobjectDisplayHelp</CODE></A></CODE>
+will automatically set the object of the request.  This call can
+return <CODE>NULL</CODE>.
+</DD></DL>
+<P>
+<A NAME="vhelprequestInit"><HR><H4>vhelprequestInit</H4></A>
+<PRE>
+        void <B>vhelprequestInit</B>(
+                vhelprequest * helprequest);
+</PRE>
+
+<DL><DD>
+Initializes the memory addressed by <SAMP>helprequest</SAMP> in
+such a way that the resulting structure can be used to
+store any objects whose classes inherit from
+<CODE><A HREF="vhelprequest-x.html#vhelprequestClass"><CODE>vhelprequestClass</CODE></A></CODE>. 
+</DD></DL>
+<P>
+<A NAME="vhelprequestInitOfClass"><HR><H4>vhelprequestInitOfClass</H4></A>
+<PRE>
+        void <B>vhelprequestInitOfClass</B>(
+                vhelprequest * helprequest,
+                vhelprequestClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes an request of class <SAMP>clas</SAMP> in the
+memory addressed by <SAMP>helprequest</SAMP>.  Interfaces 
+based on the core request class can
+define a macro to this function for their <CODE>Init</CODE>
+function. This function simply stores the class in the
+class field of the request structure and sends it the
+message <CODE><A HREF="vinstance-x.html#vinstanceINIT"><CODE>vinstanceINIT</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vhelprequestIsOneTry"><HR><H4>vhelprequestIsOneTry</H4></A>
+<PRE>
+        vbool <B>vhelprequestIsOneTry</B>(
+                vhelprequest * helprequest);
+</PRE>
+
+<DL><DD>
+"One try" requests are useful for things like Phrase help
+(for example, tooltips) where the request is only valid on the most deeply
+nested object in a hierarchy.
+</DD></DL>
+<P>
+<A NAME="vhelprequestIsTriedOnce"><HR><H4>vhelprequestIsTriedOnce</H4></A>
+<PRE>
+        vbool <B>vhelprequestIsTriedOnce</B>(
+                vhelprequest * helprequest);
+</PRE>
+
+<DL><DD>
+"One try" requests are useful for things like Phrase help
+(for example, tooltips) where the request is only valid on the most deeply
+nested object in a hierarchy.
+</DD></DL>
+<P>
+<A NAME="vhelprequestSetCoordinates"><HR><H4>vhelprequestSetCoordinates</H4></A>
+<PRE>
+        void <B>vhelprequestSetCoordinates</B>(
+                vhelprequest * helprequest,
+                int x,
+                int y);
+</PRE>
+
+<DL><DD>
+These coordinates usually represent the location of the mouse pointer.
+They are useful to container objects that seek to re-route the
+request to objects that they contain.  Within calls to
+<CODE><A HREF="vobject-x.html#vobjectDisplayHelp"><CODE>vobjectDisplayHelp</CODE></A></CODE>Coordinates should always be with
+respect to the containing object.
+<P>
+This function is implemented by sending the message
+<CODE><A HREF="vhelprequest-x.html#vhelprequestSET_COORDINATES"><CODE>vhelprequestSET_COORDINATES</CODE></A></CODE> to the help request.
+</DD></DL>
+<P>
+<A NAME="vhelprequestSetHelpData"><HR><H4>vhelprequestSetHelpData</H4></A>
+<PRE>
+        void <B>vhelprequestSetHelpData</B>(
+                vhelprequest * helprequest,
+                vinstance * helpdata);
+</PRE>
+
+<DL><DD>
+
+The help data can be an instance of any Galaxy class (for example, <A HREF="vtext-x.html#vtext"><CODE>vtext</CODE></A>).  In
+practice, the help data is often an instance of either
+<CODE><A HREF="vhelptext-x.html#vhelptext"><CODE>vhelptext</CODE></A></CODE> or <CODE><A HREF="vhelpref-x.html#vhelpref"><CODE>vhelpref</CODE></A></CODE>.  <A HREF="vhelptext-x.html#vhelptext"><CODE>vhelptext</CODE></A>
+encapsulates a string that is the actual help data.  <A HREF="vhelpref-x.html#vhelpref"><CODE>vhelpref</CODE></A>
+encapsulates a reference to help text.  This reference usually takes
+the form of either a help context (refer to
+<CODE><A HREF="vobject-x.html#vobject"><CODE>vobject</CODE></A></CODE>) or a <CODE><A HREF="vurl-x.html#vurl"><CODE>vurl</CODE></A></CODE>.  The
+vhelprequest may own the help data if necessary.
+
+<P>
+
+The help request does not take ownership of this help data (refer to
+<CODE>vhelprequestSetDataOwned</CODE>).
+
+<P>
+
+This function is implemented by sending the message
+<CODE><A HREF="vhelprequest-x.html#vhelprequestSET_HELP_DATA"><CODE>vhelprequestSET_HELP_DATA</CODE></A></CODE> to <SAMP>helprequest</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vhelprequestSetHelpDataOwned"><HR><H4>vhelprequestSetHelpDataOwned</H4></A>
+<PRE>
+        void <B>vhelprequestSetHelpDataOwned</B>(
+                vhelprequest * helprequest,
+                vinstance * helpdata);
+</PRE>
+
+<DL><DD>
+The help data can be an instance of any Galaxy class (for example, <A HREF="vtext-x.html#vtext"><CODE>vtext</CODE></A>).  In
+practice, the help data is often an instance of either
+<CODE><A HREF="vhelptext-x.html#vhelptext"><CODE>vhelptext</CODE></A></CODE> or <CODE><A HREF="vhelpref-x.html#vhelpref"><CODE>vhelpref</CODE></A></CODE>.  <A HREF="vhelptext-x.html#vhelptext"><CODE>vhelptext</CODE></A>
+encapsulates a string that is the actual help data.  <A HREF="vhelpref-x.html#vhelpref"><CODE>vhelpref</CODE></A>
+encapsulates a reference to help text.  This reference usually takes
+the form of either a help context (refer to
+<CODE><A HREF="vobject-x.html#vobjectBuildHelpContext"><CODE>vobjectBuildHelpContext</CODE></A></CODE>) or a <CODE><A HREF="vurl-x.html#vurl"><CODE>vurl</CODE></A></CODE>.  The
+vhelprequest may own the help data if necessary.
+
+<P>
+
+The help request takes ownership of this help data and will destroy
+the help data when the request is destroyed (refer to
+<CODE>vhelprequestSetHelpData</CODE>).
+
+</DD></DL>
+<P>
+<A NAME="vhelprequestSetName"><HR><H4>vhelprequestSetName</H4></A>
+<PRE>
+        void <B>vhelprequestSetName</B>(
+                vhelprequest * helprequest,
+                const vname * name);
+</PRE>
+
+<DL><DD>
+The name of the help request determines what help object is used to
+service it.  Current names include:
+<UL>
+<LI> <CODE>vname_Hypertext</CODE>: hypertext documents, (refer to
+<CODE><A HREF="vhelpdefault-x.html#vhelpdefault"><CODE>vhelpdefault</CODE></A></CODE> and <CODE><A HREF="vhelpgalaxy-x.html#vhelpgalaxy"><CODE>vhelpgalaxy</CODE></A></CODE>)
+<LI> <CODE>vname_Status</CODE>: status information (refer to <CODE><A HREF="vhelpstatus-x.html#vhelpstatus"><CODE>vhelpstatus</CODE></A></CODE>)
+<LI> <CODE>vname_Phrase</CODE>: very brief information (refer to <CODE><A HREF="vhelptooltip-x.html#vhelptooltip"><CODE>vhelptooltip</CODE></A></CODE>)
+</UL>
+
+<P>
+
+It is always important to set the name of a request so that it can be
+bound automatically to a help object.
+
+<P>
+
+This function is implemented by sending the message
+<A HREF="vhelprequest-x.html#vhelprequestSET_NAME"><CODE>vhelprequestSET_NAME</CODE></A> to <SAMP>helprequest</SAMP>.
+
+</DD></DL>
+<P>
+<A NAME="vhelprequestSetObject"><HR><H4>vhelprequestSetObject</H4></A>
+<PRE>
+        void <B>vhelprequestSetObject</B>(
+                vhelprequest * helprequest,
+                vobject * object);
+</PRE>
+
+<DL><DD>
+
+Help requests are often associated with object so that they can use
+attributes of the object (tags, etc.) to locate or generate the help
+data (refer to <CODE><A HREF="vobject-x.html#vobjectBuildHelpContext"><CODE>vobjectBuildHelpContext</CODE></A></CODE>).  Help displays may
+also use information about the object's position to display the help text 
+(refer to <CODE><A HREF="vhelptooltip-x.html#vhelptooltip"><CODE>vhelptooltip</CODE></A></CODE>).
+
+<P>
+
+This function is implemented by sending the message
+<CODE><A HREF="vhelprequest-x.html#vhelprequestSET_OBJECT"><CODE>vhelprequestSET_OBJECT</CODE></A></CODE> to <SAMP>helprequest</SAMP>.
+
+</DD></DL>
+<P>
+<A NAME="vhelprequestSetOneTry"><HR><H4>vhelprequestSetOneTry</H4></A>
+<PRE>
+        void <B>vhelprequestSetOneTry</B>(
+                vhelprequest * helprequest,
+                vbool onOff);
+</PRE>
+
+<DL><DD>
+
+Passing <SAMP>vFALSE</SAMP> to this function indicates that there is no limit to
+the number of attempts to fulfill this request.  This is the default
+state of help requests.
+
+<P>
+
+This function is implemented by sending the message 
+<CODE><A HREF="vhelprequest-x.html#vhelprequestSET_ONE_TRY"><CODE>vhelprequestSET_ONE_TRY</CODE></A></CODE> to <SAMP>helprequest</SAMP>.
+
+</DD></DL>
+<P>
+<A NAME="vhelprequestSetTriedOnce"><HR><H4>vhelprequestSetTriedOnce</H4></A>
+<PRE>
+        void <B>vhelprequestSetTriedOnce</B>(
+                vhelprequest * helprequest,
+                vbool onOff);
+</PRE>
+
+<DL><DD>
+This function is implemented by sending the message 
+<CODE><A HREF="vhelprequest-x.html#vhelprequestSET_TRIED_ONCE"><CODE>vhelprequestSET_TRIED_ONCE</CODE></A></CODE> to <SAMP>helprequest</SAMP>.
+
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vhelprequestSET_COORDINATES"><HR><H4>vhelprequestSET_COORDINATES</H4></A>
+<PRE>
+        &lt;<B>vhelprequestSET_COORDINATES</B>&gt;
+</PRE>
+
+<DL><DD>
+These coordinates usually represent the location of the mouse pointer.
+They are useful to container objects that seek to re-route the
+request to objects that they contain.  Within calls to
+<CODE><A HREF="vobject-x.html#vobjectDisplayHelp"><CODE>vobjectDisplayHelp</CODE></A></CODE>Coordinates should always be with
+respect to the containing object.
+</DD></DL>
+<P>
+<A NAME="vhelprequestSET_HELP_DATA"><HR><H4>vhelprequestSET_HELP_DATA</H4></A>
+<PRE>
+        &lt;<B>vhelprequestSET_HELP_DATA</B>&gt;
+</PRE>
+
+<DL><DD>
+
+The help data can be an instance of any Galaxy class (for example, <A HREF="vtext-x.html#vtext"><CODE>vtext</CODE></A>).  In
+practice, the help data is often an instance of either
+<CODE><A HREF="vhelptext-x.html#vhelptext"><CODE>vhelptext</CODE></A></CODE> or <CODE><A HREF="vhelpref-x.html#vhelpref"><CODE>vhelpref</CODE></A></CODE>.  <A HREF="vhelptext-x.html#vhelptext"><CODE>vhelptext</CODE></A>
+encapsulates a string that is the actual help data.  <A HREF="vhelpref-x.html#vhelpref"><CODE>vhelpref</CODE></A>
+encapsulates a reference to help text.  This reference usually takes
+the form of either a help context (refer to
+<CODE><A HREF="vobject-x.html#vobjectBuildHelpContext"><CODE>vobjectBuildHelpContext</CODE></A></CODE>) or a <CODE><A HREF="vurl-x.html#vurl"><CODE>vurl</CODE></A></CODE>.  The
+vhelprequest may own the help data if necessary.
+
+<P>
+
+The help request does not take ownership of this help data (refer to
+<CODE>vhelprequestSET_DATA_OWNED</CODE>).
+
+</DD></DL>
+<P>
+<A NAME="vhelprequestSET_HELP_DATA_OWNED"><HR><H4>vhelprequestSET_HELP_DATA_OWNED</H4></A>
+<PRE>
+        &lt;<B>vhelprequestSET_HELP_DATA_OWNED</B>&gt;
+</PRE>
+
+<DL><DD>
+The help data can be an instance of any Galaxy class (for example, <A HREF="vtext-x.html#vtext"><CODE>vtext</CODE></A>).  In
+practice, the help data is often an instance of either
+<CODE><A HREF="vhelptext-x.html#vhelptext"><CODE>vhelptext</CODE></A></CODE> or <CODE><A HREF="vhelpref-x.html#vhelpref"><CODE>vhelpref</CODE></A></CODE>.  <A HREF="vhelptext-x.html#vhelptext"><CODE>vhelptext</CODE></A>
+encapsulates a string that is the actual help data.  <A HREF="vhelpref-x.html#vhelpref"><CODE>vhelpref</CODE></A>
+encapsulates a reference to help text.  This reference usually takes
+the form of either a help context (refer to
+<CODE><A HREF="vobject-x.html#vobjectBuildHelpContext"><CODE>vobjectBuildHelpContext</CODE></A></CODE>) or a <CODE><A HREF="vurl-x.html#vurl"><CODE>vurl</CODE></A></CODE>.  The
+vhelprequest may own the help data if necessary.
+
+<P>
+
+The help request takes ownership of this help data and will destroy
+the help data when the request is destroyed (refer to
+<CODE>vhelprequestSET_HELP_DATA</CODE>).
+
+</DD></DL>
+<P>
+<A NAME="vhelprequestSET_NAME"><HR><H4>vhelprequestSET_NAME</H4></A>
+<PRE>
+        &lt;<B>vhelprequestSET_NAME</B>&gt;
+</PRE>
+
+<DL><DD>
+The name of the help request determines what help object is used to
+service it.  Current names include:
+<UL>
+<LI> <CODE>vname_Hypertext</CODE>: hypertext documents, (refer to
+<CODE><A HREF="vhelpdefault-x.html#vhelpdefault"><CODE>vhelpdefault</CODE></A></CODE> and <CODE><A HREF="vhelpgalaxy-x.html#vhelpgalaxy"><CODE>vhelpgalaxy</CODE></A></CODE>)
+<LI> <CODE>vname_Status</CODE>: status information (refer to <CODE><A HREF="vhelpstatus-x.html#vhelpstatus"><CODE>vhelpstatus</CODE></A></CODE>)
+<LI> <CODE>vname_Phrase</CODE>: very brief information (refer to <CODE><A HREF="vhelptooltip-x.html#vhelptooltip"><CODE>vhelptooltip</CODE></A></CODE>)
+</UL>
+
+<P>
+
+It is always important to set the name of a request so that it can be
+bound automatically to a help object.
+
+</DD></DL>
+<P>
+<A NAME="vhelprequestSET_OBJECT"><HR><H4>vhelprequestSET_OBJECT</H4></A>
+<PRE>
+        &lt;<B>vhelprequestSET_OBJECT</B>&gt;
+</PRE>
+
+<DL><DD>
+Help requests are often associated with object so that they can use
+attributes of the object (tags, etc.) to locate or generate the help
+data (refer to <CODE><A HREF="vobject-x.html#vobjectBuildHelpContext"><CODE>vobjectBuildHelpContext</CODE></A></CODE>).  Help displays may
+also use information about the object's position to display the help text 
+(refer to <CODE><A HREF="vhelptooltip-x.html#vhelptooltip"><CODE>vhelptooltip</CODE></A></CODE>).
+</DD></DL>
+<P>
+<A NAME="vhelprequestSET_ONE_TRY"><HR><H4>vhelprequestSET_ONE_TRY</H4></A>
+<PRE>
+        &lt;<B>vhelprequestSET_ONE_TRY</B>&gt;
+</PRE>
+
+<DL><DD>
+
+Passing <SAMP>vFALSE</SAMP> to this message indicates that there is no limit to
+the number of attempts to fulfill this request.  This is the default
+state of help requests.
+
+</DD></DL>
+<P>
+<A NAME="vhelprequestSET_TRIED_ONCE"><HR><H4>vhelprequestSET_TRIED_ONCE</H4></A>
+<PRE>
+        &lt;<B>vhelprequestSET_TRIED_ONCE</B>&gt;
+</PRE>
+
+<DL><DD>
+Passing <SAMP>vTRUE</SAMP> to this message indicates that this request has been
+attempted at least once.
+
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vhelprequestINCLUDED"><HR><H4>vhelprequestINCLUDED</H4></A>
+<PRE>
+        <B>vhelprequestINCLUDED</B>
+</PRE>
+
+<DL><DD>
+This constant is intended to be used in this way when including header files:
+
+<BLOCKQUOTE>
+<PRE>
+#ifndef  vhelprequestINCLUDED
+#include vhelprequestHEADER
+#endif
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vhelprequestCLASS"><HR><H4>vhelprequestCLASS</H4></A>
+<PRE>
+        #define <B>vhelprequestCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Use this macro to build subclasses of vhelprequest.  Refer to
+<CODE><A HREF="vclass-x.html#vclass"><CODE>vclass</CODE></A></CODE> for more information on subclassing.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

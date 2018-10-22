@@ -1,0 +1,489 @@
+#==========================================================================
+#
+# File:      $RCSfile: mf.pccts,v $
+# Version:   $Revision: 1.9 $
+# Modified:  $Date: 2013/01/10 23:41:22 $
+#
+# (c) Copyright 1992-2013 by Mentor Graphics Corp. All rights reserved.
+#
+#==========================================================================
+# This document contains information proprietary and confidential to
+# Mentor Graphics Corp., and is not for external distribution.
+#==========================================================================
+#
+
+.SUFFIXES:
+.SUFFIXES:	.dlg .sor .o .cpp .cc .c .MM .h .g .i
+
+PARSERCLASS = P
+
+SORFILE1=genal
+SORFILE1_SOR = $(SORFILE1).sor
+SORFILE1_CPP = $(SORFILE1).cpp
+
+SORCLASS1 = GEN_SOR
+SORCLASS1_CPP = $(SORCLASS1).cpp
+SORCLASS1_H   = $(SORCLASS1).h
+SORCLASS1_O   = $(SORCLASS1).o
+
+SORFILE2=sim
+SORFILE2_SOR = $(SORFILE2).sor
+SORFILE2_CPP = $(SORFILE2).cpp
+
+SORCLASS2 = SIM_SOR
+SORCLASS2_CPP = $(SORCLASS2).cpp
+SORCLASS2_H   = $(SORCLASS2).h
+SORCLASS2_O   = $(SORCLASS2).o
+
+PARFILE=al
+PARFILE_G   = $(PARFILE).g
+PARFILE_CPP = $(PARFILE).cpp
+PARFILE_O   = $(PARFILE).o
+
+PARCLASS_G   = $(PARSERCLASS).g
+PARCLASS_CPP = $(PARSERCLASS).cpp
+PARCLASS_H   = $(PARSERCLASS).h
+PARCLASS_O   = $(PARSERCLASS).o
+
+SCANNERFILE     = DLGLexer
+SCANNERFILE_CPP = $(SCANNERFILE).cpp
+SCANNERFILE_H   = $(SCANNERFILE).h
+SCANNERFILE_O   = $(SCANNERFILE).o
+
+DLGFILE = parser.dlg
+TOKFILE_H = tokens.h
+MF_FILE = mf.pccts
+
+ANTLR_SPAWN = \
+	$(PARFILE_CPP) \
+	$(PARCLASS_CPP) \
+	../include/$(PARCLASS_H) \
+	$(DLGFILE) \
+	$(TOKFILE_H)
+
+DLG_SPAWN = \
+	$(SCANNERFILE_CPP) \
+	../include/$(SCANNERFILE_H)
+
+SOR_SPAWN1 = \
+	 $(SORFILE1_CPP) \
+	 $(SORCLASS1_CPP) \
+	../include/$(SORCLASS1_H)
+
+SOR_SPAWN2 = \
+	$(SORFILE2_CPP) \
+	$(SORCLASS2_CPP) \
+	../include/$(SORCLASS2_H)
+
+TOUCH_PARGEN = touch.pargen
+TOUCH_DLGGEN = touch.dlggen
+TOUCH_SORGEN1 = touch.sorgen1
+TOUCH_SORGEN2 = touch.sorgen2
+TOUCH_PCCTS = touch.antlr
+
+HDR_FILE =
+
+# PCCTS = /opt/PCCTS/v1.33_mr9
+PCCTS = /opt/PCCTS/v1.33_mr20
+ANTLR_H = $(PCCTS)/h
+SORDIR = $(PCCTS)/sorcerer
+SORHDIR = $(SORDIR)/h
+
+# Use when compiling parser with g++ and SparcWorks
+BIN = $(PCCTS)/bin_sol2
+# Use when compiling parser with cfront
+# BIN = $(PCCTS)/bin_sol2_cfront
+
+# Binaries
+ANTRL_BIN = $(BIN)/antlr
+SOR_BIN = $(BIN)/sor
+DLG_BIN = $(BIN)/dlg
+TOUCH_BIN = /usr/bin/touch
+RM_BIN = /usr/bin/rm -f
+FILE_BIN = /usr/bin/file -h
+DIFF_BIN = /usr/bin/diff
+CHMOD_BIN = /usr/bin/chmod
+CP_BIN = /usr/bin/cp -p
+LS_BIN = /usr/bin/ls
+LN_BIN = /usr/bin/ln
+CD_BIN = cd
+MKDIR_BIN = /usr/bin/mkdir -p
+ECHO_BIN = echo
+SED_BIN = /usr/bin/sed
+GREP_BIN = /usr/xpg4/bin/grep
+TRUE_BIN = /usr/bin/true
+FALSE_BIN = /usr/bin/false
+
+EXE1 = algen
+EXE2 = algenbuf
+
+INCLUDE = -I$(ANTLR_H) \
+           -I$(SORHDIR) \
+           -I../include \
+           -I../../gen_sim/include
+
+CCCP			= g++
+CCCPOPT			=-B
+
+CCC			= g++
+CPLUSPLUS_INCLUDE	= /CenterLine/clc++/sparc-solaris2/incl
+
+# CFLAGS options:
+#  -g        - generate debug code and symbol table
+#  -Wall     - print all warning messages
+#  -DBACKEND - enable backend processing
+#  -DUI      - turn on printing of symbol table info
+COTHER = -g -DUISTAT
+CFLAGS = $(INCLUDE) $(COTHER)
+# AFLAGS options:
+#  -CC   - compile
+#  -k 2  - enable N tokens of look-ahead
+#  -gt   - build the ast trees
+#  -gd   - debug
+#  -gl   - insert #line statements in generated code for gdb
+#  -w1   - warnings
+#  -w2   - more warnings
+#  -pa
+#  -prc on
+# AOTHER = -k 2 -prc on -gd -gl
+# v133mr9: AOTHER = -k 2 -prc on -gd
+# v133mr20:
+AOTHER = -k 2 -prc on
+AFLAGS = -CC -gt -gs $(AOTHER)
+# AFLAGS = -CC -gt $(AOTHER)
+SORFLAGS = -CPP
+# DFLAGS = -C2 -i -CC $(DOTHER)
+DFLAGS = -C2 -CC $(DOTHER)
+
+MYFILES =  mySyn.cpp myAST.cpp colToken.cpp myPanic.cpp myTokenBuffer.cpp \
+		noleakTok.cpp noleakAST.cpp
+MAIN1FILE = maingen.cpp
+MAIN2FILE = mainqm.cpp
+MYCFILES = 
+MYCCFILES = sym.cc p_msgs.cc p_error.cc p_check.cc p_ckbase.cc p_ckudb.cc p_symtbl.cc sw_stub.cc
+
+FSRC = $(PARFILE_CPP) \
+      $(PARCLASS_CPP) \
+      AParser.cpp \
+      DLexerBase.cpp \
+      ASTBase.cpp \
+      PCCTSAST.cpp \
+      ATokenBuffer.cpp \
+      $(SCANNERFILE_CPP) \
+      $(MYFILES)
+BSRC = $(SORFILE1_CPP) $(SORFILE1)_rd.cpp \
+      $(SORCLASS1).cpp \
+      $(SORFILE2).cpp $(SORFILE2)_rd.cpp \
+      $(SORCLASS2).cpp \
+      STreeParser.cpp
+
+SRC = $(FSRC) $(BSRC) $(MAIN1FILE)
+SRC2 = $(FSRC) $(BSRC) $(MAIN2FILE)
+
+CSRC = $(MYCFILES)
+
+FOBJ = $(PARFILE_O) \
+      $(PARCLASS_O) \
+      AParser.o \
+      DLexerBase.o \
+      ASTBase.o \
+      PCCTSAST.o \
+      ATokenBuffer.o \
+      $(SCANNERFILE).o \
+      $(MYFILES:.cpp=.o) \
+      $(MYCFILES:.c=.o) \
+      $(MYCCFILES:.cc=.o)
+BOBJ = $(SORFILE1).o $(SORFILE1)_rd.o \
+      $(SORCLASS1).o \
+      STreeParser.o
+
+OBJ1 = $(MAIN1FILE:.cpp=.o) $(FOBJ) $(BOBJ) # uncomment for back end
+OBJ2 = $(MAIN2FILE:.cpp=.o) $(FOBJ) $(BOBJ) # uncomment for back end
+
+CLEAN_FILES = $(DLG_SPAWN) $(ANTLR_SPAWN) $(TOUCH_PCCTS) \
+    $(SOR_SPAWN1) $(SORFILE1_CPP) \
+    $(SOR_SPAWN2) \
+    *.o *.MM *.bak a.* \
+		depend proxy.dat $(EXE1) $(EXE2) *.tmp zzz_*
+
+TMPDIR = /tmp/parser_gen/
+
+REPSCRIPT_FOLLOW_SYMLINKS = \
+repit() { \
+F=$$1; D=$$2; S=$$3; \
+if [ -f $$S$$F ] ; then \
+  if [ -f $$D$$F ] ; then \
+    UD=$$D$$F; \
+    $(FILE_BIN) $$D$$F | $(GREP_BIN) -q "symbolic link to"; \
+    if [ $$? -eq 0 ]; then \
+      UD=`$(FILE_BIN) $$D$$F | $(SED_BIN) 's/^.*symbolic link to //'`; \
+      if [ "$$D" != "" ]; then UD=$$D$$UD; fi; \
+	  if [ ! -f $$UD ]; then \
+        UD=$$D$$F; \
+      fi; \
+    fi; \
+    if $(DIFF_BIN) $$S$$F $$UD 2>&1 > /dev/null; then \
+      $(ECHO_BIN) "  $$F  UNCHANGED"; \
+    else \
+      $(CHMOD_BIN) 777 $$UD; \
+      $(RM_BIN) $$UD; \
+      $(CP_BIN) $$S$$F $$UD; \
+      $(ECHO_BIN) "  $$F  REPLACED"; \
+    fi; \
+  else \
+    $(CP_BIN) $$S$$F $$D$$F; \
+    $(ECHO_BIN) "  $$F  CREATED"; \
+  fi; \
+  $(RM_BIN) $$S$$F; \
+fi; \
+}; \
+repit
+
+REPSCRIPT = \
+repit() { \
+F=$$1; D=$$2; S=$$3; \
+if [ -f $$S$$F ] ; then \
+  if [ -f $$D$$F ] ; then \
+    if $(DIFF_BIN) $$S$$F $$D$$F 2>&1 > /dev/null; then \
+      $(ECHO_BIN) "  $$D$$F  UNCHANGED"; \
+    else \
+      $(RM_BIN) $$D$$F; \
+      $(CP_BIN) $$S$$F $$D$$F; \
+      $(ECHO_BIN) "  $$D$$F  REPLACED"; \
+    fi; \
+  else \
+    $(CP_BIN) $$S$$F $$D$$F; \
+    $(ECHO_BIN) "  $$D$$F  CREATED"; \
+  fi; \
+  $(RM_BIN) $$S$$F; \
+fi; \
+}; \
+repit
+
+# This target is for generating the source to be used by the BridgePoint build
+.phony: bp_build
+bp_build : ALLGEN
+
+all: ALLGEN $(EXE1) $(EXE2)
+
+allx: $(EXE1) $(EXE2)
+
+$(EXE1) : $(OBJ1)
+	$(CCC) -o $(EXE1) $(OBJ1)
+
+$(EXE2) : $(OBJ2)
+	$(CCC) -o $(EXE2) $(OBJ2)
+
+.cpp.o :
+	$(CCC) -c $(CFLAGS) $<
+ 
+.cc.o :
+	$(CCC) -c $(CFLAGS) $<
+ 
+.c.o :
+	$(CCC) -c $(CFLAGS) $<
+ 
+.cpp.i :
+	$(CCC) -c -E $(CFLAGS) $< >$*.i
+ 
+.cc.i :
+	$(CCC) -c -E $(CFLAGS) $< >$*.i
+ 
+.c.i :
+	$(CCC) -c -E $(CFLAGS) $< >$*.i
+ 
+.cpp.MM :
+	$(CCCP) $(CCCPOPT) -MM $(INCLUDE) $< $*.MM
+ 
+.cc.MM :
+	$(CCCP) $(CCCPOPT) -MM $(INCLUDE) $< $*.MM
+ 
+.c.MM :
+	$(CCCP) $(CCCPOPT)  $(PARFILE) : $(OBJ) $(SRC)
+	$(CCC) -o $(EXE1) $(CFLAGS) $(OBJ)
+
+.phony: ALLGEN
+ALLGEN: $(TOUCH_PCCTS)
+	@$(TRUE_BIN)
+
+$(TOUCH_PCCTS): TMPDIR PARGEN DLGGEN SORGEN1 SORGEN2
+	@$(RM_BIN) -r $(TMPDIR)
+	@$(RM_BIN) $(TOUCH_PCCTS)
+	@$(TOUCH_BIN) $(TOUCH_PCCTS)
+
+.phony: TMPDIR
+TMPDIR:
+	@$(RM_BIN) -r $(TMPDIR)
+	@$(MKDIR_BIN) $(TMPDIR)
+	@$(CHMOD_BIN) 777 $(TMPDIR)
+
+.phony: PARGEN
+PARGEN: TMPDIR $(TOUCH_PARGEN)
+	@$(TRUE_BIN)
+
+$(TOUCH_PARGEN): $(PARFILE_G) $(MF_FILE)
+	@$(RM_BIN) $(TOUCH_PARGEN)
+	$(ANTRL_BIN) $(AFLAGS) -o $(TMPDIR) $(PARFILE_G)
+	@$(REPSCRIPT) $(PARFILE_CPP)     ""            "$(TMPDIR)"
+	@$(REPSCRIPT) $(PARCLASS_CPP)    ""            "$(TMPDIR)"
+	@$(REPSCRIPT) $(DLGFILE)         ""            "$(TMPDIR)"
+	@$(REPSCRIPT) $(PARCLASS_H)      "../include/" "$(TMPDIR)"
+	@$(REPSCRIPT) $(TOKFILE_H)       "../include/" "$(TMPDIR)"
+	@$(TOUCH_BIN) $(TOUCH_PARGEN)
+
+.phony: DLGGEN
+DLGGEN: TMPDIR $(TOUCH_DLGGEN)
+	@$(TRUE_BIN)
+
+$(TOUCH_DLGGEN): $(DLGFILE) $(MF_FILE)
+	@$(RM_BIN) $(TOUCH_DLGGEN)
+	$(DLG_BIN) $(DFLAGS) -o $(TMPDIR) $(DLGFILE)
+	@$(REPSCRIPT) $(SCANNERFILE_CPP) ""            "$(TMPDIR)"
+	@$(REPSCRIPT) $(SCANNERFILE_H)   "../include/" "$(TMPDIR)"
+	@$(TOUCH_BIN) $(TOUCH_DLGGEN)
+
+.phony: SORGEN1
+SORGEN1: TMPDIR $(TOUCH_SORGEN1)
+	@$(TRUE_BIN)
+
+$(TOUCH_SORGEN1): $(SORFILE1_SOR) $(MF_FILE)
+	@$(RM_BIN) $(TOUCH_SORGEN1)
+	$(SOR_BIN) $(SORFLAGS) -out-dir $(TMPDIR) $(SORFILE1_SOR)
+	@$(REPSCRIPT) $(SORFILE1_CPP)  ""            "$(TMPDIR)"
+	@$(REPSCRIPT) $(SORCLASS1_CPP) ""            "$(TMPDIR)"
+	@$(REPSCRIPT) $(SORCLASS1_H)   "../include/" "$(TMPDIR)"
+	@$(TOUCH_BIN) $(TOUCH_SORGEN1)
+
+.phony: SORGEN2
+SORGEN2: TMPDIR $(TOUCH_SORGEN2)
+	@$(TRUE_BIN)
+
+$(TOUCH_SORGEN2): $(SORFILE2_SOR) $(MF_FILE)
+	@$(RM_BIN) $(TOUCH_SORGEN2)
+	$(SOR_BIN) $(SORFLAGS) -out-dir $(TMPDIR) $(SORFILE2_SOR)
+	@$(REPSCRIPT) $(SORFILE2_CPP)  ""            "$(TMPDIR)"
+	@$(REPSCRIPT) $(SORCLASS2_CPP) ""            "$(TMPDIR)"
+	@$(REPSCRIPT) $(SORCLASS2_H)   "../include/" "$(TMPDIR)"
+	@$(TOUCH_BIN) $(TOUCH_SORGEN2)
+
+clean :
+	- $(RM_BIN) $(CLEAN_FILES)
+	- $(CD_BIN) ../include; $(RM_BIN) $(CLEAN_FILES)
+
+LINKSCRIPT = \
+link_it() { \
+F=$$1; D=$$2; \
+$(FILE_BIN) $$F | \
+$(GREP_BIN) -q "symbolic link to"; \
+if [ $$? -eq 0 ]; then \
+  $(RM) $$F; \
+fi; \
+if [ -f $$F ] ; then \
+  if [ ! -w $$F ]; then \
+    $(RM) $$F; \
+  else \
+    $(ECHO_BIN) "$$F is read/write!"; \
+  fi; \
+fi; \
+if [ ! -f $$F ] ; then \
+  $(ECHO_BIN) "linking $$D/$$F"; \
+  $(LN_BIN) -s $$D/$$F $$F; \
+fi; \
+}
+
+.phony: relinkpccts
+relinkpccts:
+	-@$(RM_BIN) A;                                   \
+	$(LN_BIN) -s $(ANTLR_H) A;                       \
+	CFILES="AParser.cpp DLexerBase.cpp ASTBase.cpp   \
+	        PCCTSAST.cpp ATokenBuffer.cpp";          \
+	$(LINKSCRIPT);                                   \
+	for FILE in $${CFILES}; do                       \
+	  link_it $${FILE} A;                            \
+	done
+	-@$(RM_BIN) S;                                   \
+	$(LN_BIN) -s $(SORDIR)/lib S;                    \
+	CFILES="STreeParser.cpp";                        \
+	$(LINKSCRIPT);                                   \
+	for FILE in $${CFILES}; do                       \
+	  link_it $${FILE} S;                            \
+	done
+	-@$(CD_BIN) ../include;                                \
+	$(RM_BIN) A;                                           \
+	$(LN_BIN) -s $(ANTLR_H) A;                             \
+	HFILES="ASTBase.h AToken.h ATokPtr.h PCCTSAST.h        \
+		pcctscfg.h AParser.h ATokenBuffer.h ATokenStream.h \
+		ATokPtr.cpp DLexer.cpp STreeParser.h SASTBase.h    \
+		DLexerBase.h config.h                              \
+		pccts_assert.h pccts_iostream.h pccts_istream.h    \
+		pccts_setjmp.h pccts_stdarg.h pccts_stdio.h        \
+		pccts_stdlib.h pccts_string.h";                    \
+	$(LINKSCRIPT);                                         \
+	for FILE in $${HFILES}; do                             \
+	  link_it $${FILE} A;                                  \
+	done
+	-@$(CD_BIN) ../include;                                \
+	$(RM_BIN) S;                                           \
+	$(LN_BIN) -s $(SORHDIR) S;                             \
+	HFILES="STreeParser.h SASTBase.h";                     \
+	$(LINKSCRIPT);                                         \
+	for FILE in $${HFILES}; do                             \
+	  link_it $${FILE} S;                                  \
+	done
+
+PRIVATE=${HOME}/bp/source/bp
+CURRENT=/arch1/products/bp/source/bp
+DATA_INC_DIR=${CURRENT}/data/include
+
+.phony: relink
+relink : relinkpccts
+	@$(CD_BIN) ${CURRENT}/parser/src;                              \
+	FILES="`$(LS_BIN) -1 *.cc *.c *.cpp *.g *.sor mf.*`";	        \
+	$(CD_BIN) ${PRIVATE}/parser/src;                               \
+	if [ ! -w C ]; then                                       \
+	$(RM_BIN) C;                                                \
+	$(LN_BIN) -s ${CURRENT}/parser/src C;                          \
+	fi;                                                       \
+	for FILE in $${FILES}; do                       	    \
+	if [ "$${FILE}" != "Makefile" -a                       	\
+	     "$${FILE}" != "makefile" ]; then                  	\
+	  if [ ! -w $${FILE} ] ; then                          	\
+	    $(ECHO_BIN) "linking C/$${FILE}";                        	\
+	    $(RM_BIN) $${FILE};                               		\
+	    $(LN_BIN) -s C/$${FILE} $${FILE};                     		\
+	  fi;                                                  	\
+	fi;                                                   	\
+	done;                                                   \
+	$(CD_BIN) ${CURRENT}/parser/include;                           \
+	HFILES="`$(LS_BIN) -1 *.hh *.h`";					            \
+	$(CD_BIN) ${PRIVATE}/parser/include;                           \
+	if [ ! -w I ]; then                                       \
+	$(RM_BIN) I;                                                \
+	$(LN_BIN) -s ${CURRENT}/parser/include I;                      \
+	fi;                                                       \
+	for FILE in $${HFILES}; do                              \
+	if [ ! -w $${FILE} ] ; then                             \
+	  $(ECHO_BIN) "linking I/$${FILE}";                            \
+	  $(RM_BIN) $${FILE};                                       \
+	  $(LN_BIN) -s I/$${FILE} $${FILE};                            \
+	fi;                                                     \
+	done;                                                   \
+	if [ ! -w D ]; then                                       \
+	$(RM_BIN) D;                                                \
+	$(LN_BIN) -s $(DATA_INC_DIR) D;                                \
+	fi;                                                       \
+	for FILE in d_typdef.hh; do                          	\
+	if [ ! -w $${FILE} ] ; then                             \
+	  $(ECHO_BIN) "linking D/$${FILE}";                            \
+	  $(RM_BIN) $${FILE};                                       \
+	  $(LN_BIN) -s D/$${FILE} $${FILE};                            \
+	fi;                                                     \
+	done;
+
+#
+# Formatting information for emacs
+#
+# Local Variables:
+# tab-width:4
+# End:
+#

@@ -1,0 +1,387 @@
+<HTML>
+<HEAD>
+<TITLE>Color</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Color</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Clipboard.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Color_Chooser.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="22248"></A>
+The <EM><B>Color</B></EM> classes allow the application developer to make use of color when dealing with windows, dialog items, or images, or when drawing with Galaxy's Drawing classes. The Color classes provides a uniform interface across various types of displays, such as monochrome, grayscale, or color. Application developers assume a high quality color display is available. The Color classes automatically compensate for lower quality displays. Further, the method of compensation for lower end displays can be controlled by the application. This means a single API can be used regardless of the display type. The Color Palette (<TT>vcolorPalette</TT>) class also provides a collection of colors. A palette is typically used with certain types of images, providing a complete list of available colors for those images.<P>
+Currently the Color classes support three color models: RGB, HLS, and CMY, and conversions between them. Future extensions will include support for additional color models as well as conversions between those other models.<P>
+<A NAME="236"><H2> Glossary</H2></A>
+This section defines terms that are used throughout this document.<P>
+<UL><EM><B>closest color</B></EM>	The color available on the current display that is closest to 
+the desired color specified by the application.
+<P><EM><B>CMY	</B></EM>A system for specifying color using three components, 
+cyan, magenta, and yellow. The model consists of a cube 
+with the origin being white, each of three axes varying 
+each value of three components, and the corner farthest 
+from the origin being black. In general, CMY is the 
+complement of RGB.
+<P><EM><B>color delta</B></EM>	A distance interval from a color. Color deltas are used to 
+specify an acceptable range around the desired color. If an 
+available color does not fall within this range, dithering 
+will occur.
+<P><EM><B>color model</B></EM>	A model used to describe real-world colors, such as the 
+RGB color model.
+<P><EM><B>color specification</B></EM>	A display-independent representation of a real-world 
+color. This is the representation that may be specified and 
+manipulated by the application (<TT>vcolorSpec</TT>).
+<P><EM><B>colormap</B></EM>	A collection of actual colors available for a display.
+<P><EM><B>colormap display</B></EM>	A display type where a color is obtained by specifying an 
+index into a colormap. The number of colors that can be 
+displayed simultaneously is determined by the size of the 
+colormap.
+<P><EM><B>display</B></EM>	The device on which the application is being viewed. A 
+display for our purposes is either monochrome, grayscale, 
+colormap, or true color.
+<P><EM><B>dithering</B></EM>	The process of approximating a color not available on the 
+display by combining available colors in a particular 
+pattern.
+<P><EM><B>grayscale</B></EM>	An achromatic method of specifying color.
+<P><EM><B>grayscale display	</B></EM>A display type consisting of some number of gray levels 
+between black and white.
+<P><EM><B>HLS</B></EM>	A model for identifying color in their components, hue, 
+lightness, and saturation. HLS is a double cone shaped 
+model with the top point being white, the bottom point 
+being black and the edge around the ring being the pure 
+saturation spectrum. The ring represents hue, the white-
+black axis represents lightness, and a line between the axis 
+and the ring represents saturation.
+<P><EM><B>interned color</B></EM>	A display-dependent representation of a color 
+specification. An interned color is the "best" 
+representation of a color given the constraints of the 
+current display and the application specified restrictions 
+(<TT>vcolor</TT>).
+<P><EM><B>monochrome display</B></EM>	A display type consisting of only a foreground and 
+background color.
+<P><EM><B>palette</B></EM>	An ordered collection of color specifications 
+(<TT>vcolorPalette</TT>).
+<P><EM><B>RGB</B></EM>	A common system for specifying color in their component 
+red, green, and blue parts. RGB is a cubic model with the 
+origin being black, each of three axes varying values of 
+each of three components, and the corner opposite from 
+origin being white. RGB is the complement of CMY.
+<P><EM><B>true color display</B></EM>	A display type where the number of colors available is 
+determined by the depth, in pixels, of the current display. 
+The color value represents the color itself and is not used 
+to look up a color in a colormap.
+<P></UL><A NAME="18132"><H2> Color</H2></A>
+The concepts of color that are relevant to the Color classes are explained briefly here. A complete explanation of the subject goes beyond the scope of this document. Readers interested in more detail should refer to one of the many good books available on the subject.<P>
+Color is usually considered to involve three components: hue, saturation, and brightness. <EM><B>Hue</B></EM> is the attribute of a pure spectrum that lets it be classed as red, yellow, green, cyan, blue, magenta, or any gradation in between adjacent two. <EM><B>Saturation</B></EM> refers to the chromatic purity of the light&#175;in other words, how much or how little it is diluted with white light. Saturation distinguishes navy blue from blue, pink from red, and so on. <EM><B>Brightness</B></EM> incorporates the idea of intensity or amount of color.<P>
+<A NAME="260"><H2> Color Models</H2></A>
+Various models have been developed to represent color. The Color classes currently have four of these models available: Grayscale, RGB (Red/Green/Blue), HLS (Hue/Lightness/Saturation) and CMY (Cyan/Magenta/Yellow).<P>
+The Grayscale Model uses achromatic colors (black, white, gray), which vary only in their intensity. Grayscale colors can range from black (represented by level 0) to white (represented by <TT>vcolorCOMPONENT_MAX</TT>) and include any shade of gray in between. The method <TT><B>FSetSpecGray</B></TT> uses float inputs from 0.0 to 1.0, while <TT><B>SetSpecGray</B></TT> uses <TT>vcolorCOMPONENT_MAX</TT>. The latter method is faster, but the former is often more convenient to use. Internally Grayscale colors are stored in the RGB color model. The intensity attribute for a Grayscale color is simply replicated for each R, G, and B component of an RGB color.<P>
+The RGB Model is a well-established model that is used to represent colors for television, as well as for many raster displays. However, it does not directly relate to the notions of hue, saturation, and brightness given above that are commonly used to describe color. The RGB Model can be thought of as using a three-dimensional coordinate system, with the three axes representing red, green, and blue. Any point within the coordinate system represents some combination of these colors, which are added together to form the resulting color. In the RGB Model, red = (1, 0, 0) when using the method <TT><B>FSetSpecRGB</B></TT>, and red = (<TT>vcolorCOMPONENT_MAX</TT>, 0, 0) when using the method <TT><B>SetSpecRGB</B></TT>. The latter method is faster, but the former is often more convenient to use.<P>
+The HLS Model is user-oriented and based on the intuitive appeal of the artist's tint, shade, and tone. It forms the double cone subspace and relates to the notations of hue, saturation, and brightness. Any point within the double cone subspace represents some combination of these notations to form the resulting color. In the HLS Model, red = (0, 0.5, 1) when using the method <TT><B>FSetSpecHLS</B></TT>, and red = (0, <TT>vcolorCOMPONENT_MAX</TT>/2, <TT>vcolorCOMPONENT_MAX</TT>) when using the method <TT><B>SetSpecHLS</B></TT>. The latter method is faster, but the former is often more convenient to use.<P>
+The CMY Model is the complement of the RGB Model. It is used to represent colors for hard-copy devices, such as printers, which deposit color pigments onto paper. Like RGB Model, it does not directly relate to the notations of hue, saturation, and brightness to describe color. The CMY Model can be thought of as using a three-dimensional coordinate system, with the three axes representing cyan (the complement of red), magenta (the complement of green), and yellow (the complement of blue). Any point within the coordinate system represents some combination of these colors, which are subtracted together from the color white to form the resulting color. In the CMY Model, red = (0, 1, 1) when using the method <TT><B>FSetSpecCMY</B></TT>, and red = (0, <TT>vcolorCOMPONENT_MAX</TT>, <TT>vcolorCOMPONENT_MAX</TT>) when using the method <TT><B>SetSpecCMY</B></TT>. The latter method is faster, but the former is often more convenient to use.<P>
+<A NAME="13220"><H2> Creating a Color</H2></A>
+The Color classes should be used to attach color to windows or dialog items, or when drawing. Typically, three steps are necessary to use a color: first, create a color specification with <TT><B>CreateSpec</B></TT>; second, set any color specification attributes, such as color and dithering attributes; and third, create an interned color, using <TT><B>InternSpec</B></TT>, which can be used for drawing. <A HREF="Color.html#273">Example 6</A> creates a color that is a shade of red: <P>
+<A NAME="273"><I>Example 6.  Creating a color specification and an interned color
+</I><P>
+<PRE><UL>   vcolorSpec *spec;  /* color specification */
+   vcolor     *color; /* interned color */
+
+   spec = vcolorCreateSpec();
+   vcolorFSetSpecRGB( spec, 0.75, 0.0, 0.0 );
+   color = vcolorInternSpec( spec );
+
+</UL></PRE>When you are done with a color specification, it may be destroyed using <TT><B>DestroySpec</B></TT>. Color specifications may be destroyed even if they have an associated interned color. Interned colors may also be released; however, because colors are internal Galaxy attributes, this is not necessary. All interned colors are maintained by Galaxy and are released when they are no longer being referenced.<P>
+<A NAME="33932"><H2> Attaching Color to a Window</H2></A>
+ If the application does release a color, using <TT><B>Release</B></TT>, it is the application's responsibility to make sure there are no lingering references to that color. Common mistakes include releasing a color attached to a still active window or dialog item, and releasing a color that is the Drawing Manager's current color (set with <TT><B>SetColor</B></TT>). The following code fragment destroys the color specification and interned color created in <A HREF="Color.html#34473">Example 7</A>:<P>
+<A NAME="34473"><I>Example 7.  Destroying a color specification
+</I><P>
+<PRE><UL>   vcolorDestroySpec( spec );
+   vcolorRelease( color );
+
+</UL></PRE>Interned colors can be used to set the color attributes of a window or dialog item. The following fragment demonstrates this capability with windows:<P>
+<A NAME="8817"><I>Example 8.  Attaching color to a window
+</I><P>
+<PRE><UL>static void SetWindowColors(vwindow *window)
+{
+   vcolorSpec  *spec;         /* color specification */
+   vcolor      *foreground,   /* interned color for foreground */
+               *background;   /* interned color for background */
+
+   /*
+    * Create a color specification, first for the background
+    * which will be a medium red shade.
+    */
+   spec = vcolorCreateSpec();
+   vcolorFSetSpecRGB( spec, 0.5, 0.0, 0.0 );
+   background = vcolorInternSpec( spec );
+
+   /*
+    * The background color has been interned, we may now modify
+    * the original color specification and intern a second color.
+    */
+   vcolorFSetSpecRGB( spec, 0.8, 0.8, 0.8 );
+   foreground = vcolorInternSpec( spec );
+   vcolorDestroySpec( spec );
+
+   /*
+    * Attach the colors to the window, which are a
+    * medium red background
+    * with a bright gray foreground.
+    */
+   vwindowSetForeground(window, foreground);
+   vwindowSetBackground(window, background);
+}
+
+</UL></PRE><A NAME="323"><H3> Color Delta</H3></A>
+In addition to setting the actual color of a color specification, the application may specify exactly how the color will degrade on displays that are not capable of displaying that color. Associated with every color specification is a color delta. The color delta specifies a range of acceptable colors for the specified color. This delta can be specified as a distance in RGB space. When the closest available color is not within the delta specified for the color, the Color class produces a dithered color that is a pattern of other available colors approximating the requested color. The size of this pattern can also be controlled.<P>
+To specify the color delta value, use <TT><B>FSetSpecDeltaRGBDistance</B></TT><TT><B></B></TT>. The delta passed to this routine represents a percentage of <TT>vcolorCOMPONENT_MAX</TT>. Likewise, <TT><B>SetSpecDeltaRGBDistance</B></TT> specifies a color delta but in actual color component values. The default value for a color delta is 25 percent of <TT>vcolorCOMPONENT_MAX</TT>.<P>
+<A NAME="224"><H3> Color Dithering</H3></A>
+After specifying a color delta, the application may also want to tell the Color class how to dither if a suitable color cannot be found. The <TT><B>SetSpecMaxDotDitherArea</B></TT><TT><B></B></TT> indicates how large of a dither pattern can be created. The larger the dither area, the less error (average distance from the desired color) your color will have. Smaller values will be quicker, however. The dither area can range from 0 (match an exact color, always) to 16 (a 4x4 dither pattern).<P>
+If the Color class cannot match a given color to an existing color within the requested error tolerance and maximum dither area, it will try to allocate a custom color cell if the device supports it. This means you should never set the error tolerance to zero for a significant number of colors; you may end up "hogging" the device color map. If you want to make sure that a given color will never get a custom color cell, set the error tolerance (RGB delta, not RGB distance) to one half the maximum dither area you are willing to accept.<P>
+<A NAME="18693"><I>Example 9.  Specifying the delta for a color specification
+</I><P>
+<PRE><UL>static void UseColorFromResource(vresource resource)
+{
+   vcolorSpec    *spec;
+   vcolor        *color;
+
+   spec = vcolorLoadSpec( resource );
+   vcolorFSetSpecDeltaRGBDistance( spec, 0.1 );
+   vcolorSetSpecMaxDitherDotArea( spec, 16 );
+   color = vcolorInternSpec( spec );
+   vcolorDestroySpec( spec );
+   vdrawSetColor( color );
+
+   /* use Drawing Manager to draw stuff in your color */
+   vdrawGSave();
+   vdrawSetColor(color);
+   vdrawRectFill(10, 10, 75, 50);
+   vdrawGRestore();
+}
+
+</UL></PRE><A NAME="7925"><H2> Preferences</H2></A>
+You can control how many colors the Color class allocates by using the <TT>standardcolormax</TT> and <TT>sharedcolormax</TT> preferences. These preferences are designed for application developers to "tune" the Color class to their applications, but can also be used by more technical users who want to control color allocation themselves. These preferences are ignored if you're using a device with a fixed color map.<P>
+<TT>standardcolormax</TT> controls how many colors are allocated in an evenly distributed range for image dithering and drawing color matching. This is a floating point number between <TT>zero</TT> and <TT>1</TT> representing a fraction of the total color map size. The default is <TT>0.75</TT>. This preference may directly determine how well images are rendered on your display. If you set <TT>standardcolormax</TT> to <TT>1</TT>, then most of the color map will be allocated to standard colors; your images will look great, but few colors will be available for other applications. If you are only using Galaxy applications, this does not matter because colors will be shared automatically. Set <TT>standardcolormax</TT> to <TT>zero</TT> if you do not want to allocate any standard colors.<P>
+<TT>sharedcolormax</TT> determines how many colors will be allocated from a shared color map (for example, the Windows or X default color maps). You can use this number to arbitrarily constrain the color usage of a Galaxy application. This is a floating point number between <TT>zero</TT> and <TT>1</TT> that represents a fraction of the total color map size. The default is <TT>1</TT>. This preference also controls how many custom colors Galaxy will allocate. Set this number to <TT>zero</TT> if you want Galaxy to allocate a private color map for its windows. (The display may "flash" if you do this.)<P>
+<A NAME="452"><H2> Color Schemes</H2></A>
+The Color class provides color schemes, a collection of zero or more named colors, to define the colors for drawing user-interface objects. The colors in a color scheme are associated with names (IDs) determined by the Color class. These names specify the function of the colors in the color scheme and are defined as the constants. The following constants are used for accessing a color scheme's colors:<P>
+<PRE><UL>vcolorID_FOREGROUND
+vcolorID_BACKGROUND
+vcolorID_SHADOW_TOP
+vcolorID_SHADOW_BOTTOM
+vcolorID_FOREGROUND_HILITE
+vcolorID_BACKGROUND_HILITE
+vcolorID_BACKGROUND_EMBOSS
+vcolorID_BACKGROUND_DEBOSS
+vcolorID_BORDER
+vcolorID_FOCUS
+vcolorID_MAX
+
+</UL></PRE>Use the following constants to specify which colors are in a color scheme:<P>
+<PRE><UL>enum{
+  vcolorFLAG_FOREGROUND         = 1&lt;&lt;vcolorID_FOREGROUND,
+  vcolorFLAG_BACKGROUND         = 1&lt;&lt;vcolorID_BACKGROUND,
+  vcolorFLAG_SHADOW_TOP         = 1&lt;&lt;vcolorID_SHADOW_TOP,
+  vcolorFLAG_SHADOW_BOTTOM      = 1&lt;&lt;vcolorID_SHADOW_BOTTOM,
+  vcolorFLAG_FOREGROUND_HILITE  = 1&lt;&lt;vcolorID_FOREGROUND_HILITE,
+  vcolorFLAG_BACKGROUND_HILITE  = 1&lt;&lt;vcolorID_BACKGROUND_HILITE,
+  vcolorFLAG_BACKGROUND_EMBOSS  = 1&lt;&lt;vcolorID_BACKGROUND_EMBOSS,
+  vcolorFLAG_BACKGROUND_DEBOSS  = 1&lt;&lt;vcolorID_BACKGROUND_DEBOSS,
+  vcolorFLAG_BORDER             = 1&lt;&lt;vcolorID_BORDER,
+  vcolorFLAG_FOCUS              = 1&lt;&lt;vcolorID_FOCUS,
+  vcolorFLAG_ALL                = (1&lt;&lt;vcolorID_MAX)-1
+};
+
+enum{
+  vcolorFLAG_DISABLE_FOREGROUND        = 
+          1&lt;&lt;(vcolorID_DISABLE|vcolorID_FOREGROUND),
+  vcolorFLAG_DISABLE_BACKGROUND        = 
+       1&lt;&lt;(vcolorID_DISABLE|vcolorID_BACKGROUND),
+  vcolorFLAG_DISABLE_SHADOW_TOP        = 
+       1&lt;&lt;(vcolorID_DISABLE|vcolorID_SHADOW_TOP),
+  vcolorFLAG_DISABLE_SHADOW_BOTTOM     = 
+       1&lt;&lt;(vcolorID_DISABLE|vcolorID_SHADOW_BOTTOM),
+  vcolorFLAG_DISABLE_FOREGROUND_HILITE = 
+       1&lt;&lt;(vcolorID_DISABLE|vcolorID_FOREGROUND_HILITE),
+  vcolorFLAG_DISABLE_BACKGROUND_HILITE = 
+       1&lt;&lt;(vcolorID_DISABLE|vcolorID_BACKGROUND_HILITE),
+  vcolorFLAG_DISABLE_BACKGROUND_EMBOSS = 
+       1&lt;&lt;(vcolorID_DISABLE|vcolorID_BACKGROUND_EMBOSS),
+  vcolorFLAG_DISABLE_BACKGROUND_DEBOSS = 
+       1&lt;&lt;(vcolorID_DISABLE|vcolorID_BACKGROUND_DEBOSS),
+  vcolorFLAG_DISABLE_BORDER            = 
+       1&lt;&lt;(vcolorID_DISABLE|vcolorID_BORDER),
+  vcolorFLAG_DISABLE_FOCUS             = 
+       1&lt;&lt;(vcolorID_DISABLE|vcolorID_FOCUS),
+  vcolorFLAG_ENABLE_ALL,
+  vcolorFLAG_DISABLE_ALL
+};
+
+</UL></PRE>Refer to the <EM>Galaxy</EM> Application Environment Reference Manual for details on these constants.<P>
+Color schemes can be stored in resource files, and are used as application preferences. An application's color scheme is derived from a preference in the system resource file. This base color scheme is stored as a user preference named "colorschemedict."<P>
+When an object is drawn, its colors are determined from the color attributes of the object and its parents in the user-interface hierarchy. If a color for an item is not defined by itself or any parent, then the application's color scheme is used to draw the object. (For more on the user-interface hierarchy, refer to the Dialog chapter.)<P>
+The easiest way to draw objects according to the default color scheme is to copy the default color scheme into a new color scheme and access the colors as desired. Use <TT><B>vdialogDetermineItemColorSchemeState</B></TT> to copy specified colors from the default color scheme to a new color scheme. A series of flags determine which colors are extracted from the default color scheme. This method takes the item's state into account. If the item is enabled, it uses the normal colors in the color scheme&#175;if disabled, it uses the disabled colors.<P>
+For example, to get the default color scheme for a button item, do this:<P>
+<PRE><UL>   vcolorScheme scheme;
+
+   // ...
+   vdialogDetermineItemColorSchemeState(vbuttonGetItem(button),
+                                        vcolorFLAG_BACKGROUND |
+                                        vcolorFLAG_SHADOW_TOP |
+                                        vcolorFLAG_SHADOW_BOTTOM |
+                                        vcolorFLAG_BORDER,
+                                        &amp;scheme);
+   // ...
+
+</UL></PRE>You can now access the colors of the newly determined color scheme to draw objects. Use any of the <TT><B>GetScheme</B></TT><TT><B></B></TT> methods to return the particular colors from a color scheme. (An exception is generated if the scheme does not have a defined color corresponding to the calling method.) For example, to draw a rectangle using colors from the color scheme determined above, do this:<P>
+<PRE><UL>   // ...
+   vdrawRectsHiliteFillInside(&amp;inset,
+                      1,
+                      vcolorGetSchemeBackground(&amp;scheme),
+                      vcolorGetSchemeShadowTop(&amp;scheme),
+                      vcolorGetSchemeShadowBottom(&amp;scheme));
+   // ...
+
+</UL></PRE>After drawing the object, destroy the newly determined color scheme with <TT><B>DestroyScheme</B></TT>. This procedure is repeated each time you draw the object.<P>
+<A NAME="34977"><H2> Color Models and Conversion</H2></A>
+The Color class handles the several different color models described earlier. These different color models are maintained using color classes. Three color classes directly correspond to the three color models Galaxy supports. The pointers for the three color classes can be retrieved using <TT><B>GetRGBClass</B></TT>, <TT><B>GetHLSClass</B></TT>, and <TT><B>GetCMYClass</B></TT>.<P>
+These pointers may be used to create a color specification of a certain color model or to convert a color specification from one model to another. To create a color specification using a particular color, use <TT><B>CreateSpecSpecific</B></TT>, which takes a class pointer as an argument. The class pointer determines which color model the color specification will use. Be forewarned that using non-matching method calls (such as <TT><B>GetSpecRGBRed</B></TT> or <TT><B>SetSpecRGB</B></TT> when the color specification is of the HLS class) will have undefined results.<P>
+Class pointers are also used to convert a color specification from one color model to another. Pass a color specification and a color class pointer to <TT><B>ConvertSpec</B></TT> for color model conversion. The color class pointer determines which model the color specification will be converted to. The accuracy of the color resulting from a Convert call will be maintained as much as possible but may not be exact in all conversion scenarios. The color model of a color specification can be queried using <TT><B>GetSpecClass</B></TT> and comparing the return value of that method with the class pointers returned by <TT><B>GetRGBClass</B></TT>,<TT><B>GetHLSClass</B></TT>, and <TT><B>GetCMYClass</B></TT>.<P>
+<A NAME="35089"><H2> Private Colors</H2></A>
+Galaxy provides two techniques for manipulating colors. First, the standard way, is to create a color specification using <TT><B>CreateSpec</B></TT>, set the specification attributes, and then create a color for drawing using <TT><B>InternSpec</B></TT>. This is called an interned color. This is the preferred method since the application can set more control over color behavior, such as dithering and closest color matching. It also shares equivalent color specifications and color restrictions to save space. Further, interned colors do not have to be freed.<P>
+However, when using many different colors inside a drawing loop rather than using only a few colors or attaching a color to a dialog item or a window it is recommended that a private color be used. A private color is created using <TT><B>Create</B></TT> or <TT><B>CreateSpecific</B></TT>. However, typical applications will not use these calls, but rather use the Drawing class call <TT><B>vdrawSetRGBColor</B></TT>. In this case the Drawing Manager manages the private color. It should be noted that applications using private colors directly from the Color Manager (<TT><B>Create</B></TT> or <TT><B>CreateSpecific</B></TT>) must free the private color using either <TT><B>Destroy</B></TT> or <TT><B>Release</B></TT>. The <TT><B>IsPrivate</B></TT> method indicates if a color is private by returning <TT>TRUE</TT>, or interned by returning <TT>FALSE</TT>.<P>
+<A NAME="349"><H2> Color Palettes</H2></A>
+Palettes are a contiguous collection of actual color specifications. The most common use of palettes is as a set of colors available for an image. The image then retains indices into the palette for color information rather than storing the color information explicitly. This can make some images with many common colors more efficient to store.<P>
+The application controls the size of a palette and the attributes of the color specifications within the palette. However, the color specifications themselves are owned by the Color Manager and cannot be destroyed by the application. The color specifications are destroyed when the entire palette is destroyed.<P>
+The code fragment in <A HREF="Color.html#355">Example 10</A> shows how to create a color palette of size 256 and load it with a gray ramp.<P>
+<A NAME="355"><I>Example 10.  Creating a color palette containing a gray ramp
+</I><P>
+<PRE><UL>void DrawImageFromGrayPalette (void)
+{
+   vcolorPalette *palette; /* color palette */
+   int i;
+
+   /*
+    * Create the palette and set its size to 256.
+    */
+   palette = vcolorCreatePalette();
+   vcolorSetPaletteSize(palette, 256);
+
+   /*
+    * Load the palette with a gray color ramp. Get the spec
+    * for each position in the palette and load it with the
+    * appropriate gray level.
+    */
+   for (i=0; i&lt;256; i++)
+   {
+      vcolorFSetSpecRGB(vcolorGetPaletteSpecAt(palette,i),
+                        (float) i / 255.0,
+                        (float) i / 255.0,
+                        (float) i / 255.0);
+   }
+   /*
+    * When finished, free up memory by destroying the palette.
+    */
+   vcolorDestroyPalette(palette);
+}
+
+</UL></PRE>For added flexibility, routines exist to insert, delete, or append slots to a palette. Further, <TT><B>SetPaletteSize</B></TT><TT><B></B></TT> can be called at any time to change the size of a palette without disturbing its contents (unless you shrink its size, of course).<P>
+<A NAME="4771"><H2> noxstdcmapoverlap Description </H2></A>
+<TT>noxstdcmapoverlap</TT> applies to GrayScale (not StaticGray) visuals on the X Window system. It controls whether or not the green and blue components of a standard color map are given nonzero values. The icccm stipulates that the green and blue components of a GrayScale standard color map should not be used to compute color values, but unfortunately this is not the technique used by many of the few applications that recognize standard color maps.<P>
+When nooverlap is false (the default), a standard color map is allocated in such a way that the PseudoColor lookup algorithm will function correctly even though the visual class is GrayScale. When nooverlap is true, the standard color map is allocated according to the icccm.<P>
+For example, assuming a standard color map size of 125:<P>
+<PRE><UL>nooverlap = false:
+
+    red_max    = 37
+    red_mult   = 1
+    green_max  = 73
+    green_mult = 1
+    blue_max   = 15
+    blue_mult  = 1
+
+nooverlap = true:
+
+    red_max    = 125
+    red_mult   = 1
+    green_max  = 0
+    green_mult = 1
+    blue_max   = 0
+    blue_mult  = 1
+</UL></PRE>The latter allocation will often break applications that recognize standard color maps because they incorrectly apply the PseudoColor lookup algorithm to all visual types. Galaxy functions identically with either allocation.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Clipboard.html">Previous Chapter</A> | 
+		<A HREF="Color_Chooser.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

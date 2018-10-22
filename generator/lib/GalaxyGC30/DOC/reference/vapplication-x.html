@@ -1,0 +1,3138 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vapplication prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vapplication prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vapplication-x.html#section_DataType">Types</A> [6]</TD>
+<TD><A HREF="vapplication-x.html#section_Function">Functions</A> [109]</TD>
+<TD><A HREF="vapplication-x.html#section_Message">Messages</A> [33]</TD>
+<TD><A HREF="vapplication-x.html#section_Constant">Constants</A> [6]</TD>
+<TD><A HREF="vapplication-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vapplication"><HR><H4>vapplication</H4></A>
+<PRE>
+        typedef ... <B>vapplication</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to represent a single
+application-objects of this type have classes derived from
+<CODE><A HREF="vapplication-x.html#vapplicationClass"><CODE>vapplicationClass</CODE></A></CODE>. Applications are referenced
+by a pointer to this type. You can obtain a pointer to your
+application object with
+<CODE><A HREF="vapplication-x.html#vapplicationGetCurrent"><CODE>vapplicationGetCurrent</CODE></A></CODE>. A
+<CODE>vapplication</CODE> contains an attributed object, a
+set of application attributes, and a client object
+(provided by the Client class) that manages its global
+state. Refer to the section ``Application Attributes'' in
+the ``Application Manager'' chapter of the <I>Galaxy
+Application Environment Programmer's Guide</I> for a
+complete description of application attributes. All
+structure declarations that directly inherit from
+<CODE><A HREF="vapplication-x.html#vapplicationClass"><CODE>vapplicationClass</CODE></A></CODE> <I>must</I> declare a
+<CODE>vapplication</CODE> as their first field so that
+<CODE>vapplication</CODE> pointers can be interchanged with
+pointers to the new data type.
+</DD></DL>
+<P>
+<A NAME="vapplicationClass"><HR><H4>vapplicationClass</H4></A>
+<PRE>
+        typedef ... <B>vapplicationClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variable bindings for objects of type
+<CODE>vapplication</CODE>. Classes declared with this type
+contain the same set of methods and variables as the
+default application class, but the behavior of methods and
+the contents of variables may vary. This class type is
+derived from <CODE><A HREF="vobject-x.html#vobjectAttributedClass"><CODE>vobjectAttributedClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vapplicationDependColorFunc"><HR><H4>vapplicationDependColorFunc</H4></A>
+<PRE>
+        typedef ... <B>vapplicationDependColorFunc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a function which determines dependencies for
+derived colors for a given application. A function of this
+type returns a set of color flags that indicate which
+colors are dependent on the set of color flags
+<SAMP>flags</SAMP> for the application
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationDeriveColorFunc"><HR><H4>vapplicationDeriveColorFunc</H4></A>
+<PRE>
+        typedef ... <B>vapplicationDeriveColorFunc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a function which derives colors for a given
+application. A function of this type returns a color
+specified by \Codexid based on the known colors
+<SAMP>known</SAMP> for the application
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationNoteProc"><HR><H4>vapplicationNoteProc</H4></A>
+<PRE>
+        typedef ... <B>vapplicationNoteProc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a notification function that is called when an
+application handles an event of some importance.
+<SAMP>application</SAMP> is the application handling the
+event, and <SAMP>event</SAMP> is the event being handled.
+Importance is determined by the application's event
+handlers; the default event handler gives no
+notification. If additional notification is required, you
+should override the appropriate handler.
+</DD></DL>
+<P>
+<A NAME="vapplicationWindowIterator"><HR><H4>vapplicationWindowIterator</H4></A>
+<PRE>
+        typedef ... <B>vapplicationWindowIterator</B>;
+</PRE>
+
+<DL><DD>
+Denotes an abstract index variable  used for enumerating an
+unordered collection of windows that belong to a single
+application. Typically an application window iterator is
+used to enumerate all the open windows belonging to an
+application. Iterators are normally declared as automatic
+variables of a function and initialized with
+<CODE><A HREF="vapplication-x.html#vapplicationInitWindowIterator"><CODE>vapplicationInitWindowIterator</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vapplicationAssociateAllAttributes"><HR><H4>vapplicationAssociateAllAttributes</H4></A>
+<PRE>
+        void <B>vapplicationAssociateAllAttributes</B>(
+                vapplication * application,
+                const vname * tag,
+                vdict * attr2value);
+</PRE>
+
+<DL><DD>
+Determines all the attribute bindings of the object whose
+tag is <SAMP>tag</SAMP> from the scope of the application
+<SAMP>application</SAMP>. The values of the bindings are
+stored under the appropriate attribute keys in the
+dictionary <SAMP>attr2value</SAMP>. The application's scope
+is its instance and class command spaces. <SAMP>tag</SAMP>
+must be a global name obtained from the Name class.
+<SAMP>attr2value</SAMP> must have the hash function
+<CODE><A HREF="vname-x.html#vnameHash"><CODE>vnameHash</CODE></A></CODE>. <SAMP>attr2value</SAMP> must be
+initialized but need not be empty.
+</DD></DL>
+<P>
+<A NAME="vapplicationAssociateAttribute"><HR><H4>vapplicationAssociateAttribute</H4></A>
+<PRE>
+        const void * <B>vapplicationAssociateAttribute</B>(
+                vapplication * application,
+                const vname * attr,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Determines a binding for the attribute <SAMP>attr</SAMP> of
+the object whose tag is <SAMP>tag</SAMP> from the scope of
+the application <SAMP>application</SAMP>. The application's
+scope is its instance and class command spaces. It returns
+the value of the binding if found, or <SAMP>NULL</SAMP> if
+no binding is found. <SAMP>attr</SAMP> and <SAMP>tag</SAMP>
+must be global names obtained from the Name class.
+</DD></DL>
+<P>
+<A NAME="vapplicationChangedAttribute"><HR><H4>vapplicationChangedAttribute</H4></A>
+<PRE>
+        void <B>vapplicationChangedAttribute</B>(
+                vapplication * application,
+                const vname * attr,
+                vdict * context);
+</PRE>
+
+<DL><DD>
+Notifies the application <SAMP>application</SAMP> that its
+attribute named <SAMP>attr</SAMP> has changed and that it
+should update its internal state, if necessary.
+<SAMP>context</SAMP> contains additional information about
+the attribute change. Typical entries in
+<SAMP>context</SAMP> are:
+
+<P>
+<DL>
+<DT><SAMP>Operand</SAMP>
+<DD>The original object which changed 
+
+<DT><SAMP>OldValue</SAMP>
+<DD>The previous value of the attribute. 
+
+<DT><SAMP>Value</SAMP>
+<DD>The new value of the attribute. 
+</DL>
+</DD></DL>
+<P>
+<A NAME="vapplicationChangedAttributeNone"><HR><H4>vapplicationChangedAttributeNone</H4></A>
+<PRE>
+        void <B>vapplicationChangedAttributeNone</B>(
+                vapplication * application,
+                const vname * attr);
+</PRE>
+
+<DL><DD>
+Stores <SAMP>application</SAMP> under the name ``Operand''
+in a context dictionary and calls
+<CODE>vapplicationChangedAttribute</CODE> with
+<SAMP>application</SAMP> and <SAMP>attr</SAMP> as
+arguments.
+</DD></DL>
+<P>
+<A NAME="vapplicationChangedAttributeValue"><HR><H4>vapplicationChangedAttributeValue</H4></A>
+<PRE>
+        void <B>vapplicationChangedAttributeValue</B>(
+                vapplication * application,
+                const vname * attr,
+                const void * oldValue,
+                const void * value);
+</PRE>
+
+<DL><DD>
+Stores <SAMP>application</SAMP> under the name ``Operand''
+in a context dictionary and calls
+<CODE>vapplicationChangedAttribute</CODE> with
+<SAMP>application</SAMP> and <SAMP>attr</SAMP> as
+arguments. Additionally, <SAMP>oldValue</SAMP> is stored
+under the name ``OldValue'' and <SAMP>value</SAMP> is
+stored under the name ``Value.''
+</DD></DL>
+<P>
+<A NAME="vapplicationChangedChildAttribute"><HR><H4>vapplicationChangedChildAttribute</H4></A>
+<PRE>
+        void <B>vapplicationChangedChildAttribute</B>(
+                vapplication * application,
+                const vname * attr,
+                vdict * context);
+</PRE>
+
+<DL><DD>
+Notifies the application <SAMP>application</SAMP> that the
+attribute named <SAMP>attr</SAMP> in one of its child
+objects has changed and that it should update its internal
+state, if necessary. <SAMP>context</SAMP> contains
+additional information about the attribute change. Typical
+entries in <SAMP>context</SAMP> are:
+
+<P>
+<DL>
+<DT><SAMP>Operand</SAMP>
+<DD>The child object which changed 
+
+<DT><SAMP>OldValue</SAMP>
+<DD>The previous value of the attribute. 
+
+<DT><SAMP>Value</SAMP>
+<DD>The new value of the attribute. 
+</DL>
+</DD></DL>
+<P>
+<A NAME="vapplicationChangedParentAttribute"><HR><H4>vapplicationChangedParentAttribute</H4></A>
+<PRE>
+        void <B>vapplicationChangedParentAttribute</B>(
+                vapplication * application,
+                const vname * attr,
+                vdict * context);
+</PRE>
+
+<DL><DD>
+Notifies the application <SAMP>application</SAMP> that the
+attribute named <SAMP>attr</SAMP> in one of its parent
+objects has changed and that it should update its internal
+state, if necessary. <SAMP>context</SAMP> contains
+additional information about the attribute change. Typical
+entries in <SAMP>context</SAMP> are:
+<P>
+<DL>
+<DT><SAMP>Operand</SAMP>
+<DD>The parent object which changed 
+
+<DT><SAMP>OldValue</SAMP>
+<DD>The previous value of the attribute. 
+
+<DT><SAMP>Value</SAMP>
+<DD>The new value of the attribute. 
+</DL>
+</DD></DL>
+<P>
+<A NAME="vapplicationClone"><HR><H4>vapplicationClone</H4></A>
+<PRE>
+        vapplication * <B>vapplicationClone</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Creates a copy of the application object
+<SAMP>application</SAMP> and returns a pointer to its
+contents. Storage for the application object is allocated
+by the Application class. The Application class
+reclaims the storage occupied by the application object
+when it is destroyed with <CODE><A HREF="vapplication-x.html#vapplicationDestroy"><CODE>vapplicationDestroy</CODE></A></CODE>.
+This function copies all the attributes of the application
+object except its client object: it will clone any
+attribute objects that are owned by the application. The
+application to be cloned can be dynamic or static. This
+function essentially allocates space for a new application
+object and calls <CODE><A HREF="vapplication-x.html#vapplicationCopyInit"><CODE>vapplicationCopyInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vapplicationCopy"><HR><H4>vapplicationCopy</H4></A>
+<PRE>
+        void <B>vapplicationCopy</B>(
+                vapplication * application,
+                vapplication * target);
+</PRE>
+
+<DL><DD>
+Copies the  information in <SAMP>application</SAMP> into
+<SAMP>target</SAMP> so that the two applications represent
+equivalent objects. <SAMP>target</SAMP> must have been
+created or initialized by an Application class function.
+<SAMP>application</SAMP> and <SAMP>target</SAMP> must have
+compatible classes for this to work correctly. This
+function copies all the attributes of the application
+except its client: it clones any attribute objects that are
+owned by the application. This function destroys any
+objects allocated internally by <SAMP>target</SAMP>
+(including its owned attributes), but does <I>not</I>
+destroy <SAMP>target</SAMP> itself. The applications to be
+copied can be dynamic or static. This function is
+implemented by sending the message <CODE>vobjectCOPY</CODE>
+to <SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationCopyInit"><HR><H4>vapplicationCopyInit</H4></A>
+<PRE>
+        void <B>vapplicationCopyInit</B>(
+                vapplication * application,
+                vapplication * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>application</SAMP> into
+<SAMP>target</SAMP> so the memory addressed by
+<SAMP>target</SAMP> is an application equivalent to
+<SAMP>application</SAMP>. <SAMP>target</SAMP> should be a
+pointer to uninitialized memory; the Application class
+will initialize it as part of the copy. This function
+copies all the attributes of the application except its
+client object; it will clone any attribute objects that are
+owned by the application. This function simply stores the
+class of <SAMP>application</SAMP> in <SAMP>target</SAMP>
+and sends the message <CODE>vobjectCOPY_INIT</CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationCreate"><HR><H4>vapplicationCreate</H4></A>
+<PRE>
+        vapplication * <B>vapplicationCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new application object of the default application
+class and returns a pointer to its contents. Storage for
+the application object is allocated by the Application
+class. The Application class will reclaim the storage
+occupied by the application object when it is destroyed
+with <CODE><A HREF="vapplication-x.html#vapplicationDestroy"><CODE>vapplicationDestroy</CODE></A></CODE>. The new application
+object is created with a set of default attributes, as
+determined by the default application class. The default
+attributes of the default application class are documented
+in the ``Application Manager'' chapter of the <I>Galaxy
+Application Environment Programmer's Guide</I>. This
+function calls the Client class function
+<CODE><A HREF="vclient-x.html#vclientCreate"><CODE>vclientCreate</CODE></A></CODE> to create a client object for
+the application object. This function essentially allocates
+space for a new application object and calls
+<CODE><A HREF="vapplication-x.html#vapplicationInit"><CODE>vapplicationInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vapplicationCreateOfClass"><HR><H4>vapplicationCreateOfClass</H4></A>
+<PRE>
+        vapplication * <B>vapplicationCreateOfClass</B>(
+                vapplicationClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new application object of class <SAMP>clas</SAMP>
+and returns a pointer to its contents. Storage for the
+application object is allocated by the Application class.
+The Application class reclaims the storage occupied by
+the application object when it is destroyed with
+<CODE><A HREF="vapplication-x.html#vapplicationDestroy"><CODE>vapplicationDestroy</CODE></A></CODE>. The new application
+object is created with a set of default attributes,
+determined by the class. The default attributes of the
+default application class are documented in the
+``Application Manager'' chapter of the <I>Galaxy
+Application Environment Programmer's Guide</I>. This
+function calls the Client class function
+<CODE><A HREF="vclient-x.html#vclientCreate"><CODE>vclientCreate</CODE></A></CODE> to create a client object for
+the application object. This function essentially allocates
+space for a new application object and calls
+<CODE><A HREF="vapplication-x.html#vapplicationInitOfClass"><CODE>vapplicationInitOfClass</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vapplicationDestroy"><HR><H4>vapplicationDestroy</H4></A>
+<PRE>
+        void <B>vapplicationDestroy</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Destroys the application object represented by
+<SAMP>application</SAMP>, which must have been created or
+initialized by an Application class function. Use this
+function to reclaim the storage occupied by an application.
+The application should not be referenced by any other
+object when it is destroyed. This function only attempts to
+free the storage occupied by <SAMP>application</SAMP> if it
+was allocated by <CODE><A HREF="vapplication-x.html#vapplicationCreate"><CODE>vapplicationCreate</CODE></A></CODE>,
+<CODE><A HREF="vapplication-x.html#vapplicationCreateOfClass"><CODE>vapplicationCreateOfClass</CODE></A></CODE>, or
+<CODE><A HREF="vapplication-x.html#vapplicationClone"><CODE>vapplicationClone</CODE></A></CODE>. This function will also
+destroy any attribute objects that are owned by the
+application. This function calls
+<CODE><A HREF="vclient-x.html#vclientDestroy"><CODE>vclientDestroy</CODE></A></CODE> to destroy the application's
+global state. This function is implemented by sending the
+message <CODE>vobjectDESTROY</CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationDestroyWindowIterator"><HR><H4>vapplicationDestroyWindowIterator</H4></A>
+<PRE>
+        void <B>vapplicationDestroyWindowIterator</B>(
+                vapplicationWindowIterator * iterator);
+</PRE>
+
+<DL><DD>
+Terminates the iteration represented by
+<SAMP>iterator</SAMP>, even if it is not yet exhausted.
+This function is necessary to reclaim internal iteration
+objects allocated by the Application class.
+</DD></DL>
+<P>
+<A NAME="vapplicationDetermineBlockCursor"><HR><H4>vapplicationDetermineBlockCursor</H4></A>
+<PRE>
+        vcursor * <B>vapplicationDetermineBlockCursor</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the blocking cursor used for the blocked windows of
+the application <SAMP>application</SAMP>, or
+<SAMP>NULL</SAMP> if the window system default blocking
+cursor is used. This function may return an application
+instance or class blocking cursor.
+</DD></DL>
+<P>
+<A NAME="vapplicationDetermineColor"><HR><H4>vapplicationDetermineColor</H4></A>
+<PRE>
+        vcolor * <B>vapplicationDetermineColor</B>(
+                vapplication * application,
+                int id);
+</PRE>
+
+<DL><DD>
+Derives a color that the windows of the application
+<SAMP>application</SAMP> use to draw their contents. The
+identifier <SAMP>id</SAMP> specifies the function of the
+color in the application color scheme; it should be one of
+the functional color identifiers provided by the Drawing
+class (<SAMP>vdrawCOLOR_SHADOW_TOP</SAMP>,
+<SAMP>vdrawCOLOR_HILITE</SAMP>, for example). The color is
+derived from the color attributes of the application and
+its class. This function never returns <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationDetermineColorScheme"><HR><H4>vapplicationDetermineColorScheme</H4></A>
+<PRE>
+        void <B>vapplicationDetermineColorScheme</B>(
+                vapplication * application,
+                unsigned long flags,
+                vcolorScheme * scheme);
+</PRE>
+
+<DL><DD>
+Derives a color scheme that the windows of the application
+<SAMP>application</SAMP> use to draw their contents.
+<SAMP>flags</SAMP> is a set of Color class color flags
+that specifies which colors to derive. The colors are
+derived from the color attributes of the application and
+its class. The derived colors are returned in the color
+scheme <SAMP>scheme</SAMP>. Calling this function for
+multiple colors is more efficient than deriving the colors
+individually with <CODE>vapplicationDetermineColor</CODE>.
+</DD></DL>
+<P>
+<A NAME="vapplicationDetermineColorSchemeFrom"><HR><H4>vapplicationDetermineColorSchemeFrom</H4></A>
+<PRE>
+        void <B>vapplicationDetermineColorSchemeFrom</B>(
+                vapplication * application,
+                vcolorScheme * known,
+                unsigned long flags,
+                vcolorScheme * scheme);
+</PRE>
+
+<DL><DD>
+Derives a color scheme that the windows of the application
+<SAMP>application</SAMP> use to draw their contents.
+<SAMP>flags</SAMP> is a set of Color class color flags
+that specifies which colors to derive. The colors are
+derived from the color attributes of the application and
+its class as well as the colors provided in the color
+scheme <SAMP>known</SAMP>. The derived colors are returned
+in the color scheme <SAMP>scheme</SAMP>. Calling this
+function for multiple colors is more efficient than
+deriving the colors individually with
+<CODE>vapplicationDetermineColor</CODE>. Colors in the
+scheme of known colors are given precedence over those
+defined by the application and its class.
+</DD></DL>
+<P>
+<A NAME="vapplicationDetermineColors"><HR><H4>vapplicationDetermineColors</H4></A>
+<PRE>
+        void <B>vapplicationDetermineColors</B>(
+                vapplication * application,
+                int * ids,
+                int count,
+                vcolor ** colors);
+</PRE>
+
+<DL><DD>
+Derives a set of colors that the windows of the application
+<SAMP>application</SAMP> use to draw their contents. The
+identifiers in <SAMP>ids</SAMP> specify the function of the
+colors in the application's color scheme; they should be
+comprised of the functional color identifiers provided by
+the Drawing class (<SAMP>vdrawCOLOR_SHADOW_TOP</SAMP>,
+<SAMP>vdrawCOLOR_HILITE</SAMP>, for example). 
+<P>
+The colors are derived from the color attributes of the application
+and its class. The derived colors are returned in the array
+elements of <SAMP>colors</SAMP> corresponding to the array
+elements of <SAMP>ids</SAMP>. There are <SAMP>count</SAMP>
+identifiers in the array <SAMP>ids</SAMP>, and
+<SAMP>count</SAMP> colors are returned in the array
+<SAMP>colors</SAMP>. This function never returns a
+<SAMP>NULL</SAMP> color. Calling this function for multiple
+colors is more efficient than deriving the colors
+individually with <CODE>vapplicationDetermineColor</CODE>.
+</DD></DL>
+<P>
+<A NAME="vapplicationDetermineColorsFrom"><HR><H4>vapplicationDetermineColorsFrom</H4></A>
+<PRE>
+        void <B>vapplicationDetermineColorsFrom</B>(
+                vapplication * application,
+                long flags,
+                vcolor ** known,
+                int * ids,
+                int count,
+                vcolor ** colors);
+</PRE>
+
+<DL><DD>
+Derives a set of colors that the windows of the application
+<SAMP>application</SAMP> use to draw their contents. The
+identifiers in <SAMP>ids</SAMP> specify the function of the
+colors in the application's color scheme; they should be
+comprised of the functional color identifiers provided by
+the Drawing class (<SAMP>vdrawCOLOR_SHADOW_TOP</SAMP>,
+<SAMP>vdrawCOLOR_HILITE</SAMP>, for example). 
+<P>
+The colors are derived from the color attributes of the application
+and its class as well as the colors provided in the array
+<SAMP>known</SAMP>. The derived colors are returned in the
+array elements of <SAMP>colors</SAMP> corresponding to the
+array elements of <SAMP>ids</SAMP>. There are
+<SAMP>count</SAMP> identifiers in the array
+<SAMP>ids</SAMP>, and <SAMP>count</SAMP> colors are
+returned in the array <SAMP>colors</SAMP>. This function
+never returns a <SAMP>NULL</SAMP> color. The array
+<SAMP>known</SAMP> should point to an array of at least
+<SAMP>vdrawCOLOR_MAX</SAMP> color pointer elements.
+<SAMP>flags</SAMP> identifies which colors in the array are
+present at the index corresponding to the bit index of the
+flag value. For example,
+<SAMP>1L&lt;&lt;vdrawCOLOR_SHADOW_TOP</SAMP> indicates that a
+background color can be found at
+<SAMP>known[vdrawCOLOR_SHADOW_TOP]</SAMP>. Colors in the
+array of known colors are given precedence over those
+defined by the application and its class.
+</DD></DL>
+<P>
+<A NAME="vapplicationDetermineCursor"><HR><H4>vapplicationDetermineCursor</H4></A>
+<PRE>
+        vcursor * <B>vapplicationDetermineCursor</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the cursor used for the windows of the application
+<SAMP>application</SAMP>, or <SAMP>NULL</SAMP> if the
+window system default is used. This function may return an
+application instance or class cursor.
+</DD></DL>
+<P>
+<A NAME="vapplicationDetermineFont"><HR><H4>vapplicationDetermineFont</H4></A>
+<PRE>
+        vfont * <B>vapplicationDetermineFont</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the font used for the windows of the application
+<SAMP>application</SAMP> if they do not specify their own
+font. This function never returns <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationDetermineIcon"><HR><H4>vapplicationDetermineIcon</H4></A>
+<PRE>
+        vimage * <B>vapplicationDetermineIcon</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the image used for the windows of the application
+<SAMP>application</SAMP>, or <SAMP>NULL</SAMP> if the
+window system default is used. This function can return an
+application instance or class image.
+</DD></DL>
+<P>
+<A NAME="vapplicationDetermineLineWidth"><HR><H4>vapplicationDetermineLineWidth</H4></A>
+<PRE>
+        int <B>vapplicationDetermineLineWidth</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the line width used for the windows of the
+application <SAMP>application</SAMP>. This function can
+return an application instance or class line width. This
+function never returns <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationDump"><HR><H4>vapplicationDump</H4></A>
+<PRE>
+        void <B>vapplicationDump</B>(
+                vapplication * application,
+                FILE * stream);
+</PRE>
+
+<DL><DD>
+Prints the contents of the application
+<SAMP>application</SAMP> on the file <SAMP>stream</SAMP> in
+user-readable form. This function is intended for debugging
+and should not be used to store the contents of the
+application in recoverable form. This function has effect
+only if debugging is enabled. This function is implemented
+by sending the message <CODE>vobjectDUMP</CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetAllAttributes"><HR><H4>vapplicationGetAllAttributes</H4></A>
+<PRE>
+        void <B>vapplicationGetAllAttributes</B>(
+                vapplication * application,
+                vdict * attr2value);
+</PRE>
+
+<DL><DD>
+Stores all the named attributes of the application
+<SAMP>application</SAMP> in the dictionary
+<SAMP>attr2value</SAMP>. Each key/value pair in
+<SAMP>attr2value</SAMP> maps a global attribute name to an
+attribute value. The values are stored as <SAMP>const
+void*</SAMP> types, but the type of object addressed
+depends on the attribute name itself. The attributes of the
+default application class that are named are documented in
+the section ``Application Attributes'' in the ``Application
+Manager'' chapter of the <I>Galaxy Application Environment
+Programmer's Guide</I>. <SAMP>attr2value</SAMP> must be
+initialized but need not be empty. <SAMP>attr2value</SAMP>
+must have the hash function <CODE><A HREF="vname-x.html#vnameHash"><CODE>vnameHash</CODE></A></CODE>. This
+function is implemented by sending the message
+<CODE><A HREF="vobject-x.html#vobjectGET_ALL_ATTRIBUTES"><CODE>vobjectGET_ALL_ATTRIBUTES</CODE></A></CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetAttribute"><HR><H4>vapplicationGetAttribute</H4></A>
+<PRE>
+        const void * <B>vapplicationGetAttribute</B>(
+                vapplication * application,
+                const vname * attr);
+</PRE>
+
+<DL><DD>
+Reads the named attribute <SAMP>attr</SAMP> from the
+application <SAMP>application</SAMP>. The type of object
+addressed by the returned value depends on the attribute
+being read. This function returns <SAMP>NULL</SAMP> if the
+desired attribute is not named. The attributes of the
+default application class that are named are documented in
+the ``Application Manager'' chapter of the <I>Galaxy
+Application Environment Programmer's Guide</I>.
+<SAMP>attr</SAMP> must be a global name obtained from the
+Name class. This function is implemented by sending the
+message <CODE><A HREF="vobject-x.html#vobjectGET_ATTRIBUTE"><CODE>vobjectGET_ATTRIBUTE</CODE></A></CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetBlockCursor"><HR><H4>vapplicationGetBlockCursor</H4></A>
+<PRE>
+        vcursor * <B>vapplicationGetBlockCursor</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the blocking cursor specified for the application
+instance<SAMP>application</SAMP>, or <SAMP>NULL</SAMP> if
+no blocking cursor has been specified.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetButtonMap"><HR><H4>vapplicationGetButtonMap</H4></A>
+<PRE>
+        vdict * <B>vapplicationGetButtonMap</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the mapping of button modifiers to symbolic keys
+for the application <SAMP>application</SAMP>. This
+dictionary is initialized based on the look-and-feel
+preference. The keys of the dictionary are pointers
+returned by <CODE><A HREF="vkey-x.html#vkeyInternModifiers"><CODE>vkeyInternModifiers</CODE></A></CODE>, and the
+values are global names that identify the function of the
+button/key combination. This dictionary is used by the key
+event handlers to set the <CODE>Binding</CODE> attribute of
+button and drag events.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetClass"><HR><H4>vapplicationGetClass</H4></A>
+<PRE>
+        vapplicationClass * <B>vapplicationGetClass</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the class of the application
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetColor"><HR><H4>vapplicationGetColor</H4></A>
+<PRE>
+        vcolor * <B>vapplicationGetColor</B>(
+                vapplication * application,
+                int id);
+</PRE>
+
+<DL><DD>
+Returns a color specified for the application instance
+<SAMP>application</SAMP>, identified by the Drawing class
+color identifier <SAMP>id</SAMP>. It returns a class color
+if no such color has been specified for the particular
+application instance. Refer to the ``Drawing Manager''
+chapter of the <I>Galaxy Application Environment
+Programmer's Guide</I> for more information about color
+identifiers. The function call
+<SAMP>vapplicationGetColor(application,
+vdrawCOLOR_FOREGROUND)</SAMP> returns the foreground color
+of the application <SAMP>application</SAMP>, for example.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetContextAttributes"><HR><H4>vapplicationGetContextAttributes</H4></A>
+<PRE>
+        void <B>vapplicationGetContextAttributes</B>(
+                vapplication * application,
+                vdict * attr2value);
+</PRE>
+
+<DL><DD>
+Stores all the context attribute bindings of the
+application <SAMP>application</SAMP> in the dictionary
+<SAMP>attr2value</SAMP>. Context attributes are
+characteristics of the application that cannot be changed
+directly (the application pointer itself, for example). The
+context attributes defined by the default application class
+are documented in the ``Application Manager'' chapter of
+the <I>Galaxy Application Environment Programmer's
+Guide</I>. Each key/value pair in <SAMP>attr2value</SAMP>
+maps a global attribute name to an attribute value.
+<SAMP>attr2value</SAMP> must be initialized but need not be
+empty. <SAMP>attr2value</SAMP> must have the hash function
+<CODE><A HREF="vname-x.html#vnameHash"><CODE>vnameHash</CODE></A></CODE>. This function is implemented by
+sending the message <CODE><A HREF="vobject-x.html#vobjectGET_CONTEXT_ATTRIBUTES"><CODE>vobjectGET_CONTEXT_ATTRIBUTES</CODE></A></CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetCurrent"><HR><H4>vapplicationGetCurrent</H4></A>
+<PRE>
+        vapplication * <B>vapplicationGetCurrent</B>();
+</PRE>
+
+<DL><DD>
+Returns the current application object. This application
+can be modified freely by the application it was created
+for. You should call this function during initialization to
+obtain your application object. Your application object
+will be created by the Application class in a
+kernel-based environment or by the display server in a
+distributed environment.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetCursor"><HR><H4>vapplicationGetCursor</H4></A>
+<PRE>
+        vcursor * <B>vapplicationGetCursor</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the cursor specified for the application instance
+<SAMP>application</SAMP>, or <SAMP>NULL</SAMP> if no cursor
+has been specified.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetData"><HR><H4>vapplicationGetData</H4></A>
+<PRE>
+        const void * <B>vapplicationGetData</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the generic data pointer attached to the
+application <SAMP>application</SAMP>, which may be
+<SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetDefaultClass"><HR><H4>vapplicationGetDefaultClass</H4></A>
+<PRE>
+        vapplicationClass * <B>vapplicationGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the class used to create applications by the
+<CODE><A HREF="vapplication-x.html#vapplicationCreate"><CODE>vapplicationCreate</CODE></A></CODE> and
+<CODE><A HREF="vapplication-x.html#vapplicationInit"><CODE>vapplicationInit</CODE></A></CODE> functions. This class should
+not be modified by applications, since the default
+application class is <I>not</I> allocated on a
+per-application basis. Changes to this class are visible to
+all the applications in a given process and all the
+applications sharing the same display server. Server
+programs may alter this class to obtain custom behavior.
+New custom applications can be created from a class with
+<CODE><A HREF="vapplication-x.html#vapplicationCreateOfClass"><CODE>vapplicationCreateOfClass</CODE></A></CODE>. This function can
+be called to explicitly register the default application
+class with the Class class.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetDependColor"><HR><H4>vapplicationGetDependColor</H4></A>
+<PRE>
+        vapplicationDependColorFunc <B>vapplicationGetDependColor</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the color dependency function for the application
+<SAMP>application</SAMP>. This function never returns
+<SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetDeriveColor"><HR><H4>vapplicationGetDeriveColor</H4></A>
+<PRE>
+        vapplicationDeriveColorFunc <B>vapplicationGetDeriveColor</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the color derivation function for the application
+<SAMP>application</SAMP>. This function never returns
+<SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetDragWindow"><HR><H4>vapplicationGetDragWindow</H4></A>
+<PRE>
+        vwindow * <B>vapplicationGetDragWindow</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the current drag window for the application
+<SAMP>application</SAMP>. This window receives pointer
+drag, detail, and button-up events from the application
+instead of the window specified by the event. This
+attribute is normally set by the application's button-down
+handler.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetFont"><HR><H4>vapplicationGetFont</H4></A>
+<PRE>
+        vfont * <B>vapplicationGetFont</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the default font for the application instance
+<SAMP>application</SAMP>, or <SAMP>NULL</SAMP> if no font
+has been specified.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetGlobalWindow"><HR><H4>vapplicationGetGlobalWindow</H4></A>
+<PRE>
+        vwindow * <B>vapplicationGetGlobalWindow</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the global window for the application
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetHandler"><HR><H4>vapplicationGetHandler</H4></A>
+<PRE>
+        veventHandler * <B>vapplicationGetHandler</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the event handler for the application
+<SAMP>application</SAMP>. Events are passed to this handler
+when <SAMP>application</SAMP> is active. You can modify
+this handler to implement custom behavior. It is stored on
+a per-application basis, so changes are not visible to
+other applications in the same process.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetIcon"><HR><H4>vapplicationGetIcon</H4></A>
+<PRE>
+        vimage * <B>vapplicationGetIcon</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the image specified for the application instance
+<SAMP>application</SAMP>, or <SAMP>NULL</SAMP> if none has
+been specified.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetKeyDispatch"><HR><H4>vapplicationGetKeyDispatch</H4></A>
+<PRE>
+        vdict * <B>vapplicationGetKeyDispatch</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the mapping of key strokes to specific windows for
+the application <SAMP>application</SAMP>. The keys of the
+dictionary are pointers returned by
+<CODE><A HREF="vkey-x.html#vkeyInternStroke"><CODE>vkeyInternStroke</CODE></A></CODE>, and the values are pointers
+to windows. This dictionary is used by the key event
+handlers to route special keystrokes to specific windows.
+All keystrokes defined by this dictionary are dispatched to
+the designated window instead of the window contained in
+the key event.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetKeyMap"><HR><H4>vapplicationGetKeyMap</H4></A>
+<PRE>
+        vdict * <B>vapplicationGetKeyMap</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the mapping of key strokes to symbolic commands for
+the application <SAMP>application</SAMP>. This dictionary
+is initialized based on the look-and-feel preference of the
+application. The keys of the dictionary are pointers
+returned by <CODE><A HREF="vkey-x.html#vkeyInternStroke"><CODE>vkeyInternStroke</CODE></A></CODE>, and the values
+are global names. This dictionary is used by the key event
+handlers to dispatch commands for special keystrokes.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetKeyWindow"><HR><H4>vapplicationGetKeyWindow</H4></A>
+<PRE>
+        vwindow * <B>vapplicationGetKeyWindow</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the current key window for the application
+<SAMP>application</SAMP>. This window receives key-up
+events from the application instead of the window specified
+by the event. This attribute is normally set by the
+application's key-down handler.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetLineWidth"><HR><H4>vapplicationGetLineWidth</H4></A>
+<PRE>
+        int <B>vapplicationGetLineWidth</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the line width specified for the application
+instance <SAMP>application</SAMP>, or <SAMP>-1</SAMP> if no
+line width has been specified.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetName"><HR><H4>vapplicationGetName</H4></A>
+<PRE>
+        const vname * <B>vapplicationGetName</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the name of the application
+<SAMP>application</SAMP>. This may be the empty name but is
+never <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetNotify"><HR><H4>vapplicationGetNotify</H4></A>
+<PRE>
+        vapplicationNoteProc <B>vapplicationGetNotify</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the notification procedure attached to the
+application <SAMP>application</SAMP>, or <SAMP>NULL</SAMP>
+if there is no notification procedure.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetObject"><HR><H4>vapplicationGetObject</H4></A>
+<PRE>
+        vobjectAttributed * <B>vapplicationGetObject</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the object upon which the application
+<SAMP>application</SAMP> is built.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetPreferences"><HR><H4>vapplicationGetPreferences</H4></A>
+<PRE>
+        vresource <B>vapplicationGetPreferences</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the user preference dictionary for the application
+<SAMP>application</SAMP>. You should use this resource to
+change application-specific preferences. Refer to the
+``Preference Manager'' chapter of the <I>Galaxy Application
+Environment Programmer's Guide</I> for detailed information
+about how preference sources are layered. You should not
+close or destroy the resource returned by this
+function; it is closed automatically by the Application
+class.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetResolver"><HR><H4>vapplicationGetResolver</H4></A>
+<PRE>
+        vresolver * <B>vapplicationGetResolver</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the application <SAMP>application</SAMP>'s resolver.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetResources"><HR><H4>vapplicationGetResources</H4></A>
+<PRE>
+        vresource <B>vapplicationGetResources</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the resources of the application
+<SAMP>application</SAMP> or an empty in-memory resource if
+no application resource file can be found. Use this
+function to obtain a reference for your application
+resource file. The application resource file is named
+<SAMP>appname</SAMP>.<SAMP>vr</SAMP> where
+<SAMP>appname</SAMP> is the name of the application. Refer
+to the ``Installation Manager'' chapter of the <I>Galaxy
+Application Environment Programmer's Guide</I> for detailed
+information about resource file location. An application
+should use this resource as the root of its resource tree.
+You should not close or destroy the resource returned by
+this function; it is closed automatically by the
+Application class.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetRoot"><HR><H4>vapplicationGetRoot</H4></A>
+<PRE>
+        vapplication * <B>vapplicationGetRoot</B>();
+</PRE>
+
+<DL><DD>
+Returns the root application object. The root application
+is created automatically by the Application class for the
+current process. Other applications can be created with
+<CODE><A HREF="vapplication-x.html#vapplicationCreate"><CODE>vapplicationCreate</CODE></A></CODE>. In a kernel-based
+environment, the root application typically serves the
+needs of the entire process. In a distributed environment,
+the server process uses the root application to represent
+itself and create new applications as connections are
+established by clients. Clients should <I>not</I> use this
+function to retrieve their application object, because they
+may be part of a multi-application process. Use
+<CODE><A HREF="vapplication-x.html#vapplicationGetCurrent"><CODE>vapplicationGetCurrent</CODE></A></CODE> instead. The root
+application is manipulated only by the display server in a
+distributed environment.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetSpace"><HR><H4>vapplicationGetSpace</H4></A>
+<PRE>
+        vcommandSpace * <B>vapplicationGetSpace</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the instance command space of the application
+<SAMP>application</SAMP>, or <SAMP>NULL</SAMP> if there is
+not one.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetSystemPreferences"><HR><H4>vapplicationGetSystemPreferences</H4></A>
+<PRE>
+        vresource <B>vapplicationGetSystemPreferences</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the user global preference dictionary of the
+application <SAMP>application</SAMP>. This is the same as
+the application's class preferences. An application should
+use this resource to change system-wide preferences, though
+only special preference-editing applications should do
+this. You should not close or destroy the resource returned
+by this function; it is closed automatically by the
+Application class.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetSystemResources"><HR><H4>vapplicationGetSystemResources</H4></A>
+<PRE>
+        vresource <B>vapplicationGetSystemResources</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the system resources of the application
+<SAMP>application</SAMP>, or an empty in-memory resource if
+no such resource file can be found. This is the same as the
+application's class resources. The Galaxy libraries use
+this resource to locate their resource trees; applications
+should not use it. You should not close or destroy the
+resource returned by this function; it is closed
+automatically by the Application class.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetTag"><HR><H4>vapplicationGetTag</H4></A>
+<PRE>
+        const vname * <B>vapplicationGetTag</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the tag of the application
+<SAMP>application</SAMP>, or <SAMP>NULL</SAMP> if the
+application has no tag.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetTitle"><HR><H4>vapplicationGetTitle</H4></A>
+<PRE>
+        const vname * <B>vapplicationGetTitle</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Returns the title of the application
+<SAMP>application</SAMP>. This may be the empty name but is
+never <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationGetWindowIteratorWindow"><HR><H4>vapplicationGetWindowIteratorWindow</H4></A>
+<PRE>
+        vwindow * <B>vapplicationGetWindowIteratorWindow</B>(
+                vapplicationWindowIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the window indexed by the iterator
+<SAMP>iterator</SAMP>. This function should only be called
+after <CODE><A HREF="vapplication-x.html#vapplicationNextWindowIterator"><CODE>vapplicationNextWindowIterator</CODE></A></CODE> has
+returned <SAMP>TRUE</SAMP>. Note that the order in which
+windows are iterated is arbitrary.
+</DD></DL>
+<P>
+<A NAME="vapplicationHelp"><HR><H4>vapplicationHelp</H4></A>
+<PRE>
+        void <B>vapplicationHelp</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Requests help on the application <SAMP>application</SAMP>
+by constructing a context string for the application and
+sending a help request to the Galaxy Help class. The
+context string is the application's tag. The Help class
+should respond to this request by opening a help window for
+the context string. This function is implemented by sending
+the message <CODE><A HREF="vobject-x.html#vobjectHELP"><CODE>vobjectHELP</CODE></A></CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationInit"><HR><H4>vapplicationInit</H4></A>
+<PRE>
+        void <B>vapplicationInit</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Initializes an application object of the default
+application class in the memory addressed by
+<SAMP>application</SAMP>. The attributes of the application
+are set to their default values, according to the default
+application class. The default attributes of the default
+application class are documented in the ``Application
+Manager'' chapter of the <I>Galaxy Application Environment
+Programmer's Guide</I>. The address can be used in other
+calls to the Application class as if it were created with
+<CODE><A HREF="vapplication-x.html#vapplicationCreate"><CODE>vapplicationCreate</CODE></A></CODE>. A call to
+<CODE><A HREF="vapplication-x.html#vapplicationDestroy"><CODE>vapplicationDestroy</CODE></A></CODE> frees any internal objects
+allocated by the Application class but does <I>not</I>
+free the structure itself. This function simply stores the
+default class in the class field of the application and
+sends it the message <CODE>vobjectINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vapplicationInitOfClass"><HR><H4>vapplicationInitOfClass</H4></A>
+<PRE>
+        void <B>vapplicationInitOfClass</B>(
+                vapplication * application,
+                vapplicationClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes an application object of class
+<SAMP>clas</SAMP> in the memory addressed
+by<SAMP>application</SAMP>. The attributes of the
+application are set to their default values, according to
+the class. The default attributes of the default
+application class are documented in the ``Application
+Manager'' chapter of the <I>Galaxy Application Environment
+Programmer's Guide</I>. The address can be used in other
+calls to the Application class as if it were created with
+<CODE><A HREF="vapplication-x.html#vapplicationCreateOfClass"><CODE>vapplicationCreateOfClass</CODE></A></CODE>. A call to
+<CODE><A HREF="vapplication-x.html#vapplicationDestroy"><CODE>vapplicationDestroy</CODE></A></CODE> frees any internal objects
+allocated by the Application class but does <I>not</I>
+free the structure itself. This function simply stores the
+class in the class field of the application and sends it
+the message <CODE>vobjectINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vapplicationInitWindowIterator"><HR><H4>vapplicationInitWindowIterator</H4></A>
+<PRE>
+        void <B>vapplicationInitWindowIterator</B>(
+                vapplicationWindowIterator * iterator,
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Begins an iteration of all the open windows on the display
+which belong to the application <SAMP>application</SAMP>.
+The iterator initially contains no
+window; <CODE><A HREF="vapplication-x.html#vapplicationNextWindowIterator"><CODE>vapplicationNextWindowIterator</CODE></A></CODE> must
+be called to obtain the first window.
+</DD></DL>
+<P>
+<A NAME="vapplicationLoad"><HR><H4>vapplicationLoad</H4></A>
+<PRE>
+        vapplication * <B>vapplicationLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads an application from the resource
+<SAMP>resource</SAMP> and returns a pointer to its
+contents. Storage for the application object is allocated
+by the Application class. The application's class is
+determined by the value of the tag ``Class.'' It generates
+<CODE><A HREF="vobject-x.html#vobjectUndefinedClassException"><CODE>vobjectUndefinedClassException</CODE></A></CODE> if the name
+does not denote a class in the Class class registry. Note
+that this function creates an object based on the class of
+the resource, even if this class is not an application
+class. The object pointer is cast to an application
+pointer, even if the object represents a different data
+type. Attributes may be initialized based on the contents
+of the resource, or they may be set to default values,
+depending on the class. 
+<P>
+The attributes of the default
+application class, which are stored in resources, are
+documented in the ``Application Manager'' chapter of the
+<I>Galaxy Application Environment Programmer's Guide</I>.
+This function essentially allocates space for a new
+application and calls <CODE><A HREF="vapplication-x.html#vapplicationLoadInit"><CODE>vapplicationLoadInit</CODE></A></CODE> on
+it.
+</DD></DL>
+<P>
+<A NAME="vapplicationLoadButtonMap"><HR><H4>vapplicationLoadButtonMap</H4></A>
+<PRE>
+        const vname * <B>vapplicationLoadButtonMap</B>(
+                vapplication * application,
+                vkeyModifiers modifiers);
+</PRE>
+
+<DL><DD>
+Returns the symbolic identifier for the button/key modifier
+set <SAMP>modifiers</SAMP>, or <SAMP>NULL</SAMP> if there
+is no definition. This function loads the command name from
+the application's button map dictionary as returned from
+<CODE><A HREF="vapplication-x.html#vapplicationGetButtonMap"><CODE>vapplicationGetButtonMap</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vapplicationLoadInit"><HR><H4>vapplicationLoadInit</H4></A>
+<PRE>
+        void <B>vapplicationLoadInit</B>(
+                vapplication * application,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads an application object from the resource
+<SAMP>resource</SAMP> and stores it in the uninitialized
+memory addressed by<SAMP>application</SAMP>. The
+application's class is determined by the value of the tag
+``Class.'' It generates
+<CODE><A HREF="vobject-x.html#vobjectUndefinedClassException"><CODE>vobjectUndefinedClassException</CODE></A></CODE> if the name
+does not denote a class in the Class class registry. Note
+that this function initializes an object based on the class
+of the resource, even if this class is not an application
+class. The object attempts to initialize itself in the
+application structure provided, even if it is not of the
+correct size. Attributes may be initialized based on the
+contents of the resource, or they may be set to default
+values, depending on the class. 
+<P>
+The attributes of the
+default application class which are stored in resources are
+documented in the ``Application Manager'' chapter of the
+<I>Galaxy Application Environment Programmer's Guide</I>.
+This function stores the class specified by the resource in
+the class field of the application structure and sends it
+the message <CODE>vobjectLOAD_INIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vapplicationLoadKeyDispatch"><HR><H4>vapplicationLoadKeyDispatch</H4></A>
+<PRE>
+        vwindow * <B>vapplicationLoadKeyDispatch</B>(
+                vapplication * application,
+                vkeyStroke key);
+</PRE>
+
+<DL><DD>
+Returns the window designated to receive the keystroke
+<SAMP>key</SAMP>, or <SAMP>NULL</SAMP> if there is no
+designated window. This function loads the window from the
+application's <CODE>KeyDispatch</CODE> dictionary.
+</DD></DL>
+<P>
+<A NAME="vapplicationLoadKeyMap"><HR><H4>vapplicationLoadKeyMap</H4></A>
+<PRE>
+        const vname * <B>vapplicationLoadKeyMap</B>(
+                vapplication * application,
+                vkeyStroke key);
+</PRE>
+
+<DL><DD>
+Returns the symbolic identifier for the keystroke
+<SAMP>key</SAMP>, or <SAMP>NULL</SAMP> if there is no
+definition. This function loads the command name from the
+application's <CODE>KeyMap</CODE> dictionary.
+</DD></DL>
+<P>
+<A NAME="vapplicationNextWindowIterator"><HR><H4>vapplicationNextWindowIterator</H4></A>
+<PRE>
+        int <B>vapplicationNextWindowIterator</B>(
+                vapplicationWindowIterator * iterator);
+</PRE>
+
+<DL><DD>
+Performs the next step of the iteration represented by
+<SAMP>iterator</SAMP> and returns <SAMP>TRUE</SAMP> if a
+window is available, <SAMP>FALSE</SAMP> if not. The
+particular window can be retrieved from the iterator with
+<CODE><A HREF="vapplication-x.html#vapplicationGetWindowIteratorWindow"><CODE>vapplicationGetWindowIteratorWindow</CODE></A></CODE>. For
+example, the following code fragment repaints every window
+belonging to the current application:
+
+<P>
+<BLOCKQUOTE>
+<PRE>
+
+<A HREF="vapplication-x.html#vapplicationWindowIterator"><CODE>vapplicationWindowIterator</CODE></A> iterator;
+<A HREF="vapplication-x.html#vapplicationInitWindowIterator"><CODE>vapplicationInitWindowIterator</CODE></A>(&iterator, <A HREF="vapplication-x.html#vapplicationGetCurrent"><CODE>vapplicationGetCurrent</CODE></A>());
+while (vapplicationNextWindowIterator(&iterator))                      
+  	           
+<A HREF="vwindow-x.html#vwindowInval"><CODE>vwindowInval</CODE></A>(<A HREF="vapplication-x.html#vapplicationGetWindowIteratorWindow"><CODE>vapplicationGetWindowIteratorWindow</CODE></A>(&iterator), 0);
+<A HREF="vapplication-x.html#vapplicationDestroyWindowIterator"><CODE>vapplicationDestroyWindowIterator</CODE></A>(&iterator);
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vapplicationNotify"><HR><H4>vapplicationNotify</H4></A>
+<PRE>
+        void <B>vapplicationNotify</B>(
+                vapplication * application,
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Notifies the application <SAMP>application</SAMP> that the
+event <SAMP>event</SAMP> was handled by the application's
+event handler. Typically, this means that the application's
+instance notification function is called with the event as
+an argument and a command is dispatched using the
+application's tag. Only events of importance are given
+notification. Importance is determined by the application's
+event handler: the default event handler gives no
+notification. This function is implemented by sending the
+message <CODE><A HREF="vapplication-x.html#vapplicationNOTIFY"><CODE>vapplicationNOTIFY</CODE></A></CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationPropagateChange"><HR><H4>vapplicationPropagateChange</H4></A>
+<PRE>
+        void <B>vapplicationPropagateChange</B>(
+                vapplication * application,
+                const vname * attr,
+                const vname * tag,
+                const void * value);
+</PRE>
+
+<DL><DD>
+Propagates the change of the attribute <SAMP>attr</SAMP> of
+the object whose tag is <SAMP>tag</SAMP> from the scope of
+the application <SAMP>application</SAMP>. The propagation
+extends through the application's inheritance hierarchy.
+The propagation reaches all lower-level objects in the
+hierarchy, each of which is responsible for updating its
+internal state, if any, to correspond with the new value.
+Note also that the new value must also be stored in an
+attribute dictionary in a command space, or it must be
+recognized by a query function so that lower-level objects
+can obtain correct bindings on demand. <SAMP>attr</SAMP>
+and <SAMP>tag</SAMP> must be global names obtained from the
+Name class.
+</DD></DL>
+<P>
+<A NAME="vapplicationPropagateChangeDict"><HR><H4>vapplicationPropagateChangeDict</H4></A>
+<PRE>
+        void <B>vapplicationPropagateChangeDict</B>(
+                vapplication * application,
+                const vname * attr,
+                vdict * tag2value);
+</PRE>
+
+<DL><DD>
+Propagates the change of the attribute <SAMP>attr</SAMP> to
+the objects whose tags are the keys of the dictionary
+<SAMP>tag2value</SAMP> from the scope of the application
+<SAMP>application</SAMP>. The change is propagated through
+the application's inheritance hierarchy. The values of the
+dictionary <SAMP>tag2value</SAMP> should be the new
+attribute values. The propagation reaches all lower-level
+objects in the hierarchy, each of which is responsible for
+updating its internal state, if any, to correspond with the
+new values. 
+<P>
+Note that the new values must also be stored in
+a command space attribute dictionary, or they must be
+recognized by a query function so that user interface
+objects can obtain correct bindings on demand.
+<SAMP>attr</SAMP> and the keys of <SAMP>tag2value</SAMP>
+must be global names obtained from the Name class.
+<SAMP>tag2value</SAMP> must have the hash function
+<CODE><A HREF="vname-x.html#vnameHash"><CODE>vnameHash</CODE></A></CODE>. This function is implemented by
+sending the message
+<CODE><A HREF="vobject-x.html#vobjectPROPAGATE_CHANGE_DICT"><CODE>vobjectPROPAGATE_CHANGE_DICT</CODE></A></CODE> to
+<SAMP>object</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationPropagateChangeDictFromParent"><HR><H4>vapplicationPropagateChangeDictFromParent</H4></A>
+<PRE>
+        void <B>vapplicationPropagateChangeDictFromParent</B>(
+                vapplication * application,
+                const vname * attr,
+                vdict * tag2value);
+</PRE>
+
+<DL><DD>
+Continues an attribute change propagation from a higher
+level in the inheritance hierarchy of
+<SAMP>application</SAMP>. <SAMP>attr</SAMP> is the
+attribute being changed, and <SAMP>tag2value</SAMP>
+describes the objects that are being changed. This function
+is identical to
+<CODE>vapplicationPropagateChangeDict</CODE>, except that
+it first removes from <SAMP>tag2value</SAMP> any attribute
+definitions that are shadowed by definitions in the scope
+of <SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationReadPlatformSpecificPrefs"><HR><H4>vapplicationReadPlatformSpecificPrefs</H4></A>
+<PRE>
+        void <B>vapplicationReadPlatformSpecificPrefs</B>();
+</PRE>
+
+<DL><DD>
+Reads all preferences in the ``Platform Specific Preferences'' preference
+dictionary corresponding to the platform the application is running
+on, and stores them into the preferences database.
+</DD></DL>
+<P>
+<A NAME="vapplicationReadPrefs"><HR><H4>vapplicationReadPrefs</H4></A>
+<PRE>
+        void <B>vapplicationReadPrefs</B>(
+                vapplication * application,
+                int id);
+</PRE>
+
+<DL><DD>
+Reads preferences into the current preference database for
+the application <SAMP>application</SAMP> based on the level
+indicated by <SAMP>id</SAMP>. <SAMP>id</SAMP> should be one
+of the following constants:
+<P>
+
+<DL>
+<DT><CODE>vapplicationPREF_DEFAULT_SYSTEM</CODE>
+<DD>Read default system preferences. 
+
+<DT><CODE>vapplicationPREF_DEFAULT_WINDOW</CODE>
+<DD>Read default window system preferences. 
+
+<DT><CODE>vapplicationPREF_DEFAULT_APPLICATION</CODE>
+<DD>Read default application preferences. 
+
+<DT><CODE>vapplicationPREF_SYSTEM</CODE>
+<DD>Read system preferences. 
+
+<DT><CODE>vapplicationPREF_APPLICATION</CODE>
+<DD>Read application preferences. 
+
+<DT><CODE>vapplicationPREF_ENVIRONMENT</CODE>
+<DD>Read environment variables. 
+
+<DT><CODE>vapplicationPREF_WINDOW</CODE>
+<DD>Read window system preferences. 
+
+<DT><CODE>vapplicationPREF_ARGS</CODE>
+<DD>Read command-line arguments. 
+</DL>
+</DD></DL>
+<P>
+<A NAME="vapplicationSetAllAttributes"><HR><H4>vapplicationSetAllAttributes</H4></A>
+<PRE>
+        void <B>vapplicationSetAllAttributes</B>(
+                vapplication * application,
+                vdict * attr2value);
+</PRE>
+
+<DL><DD>
+Changes the values of a set of named attributes of the
+application <SAMP>application</SAMP>.
+<SAMP>attr2value</SAMP> maps global names into attribute
+values. The values should be stored as <SAMP>const
+void*</SAMP> types, but the type of object addressed
+depends on the attribute being changed. This function has
+no effect if the desired attribute is not a named
+application attribute. The attributes of the default
+application class that are named are documented in the
+``Application Manager'' chapter of the <I>Galaxy
+Application Environment Programmer's Guide</I>.
+<SAMP>attr2value</SAMP> must have the hash function
+<CODE><A HREF="vname-x.html#vnameHash"><CODE>vnameHash</CODE></A></CODE>. This function is implemented by
+sending the message <CODE><A HREF="vobject-x.html#vobjectSET_ALL_ATTRIBUTES"><CODE>vobjectSET_ALL_ATTRIBUTES</CODE></A></CODE>
+to <SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetAttribute"><HR><H4>vapplicationSetAttribute</H4></A>
+<PRE>
+        void <B>vapplicationSetAttribute</B>(
+                vapplication * application,
+                const vname * attr,
+                void * value);
+</PRE>
+
+<DL><DD>
+Changes the named attribute <SAMP>attr</SAMP> of the
+application <SAMP>application</SAMP> to the value
+<SAMP>value</SAMP>. The type of object addressed by
+<SAMP>value</SAMP> depends on the attribute being changed.
+This function has no effect if the desired attribute is not
+a named application attribute. The attributes of the
+default application class that are named are documented in
+the ``Application Manager'' chapter of the <I>Galaxy
+Application Environment Programmer's Guide</I>.
+<SAMP>attr</SAMP> must be a global name obtained from the
+Name class. This function is implemented by sending the
+message <CODE><A HREF="vobject-x.html#vobjectSET_ATTRIBUTE"><CODE>vobjectSET_ATTRIBUTE</CODE></A></CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetBlockCursor"><HR><H4>vapplicationSetBlockCursor</H4></A>
+<PRE>
+        void <B>vapplicationSetBlockCursor</B>(
+                vapplication * application,
+                vcursor * cursor);
+</PRE>
+
+<DL><DD>
+Changes the blocking cursor of the application instance
+<SAMP>application</SAMP> to <SAMP>cursor</SAMP>. This
+cursor is used as the cursor for all blocked windows
+created by the application. <SAMP>cursor</SAMP> may be
+<SAMP>NULL</SAMP>, in which case the application's class
+blocking cursor is used instead. If the class blocking
+cursor is also <SAMP>NULL</SAMP>, the window system default
+blocking cursor is used. If <SAMP>cursor</SAMP> is the
+current blocking cursor attribute of the application and
+the cursor is owned (refer to
+<CODE><A HREF="vapplication-x.html#vapplicationSetBlockCursorOwned"><CODE>vapplicationSetBlockCursorOwned</CODE></A></CODE>), then this
+function changes the blocking cursor attribute to shared
+<I>without</I> destroying the cursor (this is a special
+case). This function is implemented by sending the message
+<CODE><A HREF="vapplication-x.html#vapplicationSET_BLOCK_CURSOR"><CODE>vapplicationSET_BLOCK_CURSOR</CODE></A></CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetBlockCursorOwned"><HR><H4>vapplicationSetBlockCursorOwned</H4></A>
+<PRE>
+        void <B>vapplicationSetBlockCursorOwned</B>(
+                vapplication * application,
+                vcursor * cursor);
+</PRE>
+
+<DL><DD>
+Changes the blocking cursor of the application instance
+<SAMP>application</SAMP> to <SAMP>cursor</SAMP> and gives
+the application ownership of the cursor. This cursor is
+used as the cursor for all blocked windows created by the
+application that do not define their own cursors. The
+cursor is destroyed when the application is destroyed or
+the cursor is changed. The cursor is also cloned when the
+application is cloned or copied. This attribute takes
+precedence over the application's class blocking cursor or
+the window system default blocking cursor. It generates
+<CODE><A HREF="vex-x.html#vexArgNullException"><CODE>vexArgNullException</CODE></A></CODE> if <SAMP>cursor</SAMP> is
+<SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetColor"><HR><H4>vapplicationSetColor</H4></A>
+<PRE>
+        void <B>vapplicationSetColor</B>(
+                vapplication * application,
+                int id,
+                vcolor * color);
+</PRE>
+
+<DL><DD>
+Changes a color in the color scheme of the application
+instance <SAMP>application</SAMP> to <SAMP>color</SAMP>.
+<SAMP>id</SAMP> should be a Drawing class color
+identifier specifying which color in the color scheme to
+change. Refer to the ``Drawing Manager'' chapter of the
+<I>Galaxy Application Environment Programmer's Guide</I>
+for more information about color identifiers.
+<SAMP>color</SAMP> may be <SAMP>NULL</SAMP>, in which case
+the application's corresponding class color is used
+instead. The function call
+<SAMP>vapplicationSetColor(application,
+vdrawCOLOR_FOREGROUND</SAMP>, <SAMP>foreground)</SAMP> 
+sets the foreground color of the application
+<SAMP>application</SAMP> to <SAMP>foreground</SAMP>, for
+example. This function is implemented by sending the
+message <CODE><A HREF="vapplication-x.html#vapplicationSET_COLOR"><CODE>vapplicationSET_COLOR</CODE></A></CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetCurrent"><HR><H4>vapplicationSetCurrent</H4></A>
+<PRE>
+        void <B>vapplicationSetCurrent</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Changes the current application to
+<SAMP>application</SAMP>. All per-client global states
+reflect the state of this application. The current
+application is set by the Application class based on the
+event currently being serviced and is also changed
+temporarily when an application is created or destroyed.
+You should not call this function yourself. This function
+calls <CODE><A HREF="vclient-x.html#vclientSetCurrent"><CODE>vclientSetCurrent</CODE></A></CODE> to change the current
+global state.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetCursor"><HR><H4>vapplicationSetCursor</H4></A>
+<PRE>
+        void <B>vapplicationSetCursor</B>(
+                vapplication * application,
+                vcursor * cursor);
+</PRE>
+
+<DL><DD>
+Changes the cursor of the application instance
+<SAMP>application</SAMP> to <SAMP>cursor</SAMP>. This
+cursor is used as the cursor for all windows created by the
+application that do not define their own cursors.
+<SAMP>cursor</SAMP> may be <SAMP>NULL</SAMP>, in which case
+the application's class cursor is used instead. If the
+class cursor is also <SAMP>NULL</SAMP>, the window system
+default cursor is used. If <SAMP>cursor</SAMP> is the
+current cursor attribute of the application and the cursor
+is owned (refer to
+<CODE><A HREF="vapplication-x.html#vapplicationSetCursorOwned"><CODE>vapplicationSetCursorOwned</CODE></A></CODE>), then this
+function changes the cursor attribute to shared
+<I>without</I> destroying the cursor (this is a special
+case). This function is implemented by sending the message
+<CODE><A HREF="vapplication-x.html#vapplicationSET_CURSOR"><CODE>vapplicationSET_CURSOR</CODE></A></CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetCursorOwned"><HR><H4>vapplicationSetCursorOwned</H4></A>
+<PRE>
+        void <B>vapplicationSetCursorOwned</B>(
+                vapplication * application,
+                vcursor * cursor);
+</PRE>
+
+<DL><DD>
+Changes the cursor of the application instance
+<SAMP>application</SAMP> to <SAMP>cursor</SAMP> and gives
+the application ownership of the cursor. This cursor is
+used as the cursor for all windows created by the
+application that do not define their own cursors. The
+cursor is destroyed when the application is destroyed or
+the cursor is changed. The cursor is also cloned when the
+application is cloned or copied. This attribute takes
+precedence over the application's class cursor or the
+window system default cursor. It generates
+<CODE><A HREF="vex-x.html#vexArgNullException"><CODE>vexArgNullException</CODE></A></CODE> if <SAMP>cursor</SAMP> is
+<SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetData"><HR><H4>vapplicationSetData</H4></A>
+<PRE>
+        void <B>vapplicationSetData</B>(
+                vapplication * application,
+                const void * data);
+</PRE>
+
+<DL><DD>
+Sets an application's generic data pointer to
+<SAMP>data</SAMP>. This may be a pointer to whatever
+information the you want to attach to the application; it
+is not used by the Application class. <SAMP>data</SAMP>
+may be <SAMP>NULL</SAMP>. <SAMP>data</SAMP> is declared
+<SAMP>const</SAMP> to indicate that the Application class
+will not modify its contents. This function is implemented
+by sending the message <CODE><A HREF="vapplication-x.html#vapplicationSET_DATA"><CODE>vapplicationSET_DATA</CODE></A></CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetDependColor"><HR><H4>vapplicationSetDependColor</H4></A>
+<PRE>
+        void <B>vapplicationSetDependColor</B>(
+                vapplication * application,
+                vapplicationDependColorFunc dependColorFunc);
+</PRE>
+
+<DL><DD>
+Changes the color dependency function of the application
+<SAMP>application</SAMP> to <SAMP>dependColorFunc</SAMP>.
+This function is called to determine which derived colors
+are dependent on which base colors.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetDeriveColor"><HR><H4>vapplicationSetDeriveColor</H4></A>
+<PRE>
+        void <B>vapplicationSetDeriveColor</B>(
+                vapplication * application,
+                vapplicationDeriveColorFunc deriveColorFunc);
+</PRE>
+
+<DL><DD>
+Changes the color derivation function of the application
+<SAMP>application</SAMP> to <SAMP>deriveColorFunc</SAMP>.
+This function is called to derive colors from base colors.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetDragWindow"><HR><H4>vapplicationSetDragWindow</H4></A>
+<PRE>
+        void <B>vapplicationSetDragWindow</B>(
+                vapplication * application,
+                vwindow * window);
+</PRE>
+
+<DL><DD>
+Informs the application <SAMP>application</SAMP> that any
+drag, detail, or button-up events it receives should be
+sent to the window <SAMP>window</SAMP>. <SAMP>window</SAMP>
+may be <SAMP>NULL</SAMP>, in which case events are sent to
+the window specified by the particular event. The drag
+window is set by the Application class's default
+button-down handler to the window receiving the button-down
+event.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetFont"><HR><H4>vapplicationSetFont</H4></A>
+<PRE>
+        void <B>vapplicationSetFont</B>(
+                vapplication * application,
+                vfont * font);
+</PRE>
+
+<DL><DD>
+Changes the font of the application instance
+<SAMP>application</SAMP> to <SAMP>font</SAMP>. The
+application's windows set this font as the current font for
+drawing if the windows do not define their own font.
+<SAMP>font</SAMP> may be <SAMP>NULL</SAMP>, in which case
+the application's class font is used instead, which should
+never be set to <SAMP>NULL</SAMP>. The application font is
+initialized based on the look-and-feel preference. This
+function is implemented by sending the message
+<CODE><A HREF="vapplication-x.html#vapplicationSET_FONT"><CODE>vapplicationSET_FONT</CODE></A></CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetGlobalWindow"><HR><H4>vapplicationSetGlobalWindow</H4></A>
+<PRE>
+        void <B>vapplicationSetGlobalWindow</B>(
+                vapplication * application,
+                vwindow * window);
+</PRE>
+
+<DL><DD>
+Changes the global window of the application
+<SAMP>application</SAMP> to <SAMP>window</SAMP>. The
+application's global window controls the application's
+document windows. <SAMP>window</SAMP> may be
+<SAMP>NULL</SAMP>, in which case the application is given
+no global window. The global window is normally set by the
+Look-and-Feel class during startup based on the current
+look-and-feel; you should not set it yourself. This
+function is implemented by sending the message
+<CODE><A HREF="vapplication-x.html#vapplicationSET_GLOBAL_WINDOW"><CODE>vapplicationSET_GLOBAL_WINDOW</CODE></A></CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetIcon"><HR><H4>vapplicationSetIcon</H4></A>
+<PRE>
+        void <B>vapplicationSetIcon</B>(
+                vapplication * application,
+                vimage * icon);
+</PRE>
+
+<DL><DD>
+Changes the iconic representation of the windows of the
+application instance <SAMP>application</SAMP> to the image
+<SAMP>icon</SAMP>. This icon is used as the icon for all
+windows created by the application that do not define their
+own icons. <SAMP>icon</SAMP> may be <SAMP>NULL</SAMP>, in
+which case the application's class icon is used instead. If
+the class icon is also <SAMP>NULL</SAMP>, the window system
+default icon is used. If the icon image contains a
+<CODE>Transparency</CODE> attribute, it is used to mask the
+contents of the image. If <SAMP>icon</SAMP> is the current
+icon attribute of the application and the icon is owned
+(refer to <CODE><A HREF="vapplication-x.html#vapplicationSetIconOwned"><CODE>vapplicationSetIconOwned</CODE></A></CODE>), then this
+function changes the icon attribute to shared
+<I>without</I> destroying the image (this is a special
+case). This function is implemented by sending the message
+<CODE><A HREF="vapplication-x.html#vapplicationSET_ICON"><CODE>vapplicationSET_ICON</CODE></A></CODE> to <SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetIconOwned"><HR><H4>vapplicationSetIconOwned</H4></A>
+<PRE>
+        void <B>vapplicationSetIconOwned</B>(
+                vapplication * application,
+                vimage * icon);
+</PRE>
+
+<DL><DD>
+Changes the icon attribute of the application instance
+<SAMP>application</SAMP> to the image <SAMP>icon</SAMP> and
+gives the application ownership of the icon. This icon is
+used as the icon for all windows created by the application
+that do not define their own icons. The icon is destroyed
+when the application is destroyed or the icon is changed.
+The icon is also cloned when the application is cloned or
+copied. This attribute takes precedence over the
+application's class icon or the window system default icon.
+It generates <CODE><A HREF="vex-x.html#vexArgNullException"><CODE>vexArgNullException</CODE></A></CODE> if
+<SAMP>icon</SAMP> is <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetKeyWindow"><HR><H4>vapplicationSetKeyWindow</H4></A>
+<PRE>
+        void <B>vapplicationSetKeyWindow</B>(
+                vapplication * application,
+                vwindow * window);
+</PRE>
+
+<DL><DD>
+Informs the application <SAMP>application</SAMP> that any
+key-up events it receives should be sent to the window
+<SAMP>window</SAMP>. <SAMP>window</SAMP> may be
+<SAMP>NULL</SAMP>, in which case events are sent to the
+window specified by the particular event. The key window is
+set by the Application class's default key-down handler
+to the window receiving the key-down event.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetLineWidth"><HR><H4>vapplicationSetLineWidth</H4></A>
+<PRE>
+        void <B>vapplicationSetLineWidth</B>(
+                vapplication * application,
+                int lineWidth);
+</PRE>
+
+<DL><DD>
+Changes the line width of the application instance
+<SAMP>application</SAMP> to <SAMP>lineWidth</SAMP>. This
+line width is used for stroking whenever an object does not
+change the line width explicitly. The line width is
+initialized based on the look-and-feel preference. If
+<SAMP>lineWidth</SAMP> is <SAMP>-1</SAMP>, the
+application's class line width is used instead.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetName"><HR><H4>vapplicationSetName</H4></A>
+<PRE>
+        void <B>vapplicationSetName</B>(
+                vapplication * application,
+                const vchar * name);
+</PRE>
+
+<DL><DD>
+Changes the name of the application
+<SAMP>application</SAMP> to <SAMP>name</SAMP>. The name of
+an application should be set to reflect the command or file
+name that invoked the application. Changing the name of an
+application causes its resources and preferences to be
+replaced with resources and preferences based on the new
+name. The name is converted to a global name before it is
+stored in the application. This function is implemented by
+sending the message
+<CODE><A HREF="vapplication-x.html#vapplicationSET_NAME_SCRIBED"><CODE>vapplicationSET_NAME_SCRIBED</CODE></A></CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetNameScribed"><HR><H4>vapplicationSetNameScribed</H4></A>
+<PRE>
+        void <B>vapplicationSetNameScribed</B>(
+                vapplication * application,
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Changes the name of the application
+<SAMP>application</SAMP> to <SAMP>scribe</SAMP>. The name
+of an application should be set to reflect the command or
+file name that invoked the application. Changing the name
+of an application causes its resources and preferences to
+be replaced with resources and preferences based on the new
+name. This function is implemented by sending the message
+<CODE><A HREF="vapplication-x.html#vapplicationSET_NAME_SCRIBED"><CODE>vapplicationSET_NAME_SCRIBED</CODE></A></CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetNotify"><HR><H4>vapplicationSetNotify</H4></A>
+<PRE>
+        void <B>vapplicationSetNotify</B>(
+                vapplication * application,
+                vapplicationNoteProc noteProc);
+</PRE>
+
+<DL><DD>
+Changes the instance notification procedure for the
+application <SAMP>application</SAMP> to
+<SAMP>noteProc</SAMP>. This function is called by
+<CODE><A HREF="vapplication-x.html#vapplicationNotify"><CODE>vapplicationNotify</CODE></A></CODE> when the application
+handles an event of importance. Importance is determined
+by the application's event handler; the default event
+handler gives no notification. <SAMP>noteProc</SAMP> may be
+<SAMP>NULL</SAMP>, in which case no instance notification
+is given. This function is implemented by sending the
+message <CODE><A HREF="vapplication-x.html#vapplicationSET_NOTIFY"><CODE>vapplicationSET_NOTIFY</CODE></A></CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetPreferences"><HR><H4>vapplicationSetPreferences</H4></A>
+<PRE>
+        void <B>vapplicationSetPreferences</B>(
+                vapplication * application,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Changes the preferences for the application
+<SAMP>application</SAMP> to <SAMP>resource</SAMP>. The
+default preferences of an application are initialized to
+the application's preference dictionary (named
+<SAMP>appname</SAMP>), located in the user resource file
+(<SAMP>.vgalaxy1.vr</SAMP>). You can use this function to
+override the default preferences for your application.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetResolver"><HR><H4>vapplicationSetResolver</H4></A>
+<PRE>
+        void <B>vapplicationSetResolver</B>(
+                vapplication * application,
+                vresolver * resolver);
+</PRE>
+
+<DL><DD>
+Sets the application's resolver.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetResources"><HR><H4>vapplicationSetResources</H4></A>
+<PRE>
+        void <B>vapplicationSetResources</B>(
+                vapplication * application,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Changes the resources for the application
+<SAMP>application</SAMP> to <SAMP>resource</SAMP>. The
+default resources of an application are initialized to the
+application's resource file (named
+<SAMP>appname</SAMP>.<SAMP>vr</SAMP>), located by the
+Installation class. Refer to the ``Installation Manager''
+chapter of the <I>Galaxy Application Environment
+Programmer's Guide</I> for details about resource file
+location. If no such file can be located, an empty
+in-memory resource is created instead. You can use this
+function to override the default resources for your
+application.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetSpace"><HR><H4>vapplicationSetSpace</H4></A>
+<PRE>
+        void <B>vapplicationSetSpace</B>(
+                vapplication * application,
+                vcommandSpace * space);
+</PRE>
+
+<DL><DD>
+Changes the instance command space of the application
+<SAMP>application</SAMP> to <SAMP>space</SAMP>. Command
+spaces attach attribute bindings to objects in the user
+interface inheritance hierarchy. <SAMP>space</SAMP> can be
+<SAMP>NULL</SAMP>, in which case the application is given
+no instance command bindings. Bindings in the instance
+command space take precedence over any bindings in the
+application's class command space. The application is added
+as a new owner of the command space, and is removed from
+ownership of its previous command space, if any. Any
+changes to attribute bindings are automatically propagated
+by this function. Refer to the ``Command Manager'' chapter
+of the <I>Galaxy Application Environment Programmer's
+Guide</I> for more information about command spaces. 
+<P>
+If <SAMP>space</SAMP> is the current command space attribute
+of the application and the command space is owned (refer to
+<CODE><A HREF="vapplication-x.html#vapplicationSetSpaceOwned"><CODE>vapplicationSetSpaceOwned</CODE></A></CODE>), then this function
+changes the command space attribute to shared
+<I>without</I> destroying the command space (this is a
+special case). This function is implemented by sending the
+message <CODE><A HREF="vapplication-x.html#vapplicationSET_SPACE"><CODE>vapplicationSET_SPACE</CODE></A></CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetSpaceOwned"><HR><H4>vapplicationSetSpaceOwned</H4></A>
+<PRE>
+        void <B>vapplicationSetSpaceOwned</B>(
+                vapplication * application,
+                vcommandSpace * space);
+</PRE>
+
+<DL><DD>
+Changes the instance command space of the application
+<SAMP>application</SAMP> to <SAMP>space</SAMP> and gives
+the application ownership of the command space. Command
+spaces attach attribute bindings to objects in the user
+interface inheritance hierarchy. The command space is
+destroyed when the application is destroyed or the space is
+changed. The space is also cloned when the application is
+cloned or copied. Bindings in the instance command space
+take precedence over any bindings in the application's
+class command space. The application is added as a new
+owner of the command space, and is removed from ownership
+of its previous command space, if any. Any changes to
+attribute bindings are automatically propagated by this
+function. Refer to the ``Command Manager'' chapter of the
+<I>Galaxy Application Environment Programmer's Guide</I>
+for more information about command spaces. It generates
+<CODE><A HREF="vex-x.html#vexArgNullException"><CODE>vexArgNullException</CODE></A></CODE> if <SAMP>space</SAMP> is
+<SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetTag"><HR><H4>vapplicationSetTag</H4></A>
+<PRE>
+        void <B>vapplicationSetTag</B>(
+                vapplication * application,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Changes the tag of the application <SAMP>application</SAMP>
+to <SAMP>tag</SAMP>. The tag can be used as a convenient
+way to identify the application when it is stored in a
+compound object. The Command class and the Class class
+attribute binding mechanism allow you to access objects
+indirectly through their tags; refer to the ``Command
+Manager'' chapter of the <I>Galaxy Application Environment
+Programmer's Guide</I> for more information.
+<SAMP>tag</SAMP> can be <SAMP>NULL</SAMP>, in which case
+the application is given no tag. This function is
+implemented by sending the message
+<CODE>vobjectSET_TAG</CODE> to <SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationSetTitle"><HR><H4>vapplicationSetTitle</H4></A>
+<PRE>
+        void <B>vapplicationSetTitle</B>(
+                vapplication * application,
+                const vchar * title);
+</PRE>
+
+<DL><DD>
+Changes the title of the application
+<SAMP>application</SAMP> to <SAMP>title</SAMP>. The title
+of an application should be a user-readable name or
+trademark. The title is converted to a global name before
+it is stored in the application. This function is
+implemented by sending the message
+<CODE><A HREF="vapplication-x.html#vapplicationSET_TITLE_SCRIBED"><CODE>vapplicationSET_TITLE_SCRIBED</CODE></A></CODE> to
+<SAMP>application.</SAMP>
+</DD></DL>
+<P>
+<A NAME="vapplicationSetTitleScribed"><HR><H4>vapplicationSetTitleScribed</H4></A>
+<PRE>
+        void <B>vapplicationSetTitleScribed</B>(
+                vapplication * application,
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Changes the title of the application
+<SAMP>application</SAMP> to <SAMP>scribe</SAMP>. The title
+of an application should be a user-readable name or
+trademark. This function is implemented by sending the
+message <CODE><A HREF="vapplication-x.html#vapplicationSET_TITLE_SCRIBED"><CODE>vapplicationSET_TITLE_SCRIBED</CODE></A></CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationStartup"><HR><H4>vapplicationStartup</H4></A>
+<PRE>
+        void <B>vapplicationStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the Application class. Has no effect if the
+Application class is already initialized.
+</DD></DL>
+<P>
+<A NAME="vapplicationStore"><HR><H4>vapplicationStore</H4></A>
+<PRE>
+        void <B>vapplicationStore</B>(
+                vapplication * application,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Writes the contents of the application object
+<SAMP>application</SAMP> into the resource
+<SAMP>resource</SAMP>. The application can be recovered
+from the resource at a later time (perhaps by another
+program) with <CODE><A HREF="vapplication-x.html#vapplicationLoad"><CODE>vapplicationLoad</CODE></A></CODE> or
+<CODE><A HREF="vapplication-x.html#vapplicationLoadInit"><CODE>vapplicationLoadInit</CODE></A></CODE>. Note that not all of the
+application's attributes are stored in the resource the
+attributes of the default application class that are stored
+in resources are documented in the "Application
+Manager" chapter of the <I>Galaxy Application
+Environment Programmer's Guide</I>. It generates
+<CODE><A HREF="vobject-x.html#vobjectUnnamedClassException"><CODE>vobjectUnnamedClassException</CODE></A></CODE> if the
+application's class is not named. This function is
+implemented by sending the message
+<CODE>vobjectSTORE</CODE> to <SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationUpdateAllAttributes"><HR><H4>vapplicationUpdateAllAttributes</H4></A>
+<PRE>
+        void <B>vapplicationUpdateAllAttributes</B>(
+                vapplication * application);
+</PRE>
+
+<DL><DD>
+Sets all the named attributes of the application
+<SAMP>application</SAMP> to their current bindings,
+according to the application's scope in the inheritance
+hierarchy. The application's scope is its instance and
+class command spaces. This function is implemented by
+sending the message
+<CODE><A HREF="vobject-x.html#vobjectUPDATE_ALL_ATTRIBUTES"><CODE>vobjectUPDATE_ALL_ATTRIBUTES</CODE></A></CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationUpdateAttribute"><HR><H4>vapplicationUpdateAttribute</H4></A>
+<PRE>
+        void <B>vapplicationUpdateAttribute</B>(
+                vapplication * application,
+                const vname * attr);
+</PRE>
+
+<DL><DD>
+Sets the attribute named <SAMP>attr</SAMP> of the
+application <SAMP>application</SAMP> to its current
+binding, according to the application's scope in the
+inheritance hierarchy. The application's scope is its
+instance and class command spaces. This function has no
+effect if no binding for the attribute exists.
+<SAMP>attr</SAMP> must be a global name obtained from the
+Name class. This function is implemented by sending the
+message <CODE><A HREF="vobject-x.html#vobjectUPDATE_ATTRIBUTE"><CODE>vobjectUPDATE_ATTRIBUTE</CODE></A></CODE> to
+<SAMP>application</SAMP>.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vapplicationBLOCK_CURSOR"><HR><H4>vapplicationBLOCK_CURSOR</H4></A>
+<PRE>
+        &lt;<B>vapplicationBLOCK_CURSOR</B>&gt;
+</PRE>
+
+<DL><DD>
+Contains the blocking cursor for an application class, or
+<SAMP>NULL</SAMP> if the class has no blocking cursor. The
+pointer representation is changed to this cursor when the
+pointer enters a blocked window whose application is of
+this class, provided the <CODE>Cursor</CODE> attribute of
+the application instance is <SAMP>NULL</SAMP>.
+    <P>
+The default blocking cursor attribute of the default
+application class is <SAMP>NULL</SAMP>. Subclasses that
+override this variable need only store the new cursor
+reference in the class. You are responsible for destroying
+the cursor object after the class has been destroyed.
+</DD></DL>
+<P>
+<A NAME="vapplicationCOLORS"><HR><H4>vapplicationCOLORS</H4></A>
+<PRE>
+        &lt;<B>vapplicationCOLORS</B>&gt;
+</PRE>
+
+<DL><DD>
+Contains the color scheme for an application class. Windows
+whose application is of this class use these colors for
+drawing, provided the application and window instances and
+the window class do not define any colors of their own.
+Refer to the ``Drawing Manager'' chapter of the <I>Galaxy
+Application Environment Programmer's Guide</I> for more
+information about color schemes.
+    <P>
+The default color scheme of the default application class
+is initialized to a grey color scheme based on a color
+display. The Window System may override this color scheme
+during startup if a monochrome display is actually in use.
+Subclasses that override this variable need only store the
+new color reference(s) in the class.
+</DD></DL>
+<P>
+<A NAME="vapplicationCURSOR"><HR><H4>vapplicationCURSOR</H4></A>
+<PRE>
+        &lt;<B>vapplicationCURSOR</B>&gt;
+</PRE>
+
+<DL><DD>
+Contains the cursor for an application class, or
+<SAMP>NULL</SAMP> if the class has no cursor. The pointer
+representation is changed to this cursor when the pointer
+enters a window whose application is of this class,
+provided the <CODE>Cursor</CODE> attribute of the
+application and window instances and the window class is
+<SAMP>NULL</SAMP>.
+    <P>
+The default cursor attribute of the default application
+class is <SAMP>NULL</SAMP>. Subclasses that override this
+variable need only store the new cursor reference in the
+class. You are responsible for destroying the cursor object
+after the class has been destroyed.
+</DD></DL>
+<P>
+<A NAME="vapplicationDETERMINE_COLOR_SCHEME_FROM"><HR><H4>vapplicationDETERMINE_COLOR_SCHEME_FROM</H4></A>
+<PRE>
+        &lt;<B>vapplicationDETERMINE_COLOR_SCHEME_FROM</B>&gt;
+</PRE>
+
+<DL><DD>
+Derives a color scheme that the windows of the application
+<SAMP>application</SAMP> use to draw their contents.
+<SAMP>flags</SAMP> is a set of Color class color flags
+that specifies which colors to derive. The colors are
+derived from the color attributes of the application and
+its class as well as the colors provided in the color
+scheme <SAMP>known</SAMP>. The derived colors are returned
+in the color scheme <SAMP>scheme</SAMP>. Colors in the
+scheme of known colors are given precedence over those
+defined by the application and its class. The function
+entry-point <CODE><A HREF="vapplication-x.html#vapplicationDetermineColorSchemeFrom"><CODE>vapplicationDetermineColorSchemeFrom</CODE></A></CODE> is
+implemented by sending this message to the application.
+</DD></DL>
+<P>
+<A NAME="vapplicationFONT"><HR><H4>vapplicationFONT</H4></A>
+<PRE>
+        &lt;<B>vapplicationFONT</B>&gt;
+</PRE>
+
+<DL><DD>
+Contains the font for an application class, or
+<SAMP>NULL</SAMP> if the class font has not been loaded
+yet. Windows whose application is of this class use this
+font as their default drawing font, provided the
+<CODE>Font</CODE> attribute of the application and window
+instances and the window class is <SAMP>NULL</SAMP>.
+    <P>
+The default font attribute of the default application class
+is the Font class's default font. Subclasses that
+override this variable need only store the new font
+reference in the class. Note that the default font is not
+actually stored in the class until
+<CODE><A HREF="vapplication-x.html#vapplicationDetermineFont"><CODE>vapplicationDetermineFont</CODE></A></CODE> is called (perhaps
+indirectly from another <SAMP>DetermineFont</SAMP>
+function). You should never set this class variable to
+<SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vapplicationICON"><HR><H4>vapplicationICON</H4></A>
+<PRE>
+        &lt;<B>vapplicationICON</B>&gt;
+</PRE>
+
+<DL><DD>
+Contains the iconic representation for an application
+class, or <SAMP>NULL</SAMP> if the class has no icon.
+Windows whose application is of this class use this icon as
+their representation when they are iconified, provided the
+<CODE>Icon</CODE> attribute of the application and window
+instances and the window class is <SAMP>NULL</SAMP>.
+    <P>
+The default icon attribute of the default application class
+is <SAMP>NULL</SAMP>. Subclasses that override this
+variable need only store the new icon reference in the
+class. You are responsible for destroying the icon object
+after the class has been destroyed.
+</DD></DL>
+<P>
+<A NAME="vapplicationLINE_WIDTH"><HR><H4>vapplicationLINE_WIDTH</H4></A>
+<PRE>
+        &lt;<B>vapplicationLINE_WIDTH</B>&gt;
+</PRE>
+
+<DL><DD>
+Contains the line width for an application class. Windows
+whose application is of this class use this line width as
+their default drawing line width, provided the
+<CODE>LineWidth</CODE> attribute of the application
+instance is <SAMP>-1</SAMP>.
+    <P>
+The default line width attribute of the default application
+class is one. Subclasses that override this variable need
+only store the new line width in the class.
+</DD></DL>
+<P>
+<A NAME="vapplicationNOTIFY"><HR><H4>vapplicationNOTIFY</H4></A>
+<PRE>
+        &lt;<B>vapplicationNOTIFY</B>&gt;
+</PRE>
+
+<DL><DD>
+Notifies the application <SAMP>application</SAMP> that the
+event <SAMP>event</SAMP> was handled by one of the
+application's event handlers. Only events of importance are
+given notification. Importance is determined by the
+application's event handler; the default event handler
+gives no notification. The function entry-point
+<CODE><A HREF="vapplication-x.html#vapplicationNotify"><CODE>vapplicationNotify</CODE></A></CODE> is implemented by sending
+this message to the application.
+    <P>
+The default method for the default application class sends the
+<CODE><A HREF="vapplication-x.html#vapplicationOBSERVE_APPLICATION"><CODE>vapplicationOBSERVE_APPLICATION</CODE></A></CODE> message to the
+application and issues a command using the application's tag if
+<CODE>Tag</CODE> is not <SAMP>NULL</SAMP>. Subclasses that override
+this method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to provide
+the default notification, then perform any subclass-specific
+notification.
+</DD></DL>
+<P>
+<A NAME="vapplicationOBSERVE_APPLICATION"><HR><H4>vapplicationOBSERVE_APPLICATION</H4></A>
+<PRE>
+        &lt;<B>vapplicationOBSERVE_APPLICATION</B>&gt;
+</PRE>
+
+<DL><DD>
+Message sent when the application is notified of an event.
+The default method for the base application class invokes the
+application's notification function if one has been set by
+<CODE><A HREF="vapplication-x.html#vapplicationSetNotify"><CODE>vapplicationSetNotify</CODE></A></CODE>. To take direct action based on the
+handling of important events, either set a notification function on
+the application, override this message, or override
+<CODE><A HREF="vapplication-x.html#vapplicationNOTIFY"><CODE>vapplicationNOTIFY</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vapplicationPREFERENCES"><HR><H4>vapplicationPREFERENCES</H4></A>
+<PRE>
+        &lt;<B>vapplicationPREFERENCES</B>&gt;
+</PRE>
+
+<DL><DD>
+Contains the preference resources for an application class:
+these are the user's ``system'' preferences. These
+preferences apply to all of the user's active applications
+unless an application defines preferences that shadow them.
+This resource is returned by the function
+<CODE><A HREF="vapplication-x.html#vapplicationGetSystemPreferences"><CODE>vapplicationGetSystemPreferences</CODE></A></CODE>.
+    <P>
+The preferences of the default application class are set to
+the Dictionary ``Preferences'' in the user resource file
+(<SAMP>.vgalaxy.vr</SAMP>). Subclasses that override this
+variable need only store the new resource reference in the
+class. You are responsible for closing or destroying the
+resource after the class has been destroyed.
+</DD></DL>
+<P>
+<A NAME="vapplicationRESOURCES"><HR><H4>vapplicationRESOURCES</H4></A>
+<PRE>
+        &lt;<B>vapplicationRESOURCES</B>&gt;
+</PRE>
+
+<DL><DD>
+Contains the resources for an application class: these are
+the ``system'' resources. The Galaxy libraries use this
+resource to locate their resource trees; applications
+should not use it. This resource is returned by the
+function <CODE><A HREF="vapplication-x.html#vapplicationGetSystemResources"><CODE>vapplicationGetSystemResources</CODE></A></CODE>.
+    <P>
+The resources of the default application class are set to
+the result of <CODE><A HREF="vinst-x.html#vinstGetSystemResources"><CODE>vinstGetSystemResources</CODE></A></CODE> during
+startup. Subclasses that override this variable need only
+store the new resource reference in the class. You are
+responsible for closing or destroying the resource after
+the class has been destroyed.
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_BLOCK_CURSOR"><HR><H4>vapplicationSET_BLOCK_CURSOR</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_BLOCK_CURSOR</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the blocking cursor of the application
+<SAMP>application</SAMP> to <SAMP>cursor</SAMP>.
+<SAMP>cursor</SAMP> may be <SAMP>NULL</SAMP>, in which case
+the application's class cursor is used instead. If both
+blocking cursor attributes are <SAMP>NULL</SAMP>, the
+window system default cursor is used. The function
+entry-point <CODE><A HREF="vapplication-x.html#vapplicationSetBlockCursor"><CODE>vapplicationSetBlockCursor</CODE></A></CODE> is
+implemented by sending this message to the application.
+    <P>
+The default method for the default application class stores
+the cursor reference in the application structure and
+clears the blocking cursor ownership flag. Subclasses that
+override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to set the application
+blocking cursor, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_BLOCK_CURSOR_OWNED"><HR><H4>vapplicationSET_BLOCK_CURSOR_OWNED</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_BLOCK_CURSOR_OWNED</B>&gt;
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_COLOR"><HR><H4>vapplicationSET_COLOR</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_COLOR</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes a color in the color scheme of the application
+<SAMP>application</SAMP> to <SAMP>color</SAMP>.
+<SAMP>id</SAMP> should be a Drawing class color
+identifier specifying which color in the color scheme to
+change. <SAMP>color</SAMP> may be <SAMP>NULL</SAMP>, in
+which case the application's class color is used instead.
+The function entry-point <CODE><A HREF="vapplication-x.html#vapplicationSetColor"><CODE>vapplicationSetColor</CODE></A></CODE>
+is implemented by sending this message to the application.
+    <P>
+The default method for the default application class simply
+stores the color reference in the application structure.
+Subclasses that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to set the application color,
+then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_CURSOR"><HR><H4>vapplicationSET_CURSOR</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_CURSOR</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the cursor of the application
+<SAMP>application</SAMP> to <SAMP>cursor</SAMP>.
+<SAMP>cursor</SAMP> may be <SAMP>NULL</SAMP>, in which case
+the application's class cursor is used instead. If both
+cursor attributes are <SAMP>NULL</SAMP>, the window system
+default cursor is used. The function entry-point
+<CODE><A HREF="vapplication-x.html#vapplicationSetCursor"><CODE>vapplicationSetCursor</CODE></A></CODE> is implemented by
+sending this message to the application.
+    <P>
+The default method for the default application class stores
+the cursor reference in the application structure and
+clears the cursor ownership flag. Subclasses that override
+this method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE>
+to set the application cursor, then update any
+subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_CURSOR_OWNED"><HR><H4>vapplicationSET_CURSOR_OWNED</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_CURSOR_OWNED</B>&gt;
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_DATA"><HR><H4>vapplicationSET_DATA</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_DATA</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets an application's generic data pointer to
+<SAMP>data</SAMP>. <SAMP>data</SAMP> may be
+<SAMP>NULL</SAMP>. <SAMP>data</SAMP> is declared
+<SAMP>const</SAMP> to indicate that the Application class
+does not modify its contents. The function entry-point
+<CODE><A HREF="vapplication-x.html#vapplicationSetData"><CODE>vapplicationSetData</CODE></A></CODE> is implemented by sending
+this message to the application.
+    <P>
+The default method for the default application class simply
+stores the data pointer in the application structure.
+Subclasses that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to set the application data
+pointer, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_DEPEND_COLOR"><HR><H4>vapplicationSET_DEPEND_COLOR</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_DEPEND_COLOR</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the color dependency function of the application
+<SAMP>application</SAMP> to <SAMP>dependColorFunc</SAMP>.
+This function is called to determine which derived colors
+are dependent on which base colors. The function
+entry-point <CODE><A HREF="vapplication-x.html#vapplicationSetDependColor"><CODE>vapplicationSetDependColor</CODE></A></CODE> is
+implemented by sending this message to the application.
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_DERIVE_COLOR"><HR><H4>vapplicationSET_DERIVE_COLOR</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_DERIVE_COLOR</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the color derivation function of the application
+<SAMP>application</SAMP> to <SAMP>deriveColorFunc</SAMP>.
+This function is called to derive colors from base colors.
+The function entry-point
+<CODE><A HREF="vapplication-x.html#vapplicationSetDeriveColor"><CODE>vapplicationSetDeriveColor</CODE></A></CODE> is implemented by
+sending this message to the application.
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_DRAG_WINDOW"><HR><H4>vapplicationSET_DRAG_WINDOW</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_DRAG_WINDOW</B>&gt;
+</PRE>
+
+<DL><DD>
+Informs the application <SAMP>application</SAMP> that any
+drag, detail, or button-up events it receives should be
+sent to the window <SAMP>window</SAMP>. <SAMP>window</SAMP>
+may be <SAMP>NULL</SAMP>, in which case events are sent to
+the window specified by the particular event. The drag
+window is set by the Application class's default
+button-down handler to the window receiving the button-down
+event. The function entry-point
+<CODE><A HREF="vapplication-x.html#vapplicationSetDragWindow"><CODE>vapplicationSetDragWindow</CODE></A></CODE> is implemented by
+sending this message to the application.
+    <P>
+The default method for the default application class simply
+stores the drag window in the application structure.
+Subclasses that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to set the application drag
+window, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_FONT"><HR><H4>vapplicationSET_FONT</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_FONT</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the font of the application
+<SAMP>application</SAMP> to <SAMP>font</SAMP>.
+<SAMP>font</SAMP> may be <SAMP>NULL</SAMP>, in which case
+the application's class font is used instead. The function
+entry-point <CODE><A HREF="vapplication-x.html#vapplicationSetFont"><CODE>vapplicationSetFont</CODE></A></CODE> is implemented
+by sending this message to the application.
+    <P>
+The default method for the default application class simply
+stores the font reference in the application structure.
+Subclasses that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to set the application font,
+then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_GLOBAL_WINDOW"><HR><H4>vapplicationSET_GLOBAL_WINDOW</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_GLOBAL_WINDOW</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the global window of the application
+<SAMP>application</SAMP> to <SAMP>window</SAMP>. The
+application's global window controls the application's
+document windows. <SAMP>window</SAMP> may be
+<SAMP>NULL</SAMP>, in which case the application is given
+no global window. The function entry-point
+<CODE><A HREF="vapplication-x.html#vapplicationSetGlobalWindow"><CODE>vapplicationSetGlobalWindow</CODE></A></CODE> is implemented by
+sending this message to the application.
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_ICON"><HR><H4>vapplicationSET_ICON</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_ICON</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the icon attribute of the application
+<SAMP>application</SAMP> to the image <SAMP>icon</SAMP>.
+<SAMP>icon</SAMP> may be <SAMP>NULL</SAMP>, in which case
+the application's class icon is used instead. If both icon
+attributes are <SAMP>NULL</SAMP>, the window system default
+icon is used. The function entry-point
+<CODE><A HREF="vapplication-x.html#vapplicationSetIcon"><CODE>vapplicationSetIcon</CODE></A></CODE> is implemented by sending
+this message to the application.
+    <P>
+The default method for the default application class stores
+the icon reference in the application structure and clears
+the icon ownership flag. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+set the application icon, then update any subclass-specific
+state.
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_ICON_OWNED"><HR><H4>vapplicationSET_ICON_OWNED</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_ICON_OWNED</B>&gt;
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_KEY_WINDOW"><HR><H4>vapplicationSET_KEY_WINDOW</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_KEY_WINDOW</B>&gt;
+</PRE>
+
+<DL><DD>
+Informs the application <SAMP>application</SAMP> that any
+key-up events it receives should be sent to the window
+<SAMP>window</SAMP>. <SAMP>window</SAMP> may be
+<SAMP>NULL</SAMP>, in which case events are sent to the
+window specified by the particular event. The key window is
+set by the Application class's default key-down handler
+to the window receiving the key-down event. The function
+entry-point <CODE><A HREF="vapplication-x.html#vapplicationSetKeyWindow"><CODE>vapplicationSetKeyWindow</CODE></A></CODE> is
+implemented by sending this message to the application.
+    <P>
+The default method for the default application class simply
+stores the key window in the application structure.
+Subclasses that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to set the application key
+window, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_LINE_WIDTH"><HR><H4>vapplicationSET_LINE_WIDTH</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_LINE_WIDTH</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the default line width of the application
+<SAMP>application</SAMP> to <SAMP>lineWidth</SAMP>.
+<SAMP>lineWidth</SAMP> may be <SAMP>-1</SAMP>, in which
+case the application's class line width is used instead.
+The function entry-point
+<CODE><A HREF="vapplication-x.html#vapplicationSetLineWidth"><CODE>vapplicationSetLineWidth</CODE></A></CODE> is implemented by
+sending this message to the application.
+    <P>
+The default method for the default application class simply
+stores the line width in the application structure.
+Subclasses that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to set the application line
+width, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_NAME_SCRIBED"><HR><H4>vapplicationSET_NAME_SCRIBED</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_NAME_SCRIBED</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the name of the application
+<SAMP>application</SAMP> to <SAMP>name</SAMP>. The name is
+converted to a global name before it is stored in the
+application. The function entry-points
+<CODE><A HREF="vapplication-x.html#vapplicationSetNameScribed"><CODE>vapplicationSetNameScribed</CODE></A></CODE> and
+<CODE><A HREF="vapplication-x.html#vapplicationSetName"><CODE>vapplicationSetName</CODE></A></CODE> are implemented by sending
+this message to the application.
+    <P>
+The default method for the default application class
+interns the name in the global name table and stores it in
+the application structure. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+set the application name, then update any subclass-specific
+state.
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_NOTIFY"><HR><H4>vapplicationSET_NOTIFY</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_NOTIFY</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the instance notification procedure for the
+application <SAMP>application</SAMP> to
+<SAMP>noteProc</SAMP>. This procedure is called by
+<CODE><A HREF="vapplication-x.html#vapplicationNotify"><CODE>vapplicationNotify</CODE></A></CODE> when the application
+handles an event of importance. Importance is determined by
+the application's event handler; the default event handler
+gives no notification. <SAMP>noteProc</SAMP> may be
+<SAMP>NULL</SAMP>, in which case no instance notification
+is given. The function entry-point
+<CODE><A HREF="vapplication-x.html#vapplicationSetNotify"><CODE>vapplicationSetNotify</CODE></A></CODE> is implemented by
+sending this message to the application.
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_PREFERENCES"><HR><H4>vapplicationSET_PREFERENCES</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_PREFERENCES</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the preferences for the application
+<SAMP>application</SAMP> to <SAMP>resource</SAMP>. The
+default preferences of an application are initialized to
+the application's preference dictionary (named
+<SAMP>appname</SAMP>), located in the user resource file
+(<SAMP>.vgalaxy.vr</SAMP>). The function entry-point
+<CODE><A HREF="vapplication-x.html#vapplicationSetPreferences"><CODE>vapplicationSetPreferences</CODE></A></CODE> is implemented by
+sending this message to the application.
+    <P>
+The default method for the default application class stores
+the resources in the application structure and rebuilds the
+preference database using the new application preferences.
+Subclasses that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to set the application
+preferences, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_RESOURCES"><HR><H4>vapplicationSET_RESOURCES</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_RESOURCES</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the resources for the application
+<SAMP>application</SAMP> to <SAMP>resource</SAMP>. The
+default resources of an application are initialized to the
+application's resource file (named
+<SAMP>appname</SAMP>.<SAMP>vr</SAMP>), located by the
+Installation class. The function entry-point
+<CODE><A HREF="vapplication-x.html#vapplicationSetResources"><CODE>vapplicationSetResources</CODE></A></CODE> is implemented by
+sending this message to the application.
+    <P>
+The default method for the default application class stores
+the resources in the application structure and rebuilds the
+preference database using the new application preference
+defaults. Subclasses that override this method should first
+call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to set the application
+resources, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_SPACE"><HR><H4>vapplicationSET_SPACE</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_SPACE</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the instance command space of the application
+<SAMP>application</SAMP> to <SAMP>space</SAMP>.
+<SAMP>space</SAMP> can be <SAMP>NULL</SAMP>, in which case
+the application is given no instance command bindings.
+Bindings in the instance command space take precedence over
+any bindings in the application's class command space. The
+application is added as a new owner of the command space,
+and is removed from ownership of its previous command
+space, if any.  Any changes to attribute bindings are
+automatically propagated by this message. Refer to the
+``Command Manager'' chapter of the <I>Galaxy Application
+Environment Programmer's Guide</I> for more information
+about command spaces. 
+<P>
+The function entry-point
+<CODE><A HREF="vapplication-x.html#vapplicationSetSpace"><CODE>vapplicationSetSpace</CODE></A></CODE> is implemented by sending
+this message to the application. The default method for the
+default application class stores the command space
+reference in the application structure, clears the command
+space ownership flag, and propagates any necessary changes
+to the Command class. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+set the application command space, then update any
+subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_SPACE_OWNED"><HR><H4>vapplicationSET_SPACE_OWNED</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_SPACE_OWNED</B>&gt;
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vapplicationSET_TITLE_SCRIBED"><HR><H4>vapplicationSET_TITLE_SCRIBED</H4></A>
+<PRE>
+        &lt;<B>vapplicationSET_TITLE_SCRIBED</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the title of the application
+<SAMP>application</SAMP> to <SAMP>title</SAMP>. The title
+is converted to a global name before it is stored in the
+application. The function entry-points
+<CODE><A HREF="vapplication-x.html#vapplicationSetTitleScribed"><CODE>vapplicationSetTitleScribed</CODE></A></CODE> and
+<CODE><A HREF="vapplication-x.html#vapplicationSetTitle"><CODE>vapplicationSetTitle</CODE></A></CODE> are implemented by
+sending this message to the application.
+    <P>
+The default method for the default application class
+interns the title in the global name table and stores it in
+the application structure. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+set the application title, then update any
+subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vapplicationID_ATTRIBUTE_DATA"><HR><H4>vapplicationID_ATTRIBUTE_DATA</H4></A>
+<PRE>
+        <B>vapplicationID_ATTRIBUTE_DATA</B>
+</PRE>
+<A NAME="vapplicationID_ATTRIBUTE_TITLE"><PRE>
+        <B>vapplicationID_ATTRIBUTE_TITLE</B>
+</PRE>
+</A>
+<A NAME="vapplicationID_ATTRIBUTE_NAME"><PRE>
+        <B>vapplicationID_ATTRIBUTE_NAME</B>
+</PRE>
+</A>
+<A NAME="vapplicationID_ATTRIBUTE_CURSOR"><PRE>
+        <B>vapplicationID_ATTRIBUTE_CURSOR</B>
+</PRE>
+</A>
+<A NAME="vapplicationID_ATTRIBUTE_BLOCK_CURSOR"><PRE>
+        <B>vapplicationID_ATTRIBUTE_BLOCK_CURSOR</B>
+</PRE>
+</A>
+<A NAME="vapplicationID_ATTRIBUTE_ICON"><PRE>
+        <B>vapplicationID_ATTRIBUTE_ICON</B>
+</PRE>
+</A>
+<A NAME="vapplicationID_ATTRIBUTE_FONT"><PRE>
+        <B>vapplicationID_ATTRIBUTE_FONT</B>
+</PRE>
+</A>
+<A NAME="vapplicationID_ATTRIBUTE_LINE_WIDTH"><PRE>
+        <B>vapplicationID_ATTRIBUTE_LINE_WIDTH</B>
+</PRE>
+</A>
+<A NAME="vapplicationID_ATTRIBUTE_COLOR"><PRE>
+        <B>vapplicationID_ATTRIBUTE_COLOR</B>
+</PRE>
+</A>
+
+<DL><DD>
+Denote attribute IDs for named application attributes.
+</DD></DL>
+<P>
+<A NAME="vapplicationINCLUDED"><HR><H4>vapplicationINCLUDED</H4></A>
+<PRE>
+        <B>vapplicationINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vapplication.h</SAMP> is
+included.
+</DD></DL>
+<P>
+<A NAME="vapplicationNEXT_ID_ATTRIBUTE"><HR><H4>vapplicationNEXT_ID_ATTRIBUTE</H4></A>
+<PRE>
+        <B>vapplicationNEXT_ID_ATTRIBUTE</B>
+</PRE>
+
+<DL><DD>
+Denotes the next available attribute ID for subclasses of
+the default application class. This constant is provided so
+that attribute IDs defined by subclasses do not conflict
+with those defined by the Application class. Only
+attributes defined by overriding the methods
+<CODE><A HREF="vobject-x.html#vobjectSET_ID_ATTRIBUTE"><CODE>vobjectSET_ID_ATTRIBUTE</CODE></A></CODE> and
+<CODE><A HREF="vobject-x.html#vobjectGET_ID_ATTRIBUTE"><CODE>vobjectGET_ID_ATTRIBUTE</CODE></A></CODE> need be concerned with
+the attribute IDs of their superclasses. Subclasses of
+<CODE><A HREF="vapplication-x.html#vapplicationClass"><CODE>vapplicationClass</CODE></A></CODE> should begin their attribute
+IDs with this constant and increment by one for each
+attribute. Subclasses should also provide their own
+<SAMP>NEXT_ID_ATTRIBUTE</SAMP> constant for use by their
+subclasses. This constant has integral type.
+</DD></DL>
+<P>
+<A NAME="vapplicationNEXT_SELECT"><HR><H4>vapplicationNEXT_SELECT</H4></A>
+<PRE>
+        <B>vapplicationNEXT_SELECT</B>
+</PRE>
+
+<DL><DD>
+Denotes the first command selector available to subclasses
+of the default application class. This constant is provided
+so that selector values defined by subclasses do not
+conflict with those defined by their superclasses. Only
+class-level commands (defined by overriding the methods 
+<CODE><A HREF="vobject-x.html#vobjectISSUE_SELECTOR"><CODE>vobjectISSUE_SELECTOR</CODE></A></CODE> and
+<CODE><A HREF="vobject-x.html#vobjectQUERY_SELECTOR"><CODE>vobjectQUERY_SELECTOR</CODE></A></CODE>) need be concerned with
+the selector values of their superclasses. Subclasses of
+<CODE><A HREF="vapplication-x.html#vapplicationClass"><CODE>vapplicationClass</CODE></A></CODE> should begin their command
+selectors with this constant and increment by one for each
+new command. In other words, if you add commands to the
+class-level command space of vapplication, you put their
+implementations in your <CODE><A HREF="vobject-x.html#vobjectISSUE_SELECTOR"><CODE>vobjectISSUE_SELECTOR</CODE></A></CODE>
+override and start with the value of
+<CODE>vapplicationNEXT_SELECT</CODE> as the first selector
+value you handle. Subclasses should also provide their own
+<SAMP>NEXT_SELECT</SAMP> constant for use by their
+subclasses. This constant has integral type.
+</DD></DL>
+<P>
+<A NAME="vapplicationPREF_DEFAULT_SYSTEM"><HR><H4>vapplicationPREF_DEFAULT_SYSTEM</H4></A>
+<PRE>
+        <B>vapplicationPREF_DEFAULT_SYSTEM</B>
+</PRE>
+<A NAME="vapplicationPREF_DEFAULT_WINDOW"><PRE>
+        <B>vapplicationPREF_DEFAULT_WINDOW</B>
+</PRE>
+</A>
+<A NAME="vapplicationPREF_DEFAULT_APPLICATION"><PRE>
+        <B>vapplicationPREF_DEFAULT_APPLICATION</B>
+</PRE>
+</A>
+<A NAME="vapplicationPREF_SYSTEM"><PRE>
+        <B>vapplicationPREF_SYSTEM</B>
+</PRE>
+</A>
+<A NAME="vapplicationPREF_APPLICATION"><PRE>
+        <B>vapplicationPREF_APPLICATION</B>
+</PRE>
+</A>
+<A NAME="vapplicationPREF_ENVIRONMENT"><PRE>
+        <B>vapplicationPREF_ENVIRONMENT</B>
+</PRE>
+</A>
+<A NAME="vapplicationPREF_WINDOW"><PRE>
+        <B>vapplicationPREF_WINDOW</B>
+</PRE>
+</A>
+<A NAME="vapplicationPREF_ARGS"><PRE>
+        <B>vapplicationPREF_ARGS</B>
+</PRE>
+</A>
+
+<DL><DD>
+Denotes preference stages at which the preference database
+can be rebuilt by an application. These constants are
+passed to the function <CODE><A HREF="vapplication-x.html#vapplicationReadPrefs"><CODE>vapplicationReadPrefs</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vapplicationSELECT_STOP_PROCESS"><HR><H4>vapplicationSELECT_STOP_PROCESS</H4></A>
+<PRE>
+        <B>vapplicationSELECT_STOP_PROCESS</B>
+</PRE>
+
+<DL><DD>
+Denotes a selector for an Application class command. This
+command is dispatched by the function
+<CODE><A HREF="vobject-x.html#vobjectIssueCommand"><CODE>vobjectIssueCommand</CODE></A></CODE>. Each selector constant
+has integral type. Refer to the ``Commands'' section of
+this chapter for a detailed description of each
+<SAMP>vapplication</SAMP> command.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vapplicationCLASS"><HR><H4>vapplicationCLASS</H4></A>
+<PRE>
+        #define <B>vapplicationCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for application
+classes. This macro expands to the contents of
+<CODE><A HREF="vapplication-x.html#vapplicationClass"><CODE>vapplicationClass</CODE></A></CODE>. <SAMP>SUPER</SAMP> is the type
+identifier of the class being declared (for example,
+<CODE><A HREF="vapplication-x.html#vapplicationClass"><CODE>vapplicationClass</CODE></A></CODE>). This type is used by the class's
+subclasses to refer to it. <SAMP>APPLICATION</SAMP> is the type
+identifier of instances of the class being declared (for example,
+<CODE>vapplication</CODE>). <SAMP>NOTIFY</SAMP> is the type
+identifier of the instance notification function. This macro should be
+used by application subclasses to declare the contents of the
+application class. This macro should come first in the subclass
+structure declaration.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

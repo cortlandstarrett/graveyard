@@ -1,0 +1,498 @@
+<HTML>
+<HEAD>
+<TITLE>Chapter 7. Simple Subclassing</TITLE>
+
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR BGCOLOR="#CCCC66">
+		<!-- Margin Banner -->
+		<TD><CENTER><BR><IMG SRC="../../graphics/logo.gif"><BR> <BR></CENTER>
+      </TD>
+
+      <!-- Title block: DOCUMENT TITLE GOES HERE -->
+      <TD VALIGN=TOP>
+          <BR>
+           <H1><A NAME="Top">Chapter 7. Simple Subclassing</A></H1>
+           <BR>
+      </TD>
+      
+   </TR>
+   </TABLE>
+ 		<P>
+
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="1882"></A>
+This chapter describes how to perform simple subclassing. We will modify tut6a so that it is a little more colorful and the buttons are visually distinctive. Most of this can be done with the standard dialog item attributes, but we are going to make the Quit button stand out even more. We will draw an etched box around the word "Quit" to make it visually distinct from the other buttons. The Dialog Manager doesn't provide a way for us to do this, but making a subclass of <TT><B>vbutton</B></TT> provides a simple solution to the problem.<P>
+<UL><LI>Concepts
+<LI>Button Manager
+<LI>Class Manager
+<LI>Dialog Manager
+<LI>Drawing Manager
+<LI>Font Manager
+<LI>vre
+</UL><P>
+Before we look at the program itself, let's define some terms. A <EM><B>class</B></EM> is a set of methods (or operations) that define the ways that data within an associated data structure can be read, written, and changed. Objects are the data structures themselves. Another way of saying this is that a class defines a data type and a set of operations on that type. A <EM><B>subclass</B></EM> is a class which is derived from another class. A subclass is sometimes called a <EM><B>child class</B></EM>. The class a subclass was derived from is called its <EM><B>superclass</B></EM> or <EM><B>parent class</B></EM>.<P>
+A major benefit of classes is <EM><B>inheritance</B></EM>. When a subclass is created, it inherits all the methods of its superclass. This inheritance allows for a high degree of code reuse. This can speed up development time and make programs more reliable.<P>
+Before we can modify our program, we must first modify the resource file. Most of the changes described above, such as making the program more colorful, can be accomplished using the Visual Resource Builder without changing our code. We need to make these changes as well as tell the Visual Resource Builder that our program is going to use a new subclass.<P>
+First, we need to modify our resource file so that it contains our menu.<P>
+Copy tut6a.vr into a new file (tut7a.vr) with the following command, and open it for editing with the Visual Resource Builder:<P>
+<PRE><UL>copy tut6a.vr tut7a.vr
+vre tut7a.vr
+</UL></PRE>Open <TT>ButtonDialog</TT>. Double-click the <B>Grow</B> button. In the button editor dialog that opens, select <B>Background</B>, then click the <B>Set Color...</B> button that becomes enabled. The dialog that opens is called the <EM><B>Color Chooser</B></EM>. The Color Chooser allows you to graphically pick colors using four different scales. The default scale is HLS (Hue, Lightness, Saturation). You can use the color wheel and the Light slider to choose a background color for the Grow button. Pick the color you like and click <B>Apply</B>.<P>
+Select the <B>Shrink</B> button, and in the button editor dialog, select <B>Background</B>, then <B>Set Color...</B>. Pick a background color for the Shrink button and click <B>Apply</B>.<P>
+Now select the <B>Quit</B> button. We want this button to have a bright red foreground color; we also want the button title to use a larger font; lastly we want to draw an etched box around the button title. The color and font can be handled directly from vre, but the etched box requires us to subclass the button.<P>
+Select <B>Add Resource Types...</B> from the Resource Menu in the browser dialog. This opens the Add Resource Types... dialog which allows you to tell vre about the subclassing your program performs. From the scrolling list of items, select <TT>Button</TT>. The class name, <TT><B>vbutton</B></TT>, and the display name, <TT>Button</TT>, are shown in the text fields. Click the <B>Subclass</B> check box, and type <TT><B>boxButton</B></TT> in the subclass name field. This is the name of our new subclass. This tells vre that we will create a subclass of <TT><B>vbutton</B></TT> called boxButton in our program. When we create a boxButton object in the dialog editor, vre allows us to use the button editor on the object.<P>
+We have defined a boxButton subclass, but our Quit button is still the original <TT><B>vbutton</B></TT> class. We must remove the original button and then create a new boxButton object. Do this by selecting the <B>Quit</B> button. Then select <B>Edit/Cut</B>. Next select <B>Dialog/New Item/boxButton</B>. This creates a new boxButton item for us.<P>
+Open the button editor for this button. Change its tag to <TT><B>quit</B></TT> and change its title to <TT><B>Quit</B></TT>. Next select <B>Foreground</B>, then <B>Set Color...</B>. Change the color to a bright red shade. Next select <B>Font</B> and <B>Set Font...</B>. This opens the <EM><B>Font Chooser</B></EM>. The Font Chooser is a dialog that allows you to select the font to use for the dialog item. You can choose the font family, style, and size. Pick a large font that stands out from normal text (we used Charter Bold 19). You will see a preview of the font in the Font Chooser. When you've got one you like, click <B>OK</B>.<P>
+Now we need to reconnect our springs since we lost our connections to the Quit button when we cut the original button. If connections are not currently visible, select <B>Connection/Show</B>. Select the Quit button's top strut. Select <B>Connection/Spring</B>. Connect the spring to the bottom of the Grow button. Select the <B>Grow</B> button and connect its bottom spring to the top of the Quit button.<P>
+Select the <B>Quit</B> button and then select the left strut. Select <B>Connection/Spring</B>. Connect the bottom spring to the top of the Shrink button. Connect the Shrink button's top spring to the bottom of the Quit button. Now select the internal horizontal strut and select <B>Connection/Natural Length</B>. Do the same for the vertical internal strut.<P>
+Save your work and exit vre. Thanks to the built-in attributes of <TT><B>vdialogItems</B></TT>, we have been able to make most of our changes without changing a single line of code. The only thing we haven't handled is the etched box around the title in the Quit button. Let's look at the following program to see how that is accomplished.<P>
+<A NAME="1851"><H1> Source Code</H1></A>
+<PRE><UL>	/*
+	 * tut7a.c
+	 *
+	 * "The Quit Button Gets Some Class"
+	 *
+	 */
+	
+	/* ANSI headers */
+	#include &lt;vstdlib.h&gt;    /* for exit(), EXIT_ codes */
+</UL></PRE><P>
+<PRE><UL>	/* Galaxy headers */
+	#include &lt;vrect.h&gt;
+	#include &lt;vchar.h&gt;
+	#include &lt;vname.h&gt;
+	#include &lt;vevent.h&gt;
+	#include &lt;vresource.h&gt;
+	#include &lt;vclass.h&gt;
+	#include &lt;vfont.h&gt;
+	#include &lt;vdraw.h&gt;
+	#include &lt;vwindow.h&gt;
+	#include &lt;vmenu.h&gt;
+	#include &lt;vapplication.h&gt;
+	#include &lt;vdialog.h&gt;
+	#include &lt;vmenubar.h&gt;
+	#include &lt;vbutton.h&gt;
+	#include &lt;vstartup.h&gt;
+	
+	/* forward references */
+	static void shutdownMain (void);
+	static void dialogNoteProc (vdialog *dialog, vevent *event);
+	static void growButtonNoteProc (vbutton *button, vevent *event);
+	static void shrinkButtonNoteProc (vbutton *button,
+	                                  vevent *event);
+	static void quitButtonNoteProc (vbutton *button, vevent *event);
+	static void growMenuItemNoteProc (vmenuItem *item, 
+	                                  vevent *event);
+	static void shrinkMenuItemNoteProc (vmenuItem *item,
+	                                  vevent *event);
+	static void quitMenuItemNoteProc (vmenuItem *item,
+	                                  vevent *event);
+	static void myButtonDrawContent (vbutton *button);
+	
+	/* Constants */
+	#define GROW_AMOUNT          50
+	
+	/* Globals */
+	static vbuttonClass *myButtonClass;
+	
+	int main (int argc, char **argv)
+	
+	{
+	
+	  vdialog      *dialog;
+	  vbutton      *button;
+	  vmenubar     *menubar;
+	  vmenu        *menu;
+	  vmenuItem    *mItem;
+	  vresource     resource;
+	
+	  /* Initialize Galaxy */
+	  vstartup (argc, argv);
+</UL></PRE><P>
+<PRE><UL>	  /*
+	   *  Create our new button class
+	   *
+	   */
+	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(1)	  myButtonClass = vclassReproduce (vbuttonGetDefaultClass ());
+	  vclassSetNameScribed (myButtonClass,
+	                        vcharScribeLiteral ("boxButton"));
+	  vclassSet (myButtonClass, vbuttonDRAW_CONTENT, 
+	             myButtonDrawContent);
+</UL></PRE>
+</FONT><PRE><UL>	
+	  /*
+	   * Load the dialog from the application resource file.
+	   *
+	   */
+	
+	  resource = vresourceGet (
+	              vapplicationGetResources
+	                    (vapplicationGetCurrent()),
+	              vnameInternGlobalLiteral ("ButtonDialog"));
+	  dialog = vdialogLoad (resource);
+	  vdialogSetNotify (dialog, dialogNoteProc);
+	
+	  /*
+	   * Find the buttons and attach their notifies.
+	   *
+	   */
+	
+	  button = (vbutton *) vdialogFindItem (dialog, 
+	                    vnameInternGlobalLiteral ("grow"));
+	  vbuttonSetNotify (button, growButtonNoteProc);
+	  
+	  button = (vbutton *) vdialogFindItem (dialog, 
+	                    vnameInternGlobalLiteral ("shrink"));
+	  vbuttonSetNotify (button, shrinkButtonNoteProc);
+	  
+	  button = (vbutton *) vdialogFindItem (dialog, 
+	                    vnameInternGlobalLiteral ("quit"));
+	  vbuttonSetNotify (button, quitButtonNoteProc);
+	
+	  /*
+	   *  Find the menuitems and attach their notifies.
+	   *
+	   */
+	
+	  menubar = (vmenubar *) 
+	        vdialogFindItem (dialog,
+	                   vnameInternGlobalLiteral ("Menu Bar"));
+
+	  menu = vmenubarFindMenu (menubar, 
+	                   vnameInternGlobalLiteral ("FileMenu"));
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>	
+</UL></PRE>
+</FONT><PRE><UL>	  mItem = vmenuFindItem (menu, 
+	                   vnameInternGlobalLiteral ("growMenu"));
+	  vmenuSetItemNotify (mItem, growMenuItemNoteProc);
+	  mItem = vmenuFindItem (menu, 
+	                   vnameInternGlobalLiteral ("shrinkMenu"));
+	  vmenuSetItemNotify (mItem, shrinkMenuItemNoteProc);
+	
+	  mItem = vmenuFindItem (menu,
+	                   vnameInternGlobalLiteral ("quitMenu"));
+	  vmenuSetItemNotify (mItem, quitMenuItemNoteProc);
+	
+	  /* Open the dialog */
+	  vdialogOpen (dialog);
+	
+	  /* Enter the event loop */
+	  veventProcess ();
+	
+	  /* Return the dialog's resources to the system */
+	  vdialogDestroy (dialog);
+	
+	  vclassDestroy (myButtonClass);
+	
+	  exit (EXIT_SUCCESS);
+	  return EXIT_FAILURE;
+	
+	}
+	
+	/*
+	 *  shutdownMain
+	 *
+	 *  Stop things
+	 *
+	 */
+	
+	static void shutdownMain ()
+	
+	{
+	
+	  veventStopProcessing ();
+	
+	}
+	
+	/*
+	 *  dialogNoteProc
+	 *
+	 *  The dialog notification procedure gets called whenever any
+	 *  major event applies to the dialog as a whole. We need to
+	 *  look for the event which tells us that the dialog has closed.
+	 *
+	 */
+	
+	static void dialogNoteProc (vdialog *dialog, vevent *event)
+{
+	
+	  int      et;
+	
+	  et = veventGetType (event);
+	  
+	  if (et == veventWINDOW_STATE &amp;&amp; veventIsClose (event))
+	    shutdownMain ();
+	
+	}
+
+	/*
+	 *  quitButtonNoteProc
+	 *
+	 *  Shut things down
+	 *
+	 */
+	
+	static void quitButtonNoteProc (vbutton *button, vevent *event)
+	
+	{
+	
+	  shutdownMain ();
+	
+	}
+	
+	/*
+	 *  growButtonNoteProc
+	 *
+	 *  Expand the window by GROW_AMOUNT
+	 *
+	 */
+	
+	static void growButtonNoteProc (vbutton *button, vevent *event)
+	
+	{
+	
+	  vdialog *dialog;
+	  vwindow *window;
+	  vrect    rect;
+	
+	  dialog =  vdialogDetermineItemDialog (vbuttonGetItem (button));
+	  window =  vdialogGetWindow (dialog);
+	  rect   = *vwindowGetRect (window);
+	
+	  rect.w += GROW_AMOUNT;
+	  rect.h += GROW_AMOUNT;
+	  vwindowSetRect (window, &amp;rect);
+	
+	}
+
+	/*
+	 *  shrinkButtonNoteProc
+	 *
+	 *  Shrink the window by GROW_AMOUNT
+	 *
+	 */
+	
+	static void shrinkButtonNoteProc (vbutton *button,
+	        vevent *event)
+	
+	{
+	
+	  vdialog *dialog;
+	  vwindow *window;
+	  vrect    rect;
+	  dialog =  vdialogDetermineItemDialog (vbuttonGetItem
+	              (button));
+	  window =  vdialogGetWindow (dialog);
+	  rect   = *vwindowGetRect (window);
+	
+	  rect.w -= GROW_AMOUNT;
+	  rect.h -= GROW_AMOUNT;
+	
+	  vwindowSetRect (window, &amp;rect);
+	
+	}
+	
+	/*
+	 *  quitMenuItemNoteProc
+	 *
+	 *  Shut things down
+	 *
+	 */
+	
+	static void quitMenuItemNoteProc (vmenuItem *item,
+	        vevent *event)
+	
+	{
+	
+	  shutdownMain ();
+	
+	}
+	
+	/*
+	 *  growMenuItemNoteProc
+	 *
+	 *  Expand the window by GROW_AMOUNT
+	 *
+	 */
+	
+	static void growMenuItemNoteProc (vmenuItem *item,
+	        vevent *event)
+	
+
+	{
+	
+	  vwindow *window;
+	  vrect    rect;
+	
+	  window = vwindowGetLeader (vmenuDetermineItemWindow (item));
+	  rect   = *vwindowGetRect (window);
+	
+	  rect.w += GROW_AMOUNT;
+	  rect.h += GROW_AMOUNT;
+	  vwindowSetRect (window, &amp;rect);
+	
+	}
+	
+	/*
+	 *  shrinkMenuItemNoteProc
+	 *
+	 *  Shrink the window by GROW_AMOUNT
+	 *
+	 */
+
+	static void shrinkMenuItemNoteProc (vmenuItem *item,
+	        vevent *event)
+	
+	{
+	
+	  vwindow *window;
+	  vrect    rect;
+	
+	  window = vwindowGetLeader (vmenuDetermineItemWindow (item));
+	  rect   = *vwindowGetRect (window);
+	
+	  rect.w -= GROW_AMOUNT;
+	  rect.h -= GROW_AMOUNT;
+	  vwindowSetRect (window, &amp;rect);
+	
+	}
+	
+	/*
+	 *  myButtonDrawContent
+	 *
+	 */
+	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(2)	static void myButtonDrawContent (vbutton *button)
+	
+	{
+	
+	  vdialogItem *item;
+	  vfont       *font;
+	  vrect        rect;
+	  vrect        rect2;
+	  vclassSendSuper (myButtonClass, vbuttonDRAW_CONTENT,
+	                     (button));
+	  item = vbuttonGetItem (button);
+	
+	  font = vdialogDetermineItemFont (item);
+	  vfontStringBounds (font, vbuttonGetTitle (button), &amp;rect);
+	
+	  rect.w += 6;
+	  rect.h += 6;
+	
+	  vrectPlace (&amp;rect, vdialogGetItemRect (item), 
+	        vrectPLACE_CENTER, vrectPLACE_CENTER,
+	        &amp;rect2);
+	
+	  vdrawRectsHiliteStroke (&amp;rect2, 1,
+	      vdialogDetermineItemColor(item,
+	             vdrawCOLOR_SHADOW_BOTTOM),
+	      vdialogDetermineItemColor(item, vdrawCOLOR_SHADOW_TOP));
+	
+	}
+
+</UL></PRE>
+</FONT><A NAME="2237"><H1> Looking at the Program</H1></A>
+Most of this program is identical to tut6a.c. The first difference occurs when we create our subclass.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(1)	  myButtonClass = vclassReproduce (vbuttonGetDefaultClass ());
+	  vclassSetNameScribed (myButtonClass, 
+	             vcharScribeLiteral ("boxButton"));
+	  vclassSet (myButtonClass, vbuttonDRAW_CONTENT, 
+	             myButtonDrawContent);
+</UL></PRE>
+</FONT><PRE><UL>
+</UL></PRE>The myButtonClass variable is a pointer to a <TT><B>vbuttonClass</B></TT>. The <TT><B>vclassReproduce</B></TT> call makes an exact copy of the class given as its argument. The <TT><B>vbuttonGetDefaultClass</B></TT> call returns a pointer to the Button Manager's standard button class. All buttons we've used until now belonged to the default button class.<P>
+We next set the name for our class. We must use the same name we used for the class in the Visual Resource Builder.<P>
+The <TT><B>vclassSet</B></TT> call is used to override class methods and variables. We want to change how our button is drawn so we override the <TT><B>vbuttonDRAW_CONTENT</B></TT> method. The last argument, myButtonDrawContent, is the name of our drawing function. Any instance of our new subclass uses this new drawing function instead of the default <TT><B>vbutton</B></TT> draw content function.<P>
+If you look through the program you will notice that we never destroy the class, yet this program does not leak memory. This is because the Class Manager automatically destroys all classes when the program exits.<P>
+Let's look at myButtonDrawContent:<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(2)	static void myButtonDrawContent (vbutton *button)
+	
+	{
+	
+	  vdialogItem *item;
+	  vfont       *font;
+	  vrect        rect;
+	  vrect        rect2;
+	
+	  vclassSendSuper (myButtonClass, vbuttonDRAW_CONTENT,
+	                   (button));
+	
+	  item = vbuttonGetItem (button);
+	
+	  font = vdialogDetermineItemFont (item);
+	  vfontStringBounds (font, vbuttonGetTitle (button), &amp;rect);
+	
+	  rect.w += 6;
+	  rect.h += 6;
+	
+	  vrectPlace (&amp;rect, vdialogGetItemRect (item), 
+	        vrectPLACE_CENTER, vrectPLACE_CENTER,
+	        &amp;rect2);
+	
+	  vdrawRectsHiliteStroke (&amp;rect2, 1,
+	      vdialogDetermineItemColor(item, vdrawCOLOR_SHADOW_BOTTOM),
+	      vdialogDetermineItemColor(item, vdrawCOLOR_SHADOW_TOP));
+	
+	}
+</UL></PRE>
+</FONT><PRE><UL>
+</UL></PRE>This function is called every time the inside of the Quit button needs to be drawn. It is passed a pointer to the button as its sole argument. In this case we want to supplement the standard drawing and not replace it completely. The <TT><B>vclassSendSuper</B></TT> function calls the draw content procedure for our superclass. Then we draw our etched box.<P>
+Before we can draw the etched box, we need to figure out its size. This depends on the size of the font used for the title and the length of the text in the title. The function <TT><B>vdialogDetermineItemFont</B></TT> tells us what font the button uses. The <TT><B>vfontStringBounds</B></TT> call tells us the size of the rectangle that bounds the text of the title. We need to increase the width and height slightly so there is some space between the box and the text. The <TT><B>vrectPlace</B></TT> function positions one rectangle relative to another one. In this case we want to center our box with respect to the button.<P>
+Finally, the <TT><B>vdrawRectsHiliteStroke</B></TT> function draws an etched box. The first argument is a pointer to one or more rectangles, the second is the number of rectangles, and the last two colors are the top and bottom shadow colors to use when drawing the lines. We are actually passing the dialog item's bottom shadow color into the top shadow argument and the dialog item's top shadow color into the bottom shadow argument. This causes the function <TT><B>vdrawRectsHiliteStroke</B></TT> to draw an etched box. Had we reversed the color arguments, we would have drawn an embossed box instead of an etched box. The function <TT><B>vdialogDetermineItemColor</B></TT> figures out the what the specified color is for the specified dialog item.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+   <TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+   <TR BGCOLOR="#CCCC66">
+      <TD>
+      <CENTER>
+      <!-- These are the Navigation buttons -->
+      <A HREF="Chapter_6.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="../../graphics/left.gif"></A>
+      <A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="../../graphics/up.gif"></A>
+      <A HREF="Chapter_8.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="../../graphics/right.gif"></A><BR>
+</CENTER>
+</TD>
+
+      <TD>
+      <BR>
+      <FONT SIZE=-1>
+      <A HREF="Chapter_6.html">Previous Chapter</A> | 
+      <A HREF="Chapter_8.html">Next Chapter</A> <BR>
+      <A HREF="index.html">Tutorial Contents</A><BR>
+      <A HREF="../index.html">Switch to Another Document</A><BR>
+      <BR>
+      </FONT>
+      </TD><TD>
+      <BR>
+      <FONT SIZE=-1>
+      Need help? <a href="../../contact-visix.html">Contact Visix</a>.
+      <BR> <BR>
+      <A HREF="../../copyright.html">Copyright 1996-97</A>, <A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+      <BR>
+      </FONT>
+      </TD>
+   </TR>
+</TABLE>
+
+</BODY>
+</HTML>

@@ -1,0 +1,155 @@
+<HTML>
+<HEAD>
+<TITLE>Chapter 2. Getting Started</TITLE>
+
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR BGCOLOR="#CCCC66">
+		<!-- Margin Banner -->
+		<TD><CENTER><BR><IMG SRC="../../graphics/logo.gif"><BR> <BR></CENTER>
+      </TD>
+
+      <!-- Title block: DOCUMENT TITLE GOES HERE -->
+      <TD VALIGN=TOP>
+          <BR>
+           <H1><A NAME="Top">Chapter 2. Getting Started</A></H1>
+           <BR>
+      </TD>
+      
+   </TR>
+   </TABLE>
+ 		<P>
+
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="122"></A>
+This chapter shows how to compile and link Galaxy programs. The sample program we will use is the simplest possible Galaxy program. It does not do anything but it will allow us to get comfortable with the externals of Galaxy before delving into its internals.<P>
+<UL><LI>Concepts
+<LI>GALAXYHOME
+<LI>Using the compiler
+<LI>vdebugDEBUG
+<LI>Header files
+<LI>vstartup
+<LI>exit
+</UL><P>
+Before using Galaxy, it is necessary to set an environment variable called GALAXYHOME. This variable is used in two ways: during compiling and linking as a shorthand for locating Galaxy's header and library files, and by Galaxy applications to locate their resource files.<P>
+The GALAXYHOME variable should be set to the full pathname of the directory where Galaxy is installed. If you don't have a GALAXYHOME variable already and you don't know where Galaxy is installed, check with your system administrator.<P>
+<UL><B><I>Note:</I></B> There is no GALAXYHOME variable on Macintosh platforms.
+<P>
+</UL>GALAXYHOME contains several directories. The important ones for now are the <TT>include</TT>, <TT>lib</TT>, and <TT>src</TT> directories. The <TT>include</TT> directory contains Galaxy header files. The <TT>lib</TT> directory contains the Galaxy libraries as well as Galaxy's global resource file and application resource files. The <TT>src</TT> directory contains several directories which themselves contain sample source. One of these subdirectories, <TT>tutorial</TT>, contains the programs, resource files, and make files used in this tutorial.<P>
+<A NAME="5119"><I>Figure 1.  GALAXYHOME directory structure
+</I><P>
+<IMG SRC="Chapter_2.anc.gif"><P>
+<A NAME="201"><H1> Getting Ready</H1></A>
+Make a copy of the files in the tutorial subdirectory. We'll use these copies as the basis for the rest of this tutorial.<P>
+<A NAME="204"><H1> Compiling</H1></A>
+Now we are ready to compile the first program. This tutorial assumes you are using the Gnu C compiler (<TT>gcc</TT>), but any ANSI C compiler will do.<P>
+The program we are going to compile follows:<P>
+<PRE><UL>	/*
+	 * tut2a.c
+	 *
+	 * This is the simplest possible Galaxy program.
+	 *
+	 * It doesn't really do anything, but it allows you to test
+	 * compiling and linking Galaxy applications.
+	 *
+	 */
+
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(1)	/* ANSI headers */
+	#include &lt;vstdlib.h&gt; /* for exit(), EXIT_ codes */
+
+	/* Galaxy headers */
+	#include &lt;vstartup.h&gt;
+<TT>
+</TT>	int main (int argc, char **argv)
+
+</UL></PRE>
+</FONT><PRE><UL><TT>	{
+</TT><TT>
+</TT></UL></PRE><FONT COLOR="0000BB">
+<PRE><UL><TT>(2)	  vstartup (argc, argv); /* Initialize Galaxy */
+</TT><TT>
+</TT><TT>(3)	  exit (EXIT_SUCCESS);
+</TT><TT>(4)	  return EXIT_FAILURE;
+</TT></UL></PRE>
+</FONT><PRE><UL><TT>
+</TT><TT>	}
+</TT>
+</UL></PRE>Compile and run the program according to the instructions provided in the <EM>Galaxy Application Environment Installation Guide and Platform-specific Notes</EM>.<P>
+A message is displayed similar to the following:<P>
+<PRE><UL>vapplication: unable to find resource file (tut2a.vr)
+</UL></PRE><P>
+This message is a warning produced by Galaxy that indicates a potential problem. In this case it's the expected behavior (this is explained in more detail when application resources are introduced).<P>
+<A NAME="332"><H1> Looking at the Program</H1></A>
+Now let's look at the <TT>tut2a</TT> program and see what it does. It's really not much. It consists of three executable statements of which only two will  run. Basically, the program initializes Galaxy and then exits.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(1)	/* ANSI headers */
+	#include &lt;vstdlib.h&gt;    /* for exit(), EXIT_ codes */
+
+	/* Galaxy headers */
+	#include &lt;vstartup.h&gt;
+</UL></PRE>
+</FONT><P>
+As with all other C programs, this one begins with a list of header files to include. There are two sections here: one for ANSI headers and one for Galaxy headers. Galaxy supplies its own version of ANSI header files. One of the major hurdles for portability is incompatibilities in header files. Galaxy solves this by supplying an include file that uses your system's include file as a starting point and adds any missing pieces that are needed. In general if you need to use a standard include file like <TT>stdio.h</TT> or <TT>errno.h</TT>, you should use the Galaxy supplied replacement. The replacement will always start with the letter `v' so the files would be <TT>vstdio.h</TT> and <TT>verrno.h</TT>.<P>
+The <TT>vstartup.h</TT> header is specific to Galaxy and contains the prototype for the<B> </B><TT><B>vstartup</B></TT> function.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(2)	  vstartup (argc, argv);    /* Initialize Galaxy */
+</UL></PRE>
+</FONT><P>
+The<B> </B><TT><B>vstartup</B></TT> routine initializes Galaxy and makes it ready for use. All Galaxy programs begin with a call to <TT><B>vstartup</B></TT> and should pass the arguments <TT>argc</TT> and <TT>argv</TT> that were themselves the arguments to your main function.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(3)	  exit (EXIT_SUCCESS);
+(4)	  return EXIT_FAILURE;
+</UL></PRE>
+</FONT><P>
+All programs should end with the <TT>exit</TT> routine. Do not return from <TT>main</TT> either explicitly by a return statement or implicitly by falling off the end. Galaxy makes use of exit hooks provided by <TT>exit</TT> and may not shut your application down cleanly if <TT>exit</TT> isn't called.<P>
+The <TT>return</TT> statement at the end is never reached under normal circumstances because <TT>exit</TT> never returns. However, according to ANSI specifications, <TT>main</TT> returns an <TT>int</TT> and thus must return something. Providing a return statement prevents compile time warnings.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+   <TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+   <TR BGCOLOR="#CCCC66">
+      <TD>
+      <CENTER>
+      <!-- These are the Navigation buttons -->
+      <A HREF="Chapter_1.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="../../graphics/left.gif"></A>
+      <A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="../../graphics/up.gif"></A>
+      <A HREF="Chapter_3.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="../../graphics/right.gif"></A><BR>
+</CENTER>
+</TD>
+
+      <TD>
+      <BR>
+      <FONT SIZE=-1>
+      <A HREF="Chapter_1.html">Previous Chapter</A> | 
+      <A HREF="Chapter_3.html">Next Chapter</A> <BR>
+      <A HREF="index.html">Tutorial Contents</A><BR>
+      <A HREF="../index.html">Switch to Another Document</A><BR>
+      <BR>
+      </FONT>
+      </TD><TD>
+      <BR>
+      <FONT SIZE=-1>
+      Need help? <a href="../../contact-visix.html">Contact Visix</a>.
+      <BR> <BR>
+      <A HREF="../../copyright.html">Copyright 1996-97</A>, <A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+      <BR>
+      </FONT>
+      </TD>
+   </TR>
+</TABLE>
+
+</BODY>
+</HTML>

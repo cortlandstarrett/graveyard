@@ -1,0 +1,298 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vhelplocator prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vhelplocator prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vhelplocator-x.html#section_DataType">Types</A> [2]</TD>
+<TD><A HREF="vhelplocator-x.html#section_Function">Functions</A> [8]</TD>
+<TD><A HREF="vhelplocator-x.html#section_Message">Messages</A> [1]</TD>
+<TD><A HREF="vhelplocator-x.html#section_Constant">Constants</A> [1]</TD>
+<TD><A HREF="vhelplocator-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vhelplocator"><HR><H4>vhelplocator</H4></A>
+<PRE>
+        typedef ... <B>vhelplocator</B>;
+</PRE>
+
+<DL><DD>
+Subclasses of vhelplocator implement different ways of locating help
+data.  For example, help data may be derived directed from an object (refer to
+<CODE><A HREF="vobject-x.html#vobjectBuildHelpContext"><CODE>vobjectBuildHelpContext</CODE></A></CODE>), may be derived from some
+repository, or may be constructed by the locator.  The help data may
+be either help text itself or a reference to help text that the
+<CODE><A HREF="vhelpdisplay-x.html#vhelpdisplay"><CODE>vhelpdisplay</CODE></A></CODE> must resolve.  The vhelplocator
+stores the help data in a <CODE><A HREF="vhelprequest-x.html#vhelprequest"><CODE>vhelprequest</CODE></A></CODE>.
+<P>
+vhelplocators use reference counts.  When a <A HREF="vhelpobject-x.html#vhelpobject"><CODE>vhelpobject</CODE></A> is
+associated with a vhelplocator (refer to
+<CODE><A HREF="vhelpobject-x.html#vhelpobjectSetLocator"><CODE>vhelpobjectSetLocator</CODE></A></CODE>), the <A HREF="vhelpobject-x.html#vhelpobject"><CODE>vhelpobject</CODE></A> references it
+(refer to <CODE><A HREF="vhelplocator-x.html#vhelplocatorReference"><CODE>vhelplocatorReference</CODE></A></CODE>), incrementing its reference
+count.  When a <A HREF="vhelpobject-x.html#vhelpobject"><CODE>vhelpobject</CODE></A> is destroyed or will no longer use a given
+vhelplocator, it unreferences it (refer to
+<CODE><A HREF="vhelplocator-x.html#vhelplocatorUnreference"><CODE>vhelplocatorUnreference</CODE></A></CODE>), decrementing its reference
+count.  When a vhelplocator detects that its reference count is at
+least zero, it destroys itself.  Creating a vhelplocator does
+<BOLD>not</BOLD> automatically give it a reference.
+<P>
+Reference counting vhelplocators in this way allows multiple
+vhelpobjects to use the same locator without complicating ownership
+issues.
+</DD></DL>
+<P>
+<A NAME="vhelplocatorClass"><HR><H4>vhelplocatorClass</H4></A>
+<PRE>
+        typedef ... <B>vhelplocatorClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variable bindings for objects of type
+<CODE>vhelplocator</CODE> . Classes declared with this type 
+contain the same set of methods and variables as the
+default help locator class, but the behavior of methods and the
+contents of variables may vary. This class type is derived
+from <CODE><A HREF="vinstance-x.html#vinstanceClass"><CODE>vinstanceClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vhelplocatorCreateOfClass"><HR><H4>vhelplocatorCreateOfClass</H4></A>
+<PRE>
+        vhelplocator * <B>vhelplocatorCreateOfClass</B>(
+                vhelplocatorClass * helplocatorClass);
+</PRE>
+
+<DL><DD>
+Creates an instance of class <SAMP>helplocatorClass</SAMP> and returns
+a pointer to its contents. Space
+for the object is allocated dynamically based on the object
+size of the class. The Class Manager reclaims the storage
+occupied by the object when it is destroyed with
+<CODE>vhelplocatorDestroy</CODE>. Higher-level interfaces based
+on the core vhelplocator type can define a macro to this function
+for their <CODE>Create</CODE> function. This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vhelplocator-x.html#vhelplocatorInitOfClass"><CODE>vhelplocatorInitOfClass</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vhelplocatorGetClass"><HR><H4>vhelplocatorGetClass</H4></A>
+<PRE>
+        vhelplocatorClass * <B>vhelplocatorGetClass</B>(
+                vhelplocator * helplocator);
+</PRE>
+
+<DL><DD>
+Returns the class of the object <SAMP>helplocator</SAMP>. This
+pointer can be cast to higher-level classes if it is known
+that it is of the appropriate type. Class types can be
+verified with <CODE><A HREF="vclass-x.html#vclassIsKindOf"><CODE>vclassIsKindOf</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vhelplocatorGetInstance"><HR><H4>vhelplocatorGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vhelplocatorGetInstance</B>(
+                vhelplocator * helplocator);
+</PRE>
+
+<DL><DD>
+Returns the instance on which the help request <SAMP>helplocator</SAMP> 
+is built.
+</DD></DL>
+<P>
+<A NAME="vhelplocatorGetRootClass"><HR><H4>vhelplocatorGetRootClass</H4></A>
+<PRE>
+        vhelplocatorClass * <B>vhelplocatorGetRootClass</B>();
+</PRE>
+
+<DL><DD>
+This class should be modified to alter the behavior
+of subclasses of vhelplocator. 
+</DD></DL>
+<P>
+<A NAME="vhelplocatorInitOfClass"><HR><H4>vhelplocatorInitOfClass</H4></A>
+<PRE>
+        void <B>vhelplocatorInitOfClass</B>(
+                vhelplocator * helplocator,
+                vhelplocatorClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes an locator of class <SAMP>clas</SAMP> in the
+memory addressed by <SAMP>helplocator</SAMP>.  Interfaces 
+based on the core locator class can
+define a macro to this function for their <CODE>Init</CODE>
+function. This function simply stores the class in the
+class field of the locator structure and sends it the
+message <CODE><A HREF="vinstance-x.html#vinstanceINIT"><CODE>vinstanceINIT</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vhelplocatorLocateHelp"><HR><H4>vhelplocatorLocateHelp</H4></A>
+<PRE>
+        vbool <B>vhelplocatorLocateHelp</B>(
+                vhelplocator * helplocator,
+                vhelprequest * request);
+</PRE>
+
+<DL><DD>
+This function is not implemented in this base class.  Subclasses should
+override <CODE><A HREF="vhelplocator-x.html#vhelplocatorLOCATE_HELP"><CODE>vhelplocatorLOCATE_HELP</CODE></A></CODE> to locate help data in 
+different ways.
+</DD></DL>
+<P>
+<A NAME="vhelplocatorReference"><HR><H4>vhelplocatorReference</H4></A>
+<PRE>
+        void <B>vhelplocatorReference</B>(
+                vhelplocator * helplocator);
+</PRE>
+
+<DL><DD>
+Normally, it is not necessary to call this function.  Associating a
+vhelplocator with a <A HREF="vhelpobject-x.html#vhelpobject"><CODE>vhelpobject</CODE></A> (refer to <CODE><A HREF="vhelpobject-x.html#vhelpobjectSetLocator"><CODE>vhelpobjectSetLocator</CODE></A></CODE>)
+results in the <A HREF="vhelpobject-x.html#vhelpobject"><CODE>vhelpobject</CODE></A> calling this function.
+
+</DD></DL>
+<P>
+<A NAME="vhelplocatorUnreference"><HR><H4>vhelplocatorUnreference</H4></A>
+<PRE>
+        void <B>vhelplocatorUnreference</B>(
+                vhelplocator * helplocator);
+</PRE>
+
+<DL><DD>
+Normally, it is not necessary to call this function.  When a
+<A HREF="vhelpobject-x.html#vhelpobject"><CODE>vhelpobject</CODE></A> is destroyed or is no longer associated with a help
+locator, it will automatically call this function.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vhelplocatorLOCATE_HELP"><HR><H4>vhelplocatorLOCATE_HELP</H4></A>
+<PRE>
+        &lt;<B>vhelplocatorLOCATE_HELP</B>&gt;
+</PRE>
+
+<DL><DD>
+This message is not implemented in this base class.  Subclasses should
+override this message to locate help data in different ways.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vhelplocatorINCLUDED"><HR><H4>vhelplocatorINCLUDED</H4></A>
+<PRE>
+        <B>vhelplocatorINCLUDED</B>
+</PRE>
+
+<DL><DD>
+This constant is intended to be used in this way when including header files:
+
+<BLOCKQUOTE>
+<PRE>
+#ifndef  vhelplocatorINCLUDED
+#include vhelplocatorHEADER
+#endif
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vhelplocatorCLASS"><HR><H4>vhelplocatorCLASS</H4></A>
+<PRE>
+        #define <B>vhelplocatorCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Use this macro to build subclasses of vhelplocator. Refer to the 
+<CODE><A HREF="vclass-x.html#vclass"><CODE>vclass</CODE></A></CODE> for more information on subclassing.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

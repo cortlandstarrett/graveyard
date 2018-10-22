@@ -1,0 +1,721 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vdock prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vdock prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vdock-x.html#section_DataType">Types</A> [2]</TD>
+<TD><A HREF="vdock-x.html#section_Function">Functions</A> [29]</TD>
+<TD><A HREF="vdock-x.html#section_Message">Messages</A> [6]</TD>
+<TD><A HREF="vdock-x.html#section_Constant">Constants</A> [1]</TD>
+<TD><A HREF="vdock-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vdock"><HR><H4>vdock</H4></A>
+<PRE>
+        typedef ... <B>vdock</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to represent a single dock object.
+A dock serves as an intermediary between dockers and items that hold
+them. The item that holds dockers is called the dock's <I>owner</I> 
+and, in practice, is always of type <CODE><A HREF="vdockitem-x.html#vdockitem"><CODE>vdockitem</CODE></A></CODE>. 
+<P>
+Dockers can move from dock to dock, but
+a dock is always associated with just one owner at a time.
+</DD></DL>
+<P>
+<A NAME="vdockClass"><HR><H4>vdockClass</H4></A>
+<PRE>
+        typedef ... <B>vdockClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and class variable bindings for dock objects. 
+Classes declared with this type contain the same set of methods and
+variables as the default dock class, but the behavior of methods and
+the contents of variables may vary. This class type is derived from
+<CODE><A HREF="vdropsite-x.html#vdropsiteClass"><CODE>vdropsiteClass</CODE></A></CODE> 
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vdockAddDocker"><HR><H4>vdockAddDocker</H4></A>
+<PRE>
+        void <B>vdockAddDocker</B>(
+                vdock * dock,
+                vdocker * docker,
+                const vrect * rect);
+</PRE>
+
+<DL><DD>
+Adds a docker to the dock's owner using the rectangle to determine the
+positioning of the docker. If the owner is not of type
+<CODE><A HREF="vdockitem-x.html#vdockitem"><CODE>vdockitem</CODE></A></CODE> a <CODE><A HREF="vex-x.html#vexModuleStateException"><CODE>vexModuleStateException</CODE></A></CODE> will be
+generated. If the owner is a dock item, then its
+<CODE><A HREF="vdockitem-x.html#vdockitemAddDocker"><CODE>vdockitemAddDocker</CODE></A></CODE> method will be called to actually do
+the work.
+<P>
+This method is implemented by sending the message
+<CODE><A HREF="vdock-x.html#vdockADD_DOCKER"><CODE>vdockADD_DOCKER</CODE></A></CODE> to the dock.
+</DD></DL>
+<P>
+<A NAME="vdockClone"><HR><H4>vdockClone</H4></A>
+<PRE>
+        vdock * <B>vdockClone</B>(
+                vdock * dock);
+</PRE>
+
+<DL><DD>
+Creates a copy of the dock <SAMP>dock</SAMP> and
+returns a pointer to its contents. Storage for the dock
+object is allocated by the Docker class. The Docker class
+reclaims the storage occupied by the dock when it
+is destroyed with <CODE><A HREF="vdock-x.html#vdockDestroy"><CODE>vdockDestroy</CODE></A></CODE>. This
+function copies all the copyable attributes of the dock and
+clones any attribute objects that are owned by the dock. 
+The dock to be cloned can 
+be dynamic or static. This function essentially allocates
+space for a new dock and calls
+<CODE><A HREF="vdock-x.html#vdockCopyInit"><CODE>vdockCopyInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vdockCopy"><HR><H4>vdockCopy</H4></A>
+<PRE>
+        void <B>vdockCopy</B>(
+                vdock * dock,
+                vdock * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>dock</SAMP> into
+<SAMP>target</SAMP> so that the two docks represent
+equivalent objects. <SAMP>target</SAMP> must have been
+created or initialized by a Docker class function.
+<SAMP>dock</SAMP> and <SAMP>target</SAMP> must have
+compatible classes for this to work correctly. This
+function copies all the copyable attributes of the dock
+and clones any attribute objects that are owned by the dock. 
+This function destroys any objects allocated internally by
+<SAMP>target</SAMP> (including its owned attributes), but
+does <I>not</I> destroy <SAMP>target</SAMP> itself. The
+docks to be copied can be dynamic or static. This
+function is implemented by sending the message
+<CODE>vobjectCOPY</CODE> to <SAMP>dock</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdockCopyInit"><HR><H4>vdockCopyInit</H4></A>
+<PRE>
+        void <B>vdockCopyInit</B>(
+                vdock * dock,
+                vdock * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>dock</SAMP> into
+<SAMP>target</SAMP> so that the two docks represent
+equivalent objects. <SAMP>target</SAMP> should be a pointer to 
+uninitialized memory; the Docker class initializes it as part
+of the copy.
+This function copies all the copyable attributes of the dock
+and clones any attribute objects that are owned by the dock. 
+This function destroys any objects allocated internally by
+<SAMP>target</SAMP> (including its owned attributes), but
+does <I>not</I> destroy <SAMP>target</SAMP> itself. The
+docks to be copied can be dynamic or static. 
+This
+function simply stores the class of <SAMP>dock</SAMP> in
+<SAMP>target</SAMP> and sends the message
+<CODE>vobjectCOPY_INIT</CODE> to <SAMP>dock</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdockCreate"><HR><H4>vdockCreate</H4></A>
+<PRE>
+        vdock * <B>vdockCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new dock of the default dock class and
+returns a pointer to its contents. Storage for the dock
+object is allocated by the Docker class. The Docker class
+reclaims the storage occupied by the dock when it
+is destroyed with <CODE><A HREF="vdock-x.html#vdockDestroy"><CODE>vdockDestroy</CODE></A></CODE>. The new
+dock is created with a set of default attributes, as
+determined by the default dock class. The default
+attributes of the default dock class are documented in
+the Docker chapter of the <I>Galaxy
+Programmer's Guide</I>. This function
+essentially allocates space for a new dock and calls
+<CODE><A HREF="vdock-x.html#vdockInit"><CODE>vdockInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vdockCreateOfClass"><HR><H4>vdockCreateOfClass</H4></A>
+<PRE>
+        vdock * <B>vdockCreateOfClass</B>(
+                vdockClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new dock of class <SAMP>clas</SAMP> and returns
+a pointer to its contents. Storage for the dock object is
+allocated by the Docker class. The Docker class
+reclaims the storage occupied by the dock when it is
+destroyed with <CODE><A HREF="vdock-x.html#vdockDestroy"><CODE>vdockDestroy</CODE></A></CODE>. 
+The new dock 
+is created with a set of default attributes, determined by
+the class. The default attributes of the default dock
+class are documented in the Docker chapter of
+the <I>Galaxy Programmer's
+Guide</I>. This function essentially allocates space for a
+new dock and calls <CODE><A HREF="vdock-x.html#vdockInitOfClass"><CODE>vdockInitOfClass</CODE></A></CODE> 
+on it.
+</DD></DL>
+<P>
+<A NAME="vdockDestroy"><HR><H4>vdockDestroy</H4></A>
+<PRE>
+        void <B>vdockDestroy</B>(
+                vdock * dock);
+</PRE>
+
+<DL><DD>
+Destroys the dock represented by <SAMP>dock</SAMP>,
+which must have been created or initialized by a 
+Docker class function. Use this function to reclaim the storage
+occupied by a dock. The dock should not be referenced
+by any other object when it is destroyed. This function
+only attempts to free the storage occupied by the
+dock if it was allocated by <CODE><A HREF="vdock-x.html#vdockCreate"><CODE>vdockCreate</CODE></A></CODE>,
+<CODE><A HREF="vdock-x.html#vdockCreateOfClass"><CODE>vdockCreateOfClass</CODE></A></CODE>,
+<CODE><A HREF="vdock-x.html#vdockClone"><CODE>vdockClone</CODE></A></CODE>, or
+<CODE>vdockLoad</CODE>.
+This function will also destroy any attribute objects that
+are owned by the dock. This function is implemented by
+sending the message <CODE>vobjectDESTROY</CODE> to
+the dock.
+</DD></DL>
+<P>
+<A NAME="vdockFindDocker"><HR><H4>vdockFindDocker</H4></A>
+<PRE>
+        vdocker * <B>vdockFindDocker</B>(
+                vdock * dock,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Returns the docker with the given tag in the dock's owner or
+<SAMP>NULL</SAMP> if no such docker exists.  
+<P>
+If the owner is not of type
+<CODE><A HREF="vdockitem-x.html#vdockitem"><CODE>vdockitem</CODE></A></CODE> a <CODE><A HREF="vex-x.html#vexModuleStateException"><CODE>vexModuleStateException</CODE></A></CODE> will be
+generated.  If the owner is a dock item, then its
+<CODE><A HREF="vdockitem-x.html#vdockitem"><CODE>vdockitem</CODE></A></CODE> method will be called to actually
+do the work.
+<P>
+This method is implemented by sending the message
+<CODE><A HREF="vdock-x.html#vdockFIND_DOCKER"><CODE>vdockFIND_DOCKER</CODE></A></CODE> to the dock.
+</DD></DL>
+<P>
+<A NAME="vdockGetClass"><HR><H4>vdockGetClass</H4></A>
+<PRE>
+        vdockClass * <B>vdockGetClass</B>(
+                vdock * dock);
+</PRE>
+
+<DL><DD>
+Returns the class of the dock.
+</DD></DL>
+<P>
+<A NAME="vdockGetData"><HR><H4>vdockGetData</H4></A>
+<PRE>
+        const void * <B>vdockGetData</B>(
+                vdock * dock);
+</PRE>
+
+<DL><DD>
+Returns the generic data pointer attached to the dock
+<SAMP>dock</SAMP>, which can be <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdockGetDefaultClass"><HR><H4>vdockGetDefaultClass</H4></A>
+<PRE>
+        vdockClass * <B>vdockGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default dock class.
+</DD></DL>
+<P>
+<A NAME="vdockGetDockerCount"><HR><H4>vdockGetDockerCount</H4></A>
+<PRE>
+        int <B>vdockGetDockerCount</B>(
+                vdock * dock);
+</PRE>
+
+<DL><DD>
+Returns the number of dockers in the dock's owner.
+If the owner is not of type <CODE><A HREF="vdockitem-x.html#vdockitem"><CODE>vdockitem</CODE></A></CODE> a
+<CODE><A HREF="vex-x.html#vexModuleStateException"><CODE>vexModuleStateException</CODE></A></CODE> will be generated. If the owner
+is a dock item, then its <CODE>vdockitemGetDockerCountDocker</CODE>
+method will be called to actually do the work. 
+<P>
+This method is implemented by sending the message
+<CODE><A HREF="vdock-x.html#vdockGET_DOCKER_COUNT"><CODE>vdockGET_DOCKER_COUNT</CODE></A></CODE> to the dock.
+</DD></DL>
+<P>
+<A NAME="vdockGetDragEngineClass"><HR><H4>vdockGetDragEngineClass</H4></A>
+<PRE>
+        vdragEngineClass * <B>vdockGetDragEngineClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default drag engine classed used by vdock.
+</DD></DL>
+<P>
+<A NAME="vdockGetDropsite"><HR><H4>vdockGetDropsite</H4></A>
+<PRE>
+        vdropsite * <B>vdockGetDropsite</B>(
+                vdock * dock);
+</PRE>
+
+<DL><DD>
+Returns the dropsite on which the dock is constructed.
+</DD></DL>
+<P>
+<A NAME="vdockGetInstance"><HR><H4>vdockGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vdockGetInstance</B>(
+                vdock * dock);
+</PRE>
+
+<DL><DD>
+Returns the instance on which the dock is constructed.
+</DD></DL>
+<P>
+<A NAME="vdockGetLoadable"><HR><H4>vdockGetLoadable</H4></A>
+<PRE>
+        vloadable * <B>vdockGetLoadable</B>(
+                vdock * dock);
+</PRE>
+
+<DL><DD>
+Returns the loadable on which the dock is constructed.
+</DD></DL>
+<P>
+<A NAME="vdockGetOwner"><HR><H4>vdockGetOwner</H4></A>
+<PRE>
+        vdialogItem * <B>vdockGetOwner</B>(
+                vdock * dock);
+</PRE>
+
+<DL><DD>
+Returns the owner of the dock or <SAMP>NULL</SAMP> if the dock has no
+owner. In theory, the owner of a dock could be any kind of dialog
+item, but in practice only owners of type <CODE><A HREF="vdockitem-x.html#vdockitem"><CODE>vdockitem</CODE></A></CODE> and
+subclasses thereof are allowed. Most of the methods on the dock are 
+implemented by forwarding the message onto the dock's owner.
+</DD></DL>
+<P>
+<A NAME="vdockGetRect"><HR><H4>vdockGetRect</H4></A>
+<PRE>
+        const vrect * <B>vdockGetRect</B>(
+                vdock * dock);
+</PRE>
+
+<DL><DD>
+Returns the dock's bounding rectangle. Coordinates are in display
+units relative to the lower left-hand corner of the dock's window,
+as set by <CODE><A HREF="vdock-x.html#vdockSetWindow"><CODE>vdockSetWindow</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdockGetTag"><HR><H4>vdockGetTag</H4></A>
+<PRE>
+        const vname * <B>vdockGetTag</B>(
+                vdock * dock);
+</PRE>
+
+<DL><DD>
+Returns the tag of the dock <SAMP>dock</SAMP>, or <samp>NULL</samp> if the
+dock has no tag.
+</DD></DL>
+<P>
+<A NAME="vdockGetWindow"><HR><H4>vdockGetWindow</H4></A>
+<PRE>
+        vwindow * <B>vdockGetWindow</B>(
+                vdock * dock);
+</PRE>
+
+<DL><DD>
+Returns the window to which the dock is assigned.
+</DD></DL>
+<P>
+<A NAME="vdockInit"><HR><H4>vdockInit</H4></A>
+<PRE>
+        void <B>vdockInit</B>(
+                vdock * dock);
+</PRE>
+
+<DL><DD>
+Initializes a dock of the default dock class in the
+memory addressed by <SAMP>dock</SAMP>. The attributes of
+the dock are set to their default values, according to
+the default dock class. The default attributes of the
+default dock class are documented in the Docker 
+chapter of the <I>Galaxy
+Programmer's Guide</I>. The address can be used in other
+calls to the Docker class as if it were created with
+<CODE><A HREF="vdock-x.html#vdockCreate"><CODE>vdockCreate</CODE></A></CODE>. A call to
+<CODE><A HREF="vdock-x.html#vdockDestroy"><CODE>vdockDestroy</CODE></A></CODE> frees any internal
+objects allocated by the Docker class but does <I>not</I> free
+the structure itself. This function simply stores the
+default class in the class field of the dock and sends it
+the message <CODE>vobjectINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vdockInitOfClass"><HR><H4>vdockInitOfClass</H4></A>
+<PRE>
+        void <B>vdockInitOfClass</B>(
+                vdock * dock,
+                vdockClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a dock of class <SAMP>clas</SAMP> in the memory
+addressed by <SAMP>dock</SAMP>. The attributes of
+the dock are set to their default values, according to
+the class. The default attributes of the
+default dock class are documented in the Docker 
+chapter of the <I>Galaxy
+Programmer's Guide</I>. The address can be used in other
+calls to the Docker class as if it were created with
+<CODE><A HREF="vdock-x.html#vdockCreateOfClass"><CODE>vdockCreateOfClass</CODE></A></CODE>. A call to
+<CODE><A HREF="vdock-x.html#vdockDestroy"><CODE>vdockDestroy</CODE></A></CODE> frees any internal
+objects allocated by the Docker class but does <I>not</I> free
+the structure itself. This function simply stores the
+class in the class field of the dock and sends it
+the message <CODE>vobjectINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vdockRemoveDocker"><HR><H4>vdockRemoveDocker</H4></A>
+<PRE>
+        void <B>vdockRemoveDocker</B>(
+                vdock * dock,
+                vdocker * docker);
+</PRE>
+
+<DL><DD>
+Removes the docker from the dock's owner.
+If the owner is not of type <CODE><A HREF="vdockitem-x.html#vdockitem"><CODE>vdockitem</CODE></A></CODE> a
+<CODE><A HREF="vex-x.html#vexModuleStateException"><CODE>vexModuleStateException</CODE></A></CODE> will be generated. If the owner
+is a dock item, then its <CODE><A HREF="vdockitem-x.html#vdockitemRemoveDocker"><CODE>vdockitemRemoveDocker</CODE></A></CODE> method will
+be called to actually do the work.
+<P>
+This method is implemented by sending the message
+<CODE><A HREF="vdock-x.html#vdockREMOVE_DOCKER"><CODE>vdockREMOVE_DOCKER</CODE></A></CODE> to the dock.
+</DD></DL>
+<P>
+<A NAME="vdockSetData"><HR><H4>vdockSetData</H4></A>
+<PRE>
+        void <B>vdockSetData</B>(
+                vdock * dock,
+                const void * data);
+</PRE>
+
+<DL><DD>
+Sets the value stored in the dock <SAMP>dock</SAMP>'s generic
+data pointer to <SAMP>data</SAMP>. The value is not used or modified
+by the dock in any way, and may contain any pointer value,
+including <SAMP>NULL</SAMP>. This function is implemented by sending
+the message <CODE><A HREF="vdropsite-x.html#vdropsiteSET_DATA"><CODE>vdropsiteSET_DATA</CODE></A></CODE> to the dock.
+</DD></DL>
+<P>
+<A NAME="vdockSetOwner"><HR><H4>vdockSetOwner</H4></A>
+<PRE>
+        void <B>vdockSetOwner</B>(
+                vdock * dock,
+                vdialogItem * owner);
+</PRE>
+
+<DL><DD>
+Sets the owner of the dock. In theory, the owner of a dock could be
+any kind of dialog item, but in practice only owners of type
+<CODE><A HREF="vdockitem-x.html#vdockitem"><CODE>vdockitem</CODE></A></CODE> and subclasses thereof are allowed. Most of
+the methods on the dock are implemented by forwarding the message
+onto the dock's owner.
+<P>
+This method is implemented by sending the message
+<CODE><A HREF="vdock-x.html#vdockSET_OWNER"><CODE>vdockSET_OWNER</CODE></A></CODE> to the dock.
+</DD></DL>
+<P>
+<A NAME="vdockSetRect"><HR><H4>vdockSetRect</H4></A>
+<PRE>
+        void <B>vdockSetRect</B>(
+                vdock * dock,
+                const vrect * rect);
+</PRE>
+
+<DL><DD>
+Sets the dock <SAMP>dock</SAMP>'s bounding rectangle to
+<SAMP>rect</SAMP>. Coordinates are in display units relative to the
+lower left-hand corner of the dock's window, as set by
+<CODE><A HREF="vdock-x.html#vdockSetWindow"><CODE>vdockSetWindow</CODE></A></CODE>. This function is
+implemented by sending the message <CODE><A HREF="vdropsite-x.html#vdropsiteSET_RECT"><CODE>vdropsiteSET_RECT</CODE></A></CODE> to
+the dock.
+</DD></DL>
+<P>
+<A NAME="vdockSetTag"><HR><H4>vdockSetTag</H4></A>
+<PRE>
+        void <B>vdockSetTag</B>(
+                vdock * dock,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Changes the tag of the dock <SAMP>dock</SAMP> to
+<SAMP>tag</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdockSetWindow"><HR><H4>vdockSetWindow</H4></A>
+<PRE>
+        void <B>vdockSetWindow</B>(
+                vdock * dock,
+                vwindow * window);
+</PRE>
+
+<DL><DD>
+Sets the window the dock <SAMP>dock</SAMP> is assigned to. This
+function is implemented by sending the message
+<CODE><A HREF="vdropsite-x.html#vdropsiteSET_WINDOW"><CODE>vdropsiteSET_WINDOW</CODE></A></CODE> to the dock.
+</DD></DL>
+<P>
+<A NAME="vdockStartup"><HR><H4>vdockStartup</H4></A>
+<PRE>
+        void <B>vdockStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the dock portion of the Docker class.
+Has no effect if it is already initialized.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vdockADD_DOCKER"><HR><H4>vdockADD_DOCKER</H4></A>
+<PRE>
+        &lt;<B>vdockADD_DOCKER</B>&gt;
+</PRE>
+
+<DL><DD>
+Adds a docker to the dock's owner using the rectangle to determine the
+positioning of the docker. If the owner is not of type
+<CODE><A HREF="vdockitem-x.html#vdockitem"><CODE>vdockitem</CODE></A></CODE> a <CODE><A HREF="vex-x.html#vexModuleStateException"><CODE>vexModuleStateException</CODE></A></CODE> will be
+generated. If the owner is a dock item, then its
+<CODE><A HREF="vdockitem-x.html#vdockitemAddDocker"><CODE>vdockitemAddDocker</CODE></A></CODE> method will be called to actually do
+the work.
+<P>
+The method <CODE><A HREF="vdock-x.html#vdockAddDocker"><CODE>vdockAddDocker</CODE></A></CODE> is implemented by sending this
+message to the dock.
+</DD></DL>
+<P>
+<A NAME="vdockDRAG_ENGINE"><HR><H4>vdockDRAG_ENGINE</H4></A>
+<PRE>
+        &lt;<B>vdockDRAG_ENGINE</B>&gt;
+</PRE>
+
+<DL><DD>
+The drag engine shared by all docks. This drag engine is used in the
+drag and drop rearranging of dockers. The value of class variables
+such as this can be changed using <CODE><A HREF="vclass-x.html#vclassSet"><CODE>vclassSet</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdockFIND_DOCKER"><HR><H4>vdockFIND_DOCKER</H4></A>
+<PRE>
+        &lt;<B>vdockFIND_DOCKER</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns the docker with the given tag in the dock's owner or
+<SAMP>NULL</SAMP> if no such docker exists.  
+<P>
+If the owner is not of type
+<CODE><A HREF="vdockitem-x.html#vdockitem"><CODE>vdockitem</CODE></A></CODE> a <CODE><A HREF="vex-x.html#vexModuleStateException"><CODE>vexModuleStateException</CODE></A></CODE> will be
+generated.  If the owner is a dock item, then its
+<CODE><A HREF="vdockitem-x.html#vdockitem"><CODE>vdockitem</CODE></A></CODE> method will be called to actually
+do the work.
+<P>
+The method <CODE><A HREF="vdock-x.html#vdockFindDocker"><CODE>vdockFindDocker</CODE></A></CODE> is implemented by sending this
+message to the dock.
+</DD></DL>
+<P>
+<A NAME="vdockGET_DOCKER_COUNT"><HR><H4>vdockGET_DOCKER_COUNT</H4></A>
+<PRE>
+        &lt;<B>vdockGET_DOCKER_COUNT</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns the number of dockers in the dock's owner.
+If the owner is not of type <CODE><A HREF="vdockitem-x.html#vdockitem"><CODE>vdockitem</CODE></A></CODE> a
+<CODE><A HREF="vex-x.html#vexModuleStateException"><CODE>vexModuleStateException</CODE></A></CODE> will be generated. If the owner
+is a dock item, then its <CODE>vdockitemGetDockerCountDocker</CODE>
+method will be called to actually do the work. 
+<P>
+The method <CODE><A HREF="vdock-x.html#vdockGetDockerCount"><CODE>vdockGetDockerCount</CODE></A></CODE> is implemented by sending this
+message to the dock.
+</DD></DL>
+<P>
+<A NAME="vdockREMOVE_DOCKER"><HR><H4>vdockREMOVE_DOCKER</H4></A>
+<PRE>
+        &lt;<B>vdockREMOVE_DOCKER</B>&gt;
+</PRE>
+
+<DL><DD>
+Removes the docker from the dock's owner.
+If the owner is not of type <CODE><A HREF="vdockitem-x.html#vdockitem"><CODE>vdockitem</CODE></A></CODE> a
+<CODE><A HREF="vex-x.html#vexModuleStateException"><CODE>vexModuleStateException</CODE></A></CODE> will be generated. If the owner
+is a dock item, then its <CODE><A HREF="vdockitem-x.html#vdockitemRemoveDocker"><CODE>vdockitemRemoveDocker</CODE></A></CODE> method will
+be called to actually do the work.
+<P>
+The method <CODE><A HREF="vdock-x.html#vdockRemoveDocker"><CODE>vdockRemoveDocker</CODE></A></CODE> is implemented by sending this
+message to the dock.
+</DD></DL>
+<P>
+<A NAME="vdockSET_OWNER"><HR><H4>vdockSET_OWNER</H4></A>
+<PRE>
+        &lt;<B>vdockSET_OWNER</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the owner of the dock. In theory, the owner of a dock could be
+any kind of dialog item, but in practice only owners of type
+<CODE><A HREF="vdockitem-x.html#vdockitem"><CODE>vdockitem</CODE></A></CODE> and subclasses thereof are allowed. Most of
+the methods on the dock are implemented by forwarding the message
+onto the dock's owner.
+<P>
+The method <CODE><A HREF="vdock-x.html#vdockSetOwner"><CODE>vdockSetOwner</CODE></A></CODE> is implemented by sending this
+message to the dock.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vdockINCLUDED"><HR><H4>vdockINCLUDED</H4></A>
+<PRE>
+        <B>vdockINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the <SAMP>vdock.h<SAMP> header file is included.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vdockCLASS"><HR><H4>vdockCLASS</H4></A>
+<PRE>
+        #define <B>vdockCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for dock
+classes. This macro expands to the contents of
+<CODE><A HREF="vdock-x.html#vdockClass"><CODE>vdockClass</CODE></A></CODE>. <SAMP>SUPER</SAMP> is the type identifier
+of the class being declared (for example,
+<CODE><A HREF="vdock-x.html#vdockClass"><CODE>vdockClass</CODE></A></CODE>). This type is used by the class's
+subclasses to refer to it. <SAMP>DOCK</SAMP> is the type identifier of
+instances of the class being declared (for example,
+<CODE>vdock</CODE>). 
+<SAMP>NOTIFY</SAMP> is the type identifier of the instance
+notification function (for example, <CODE><A HREF="vdropsite-x.html#vdropsiteNoteProc"><CODE>vdropsiteNoteProc</CODE></A></CODE>). 
+<SAMP>DOCKER</SAMP> is the type identifier for the dockers used by the
+dock class.
+This macro should be used by dock subclasses to declare the contents
+of the dock class. This macro should come first in the subclass
+structure declaration. 
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

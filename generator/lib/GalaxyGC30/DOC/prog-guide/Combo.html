@@ -1,0 +1,475 @@
+<HTML>
+<HEAD>
+<TITLE>Combo</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Combo</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Color_Chooser.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Command.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="73624"></A>
+The <EM><B>Combination</B></EM> <EM><B>Box</B></EM> class provides facilities for creating and manipulating a combination box. A <EM><B>combination box</B></EM> is a dialog item that enables the user to pick a selection from a list of choices. These choices can be defined by the application or entered by the user.<P>
+A combination box has three parts: a list of values (<TT>vcomboboxValues</TT>), a <EM><B>choice box</B></EM>, and an <EM><B>entry box</B></EM>. The choice box displays a list of values. The entry box receives user input. The choice box and entry box are placed within a container (<TT>vcontainer</TT>); they each have a current value. These current values are usually identical since each value notifies vcombobox (or vcomboboxPopdown) to update the other one.<P>
+A combination box is available as either a <EM><B>standard combo box</B></EM> (<TT>vcombobox</TT>) or a <EM><B>popdown combo box</B></EM> (<TT>vcomboboxPopdown</TT>). A standard combo displays the choice box and the entry box together on the screen. A popdown combo displays only the entry box, and provides a look-and-feel defined mechanism for "popping down" (displaying) the choice box. This mechanism usually consists of selecting a button from the button box, which is located next to the entry box. After the user makes a selection from the popped down choice box, the choice box is no longer displayed. Popdown combo boxes are typically used to conserve screen real estate. <A HREF="Combo.html#61688">Figure 6</A> shows the two types of combination boxes.<P>
+<A NAME="61688"><I>Figure 6.  Samples of combination boxes
+</I><P>
+<IMG SRC="Combo.anc.gif"><P>
+Combination boxes contain a modifiable attribute. If the modifiable attribute is not set, then the user cannot add new selections to the value list. However, if the modifiable attribute is set there are several ways of adding new values. The method by which values are selected and new values are added to the list is controlled by the current selection behavior and the current acceptance behavior of the combination box.<P>
+<A NAME="89090"><H2> Combination Boxes Prior to Release 2.5</H2></A>
+Prior to Release 2.5, combination boxes were implemented as <TT>vcombo</TT> and <TT>vcomboPopdown</TT> items, with corresponding API entry points. However, the item's values were based solely on a list of strings. The <TT>vcombobox</TT> and <TT>vcomboboxPopdown</TT> items introduced in Release 2.5 provide facilities for maintaining lists of any type of data. Refer to <A HREF="Combo.html#90701">"Advanced Use of the Combination Box Class"</A> for details.<P>
+The standard <TT>vcombo</TT> item used in previous releases is subclassed from <TT>vdialogItem</TT>. Also, the <TT>vcomboPopdown</TT> item is subclassed from this standard <TT>vcombo</TT>. Beginning with Release 2.5, the standard <TT>vcombo</TT> item is subclassed from <TT>vcombobox</TT>, and the <TT>vcomboPopdown</TT> item is subclassed from <TT>vcomboboxPopdown</TT>.<P>
+<TT>vcombo </TT>is now deprecated. All standard and popdown <TT>vcombo</TT> entry points from releases prior to Release 2.5 have been mapped into <TT>vcombobox</TT> entry points, and should be fully compatible with this and future releases of Galaxy. Note that all combination box behavior prior to Release 2.5 is preserved.<P>
+<A NAME="18678"><H2> Combination Box Behavior</H2></A>
+The communication between the component parts of a combination box depends solely on the current state of the combination box in its behavior categories.<P>
+A combination box has three associated behaviors: one each for accept, select, and scroll situations. The behavior of a combination box affects how the combination box maps user input (typing in the entry box or selecting from the choice box, for example) to <TT>vcomboboxValue</TT> from its list of values. Note that the definition of these behaviors may vary according to look-and-feel.<P>
+An <EM><B>accept</B></EM> situation is when the combination box makes the selected (or entered) value the current value. This occurs when the user presses Return or Enter, or when the focus leaves the combination box. A <EM><B>select</B></EM> situation is when the combination box tries to map user input to a <TT>vcomboboxValue</TT>. This occurs when the user selects a value from the choice box or enters text into the entry box. Every keystroke in the entry box (with the exception of Return and Enter) triggers a select situation. A <EM><B>scroll</B></EM> situation is when the list in the choice box is scrolled. If the user types in the entry box, for every keystroke (except Return and Enter), a scroll situation is triggered as the combination box tries to match a choice box value to the entry box value (depending on behavior).<P>
+Tables <A HREF="Combo.html#89192">3</A> through <A HREF="Combo.html#89420">5</A> document the effects of each behavior in each situation for the various parts of a combination box.<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="89128"><I>Table 3.  Accept behavior
+</I><P>
+</CAPTION>
+
+<tr><th><B>Behavior 
+</B></th><th><B>Entry Box
+</B></th><th><B>Choice Box
+</B></th>
+<tr><td><TT><B>vcomboboxBEHAVIOR_DO_NOTHING
+</B></TT></td><td>no behavior*
+</td><td>no behavior*
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_MATCH_OR_NOTHING
+</B></TT></td><td>no change
+</td><td>select matched value or unselect
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_MATCH_OR_ADD
+</B></TT></td><td>no change
+</td><td>select matched value or new value
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_MATCH_OR_FIRST
+</B></TT></td><td>no change or 
+first value
+</td><td>select matched value or first value
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_MATCH_OR_REVERT
+</B></TT></td><td>no change or 
+revert
+</td><td>select matched value or revert 
+value
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_MATCH_OR_CLOSEST
+</B></TT></td><td>no change or 
+closest
+</td><td>select matched value or closest 
+value
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_MATCH_OR_PARTIAL
+</B></TT></td><td>no change or
+best superset
+</td><td>select matched value or best 
+superset value
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_DEFAULT
+</B></TT></td><td>
+</td><td>
+</td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+*	May be designed for customized behaviors inside vcomboboxNoteProc with message = vcomboboxNOTIFY_ACCEPT<P>
+	The default behavior is defined as one of the other behaviors based on look-and-feel from the following list:<P>
+	CUA: vcomboboxBEHAVIOR_MATCH_OR_PARTIAL Mac: vcomboboxBEHAVIOR_MATCH_OR_REVERT Windows: vcomboboxBEHAVIOR_MATCH_OR_PARTIAL Others: vcomboboxBEHAVIOR_MATCH_OR_CLOSEST<P>
+The API entry points for controlling these behaviors include:<P>
+<DL>
+<DT><DD> <TT><B>vcomboboxAcceptValue</B></TT>
+<DT><DD> <TT><B>vcomboboxGetAcceptBehavior</B></TT>
+<DT><DD> <TT><B>vcomboboxGetScrollBehavior</B></TT>
+<DT><DD> <TT><B>vcomboboxGetSelectBehavior</B></TT>
+<DT><DD> <TT><B>vcomboboxScrollToValue</B></TT>
+<DT><DD> <TT><B>vcomboboxSelectValue</B></TT>
+<DT><DD> <TT><B>vcomboboxSetAcceptBehavior</B></TT>
+<DT><DD> <TT><B>vcomboboxSetScrollBehavior</B></TT>
+<DT><DD> <TT><B>vcomboboxSetSelectBehavior</B></TT>
+</DL>
+<TT><B></B></TT>
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="89322"><I>Table 4.  Select behaviors*
+</I><P>
+</CAPTION>
+
+<tr><th><B>Behavior
+</B></th><th><B>Choice Box
+</B></th>
+<tr><td><TT><B>vcomboboxBEHAVIOR_DO_NOTHING
+</B></TT></td><td>no behavior
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_MATCH_OR_NOTHING
+</B></TT></td><td>select matched value or unselect
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_MATCH_OR_ADD
+</B></TT></td><td>select matched value or unselect
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_MATCH_OR_FIRST
+</B></TT></td><td>select matched value or first value
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_MATCH_OR_REVERT
+</B></TT></td><td>select matched value or revert value
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_MATCH_OR_CLOSEST
+</B></TT></td><td>select matched value or closest value
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_MATCH_OR_PARTIAL
+</B></TT></td><td>select matched value or best superset value
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_DEFAULT
+</B></TT></td><td>
+</td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+*	The entry box is not affected if it is blocked (<TT><B>vcomboboxBlockEntrybox</B></TT>). Otherwise it is set to the value selected in the choice box, or the empty value if there is no choice box value selected.<P>
+	May be designed for customized behaviors inside vcomboboxNoteProc with message = vcomboboxNOTIFY_SELECT<P>
+	The default behavior is defined as one of the other behaviors based on look-and-feel from the following list:<P>
+	CUA: vcomboboxBEHAVIOR_MATCH_OR_PARTIAL Mac: vcomboboxBEHAVIOR_MATCH_OR_CLOSEST Windows: vcomboboxBEHAVIOR_MATCH_OR_PARTIAL Others: vcomboboxBEHAVIOR_MATCH_OR_CLOSEST<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="89381"><I>Table 5.  Scroll Behaviors*
+</I><P>
+</CAPTION>
+
+<tr><th><B>Behavior
+</B></th><th><B>Choice Box
+</B></th>
+<tr><td><TT><B>vcomboboxBEHAVIOR_DO_NOTHING
+</B></TT></td><td>no behavior
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_MATCH_OR_NOTHING
+</B></TT></td><td>scroll to the matched value or nothing
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_MATCH_OR_ADD
+</B></TT></td><td>scroll to the matched value or the added value
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_MATCH_OR_FIRST
+</B></TT></td><td>scroll to the matched value or the first value
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_MATCH_OR_REVERT
+</B></TT></td><td>scroll to the matched value or the reverted value
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_MATCH_OR_CLOSEST
+</B></TT></td><td>scroll to the matched value or the closest value
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_MATCH_OR_PARTIAL
+</B></TT></td><td>scroll to the matched value or the best superset value
+</td></tr>
+<tr><td><TT><B>vcomboboxBEHAVIOR_DEFAULT
+</B></TT></td><td>
+</td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+*	The scroll behavior does not affect the entry box for comboboxes of the default classes.<P>
+	May be designed for customized behaviors inside vcomboboxNoteProc with message = vcomboboxNOTIFY_SCROLL<P>
+	The default behavior is defined in a look-and-feel specific manner:<P>
+	CUA: vcomboboxBEHAVIOR_MATCH_OR_PARTIAL Mac: vcomboboxBEHAVIOR_MATCH_OR_PARTIAL Windows: vcomboboxBEHAVIOR_MATCH_OR_PARTIAL Others: vcomboboxBEHAVIOR_MATCH_OR_CLOSEST<P>
+<A NAME="18776"><H2> Combination Box Communication</H2></A>
+In both the standard and popdown combination box items, the entry box and the choice box communicate with each other when a value has changed.<P>
+Once the value of one of these components is changed, it notifies the <TT>vcombobox</TT> (or <TT>vcomboboxPopdown</TT>) to update the other components accordingly. This is accomplished through <TT>vcombobox</TT> API entry points or through the internal class methods of the <TT>vcombobox</TT>.<P>
+The following helper methods can also be used to determine or modify the values in the entry box or choice box.<P>
+<DL>
+<DT><DD> <TT></TT><TT><B>vcombobox</B></TT><TT>APPEND_CHOICEBOX_VALUE</TT>
+<DT><DD> <TT><B>vcombobox</B></TT><TT>COMPARE_VALUES</TT>
+<DT><DD> <TT><B>vcombobox</B></TT><TT>DELETE_CHOICEBOX_VALUE_AT</TT>
+<DT><DD> <TT><B>vcombobox</B></TT><TT>DELETE_VALUE_AT</TT>
+<DT><DD> <TT><B>vcombobox</B></TT><TT>GET_ENTRYBOX_VALUE</TT>
+<DT><DD> <TT><B>vcombobox</B></TT><TT>SELECT_CHOICEBOX_VALUE_AT</TT>
+<DT><DD> <TT><B>vcombobox</B></TT><TT>SET_CHOICEBOX_VALUE_AT</TT>
+<DT><DD> <TT><B>vcombobox</B></TT><TT>SET_CHOICEBOX_VISIBLE_VALUES</TT>
+<DT><DD> <TT><B>vcombobox</B></TT><TT>SET_ENTRYBOX_MODIFYABLE</TT>
+<DT><DD> <TT><B>vcombobox</B></TT><TT>SET_ENTRYBOX_VALUE</TT>
+</DL>
+<A NAME="94254"><H1>  Combination Box Attributes</H1></A>
+Default values are listed based on the default combination box class. Refer to the modification function corresponding to the attribute name for a detailed description of the attribute (for example, refer to <TT><B>vcomboboxSetTitle</B></TT> for the Title attribute). Note that some combination box attributes cannot be manipulated through Combination Box class entry points&#175; these attributes are manipulated through Container class or Dialog class entry points instead. You can call any Container class function on a combination box by passing it the result of <TT><B>vcomboboxGetContainer</B></TT>, and any Dialog class function by passing it the result of <TT><B>vcomboboxGetItem</B></TT>. For example, the following function call changes the foreground color of the combination box <TT>combo</TT> to <TT>foreground</TT>:<P>
+vdialogSetItemAttribute(vcomboboxGetItem(combo), foreground);<P>
+<P>
+Combination Box attributes that overlap dialog item attributes refer to the same piece of information: for example, <TT><B>vcomboboxSetData</B></TT> changes the same attribute as <TT><B>vdialogSetItemData</B></TT>. The Combination Box class does not use all the attributes it inherits from <TT>vcontainer</TT>; modifying the unused attributes could interfere with the normal behavior of the default combination box class.<P>
+Cursor and Space attributes can either be owned by the combination box or shared with other objects. Ownership is specified when the attribute is set&#175;if the entry point name ends in Owned (as in <TT><B>vdialogSetSpaceOwned</B></TT> <TT><B>vwindow::SetSpaceOwned</B></TT> ) the attribute is owned. Ownership implies that the attribute object is destroyed when the combination box is destroyed or a new attribute object is set. Owned attributes are also cloned when the combination box is copied or cloned. Shared attributes are never destroyed or copied, although a reference to the attribute is copied. You can change an attribute value from owned to shared by calling the corresponding shared function entry point with the current value of the attribute (this is a special case). You can similarly change an attribute value from shared to owned by calling the corresponding owned function entry point.<P>
+The Title attribute is copied internally by the combination box when it is set unless its scribe indicates that the title should be shared. Combination boxes never take over ownership of Title attributes.<P>
+Not all combination box attributes are stored in resources by the default <TT>vcombobox</TT> class. Attributes that are not stored are given default values when a combination box is read from a resource by<TT><B></B></TT> <TT><B>vcomboboxLoad</B></TT> or <TT><B>vcomboboxLoadInit</B></TT> (or the corresponding <TT><B>vcomboboxPopdown</B></TT> functions). Attributes marked "if owned" are only stored if the combination box owns the given attributes. Note that shared attributes may be stored in resources by a future release of Galaxy, so this behavior should not be depended upon. The Class attribute is marked "by name" indicating that only the class name is stored in the combination box resource, not the class contents. When the combination box is read from a resource, the Class attribute is set to the class with the same name.<P>
+<A NAME="64521"><H2> vcombobox Inheritance</H2></A>
+The <TT>vcombobox</TT> inherits from a <TT>vcontainer</TT>. This gives the <TT>vcombobox</TT> added flexibility with respect to the types of its component parts. In the default <TT>vcombobox</TT> designs, these component parts are called the <EM><B>entry box </B></EM>and the <EM><B>choice box</B></EM>. The entry box is a box accepting user type inputs, and the choice box is a box listing values. The basic API entry points for manipulating a <TT>vcombobox</TT> include:<P>
+<DL>
+<DT><DD> <TT><B>vcomboboxAcceptValue</B></TT>
+<DT><DD> <TT><B>vcomboboxAppendValue</B></TT>
+<DT><DD> <TT><B>vcomboboxDeleteValueAt</B></TT>
+<DT><DD> <TT><B>vcomboboxGetValue</B></TT>
+<DT><DD> <TT><B>vcomboboxGetValueAt</B></TT>
+<DT><DD> <TT><B>vcomboboxGetSelectedIndex</B></TT>
+<DT><DD> <TT><B>vcomboboxMoveValue</B></TT>
+<DT><DD> <TT><B>vcomboboxScrollToIndex</B></TT>
+<DT><DD> <TT><B>vcomboboxSelectValue</B></TT>
+<DT><DD> <TT><B>vcomboboxSelectValueAt</B></TT>
+<DT><DD> <TT><B>vcomboboxSetValue</B></TT>
+<DT><DD> <TT><B>vcomboboxSetValueAt</B></TT>
+<DT><DD> <TT><B>vcomboboxSortValues</B></TT>
+</DL>
+<A NAME="38147"><H1> vcomboboxValue</H1></A>
+A new type, <TT>vcomboboxValue</TT>, represents the value of a <TT>vcombobox</TT>.<P>
+<TT>vcomboboxValue</TT> inherits from <TT>vobject</TT>. This allows a <TT>vcomboboxValue</TT> to hold values of any type or kind. The ownership of the values depends on how you subclass <TT>vcomboboxValue</TT>.<P>
+In the default <TT>vcombobox</TT> design, a <TT>vcomboboxValue</TT> is implemented as a string. (The default implementation of <TT>vcombobox</TT> matches the behavior of the 2.0 <TT>vcombo</TT> item.) <P>
+The basic API entry points for manipulating a <TT>vcomboboxValue</TT> include:<P>
+<DL>
+<DT><DD> <TT><B>vcomboboxGetValueTitle</B></TT>
+<DT><DD> <TT><B>vcomboboxGetValueData</B></TT>
+<DT><DD> <TT><B>vcomboboxGetValueCombobox</B></TT>
+<DT><DD> <TT><B>vcomboboxSetValueTitle</B></TT>
+<DT><DD> <TT><B>vcomboboxSetValueTitleScribed</B></TT>
+<DT><DD> <TT><B>vcomboboxSetValueData</B></TT>
+<DT><DD> <TT><B>vcomboboxSetValueCombobox</B></TT>
+</DL>
+<A NAME="38158"><H2> vcomboboxPopdown Inheritance</H2></A>
+The <TT>vcomboboxPopdown</TT> item is subclassed from <TT>vcombobox</TT> and is designed to provide popdown window facilities. <P>
+In addition to the normal components of a <TT>vcombobox</TT>, a <TT>vcomboboxPopdown</TT> contains a private dialog, along with a button. The private dialog "steals" the choice box of a <TT>vcomboboxPopdown</TT> and permanently holds it while the <TT>vcomboboxPopdown</TT> is up and running. The button "pops down" the private dialog to display the choice box. (The button may also close a popped down dialog.)<P>
+Note that on the Macintosh, <TT>vcomboboxPopdown</TT> now uses true windows (instead of menus as in 2.0 and 2.0r2.)<P>
+The basic API entry points for manipulating a <TT>vcomboboxPopdown</TT> item include:<P>
+<DL>
+<DT><DD> <TT><B>vcomboboxAcceptPopdownValue</B></TT>
+<DT><DD> <TT><B>vcomboboxAppendPopdownValue</B></TT>
+<DT><DD> <TT><B>vcomboboxDeletePopdownValueAt</B></TT>
+<DT><DD> <TT><B>vcomboboxGetPopdownValue</B></TT>
+<DT><DD> <TT><B>vcomboboxGetPopdownValueAt</B></TT>
+<DT><DD> <TT><B>vcomboboxGetPopdownSelectedIndex</B></TT>
+<DT><DD> <TT><B>vcomboboxMovePopdownValue</B></TT>
+<DT><DD> <TT><B>vcomboboxScrollPopdownToIndex</B></TT>
+<DT><DD> <TT><B>vcomboboxSelectPopdownValue</B></TT>
+<DT><DD> <TT><B>vcomboboxSelectPopdownValueAt</B></TT>
+<DT><DD> <TT><B>vcomboboxSetPopdownValue</B></TT>
+<DT><DD> <TT><B>vcomboboxSetPopdownValueAt</B></TT>
+<DT><DD> <TT><B>vcomboboxSortPopdownValues</B></TT>
+</DL>
+To create a standard combobox, call <TT><B>vcomboboxCreate</B></TT>. To create a popdown combobox, call <TT><B>vcomboboxCreatePopdown</B></TT>. To create a value to be used by a combination box, call <TT><B>vcomboboxCreateValue</B></TT>. When a combination box is created, it contains an empty list and no currently selected value. When a combination box is initialized and opened, the first value in the choice box is the currently selected value of the choice box and an empty value is the currently selected value of the entry box. You can also create and populate a combination box using the Visual Resource Builder. Refer to<EM> Visual Resource Builder</EM> User's Guide for more information on using the Visual Resource Builder.<P>
+When the user selects an item from a combination box's choice box, that value is copied to the entry box. In a similar manner, when a user enters data into the entry box, the choice box attempts to make an appropriate matching selection. Since this programmatic updating can be blocked in the entry box through <TT><B>B</B></TT><TT>lockEntrybox</TT>, or in the choice box by setting the select behavior to <TT>vcomboboxBEHAVIOR_DO_NOTHING</TT>, it is possible that the two values may differ. This conflict is resolved by taking the current value of the entry box from <TT><B>GetValue</B></TT> and the current value of the choice box from <TT><B>GetSelectedIndex</B></TT>. Once the value of one of these components is changed, it notifies the <TT>vcombobox</TT> (or <TT>vcomboboxPopdown</TT>) to update the other components accordingly. This is accomplished through the class methods of the <TT>vcombobox</TT>.<P>
+There are several ways a user can be prevented from entering new values into the combination box. You can set the behavior to something other than <TT>vcomboboxBEHAVIOR_MATCH_OR_ADD</TT>. You can also set the Modifiable attribute of the entry box to <TT>FALSE</TT>, which prevents typing in the entry box. Additionally, if you set the select behavior to <TT>vcomboboxBEHAVIOR_DO_NOTHING</TT> the user is prevented from selecting values in the choice box.<P>
+<A NAME="90701"><H1> Advanced Use of the Combination Box Class</H1></A>
+<A NAME="88788"><H2> Subclassing vcombobox</H2></A>
+The subclassing of <TT>vcombobox</TT> and/or <TT>vcomboboxPopdown</TT> is required if you do any of the following:<P>
+<UL><LI>Change the ordering of the data values of a <TT>vcombobox</TT>. This includes the change of sorting methods/performances and/or compare functions. To change the ordering, override at least one of the following class methods:
+<DL>
+<DT><DD> <TT>vcomboboxSORT_VALUES</TT> (to do mergesort, quicksort, bubblesort)
+
+<DT><DD> <TT>vcomboboxCOMPARE_VALUES</TT> (&lt;, &gt;, &lt;=, &gt;=)
+
+</DL>
+<LI>Change the type of data values to a type other than string (which is the default type). To change the type of data values, override at least the following methods:
+<DL>
+<DT><DD> <TT>vcomboboxACCEPT_VALUE
+</TT>
+<DT><DD> <TT>vcomboboxAPPEND_VALUE
+</TT>
+<DT><DD> <TT>vcomboboxAPPEND_CHOICEBOX_VALUE
+</TT>
+<DT><DD> <TT>vcomboboxCOMPARE_VALUES
+</TT>
+<DT><DD> <TT>vcomboboxCREATE_VALUE
+</TT>
+<DT><DD> <TT>vcomboboxDRAW_COMBOBOX_VALUE
+</TT>
+<DT><DD> <TT>vcomboboxFIND_VALUE_CLOSEST_INDEX
+</TT>
+<DT><DD> <TT>vcomboboxFIND_VALUE_EXACT_INDEX
+</TT>
+<DT><DD> <TT>vcomboboxFIND_VALUE_PARTIAL_INDEX
+</TT>
+<DT><DD> <TT>vcomboboxGET_ENTRYBOX_VALUE
+</TT>
+<DT><DD> <TT>vcomboboxGET_COMBOBOX_VALUE_SIZE
+</TT>
+<DT><DD> <TT>vcomboboxIS_VALUE_PARTIAL
+</TT>
+<DT><DD> <TT>vcomboboxSET_ENTRYBOX_VALUE
+</TT>
+</DL>
+<UL><B><I>NOTE:</I></B> You may want to subclass <TT>vcomboboxValue</TT> to expand the object size 
+(for example to use objects such as images, data bases, or other custom-
+sized object.)
+<P>
+</UL><LI>Replace the entry box, choice box, or button with customized components. The default <TT>vcombobox</TT> contains a vtextitem as an entry box, a vlistitem as a choice box, a <TT>vbutton</TT> as a button, and works on <TT>vcomboboxValues</TT> containing text strings.
+<UL><B><I>NOTE:</I></B> The default type of these components may change in a future release of 
+Galaxy and should not be depended on.
+<P>
+</UL><LI>To replace an entry box, override at least the following methods:
+<DL>
+<DT><DD> <TT>vcomboboxCALC_ENTRYBOX_RECT
+</TT>
+<DT><DD> <TT>vcomboboxCALC_ENTRYBOX_SIZE
+</TT>
+<DT><DD> <TT>vcomboboxCREATE_ENTRYBOX
+</TT>
+<DT><DD> <TT>vcomboboxGET_ENTRYBOX_VALUE
+</TT>
+<DT><DD> <TT>vcomboboxSET_ENTRYBOX_MODIFYABLE
+</TT>
+<DT><DD> <TT>vcomboboxSET_ENTRYBOX_VALUE
+</TT>
+</DL>
+<UL><B><I>NOTE:</I></B> It is the developer's responsibility to inform and update other     
+<TT>vcombobox</TT> components through the appropriate methods during an 
+entry box notification call.
+<P>
+</UL><LI>To replace the choice box, override at least the following methods:
+<DL>
+<DT><DD> <TT>vcomboboxAPPEND_CHOICEBOX_VALUE
+</TT>
+<DT><DD> <TT>vcomboboxCALC_CHOICEBOX_RECT
+</TT>
+<DT><DD> <TT>vcomboboxCALC_CHOICEBOX_SIZE
+</TT>
+<DT><DD> <TT>vcomboboxCREATE_CHOICEBOX
+</TT>
+<DT><DD> <TT>vcomboboxDELETE_CHOICEBOX_VALUE_AT
+</TT>
+<DT><DD> <TT>vcomboboxGET_CHOICEBOX_SELECTED_INDEX
+</TT>
+<DT><DD> <TT>vcomboboxMOVE_CHOICEBOX_VALUE
+</TT>
+<DT><DD> <TT>vcomboboxSCROLL_CHOICEBOX_TO_INDEX
+</TT>
+<DT><DD> <TT>vcomboboxSELECT_CHOICEBOX_VALUE_AT
+</TT>
+<DT><DD> <TT>vcomboboxSET_CHOICEBOX_VALUE_AT
+</TT>
+</DL>
+<UL><B><I>NOTE:</I></B> It is the developer's responsibility to inform and update other     
+<TT>vcombobox</TT> components through the appropriate methods during an 
+entry box notification call.
+<P>
+</UL><LI>To replace the button (for <TT>vcomboboxPopdown</TT> only), override at least the following methods:
+<DL>
+<DT><DD> <TT>vcomboboxPopdownCALC_BUTTON_RECT
+</TT>
+<DT><DD> <TT>vcomboboxPopdownCALC_BUTTON_SIZE
+</TT>
+<DT><DD> <TT>vcomboboxPopdownCREATE_BUTTON
+</TT>
+</DL>
+<UL><B><I>NOTE:</I></B> It is developer's responsibility to inform <TT>vcomboboxPopdown</TT> to open or 
+close the popdown window.
+<P>
+</UL><LI>To open or close the popdown window, use the following API entry points:
+<DL>
+<DT><DD> <TT><B>vcomboboxOpenPopdownDialog
+</B></TT>
+<DT><DD> <TT><B>vcomboboxClosePopdownDialog
+</B></TT>
+<DT><DD> <TT><B>vcomboboxPopupPopdownDialog
+</B></TT>
+<DT><DD> <TT><B>vcomboboxPopdownPopdownDialog
+</B></TT>
+</DL>
+</UL>The default combobox classes (<TT>vcombobox</TT> and <TT>vcomboboxPopdown</TT>) only provide facilities for lists of strings (via the <TT>vcomboboxValue</TT> class). By subclassing <TT>vcomboboxValue</TT>, lists of any kind of data can be used by the Combination Box class.<P>
+<A NAME="96489"><H2> Sample Code</H2></A>
+Complete source code demonstrating some of the concepts presented in this chapter is available in your Galaxy distribution in the <TT>samples/docsamps</TT> directory.<P>
+The <TT>fontcombo</TT> sample illustrates the basic use of standard and popdown combo boxes by creating a combination box that lists a selection of fonts.<P>
+The <TT>valuecombo</TT> example demonstrates subclassing a combination box to create a list of colors to be selected from.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Color_Chooser.html">Previous Chapter</A> | 
+		<A HREF="Command.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

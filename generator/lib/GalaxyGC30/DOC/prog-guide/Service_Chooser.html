@@ -1,0 +1,147 @@
+<HTML>
+<HEAD>
+<TITLE>Service Chooser</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Service Chooser</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Service_Broker.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Session.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The <EM><B>service chooser</B></EM> provides a common interface to the user for choosing network services defined in the Galaxy Distributed Application Services (DAS) framework. A service chooser can be created and used by any Galaxy application and is the recommended method for establishing a session with a network service defined in the DAS framework. The user can interactively select a service from the list of services that are currently registered with the local service broker application (<TT>vdasserv</TT>). The service chooser displays the attributes assigned to each service by the service provider; the user can configure the service chooser display to only show services with the attributes of interest to the user's application.<P>
+The list of services is obtained from the local service broker each time the service chooser dialog is opened, or when the Rescan option is selected from the Control Menu. The set of attributes displayed in the list of services can be modified by selecting different attributes from the View Menu. A service can be selected by highlighting the service in the list and clicking the OK or Apply button, depending on the current look-and-feel. <A HREF="Service_Chooser.html#3727">Figure 70</A> shows an example of the service chooser.<P>
+<IMG SRC="Service_Chooser.anc.gif"><P>
+<A NAME="3727"><I>Figure 70.  The service chooser
+</I><P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+This section contains sample code that demonstrates how to use the service chooser in an application that wants to establish a session with a service selected using the service chooser. Service choosers can be created dynamically using <TT><B>Create</B></TT> or initialized statically as in <A HREF="Service_Chooser.html#3740">Example 130</A>.<P>
+<A NAME="3740"><I>Example 130.  Creating a service chooser
+</I><P>
+<PRE><UL>{
+   vservicechsr *chooser = vservicechsrCreate();
+
+   vservicechsrSetApply(chooser, myApplyFunction);
+   vservicechsrOpen(chooser);
+   // ...
+}
+
+</UL></PRE><TT><B>myApplyFunction</B></TT> is called when a service is selected from the list of available services and the OK or Apply buttons are clicked. The function is defined in <A HREF="Service_Chooser.html#3764">Example 131</A>.<P>
+<A NAME="3764"><I>Example 131.  Apply function for a service chooser
+</I><P>
+<PRE><UL>int myApplyFunction(vservicechsr *chooser, vscrap *scrap)
+{
+   vsession *session;
+
+   session = vsessionCreate();
+   vsessionSetAttributesFromScrap(session, scrap);
+   // ...
+   return TRUE;
+}
+
+</UL></PRE>Ownership of the scrap is passed to the apply function in <A HREF="Service_Chooser.html#3764">Example 131</A>, which in turn uses the scrap to establish a session with the selected service. The scrap is consumed by the call to <TT><B>vsessionSetAttributesFromScrap </B></TT>and therefore does not need to be destroyed explicitly.<P>
+The service chooser generates the list of available services by querying the local service broker. By default, all services registered with the service broker are returned as a result of the query. The user can restrict the list of services returned to just those services that match a particular set of service attributes using a call to <TT><B>SetMatchScrap</B></TT>. <A HREF="Service_Chooser.html#3795">Example 132</A> shows how to query the service broker for only those services with a name attribute whose value is the string "Bruce."<P>
+<A NAME="3795"><I>Example 132.  Querying the service broker for specific services
+</I><P>
+<PRE><UL>void mySetMatchScrap(vservicechsr *chooser)
+{
+   vscrap *match, *element;
+
+   match = vscrapCreateDictionary();
+   element =
+     vscrapFromStringScribed(vcharScribeLiteral("Bruce"));
+   vscrapStoreElement(match, vname_Name, element);
+
+   vservicechsrSetMatchScrap(chooser, match);
+   vservicechsrRescan(chooser);
+}
+
+</UL></PRE>The matching scrap must implement the dictionary scrap class. Ownership of the matching scrap is passed to <TT><B>SetMatchScrap</B></TT>. The matching algorithm used by the service broker returns any service whose attribute set includes each of the attributes specified in the matching scrap. The service can have other attributes defined outside of the matching set and still be considered a match.<P>
+The service chooser can be closed explicitly with <TT><B>Close </B></TT>or by clicking the Apply button if one exists in the current look-and-feel. The service chooser can be destroyed when no longer needed with <TT><B>Destroy</B></TT>.<P>
+<UL><B><I>NOTE:</I></B> To obtain the list of available services, the service chooser must itself 
+establish a session with the service broker service; this implies that the 
+service broker is already running at the desired location when the service 
+chooser is opened. Also, depending on the network load when the query is 
+issued, the resulting list of services may take a significant amount of time to 
+generate. Normal event processing does not halt during the query so 
+nothing is lost, but the user may notice a slight delay in the appearance of 
+the chooser.
+<P>
+</UL><P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Service_Broker.html">Previous Chapter</A> | 
+		<A HREF="Session.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

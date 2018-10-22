@@ -1,0 +1,912 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vdropsite prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vdropsite prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vdropsite-x.html#section_DataType">Types</A> [4]</TD>
+<TD><A HREF="vdropsite-x.html#section_Function">Functions</A> [35]</TD>
+<TD><A HREF="vdropsite-x.html#section_Message">Messages</A> [10]</TD>
+<TD></TD>
+<TD><A HREF="vdropsite-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vdropsite"><HR><H4>vdropsite</H4></A>
+<PRE>
+        typedef ... <B>vdropsite</B>;
+</PRE>
+
+<DL><DD>
+Denotes an instance of a drop site object. Drop sites interact with a
+drag engine during a drag operation utilizing that engine, receiving
+notification when a drag enters, moves within, leaves, or is dropped
+within the drop site.
+</DD></DL>
+<P>
+<A NAME="vdropsiteClass"><HR><H4>vdropsiteClass</H4></A>
+<PRE>
+        typedef ... <B>vdropsiteClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variable bindings for instances of type
+<CODE>vdropsite</CODE>. Classes declared with this type
+contain the same set of methods and variables as the
+default drop site class, but the behavior of methods and the
+contents of variables may vary. This class type is derived
+from <CODE><A HREF="vloadable-x.html#vloadable"><CODE>vloadable</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdropsiteInternal"><HR><H4>vdropsiteInternal</H4></A>
+<PRE>
+        typedef ... <B>vdropsiteInternal</B>;
+</PRE>
+
+<DL><DD>
+Denotes an instance of an internal drop site. Internal drop sites are
+included for convenience. They are functionally the same as regular
+<CODE>vdropsite</CODE>s, except that they are created pre-registered
+to the default internal drag engine as returned by
+<CODE><A HREF="vdrag-x.html#vdragGetInternalEngine"><CODE>vdragGetInternalEngine</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdropsiteNoteProc"><HR><H4>vdropsiteNoteProc</H4></A>
+<PRE>
+        typedef ... <B>vdropsiteNoteProc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a notification function that is called when the
+<CODE><A HREF="vdrag-x.html#vdrag"><CODE>vdrag</CODE></A></CODE> <SAMP>drag</SAMP> is interacting with the drop site
+<SAMP>drop</SAMP>. A notification procedure is set for a drop site by
+<CODE><A HREF="vdropsite-x.html#vdropsiteSetNotify"><CODE>vdropsiteSetNotify</CODE></A></CODE>. The <SAMP>state</SAMP> field
+indicates the reason for notification as follows:
+
+<DL>
+<DT>vdropSTATE_ENTER
+<DD>A <CODE><A HREF="vdrag-x.html#vdrag"><CODE>vdrag</CODE></A></CODE> has entered the drop site. The return value
+from the notification function should be one of the drop site feedback
+values such as <CODE>vdropFEEDBACK_COPY</CODE>. Also refer to the section
+<CODE><A HREF="vdropsite-x.html#vdropsiteHandleEnter"><CODE>vdropsiteHandleEnter</CODE></A></CODE>.
+
+<DT>vdropSTATE_DETAIL
+<DD>A <CODE><A HREF="vdrag-x.html#vdrag"><CODE>vdrag</CODE></A></CODE> has moved within the drop site. The return value
+from the notification function should be one of the drop site feedback
+values such as <CODE>vdropFEEDBACK_COPY</CODE>. Also refer to the section
+<CODE><A HREF="vdropsite-x.html#vdropsiteHandleDetail"><CODE>vdropsiteHandleDetail</CODE></A></CODE>.
+
+<DT>vdropSTATE_LEAVE
+<DD>A <CODE><A HREF="vdrag-x.html#vdrag"><CODE>vdrag</CODE></A></CODE> has left the drop site. The return value is
+ignored. Also refer to the section <CODE><A HREF="vdropsite-x.html#vdropsiteHandleLeave"><CODE>vdropsiteHandleLeave</CODE></A></CODE>.
+
+<DT>vdropSTATE_DROP
+<DD>A <CODE><A HREF="vdrag-x.html#vdrag"><CODE>vdrag</CODE></A></CODE> has been dropped in the drop site. The return
+value is ignored. Also refer to the section <CODE><A HREF="vdropsite-x.html#vdropsiteHandleDrop"><CODE>vdropsiteHandleDrop</CODE></A></CODE>.
+</DL>
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vdropsiteClone"><HR><H4>vdropsiteClone</H4></A>
+<PRE>
+        vdropsite * <B>vdropsiteClone</B>(
+                vdropsite * drop);
+</PRE>
+
+<DL><DD>
+Creates a copy of the drop site <SAMP>drop</SAMP> and returns a
+pointer to its contents. Storage for the drop site instance is
+allocated by the Drag class, and will be reclaimed when the drop
+site is destroyed with <CODE><A HREF="vdropsite-x.html#vdropsiteDestroy"><CODE>vdropsiteDestroy</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdropsiteCopy"><HR><H4>vdropsiteCopy</H4></A>
+<PRE>
+        void <B>vdropsiteCopy</B>(
+                vdropsite * drop,
+                vdropsite * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>drop</SAMP> into <SAMP>target</SAMP>
+so that the two drop sites represent equivalent
+objects. <SAMP>target</SAMP> must have been created or initialized by
+a Drag class function. <SAMP>drop</SAMP> and <SAMP>target</SAMP>
+must have compatible classes for this to work correctly.
+</DD></DL>
+<P>
+<A NAME="vdropsiteCopyInit"><HR><H4>vdropsiteCopyInit</H4></A>
+<PRE>
+        void <B>vdropsiteCopyInit</B>(
+                vdropsite * drop,
+                vdropsite * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>drop</SAMP> into <SAMP>target</SAMP>
+so the memory addressed by <SAMP>target</SAMP> is a drop site
+equivalent to <SAMP>drop</SAMP>. <SAMP>target</SAMP> should be a
+pointer to uninitialized memory; the Drag class will initialize it
+as part of the copy.
+</DD></DL>
+<P>
+<A NAME="vdropsiteCreate"><HR><H4>vdropsiteCreate</H4></A>
+<PRE>
+        vdropsite * <B>vdropsiteCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new drop site of the default drop site class and returns a
+pointer to its contents. Storage for the drop site instance is
+allocated by the Drag class, and will be reclaimed when the drop
+site is destroyed with <CODE><A HREF="vdropsite-x.html#vdropsiteDestroy"><CODE>vdropsiteDestroy</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdropsiteCreateInternal"><HR><H4>vdropsiteCreateInternal</H4></A>
+<PRE>
+        vdropsite * <B>vdropsiteCreateInternal</B>();
+</PRE>
+
+<DL><DD>
+Creates a new drop site of the internal drop site class and returns a
+pointer to its contents. Storage for the drop site instance is
+allocated by the Drag class, and will be reclaimed when the drop
+site is destroyed with <CODE><A HREF="vdropsite-x.html#vdropsiteDestroy"><CODE>vdropsiteDestroy</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdropsiteCreateOfClass"><HR><H4>vdropsiteCreateOfClass</H4></A>
+<PRE>
+        vdropsite * <B>vdropsiteCreateOfClass</B>(
+                vdropsiteClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new drop site of class <SAMP>clas</SAMP> and returns a
+pointer to its contents. Storage for the drop site instance is
+allocated by the Drag class, and will be reclaimed when the drop
+site is destroyed with <CODE><A HREF="vdropsite-x.html#vdropsiteDestroy"><CODE>vdropsiteDestroy</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdropsiteDestroy"><HR><H4>vdropsiteDestroy</H4></A>
+<PRE>
+        void <B>vdropsiteDestroy</B>(
+                vdropsite * drop);
+</PRE>
+
+<DL><DD>
+Destroys the drop site represented by <SAMP>drop</SAMP>, which must
+have been created or initialized by a Drag class function. The drop
+site will be unregistered from all drag engines it had been previously
+registered with <CODE><A HREF="vdrag-x.html#vdragRegisterEngineDropsite"><CODE>vdragRegisterEngineDropsite</CODE></A></CODE>. Use
+this function to reclaim the storage occupied by a drop site.
+</DD></DL>
+<P>
+<A NAME="vdropsiteDisable"><HR><H4>vdropsiteDisable</H4></A>
+<PRE>
+        void <B>vdropsiteDisable</B>(
+                vdropsite * drop);
+</PRE>
+
+<DL><DD>
+Disables the drop site <SAMP>drop</SAMP>, indicating that drag engines
+should not allow drags to interact with it. This function is
+implemented by sending the message <CODE><A HREF="vdropsite-x.html#vdropsiteDISABLE"><CODE>vdropsiteDISABLE</CODE></A></CODE> to
+the drop site.
+</DD></DL>
+<P>
+<A NAME="vdropsiteEnable"><HR><H4>vdropsiteEnable</H4></A>
+<PRE>
+        void <B>vdropsiteEnable</B>(
+                vdropsite * drop);
+</PRE>
+
+<DL><DD>
+Enables the drop site <SAMP>drop</SAMP>, indicating that drag engines
+should allow drags to interact with it. This function is
+implemented by sending the message <CODE><A HREF="vdropsite-x.html#vdropsiteENABLE"><CODE>vdropsiteENABLE</CODE></A></CODE> to
+the drop site.
+</DD></DL>
+<P>
+<A NAME="vdropsiteGetClass"><HR><H4>vdropsiteGetClass</H4></A>
+<PRE>
+        vdropsiteClass * <B>vdropsiteGetClass</B>(
+                vdropsite * drop);
+</PRE>
+
+<DL><DD>
+Returns the class of the drop site <SAMP>drop</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdropsiteGetData"><HR><H4>vdropsiteGetData</H4></A>
+<PRE>
+        const void * <B>vdropsiteGetData</B>(
+                vdropsite * drop);
+</PRE>
+
+<DL><DD>
+Returns the value stored in the drop site <SAMP>drop</SAMP>'s generic
+data pointer. The value may be <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdropsiteGetDefaultClass"><HR><H4>vdropsiteGetDefaultClass</H4></A>
+<PRE>
+        vdropsiteClass * <B>vdropsiteGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the class used to create drop sites by the
+<CODE><A HREF="vdropsite-x.html#vdropsiteCreate"><CODE>vdropsiteCreate</CODE></A></CODE> and <CODE><A HREF="vdropsite-x.html#vdropsiteInit"><CODE>vdropsiteInit</CODE></A></CODE>
+functions.
+</DD></DL>
+<P>
+<A NAME="vdropsiteGetDefaultInternalClass"><HR><H4>vdropsiteGetDefaultInternalClass</H4></A>
+<PRE>
+        vdropsiteClass * <B>vdropsiteGetDefaultInternalClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the class used to create drop sites by the
+<CODE><A HREF="vdropsite-x.html#vdropsiteCreateInternal"><CODE>vdropsiteCreateInternal</CODE></A></CODE> function.
+</DD></DL>
+<P>
+<A NAME="vdropsiteGetInstance"><HR><H4>vdropsiteGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vdropsiteGetInstance</B>(
+                vdropsite * drop);
+</PRE>
+
+<DL><DD>
+Returns the <CODE><A HREF="vinstance-x.html#vinstance"><CODE>vinstance</CODE></A></CODE> on which the drop site
+<SAMP>drop</SAMP> is built.
+</DD></DL>
+<P>
+<A NAME="vdropsiteGetLoadable"><HR><H4>vdropsiteGetLoadable</H4></A>
+<PRE>
+        vloadable * <B>vdropsiteGetLoadable</B>(
+                vdropsite * drop);
+</PRE>
+
+<DL><DD>
+Returns the <CODE><A HREF="vloadable-x.html#vloadable"><CODE>vloadable</CODE></A></CODE on which the drop site
+<SAMP>drop</SAMP> is built.
+</DD></DL>
+<P>
+<A NAME="vdropsiteGetNotify"><HR><H4>vdropsiteGetNotify</H4></A>
+<PRE>
+        vdropsiteNoteProc <B>vdropsiteGetNotify</B>(
+                vdropsite * drop);
+</PRE>
+
+<DL><DD>
+Returns the drop site <SAMP>drop</SAMP>'s notification function. If no
+notification function has been set, <SAMP>NULL</SAMP> is returned.
+</DD></DL>
+<P>
+<A NAME="vdropsiteGetRect"><HR><H4>vdropsiteGetRect</H4></A>
+<PRE>
+        const vrect * <B>vdropsiteGetRect</B>(
+                vdropsite * drop);
+</PRE>
+
+<DL><DD>
+Returns the drop site's bounding rectangle. Coordinates are in display
+units relative to the lower left-hand corner of the drop site's window,
+as set by <CODE><A HREF="vdropsite-x.html#vdropsiteSetWindow"><CODE>vdropsiteSetWindow</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdropsiteGetTag"><HR><H4>vdropsiteGetTag</H4></A>
+<PRE>
+        const vname * <B>vdropsiteGetTag</B>(
+                vdropsite * drop);
+</PRE>
+
+<DL><DD>
+Returns the tag of the drop site <SAMP>drop</SAMP>, or <samp>NULL</samp> if the
+drop site has no tag.
+</DD></DL>
+<P>
+<A NAME="vdropsiteGetWindow"><HR><H4>vdropsiteGetWindow</H4></A>
+<PRE>
+        vwindow * <B>vdropsiteGetWindow</B>(
+                vdropsite * drop);
+</PRE>
+
+<DL><DD>
+Returns the window the drop site <SAMP>drop</SAMP> is assigned to.
+</DD></DL>
+<P>
+<A NAME="vdropsiteHandleDetail"><HR><H4>vdropsiteHandleDetail</H4></A>
+<PRE>
+        int <B>vdropsiteHandleDetail</B>(
+                vdropsite * drop,
+                vdrag * drag,
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Handles pointer detail events for the drag <SAMP>drag</SAMP> drag over
+the drop site <SAMP>drop</SAMP>. The return value communicates the
+desires of the drop site back to the drag engine overrefer to the sectioning the drag,
+and should be one of:
+
+<DL>
+<DT><CODE>vdropFEEDBACK_REJECT</CODE> 
+<DD>The drop site will not accept the drag, and does not wish to
+receive further notification while the drag is above the drop site.
+
+<DT><CODE>vdropFEEDBACK_MOVE</CODE> 
+<DD>In its current state, the drop site will accept the drag if
+dropped for a move operation.
+
+<DT><CODE>vdropFEEDBACK_COPY</CODE> 
+<DD>In its current state, the drop site will accept the drag if
+dropped for a copy operation.
+
+<DT><CODE>vdropFEEDBACK_LINK</CODE> 
+<DD>In its current state, the drop site will accept the drag if
+dropped for a link operation.
+
+<DT><CODE>vdropFEEDBACK_REJECT_RETRY</CODE> 
+<DD>The drop site will not accept the drag in its current state, but
+does wish to receive further notification while the drag is above the
+drop site.
+</DL>
+
+<CODE><A HREF="vdrag-x.html#vdrag"><CODE>vdrag</CODE></A></CODE> should be used to determine
+what operations the drag will permit. The feedback returned by the
+drop site should correspond to one of the drag's valid drop actions.
+<P>
+This function is implemented by sending the message
+<CODE><A HREF="vdropsite-x.html#vdropsiteHANDLE_DETAIL"><CODE>vdropsiteHANDLE_DETAIL</CODE></A></CODE> to the drop site.
+</DD></DL>
+<P>
+<A NAME="vdropsiteHandleDrop"><HR><H4>vdropsiteHandleDrop</H4></A>
+<PRE>
+        void <B>vdropsiteHandleDrop</B>(
+                vdropsite * drop,
+                vdrag * drag,
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Handles the dropping of the drag <SAMP>drag</SAMP> over the drop site
+<SAMP>drop</SAMP>. This function is implemented by sending the message
+<CODE><A HREF="vdropsite-x.html#vdropsiteHANDLE_DROP"><CODE>vdropsiteHANDLE_DROP</CODE></A></CODE> to the drop site.
+</DD></DL>
+<P>
+<A NAME="vdropsiteHandleEnter"><HR><H4>vdropsiteHandleEnter</H4></A>
+<PRE>
+        int <B>vdropsiteHandleEnter</B>(
+                vdropsite * drop,
+                vdrag * drag,
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Handles the pointer event corresponding to the drag <SAMP>drag</SAMP>
+entering the drop site. The return value communicates the desires of
+the drop site back to the drag engine overrefer to the sectioning the drag, and should
+be one of:
+
+<DL>
+<DT><CODE>vdropFEEDBACK_REJECT</CODE> 
+<DD>The drop site will not accept the drag, and does not wish to
+receive further notification while the drag is above the drop site.
+
+<DT><CODE>vdropFEEDBACK_MOVE</CODE> 
+<DD>In its current state, the drop site will accept the drag if
+dropped for a move operation.
+
+<DT><CODE>vdropFEEDBACK_COPY</CODE> 
+<DD>In its current state, the drop site will accept the drag if
+dropped for a copy operation.
+
+<DT><CODE>vdropFEEDBACK_LINK</CODE> 
+<DD>In its current state, the drop site will accept the drag if
+dropped for a link operation.
+
+<DT><CODE>vdropFEEDBACK_REJECT_RETRY</CODE> 
+<DD>The drop site will not accept the drag in its current state, but
+does wish to receive further notification while the drag is above the
+drop site.
+</DL>
+
+<CODE><A HREF="vdrag-x.html#vdrag"><CODE>vdrag</CODE></A></CODE> should be used to determine
+what operations the drag will permit. The feedback returned by the
+drop site should correspond to one of the drag's valid drop actions. 
+This function is implemented by sending the message
+<CODE><A HREF="vdropsite-x.html#vdropsiteHANDLE_ENTER"><CODE>vdropsiteHANDLE_ENTER</CODE></A></CODE> to the drop site.
+</DD></DL>
+<P>
+<A NAME="vdropsiteHandleLeave"><HR><H4>vdropsiteHandleLeave</H4></A>
+<PRE>
+        void <B>vdropsiteHandleLeave</B>(
+                vdropsite * drop,
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+Handles the pointer event corresponding to the drag <SAMP>drag</SAMP>
+leaving the drop site. This function is implemented by sending the
+message <CODE><A HREF="vdropsite-x.html#vdropsiteHANDLE_LEAVE"><CODE>vdropsiteHANDLE_LEAVE</CODE></A></CODE> to the drop site.
+</DD></DL>
+<P>
+<A NAME="vdropsiteInit"><HR><H4>vdropsiteInit</H4></A>
+<PRE>
+        void <B>vdropsiteInit</B>(
+                vdropsite * drop);
+</PRE>
+
+<DL><DD>
+Initializes a drop site of the default drop site class in the memory
+addressed by <SAMP>drop</SAMP>. The address can be used in other calls
+to the Drag class as if it were created with
+<CODE><A HREF="vdropsite-x.html#vdropsiteCreate"><CODE>vdropsiteCreate</CODE></A></CODE>. A call to <CODE><A HREF="vdropsite-x.html#vdropsiteDestroy"><CODE>vdropsiteDestroy</CODE></A></CODE>
+frees any internal objects allocated by the Drag class, but does
+<I>not</I> free the structure itself.
+</DD></DL>
+<P>
+<A NAME="vdropsiteInitOfClass"><HR><H4>vdropsiteInitOfClass</H4></A>
+<PRE>
+        void <B>vdropsiteInitOfClass</B>(
+                vdropsite * drop,
+                vdropsiteClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a drop site of the class <SAMP>clas</SAMP> in the memory
+addressed by <SAMP>drop</SAMP>. The address can be used in other calls
+to the Drag class as if it were created with
+<CODE><A HREF="vdropsite-x.html#vdropsiteCreateOfClass"><CODE>vdropsiteCreateOfClass</CODE></A></CODE>. A call to
+<CODE><A HREF="vdropsite-x.html#vdropsiteDestroy"><CODE>vdropsiteDestroy</CODE></A></CODE> frees any internal objects allocated by
+the Drag class, but does <I>not</I> free the structure itself.
+</DD></DL>
+<P>
+<A NAME="vdropsiteIsEnabled"><HR><H4>vdropsiteIsEnabled</H4></A>
+<PRE>
+        vbool <B>vdropsiteIsEnabled</B>(
+                vdropsite * drop);
+</PRE>
+
+<DL><DD>
+Tests if the drop site <SAMP>drop</SAMP> is enabled, indicating that
+drag engines should allow drags to interact with it.
+</DD></DL>
+<P>
+<A NAME="vdropsiteLoad"><HR><H4>vdropsiteLoad</H4></A>
+<PRE>
+        vdropsite * <B>vdropsiteLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a drop site from the resource <SAMP>resource</SAMP> and returns
+a pointer to its contents. The drop site's class is determined by the
+value of the tag ``Class.'' It generates a
+<CODE><A HREF="vobject-x.html#vobjectUndefinedClassException"><CODE>vobjectUndefinedClassException</CODE></A></CODE> exception if the name does
+not denote a class in the Class class registry. Storage for the drop
+site instance is allocated by the Drag class, and will be reclaimed
+when the drop site is destroyed with <CODE><A HREF="vdropsite-x.html#vdropsiteDestroy"><CODE>vdropsiteDestroy</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdropsiteLoadInit"><HR><H4>vdropsiteLoadInit</H4></A>
+<PRE>
+        void <B>vdropsiteLoadInit</B>(
+                vdropsite * drop,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a drop site from the resource <SAMP>resource</SAMP> and stores
+it in the uninitialized memory addressed by <SAMP>drop</SAMP>. The
+drop site's class is determined by the value of the tag ``Class.'' It
+generates a <CODE><A HREF="vobject-x.html#vobjectUndefinedClassException"><CODE>vobjectUndefinedClassException</CODE></A></CODE> exception if
+the name does not denote a class in the Class class registry.
+</DD></DL>
+<P>
+<A NAME="vdropsiteSetData"><HR><H4>vdropsiteSetData</H4></A>
+<PRE>
+        void <B>vdropsiteSetData</B>(
+                vdropsite * drop,
+                const void * data);
+</PRE>
+
+<DL><DD>
+Sets the value stored in the drop site <SAMP>drop</SAMP>'s generic
+data pointer to <SAMP>data</SAMP>. The value is not used or modified
+by the drop site in any way, and may contain any pointer value,
+including <SAMP>NULL</SAMP>. This function is implemented by sending
+the message <CODE><A HREF="vdropsite-x.html#vdropsiteSET_DATA"><CODE>vdropsiteSET_DATA</CODE></A></CODE> to the drop site.
+</DD></DL>
+<P>
+<A NAME="vdropsiteSetNotify"><HR><H4>vdropsiteSetNotify</H4></A>
+<PRE>
+        void <B>vdropsiteSetNotify</B>(
+                vdropsite * drop,
+                vdropsiteNoteProc noteProc);
+</PRE>
+
+<DL><DD>
+Sets the drop site <SAMP>drop</SAMP>'s notification function to
+<SAMP>noteProc</SAMP>. When set, the <CODE><A HREF="vdropsite-x.html#vdropsiteNoteProc"><CODE>vdropsiteNoteProc</CODE></A></CODE>
+will be called by the drop site when a drag enters, moves within,
+leaves, or is dropped within the drop site. This function is
+implemented by sending the message <CODE><A HREF="vdropsite-x.html#vdropsiteSET_NOTIFY"><CODE>vdropsiteSET_NOTIFY</CODE></A></CODE> to
+the drop site.
+</DD></DL>
+<P>
+<A NAME="vdropsiteSetRect"><HR><H4>vdropsiteSetRect</H4></A>
+<PRE>
+        void <B>vdropsiteSetRect</B>(
+                vdropsite * drop,
+                const vrect * rect);
+</PRE>
+
+<DL><DD>
+Sets the drop site <SAMP>drop</SAMP>'s bounding rectangle to
+<SAMP>rect</SAMP>. Coordinates are in display units relative to the
+lower left-hand corner of the drop site's window, as set by
+<CODE><A HREF="vdropsite-x.html#vdropsiteSetWindow"><CODE>vdropsiteSetWindow</CODE></A></CODE>. This function is
+implemented by sending the message <CODE><A HREF="vdropsite-x.html#vdropsiteSET_RECT"><CODE>vdropsiteSET_RECT</CODE></A></CODE> to
+the drop site.
+</DD></DL>
+<P>
+<A NAME="vdropsiteSetTag"><HR><H4>vdropsiteSetTag</H4></A>
+<PRE>
+        void <B>vdropsiteSetTag</B>(
+                vdropsite * drop,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Changes the tag of the drop site <SAMP>drop</SAMP> to
+<SAMP>tag</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdropsiteSetWindow"><HR><H4>vdropsiteSetWindow</H4></A>
+<PRE>
+        void <B>vdropsiteSetWindow</B>(
+                vdropsite * drop,
+                vwindow * window);
+</PRE>
+
+<DL><DD>
+Sets the window the drop site <SAMP>drop</SAMP> is assigned to. This
+function is implemented by sending the message
+<CODE><A HREF="vdropsite-x.html#vdropsiteSET_WINDOW"><CODE>vdropsiteSET_WINDOW</CODE></A></CODE> to the drop site.
+</DD></DL>
+<P>
+<A NAME="vdropsiteStartup"><HR><H4>vdropsiteStartup</H4></A>
+<PRE>
+        void <B>vdropsiteStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the drop site portion of the Drag class. Has no effect
+if it is already initialized.
+</DD></DL>
+<P>
+<A NAME="vdropsiteStore"><HR><H4>vdropsiteStore</H4></A>
+<PRE>
+        void <B>vdropsiteStore</B>(
+                vdropsite * drop,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Writes the contents of the drop site <SAMP>drop</SAMP> into the
+resource <SAMP>resource</SAMP>. The drop site can be recovered from
+the resource at a later time with <CODE><A HREF="vdropsite-x.html#vdropsiteLoad"><CODE>vdropsiteLoad</CODE></A></SAMP> or
+<CODE><A HREF="vdropsite-x.html#vdropsiteLoadInit"><CODE>vdropsiteLoadInit</CODE></A></SAMP>.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vdropsiteDISABLE"><HR><H4>vdropsiteDISABLE</H4></A>
+<PRE>
+        &lt;<B>vdropsiteDISABLE</B>&gt;
+</PRE>
+
+<DL><DD>
+Disables the drop site <SAMP>drop</SAMP>, indicating that drag engines
+should not allow drags to interact with it. The function entry point
+<CODE><A HREF="vdropsite-x.html#vdropsiteDisable"><CODE>vdropsiteDisable</CODE></A></CODE> is implemented by sending this message
+to the drop site.
+</DD></DL>
+<P>
+<A NAME="vdropsiteENABLE"><HR><H4>vdropsiteENABLE</H4></A>
+<PRE>
+        &lt;<B>vdropsiteENABLE</B>&gt;
+</PRE>
+
+<DL><DD>
+Enables the drop site, indicating that drag engines should allow drags
+to interact with it. The function entry point
+<CODE><A HREF="vdropsite-x.html#vdropsiteEnable"><CODE>vdropsiteEnable</CODE></A></CODE> is implemented by sending this message
+to the drop site.
+</DD></DL>
+<P>
+<A NAME="vdropsiteHANDLE_DETAIL"><HR><H4>vdropsiteHANDLE_DETAIL</H4></A>
+<PRE>
+        &lt;<B>vdropsiteHANDLE_DETAIL</B>&gt;
+</PRE>
+
+<DL><DD>
+Handles pointer detail events for the drag <SAMP>drag</SAMP> drag over
+the drop site <SAMP>drop</SAMP>. The return value communicates the
+desires of the drop site back to the drag engine overrefer to the sectioning the drag,
+and should be one of:
+
+<DL>
+<DT><CODE>vdropFEEDBACK_REJECT</CODE> 
+<DD>The drop site will not accept the drag, and does not wish to
+receive further notification while the drag is above the drop site.
+
+<DT><CODE>vdropFEEDBACK_MOVE</CODE> 
+<DD>In its current state, the drop site will accept the drag if
+dropped for a move operation.
+
+<DT><CODE>vdropFEEDBACK_COPY</CODE> 
+<DD>In its current state, the drop site will accept the drag if
+dropped for a copy operation.
+
+<DT><CODE>vdropFEEDBACK_LINK</CODE> 
+<DD>In its current state, the drop site will accept the drag if
+dropped for a link operation.
+
+<DT><CODE>vdropFEEDBACK_REJECT_RETRY</CODE> 
+<DD>The drop site will not accept the drag in its current state, but
+does wish to receive further notification while the drag is above the
+drop site.
+</DL>
+
+<CODE><A HREF="vdrag-x.html#vdrag"><CODE>vdrag</CODE></A></CODE> should be used to determine
+what operations the drag will permit. The feedback returned by the
+drop site should correspond to one of the drag's valid drop actions.
+<P>
+The function entry point <CODE><A HREF="vdropsite-x.html#vdropsiteHandleDetail"><CODE>vdropsiteHandleDetail</CODE></A></CODE> is
+implemented by sending this message to the drop site. The default
+implementation in the base <CODE>vdropsite</CODE> class invokes the
+drop site's notification function, if set, with the state
+<CODE>vdropSTATE_DETAIL</CODE>.
+</DD></DL>
+<P>
+<A NAME="vdropsiteHANDLE_DROP"><HR><H4>vdropsiteHANDLE_DROP</H4></A>
+<PRE>
+        &lt;<B>vdropsiteHANDLE_DROP</B>&gt;
+</PRE>
+
+<DL><DD>
+Handles the dropping of the drag <SAMP>drag</SAMP> over the drop site
+<SAMP>drop</SAMP>. The function entry point
+<CODE><A HREF="vdropsite-x.html#vdropsiteHandleDrop"><CODE>vdropsiteHandleDrop</CODE></A></CODE> is implemented by sending this
+message to the drop site.
+<P>
+The default implementation in the base <CODE>vdropsite</CODE> class
+invokes the drop site's notification function, if set, with the state
+<CODE>vdropSTATE_DROP</CODE>.
+</DD></DL>
+<P>
+<A NAME="vdropsiteHANDLE_ENTER"><HR><H4>vdropsiteHANDLE_ENTER</H4></A>
+<PRE>
+        &lt;<B>vdropsiteHANDLE_ENTER</B>&gt;
+</PRE>
+
+<DL><DD>
+Handles the pointer event corresponding to the drag <SAMP>drag</SAMP>
+entering the drop site. The return value communicates the desires of
+the drop site back to the drag engine overrefer to the sectioning the drag, and should
+be one of:
+
+<DL>
+<DT><CODE>vdropFEEDBACK_REJECT</CODE> 
+<DD>The drop site will not accept the drag, and does not wish to
+receive further notification while the drag is above the drop site.
+
+<DT><CODE>vdropFEEDBACK_MOVE</CODE> 
+<DD>In its current state, the drop site will accept the drag if
+dropped for a move operation.
+
+<DT><CODE>vdropFEEDBACK_COPY</CODE> 
+<DD>In its current state, the drop site will accept the drag if
+dropped for a copy operation.
+
+<DT><CODE>vdropFEEDBACK_LINK</CODE> 
+<DD>In its current state, the drop site will accept the drag if
+dropped for a link operation.
+
+<DT><CODE>vdropFEEDBACK_REJECT_RETRY</CODE> 
+<DD>The drop site will not accept the drag in its current state, but
+does wish to receive further notification while the drag is above the
+drop site.
+</DL>
+
+<CODE><A HREF="vdrag-x.html#vdrag"><CODE>vdrag</CODE></A></CODE> should be used to determine
+what operations the drag will permit. The feedback returned by the
+drop site should correspond to one of the drag's valid drop actions.
+<P>
+The function entry point <CODE><A HREF="vdropsite-x.html#vdropsiteHandleEnter"><CODE>vdropsiteHandleEnter</CODE></A></CODE> is
+implemented by sending this message to the drop site. The default
+implementation in the base <CODE>vdropsite</CODE> class invokes the
+drop site's notification function, if set, with the state
+<CODE>vdropSTATE_ENTER</CODE>.
+</DD></DL>
+<P>
+<A NAME="vdropsiteHANDLE_LEAVE"><HR><H4>vdropsiteHANDLE_LEAVE</H4></A>
+<PRE>
+        &lt;<B>vdropsiteHANDLE_LEAVE</B>&gt;
+</PRE>
+
+<DL><DD>
+Handles the pointer event corresponding to the drag <SAMP>drag</SAMP>
+leaving the drop site. The function entry point 
+<CODE><A HREF="vdropsite-x.html#vdropsiteHandleLeave"><CODE>vdropsiteHandleLeave</CODE></A></CODE> is
+implemented by sending this message to the drop site. The default
+implementation in the base <CODE>vdropsite</CODE> class
+invokes the drop site's notification function, if set, with the state
+<CODE>vdropSTATE_LEAVE</CODE>.
+</DD></DL>
+<P>
+<A NAME="vdropsiteSET_DATA"><HR><H4>vdropsiteSET_DATA</H4></A>
+<PRE>
+        &lt;<B>vdropsiteSET_DATA</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the value stored in the drop site <SAMP>drop</SAMP>'s generic
+data pointer to <SAMP>data</SAMP>. The value is not used or modified
+by the drop site in any way, and may contain any pointer value,
+including <SAMP>NULL</SAMP>. The function entry point
+<CODE><A HREF="vdropsite-x.html#vdropsiteSetData"><CODE>vdropsiteSetData</CODE></A></CODE> is implemented by sending this message
+to the drop site.
+</DD></DL>
+<P>
+<A NAME="vdropsiteSET_NOTIFY"><HR><H4>vdropsiteSET_NOTIFY</H4></A>
+<PRE>
+        &lt;<B>vdropsiteSET_NOTIFY</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the drop site <SAMP>drop</SAMP>'s notification function to
+<SAMP>noteProc</SAMP>. When set, the <CODE><A HREF="vdropsite-x.html#vdropsiteNoteProc"><CODE>vdropsiteNoteProc</CODE></A></CODE>
+will be called by the drop site when a drag enters, moves within,
+leaves, or is dropped within the drop site. The function entry point
+<CODE><A HREF="vdropsite-x.html#vdropsiteSetNotify"><CODE>vdropsiteSetNotify</CODE></A></CODE> is implemented by sending this message
+to the drop site.
+</DD></DL>
+<P>
+<A NAME="vdropsiteSET_RECT"><HR><H4>vdropsiteSET_RECT</H4></A>
+<PRE>
+        &lt;<B>vdropsiteSET_RECT</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the drop site <SAMP>drop</SAMP>'s bounding rectangle to
+<SAMP>rect</SAMP>. Coordinates are in display units relative to the
+lower left-hand corner of the drop site's window, as set by
+<CODE><A HREF="vdropsite-x.html#vdropsiteSetWindow"><CODE>vdropsiteSetWindow</CODE></A></CODE>. The function entry point
+<CODE><A HREF="vdropsite-x.html#vdropsiteSetRect"><CODE>vdropsiteSetRect</CODE></A></CODE> is implemented by sending this message
+to the drop site.
+</DD></DL>
+<P>
+<A NAME="vdropsiteSET_WINDOW"><HR><H4>vdropsiteSET_WINDOW</H4></A>
+<PRE>
+        &lt;<B>vdropsiteSET_WINDOW</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the window a drop site is assigned to. The function entry point
+<CODE><A HREF="vdropsite-x.html#vdropsiteSetWindow"><CODE>vdropsiteSetWindow</CODE></A></CODE> is implemented by sending this message
+to the drop site.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vdropsiteCLASS"><HR><H4>vdropsiteCLASS</H4></A>
+<PRE>
+        #define <B>vdropsiteCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for drop site
+classes. This macro expands to the contents of
+<CODE><A HREF="vdropsite-x.html#vdropsiteClass"><CODE>vdropsiteClass</CODE></A></CODE>. <SAMP>SUPER</SAMP> is the type identifier
+of the class being declared (for example,
+<CODE><A HREF="vdropsite-x.html#vdropsiteClass"><CODE>vdropsiteClass</CODE></A></CODE>). This type is used by the class's
+subclasses to refer to it. <SAMP>DROP</SAMP> is the type identifier of
+instances of the class being declared (for example,
+<CODE>vdropsite</CODE>). <SAMP>NOTIFY</SAMP> is the type identifier
+of the instance notification function (for example,
+<CODE><A HREF="vdropsite-x.html#vdropsiteNoteProc"><CODE>vdropsiteNoteProc</CODE></A></CODE>). This macro should be used by drop
+site subclasses to declare the contents of the drop site class. This
+macro should come first in the subclass structure declaration.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

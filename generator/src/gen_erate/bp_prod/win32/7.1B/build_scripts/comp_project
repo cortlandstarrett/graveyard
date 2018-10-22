@@ -1,0 +1,161 @@
+#!/bin/sh
+#==========================================================================
+#
+# File:      $RCSfile: comp_project,v $
+# Version:   $Revision: 1.9 $
+# Modified:  $Date: 2013/01/10 23:42:21 $
+#
+# (c) Copyright 1992-2013 by Mentor Graphics Corp. All rights reserved.
+#
+#==========================================================================
+# This document contains information proprietary and confidential to
+# Mentor Graphics Corp., and is not for external distribution.
+#==========================================================================
+#
+# This script builds BridgePoint in the project area
+#
+# Parameters:
+#   $1 - Platform for which this build is intended
+#   $2 - Version for which this build is intended
+
+set -e
+set -u
+
+if [ $# -lt 2 ]; then
+  echo "Usage:
+   `basename $0` <platform> <version> <make-parameters>
+"
+  exit 2
+fi
+
+PLATFORM=$1
+export PLATFORM
+VERSION=$2
+export VERSION
+shift
+shift
+
+makeparms=compile
+if [ $# -ne 0 ]; then
+  makeparms="$*"
+fi
+
+# Include file with customizable build information
+this_path="`dirname $0`"
+if [ "$this_path" = "." ]; then
+  this_path="`pwd`"
+fi
+
+HOST_INFO_INCLUDE=$this_path/get_host_platform.inc
+. $HOST_INFO_INCLUDE
+
+BUILD_INCLUDE=$this_path/build_vars_project.inc
+. $BUILD_INCLUDE
+
+unset BP_PUB
+
+pc="%"
+date_stamp="`date \"+${pc}y${pc}m${pc}d_${pc}H${pc}M${pc}S\"`"
+
+file_pre=comp
+for p in $makeparms
+  do
+  case $p in
+    comp* )
+      file_pre=comp
+      break
+      ;;
+    link* )
+      file_pre=link
+      break
+      ;;
+    dep* )
+      file_pre=dep
+      break
+      ;;
+    scour* )
+      file_pre=scour
+      if [ -d $BUILD_DIR ]; then
+         rm -rf $BUILD_DIR
+      fi
+      break
+      ;;
+  esac
+  break
+  done
+
+# Assure the directories exist
+if [ ! -d $BUILD_DIR ]; then
+  if [ "$file_pre" = "link" ]; then
+    $this_path/create_pub $PLATFORM $VERSION
+  else
+  	echo ""
+    echo "ERROR: Run the create_bp_build script in the project root to create $BUILD_DIR"
+  	echo ""
+    exit 1
+  fi
+elif [ ! -d $LOG_DIR ]; then
+  if [ "$file_pre" = "link" ]; then
+    $this_path/create_pub $PLATFORM $VERSION
+  else
+  	echo ""
+    echo "ERROR: Run the create_bp_build script in the project root to create $LOG_DIR"
+  	echo ""
+    exit 1
+  fi
+elif [ ! -d $SCHEMA_DIR ]; then
+  if [ "$file_pre" = "link" ]; then
+    $this_path/create_pub $PLATFORM $VERSION
+  else
+  	echo ""
+    echo "ERROR: Run the create_bp_build script in the project root to create $SCHEMA_DIR"
+  	echo ""
+    exit 1
+  fi
+elif [ ! -d $BP_PUB_SRC ]; then
+  if [ "$file_pre" = "link" ]; then
+    $this_path/create_pub $PLATFORM $VERSION
+  else
+  	echo ""
+    echo "ERROR: Run the create_bp_build script in the project root to create $BP_PUB_SRC"
+  	echo ""
+    exit 1
+  fi
+elif [ ! -d $BP_PUB_BLD ]; then
+  if [ "$file_pre" = "link" ]; then
+    $this_path/create_pub $PLATFORM $VERSION
+  else
+  	echo ""
+    echo "ERROR: Run the create_bp_build script in the project root to create $BP_PUB_BLD"
+  	echo ""
+    exit 1
+  fi
+elif [ ! -d $BP_PUB_PRD ]; then
+  if [ "$file_pre" = "link" ]; then
+    $this_path/create_pub $PLATFORM $VERSION
+  else
+  	echo ""
+    echo "ERROR: Run the create_bp_build script in the project root to create $BP_PUB_PRD"
+  	echo ""
+    exit 1
+  fi
+fi
+
+case $PLATFORM in
+  win32 )
+    MAKE=/usr/bin/make
+    export MAKE
+    ;;
+esac
+
+COMP_OUT_FILE=$LOG_DIR/${file_pre}_${VERSION}_${date_stamp}.out
+
+{
+echo "Starting time: `date`"
+echo "hostname is `hostname`"
+cd $BP_PUB_SRC
+cmd="make -f $BP_PUB_SRC/makefile BUILD_INCLUDE=$BUILD_INCLUDE $makeparms"
+echo "$cmd"
+$cmd
+echo "Ending time: `date`"
+} 2>&1 | tee $COMP_OUT_FILE

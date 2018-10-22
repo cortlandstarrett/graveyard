@@ -1,0 +1,226 @@
+<HTML>
+<HEAD>
+<TITLE>Signature</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Signature</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Session.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Spinner.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The <EM><B>Signature</B></EM> class allows you to create and manipulate primitive function descriptions called <EM><B>signatures</B></EM>. A signature is an object that describes both the arguments to and return result from a primitive exported by a service provided under the Galaxy Distributed Application Services (DAS). The Signature class uses the Datatag class extensively to describe the types of the application data used as arguments to and returned from a primitive.<P>
+Signatures are used predominantly by the Session class and Service class to coordinate, with error-checking, the communication between services, consumers, and producers. The Signature class provides the capability to create and destroy signature objects, manipulate their argument and return result datatags, and load and store signatures in Galaxy resources. Refer to the Service, Session, and Datatag chapters for more information on the role of signatures in DAS.<P>
+<A NAME="3929"><H2> Signatures</H2></A>
+A signature corresponds to a function prototype in a procedural programming language. A function prototype defines the name of the function, the type definition of each argument to the function, and the type definition of the return result of the function. Similarly, the name assigned to a signature is the name of the DAS primitive corresponding to the signature, while the datatags used to represent the arguments and return result provide type definitions for the data manipulated by the named primitive. Just as function prototypes are placed in header files so they can be shared by multiple code modules, signatures can be stored in Galaxy resource files so the description of a primitive can be shared by the service provider that implements the primitive as well as each client that wants to make use of the functionality provided by that primitive.<P>
+<A NAME="3942"><H2> Building Signatures</H2></A>
+Signatures are built using datatag objects created with Datatag class functions. <A HREF="Signature.html#3948">Example 138</A> shows how to construct a signature for a primitive that takes an integer argument and returns a floating-point value.<P>
+<A NAME="3948"><I>Example 138.  Constructing a signature for a primitive
+</I><P>
+<PRE><UL>{
+   vsignature sig;
+
+   vsignatureInit(&amp;sig);
+   vsignatureSetTag(&amp;sig, vnameInternGlobalLiteral("one arg"));
+
+   vsignatureAppendDatatag(&amp;sig, vdatatagGetInteger());
+   vsignatureSetReturnDatatag(&amp;sig, vdatatagGetSingleFloat());
+   // ...
+   vsignatureDestroy(&amp;sig);
+}
+
+</UL></PRE><UL><B><I>NOTE:</I></B> Ownership of the datatags returned by the <TT><B>vdatatagGet</B></TT> methods is not 
+passed to the signature. Consequently, when the signature is destroyed, the 
+datatags that describe the arguments and return result are not destroyed 
+along with it. This is because datatags are meant to be shared&#175;they are 
+managed independently of their usage. This is important when signatures 
+are stored in resource files.
+<P>
+</UL>Convenience functions are provided to make signature construction easier. <A HREF="Signature.html#3977">Example 139</A> shows how to construct a signature for a primitive that takes a large number of arguments.<P>
+<A NAME="3977"><I>Example 139.  Constructing a signature for a primitive (using convenience functions)
+</I><P>
+<PRE><UL>{
+   vsignature *sig;
+
+   sig = vsignatureCreate();
+   vsignatureSetTag(sig,
+                    vnameInternGlobalLiteral("lots-o-args"));
+   vsignatureSetReturnDatatag(sig, vdatatagGetInteger());
+
+   vsignatureConstructArgs(sig, vdatatagGetShort(),
+                           vdatatagGetFixed(),
+                           vdatatagGetLonglong(),
+                           vdatatagGetString(),
+                           vdatatagGetInteger(),
+                           NULL);
+}
+
+</UL></PRE>Note that the result achieved in <A HREF="Signature.html#3977">Example 139</A> can also be obtained by calling <TT><B>AppendDatatag</B></TT> for each argument datatag.<P>
+<A NAME="4013"><H2> Storing Signatures</H2></A>
+Signatures are similar to function prototypes in a procedural language. Function prototypes are commonly defined early in the programming process and then placed in shared header files to provide type checking and documentation to the users and implementors of the prototyped function. Similarly, signatures are typically created early in the design of a DAS service and stored in Galaxy resource files. This allows both the service implementor and the developer writing applications that use that service to share signatures and their descriptions. <A HREF="Signature.html#4019">Example 140</A> shows how to store a signature in a Galaxy resource file.<P>
+<A NAME="4019"><I>Example 140.  Storing a signature in a resource file
+</I><P>
+<PRE><UL>void myCreateSig(vresource res)
+{
+   vsignature sig;
+
+   vsignatureInit(&amp;sig);
+   vsignatureSetTag(&amp;sig,
+                    vnameInternGlobalLiteral("shared sig"));
+   vsignatureSetReturnDatatag(&amp;sig, vdatatagGetInteger());
+   vsignatureAppendDatatag(&amp;sig, vdatatagGetUnsignedByte());
+
+   vsignatureStore(&amp;sig, res);
+   vsignatureDestroy(&amp;sig);
+}
+
+</UL></PRE><A HREF="Signature.html#4019">Example 140</A> is not quite complete, however. In keeping with the philosophy of sharing datatags, when a signature is stored in a resource, a reference to each datatag used by the signature is stored with the signature, not the datatag itself. This means that storing many signatures that reference common datatags does not generate large, cumbersome resource files. However, when the signature is subsequently loaded from the resource file, the datatags referenced by the signature must be previously defined. (Similarly, a function prototype in a procedural language cannot reference a data structure that has not been previously defined.)<P>
+To resolve references to datatags, add all application-defined datatags to a common datatag group and store the datatag group along with the signatures that reference datatags in that group. <A HREF="Signature.html#4054">Example 141</A> shows how to do this.<P>
+<A NAME="4054"><I>Example 141.  Adding and storing datatags to a common datatag group
+</I><P>
+<PRE><UL>void mySaveSignaturesAndDatatags(vresource res)
+{
+   vdatatag      *larry, *moe, *curly;
+   vsignature    *laurel, *hardy;
+   vdatatagGroup *group;
+   vresource      element;
+   const vname   *name;
+
+   /*
+    * Create a datatag group and a set of application-defined
+    * datatags.
+    */
+   group = vdatatagCreateGroup();
+   name  = vnameInternGlobalLiteral("group");
+   vdatatagSetGroupName(group, name);
+
+   larry = vdatatagCreatePointer();
+   vdatatagSetPointerDatatag(larry, vdatatagGetLonglong());
+   name = vnameInternGlobalLiteral("larry");
+   vdatatagAddToGroup(group, name, larry);
+
+   moe = vdatatagCreateSizedOpaque();
+   vdatatagSetSizedOpaqueCount(moe, 11);
+   name = vnameInternGlobalLiteral("moe");
+   vdatatagAddToGroup(group, name, moe);
+
+   curly = vdatatagCreateArray();
+   vdatatagSetArrayDatatag(curly, vdatatagGetFixed());
+   name = vnameInternGlobalLiteral("curly");
+   vdatatagAddToGroup(group, name, curly);
+
+   /*
+    * Define a set of signatures that share the datatags.
+    */
+   laurel = vsignatureCreate();
+   name   = vnameInternGlobalLiteral("laurel");
+   vsignatureSetTag(laurel, name);
+   vsignatureSetReturnDatatag(laurel, vdatatagGetInteger());
+   vsignatureConstructArgs(laurel, larry, moe, NULL);
+
+   hardy = vsignatureCreate();
+   name  = vnameInternGlobalLiteral("hardy");
+   vsignatureSetTag(hardy, name);
+   vsignatureSetReturnDatatag(hardy, vdatatagGetDoubleFloat());
+   vsignatureConstructArgs(hardy, larry, moe, curly, NULL);
+
+   /*
+    * Store the datatags and signatures in the given resource.
+    */
+   name    = vnameInternGlobalLiteral("My Datatags");
+   element = vresourceCreate(res, name, vresourceDICT);
+   vdatatagStoreGroup(group, element);
+
+   name    = vnameInternGlobalLiteral("First Signature");
+   element = vresourceCreate(res, name, vresourceDICT);
+   vsignatureStore(laurel, element);
+
+   name    = vnameInternGlobalLiteral("Second Signature");
+   element = vresourceCreate(res, name, vresourceDICT);
+   vsignatureStore(hardy, element);
+
+   vdatatagDestroyGroup(group);
+   vsignatureDestroy(laurel);
+   vsignatureDestroy(hardy);
+}
+
+</UL></PRE>The code in <A HREF="Signature.html#4054">Example 141</A> is only necessary when initially creating signatures and datatags or when modifying signatures or datatags. Since signatures and datatags are usually defined as part of an application-level protocol specification, it is usually unnecessary to modify signature and datatag objects after their initial definition.<P>
+A future release of Galaxy will include an editor in the Visual Resource Builder that enables the application programmer to create and manipulate datatag and signature resources as part of an application's resource file. This will eliminate the need to directly use the Signature class or Datatag class APIs. When the editor is available in the Visual Resource Builder, loading datatags and signatures from resource files will be the primary means to access them in an application.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Session.html">Previous Chapter</A> | 
+		<A HREF="Spinner.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

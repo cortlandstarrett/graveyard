@@ -1,0 +1,138 @@
+<HTML>
+<HEAD>
+<TITLE>Module</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Module</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Menubar.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Mutex.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The <EM><B>Module</B></EM> class (<TT>vmodule</TT>) provides the capability to dynamically load and manage blocks of executable code. Normally all the code needed to run a given application is loaded by the operating system when the application is first executed. However, some applications may wish to defer the loading of some code until a later time, or may wish to discover and load new blocks of code while the application is running.<P>
+For example, developers may wish to allow third parties to add or extend their applications through a "plug-in" facility. The Module class provides the developer with a means for finding, loading, and executing code in these "plug-in" modules.<P>
+Another application of the Module class is gain greater control over the runtime memory use of an application. For example, a large application may have large portions of code which are used relatively infrequently. Rather than loading all that code when the application is first run, the developer can choose to load that code only when the application actually needs it. Additionally, that code can be unloaded when the application no longer needs it without having to exit the entire application.<P>
+The Module class provides an abstract interface to the dynamic loader capabilities that now exist on many platforms. For example, most modern UNIX implementations include the capability to create and use shared libraries; the Windows operating systems have long included the dynamically linked library (DLL) concept. OS/2 includes a similar DLL facility, and the Macintosh includes the Code Fragment Manager.<P>
+Each of these facilities includes three basic capabilities. First they provide a means for searching for an locating loadable code modules. Second, they provide means for loading and attaching code modules to a running process, for unloading those code modules. Finally, they provide a means for associating symbolic names with actual entry points into a loaded code module. The Module class provides abstractions for each of these capabilities.<P>
+The code modules themselves are built using whatever platform-specific means is normally used to construct shared code modules. This means that all existing code modules on a given platform can be used through the Module class. That is, one can use the Module class to load existing DLLs on Windows or shared libraries on UNIX, or new DLLs and shared libs created specifically for the application.<P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+A module is created using <TT>Create</TT> or initialized using <TT>Init</TT>. To attach a code module to the process, call <TT>Attach</TT>, passing the pathname of the code module to load/attach. Once a module is successfully loaded and attached you can look up entry points into the code by calling <TT>GetSymbolScribed</TT> and passing in the symbolic name of the entry point to search for. If the entry point is found a pointer is returned to the function entry point in the code module, and one can call the entry point as if calling through a regular function pointer. When you are finished using the code module it can be unloaded by calling <TT>Detach</TT>, and the module can be destroyed by calling <TT>Destroy</TT>.<P>
+<PRE><UL>typedef int (*func)(const char *foo, int bar);
+
+vmodule mod1;
+
+vmoduleInit(&amp;mod1);
+vmoduleAttach(&amp;mod1, NULL);
+
+func1 = (func)vmoduleGetSymbolScribed(&amp;mod1,
+                         vcharScribeLiteral("inFunc1"));
+func2 = (func)vmoduleGetSymbolScribed(&amp;mod1,
+                         vcharScribeLiteral("inFunc2"));
+
+res = (*func1)("bilbo", 12);
+res = (*func2)("boggins", 34);
+
+vmoduleDetach(&amp;mod1);
+vmoduleDestroy(&amp;mod1);
+
+</UL></PRE>The Module class includes the capability to search for a module in a number of system- and user-defined places. For example, if the pathname passed to <TT>Attach</TT> is a relative path rather than an absolute path, the module class will look for the module relative to the current working directory. If the pathname contains only the name of the module without any relative or absolute path qualifiers, the module class will search for the module according to the search criteria set by the given platform.<P>
+On some UNIX implementations the system search path can be set using an environment variable; for example <TT>$LD_LIBRARY_PATH</TT> on Solaris or <TT>$LIB_PATH</TT> on HP-UX. On the Windows platforms the system search path is the same as the path searched by the Win32 <TT>LoadLibrary</TT> system call, and includes the directory where the app was loaded from, the current directory, the various "Windows" directories, and the directories listed in the <TT>$PATH</TT> variable.<P>
+The user can add paths to be traversed before the system paths by calling <TT>AddSearchPath</TT> and passing the absolute path name of a directory to search.<P>
+The Module class also includes helper functions for constructing the necessary platform-specific module names from base names and version numbers. Each platform follows a different naming convention for identifying code modules. For example, code modules on Windows all have the ".<TT>DLL</TT>" file extension, whereas shared libraries on HP-UX all start with a "<TT>lib</TT>" prefix and end with a ".<TT>sl</TT>" extension. Some platforms also include version numbering information in their module names, for example Solaris which appends a major version number, or SunOS which appends both a major and a minor version number.<P>
+<PRE><UL>platName = vmoduleScribeLibraryNameFromVersionedBaseScribed
+    (vcharScribeLiteral("mycode"), 4);
+
+</UL></PRE>In the preceding example, the <TT>platName</TT> scribe with produce the string "mycode.dll" on Windows, "libmycode.sl" on HP-UX, and "libmycode.so.4" on Solaris. The benefit to all this is that the code modules created for use by an application using <TT>vmodule</TT> can conform to the conventions specified by each platform, but be referred to in the application by a single base name. Additionally, if an application chooses to ignore the naming conventions for some reason, the Module class does not get in the way.<P>
+The Module class includes the capability to specify per-module startup and shutdown functions. The startup function is called when the module is first attached, and the cleanup functions are called in the order of registration when the module is explicitly detached from the application.<P>
+This allows applications to dynamically attach and detach a module multiple times from a running application, and ensure that resources obtained by or provided by the module are correctly instantiated and cleaned up.<P>
+The Module class also includes the capability to look up entry points in the currently running process. If a <TT>vmodule</TT> is created and <TT>NULL</TT> is passed to <TT>Attach</TT>, any calls to <TT>GetSymbolScribed</TT> on the resulting module will search the current process for a corresponding entry point. Symbols defined as being in the "current process" are those that were fully resolved at application link time.<P>
+<A NAME="3392"><H2> Avoiding Pitfalls</H2></A>
+When attaching a module, if the specified path is invalid or the file at the path is inaccessible or invalid, <TT>Attach</TT> will throw an exception. When looking up entry points in a module, if an entry point does not exist for the given symbolic name, <TT>GetSymbolScribed</TT> returns <TT>NULL</TT>.<P>
+Be aware that detaching a module does not guarantee the module will actually be unloaded from the process' address space and thus shrink the process' in-core memory size. When <TT>Detach</TT> is called, the module class notifies the operating system that the module is no longer needed by the application; the operating system is then free to remove it from the process address space, cache it for later use, or whatever else the operating system deems necessary. An application should never attempt to use an entry point in a module that has been detached, likewise an application cannot rely on the module immediately disappearing from the process' address space.<P>
+When looking for an entry point in a code module, be sure that the name you are looking for is actually what the tool that created the module uses to reference the entry point. For example, some compilers will prepend underscore characters to some entry points; likewise, some symbols that look like entry points in code are implemented as macros to functions of different names. Also, most C++ compilers regularly mangle names of static functions to avoid naming conflicts with virtual method names. Finally, support for dynamically loading C++ classes from modules is still immature on most platforms and should be avoided for greatest portability.<P>
+If you must access C++ classes from dynamic code modules, you can try wrapping the C++ class in a set of static functions that construct, destruct, and call methods on class instances. Some platforms have rudimentary support for dynamically loading C++ classes directly (AIX in particular), but in general it is an unsupported capability, and goes somewhat contrary to the statically-typed nature of the C++ language itself.<P>
+When dealing with loaded code modules it is important to keep in mind the language environment the module was written in. Even in the module was written in the same language you are accessing it from there are still issues to be aware of. For example, the Windows platforms include multiple version of their Clib (the library where malloc() and other system calls are implemented); single-threaded static, multi-threaded static, multi-threaded dynamic. Loading a module that was linked to the single-threaded static Clib into an application linked to the multi-threaded dynamic Clib can cause serious problems when dealing with resource passed between application and module. File descriptors, memory blocks, and other low-level Clib constructs are dealt with very differently in the various Clib implementations, and often cannot be mixed. In general it is a a good idea to know the environment used to build the module you wish to load and be sure it is compatible with the environment you used to build your application.<P>
+<A NAME="3368"><H1> Specialized Use</H1></A>
+The Module class uses modules implemented according to the guidelines set by the specific platform you are using, and it is important to understand the requirements these platforms impose. For example, a shared library built for Solaris can include two functions _init() and _fini(), which are called when then shared library is first loaded and unloaded, respectively. Libraries are not required to implement these functions but can if desired.<P>
+On the Windows platforms, a DLL must define a DllMain entry point, which handles module load, module unload, thread attach, and thread detach conditions. See the documentation for building DLLs with your compiler for more details.<P>
+On the Macintosh a module is implemented as a code fragment as defined by the Macintosh Code Fragment Manager. See the documentation for building code fragments with your compiler for more details.<P>
+Looking for symbols in the current process (by passing <TT>NULL</TT> to <TT>Attach</TT>) is a specialized capability and comes with certain limitations. For example, the capability is unsupported on the VMS operating system. On the Windows platforms, looking for symbols in the current process involves a significant one-time performance hit when the module is first attached; this is due to the details of how the dynamic loader works on various Window implementations. The performance hit on Windows NT is noticeably lower than on Windows 95, for example.<P>
+On the Macintosh, you must set your application's "init" routine to either be <TT>vmodulesysMacFragmentInit</TT>, or else call that routing from your own fragment init routine. This is because the Mac CFW require the "init" function be defined for any module loaded using CFM, even the currently running process.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Menubar.html">Previous Chapter</A> | 
+		<A HREF="Mutex.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

@@ -1,0 +1,2328 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vpixmap prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vpixmap prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vpixmap-x.html#section_DataType">Types</A> [6]</TD>
+<TD><A HREF="vpixmap-x.html#section_Function">Functions</A> [90]</TD>
+<TD><A HREF="vpixmap-x.html#section_Message">Messages</A> [12]</TD>
+<TD><A HREF="vpixmap-x.html#section_Constant">Constants</A> [13]</TD>
+<TD><A HREF="vpixmap-x.html#section_Macro">Macros</A> [2]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vpixmap"><HR><H4>vpixmap</H4></A>
+<PRE>
+        typedef ... <B>vpixmap</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to represent a pixmap.
+Pixmaps are referenced by a pointer to this type. Pixmaps
+can be created dynamically with <CODE><A HREF="vpixmap-x.html#vpixmapCreate"><CODE>vpixmapCreate</CODE></A></CODE>
+or initialized statically with <CODE><A HREF="vpixmap-x.html#vpixmapInit"><CODE>vpixmapInit</CODE></A></CODE>. A
+<CODE>vpixmap</CODE> contains a set of size attributes, a
+set of format attributes, and a set of buffers.
+    <P>
+A <CODE>vpixmap</CODE> implements two-dimensional arrays of
+<I>unmapped</I> pixel values on top of buffers. Pixmap
+pixel values can be used to represent any application data;
+they are unmapped in the sense that they are not given any
+color value by the pixmap. The color values must come from
+an outside source, such as an image or a color palette.
+</DD></DL>
+<P>
+<A NAME="vpixmapClass"><HR><H4>vpixmapClass</H4></A>
+<PRE>
+        typedef ... <B>vpixmapClass</B>;
+</PRE>
+
+<DL><DD>
+Contains the message definitions for a class of pixmaps.
+This class type is derived from <CODE><A HREF="vobject-x.html#vobjectClass"><CODE>vobjectClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vpixmapDimension"><HR><H4>vpixmapDimension</H4></A>
+<PRE>
+        typedef ... <B>vpixmapDimension</B>;
+</PRE>
+
+<DL><DD>
+Denotes an integral type that can hold a width or height of
+a pixmap. Note that pixmap dimensions are specified through
+the Pixmap Library API using the type <SAMP>int</SAMP>, but
+they are truncated internally, if necessary, to the type
+<CODE>vpixmapDimension</CODE>.
+</DD></DL>
+<P>
+<A NAME="vpixmapScanner"><HR><H4>vpixmapScanner</H4></A>
+<PRE>
+        typedef ... <B>vpixmapScanner</B>;
+</PRE>
+
+<DL><DD>
+Denotes an abstract iteration variable that can be used to
+access the pixels of a pixmap with a format-independent
+API. Pixmap scanners are not inefficient, but they are also
+not as efficient as writing code specific code for a
+particular format. Pixmap scanners are usually initialized
+in auto variables and referenced by a pointer to this type.
+    <P>
+Note that moving a scanner one pixel in any given direction
+is generally more efficient than moving it to a specific
+(x, y) location. You can read or write the current pixel of
+a pixmap and optionally increment the pixmap pointer after
+the read or write operation. You can also read or write any
+pixel in the pixmap given its (x, y) location
+<I>without</I> moving the current pixel. Accessing a pixel
+in this manner is more efficient than moving the scanner to
+a specific (x, y) position and reading or writing the
+current position, but it is less efficient than reading or
+writing the current position and moving one pixel in a
+given direction. Your application dictates which interface
+you should use. If the access pattern of your application
+is linear (up, down, left, right), then you should access
+pixels through the scanner's current pixel. If the access
+pattern is non-linear or random, then you should access
+pixels by their (x, y) position.
+</DD></DL>
+<P>
+<A NAME="vpixmapScannerClass"><HR><H4>vpixmapScannerClass</H4></A>
+<PRE>
+        typedef ... <B>vpixmapScannerClass</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to represent a pixmapScanner.
+PixmapScanners are referenced by a pointer to this
+type. PixmapScanners can be created dynamically with
+<CODE>vpixmapScannerCreate</CODE> or initialized statically with
+<CODE>vpixmapScannerInit</CODE>. A <CODE>vpixmapScanner</CODE>
+contains a set of size attributes, a set of format attributes, and a
+set of buffers.
+    <P>
+A <CODE>vpixmapScanner</CODE> is used to iterate acrossed pixel
+values (so called "bits"). PixmapScanner pixel values can be used to
+represent any application data; they are unmapped in the sense that
+they are not given any color value by the pixmapScanner. The color
+values must come from an outside source, such as an image or a color
+palette.
+</DD></DL>
+<P>
+<A NAME="vpixmapValue"><HR><H4>vpixmapValue</H4></A>
+<PRE>
+        typedef ... <B>vpixmapValue</B>;
+</PRE>
+
+<DL><DD>
+Denotes an integral type that can hold a pixel value of a
+pixmap. The legal range of pixel values actually ranges
+from zero to 2^depth-1, where <I>depth</I> is the depth of
+the pixmap. Note that if the pixmap is the map of an image,
+the range of legal values may be even smaller.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vpixmapBeforeFirstPixel"><HR><H4>vpixmapBeforeFirstPixel</H4></A>
+<PRE>
+        int <B>vpixmapBeforeFirstPixel</B>(
+                vpixmapScanner * scanner);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Use your own counter variable for scanning through the
+contents of a pixmap. Calling this function to determine
+when to stop is significantly less efficient, because it
+requires an extra memory access.
+</DD></DL>
+<P>
+<A NAME="vpixmapClear"><HR><H4>vpixmapClear</H4></A>
+<PRE>
+        void <B>vpixmapClear</B>(
+                vpixmap * pixmap,
+                vpixmapValue value);
+</PRE>
+
+<DL><DD>
+Stores the pixel value <SAMP>value</SAMP> into each of the
+pixels of the pixmap <SAMP>pixmap</SAMP>. If
+<SAMP>value</SAMP> is outside the pixmap's legal range of
+pixel values, as determined by its depth, the value is
+masked silently. This function is more efficient than
+writing pixel values individually using a pixmap scanner.
+Note that calling this function may require the window
+system representation of the pixmap to be reconstructed
+when the pixmap is drawn.
+</DD></DL>
+<P>
+<A NAME="vpixmapClone"><HR><H4>vpixmapClone</H4></A>
+<PRE>
+        vpixmap * <B>vpixmapClone</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Creates a copy of the pixmap <SAMP>pixmap</SAMP> and
+returns a pointer to its contents. Storage for the pixmap
+is allocated by the Pixmap Library. The Pixmap Library
+reclaims the storage occupied by the pixmap when it is
+destroyed with <CODE><A HREF="vpixmap-x.html#vpixmapDestroy"><CODE>vpixmapDestroy</CODE></A></CODE>. This function
+copies all the attributes of the pixmap, including its
+pixels. The pixmap to be cloned can be dynamic or static.
+This function essentially allocates space for a new pixmap
+and calls <CODE><A HREF="vpixmap-x.html#vpixmapCopyInit"><CODE>vpixmapCopyInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vpixmapCloneNoBits"><HR><H4>vpixmapCloneNoBits</H4></A>
+<PRE>
+        vpixmap * <B>vpixmapCloneNoBits</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Creates a copy of the pixmap <SAMP>pixmap</SAMP> and
+returns a pointer to its contents, but discards its pixels,
+if any. Storage for the pixmap is allocated by the Pixmap
+Library. The Pixmap Library reclaims the storage occupied
+by the pixmap when it is destroyed with
+<CODE><A HREF="vpixmap-x.html#vpixmapDestroy"><CODE>vpixmapDestroy</CODE></A></CODE>. This function copies all the
+attributes of the pixmap except its pixels. The pixmap to
+be cloned can be dynamic or static. This function
+essentially allocates space for a new pixmap and calls
+<CODE><A HREF="vpixmap-x.html#vpixmapCopyInitNoBits"><CODE>vpixmapCopyInitNoBits</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vpixmapCloneWithoutBits"><HR><H4>vpixmapCloneWithoutBits</H4></A>
+<PRE>
+        vpixmap * <B>vpixmapCloneWithoutBits</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Creates a copy of the specified pixmap <SAMP>pixmap</SAMP> without
+copying its pixels. Storage for the pixmap is allocated by the Pixmap
+Library. The Pixmap Library reclaims the storage occupied by the
+pixmap when it is destroyed with <CODE><A HREF="vpixmap-x.html#vpixmapDestroy"><CODE>vpixmapDestroy</CODE></A></CODE>. This
+function copies all the attributes of the pixmap, except its pixels.
+</DD></DL>
+<P>
+<A NAME="vpixmapCopy"><HR><H4>vpixmapCopy</H4></A>
+<PRE>
+        void <B>vpixmapCopy</B>(
+                vpixmap * pixmap,
+                vpixmap * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>pixmap</SAMP> into
+<SAMP>target</SAMP> so that the two pixmaps represent
+equivalent objects. <SAMP>target</SAMP> must have been
+created or initialized by a Pixmap Library function. This
+function copies all the attributes of the pixmap, including
+its pixels. The pixmaps to be copied can be dynamic or
+static.
+</DD></DL>
+<P>
+<A NAME="vpixmapCopyBits"><HR><H4>vpixmapCopyBits</H4></A>
+<PRE>
+        void <B>vpixmapCopyBits</B>(
+                vpixmap * pixmap,
+                vpixmap * target);
+</PRE>
+
+<DL><DD>
+Copies all the pixels from the given pixmap
+<SAMP>pixmap</SAMP> to the pixmap <SAMP>target</SAMP>. This
+function does not affect any other attributes of the
+pixmap. It generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE>
+exception if the width and height of the source pixmap do
+not match the width and height of the target pixmap. Use
+<CODE><A HREF="vpixmap-x.html#vpixmapCopyRect"><CODE>vpixmapCopyRect</CODE></A></CODE> to copy pixels between pixmaps
+of different sizes. The pixmap depths and formats need not
+match, but the copy may be more efficient if they do. If
+the depth of the source pixmap is greater than the depth of
+the target pixmap, pixel values are masked silently. This
+function is more efficient than copying pixel values
+individually using a pixmap scanner. Note that calling this
+function may require the window system representation of
+the target pixmap to be reconstructed when the pixmap is
+drawn.
+</DD></DL>
+<P>
+<A NAME="vpixmapCopyInit"><HR><H4>vpixmapCopyInit</H4></A>
+<PRE>
+        void <B>vpixmapCopyInit</B>(
+                vpixmap * pixmap,
+                vpixmap * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>pixmap</SAMP> into
+<SAMP>target</SAMP> so the memory addressed by
+<SAMP>target</SAMP> is a pixmap equivalent to
+<SAMP>pixmap</SAMP>. <SAMP>target</SAMP> should be a
+pointer to uninitialized memory; the Pixmap Library
+initializes it as part of the copy. This function copies
+all the attributes of the pixmap, including its pixels.
+</DD></DL>
+<P>
+<A NAME="vpixmapCopyInitNoBits"><HR><H4>vpixmapCopyInitNoBits</H4></A>
+<PRE>
+        void <B>vpixmapCopyInitNoBits</B>(
+                vpixmap * pixmap,
+                vpixmap * target);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Copies the information in <SAMP>pixmap</SAMP> into
+<SAMP>target</SAMP> so the memory addressed by
+<SAMP>target</SAMP> is a pixmap equivalent to
+<SAMP>pixmap</SAMP>, except that the pixmap's pixels are
+discarded. <SAMP>target</SAMP> should be a pointer to
+uninitialized memory; the Pixmap Library initializes it as
+part of the copy. This function copies all the attributes
+of the pixmap except its pixels.
+
+This function been deprecated in favor of
+<CODE><A HREF="vpixmap-x.html#vpixmapCopyInitWithoutBits"><CODE>vpixmapCopyInitWithoutBits</CODE></A></CODE>.
+
+</DD></DL>
+<P>
+<A NAME="vpixmapCopyInitWithoutBits"><HR><H4>vpixmapCopyInitWithoutBits</H4></A>
+<PRE>
+        void <B>vpixmapCopyInitWithoutBits</B>(
+                vpixmap * pixmap,
+                vpixmap * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>pixmap</SAMP> into
+<SAMP>target</SAMP> so the memory addressed by
+<SAMP>target</SAMP> is a pixmap equivalent to
+<SAMP>pixmap</SAMP>. <SAMP>target</SAMP> should be a
+pointer to uninitialized memory; the Pixmap Library
+initializes it as part of the copy. This function copies
+all the attributes of the pixmap, except its pixels.
+</DD></DL>
+<P>
+<A NAME="vpixmapCopyRect"><HR><H4>vpixmapCopyRect</H4></A>
+<PRE>
+        void <B>vpixmapCopyRect</B>(
+                vpixmap * pixmap,
+                vpixmap * target,
+                int x,
+                int y,
+                int w,
+                int h,
+                int targetX,
+                int targetY);
+</PRE>
+
+<DL><DD>
+Copies the pixels from rectangle (<SAMP>x</SAMP>,
+<SAMP>y</SAMP>, <SAMP>w</SAMP>, <SAMP>h</SAMP>) of the
+pixmap <SAMP>pixmap</SAMP> into the rectangle
+(<SAMP>x</SAMP>, <SAMP>y</SAMP>, <SAMP>w</SAMP>,
+<SAMP>h</SAMP>) of the pixmap <SAMP>target</SAMP>. This
+function does nothing if <SAMP>w</SAMP> or <SAMP>h</SAMP>
+is zero. Pixels outside the target rectangle are
+unaffected. Pixmap rectangles are similar to drawing
+coordinates: (0, 0, 1, 1) encloses the pixel in the lower
+left-hand corner of a pixmap, while (0, 0, <SAMP>w</SAMP>,
+<SAMP>h</SAMP>) encloses the entire pixmap. It generates a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if either
+rectangle encloses an area outside the given pixmap. The
+pixmap depths and formats need not match, but the copy may
+be more efficient if they do. If the depth of the source
+pixmap is greater than the depth of the target pixmap,
+pixel values are masked silently. This function may be more
+efficient than copying pixel values individually using a
+pixmap scanner. Note that calling this function may require
+the window system representation of the target pixmap to be
+reconstructed when the pixmap is drawn.
+</DD></DL>
+<P>
+<A NAME="vpixmapCopyWithoutBits"><HR><H4>vpixmapCopyWithoutBits</H4></A>
+<PRE>
+        void <B>vpixmapCopyWithoutBits</B>(
+                vpixmap * pixmap,
+                vpixmap * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>pixmap</SAMP> into
+<SAMP>target</SAMP> so that the two pixmaps represent
+equivalent objects. <SAMP>target</SAMP> must have been
+created or initialized by a Pixmap Library function. This
+function copies all the attributes of the pixmap, except
+its pixels. The pixmaps to be copied can be dynamic or
+static.
+</DD></DL>
+<P>
+<A NAME="vpixmapCreate"><HR><H4>vpixmapCreate</H4></A>
+<PRE>
+        vpixmap * <B>vpixmapCreate</B>(
+                int w,
+                int h,
+                int depth);
+</PRE>
+
+<DL><DD>
+Creates a pixmap of width <SAMP>w</SAMP>, height
+<SAMP>h</SAMP>, and depth <SAMP>depth</SAMP> and returns a
+pointer to its contents. The pixmap can contain
+<SAMP>w*h</SAMP> pixels, each of which can store a value
+from zero to 2^depth-1. Storage for the pixmap is allocated
+by the Pixmap Library. The Pixmap Library reclaims the
+storage occupied by the pixmap when it is destroyed with
+<CODE><A HREF="vpixmap-x.html#vpixmapDestroy"><CODE>vpixmapDestroy</CODE></A></CODE>. The new pixmap is created with
+a set of default attributes, as documented in the ``Image
+Manager'' chapter of the <I>Galaxy Application Environment
+Programmer's Guide</I>. The pixels in the pixmap are
+initially undefined (the pixmap contains no buffers). This
+function essentially allocates space for a new pixmap and
+calls <CODE><A HREF="vpixmap-x.html#vpixmapInit"><CODE>vpixmapInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vpixmapCreateDefault"><HR><H4>vpixmapCreateDefault</H4></A>
+<PRE>
+        vpixmap * <B>vpixmapCreateDefault</B>();
+</PRE>
+
+<DL><DD>
+Creates a new, empty pixmap and returns a pointer to its
+contents, which are allocated by the Class Manager. The
+Class Managerwill reclaim the storage occupied by the
+pixmap when it is destroyed with
+<CODE><A HREF="vpixmap-x.html#vpixmapDestroy"><CODE>vpixmapDestroy</CODE></A></CODE>. This function essentially
+allocates space for a new pixmap and calls
+<CODE><A HREF="vpixmap-x.html#vpixmapInit"><CODE>vpixmapInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vpixmapCreateOfClass"><HR><H4>vpixmapCreateOfClass</H4></A>
+<PRE>
+        vpixmap * <B>vpixmapCreateOfClass</B>(
+                vpixmapClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a pixmap of class <SAMP>clas</SAMP> and returns a
+pointer to its contents. The attributes of the pixmap are
+set to their default values, according to the class. Space
+for the pixmap is allocated dynamically based on the object
+size of the class. The Class Manager will reclaim the
+storage occupied by the pixmap when it is destroyed with
+<CODE><A HREF="vpixmap-x.html#vpixmapDestroy"><CODE>vpixmapDestroy</CODE></A></CODE>. This function essentially
+allocates space for a new instance and calls
+<CODE><A HREF="vpixmap-x.html#vpixmapInitOfClass"><CODE>vpixmapInitOfClass</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vpixmapCreateSpecific"><HR><H4>vpixmapCreateSpecific</H4></A>
+<PRE>
+        vpixmap * <B>vpixmapCreateSpecific</B>(
+                int w,
+                int h,
+                int depth,
+                int flags,
+                unsigned char * bits);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Use <CODE>vpixmapCreate</CODE> to create a pixmap. Use
+<CODE><A HREF="vpixmap-x.html#vpixmapSetPad"><CODE>vpixmapSetPad</CODE></A></CODE>,
+<CODE><A HREF="vpixmap-x.html#vpixmapSetBigEndianByte"><CODE>vpixmapSetBigEndianByte</CODE></A></CODE>, and
+<CODE><A HREF="vpixmap-x.html#vpixmapSetInverseY"><CODE>vpixmapSetInverseY</CODE></A></CODE> to specify the format of a
+pixmap once it has been created. Use
+<CODE><A HREF="vpixmap-x.html#vpixmapSetBits"><CODE>vpixmapSetBits</CODE></A></CODE> to change the contents of a
+pixmap directly.
+</DD></DL>
+<P>
+<A NAME="vpixmapDestroy"><HR><H4>vpixmapDestroy</H4></A>
+<PRE>
+        void <B>vpixmapDestroy</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Destroys the pixmap represented by <SAMP>pixmap</SAMP>,
+which must have been created or initialized by a Pixmap
+Library function. Use this function to reclaim the storage
+occupied by a pixmap. The pixmap should not be referenced
+by any other object when it is destroyed. This function
+attempts to free the storage occupied by
+<SAMP>pixmap</SAMP> only if it was allocated by
+<CODE><A HREF="vpixmap-x.html#vpixmapCreate"><CODE>vpixmapCreate</CODE></A></CODE> or <CODE><A HREF="vpixmap-x.html#vpixmapClone"><CODE>vpixmapClone</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vpixmapDestroyScanner"><HR><H4>vpixmapDestroyScanner</H4></A>
+<PRE>
+        void <B>vpixmapDestroyScanner</B>(
+                vpixmapScanner * scanner);
+</PRE>
+
+<DL><DD>
+Ends the iteration begun by the pixmap scanner
+<SAMP>scanner</SAMP> and reclaims any objects allocated
+internally by the scanner. The pixmap buffer is unlocked,
+if it was locked by <CODE><A HREF="vpixmap-x.html#vpixmapInitScanner"><CODE>vpixmapInitScanner</CODE></A></CODE>. The
+scanner pointer should not be used until it is initialized
+again. Note if you want to destroy the pixmap a scanner is
+iterating over, you must destroy the scanner <I>first</I>,
+then the pixmap.
+</DD></DL>
+<P>
+<A NAME="vpixmapDump"><HR><H4>vpixmapDump</H4></A>
+<PRE>
+        void <B>vpixmapDump</B>(
+                vpixmap * pixmap,
+                FILE * stream);
+</PRE>
+
+<DL><DD>
+Prints the contents of the pixmap <SAMP>pixmap</SAMP> on
+the file <SAMP>stream</SAMP> in user-readable form. This
+function is intended for debugging and should not be used
+to store the contents of the pixmap in recoverable form.
+This function has effect only if debugging is enabled.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetBits"><HR><H4>vpixmapGetBits</H4></A>
+<PRE>
+        unsigned char * <B>vpixmapGetBits</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Returns a pointer to the pixmap contents of the
+pixmap<SAMP> pixmap</SAMP>. The contents are in the format
+specified by the pixmaps format attributes
+(<CODE>Pad</CODE>, <CODE>BigEndianByte</CODE>,
+<CODE>InverseY</CODE>). This pointer remains valid until
+you call another Pixmap Library function or pass the pixmap
+as an argument to any other Galaxy function. If you change
+the pixmap contents through this pointer, call
+<CODE><A HREF="vpixmap-x.html#vpixmapMarkModified"><CODE>vpixmapMarkModified</CODE></A></CODE> to notify the Pixmap
+Library of your changes.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetBufferBits"><HR><H4>vpixmapGetBufferBits</H4></A>
+<PRE>
+        unsigned char * <B>vpixmapGetBufferBits</B>(
+                vbuffer * buffer);
+</PRE>
+
+<DL><DD>
+Returns a pointer to the pixel contents of the pixmap
+source buffer <SAMP>buffer</SAMP>. The device of
+<SAMP>buffer</SAMP> should be the device returned by
+<CODE><A HREF="vpixmap-x.html#vpixmapGetBufferDevice"><CODE>vpixmapGetBufferDevice</CODE></A></CODE>. You only need to call
+this function if you are building a buffer device. Refer to
+``Buffers'' in the ``Image Manager'' chapter of the
+<I>Galaxy Application Environment Programmer's Guide</I>
+for more information.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetBufferDevice"><HR><H4>vpixmapGetBufferDevice</H4></A>
+<PRE>
+        const vbufferDevice * <B>vpixmapGetBufferDevice</B>();
+</PRE>
+
+<DL><DD>
+Returns the buffer device for the source representation of
+a pixmap. This is the device the Pixmap Library uses to
+identify its source representation. The source
+representation is the contents that you specify for a
+pixmap, whether through the Pixmap Library API or an
+interactive tool like the Galaxy Resource Builder. Other
+pixmap representations, such as the pixmaps window system
+representation, may be generated from the source
+representation on demand. The source representation may
+even be regenerated from another representation if the
+other representation is changed directly (through drawing,
+for example). You only need to call this function if you
+are building a buffer device. Refer to ``Buffers'' in the
+``Image Manager'' chapter of the <I>Galaxy Application
+Environment Programmer's Guide</I> for more information.
+Use <CODE><A HREF="vpixmap-x.html#vpixmapGetBits"><CODE>vpixmapGetBits</CODE></A></CODE> to get a pointer to a given
+pixmaps source contents.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetCharWidth"><HR><H4>vpixmapGetCharWidth</H4></A>
+<PRE>
+        size_t <B>vpixmapGetCharWidth</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Returns the width in characters of the pixmap
+<SAMP>pixmap</SAMP>. The character width of a pixmap is the
+number of characters between the base addresses of each
+scan line in the pixmap. This function takes padding into
+account. Because this information may not be stored in the
+pixmap, calling this function from within a loop is not
+recommended.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetClass"><HR><H4>vpixmapGetClass</H4></A>
+<PRE>
+        vpixmapClass * <B>vpixmapGetClass</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Returns the class of the pixmap <SAMP>pixmap</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetData"><HR><H4>vpixmapGetData</H4></A>
+<PRE>
+        const void * <B>vpixmapGetData</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Returns the generic data pointer attached to the pixmap
+<SAMP>pixmap</SAMP>, which can be <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetDefaultClass"><HR><H4>vpixmapGetDefaultClass</H4></A>
+<PRE>
+        vpixmapClass * <B>vpixmapGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default pixmap class. This class should be
+subclassed to create new pixmap types.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetDepth"><HR><H4>vpixmapGetDepth</H4></A>
+<PRE>
+        int <B>vpixmapGetDepth</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Returns the pixel depth in bits of the pixmap
+<SAMP>pixmap</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetHeight"><HR><H4>vpixmapGetHeight</H4></A>
+<PRE>
+        int <B>vpixmapGetHeight</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Returns the height in pixels of the pixmap
+<SAMP>pixmap</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetInstance"><HR><H4>vpixmapGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vpixmapGetInstance</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Gets the instance object on which the given pixmap object is based.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetLoadable"><HR><H4>vpixmapGetLoadable</H4></A>
+<PRE>
+        vloadable * <B>vpixmapGetLoadable</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Gets the loadable object on which the given pixmap is based.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetLocation"><HR><H4>vpixmapGetLocation</H4></A>
+<PRE>
+        void <B>vpixmapGetLocation</B>(
+                vpixmapScanner * scanner,
+                int * x,
+                int * y);
+</PRE>
+
+<DL><DD>
+Returns the current x, y, position of the pixmapScanner.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetNext"><HR><H4>vpixmapGetNext</H4></A>
+<PRE>
+        vpixmapValue <B>vpixmapGetNext</B>(
+                vpixmapScanner * scanner);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Use <CODE><A HREF="vpixmap-x.html#vpixmapReadMoveRight"><CODE>vpixmapReadMoveRight</CODE></A></CODE> to read the current
+pixel and move it one pixel right.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetObject"><HR><H4>vpixmapGetObject</H4></A>
+<PRE>
+        vobject * <B>vpixmapGetObject</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Returns the object upon which the pixmap
+<SAMP>pixmap</SAMP> is based.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetObservable"><HR><H4>vpixmapGetObservable</H4></A>
+<PRE>
+        vobservable * <B>vpixmapGetObservable</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Gets the observable object on which the given tree is based.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetPad"><HR><H4>vpixmapGetPad</H4></A>
+<PRE>
+        int <B>vpixmapGetPad</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Returns the scan line padding unit of the pixmap
+<SAMP>pixmap</SAMP> in bits. This is 1, 8, 16, or 32.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetPrev"><HR><H4>vpixmapGetPrev</H4></A>
+<PRE>
+        vpixmapValue <B>vpixmapGetPrev</B>(
+                vpixmapScanner * scanner);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Use <CODE><A HREF="vpixmap-x.html#vpixmapRead"><CODE>vpixmapRead</CODE></A></CODE> to read a pixel at the current
+location. Use <CODE><A HREF="vpixmap-x.html#vpixmapMoveLeft"><CODE>vpixmapMoveLeft</CODE></A></CODE> to move the
+current pixel one pixel left. Note that the most efficient
+way to read the entire contents of a pixmap is with
+<CODE><A HREF="vpixmap-x.html#vpixmapReadMoveRight"><CODE>vpixmapReadMoveRight</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetPrototype"><HR><H4>vpixmapGetPrototype</H4></A>
+<PRE>
+        vpixmap * <B>vpixmapGetPrototype</B>();
+</PRE>
+
+<DL><DD>
+Returns the pixmap format prototype. The format attributes
+of this pixmap (<CODE>Pad</CODE>,
+<CODE>BigEndianByte</CODE>, <CODE>InverseY</CODE>) are used
+for all pixmaps subsequently created or initialized by the
+Pixmap Library. Other attributes are ignored. The Pixmap
+Library initializes this pixmap to the most efficient
+representation for the host processor. The window system
+drivers may then change it based on the window system
+pixmap representation. The application should not call this
+function.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetScanner"><HR><H4>vpixmapGetScanner</H4></A>
+<PRE>
+        vpixmapScanner * <B>vpixmapGetScanner</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Use <CODE><A HREF="vpixmap-x.html#vpixmapInitScanner"><CODE>vpixmapInitScanner</CODE></A></CODE> to initialize a scanner
+on a pixmap. Use <CODE><A HREF="vpixmap-x.html#vpixmapDestroyScanner"><CODE>vpixmapDestroyScanner</CODE></A></CODE> to
+destroy it once you are done. Note that since a scanner is
+no longer an integral part of a pixmap, this function is
+significantly less efficient than
+<CODE><A HREF="vpixmap-x.html#vpixmapInitScanner"><CODE>vpixmapInitScanner</CODE></A></CODE>. This function also
+permanently locks the source buffer of the pixmap, because
+there is no way to destroy the built-in scanner.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetScannerBits"><HR><H4>vpixmapGetScannerBits</H4></A>
+<PRE>
+        unsigned char * <B>vpixmapGetScannerBits</B>(
+                vpixmapScanner * scanner);
+</PRE>
+
+<DL><DD>
+Returns the base address of the pixels being iterated by
+the scanner <SAMP>scanner</SAMP>. This is the base address
+of the first scan line if the pixmap is stored in
+y-increasing order; it is the base address of the last scan
+line if the pixmap is stored in y-decreasing order. The
+base address is set in this manner to ensure that the
+following expression evaluates to the base address of the
+scan line <SAMP>y</SAMP> for all pixmap formats. 
+<SAMP>vpixmapGetScannerBits(scanner)+y*<A HREF="vpixmap-x.html#vpixmapGetScannerIncrementY"><CODE>vpixmapGetScannerIncrementY</CODE></A>(scanner)</SAMP>
+</DD></DL>
+<P>
+<A NAME="vpixmapGetScannerIncrementY"><HR><H4>vpixmapGetScannerIncrementY</H4></A>
+<PRE>
+        long <B>vpixmapGetScannerIncrementY</B>(
+                vpixmapScanner * scanner);
+</PRE>
+
+<DL><DD>
+Returns the y increment of the pixmap scanner
+<SAMP>scanner</SAMP>. The absolute value of the y increment
+of a scanner is equal to the character width of the pixmap
+the scanner is iterating (refer to
+<CODE><A HREF="vpixmap-x.html#vpixmapGetCharWidth"><CODE>vpixmapGetCharWidth</CODE></A></CODE>). The y increment is
+positive if the pixmap is stored in y-increasing order,
+negative if the pixmap is stored in y-decreasing order. The
+y increment can be used to advance a scan line pointer
+independently of the format of a pixmap. Note that the
+following expression evaluates to the base address of the
+scan line <SAMP>y</SAMP> for all pixmap formats. 
+<SAMP><A HREF="vpixmap-x.html#vpixmapGetScannerBits"><CODE>vpixmapGetScannerBits</CODE></A>(scanner)+y*vpixmapGetScannerIncrementY(scanner)</SAMP>
+</DD></DL>
+<P>
+<A NAME="vpixmapGetScannerPixmap"><HR><H4>vpixmapGetScannerPixmap</H4></A>
+<PRE>
+        vpixmap * <B>vpixmapGetScannerPixmap</B>(
+                vpixmapScanner * scanner);
+</PRE>
+
+<DL><DD>
+Returns the pixmap being iterated by the scanner
+<SAMP>scanner</SAMP>. Note that the pixels being iterated
+by the scanner may not be the pixels of this pixmap if the
+scanner was initialized with
+<CODE><A HREF="vpixmap-x.html#vpixmapInitScannerBits"><CODE>vpixmapInitScannerBits</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetScannerScan"><HR><H4>vpixmapGetScannerScan</H4></A>
+<PRE>
+        unsigned char * <B>vpixmapGetScannerScan</B>(
+                vpixmapScanner * scanner);
+</PRE>
+
+<DL><DD>
+Returns the address of the current pixel of the scanner
+<SAMP>scanner</SAMP>. There is no way to tell which pixel
+of a character is current if the depth of the pixmap being
+iterated by the scanner is less than eight. This problem
+may be addressed by a future release of Galaxy.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetSize"><HR><H4>vpixmapGetSize</H4></A>
+<PRE>
+        void <B>vpixmapGetSize</B>(
+                vpixmap * pixmap,
+                int * width,
+                int * height);
+</PRE>
+
+<DL><DD>
+Returns the width and height of the pixmap buffer.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetTag"><HR><H4>vpixmapGetTag</H4></A>
+<PRE>
+        const vname * <B>vpixmapGetTag</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Returns the tag of the pixmap <SAMP>pixmap</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vpixmapGetWidth"><HR><H4>vpixmapGetWidth</H4></A>
+<PRE>
+        int <B>vpixmapGetWidth</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Returns the width in pixels of the pixmap
+<SAMP>pixmap</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vpixmapHasCopyBits"><HR><H4>vpixmapHasCopyBits</H4></A>
+<PRE>
+        int <B>vpixmapHasCopyBits</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Tests if the pixel bits are copied during pixmap copy operations. This
+function return TRUE if the pixmap values should be copied during copy
+operations.
+</DD></DL>
+<P>
+<A NAME="vpixmapInit"><HR><H4>vpixmapInit</H4></A>
+<PRE>
+        void <B>vpixmapInit</B>(
+                vpixmap * pixmap,
+                int w,
+                int h,
+                int depth);
+</PRE>
+
+<DL><DD>
+Initializes a pixmap of width <SAMP>w</SAMP>, height
+<SAMP>h</SAMP>, and depth <SAMP>depth</SAMP> in the
+uninitialized memory addressed by <SAMP>pixmap</SAMP>. The
+pixmap can contain <SAMP>w*h</SAMP> pixels, each of which
+can store a value from zero to 2^depth-1. The address can
+be used in other calls to the Pixmap Library as if it were
+created with <CODE><A HREF="vpixmap-x.html#vpixmapCreate"><CODE>vpixmapCreate</CODE></A></CODE>. A call to
+<CODE><A HREF="vpixmap-x.html#vpixmapDestroy"><CODE>vpixmapDestroy</CODE></A></CODE> frees any internal objects
+allocated by the Pixmap Library but does <I>not</I> free
+the structure itself. The new pixmap is initialized with a
+set of default attributes, as documented in the ``Image
+Manager'' chapter of the <I>Galaxy Application Environment
+Programmer's Guide</I>. The pixels in the pixmap are
+initially undefined (the pixmap contains no buffers).
+</DD></DL>
+<P>
+<A NAME="vpixmapInitDefault"><HR><H4>vpixmapInitDefault</H4></A>
+<PRE>
+        void <B>vpixmapInitDefault</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Initializes a pixmap in the memory addressed by
+<SAMP>pixmap</SAMP>. The attributes of the pixmap are set
+to their default values, as documented in the ``Image
+Manager'' chapter of the <I>Galaxy Application Environment
+Programmer's Guide</I>. The address can be used in other
+calls to the Pixmap Library as if it were created with
+<CODE><A HREF="vpixmap-x.html#vpixmapCreate"><CODE>vpixmapCreate</CODE></A></CODE>. A call to
+<CODE><A HREF="vpixmap-x.html#vpixmapDestroy"><CODE>vpixmapDestroy</CODE></A></CODE> frees any internal objects
+allocated by the Pixmap Library but does <I>not</I> free
+the structure itself. The pixel contents of the pixmap are
+initially undefined.
+</DD></DL>
+<P>
+<A NAME="vpixmapInitOfClass"><HR><H4>vpixmapInitOfClass</H4></A>
+<PRE>
+        void <B>vpixmapInitOfClass</B>(
+                vpixmap * pixmap,
+                vpixmapClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes the uninitialized memory addressed by
+<SAMP>pixmap</SAMP> so that it becomes an pixmap of class
+<SAMP>clas</SAMP>. The attributes of the pixmap are set to
+their default values, according to the class. The Image
+Manager will not attempt to reclaim the pixmap's storage
+when it is destroyed. This function simply stores the class
+in the pixmap and sends it the message
+<CODE><A HREF="vinstance-x.html#vinstanceINIT"><CODE>vinstanceINIT</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vpixmapInitScanner"><HR><H4>vpixmapInitScanner</H4></A>
+<PRE>
+        void <B>vpixmapInitScanner</B>(
+                vpixmapScanner * scanner,
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Initializes a scanner on the pixmap <SAMP>pixmap</SAMP> in
+the memory addressed by <SAMP>scanner</SAMP>. The scanner
+can be used to iterate over the pixels of the pixmap using
+a depth and format independent API. The current pixel of
+the scanner is set to (0, 0). Use
+<CODE><A HREF="vpixmap-x.html#vpixmapDestroyScanner"><CODE>vpixmapDestroyScanner</CODE></A></CODE> to end the iteration.
+Note that the pixmap buffer is locked until the scanner is
+destroyed. Refer to ``Pixmap Scanners'' in the ``Image
+Manager'' chapter of the <I>Galaxy Application Environment
+Programmer's Guide</I> for more information about pixmap
+scanners.
+</DD></DL>
+<P>
+<A NAME="vpixmapInitScannerBits"><HR><H4>vpixmapInitScannerBits</H4></A>
+<PRE>
+        void <B>vpixmapInitScannerBits</B>(
+                vpixmapScanner * scanner,
+                vpixmap * pixmap,
+                unsigned char * bits);
+</PRE>
+
+<DL><DD>
+Initializes a scanner on the pixels in <SAMP>bits</SAMP>
+using the format of the pixmap <SAMP>pixmap</SAMP> in the
+memory addressed by the scanner <SAMP>scanner</SAMP>. The
+attributes of <SAMP>pixmap</SAMP> are used to determine how
+the pixels are arranged in memory, but the pixmap's pixels
+are not used. The scanner can be used to iterate over the
+pixels using a depth and format independent API. The
+current pixel of the scanner is set to (0, 0). Use
+<CODE><A HREF="vpixmap-x.html#vpixmapDestroyScanner"><CODE>vpixmapDestroyScanner</CODE></A></CODE> to end the iteration.
+Refer to ``Pixmap Scanners'' in the ``Image Manager''
+chapter of the <I>Galaxy Application Environment
+Programmer's Guide</I> for more information about pixmap
+scanners.
+</DD></DL>
+<P>
+<A NAME="vpixmapInitSpecific"><HR><H4>vpixmapInitSpecific</H4></A>
+<PRE>
+        void <B>vpixmapInitSpecific</B>(
+                vpixmap * pixmap,
+                int w,
+                int h,
+                int depth,
+                int flags,
+                unsigned char * bits);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Use <CODE>vpixmapInit</CODE> to initialize a pixmap. Use
+<CODE><A HREF="vpixmap-x.html#vpixmapSetPad"><CODE>vpixmapSetPad</CODE></A></CODE>,
+<CODE><A HREF="vpixmap-x.html#vpixmapSetBigEndianByte"><CODE>vpixmapSetBigEndianByte</CODE></A></CODE>, and
+<CODE><A HREF="vpixmap-x.html#vpixmapSetInverseY"><CODE>vpixmapSetInverseY</CODE></A></CODE> to specify the format of a
+pixmap once it has been initialized. Use
+<CODE><A HREF="vpixmap-x.html#vpixmapSetBits"><CODE>vpixmapSetBits</CODE></A></CODE> to change the contents of a
+pixmap directly.
+</DD></DL>
+<P>
+<A NAME="vpixmapIsBigEndianByte"><HR><H4>vpixmapIsBigEndianByte</H4></A>
+<PRE>
+        int <B>vpixmapIsBigEndianByte</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the multi-byte pixels of the
+pixmap<SAMP> pixmap</SAMP> are stored big-endian,
+<SAMP>FALSE</SAMP> if they are stored little-endian.
+</DD></DL>
+<P>
+<A NAME="vpixmapIsFinished"><HR><H4>vpixmapIsFinished</H4></A>
+<PRE>
+        vbool <B>vpixmapIsFinished</B>(
+                vpixmapScanner * scanner);
+</PRE>
+
+<DL><DD>
+Returns if the scanner is exhausted all the pixel values.
+</DD></DL>
+<P>
+<A NAME="vpixmapIsInverseY"><HR><H4>vpixmapIsInverseY</H4></A>
+<PRE>
+        int <B>vpixmapIsInverseY</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the scan lines of the
+pixmap<SAMP> pixmap</SAMP> are stored in y-decreasing
+order, <SAMP>FALSE</SAMP> if they are stored in
+y-increasing order.
+</DD></DL>
+<P>
+<A NAME="vpixmapLoad"><HR><H4>vpixmapLoad</H4></A>
+<PRE>
+        vpixmap * <B>vpixmapLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a pixmap from the resource <SAMP>resource</SAMP> and
+returns a pointer to its contents. Storage for the pixmap
+is allocated by the Pixmap Library. All attributes of the
+pixmap are read from the resource. If the original pixmap
+was created with default format attributes, this fact is
+remembered and the pixmap is translated to the current
+default format, even if it is different from the original
+format. If any format attribute was specified explicitly,
+then the pixmap is loaded using the specified format. You
+should use the default pixmap format unless you have a
+compelling reason not to do so. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> if the resource was not
+constructed by <CODE><A HREF="vimage-x.html#vimageStore"><CODE>vimageStore</CODE></A></CODE>. This function
+essentially allocates space for a new pixmap and calls
+<CODE><A HREF="vpixmap-x.html#vpixmapLoadInit"><CODE>vpixmapLoadInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vpixmapLoadInit"><HR><H4>vpixmapLoadInit</H4></A>
+<PRE>
+        void <B>vpixmapLoadInit</B>(
+                vpixmap * pixmap,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a pixmap from the resource <SAMP>resource</SAMP> and
+stores it in the uninitialized memory addressed by
+<SAMP>pixmap</SAMP>. All attributes of the pixmap are read
+from the resource. If the original pixmap was created with
+default format attributes, this is remembered and the
+pixmap is translated to the current default format, even if
+it is different from the original format. If any format
+attribute was specified explicitly, then the pixmap is
+loaded using the specified format. You should use the
+default pixmap format unless you have a compelling reason
+not to do so. It generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE>
+if the resource was not constructed by
+<CODE><A HREF="vimage-x.html#vimageStore"><CODE>vimageStore</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vpixmapMakeBuffer"><HR><H4>vpixmapMakeBuffer</H4></A>
+<PRE>
+        vbuffer * <B>vpixmapMakeBuffer</B>(
+                vpixmap * pixmap,
+                const vbufferDevice * device);
+</PRE>
+
+<DL><DD>
+Constructs a buffer for the pixmap <SAMP>pixmap</SAMP> on
+the buffer device <SAMP>device</SAMP> and returns a pointer
+to its contents. This function may create a new buffer or
+it may return an existing buffer, if one exists. The buffer
+must still be validated before its contents can be used.
+Refer to ``Buffers'' in the ``Image Manager'' chapter of
+the <I>Galaxy Application Environment Programmer's
+Guide</I> for more information.
+</DD></DL>
+<P>
+<A NAME="vpixmapMarkModified"><HR><H4>vpixmapMarkModified</H4></A>
+<PRE>
+        void <B>vpixmapMarkModified</B>(
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Indicates to the Pixmap Library that the pixel contents of
+the pixmap <SAMP>pixmap</SAMP> have been modified directly
+in the pixmap buffer and that the window system
+representation of the pixmap (if any) need reconstruction
+before the pixmap can be drawn again. You only need to call
+this function if you change the contents of the pixmap
+buffer <I>without</I> using a scanner. All other changes to
+the pixmap made by Pixmap Library functions (including
+scanners) are tracked automatically. Extraneous calls to
+this function degrade performance.
+</DD></DL>
+<P>
+<A NAME="vpixmapMoveDown"><HR><H4>vpixmapMoveDown</H4></A>
+<PRE>
+        void <B>vpixmapMoveDown</B>(
+                vpixmapScanner * scanner);
+</PRE>
+
+<DL><DD>
+Moves the current pixel of the scanner <SAMP>scanner</SAMP>
+one scan line down. If there are no more scan lines left in
+the pixmap, the current pixel is moved to an indeterminate
+pixel. This function does not read or modify any pixels
+itself. This function is more efficient than calling
+<CODE><A HREF="vpixmap-x.html#vpixmapMoveTo"><CODE>vpixmapMoveTo</CODE></A></CODE> with the coordinates of the
+pixel below the current pixel.
+</DD></DL>
+<P>
+<A NAME="vpixmapMoveLeft"><HR><H4>vpixmapMoveLeft</H4></A>
+<PRE>
+        void <B>vpixmapMoveLeft</B>(
+                vpixmapScanner * scanner);
+</PRE>
+
+<DL><DD>
+Moves the current pixel of the scanner <SAMP>scanner</SAMP>
+one pixel to the left. If the current pixel reaches the
+left edge of the pixmap, the current pixel is moved to the
+far right of the next scan line up. If there are no more
+scan lines left in the pixmap, the current pixel is moved
+to an indeterminate pixel. This function does not read or
+modify any pixels itself. This function is more efficient
+than calling <CODE><A HREF="vpixmap-x.html#vpixmapMoveTo"><CODE>vpixmapMoveTo</CODE></A></CODE> with the
+coordinates of the pixel to the left of the current pixel.
+</DD></DL>
+<P>
+<A NAME="vpixmapMoveRight"><HR><H4>vpixmapMoveRight</H4></A>
+<PRE>
+        void <B>vpixmapMoveRight</B>(
+                vpixmapScanner * scanner);
+</PRE>
+
+<DL><DD>
+Moves the current pixel of the scanner <SAMP>scanner</SAMP>
+one pixel to the right. If the current pixel reaches the
+right edge of the pixmap, the current pixel is moved to the
+far left of the next scan line up. If there are no more
+scan lines left in the pixmap, the current pixel is moved
+to an indeterminate pixel. This function does not read or
+modify any pixels itself. This function is more efficient
+than calling <CODE><A HREF="vpixmap-x.html#vpixmapMoveTo"><CODE>vpixmapMoveTo</CODE></A></CODE> with the
+coordinates of the pixel to the right of the current pixel.
+</DD></DL>
+<P>
+<A NAME="vpixmapMoveTo"><HR><H4>vpixmapMoveTo</H4></A>
+<PRE>
+        void <B>vpixmapMoveTo</B>(
+                vpixmapScanner * scanner,
+                int x,
+                int y);
+</PRE>
+
+<DL><DD>
+Moves the current pixel of the scanner <SAMP>scanner</SAMP>
+to the coordinate (<SAMP>x</SAMP>, <SAMP>y</SAMP>),
+relative to the lower left-hand corner of the pixmap. This
+function does not read or modify any pixels itself. If
+(<SAMP>x</SAMP>, <SAMP>y</SAMP>) is outside the legal range
+of pixmap coordinates, behavior is undefined.
+</DD></DL>
+<P>
+<A NAME="vpixmapMoveUp"><HR><H4>vpixmapMoveUp</H4></A>
+<PRE>
+        void <B>vpixmapMoveUp</B>(
+                vpixmapScanner * scanner);
+</PRE>
+
+<DL><DD>
+Moves the current pixel of the scanner <SAMP>scanner</SAMP>
+one scan line up. If there are no more scan lines left in
+the pixmap, the current pixel is moved to an indeterminate
+pixel. This function does not read or modify any pixels
+itself. This function is more efficient than calling
+<CODE><A HREF="vpixmap-x.html#vpixmapMoveTo"><CODE>vpixmapMoveTo</CODE></A></CODE> with the coordinates of the
+pixel above the current pixel.
+</DD></DL>
+<P>
+<A NAME="vpixmapRead"><HR><H4>vpixmapRead</H4></A>
+<PRE>
+        vpixmapValue <B>vpixmapRead</B>(
+                vpixmapScanner * scanner);
+</PRE>
+
+<DL><DD>
+Reads the value of the current pixel of the scanner<SAMP>
+scanner</SAMP> without moving the scanners current pixel.
+The pixmap value is in the range zero to 2^depth-1 where
+<I>depth</I> is the depth of the pixmap.
+</DD></DL>
+<P>
+<A NAME="vpixmapReadAt"><HR><H4>vpixmapReadAt</H4></A>
+<PRE>
+        vpixmapValue <B>vpixmapReadAt</B>(
+                vpixmapScanner * scanner,
+                int x,
+                int y);
+</PRE>
+
+<DL><DD>
+Reads the value of the pixel at position (<SAMP>x</SAMP>,
+<SAMP>y</SAMP>) in the pixmap being iterated by the scanner
+<SAMP>scanner</SAMP> <I>without</I> moving the scanners
+current pixel. The pixmap value is in the range zero to
+2^depth-1 where <I>depth</I> is the depth of the pixmap.
+This function is useful when you want to iterate over the
+contents of a pixmap, but the pattern of the iteration is
+not linear. This function is more efficient than calling
+<CODE><A HREF="vpixmap-x.html#vpixmapMoveTo"><CODE>vpixmapMoveTo</CODE></A></CODE> and <CODE>vpixmapRead</CODE> in
+combination. For example, the code in Example  averages the
+values of 100 random pixels from a pixmap (this code
+assumes that the sum of the values will not overflow a
+<SAMP><A HREF="vpixmap-x.html#vpixmapValue"><CODE>vpixmapValue</CODE></A></SAMP>).
+    <P>
+<BLOCKQUOTE>
+Sample Code: Averaging the values of 100 random pixels from
+a pixmap</BLOCKQUOTE>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+vpixmap              *pixmap;    /* contains a pixmap */
+<A HREF="vpixmap-x.html#vpixmapScanner"><CODE>vpixmapScanner</CODE></A>        scanner;
+register <A HREF="vpixmap-x.html#vpixmapValue"><CODE>vpixmapValue</CODE></A> sum;
+register int          width, height, count;
+
+<A HREF="vpixmap-x.html#vpixmapInitScanner"><CODE>vpixmapInitScanner</CODE></A>(&scanner, pixmap);
+
+sum    = 0;
+width  = <A HREF="vpixmap-x.html#vpixmapGetWidth"><CODE>vpixmapGetWidth</CODE></A>(pixmap);
+height = <A HREF="vpixmap-x.html#vpixmapGetHeight"><CODE>vpixmapGetHeight</CODE></A>(pixmap);
+count  = 100;
+
+while (count-->0)
+    sum += vpixmapReadAt(&scanner, rand()%width, rand()%height);
+
+<A HREF="vpixmap-x.html#vpixmapDestroyScanner"><CODE>vpixmapDestroyScanner</CODE></A>(&scanner);
+
+return sum/100;
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vpixmapReadMoveRight"><HR><H4>vpixmapReadMoveRight</H4></A>
+<PRE>
+        vpixmapValue <B>vpixmapReadMoveRight</B>(
+                vpixmapScanner * scanner);
+</PRE>
+
+<DL><DD>
+Reads the value of the current pixel of the scanner<SAMP>
+scanner</SAMP> and moves the current pixel one pixel to the
+right. If the current pixel reaches the right edge of the
+pixmap, the current pixel is moved to the far left of the
+next scan line up. If there are no more scan lines left in
+the pixmap, the current pixel is moved to an indeterminate
+pixel. The pixmap value is in the range zero to 2^depth-1
+where <I>depth</I> is the depth of the pixmap. Calling this
+function repeatedly is the most efficient way to read all
+the pixels of a pixmap using a scanner. For example, the
+code in Example determines the maximum value of all the
+pixels in a pixmap.
+    <P>
+<BLOCKQUOTE>
+Sample Code: Determining the maximum values of all the
+pixels in a pixmap\nopagebreak  \nobreak
+
+<PRE>
+
+vpixmap              *pixmap;    /* contains a pixmap */
+<A HREF="vpixmap-x.html#vpixmapScanner"><CODE>vpixmapScanner</CODE></A>        scanner;
+register <A HREF="vpixmap-x.html#vpixmapValue"><CODE>vpixmapValue</CODE></A> max, value;
+register int          count;
+
+<A HREF="vpixmap-x.html#vpixmapInitScanner"><CODE>vpixmapInitScanner</CODE></A>(&scanner, pixmap);
+
+max   = 0;
+count = <A HREF="vpixmap-x.html#vpixmapGetWidth"><CODE>vpixmapGetWidth</CODE></A>(pixmap)*<A HREF="vpixmap-x.html#vpixmapGetHeight"><CODE>vpixmapGetHeight</CODE></A>(pixmap);
+while (count-->0)
+    if ((value = vpixmapReadMoveRight(&scanner))>max)
+        max = value;
+
+<A HREF="vpixmap-x.html#vpixmapDestroyScanner"><CODE>vpixmapDestroyScanner</CODE></A>(&scanner);
+
+return max;
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vpixmapSetBigEndianByte"><HR><H4>vpixmapSetBigEndianByte</H4></A>
+<PRE>
+        void <B>vpixmapSetBigEndianByte</B>(
+                vpixmap * pixmap,
+                int flag);
+</PRE>
+
+<DL><DD>
+Changes the byte order of multi-byte pixels of the
+pixmap<SAMP> pixmap</SAMP> to big-endian if
+<SAMP>flag</SAMP> is <SAMP>TRUE</SAMP> or little-endian if
+<SAMP>flag</SAMP> is <SAMP>FALSE</SAMP>. Byte order affects
+how quickly a multi-byte pixel can be accessed in a pixmap.
+The pixmap's pixel values are converted to the new format.
+Note that calling this function may require the window
+system representation of the pixmap to be reconstructed
+when the pixmap is drawn. Calling this function constitutes
+specifying a format for the pixmap: if the pixmap is stored
+in a resource, it may not use the most efficient format for
+a given platform when it is read from the resource.
+</DD></DL>
+<P>
+<A NAME="vpixmapSetBits"><HR><H4>vpixmapSetBits</H4></A>
+<PRE>
+        void <B>vpixmapSetBits</B>(
+                vpixmap * pixmap,
+                unsigned char * bits);
+</PRE>
+
+<DL><DD>
+Replaces the pixel contents of the pixmap
+<SAMP>pixmap</SAMP> with the pixels in the memory addressed
+by <SAMP>bits</SAMP>. You must ensure that the pixels are
+in the correct format and depth before calling this
+function. This function stores <SAMP>bits</SAMP> into the
+pixmaps source buffer. The previous contents of the pixmap,
+if any, are destroyed. The pixmap does not take ownership
+of the pixels. Note that calling this function may require
+the window system representation of the pixmap to be
+reconstructed when the pixmap is drawn.
+</DD></DL>
+<P>
+<A NAME="vpixmapSetCopyBits"><HR><H4>vpixmapSetCopyBits</H4></A>
+<PRE>
+        void <B>vpixmapSetCopyBits</B>(
+                vpixmap * pixmap,
+                int flag);
+</PRE>
+
+<DL><DD>
+Sets whether the pixmap pixels are copied during copy operations.
+This function is implemented by sending the message
+<CODE>vdialogSET_COPY_BITS</CODE> to pixmap.
+</DD></DL>
+<P>
+<A NAME="vpixmapSetData"><HR><H4>vpixmapSetData</H4></A>
+<PRE>
+        void <B>vpixmapSetData</B>(
+                vpixmap * pixmap,
+                const void * data);
+</PRE>
+
+<DL><DD>
+Sets the generic data pointer to be the specfied
+<SAMP>data</SAMP>. This function is implemented by sending the message
+<CODE>vdialogSET_DATA</CODE> to pixmap.
+</DD></DL>
+<P>
+<A NAME="vpixmapSetDepth"><HR><H4>vpixmapSetDepth</H4></A>
+<PRE>
+        void <B>vpixmapSetDepth</B>(
+                vpixmap * pixmap,
+                int depth);
+</PRE>
+
+<DL><DD>
+Changes the depth of the pixmap <SAMP>pixmap</SAMP> to
+<SAMP>depth</SAMP>. Pixmap values can range from zero to
+2^depth-1. If <SAMP>depth</SAMP> is not a depth implemented
+by the Pixmap Library, then it is promoted to the next
+highest depth. The Pixmap Library implements depths of 1,
+2, 4, 8, 16, 24, and 32 in this release of Galaxy. It
+generates a <CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+depth is less than one or greater than 32. This function
+has no effect if the depth does not change after any
+necessary promotion. The pixmap's pixel values are
+converted to the new depth. If the new depth is less than
+the old depth, pixel values are masked silently. Note that
+calling this function may require the window system
+representation of the pixmap to be reconstructed when the
+pixmap is drawn.
+</DD></DL>
+<P>
+<A NAME="vpixmapSetInverseY"><HR><H4>vpixmapSetInverseY</H4></A>
+<PRE>
+        void <B>vpixmapSetInverseY</B>(
+                vpixmap * pixmap,
+                int flag);
+</PRE>
+
+<DL><DD>
+Changes the scan line order of the pixmap
+<SAMP>pixmap</SAMP> to y-decreasing if <SAMP>flag</SAMP> is
+<SAMP>TRUE</SAMP> or y-increasing if <SAMP>flag</SAMP> is
+<SAMP>FALSE</SAMP>. Although Galaxy's rendering model is
+based on a lower left-hand coordinate origin, most common
+pixmap formats are based on an upper left-hand coordinate
+origin. The Pixmap Library accommodates these formats by
+storing their scan lines in y-decreasing order. Note that
+this function does <I>not</I> affect the logical origin of
+the pixmap: the logical origin is always in the lower
+left-hand corner. The pixmap's pixel values are converted
+to the new format by this function. Note that calling this
+function may require the window system representation of
+the pixmap to be reconstructed when the pixmap is drawn.
+Calling this function constitutes specifying a format for
+the pixmap: if the pixmap is stored in a resource, it may
+not use the most efficient format for a given host platform
+when it is read from the resource.
+</DD></DL>
+<P>
+<A NAME="vpixmapSetLocation"><HR><H4>vpixmapSetLocation</H4></A>
+<PRE>
+        vpixmapValue <B>vpixmapSetLocation</B>(
+                vpixmapScanner * scanner,
+                int x,
+                int y);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Use <CODE><A HREF="vpixmap-x.html#vpixmapMoveTo"><CODE>vpixmapMoveTo</CODE></A></CODE> to change the current pixel
+of a scanner. Use <CODE><A HREF="vpixmap-x.html#vpixmapRead"><CODE>vpixmapRead</CODE></A></CODE> to read a pixel
+at the current location. Use <CODE><A HREF="vpixmap-x.html#vpixmapReadAt"><CODE>vpixmapReadAt</CODE></A></CODE> to
+read a particular pixel without changing the current pixel.
+</DD></DL>
+<P>
+<A NAME="vpixmapSetNext"><HR><H4>vpixmapSetNext</H4></A>
+<PRE>
+        vpixmapValue <B>vpixmapSetNext</B>(
+                vpixmapScanner * scanner,
+                vpixmapValue value);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Use <CODE><A HREF="vpixmap-x.html#vpixmapWriteMoveRight"><CODE>vpixmapWriteMoveRight</CODE></A></CODE> to write the current
+pixel and move it one pixel right. Use
+<CODE><A HREF="vpixmap-x.html#vpixmapRead"><CODE>vpixmapRead</CODE></A></CODE> to read the new current pixel.
+</DD></DL>
+<P>
+<A NAME="vpixmapSetPad"><HR><H4>vpixmapSetPad</H4></A>
+<PRE>
+        void <B>vpixmapSetPad</B>(
+                vpixmap * pixmap,
+                int pad);
+</PRE>
+
+<DL><DD>
+Changes the scan line padding of the pixmap
+<SAMP>pixmap</SAMP> to <SAMP>pad</SAMP> bits. Padding
+determines the alignment of each scan line address in the
+pixmap; some processor architectures and pixmap formats
+require that these be on certain boundaries. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>pad</SAMP>
+is not 1, 8, 16, or 32. Note that 1-bit padding is not
+implemented by this release of Galaxy for depths less than
+8. This makes specifying one bit padding essentially
+pointless, though this feature may be implemented in a
+future release of Galaxy. The pixmap's pixel values are
+converted to the new format. Note that calling this
+function may require the window system representation of
+the pixmap to be reconstructed when the pixmap is drawn.
+Calling this function constitutes specifying a format for
+the pixmap: if the pixmap is stored in a resource, it may
+not use the most efficient format for a given platform when
+it is read from the resource.
+</DD></DL>
+<P>
+<A NAME="vpixmapSetPixel"><HR><H4>vpixmapSetPixel</H4></A>
+<PRE>
+        void <B>vpixmapSetPixel</B>(
+                vpixmapScanner * scanner,
+                int x,
+                int y,
+                vpixmapValue value);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Use <CODE><A HREF="vpixmap-x.html#vpixmapMoveTo"><CODE>vpixmapMoveTo</CODE></A></CODE> to change the current pixel
+of a scanner. Use <CODE><A HREF="vpixmap-x.html#vpixmapWrite"><CODE>vpixmapWrite</CODE></A></CODE> to write a
+pixel at the current location. Use
+<CODE><A HREF="vpixmap-x.html#vpixmapWriteAt"><CODE>vpixmapWriteAt</CODE></A></CODE> to write a particular pixel
+without changing the current pixel.
+</DD></DL>
+<P>
+<A NAME="vpixmapSetPrev"><HR><H4>vpixmapSetPrev</H4></A>
+<PRE>
+        vpixmapValue <B>vpixmapSetPrev</B>(
+                vpixmapScanner * scanner,
+                vpixmapValue value);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Use <CODE><A HREF="vpixmap-x.html#vpixmapWrite"><CODE>vpixmapWrite</CODE></A></CODE> to write a pixel at the
+current location. Use <CODE><A HREF="vpixmap-x.html#vpixmapMoveLeft"><CODE>vpixmapMoveLeft</CODE></A></CODE> to move
+the current pixel one pixel left. Note that the most
+efficient way to write the entire contents of a pixmap is
+with <CODE><A HREF="vpixmap-x.html#vpixmapWriteMoveRight"><CODE>vpixmapWriteMoveRight</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vpixmapSetScannerBits"><HR><H4>vpixmapSetScannerBits</H4></A>
+<PRE>
+        void <B>vpixmapSetScannerBits</B>(
+                vpixmapScanner * scanner,
+                vpixmap * pixmap,
+                unsigned char * bits);
+</PRE>
+
+<DL><DD>
+Sets the pixels for pixmapScanner to scan. <SAMP>pixmap</SAMP> is used
+to determine the format of the pixels. <SAMP>bits</SAMP> are the pixel
+to use.
+</DD></DL>
+<P>
+<A NAME="vpixmapSetScannerPixmap"><HR><H4>vpixmapSetScannerPixmap</H4></A>
+<PRE>
+        void <B>vpixmapSetScannerPixmap</B>(
+                vpixmapScanner * scanner,
+                vpixmap * pixmap);
+</PRE>
+
+<DL><DD>
+Sets the pixmap for pixmapScanner to scan. <SAMP>pixmap</SAMP> is
+pixmap that the pixmapScanner will use when it scans.
+</DD></DL>
+<P>
+<A NAME="vpixmapSetSize"><HR><H4>vpixmapSetSize</H4></A>
+<PRE>
+        void <B>vpixmapSetSize</B>(
+                vpixmap * pixmap,
+                int w,
+                int h,
+                int preserve,
+                vpixmapValue background);
+</PRE>
+
+<DL><DD>
+Changes the size of the pixmap <SAMP>pixmap</SAMP> to
+<SAMP>w</SAMP> pixels by <SAMP>h</SAMP> pixels and
+preserves the pixmap contents. This function has no effect
+if the pixmap is already of the requested size. It
+generates a <CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>w</SAMP> or <SAMP>h</SAMP> is less than one or
+greater than the maximum allowable pixmap dimension (this
+is at least 32767, but may be greater).
+    <P>
+The flags in <SAMP>preserve</SAMP> specify how the existing
+contents of the pixmap should be positioned in the new
+content area and whether or not to clear parts of the
+pixmap that are exposed by the size change.
+<SAMP>preserve</SAMP> should be
+<CODE>vpixmapPRESERVE_NONE</CODE> or the bitwise OR
+(<SAMP>|</SAMP>) of two or more of the following constants:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><SAMP>vpixmapPRESERVE_HORIZ_LEFT</SAMP>
+<DD>Align existing contents left.
+<DT><SAMP>vpixmapPRESERVE_HORIZ_CENTER</SAMP>
+<DD>Align existing contents center.
+<DT><SAMP>vpixmapPRESERVE_HORIZ_RIGHT</SAMP>
+<DD>Align existing contents right.
+<DT>
+<DD>
+<DT><SAMP>vpixmapPRESERVE_VERT_TOP</SAMP>
+<DD>Align existing contents top.
+<DT><SAMP>vpixmapPRESERVE_VERT_CENTER</SAMP>
+<DD>Align existing contents center.
+<DT><SAMP>vpixmapPRESERVE_VERT_BOTTOM</SAMP>
+<DD>Align existing contents bottom.
+<DT>
+<DD>
+<DT><SAMP>vpixmapPRESERVE_CLEAR_EXPOSED</SAMP>
+<DD>Clear exposed area to background.
+</DL>
+</BLOCKQUOTE>
+
+    <P>
+Note that you can specify only one horizontal flag and one
+vertical flag at a time. <SAMP>background</SAMP> is ignored
+if <SAMP>vpixmapPRESERVE_CLEAR_EXPOSED</SAMP> is not set.
+</DD></DL>
+<P>
+<A NAME="vpixmapSetSizeMangle"><HR><H4>vpixmapSetSizeMangle</H4></A>
+<PRE>
+        void <B>vpixmapSetSizeMangle</B>(
+                vpixmap * pixmap,
+                int w,
+                int h);
+</PRE>
+
+<DL><DD>
+Changes the size of a pixmap but does not preserve the contents.
+</DD></DL>
+<P>
+<A NAME="vpixmapSetSizeNoBackground"><HR><H4>vpixmapSetSizeNoBackground</H4></A>
+<PRE>
+        void <B>vpixmapSetSizeNoBackground</B>(
+                vpixmap * pixmap,
+                int w,
+                int h,
+                int preserve);
+</PRE>
+
+<DL><DD>
+Changes the size of a pixmap but does not clear exposed area to the
+background color.
+</DD></DL>
+<P>
+<A NAME="vpixmapSetSizeWithBackground"><HR><H4>vpixmapSetSizeWithBackground</H4></A>
+<PRE>
+        void <B>vpixmapSetSizeWithBackground</B>(
+                vpixmap * pixmap,
+                int w,
+                int h,
+                int preserve,
+                vpixmapValue background);
+</PRE>
+
+<DL><DD>
+Changes the size of a pixmap and fills exposed areas in with the
+background color.
+</DD></DL>
+<P>
+<A NAME="vpixmapSetTag"><HR><H4>vpixmapSetTag</H4></A>
+<PRE>
+        void <B>vpixmapSetTag</B>(
+                vpixmap * pixmap,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Changes the tag of the pixmap <SAMP>pixmap</SAMP> to
+<SAMP>tag</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vpixmapStartup"><HR><H4>vpixmapStartup</H4></A>
+<PRE>
+        void <B>vpixmapStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the pixmap module. Has no effect if the pixmap
+module is already initialized.
+</DD></DL>
+<P>
+<A NAME="vpixmapStore"><HR><H4>vpixmapStore</H4></A>
+<PRE>
+        void <B>vpixmapStore</B>(
+                vpixmap * pixmap,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Writes the contents of the pixmap <SAMP>pixmap</SAMP> into
+the resource <SAMP>resource</SAMP>. The pixmap can be
+recovered from the resource at a later time (perhaps by
+another program) with <CODE><A HREF="vpixmap-x.html#vpixmapLoad"><CODE>vpixmapLoad</CODE></A></CODE> or
+<CODE><A HREF="vpixmap-x.html#vpixmapLoadInit"><CODE>vpixmapLoadInit</CODE></A></CODE> . All of the pixmaps
+attributes, including its pixels, are stored in the
+resource. The Pixmap Library also stores whether the pixmap
+is in the default (most efficient) format or whether a
+format was specified explicitly. You should use the default
+pixmap format unless you have a compelling reason not to do
+so.
+    <P>
+To make a pixmap into a resource, first call
+<CODE><A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A></CODE> to create an untyped resource in
+the desired location, then call <CODE>vpixmapStore</CODE>
+to write the pixmap into the resource. This is illustrated
+in Example.
+    <P>
+<BLOCKQUOTE>
+Sample Code: Making a pixmap into a resource</BLOCKQUOTE>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+vpixmap  *pixmap;    /* contains a pixmap */
+<A HREF="vresource-x.html#vresource"><CODE>vresource</CODE></A> fileResource, pixmapResource;
+
+fileResource   = <A HREF="vresource-x.html#vresourceOpenFile"><CODE>vresourceOpenFile</CODE></A>( ... );
+pixmapResource = <A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A>(fileResource,
+                               <A HREF="vname-x.html#vnameInternGlobalLiteral"><CODE>vnameInternGlobalLiteral</CODE></A>("MyPixmap"));
+
+vpixmapStore(pixmap, pixmapResource);
+<A HREF="vresource-x.html#vresourceCloseFile"><CODE>vresourceCloseFile</CODE></A>(fileResource);
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vpixmapWrite"><HR><H4>vpixmapWrite</H4></A>
+<PRE>
+        void <B>vpixmapWrite</B>(
+                vpixmapScanner * scanner,
+                vpixmapValue value);
+</PRE>
+
+<DL><DD>
+Reads the value <SAMP>value</SAMP> into the current pixel
+of the scanner <SAMP>scanner</SAMP> without moving the
+scanners current pixel. If the value is outside the legal
+range of values for the pixmap being iterated by the
+scanner, then the value is masked silently.
+</DD></DL>
+<P>
+<A NAME="vpixmapWriteAt"><HR><H4>vpixmapWriteAt</H4></A>
+<PRE>
+        void <B>vpixmapWriteAt</B>(
+                vpixmapScanner * scanner,
+                int x,
+                int y,
+                vpixmapValue value);
+</PRE>
+
+<DL><DD>
+Writes the value <SAMP>value</SAMP> into the pixel at
+position (<SAMP>x</SAMP>, <SAMP>y</SAMP>) in the pixmap
+being iterated by the scanner<SAMP> scanner</SAMP>
+<I>without</I> moving the scanners current pixel. If the
+value is outside the legal range of values for the pixmap
+being iterated by the scanner, the value is masked
+silently. This function is useful when you want to iterate
+over the contents of a pixmap, but the pattern of the
+iteration is not linear. This function is more efficient
+than calling <CODE><A HREF="vpixmap-x.html#vpixmapMoveTo"><CODE>vpixmapMoveTo</CODE></A></CODE> and
+<CODE>vpixmapWrite</CODE> in combination. For example, the
+code in Example zeroes 100 random pixels of a pixmap.
+    <P>
+<BLOCKQUOTE>
+Sample Code: Zeroing 100 random pixels in a
+pixmap</BLOCKQUOTE>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+vpixmap       *pixmap;    /* contains a pixmap */
+<A HREF="vpixmap-x.html#vpixmapScanner"><CODE>vpixmapScanner</CODE></A> scanner;
+register int   width, height, count;
+
+<A HREF="vpixmap-x.html#vpixmapInitScanner"><CODE>vpixmapInitScanner</CODE></A>(&scanner, pixmap);
+
+width  = <A HREF="vpixmap-x.html#vpixmapGetWidth"><CODE>vpixmapGetWidth</CODE></A>(pixmap);
+height = <A HREF="vpixmap-x.html#vpixmapGetHeight"><CODE>vpixmapGetHeight</CODE></A>(pixmap);
+count  = 100;
+while (count-->0)
+    vpixmapWriteAt(&scanner, rand()%width, rand()%height,
+                   (<A HREF="vpixmap-x.html#vpixmapValue"><CODE>vpixmapValue</CODE></A>)0);
+
+<A HREF="vpixmap-x.html#vpixmapDestroyScanner"><CODE>vpixmapDestroyScanner</CODE></A>(&scanner);
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vpixmapWriteMoveRight"><HR><H4>vpixmapWriteMoveRight</H4></A>
+<PRE>
+        void <B>vpixmapWriteMoveRight</B>(
+                vpixmapScanner * scanner,
+                vpixmapValue value);
+</PRE>
+
+<DL><DD>
+Writes the value <SAMP>value</SAMP> at the current pixel of
+the scanner <SAMP>scanner</SAMP> and moves the current
+pixel one pixel to the right. If the current pixel reaches
+the right edge of the pixmap, the current pixel is moved to
+the far left of the next scan line up. If there are no more
+scan lines left in the pixmap, the current pixel is moved
+to an indeterminate pixel. If the value is outside the
+legal range of values for the pixmap being iterated by the
+scanner, the value is masked silently. Calling this
+function repeatedly is the most efficient way to write the
+pixels of a pixmap using a scanner. For example, the code
+in Example sets each pixel in a pixmap to a unique value.
+    <P>
+<BLOCKQUOTE>
+Sample Code: Setting each pixel in a pixmap to a unique
+value</BLOCKQUOTE>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+vpixmap       *pixmap;    /* contains a pixmap */
+<A HREF="vpixmap-x.html#vpixmapScanner"><CODE>vpixmapScanner</CODE></A> scanner;
+register int   count;
+
+<A HREF="vpixmap-x.html#vpixmapInitScanner"><CODE>vpixmapInitScanner</CODE></A>(&scanner, pixmap);
+
+count = <A HREF="vpixmap-x.html#vpixmapGetWidth"><CODE>vpixmapGetWidth</CODE></A>(pixmap)*<A HREF="vpixmap-x.html#vpixmapGetHeight"><CODE>vpixmapGetHeight</CODE></A>(pixmap);
+
+while (count-->0)
+    vpixmapWriteMoveRight(&scanner, (<A HREF="vpixmap-x.html#vpixmapValue"><CODE>vpixmapValue</CODE></A>)count);
+
+<A HREF="vpixmap-x.html#vpixmapDestroyScanner"><CODE>vpixmapDestroyScanner</CODE></A>(&scanner);
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vpixmapCLEAR"><HR><H4>vpixmapCLEAR</H4></A>
+<PRE>
+        &lt;<B>vpixmapCLEAR</B>&gt;
+</PRE>
+
+<DL><DD>
+Stores the pixel value <SAMP>value</SAMP> into each of the
+pixels of the pixmap <SAMP>pixmap</SAMP>. If
+<SAMP>value</SAMP> is outside the pixmap's legal range of
+pixel values, as determined by its depth, the value is
+masked silently. The function entry point
+<CODE><A HREF="vpixmap-x.html#vpixmapClear"><CODE>vpixmapClear</CODE></A></CODE> is implemented by sending this
+message to the pixmap.
+    <P>
+The default method for the default pixmap class clears the
+pixels of the pixmap and flushes the window system
+representation, if necessary. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+clear the pixmap, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vpixmapCOPY_BITS"><HR><H4>vpixmapCOPY_BITS</H4></A>
+<PRE>
+        &lt;<B>vpixmapCOPY_BITS</B>&gt;
+</PRE>
+
+<DL><DD>
+Copies all the pixels from the given pixmap
+<SAMP>pixmap</SAMP> to the pixmap <SAMP>target</SAMP>. This
+function does not affect any other attributes of the
+pixmap. It generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE>
+exception if the width and height of the source pixmap do
+not match the width and height of the target pixmap. The
+function entry point <CODE><A HREF="vpixmap-x.html#vpixmapCopyBits"><CODE>vpixmapCopyBits</CODE></A></CODE> is
+implemented by sending this message to the pixmap.
+    <P>
+The default method for the default pixmap class copies the
+pixels of the pixmap and flushes the window system
+representation, if necessary. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+copy the pixels, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vpixmapCOPY_RECT"><HR><H4>vpixmapCOPY_RECT</H4></A>
+<PRE>
+        &lt;<B>vpixmapCOPY_RECT</B>&gt;
+</PRE>
+
+<DL><DD>
+Copies the pixels from rectangle (<SAMP>x</SAMP>,
+<SAMP>y</SAMP>, <SAMP>w</SAMP>, <SAMP>h</SAMP>) of the
+pixmap <SAMP>pixmap</SAMP> into the rectangle
+(<SAMP>x</SAMP>, <SAMP>y</SAMP>, <SAMP>w</SAMP>,
+<SAMP>h</SAMP>) of the pixmap <SAMP>target</SAMP>. This
+function does nothing if <SAMP>w</SAMP> or <SAMP>h</SAMP>
+is zero. Pixels outside the target rectangle are
+unaffected. It generates a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if either
+rectangle encloses an area outside the given pixmap. The
+function entry point <CODE><A HREF="vpixmap-x.html#vpixmapCopyRect"><CODE>vpixmapCopyRect</CODE></A></CODE> is
+implemented by sending this message to the pixmap.
+    <P>
+The default method for the default pixmap class copies the
+pixels of the pixmap and flushes the window system
+representation, if necessary. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+copy the pixels, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vpixmapMAKE_BUFFER"><HR><H4>vpixmapMAKE_BUFFER</H4></A>
+<PRE>
+        &lt;<B>vpixmapMAKE_BUFFER</B>&gt;
+</PRE>
+
+<DL><DD>
+Constructs a buffer for the pixmap <SAMP>pixmap</SAMP> on
+the buffer device <SAMP>device</SAMP> and returns a pointer
+to its contents. This function may create a new buffer or
+it may return an existing buffer, if one exists. The
+function entry point <CODE><A HREF="vpixmap-x.html#vpixmapMakeBuffer"><CODE>vpixmapMakeBuffer</CODE></A></CODE> is
+implemented by sending this message to the pixmap.
+    <P>
+The default method for the default pixmap class makes a
+buffer for the desired device, if necessary. Subclasses
+that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to make the buffer, then
+perform any subclass-specific changes.
+</DD></DL>
+<P>
+<A NAME="vpixmapMARK_MODIFIED"><HR><H4>vpixmapMARK_MODIFIED</H4></A>
+<PRE>
+        &lt;<B>vpixmapMARK_MODIFIED</B>&gt;
+</PRE>
+
+<DL><DD>
+Indicates to the Pixmap Library that the pixel contents of
+the pixmap <SAMP>pixmap</SAMP> have been modified directly
+in the pixmap buffer and that the window system
+representation of the pixmap (if any) need reconstruction
+before the pixmap can be drawn again. The function entry
+point <CODE><A HREF="vpixmap-x.html#vpixmapMarkModified"><CODE>vpixmapMarkModified</CODE></A></CODE> is implemented by
+sending this message to the pixmap.
+    <P>
+The default method for the default pixmap class flushes the
+window system representation of the pixmap, if necessary.
+Subclasses that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to mark the pixmap, then
+update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vpixmapSET_BIG_ENDIAN_BYTE"><HR><H4>vpixmapSET_BIG_ENDIAN_BYTE</H4></A>
+<PRE>
+        &lt;<B>vpixmapSET_BIG_ENDIAN_BYTE</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the byte order of multi-byte pixels of the
+pixmap<SAMP> pixmap</SAMP> to big-endian if
+<SAMP>flag</SAMP> is <SAMP>TRUE</SAMP> or little-endian if
+<SAMP>flag</SAMP> is <SAMP>FALSE</SAMP>. The function entry
+point <CODE><A HREF="vpixmap-x.html#vpixmapSetBigEndianByte"><CODE>vpixmapSetBigEndianByte</CODE></A></CODE> is implemented
+by sending this message to the pixmap.
+    <P>
+The default method for the default pixmap class changes the
+big-endian byte flag of the pixmap and flushes the window
+system representation, if necessary. Subclasses that
+override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to set the new flag, then
+update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vpixmapSET_COPY_BITS"><HR><H4>vpixmapSET_COPY_BITS</H4></A>
+<PRE>
+        &lt;<B>vpixmapSET_COPY_BITS</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets whether the pixmap pixels are copied during copy operations.
+</DD></DL>
+<P>
+<A NAME="vpixmapSET_DATA"><HR><H4>vpixmapSET_DATA</H4></A>
+<PRE>
+        &lt;<B>vpixmapSET_DATA</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the generic data pointer to be the specfied
+<SAMP>data</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vpixmapSET_DEPTH"><HR><H4>vpixmapSET_DEPTH</H4></A>
+<PRE>
+        &lt;<B>vpixmapSET_DEPTH</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the depth of the pixmap <SAMP>pixmap</SAMP> to
+<SAMP>depth</SAMP>. Pixmap values can range from zero to
+2^depth-1. If <SAMP>depth</SAMP> is not a depth implemented
+by the Pixmap Library, then it is promoted to the next
+highest depth. The Pixmap Library implements depths of 1,
+2, 4, 8, 16, 24, and 32 in this release of Galaxy. It
+generates a <CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+depth is less than one or greater than 32. This function
+has no effect if the depth does not change after any
+necessary promotion. The function entry point
+<CODE><A HREF="vpixmap-x.html#vpixmapSetDepth"><CODE>vpixmapSetDepth</CODE></A></CODE> is implemented by sending this
+message to the pixmap.
+    <P>
+The default method for the default pixmap class changes the
+depth of the pixmap and flushes the window system
+representation, if necessary. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+set the new depth, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vpixmapSET_INVERSE_Y"><HR><H4>vpixmapSET_INVERSE_Y</H4></A>
+<PRE>
+        &lt;<B>vpixmapSET_INVERSE_Y</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the scan line order of the pixmap
+<SAMP>pixmap</SAMP> to y-decreasing if <SAMP>flag</SAMP> is
+<SAMP>TRUE</SAMP> or y-increasing if <SAMP>flag</SAMP> is
+<SAMP>FALSE</SAMP>. The function entry point
+<CODE><A HREF="vpixmap-x.html#vpixmapSetInverseY"><CODE>vpixmapSetInverseY</CODE></A></CODE> is implemented by sending
+this message to the pixmap.
+    <P>
+The default method for the default pixmap class changes the
+inverse-y flag of the pixmap and flushes the window system
+representation, if necessary. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+set the new flag, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vpixmapSET_PAD"><HR><H4>vpixmapSET_PAD</H4></A>
+<PRE>
+        &lt;<B>vpixmapSET_PAD</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the scan line padding of the pixmap
+<SAMP>pixmap</SAMP> to <SAMP>pad</SAMP> bits. It generates
+a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if
+<SAMP>pad</SAMP> is not 1, 8, 16, or 32. Note that 1-bit
+padding is not implemented by this release of Galaxy for
+depths less than 8. The function entry point
+<CODE><A HREF="vpixmap-x.html#vpixmapSetPad"><CODE>vpixmapSetPad</CODE></A></CODE> is implemented by sending this
+message to the pixmap.
+    <P>
+The default method for the default pixmap class changes the
+padding of the pixmap and flushes the window system
+representation, if necessary. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+set the new padding, then update any subclass-specific
+state.
+</DD></DL>
+<P>
+<A NAME="vpixmapSET_SIZE"><HR><H4>vpixmapSET_SIZE</H4></A>
+<PRE>
+        &lt;<B>vpixmapSET_SIZE</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the size of the pixmap <SAMP>pixmap</SAMP> to
+<SAMP>w</SAMP> pixels by <SAMP>h</SAMP> pixels and
+preserves the pixmap contents. This function has no effect
+if the pixmap is already of the requested size. It
+generates a <CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>w</SAMP> or <SAMP>h</SAMP> is less than one or
+greater than the maximum allowable pixmap dimension (this
+is at least 32767, but may be greater). The function entry
+point <CODE><A HREF="vpixmap-x.html#vpixmapSetSize"><CODE>vpixmapSetSize</CODE></A></CODE> is implemented by sending
+this message to the pixmap.
+    <P>
+The default method for the default pixmap class changes the
+size of the pixmap and flushes the window system
+representation, if necessary. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+set the new size, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vpixmapDEPTH_MAX"><HR><H4>vpixmapDEPTH_MAX</H4></A>
+<PRE>
+        <B>vpixmapDEPTH_MAX</B>
+</PRE>
+
+<DL><DD>
+Specifies the maximum value of the depth of a pixmap. This
+value has integral type.
+</DD></DL>
+<P>
+<A NAME="vpixmapDEPTH_MIN"><HR><H4>vpixmapDEPTH_MIN</H4></A>
+<PRE>
+        <B>vpixmapDEPTH_MIN</B>
+</PRE>
+
+<DL><DD>
+Specifies the minimum value of the depth of a pixmap. This
+value has integral type.
+</DD></DL>
+<P>
+<A NAME="vpixmapDIMENSION_MAX"><HR><H4>vpixmapDIMENSION_MAX</H4></A>
+<PRE>
+        <B>vpixmapDIMENSION_MAX</B>
+</PRE>
+
+<DL><DD>
+Specifies the maximum value of the width or height of a
+pixmap or image. This value has integral type.
+</DD></DL>
+<P>
+<A NAME="vpixmapDIMENSION_MIN"><HR><H4>vpixmapDIMENSION_MIN</H4></A>
+<PRE>
+        <B>vpixmapDIMENSION_MIN</B>
+</PRE>
+
+<DL><DD>
+Specifies the minimum value of the width or height of a
+pixmap or image. This value has integral type.
+</DD></DL>
+<P>
+<A NAME="vpixmapINCLUDED"><HR><H4>vpixmapINCLUDED</H4></A>
+<PRE>
+        <B>vpixmapINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vpixmap.h</SAMP> is
+included.
+</DD></DL>
+<P>
+<A NAME="vpixmapPRESERVE_CLEAR_EXPOSED"><HR><H4>vpixmapPRESERVE_CLEAR_EXPOSED</H4></A>
+<PRE>
+        <B>vpixmapPRESERVE_CLEAR_EXPOSED</B>
+</PRE>
+
+<DL><DD>
+This flag is used by <CODE>SetSize</CODE> and
+<CODE>SetSizePreserve</CODE> to determine how to manipulation old or
+new pixmap areas.
+</DD></DL>
+<P>
+<A NAME="vpixmapPRESERVE_HORIZ_CENTER"><HR><H4>vpixmapPRESERVE_HORIZ_CENTER</H4></A>
+<PRE>
+        <B>vpixmapPRESERVE_HORIZ_CENTER</B>
+</PRE>
+
+<DL><DD>
+This flag is used by <CODE>SetSize</CODE> and
+<CODE>SetSizePreserve</CODE> to determine how to manipulation old or
+new pixmap areas.
+</DD></DL>
+<P>
+<A NAME="vpixmapPRESERVE_HORIZ_LEFT"><HR><H4>vpixmapPRESERVE_HORIZ_LEFT</H4></A>
+<PRE>
+        <B>vpixmapPRESERVE_HORIZ_LEFT</B>
+</PRE>
+
+<DL><DD>
+This flag is used by <CODE>SetSize</CODE> and
+<CODE>SetSizePreserve</CODE> to determine how to manipulation old or
+new pixmap areas.
+</DD></DL>
+<P>
+<A NAME="vpixmapPRESERVE_HORIZ_RIGHT"><HR><H4>vpixmapPRESERVE_HORIZ_RIGHT</H4></A>
+<PRE>
+        <B>vpixmapPRESERVE_HORIZ_RIGHT</B>
+</PRE>
+
+<DL><DD>
+This flag is used by <CODE>SetSize</CODE> and
+<CODE>SetSizePreserve</CODE> to determine how to manipulation old or
+new pixmap areas.
+</DD></DL>
+<P>
+<A NAME="vpixmapPRESERVE_NONE"><HR><H4>vpixmapPRESERVE_NONE</H4></A>
+<PRE>
+        <B>vpixmapPRESERVE_NONE</B>
+</PRE>
+
+<DL><DD>
+Specifies which parts of a pixmap or image should be
+preserved during a size change. These constants can be
+combined with the bitwise <SAMP>OR</SAMP> operator
+(<SAMP>|</SAMP>). Refer to <CODE><A HREF="vpixmap-x.html#vpixmapSetSize"><CODE>vpixmapSetSize</CODE></A></CODE> for
+information on how to use them. These values have integral
+type.
+</DD></DL>
+<P>
+<A NAME="vpixmapPRESERVE_VERT_BOTTOM"><HR><H4>vpixmapPRESERVE_VERT_BOTTOM</H4></A>
+<PRE>
+        <B>vpixmapPRESERVE_VERT_BOTTOM</B>
+</PRE>
+
+<DL><DD>
+This flag is used by <CODE>SetSize</CODE> and
+<CODE>SetSizePreserve</CODE> to determine how to manipulation old or
+new pixmap areas.
+</DD></DL>
+<P>
+<A NAME="vpixmapPRESERVE_VERT_CENTER"><HR><H4>vpixmapPRESERVE_VERT_CENTER</H4></A>
+<PRE>
+        <B>vpixmapPRESERVE_VERT_CENTER</B>
+</PRE>
+
+<DL><DD>
+This flag is used by <CODE>SetSize</CODE> and
+<CODE>SetSizePreserve</CODE> to determine how to manipulation old or
+new pixmap areas.
+</DD></DL>
+<P>
+<A NAME="vpixmapPRESERVE_VERT_TOP"><HR><H4>vpixmapPRESERVE_VERT_TOP</H4></A>
+<PRE>
+        <B>vpixmapPRESERVE_VERT_TOP</B>
+</PRE>
+
+<DL><DD>
+This flag is used by <CODE>SetSize</CODE> and
+<CODE>SetSizePreserve</CODE> to determine how to manipulation old or
+new pixmap areas.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vpixmapCLASS"><HR><H4>vpixmapCLASS</H4></A>
+<PRE>
+        #define <B>vpixmapCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+This macro contains the method declarations for the pixmap class,
+this macro expands to the contexts of <CODE><A HREF="vpixmap-x.html#vpixmapClass"><CODE>vpixmapClass</CODE></A></CODE>.
+<SAMP>SUPER<\SAMP> is the type identifier of the class being
+declared. This type is used by the class subclasses to refer to
+it. <SAMP>PIXMAP</SAMP> is the type identifier of the instances of
+the class being declared. This macro should be used by pixmap
+subclasses to declare the contents of the pixmap class. This
+macro should come first in the subclass structure declaration.
+</DD></DL>
+<P>
+<A NAME="vpixmapSCANNER_CLASS"><HR><H4>vpixmapSCANNER_CLASS</H4></A>
+<PRE>
+        #define <B>vpixmapSCANNER_CLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+This macro contains the method declarations for the pixmapSCANNER
+class, this macro expands to the contexts of
+<CODE>vpixmapSCANNERClass</CODE>.  <SAMP>SUPER<\SAMP> is the type
+identifier of the class being declared. This type is used by the class
+subclasses to refer to it. <SAMP>PIXMAPSCANNER</SAMP> is the type
+identifier of the instances of the class being declared. This macro
+should be used by pixmapSCANNER subclasses to declare the contents of
+the pixmapSCANNER class. This macro should come first in the subclass
+structure declaration.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+
