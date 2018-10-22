@@ -1,0 +1,3049 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	'Physical Sheet Face',
+	402,
+	'P_PSHF',
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("8c00c7f3-2a42-4a09-bd22-9e6c8de0b002",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	'createMergeImageRequest',
+	'//-- 313:20060425 Add Start(tsuchitoi)
+r_failCodeを追加。
+合成によって何らかのフェイルが生じた場合にはここに値が設定される。
+必要に応じてキャンセルすること。
+//-- 313:20060425 Add End(tsuchitoi)
+',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	1,
+	'// 返り値のr_canMergeがFALSEの場合、EI_MIRPFPを呼び側で削除すること
+
+//-- 34:20040407 Modified Start
+
+isColorEnable = TRUE;
+
+if ( PF::getConfigValue( config : IotSc_Config::eMergeImage_Color_Enable) == 0 )
+	isColorEnable = FALSE;
+end if;
+mergePlaneNum = 	PF::getConfigValue( config : IotSc_Config::eMergeImage_Plane_Num );
+//-- 34:20040407 Modified End 
+
+//-- 832:20130917 Add Start (saitou) 
+tmpIsAbortNeed = FALSE;
+//-- 832:20130917 Add End (saitou) 
+
+//-- 358:20061219 Add Start (tsuchitoi)
+select any aColorElement related by self->EI_CL[R608];
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero( expression : not_empty aColorElement );
+//-- 845:20140227 Modified End (saitou) 
+//-- 358:20061219 Add End (tsuchitoi)
+
+ 
+planeNo = param.mergePlaneNo;
+
+// Referenceで"0"を渡すと生成時にうまく行かないため、nullColorを定義しておく
+nullColor = param.r_mergeColor;
+nullColor = "0";
+param.r_mergeColor = nullColor ;
+param.r_canMerge = TRUE;
+//-- 313:20060425 Add Start
+param.r_failType = IotSc_FailType::eNull;
+//-- 313:20060425 Add End
+
+select one anExecutingJob related by self->P_PSHT[R404]->J_EJOB[R429];
+select one aJobAsDocument related by anExecutingJob->D_DJOB[R311];
+
+select one aLogicalSheet related by 
+	self->P_PSHT[R404]->P_PSLS[R423]->P_NPS[R430]->S_SHT[R435];
+
+create object instance aReqForPlane of EI_MIRPFP;
+relate anExecutingJob to aReqForPlane across R605;
+
+if ( not self.isImageValid or empty aLogicalSheet )
+	param.r_canMerge = FALSE;
+	return aReqForPlane.ID;
+end if;
+
+select one aSheetFace related by aLogicalSheet->S_SHF[R247];
+if ( self.sheetSide == "IOT_SHEET_SIDE_2" )
+	select one aSheetFace related by aLogicalSheet->S_SHF[R248];
+end if;
+select one aTraySelect related by aLogicalSheet->S_TSP[R224];
+
+//-- 487:20080430 Add Start (kanda)
+// 下から移動(select方法は変更)
+select one anImageSpace1 related by aSheetFace->S_IMS[R222];
+select one anImageSpace2 related by aSheetFace->S_IMS[R222]->S_IMS[R220.''is next to''];
+
+select one aPage1 related by aSheetFace->S_IMS[R222]->S_IMSI[R219]->D_PAGE[R218]
+	where ( selected.blankPageMode != "IOTDOC_BLANK_PAGE_ON" );
+select one aPage2 related by aSheetFace->S_IMS[R222]->S_IMS[R220.''is next to'']->S_IMSI[R219]->D_PAGE[R218]
+	where ( selected.blankPageMode != "IOTDOC_BLANK_PAGE_ON" );
+//-- 487:20080430 Add End (kanda)
+
+
+select one aTraySelect related by aLogicalSheet->S_TSP[R224];
+aReqForPlane.size = aTraySelect.outputSize;
+aReqForPlane.direction = aTraySelect.direction;
+aReqForPlane.shortLength = aTraySelect.shortLength;
+aReqForPlane.longLength = aTraySelect.longLength;
+aReqForPlane.sheetSide = self.sheetSide;
+
+
+imageDirection = aSheetFace.imageDirection;
+//-- 33:20040407 Modified Start
+//firstImageDirection = aJobAsDocument.firstImageDirection;
+select one aRestartInfo related by anExecutingJob->S_JRI[R200];
+firstImageDirection = aRestartInfo.firstImageDirection;
+//-- 33:20040407 Modified End
+
+//-- 52:20040419 Add Start
+page1ImageDirection = IotSc_ImageDirection::eNull;
+page2ImageDirection = IotSc_ImageDirection::eNull;
+//-- 52:20040419 Add End
+
+
+if ( anExecutingJob.isMergeImageFixedDirection 
+//-- 93:20040531 Add Start
+	or imageDirection == IotSc_ImageDirection::eNull 
+//-- 93:20040531 Add End
+)
+	imageDirection = PF::getFixedMergeImageDirection( jobID : anExecutingJob.jobID , dir : aReqForPlane.direction);
+	firstImageDirection = imageDirection;
+//-- 121:20040629 Add Start
+	// 裏面にあたるばあいにはローテーションを考慮する
+	if ( self.sheetSide == "IOT_SHEET_SIDE_2" )
+		duplexDir = PF::getDuplexDirection( sectionID : aLogicalSheet.sectionID );
+		if ( PF::isBackSideNeedRotation( duplexDirection : duplexDir , mediumDir : aTraySelect.direction,
+					imgDir : imageDirection ) )
+			imageDirection = PF::get180RotatedDirection( imgDir : imageDirection );
+		end if;
+	end if;
+//-- 121:20040629 Add End
+end if;	
+
+pageNo1 = 0;
+pageNo2 = 0;	
+annotationPageNo1 = 0;  // 開始番号を考慮したページ番号
+annotationPageNo2 = 0; // 同上 
+repeat_X = 1;
+repeat_Y = 1;
+nUp = 1;
+sequenceNo = 0;
+fastScan = 0;
+slowScan = 0;
+annotationTotalPageNum = 0;
+
+//-- 313:20060424 Add Start (tsuchitoi)
+batesNo1 = 0;
+batesNo2 = 0;
+batesTotalNo = 0;
+//-- 313:20060424 Add End (tsuchitoi)
+//-- 643:20110228 Add Start (saitou)
+//-- 651:20110308 Modified Start (saitou)
+sid = anExecutingJob.initialSid; //型あわせ処理
+sid = 0;
+//-- 651:20110308 Modified End (saitou)
+copiesNum = 0;	// 現在部数
+//-- 643:20110228 Add End (saitou)
+
+
+// 最初の有効イメージページか
+isPage1First = FALSE;
+isPage2First = FALSE;
+
+// イメージ方向の設定
+select one anExecutingOrigin related by aLogicalSheet->S_CS[R213]->S_EOS[R232];
+
+//-- 65:20040511 Add Start
+isAnnotationValid = TRUE;
+//-- 65:20040511 Add End
+
+//-- 286:20051019 Add Start (tsuchitoi)
+isPage1DigitalCodePrinted = FALSE;
+isPage2DigitalCodePrinted = FALSE;
+//-- 286:20051019 Add End (tsuchitoi)
+
+//-- 345:20060831 Add Start (kanda)
+aReqForPlane.startingImage = 0;
+//-- 345:20060831 Add End (kanda)
+
+//-- 503:20080624 Add Start (kanda)
+basePageNo = 0; // Signatureの基準ページ(for Seal)
+//-- 503:20080624 Add End (kanda)
+
+if ( not aSheetFace.is2in1 )
+	// 1Face 1Image 
+	// この場合、Image Repeatが有効となる
+	select one aPage related by
+		 aSheetFace->S_IMS[R222]->S_IMSI[R219]->D_PAGE[R218];
+
+	repeat_X = aPage.imageRepeat_X;
+	repeat_Y = aPage.imageRepeat_Y;
+	nUp = 1;
+	pageNo1 = aSheetFace.annotationPageNo;
+//-- 313:20060425 Add Start (tsuchitoi)
+	batesNo1 = aSheetFace.batesNo;
+//-- 313:20060425 Add End (tsuchitoi)
+
+	// sequenceNoはこの場合のみ有効
+	sequenceNo = aPage.mergeImageSequenceNo;
+	
+	if ( aPage.isFirstValidPage )
+		isPage1First = TRUE;
+	end if;	
+
+//-- 286:20051019 Add Start (tsuchitoi)
+	isPage1DigitalCodePrinted = aPage.isDigitalCodePrinted;
+//-- 286:20051019 Add End (tsuchitoi)
+
+
+	
+//-- 52:20040419 Add Start
+	page1ImageDirection = aPage.imageDirection;
+//-- 52:20040419 Add End
+//-- 65:20040511 Add Start
+	// SC8014 
+	if ( repeat_X > 1 or repeat_Y > 1 )
+		if ( aPage.imageRepeatType != IotSc_ImageRepeatType::eEquality )
+			isAnnotationValid = FALSE;
+		end if;
+	end if;	
+//-- 65:20040511 Add End
+
+else
+	// 2in1 
+	//この場合、imageRepeatは使用しない
+	repeat_X = 1;
+	repeat_Y = 1;
+	nUp = 2;
+
+//-- 487:20080430 Deleted Start (kanda)
+//-- 487:20080430 Deleted End (kanda)
+
+	if ( not_empty aPage1 )
+		pageNo1 = anImageSpace1.nUpAnnotationPageNo;
+
+		isPage1First = aPage1.isFirstValidPage;
+//-- 52:20040419 Add Start
+		page1ImageDirection = aPage1.imageDirection;
+//-- 52:20040419 Add End
+//-- 286:20051019 Add Start (tsuchitoi)
+		isPage1DigitalCodePrinted = aPage1.isDigitalCodePrinted;
+//-- 286:20051019 Add End (tsuchitoi)
+//-- 313:20060425 Add Start (tsuchitoi)
+		batesNo1 = anImageSpace1.nUpBatesNo;
+//-- 313:20060425 Add End (tsuchitoi)
+
+	end if;
+	if ( not_empty aPage2 )
+		pageNo2 = anImageSpace2.nUpAnnotationPageNo;
+		isPage2First = aPage2.isFirstValidPage;
+//-- 52:20040419 Add Start
+		page2ImageDirection = aPage2.imageDirection;
+//-- 52:20040419 Add End
+//-- 286:20051019 Add Start (tsuchitoi)
+		isPage2DigitalCodePrinted = aPage2.isDigitalCodePrinted;
+//-- 286:20051019 Add End (tsuchitoi)
+//-- 313:20060425 Add Start (tsuchitoi)
+		batesNo2 = anImageSpace2.nUpBatesNo;
+//-- 313:20060425 Add End (tsuchitoi)
+
+	end if;
+
+	annotationTotalPageNum = anImageSpace1.nUpAnnotationTotalPage;
+	if ( annotationTotalPageNum == 0 )
+		annotationTotalPageNum = anImageSpace2.nUpAnnotationTotalPage;
+
+	end if;
+//-- 313:20060425 Add Start (tsuchitoi)
+	batesTotalNo = anImageSpace1.nUpBatesTotalNo;
+	if ( batesTotalNo == 0 ) 
+		batesTotalNo = anImageSpace2.nUpBatesTotalNo;
+	end if;	
+//-- 313:20060425 Add End (tsuchitoi)
+
+//-- 345:20060831 Add Start (kanda)
+//-- 503:20080624 Modified Start (kanda)
+	select one aCollateSet related by aLogicalSheet->S_CS[R213];
+	// 綴じ方向からStartingImg(for DrawLib), basePage(for Seal)を決定する
+	if ( aCollateSet.signatureMode == IotSc_SignatureMode::eRightBind )
+		aReqForPlane.startingImage = 2;
+		if ( firstImageDirection == IotSc_ImageDirection::eM_FS or 
+			firstImageDirection == IotSc_ImageDirection::eP_SS )
+			basePageNo = 2;
+		else
+			basePageNo = 1;
+		end if;
+	elif ( aCollateSet.signatureMode == IotSc_SignatureMode::eLeftBind or
+	        aCollateSet.signatureMode == IotSc_SignatureMode::eTopBind )
+		aReqForPlane.startingImage = 1;
+		if ( firstImageDirection == IotSc_ImageDirection::eM_FS or
+			firstImageDirection == IotSc_ImageDirection::eP_SS )
+			basePageNo = 1;
+		else
+			basePageNo = 2;
+		end if;
+	end if;
+//-- 503:20080624 Add End (kanda)
+//-- 345:20060831 Add End (kanda)
+
+end if;
+
+// Total Pageの設定
+
+startPage = anExecutingJob.startPageNo;
+endPage = anExecutingJob.endPageNo;
+if ( startPage == 0 )
+	startPage = 1;
+end if;
+startPageOffset = anExecutingJob.startPageOffset;
+if ( startPageOffset == 0 )
+	startPageOffset = 1;
+end if;
+pageOffset = startPageOffset - startPage + 1;
+
+
+
+	
+if ( anExecutingJob.pageAnnotationMode == IotSc_PageAnnotationMode::eWithDenominator )
+		aReqForPlane.totalPageNum = anExecutingJob.totalPageNo;
+elif ( anExecutingJob.pageAnnotationMode == IotSc_PageAnnotationMode::eWithDenominatorAuto)
+	if ( annotationTotalPageNum > 0 )
+		// Signature のケース
+		aReqForPlane.totalPageNum = annotationTotalPageNum;
+	else	
+		aReqForPlane.totalPageNum = anExecutingOrigin.annotationTotalPageNum;
+	end if;
+	aReqForPlane.totalPageNum = aReqForPlane.totalPageNum + pageOffset - 1;
+end if;
+
+//-- 385:20070220 Deleted Start (kanda)
+//if ( aReqForPlane.totalPageNum > PF::getMaxAnnotationNo() )
+//	aReqForPlane.totalPageNum = PF::getMaxAnnotationNo();
+//end if;		
+//-- 385:20070220 Deleted End (kanda)
+
+if ( pageNo1 > 0 )
+	annotationPageNo1	= pageNo1 + pageOffset -1;
+end if;
+if ( pageNo2 > 0 )
+	annotationPageNo2	= pageNo2 + pageOffset -1;
+end if;
+
+//-- 358:20061218 Add Start (kanda)
+select one anImageSpace1 related by aSheetFace->S_IMS[R222];
+select one anImageSpace2 related by aSheetFace->S_IMS[R222]->S_IMS[R220.''is next to''];
+//-- 358:20061218 Add End (kanda)
+
+
+// Pageを付けるかどうかの判定（ページ数による設定は後の方で行っている)
+isPageNumPrint = FALSE;
+if ( anExecutingJob.pageAnnotationMode != IotSc_PageAnnotationMode::eOff )
+
+
+	pageCondition = anExecutingJob.pageCondition;
+	// 開始ページ/終了ページが有効な場合、範囲チェックを行う
+	if ( startPage > 0 )
+		if ( pageNo1 < startPage )
+			annotationPageNo1 = 0;
+		end if;
+		if ( pageNo2 < startPage )
+			annotationPageNo2 = 0;
+		end if;
+	end if;
+	if ( endPage > 0 )
+		if ( pageNo1 > endPage )
+			annotationPageNo1 = 0;
+		end if;
+		if ( pageNo2 > endPage )
+			annotationPageNo2 = 0;
+		end if;
+	end if;
+
+//-- 385:20070220 Deleted Start (kanda)
+//-- 385:20070220 Deleted End (kanda)
+
+	// Totalがありで、Total Pageを超えた場合は印字しない		
+	if ( anExecutingJob.pageAnnotationMode == IotSc_PageAnnotationMode::eWithDenominator )
+		if ( aReqForPlane.totalPageNum > 0 and annotationPageNo1 > aReqForPlane.totalPageNum )
+			annotationPageNo1 = 0;
+		end if;
+		if ( aReqForPlane.totalPageNum  > 0 and  annotationPageNo2 > aReqForPlane.totalPageNum )
+			annotationPageNo2 = 0;
+		end if;
+	end if;
+
+//-- 358:20061218 Deleted Start (kanda)
+//-- 358:20061218 Deleted End (kanda)
+//-- 358:20061218 Add Start (kanda)
+	if ( aSheetFace.is2in1 )
+		if ( not anImageSpace1.isAnnotationTargetImageSpace( condition : pageCondition ) )
+			annotationPageNo1 = 0;
+		end if;
+		if ( not anImageSpace2.isAnnotationTargetImageSpace( condition : pageCondition ) )
+			annotationPageNo2 = 0;
+		end if;
+	else
+		if ( not aSheetFace.isAnnotationTargetSheetFace( condition : pageCondition ) )
+			annotationPageNo1 = 0;
+		end if;
+	end if;
+//-- 358:20061218 Add End (kanda)
+
+//-- 30:20040405 Add Start
+// 先頭ページプリントではページ数は固定値
+// ただし、Controller機能仕様書では固定値を何にするか定義していないので、
+// 独断で1固定とする（要請があれば要変更）
+if ( anExecutingJob.isFirstPagePrint )
+	annotationPageNo1 = 1;
+	aReqForPlane.totalPageNum = 1;
+//--108:20040610 Add Start
+	// 先頭ページプリントの場合、そのページの方向がfirstImageDirectionとなる
+	firstImageDirection = imageDirection;
+//--108:20040610 Add End
+
+end if;
+//-- 30:20040405 Add End
+
+
+	if ( annotationPageNo1 > 0 or annotationPageNo2 > 0 )
+		isPageNumPrint = TRUE;
+	else
+		isPageNumPrint = FALSE;
+	end if;
+		
+end if;
+
+//-- 313:20060425 Add Start (tsuchitoi)
+annotationBatesNo1 = 0;
+annotationBatesNo2 = 0;
+
+startBatesNo = anExecutingJob.batesStartNo;
+endBatesNo = anExecutingJob.batesEndNo;
+if ( startBatesNo == 0 )
+	startBatesNo = 1;
+end if;
+startBatesNoOffset = anExecutingJob.batesStartNoOffset;
+if ( startBatesNoOffset == 0 )
+	startBatesNoOffset = 1;
+end if;
+batesNoOffset = startBatesNoOffset - startBatesNo + 1;
+
+if ( batesNo1 > 0 )
+	annotationBatesNo1= batesNo1 + batesNoOffset -1;
+end if;
+if ( batesNo2 > 0 )
+	annotationBatesNo2= batesNo2 + batesNoOffset -1;
+end if;
+
+isBatesPrint = FALSE;
+if ( anExecutingJob.isBatesPrint )
+	batesCondition = anExecutingJob.batesCondition;
+	// 開始ページ/終了ページが有効な場合、範囲チェックを行う
+	if ( startBatesNo > 0 )
+		if ( batesNo1 < startBatesNo )
+			annotationBatesNo1 = 0;
+		end if;
+		if ( batesNo2 < startBatesNo )
+			annotationBatesNo2 = 0;
+		end if;
+	end if;
+	if ( endBatesNo > 0 )
+		if ( batesNo1 > endBatesNo )
+			annotationBatesNo1 = 0;
+		end if;
+		if ( batesNo2 > endBatesNo )
+			annotationBatesNo2 = 0;
+		end if;
+	end if;
+
+	//ジョブキャンセル要件
+	batesMax = PF::getMaxBatesNo(digit : anExecutingJob.batesDigitNo );
+	if ( annotationBatesNo1 > batesMax or annotationBatesNo2 > batesMax ) 
+		param.r_failType = IotSc_FailType::eBatesOverCount;
+		param.r_canMerge = FALSE;
+		return aReqForPlane.ID;
+	end if;
+
+//-- 358:20061218 Deleted Start (kanda)
+//-- 358:20061218 Deleted End (kanda)
+//-- 358:20061218 Add Start (kanda)
+	if ( aSheetFace.is2in1 )
+		if ( not anImageSpace1.isAnnotationTargetImageSpace( condition : batesCondition ) )
+			annotationBatesNo1 = 0;
+		end if;
+		if ( not anImageSpace2.isAnnotationTargetImageSpace( condition : batesCondition ) )
+			annotationBatesNo2 = 0;
+		end if;
+	else
+		if ( not aSheetFace.isAnnotationTargetSheetFace( condition : batesCondition ) )
+			annotationBatesNo1 = 0;
+		end if;
+	end if;
+//-- 358:20061218 Add End (kanda)
+
+	// 小冊子で桁数を超える場合は1枚もださずにキャンセルする
+	if ( batesTotalNo > 0 )
+		calculatedBatesNo = 0;
+		if ( batesTotalNo < startBatesNo )
+		elif ( endBatesNo > batesTotalNo )
+			calculatedBatesNo =  batesTotalNo + batesNoOffset - 1;
+		else 
+			calculatedBatesNo = endBatesNo + batesNoOffset - 1;
+		end if;
+		if ( calculatedBatesNo > batesMax )
+			param.r_failType = IotSc_FailType::eBatesOverCount;
+			param.r_canMerge = FALSE;
+			return aReqForPlane.ID;
+		end if;
+	end if;
+	if ( annotationBatesNo1 > 0 or annotationBatesNo2 > 0 )
+		isBatesPrint = TRUE;
+	else
+		isBatesPrint = FALSE;
+	end if;
+
+
+end if;
+//-- 313:20060425 Add End (tsuchitoi)
+
+
+// 日付を付けるかどうかの設定
+isDatePrint = FALSE;
+// イメージごとのフラグ(_1は第１イメージ、_2は第２イメージ。2in1で使用)
+isDatePrint_1 = FALSE;
+isDatePrint_2 = FALSE;
+if ( anExecutingJob.dateAnnotationMode != IotSc_DateAnnotationMode::eOff )
+	dateCondition = anExecutingJob.dateCondition;
+//-- 358:20061218 Deleted Start (kanda)
+//-- 358:20061218 Deleted End (kanda)
+//-- 358:20061218 Add Start (kanda)
+	if ( aSheetFace.is2in1 )
+		if ( anImageSpace1.isAnnotationTargetImageSpace( condition : dateCondition ) )
+			isDatePrint_1 = TRUE;
+		end if;
+		if ( anImageSpace2.isAnnotationTargetImageSpace( condition : dateCondition ) )
+			isDatePrint_2 = TRUE;
+		end if;
+	else
+		if ( aSheetFace.isAnnotationTargetSheetFace( condition : dateCondition ) )
+			isDatePrint_1 = TRUE;
+		end if;
+	end if;
+//-- 358:20061218 Add End (kanda)
+end if;
+
+if ( isDatePrint_1 or isDatePrint_2 )
+	isDatePrint = TRUE;
+end if;
+
+
+//--233:20050711 Add Start(tsuchitoi)
+isUUIDPrint = anExecutingJob.isUUIDPrint;
+//--233:20050711 Add End
+
+// Stampを行うかどうかの設定
+isStampPrint = FALSE;
+// イメージごとのフラグ(_1は第１イメージ、_2は第２イメージ。2in1で使用)
+isStampPrint_1 = FALSE;
+isStampPrint_2 = FALSE;
+if ( anExecutingJob.stampAnnotationMode != IotSc_StampAnnotationMode::eOff )
+	stampCondition = anExecutingJob.stampCondition;
+//-- 358:20061218 Deleted Start (kanda)
+//-- 358:20061218 Deleted End (kanda)
+//-- 358:20061218 Add Start (kanda)
+	if ( aSheetFace.is2in1 )
+		if ( anImageSpace1.isAnnotationTargetImageSpace( condition : stampCondition ) )
+			isStampPrint_1 = TRUE;
+		end if;
+		if ( anImageSpace2.isAnnotationTargetImageSpace( condition : stampCondition ) )
+			isStampPrint_2 = TRUE;
+		end if;
+	else
+		if ( aSheetFace.isAnnotationTargetSheetFace( condition : stampCondition ) )
+			isStampPrint_1 = TRUE;
+		end if;
+	end if;
+//-- 358:20061218 Add End (kanda)
+end if;
+if ( isStampPrint_1 or isStampPrint_2 )
+	isStampPrint = TRUE;
+end if; 
+
+// Water Markを付けるかどうかの設定
+isWaterMarkPrint = FALSE;
+//-- 233:20050713 Add Start (tsuchitoi)
+isHybridWaterMarkPrint = FALSE;
+//-- 233:20050713 Add End
+
+//-- 233:20050713 Modified Start (tsuchitoi)
+if ( anExecutingJob.waterMarkMode == IotSc_WaterMarkMode::eOn
+//-- 469:20080201 Add Start (kanda)
+//-- 419:20080201 Add Start (kanda)
+	or  anExecutingJob.waterMarkMode == IotSc_WaterMarkMode::eOn_LogoPrint 
+//-- 419:20080201 Add End (kanda)
+//-- 469:20080201 Add End (kanda)
+)
+	isWaterMarkPrint = TRUE;
+elif ( anExecutingJob.waterMarkMode == IotSc_WaterMarkMode::eHybridWaterMarkOn )
+	isHybridWaterMarkPrint = TRUE;
+	
+end if;
+//-- 233:20050713 Modified End
+
+// CopiesNumを付けるかどうかの設定
+isCopiesNumPrint = FALSE;
+if ( anExecutingJob.copiesNumPrintMode != IotSc_CopiesNumPrintMode::eOff )
+	isCopiesNumPrint = TRUE;
+end if;
+
+// Form Print ( Image Overlay 、Printer Trust Mark)を付けるかどうかの判断
+isFormPrint = FALSE;
+if ( sequenceNo > 0 )
+	isFormPrint = TRUE;
+end if;
+
+//-- 469:20080201 Add Start (kanda)
+//-- 457:20080201 Add Start (kandai)
+// WatermarkのポリシーがTMB優先だった場合はTrustMarkを出力する
+// 下から移動
+formType = anExecutingJob.formType;
+formColor = anExecutingJob.formColor;
+isWaterMarkCancel = FALSE;
+
+if ( PF::getWatermarkPriorityPolicy() == IotSc_WaterMarkPriority::eTMB and
+	formType ==  IotSc_FormType::ePrinterTrustMark and sequenceNo > 0 ) 
+	isWaterMarkPrint = FALSE;
+	isHybridWaterMarkPrint = FALSE;
+	isWaterMarkCancel = TRUE; // 念のため
+end if;
+//-- 457:20080201 Add End (kanda)
+//-- 469:20080201 Add End (kanda)
+
+aReqForPlane.isWaterMarkPrint = FALSE;
+aReqForPlane.isCopiesNumPrint = FALSE;
+aReqForPlane.isDatePrint = FALSE;
+aReqForPlane.isStampPrint = FALSE;
+//-- 313:20060424 Add Start (tsuchitoi)
+aReqForPlane.isBatesPrint = FALSE;
+//-- 313:20060424 Add End (tsuchitoi)
+//-- 643:20110228 Add Start (saitou)
+aReqForPlane.isSosekiPrint = FALSE;
+//-- 643:20110228 Add End (saitou)
+
+planeColor1 = param.r_mergeColor;
+planeColor2 = param.r_mergeColor;
+
+param.r_canMerge = TRUE;
+
+if ( isStampPrint or isStampPrint_2 )
+	stampColor = anExecutingJob.stampColor;
+//-- 358:20061219 Add Start (tsuchitoi)
+	ret = self.judgeImageMerge( color : stampColor , mergeType : IotSc_AnnotationType::eStamp,planeNo : planeNo );
+	if ( ret == 1 )
+		aReqForPlane.isStampPrint = isStampPrint_1;
+		aReqForPlane.isStampPrint_2 = isStampPrint_2;
+	elif ( ret == -1 )
+		param.r_canMerge = FALSE;
+		return aReqForPlane.ID;
+	end if;		
+//-- 358:20061219 Add End (tsuchitoi)
+
+//-- 358:20061219 Deleted Start (tsuchitoi)
+//-- 358:20061219 Deleted End (tsuchitoi)
+
+end if;
+
+isWaterMarkEnable = FALSE;
+//-- 233:20050714 Modified Start (tsuchitoi)
+if (  isWaterMarkPrint or isHybridWaterMarkPrint )
+//-- 233:20050714 Modified End
+	waterMarkColor = anExecutingJob.waterMarkColor;	
+//-- 358:20061219 Add Start (tsuchitoi)
+	ret = self.judgeImageMerge( color : waterMarkColor , mergeType : IotSc_AnnotationType::eWaterMark,planeNo : planeNo );
+	if ( ret == 1 )
+		if ( isWaterMarkPrint )
+			aReqForPlane.isWaterMarkPrint = TRUE;
+
+//-- 469:20080201 Add Start (kanda)
+//-- 419:20080201 Add Start (kanda)
+			if (  anExecutingJob.waterMarkMode == IotSc_WaterMarkMode::eOn_LogoPrint )
+				// サイズによる判定
+				logoNum = PF::getLogoPrintNum( size : aTraySelect.outputSize );
+				if ( logoNum == 0 ) 
+					isWaterMarkEnable = FALSE;
+					aReqForPlane.isWaterMarkPrint = FALSE;
+				end if;
+				//このモードではCopiesNumは行わない
+			                 isCopiesNumPrint = FALSE;
+			end if;
+//-- 419:20080201 Add End (kanda)
+//-- 469:20080201 Add End (kanda)
+
+		elif ( isHybridWaterMarkPrint )
+			aReqForPlane.isHybridWaterMarkPrint = TRUE;
+		end if;
+		isWaterMarkEnable = TRUE;
+//-- 358:20061219 Add End (tsuchitoi)
+//-- 358:20061219 Deleted Start(tsuchitoi)
+//-- 358:20061221 Deleted End(tsuchitoi)
+
+//-- 233:20050711 Add Start
+		 aReqForPlane.waterMarkCharacter = anExecutingJob.waterMarkCharacter;
+//-- 233:20050711 Add End
+		if ( isCopiesNumPrint )
+			aReqForPlane.isCopiesNumPrint = TRUE;
+//-- 665:20110418 Modified Start (saitou)
+			startOffset = anExecutingJob.copiesNumStartOffset;
+			
+			aReqForPlane.copiesNum = self.getCopiesNum( startOffset : startOffset );
+//-- 665:20110418 Modified End (saitou)
+		end if;
+//-- 358:20061221 Deleted Start(tsuchitoi)
+//	end if;
+//-- 358:20061221 Deleted End(tsuchitoi)
+
+//-- 358:20061219 Add Start (tsuchitoi)
+
+	elif ( ret == -1 )
+		param.r_canMerge = FALSE;
+		return aReqForPlane.ID;
+//-- 358:20061219 Add End (tsuchitoi)
+
+	end if;
+end if;
+
+//-- 469:20080201 Deleted Start (kanda)
+//-- 457:20080201 Deleted Start(kanda)
+// 上に移動
+// formType = anExecutingJob.formType;
+// formColor = anExecutingJob.formColor;
+//-- 457:20080201 Deleted End(kanda)
+//-- 469:20080201 Deleted End (kanda)
+
+//-- 643:20110228 Add Start (saitou)
+//-- 665:20110418 Modified Start (saitou)
+// 現在部数(offsetなし)の計算
+copiesNum = self.getCopiesNum( startOffset : 1 );
+//-- 665:20110418 Modified End (saitou)
+
+select one aPage related by
+	 aSheetFace->S_IMS[R222]->S_IMSI[R219]->D_PAGE[R218];
+	 
+// SIDの取得
+if(( not empty aPage ) and (anExecutingJob.sosekiID > 0) )
+	// SosekiIDの取得
+	aReqForPlane.sosekiID = anExecutingJob.sosekiID;
+//-- 676:20110426 Add Start (saitou)
+//-- 665:20110418 Deleted Start (saitou)
+	// 現在部数(offsetなし)の取得
+	aReqForPlane.copiesNum = copiesNum ;
+//-- 665:20110418 Deleted End (saitou)
+//-- 676:20110426 Add Endt (saitou)
+	//ページ通し番号の取得
+	aReqForPlane.pageNum = aPage.sequentialPageNoOnJob;
+
+	if( 0 == DL::getSID(
+		sosekiID	: anExecutingJob.sosekiID,
+		pageNum		: aReqForPlane.pageNum,
+//-- 665:20110418 Modified Start (saitou)
+		copiesNum	: copiesNum,
+//-- 665:20110418 Modified End (saitou)
+		r_sid		: sid )
+		)
+		// SID取得できた
+		self.sid = sid;
+		aReqForPlane.sid = sid;
+//-- 653:20110311 Modified Start (saitou)
+		if( sid > 0 )
+			aReqForPlane.isSosekiPrint = TRUE;
+		end if;
+//-- 653:20110311 Modified End (saitou)
+	else
+		// 戻り値がERRORだったらJobCancel
+		param.r_failType = IotSc_FailType::eSosekiPrintingFail;
+		param.r_canMerge = FALSE;
+		return aReqForPlane.ID;
+	end if;
+else
+// D_PAGEが存在しない場合は、SIDもページ通し番号も 0 とする
+	// SosekiIDの取得(不要だが一応)
+	aReqForPlane.sosekiID = anExecutingJob.sosekiID;
+	// 現在部数:Offset有が入っているので触らない
+	//ページ通し番号の取得
+	aReqForPlane.pageNum = 0;
+	self.sid = 0;
+	aReqForPlane.sid = 0;
+end if;
+//-- 643:20110228 Add End (saitou)
+
+//-- 433:20070823 Add Start (kanda)
+// ジョブに強制印字が設定されているた,TrustMarkの印刷はOFFにする
+if ( ( isFormPrint and formType ==  IotSc_FormType::ePrinterTrustMark ) and
+	( isWaterMarkPrint or isHybridWaterMarkPrint ) )
+	isFormPrint = FALSE;
+end if;
+//-- 433:20070823 Add End (kanda)
+
+if ( isFormPrint )
+	if ( formType != IotSc_FormType::ePrinterTrustMark or 
+		not isWaterMarkEnable )
+//-- 68:20040512 Modified Start
+	// ２プレーンある場合、formは第1プレーンとする。ただし白黒の場合のみ第２プレーンとなる
+//-- 358:20061219 Add Start (tsuchitoi)
+	ret = self.judgeImageMerge( color : formColor , mergeType : IotSc_AnnotationType::eForm,planeNo : planeNo );
+	if ( ret == 1 )
+		aReqForPlane.isFormPrint = TRUE;
+	elif ( ret == -1 )
+		param.r_canMerge = FALSE;
+		return aReqForPlane.ID;
+	end if;		
+//-- 358:20061219 Add End (tsuchitoi)
+
+//-- 358:20061219 Deleted Start
+//-- 358:20061219 Deleted End(tsuchitoi)
+//-- 68:20040512 Modified End
+
+	else
+		aReqForPlane.isFormPrint = FALSE;
+		
+	
+	end if;
+end if;
+
+
+//--358:20061220 Add Start(tsuchitoi)
+if ( isPageNumPrint or isBatesPrint or isDatePrint )
+	// Page , Bates, Dateは現状同じカラーであるとする。基準はpageColorにする
+	pageColor = anExecutingJob.pageNoColor;
+	page_ret = self.judgeImageMerge( color : pageColor , mergeType : IotSc_AnnotationType::ePageNo,planeNo : planeNo );
+	bates_ret = self.judgeImageMerge( color : pageColor , mergeType : IotSc_AnnotationType::eBatesNo,planeNo : planeNo );
+	date_ret = self.judgeImageMerge( color : pageColor , mergeType : IotSc_AnnotationType::eDate,planeNo : planeNo );
+	if ( page_ret == -1 or bates_ret == -1 or date_ret == -1 )
+		param.r_canMerge = FALSE;
+		return aReqForPlane.ID;
+	end if;
+	if ( page_ret == 1)
+		aReqForPlane.isPageNumPrint = isPageNumPrint;
+	end if;
+	if ( bates_ret == 1 )
+		aReqForPlane.isBatesPrint = isBatesPrint;
+	end if;
+	if ( date_ret == 1 )
+		aReqForPlane.isDatePrint = isDatePrint_1;
+		aReqForPlane.isDatePrint_2 = isDatePrint_2;
+	end if;				
+
+end if;
+
+//--358:20061220 Add End(tsuchitoi)
+
+//--358:20061221 Deleted Start(tsuchitoi)
+//--358:20061221 Deleted End(tsuchitoi)
+		
+//--233:20050711 Add Start(tsuchitoi)
+//-- 469:20080201 Modified Start (kanda)
+isForcedAnnotationPrint = anExecutingJob.isForcedAnnotationPrint;
+if ( isUUIDPrint or isForcedAnnotationPrint )
+//-- 469:20080201 Modified End (kanda)
+
+// UUIDの印字
+//-- 358:20061219 Add Start(tsuchitoi)
+	ret = self.judgeImageMerge( color : "IOT_IMAGE_COLOR_K" , mergeType : IotSc_AnnotationType::eUuid,planeNo : planeNo );
+	if ( ret == 1 )
+//-- 469:20080201 Modified Start (kanda)
+		aReqForPlane.isForcedAnnotationPrint = isForcedAnnotationPrint;
+		aReqForPlane.isUUIDPrint = isUUIDPrint;
+//-- 469:20080201 Modified End  (kanda)
+	elif ( ret == -1 )
+		param.r_canMerge = FALSE;
+		return aReqForPlane.ID;
+	end if;		
+//-- 358:20061219 Add End (tsuchitoi)
+
+//-- 358:20061219 Deleted Start(tsuchitoi)
+end if;
+//-- 358:20061219 Deleted End(tsuchitoi)
+//--233:20050711 Add End
+
+//-- 487:20080421 Add Start (kanda)
+//-- 516:20000814 Modified Start (kanda)
+// Sealプリントの確認
+isSealPrint = ( ( anExecutingJob.sealBaseContextId > 0 ) and ( not aLogicalSheet.isAnnotationExcludeSheet() ) );
+//-- 516:20000814 Modified End (kanda)
+
+if (  isSealPrint )
+	// Sealは黒固定
+	ret = self.judgeImageMerge( color : "IOT_IMAGE_COLOR_K", mergeType : IotSc_AnnotationType::eSeal, planeNo : planeNo );
+
+	isSealPrint = ( ret == 1 );
+	if ( ret == -1 )
+		param.r_canMerge = FALSE;
+		return aReqForPlane.ID;
+	end if;
+end if;
+//-- 487:20080421 Add End (kanda)
+//-- 643:20110301 Add Start (saitou)
+if ( aReqForPlane.isSosekiPrint )
+	// Sosekiは黒固定
+	ret = self.judgeImageMerge( color : "IOT_IMAGE_COLOR_K", mergeType : IotSc_AnnotationType::eSoseki, planeNo : planeNo );
+
+	aReqForPlane.isSosekiPrint = ( ret == 1 );
+	if ( ret == -1 )
+		param.r_canMerge = FALSE;
+		return aReqForPlane.ID;
+	end if;
+end if;
+//-- 643:20110301 Add End (saitou)
+
+
+
+// パラメータの設定(ここでは実際に必要とされないパラメータも設定される）
+
+
+// 2in1の場合もimageDirectionは１ページ目に従う
+fixedImageDirection = firstImageDirection;
+
+//-- 513:20080806 Add Start (kanda)
+// OHP合紙+NSetの両面うら面処理判定用(Seal)
+ohpNsetBackFacePageId = 0;
+//-- 513:20080806 Add End (kanda)
+
+if ( aSheetFace.is2in1 )
+	imageDirection = firstImageDirection;
+elif ( not anExecutingJob.isMergeImageFixedDirection )
+	// 固定画像方向でない場合、裏面のイメージ方向は綴じ方向、用紙方向によって回転する場合がある。
+	// また、As Bookなどで1ページ目が裏面にあたる場合、それを第１イメージとして扱う必要があり
+	// 回転判断を表面について行う必要がある
+	select one aRestartInfo related by anExecutingJob->S_JRI[R200];
+	select one aPage related by
+		 aSheetFace->S_IMS[R222]->S_IMSI[R219]->D_PAGE[R218];
+//-- 01:20040302 Modified Start
+	duplexDirection = IotSc_DuplexDirection::eNull;
+	if ( self.sheetSide == "IOT_SHEET_SIDE_2" )
+		 // 両面の場合、ジョブの綴じ方向を使用する
+		duplexDirection = aRestartInfo.jobDuplexDirection;
+//-- 23:20040330 Add Start
+		if ( anExecutingJob.indicatedDuplexDirection != IotSc_DuplexDirection::eNull )
+			duplexDirection = anExecutingJob.indicatedDuplexDirection;
+		end if; 
+//-- 23:20040330 Add End
+	elif  ( not_empty aPage and aLogicalSheet.type == IotSc_SheetType::eOHP and aPage.no % 2 == 0 ) 
+//-- 167:20040928 Add Start
+	// AR60304 片面の場合、このチェックは必要ない
+		select one aSection related by aPage->D_SEC[R304];
+		if ( aSection.plex != "IOTDOC_PLEX_SIMPLEX" )
+//-- 167:20040928 Add End
+			// OHP会議コピーで裏面にあたるOHPに関してはローテーションチェックを行うAR44504
+			// duplexDirection = PF::getDuplexDirection( sectionID :aLogicalSheet.sectionID); 
+			duplexDirection = aRestartInfo.jobDuplexDirection;
+//-- 513:20080806 Add Start (kanda)
+			isNsetBackFace = TRUE;
+			ohpNsetBackFacePageId = aPage.pageID;
+//-- 513:20080806 Add End (kanda)
+//-- 167:20040928 Add Start
+		end if;
+//-- 167:20040928 Add End
+
+//-- 23:20040330 Add Start
+		if ( anExecutingJob.indicatedDuplexDirection != IotSc_DuplexDirection::eNull )
+			duplexDirection = anExecutingJob.indicatedDuplexDirection;
+		end if; 
+//-- 23:20040330 Add End
+
+	end if;
+
+	if ( duplexDirection != IotSc_DuplexDirection::eNull and
+		PF::isBackSideNeedRotation(
+				duplexDirection : duplexDirection,
+				mediumDir : aTraySelect.direction,
+				imgDir : firstImageDirection ) )
+		fixedImageDirection = PF::get180RotatedDirection( imgDir : firstImageDirection );
+	end if;
+//-- 01:20040301 Modified End
+//-- 121:20040629 Add Start
+else
+	fixedImageDirection = imageDirection;
+//-- 121:20040629 Add End
+end if;
+
+//-- 526:20080903 Add Start (kanda)
+// イメージありうら表紙の調停(おもて/うら問わず,本文の180度回転がある)
+// うら表紙の描画されたイメージ向きと出力時のイメージ向きがことなる場合、
+// 1stImageDirectionを180回転する必要がある
+isThisFaceNeedRotationForCoverBack = FALSE;
+//-- 535:20081016 Add Start (kanda)
+isThisFaceBackCoverWithImage = FALSE;
+//-- 535:20081016 Add End (kanda)
+if ( PF::isBackCoverWithImageEnableJob( jobID:anExecutingJob.jobID ) and
+     aLogicalSheet.type == IotSc_SheetType::eBackCoverWithImage )
+//-- 535:20081016 Modified Start (kanda)
+	isThisFaceBackCoverWithImage = TRUE;
+	if ( aSheetFace.imageDirection != self.getImageDirectionForBackCover() )
+		isThisFaceNeedRotationForCoverBack = TRUE;
+	end if;
+//-- 535:20081016 Modified End (kanda)
+end if;
+//-- 526:20080903 Add End (kanda)
+	
+// Stampは設定による
+if ( PF::isStampImageDirFollowFirstPage() )
+	aReqForPlane.stampImageDirection = fixedImageDirection;
+//-- 52:20040419 Add Start
+	aReqForPlane.stampImageDirection_2 = fixedImageDirection;
+//-- 52:20040419 Add End
+//-- 127:20040706 Add Start
+	// イメージリピートの設定
+	if ( aReqForPlane.isStampPrint )
+		is90Rot = FALSE;
+		if (	imageDirection == IotSc_ImageDirection::eM_SS or
+			imageDirection == IotSc_ImageDirection::eP_SS )
+			if ( 	aReqForPlane.stampImageDirection == IotSc_ImageDirection::eM_FS or
+				aReqForPlane.stampImageDirection == IotSc_ImageDirection::eP_FS )
+				is90Rot = TRUE;
+			end if;
+		elif ( 	imageDirection == IotSc_ImageDirection::eM_FS or
+			imageDirection == IotSc_ImageDirection::eP_FS )
+			if ( 	aReqForPlane.stampImageDirection == IotSc_ImageDirection::eM_SS or
+				aReqForPlane.stampImageDirection == IotSc_ImageDirection::eP_SS )
+				is90Rot = TRUE;
+			end if;
+		end if;
+		if ( is90Rot )
+			// 90度変わるので、xyを変える
+			aReqForPlane.repeatNo_X = repeat_Y;
+			aReqForPlane.repeatNo_Y= repeat_X;
+		else
+			aReqForPlane.repeatNo_X = repeat_X;
+			aReqForPlane.repeatNo_Y= repeat_Y;
+		end if;
+	end if;
+//-- 127:20040706 Add End
+else
+//-- 52:20040419 Modified Start
+	aReqForPlane.stampImageDirection     = page1ImageDirection;
+	aReqForPlane.stampImageDirection_2 = page2ImageDirection;
+	// 過去の互換性のためstampImageDirectionは必ず入れる
+	if ( aReqForPlane.stampImageDirection == IotSc_ImageDirection::eNull )
+		aReqForPlane.stampImageDirection = aReqForPlane.stampImageDirection_2 ;
+	end if;
+//-- 52:20040419 Modifed End
+//-- 127:20040705 Add Start
+	aReqForPlane.repeatNo_X = repeat_X;
+	aReqForPlane.repeatNo_Y= repeat_Y;
+//-- 127:20040705 Add End
+
+end if;
+
+aReqForPlane.imageDirection = imageDirection;
+
+// Page番号（日付も）は常に１ページ目に従う
+aReqForPlane.pageNoImageDirection = fixedImageDirection;
+
+//-- 313:20060509 Modified Start (kanda)
+if ( isPageNumPrint )
+	aReqForPlane.pageNo1 = annotationPageNo1;
+	aReqForPlane.pageNo2 = annotationPageNo2;
+end if;
+//-- 313:20060509 Modified End (kanda)
+
+//--313:20060509 Add Start (kanda)
+if ( isBatesPrint )
+	aReqForPlane.batesNo1 = annotationBatesNo1;
+	aReqForPlane.batesNo2 = annotationBatesNo2;
+end if;
+//--313:20060509 Add End (kanda)
+
+//-- 85:20040521 Add Start
+is90Rot = FALSE;
+if ( 	aReqForPlane.isPageNumPrint or 
+//--313:20060425 Add Start (tsuchitoi)
+	aReqForPlane.isBatesPrint or
+//--313:20060425 Add End (tsuchitoi)
+	aReqForPlane.isDatePrint or 
+	aReqForPlane.isDatePrint_2  )
+	if (	imageDirection == IotSc_ImageDirection::eM_SS or
+		imageDirection == IotSc_ImageDirection::eP_SS )
+			if ( 	aReqForPlane.pageNoImageDirection == IotSc_ImageDirection::eM_FS or
+				aReqForPlane.pageNoImageDirection == IotSc_ImageDirection::eP_FS )
+				is90Rot = TRUE;
+			end if;
+	elif ( 	imageDirection == IotSc_ImageDirection::eM_FS or
+		imageDirection == IotSc_ImageDirection::eP_FS )
+			if ( 	aReqForPlane.pageNoImageDirection == IotSc_ImageDirection::eM_SS or
+				aReqForPlane.pageNoImageDirection == IotSc_ImageDirection::eP_SS )
+				is90Rot = TRUE;
+			end if;
+	end if;
+	if ( is90Rot )
+		// 90度変わるので、xyを変える
+		aReqForPlane.repeatNo_X = repeat_Y;
+		aReqForPlane.repeatNo_Y= repeat_X;
+	else
+//-- 85:20040521 Add End
+		aReqForPlane.repeatNo_X = repeat_X;
+		aReqForPlane.repeatNo_Y= repeat_Y;
+//-- 85:20040521 Add Start
+	end if;
+end if;
+//-- 85:20040521 Add End
+
+
+aReqForPlane.nUp = nUp;
+
+
+
+if ( aReqForPlane.isFormPrint )
+	aReqForPlane.formSequenceNo = sequenceNo;
+end if;
+
+
+//--233:20050711 Add Start(tsuchitoi)
+//UUID設定 UUIDは１ページ目に従う
+//-- 469:20080201 Deleted Start (kanda)
+//-- 419:20080201 Deleted Start(kanda)
+// 強制Annotationにuuidの方向を使うかもしれないので必ず入れるようにする
+// if ( aReqForPlane.isUUIDPrint )
+//-- 419:20080201 Deleted End (kanda)
+//-- 469:20080201 Deleted End (kanda)
+//-- 526:20080904 Modified Start (kanda)
+aReqForPlane.uuidImageDirection = fixedImageDirection;
+if ( isThisFaceNeedRotationForCoverBack )
+	aReqForPlane.uuidImageDirection
+		= PF::get180RotatedDirection( imgDir : aReqForPlane.uuidImageDirection );
+end if;
+//-- 526:20080904 Modified End (kanda)
+
+//-- 469:20080201 Deleted Start (kanda)
+//-- 419:20080201 Deleted Start (kanda)
+// end if;
+//-- 419:20080201 Deleted End (kanda)
+//-- 469:20080201 Deleted End (kanda)
+//--233:20050711 Add End(tsuchitoi)
+
+//-- 342: 20060822 Add Start (kanda)
+// double Printを判定する
+// P_PSHFと同じ方法でdouble Print を判定する
+// Pageがとれないときはdouble Printではない(片側白紙のケースなど)
+isRepeat = FALSE;
+select one aPage related by
+	aSheetFace->S_IMS[R222]->S_IMSI[R219]->D_PAGE[R218];
+if ( not_empty aPage )
+	select one aSection related by aPage->D_SEC[R304];
+	if ( aSection.pageArrange == IotSc_PageArrange::eRepeat )
+		if ( aPage.imageRepeat_X == 2 or aPage.imageRepeat_Y == 2 )
+			isRepeat = TRUE;
+		end if;
+	end if;
+end if;
+//-- 342: 20060822 Add End (kanda)
+
+// サイズの設定
+fastScan = 0;
+slowScan = 0;
+// １Face 1Imageで、Annotationがあれば有効出力サイズを設定する
+// ただし、用紙サイズを超えることはできない（AR40922)
+size = aTraySelect.outputSize;
+dir = aTraySelect.direction;
+longLength = aTraySelect.longLength;
+shortLength = aTraySelect.shortLength;
+//-- 774:20120621 Modified Start (saitou) 
+paperSizeFS = DL::getFastScanFromSize(
+	size : size , dir : dir , longLength : longLength,
+	shortLength : shortLength );
+
+paperSizeSS = DL::getSlowScanFromSize(
+	size : size , dir : dir , longLength : longLength,
+	shortLength : shortLength );
+
+fastScanMax = paperSizeFS;
+slowScanMax = paperSizeSS;
+//-- 774:20120621 Modified End (saitou) 
+	
+//-- 748:20120308 Add Start (saitou)
+// くるみJobの場合、
+//	1. 表紙で、位置を気にする合成(全面に印字される AWM/HWM/Form/Soseki 以外の)が指示されている。
+//	2. 中紙で、位置を気にする合成(全面に印字される AWM/HWM/Form/Soseki 以外の)が”Jobで”指示されている。
+//  ( アノテーション対象が中紙1ページ目のみの場合、表紙は用紙サイズ、中紙は全て仕上がりサイズとなる)
+	
+if ( ( anExecutingJob.isPBJob ) )
+//-- 774:20120621 Modified Start (saitou) 
+	if ( ( aLogicalSheet.type == IotSc_SheetType::ePBCover )
+		and (  aReqForPlane.isNeedPosAdj() )
+	)
+		// 表紙 / SS方向は仕上がりの 2倍
+		fastScanMax = DL::getPixelFromMMPer10( length : anExecutingJob.PBFinSizeFS );
+		slowScanMax = DL::getPixelFromMMPer10( length : anExecutingJob.PBFinSizeSS * 2 );
+	end if;
+	if ( ( aLogicalSheet.type != IotSc_SheetType::ePBCover )
+		and ( anExecutingJob.isNeedPosAdjMergeImgOnJob() )
+	)
+		// 中紙
+		fastScanMax = DL::getPixelFromMMPer10( length : anExecutingJob.PBFinSizeFS );
+		slowScanMax = DL::getPixelFromMMPer10( length : anExecutingJob.PBFinSizeSS );
+	end if;
+//-- 774:20120621 Modified End (saitou) 
+end if;
+//-- 748:20120308 Add End (saitou)
+
+//-- 684:20110509 Add Start (sasaki_r)
+if ( self.sid > 0 )
+	ss = 0;
+	fs = 0;
+	if ( (longLength == 0) and (shortLength == 0) )
+		fs = DL::getFsSize(dir : dir , size : size);
+		ss = DL::getSsSize(dir : dir , size : size);
+	else
+		 if ( dir == "IOTDOC_MEDIUM_DIRECTION_LEF" )
+			fs = longLength;
+			ss = shortLength;
+		 elif ( dir == "IOTDOC_MEDIUM_DIRECTION_SEF" )
+		 	ss = longLength;
+		 	fs = shortLength;
+		end if;
+  	end if;
+	sosekiMaxLongLength = DL::getSosekiMaxLongLength();
+	sosekiMaxShortLength = DL::getSosekiMaxShortLength();
+	if (  (ss > sosekiMaxLongLength) or ( fs > sosekiMaxShortLength ) )
+		param.r_failType = IotSc_FailType::eSosekiConditionError;
+	                param.r_canMerge = FALSE;
+	                return aReqForPlane.ID;
+	end if;
+end if;
+
+//-- 684:20110509 Add End (sasaki_r)
+
+
+if (
+//-- 342:20060822 Modified Start (kanda)
+	not ( aSheetFace.is2in1 or isRepeat )  and
+//-- 342:20060822 Modified  End (kanda)
+	(aReqForPlane.isPageNumPrint or aReqForPlane.isStampPrint or
+	aReqForPlane.isDatePrint or 
+	aReqForPlane.isStampPrint_2 or
+	aReqForPlane.isDatePrint_2 
+//-- 349:20061016 Deleted Start (kanda)
+//--316:20060425 Add Start(tsuchitoi)
+//	or aReqForPlane.isUUIDPrint or
+//--316:20060425 Add End(tsuchitoi)
+//-- 349:20061016 Deleted End (kanda)
+//--313:20060425 Add Start (tsuchitoi)
+//-- 349:20061016 Modified Start (kanda)
+	or aReqForPlane.isBatesPrint 
+//-- 349:20061016 Modified End (kanda)
+//--313:20060425 Add End (tsuchitoi)
+//-- 651:20110308 Deleted Start (saitou)
+//-- 643:20110228 Add Start (saitou)
+//	or aReqForPlane.isSosekiPrint
+//-- 643:20110228 Add End (saitou)
+//-- 651:20110308 Deleted End (saitou)
+
+) )
+	select one aPage related by
+		 aSheetFace->S_IMS[R222]->S_IMSI[R219]->D_PAGE[R218];
+	fastScan = aPage.imageFSValidPixel;
+	slowScan = aPage.imageSSValidPixel;
+else
+	// それ以外は用紙サイズを基準とする
+end if;
+if ( fastScan == 0 or fastScan > fastScanMax )
+	fastScan = fastScanMax;
+end if;
+if ( slowScan == 0 or slowScan > slowScanMax )
+	slowScan = slowScanMax;
+end if;
+
+
+// Boundaryの調整
+fastScan = DL::getMergeImageFastScanPixel( fastScan : fastScan );
+slowScan = DL::getMergeImageSlowScanPixel( slowScan : slowScan );
+
+aReqForPlane.fastScan = fastScan;
+aReqForPlane.slowScan = slowScan;
+
+//-- 487:20080422 Add Start (kanda)
+// 描画パラメータの生成
+if ( isSealPrint )
+	baseContextId = anExecutingJob.sealBaseContextId;
+	duplexDirection = PF::getDuplexDirection( sectionID : aLogicalSheet.sectionID );
+	jobDuplexDirection = aRestartInfo.jobDuplexDirection;
+//-- 513:20080806 Add Start (kanda)
+	firstImageDirectionForSeal = firstImageDirection;
+//-- 513:20080806 Add End (kanda)
+//-- 526:20080909 Add Start (kanda)
+	imageDirectionForSeal = imageDirection;
+//-- 526:20080909 Add End (kanda)
+
+//-- 526:20080904 Add Start (kanda)
+	if ( isThisFaceNeedRotationForCoverBack )
+		firstImageDirectionForSeal = PF::get180RotatedDirection( imgDir : firstImageDirectionForSeal );
+	end if;
+//-- 526:20080904 Add End (kanda)
+
+	if ( anExecutingJob.indicatedDuplexDirection != IotSc_DuplexDirection::eNull )
+		jobDuplexDirection = anExecutingJob.indicatedDuplexDirection;
+	end if;
+	isSignature = ( aReqForPlane.startingImage > 0 );
+
+//-- 513:20080806 Add Start (kanda)
+	// OHP合紙+Nsetのうら面画像方向調停
+	if ( ohpNsetBackFacePageId > 0 )
+		// うら面が回転出力される場合、通常のアノテーション同様に出力時に回転をかけるが、
+		// SealLibには出力時回転処理をすることが通知できないので、
+		// ジョブ基準のイメージ方向を180回してSealLibを誤魔化す.
+		if ( PF::isRotationNeed( pageId : ohpNsetBackFacePageId ) )
+//-- 526:2008903 Modified Start (kanda)
+			firstImageDirectionForSeal = PF::get180RotatedDirection( imgDir : firstImageDirectionForSeal );
+//-- 559:20090409 Deleted Start (kanda)
+//			imageDirectionForSeal = PF::get180RotatedDirection( imgDir : imageDirectionForSeal );
+//-- 559:20090409 Deleted End (kanda)
+//-- 526:2008903 Modified End (kanda)
+		end if;
+	end if;
+//-- 513:20080806 Add End (kanda)
+
+//-- 526:20080909 Add Start (kanda)
+	// Form合成の画像方向調停
+	if ( aReqForPlane.isFormPrint )
+		rotationAngle = BL::getMergeImageRotationAngle( mainImageTop : imageDirectionForSeal, mergeImageTop : firstImageDirection );
+		if ( rotationAngle == "IOTIMG_ROTATION_180" or rotationAngle == "IOTIMG_ROTATION_270" )
+			firstImageDirectionForSeal = PF::get180RotatedDirection( imgDir : firstImageDirectionForSeal );
+			imageDirectionForSeal = PF::get180RotatedDirection( imgDir : imageDirectionForSeal );
+		end if;
+	end if;
+//-- 526:20080909 Add End (kanda)
+
+//-- 499:20080617 Add Start (kanda)
+// PLW系の両面指示を補正する
+	if ( not isSignature )
+		if ( not aPage1.isDuplexDirFollowImg )
+//-- 526:20080909 Modified Start (kanda)
+			duplexDirection = D_PAGE::getImgDuplexDirFromSheetDupDir(
+				sheetDupDir : duplexDirection, imgDir : imageDirectionForSeal, sheetDir : dir );
+//-- 526:20080909 Modified End (kanda)
+		end if;
+//-- 535:20081016 Add Start (kanda)
+		// うら表紙 うら面面付けでセクションが片面の場合は両面綴じ方向を補正する
+		if ( isThisFaceBackCoverWithImage )
+			duplexDirection = self.getDuplexDirectionForBackCover();
+		end if;
+//-- 535:20081016 Add End (kanda)
+	end if;
+//-- 499:20080617 Add End (kanda)
+
+	if ( anExecutingJob.isSealDrawPhaseBeforeStorage )
+//-- 519:20080815 Deleted Start (kanda)
+// Signature時は2つのDrawContextを生成することになった
+//		// drawContextは使いすてて問題ない
+//		drawContextId = DL::createSealDrawContext( baseContextId : baseContextId, isDrawPhaseBeforeStorage : TRUE );
+//-- 519:20080815 Deleted End (kanda)
+
+		if ( isSignature )
+			drawContextId1 = 0;
+			drawContextId2 = 0;
+			if ( not_empty aPage1 )
+//-- 571:20090629 Add Start (kanda)
+				DL::setSealData( contextId : baseContextId,
+					dataId : IotSc_SealDataId::eValidPageCountOnJob, data : anImageSpace1.validPageCountOnJob );
+//-- 571:20090629 Add End (kanda)
+//-- 519:20080815 Modified Start (kanda)
+//-- 832:20130917 Modified Start (saitou) 
+				drawContextId1 =  DL::createSealDrawContext(
+						  baseContextId             : baseContextId
+						, isDrawPhaseBeforeStorage  : TRUE
+						, r_isAbortNeed             : tmpIsAbortNeed
+				);
+//-- 832:20130917 Modified End (saitou) 
+//-- 832:20130917 Add Start (saitou) 
+				if( tmpIsAbortNeed )
+					param.r_failType = IotSc_FailType::eInstructionFail;
+					param.r_canMerge = FALSE;
+					return aReqForPlane.ID;
+				end if;
+//-- 832:20130917 Add End (saitou) 
+				
+//-- 519:20080815 Modified End (kanda)
+			end if;
+			if ( not_empty aPage2 )
+//-- 571:20090629 Add Start (kanda)
+				DL::setSealData( contextId : baseContextId,
+					dataId : IotSc_SealDataId::eValidPageCountOnJob, data : anImageSpace2.validPageCountOnJob );
+//-- 571:20090629 Add End (kanda)
+//-- 519:20080815 Modified Start (kanda)
+//-- 832:20130917 Modified Start (saitou) 
+				drawContextId2 =  DL::createSealDrawContext(
+						  baseContextId             : baseContextId
+						, isDrawPhaseBeforeStorage  : TRUE
+						, r_isAbortNeed             : tmpIsAbortNeed
+				);
+//-- 832:20130917 Modified End (saitou) 
+//-- 832:20130917 Add Start (saitou) 
+				if( tmpIsAbortNeed )
+					param.r_failType = IotSc_FailType::eInstructionFail;
+					param.r_canMerge = FALSE;
+					return aReqForPlane.ID;
+				end if;
+//-- 832:20130917 Add End (saitou) 
+//-- 519:20080815 Modified End (kanda)
+			end if;
+
+			aReqForPlane.sealDrawParamPhaseBeforeStorage
+				= DL::getSealDrawParameterSignature( drawContextId1 : drawContextId1, drawContextId2 : drawContextId2,
+					fastScan : fastScan,  slowScan : slowScan, 
+//-- 503:20080624 Modified Start (kanda)
+//-- 513:20080806 Modified Start (kanda)
+//-- 526:20080909 Modified Start (kanda)
+					imgDirection : imageDirectionForSeal,
+					firstImgDirection : firstImageDirectionForSeal, basePageNo : basePageNo
+//-- 526:20080909 Modified End (kanda)
+//-- 513:20080806 Modified End (kanda)
+//-- 503:20080624 Modified End (kanda)
+//-- 573:20090707 Add Start (kanda)
+					, mainImageColorMode : aSheetFace.color
+//-- 573:20090707 Add End (kanda)
+				   );
+		else
+//-- 571:20090622 Add Start (kanda)
+			DL::setSealData( contextId : baseContextId,
+				dataId : IotSc_SealDataId::eValidPageCountOnJob, data : aSheetFace.validPageCountOnJob );
+//-- 571:20090622 Add End (kanda)
+//-- 643:20110228 Add Start (saitou)
+			// 現在部数を通知
+			DL::setSealData( contextId : baseContextId,
+				dataId : IotSc_SealDataId::eCurrentRunlength, data : copiesNum );
+//-- 677:20110426 Modified Start (saitou) 
+			// Sosekiが有効でなくともSIDは通知(Seal側でSID==0なら無効にする)
+			DL::setSealData( contextId : baseContextId,
+				dataId : IotSc_SealDataId::eSID, data : self.sid );
+//-- 677:20110426 Modified End (saitou) 
+//-- 643:20110228 Add End (saitou)
+//-- 519:20080815 Add Start (kanda)
+//-- 832:20130917 Modified Start (saitou) 
+			drawContextId = DL::createSealDrawContext(
+						  baseContextId             : baseContextId
+						, isDrawPhaseBeforeStorage  : TRUE
+						, r_isAbortNeed             : tmpIsAbortNeed
+			);
+//-- 832:20130917 Modified End (saitou) 
+//-- 832:20130917 Add Start (saitou) 
+			if( tmpIsAbortNeed )
+				param.r_failType = IotSc_FailType::eInstructionFail;
+				param.r_canMerge = FALSE;
+				return aReqForPlane.ID;
+			end if;
+//-- 832:20130917 Add End (saitou) 
+//-- 519:20080815 Add End (kanda)
+			aReqForPlane.sealDrawParamPhaseBeforeStorage
+				= DL::getSealDrawParameter( drawContextId : drawContextId,
+					fastScan : fastScan,  slowScan : slowScan, 
+//-- 513:20080806 Modified Start (kanda)
+//-- 526:20080909 Modified Start (kanda)
+					imgDirection : imageDirectionForSeal,
+					firstImgDirection : firstImageDirectionForSeal, 
+//-- 526:20080909 Modified End (kanda)
+//-- 513:20080806 Modified End (kanda)
+					duplexDirection : duplexDirection, jobDuplexDirection : jobDuplexDirection, sideInfo : self.sheetSide,
+					div_x : repeat_X, div_y : repeat_Y
+//-- 573:20090707 Add Start (kanda)
+					, mainImageColorMode : aSheetFace.color
+//-- 573:20090707 Add End (kanda)
+				   );
+		end if;
+	end if;
+
+	if ( anExecutingJob.isSealDrawPhaseAfterStorage )
+//-- 519:20080815 Deleted Start (kanda)
+// Signature時は2つのDrawContextを生成することになった
+//		// drawContextは使いすてて問題ない
+//		drawContextId = DL::createSealDrawContext( baseContextId : baseContextId, isDrawPhaseBeforeStorage : FALSE );
+//-- 519:20080815 Deleted End (kanda)
+
+		if ( isSignature )
+			drawContextId1 = 0;
+			drawContextId2 = 0;
+			if ( not_empty aPage1 )
+//-- 571:20090629 Add Start (kanda)
+				DL::setSealData( contextId : baseContextId,
+					dataId : IotSc_SealDataId::eValidPageCountOnJob, data : anImageSpace1.validPageCountOnJob );
+//-- 571:20090629 Add End (kanda)
+//-- 519:20080815 Modified Start (kanda)
+//-- 832:20130917 Modified Start (saitou) 
+				drawContextId1 =  DL::createSealDrawContext(
+						  baseContextId             : baseContextId
+						, isDrawPhaseBeforeStorage  : FALSE
+						, r_isAbortNeed             : tmpIsAbortNeed
+				);
+//-- 832:20130917 Modified End (saitou) 
+//-- 832:20130917 Add Start (saitou) 
+				if( tmpIsAbortNeed )
+					param.r_failType = IotSc_FailType::eInstructionFail;
+					param.r_canMerge = FALSE;
+					return aReqForPlane.ID;
+				end if;
+//-- 832:20130917 Add End (saitou) 
+//-- 519:20080815 Modified End (kanda)
+			end if;
+			if ( not_empty aPage2 )
+//-- 571:20090629 Add Start (kanda)
+				DL::setSealData( contextId : baseContextId,
+					dataId : IotSc_SealDataId::eValidPageCountOnJob, data : anImageSpace2.validPageCountOnJob );
+//-- 571:20090629 Add End (kanda)
+//-- 519:20080815 Modified Start (kanda)
+//-- 832:20130917 Modified Start (saitou) 
+				drawContextId2 =  DL::createSealDrawContext(
+						  baseContextId             : baseContextId
+						, isDrawPhaseBeforeStorage  : FALSE
+						, r_isAbortNeed             : tmpIsAbortNeed
+				);
+//-- 832:20130917 Modified End (saitou) 
+//-- 832:20130917 Add Start (saitou) 
+				if( tmpIsAbortNeed )
+					param.r_failType = IotSc_FailType::eInstructionFail;
+					param.r_canMerge = FALSE;
+					return aReqForPlane.ID;
+				end if;
+//-- 832:20130917 Add End (saitou) 
+//-- 519:20080815 Modified End (kanda)
+			end if;
+//-- 513:20080806 Modified Start (kanda)
+			aReqForPlane.sealDrawParamPhaseAfterStorage
+				= DL::getSealDrawParameterSignature( drawContextId1 : drawContextId1, drawContextId2 : drawContextId2,
+					fastScan : fastScan,  slowScan : slowScan, 
+//-- 503:20080624 Modified Start (kanda)
+//-- 526:20080909 Modified Start (kanda)
+					imgDirection : imageDirectionForSeal,
+					firstImgDirection : firstImageDirectionForSeal, basePageNo : basePageNo
+//-- 526:20080909 Modified End (kanda)
+//-- 503:20080624 Modified End (kanda)
+//-- 573:20090707 Add Start (kanda)
+					, mainImageColorMode : aSheetFace.color
+//-- 573:20090707 Add End (kanda)
+				   );
+//-- 513:20080806 Modified End (kanda)
+		else
+
+//-- 571:20090622 Add Start (kanda)
+			DL::setSealData( contextId : baseContextId,
+				dataId : IotSc_SealDataId::eValidPageCountOnJob, data : aSheetFace.validPageCountOnJob );
+//-- 571:20090622 Add End (kanda)
+//-- 643:20110228 Add Start (saitou)
+			// 現在部数を通知 
+			DL::setSealData( contextId : baseContextId,
+				dataId : IotSc_SealDataId::eCurrentRunlength, data : copiesNum );
+//-- 677:20110426 Modified Start (saitou) 
+			// Sosekiが有効でなくともSIDは通知(Seal側でSID==0なら無効にする)
+			DL::setSealData( contextId : baseContextId,
+				dataId : IotSc_SealDataId::eSID, data : self.sid );
+//-- 677:20110426 Modified End (saitou) 
+//-- 643:20110228 Add End (saitou)
+//-- 513:20080806 Modified Start (kanda)
+//-- 519:20080815 Add Start (kanda)
+//-- 832:20130917 Modified Start (saitou) 
+			drawContextId = DL::createSealDrawContext(
+						  baseContextId             : baseContextId
+						, isDrawPhaseBeforeStorage  : FALSE
+						, r_isAbortNeed             : tmpIsAbortNeed
+			);
+//-- 832:20130917 Modified End (saitou) 
+//-- 519:20080815 Add End (kanda)
+			aReqForPlane.sealDrawParamPhaseAfterStorage
+				= DL::getSealDrawParameter( drawContextId : drawContextId,
+					fastScan : fastScan,  slowScan : slowScan,
+//-- 526:20080909 Modified Start (kanda)
+					imgDirection : imageDirectionForSeal, firstImgDirection : firstImageDirectionForSeal,
+//-- 526:20080909 Modified End (kanda)
+					duplexDirection : duplexDirection, jobDuplexDirection : jobDuplexDirection, sideInfo : self.sheetSide,
+					div_x : repeat_X, div_y : repeat_Y
+//-- 573:20090707 Add Start (kanda)
+					, mainImageColorMode : aSheetFace.color
+//-- 573:20090707 Add End (kanda)
+				   );
+//-- 513:20080806 Modified End (kanda)
+		end if;
+	end if;
+end if;
+//-- 487:20080422 Add End (kanda)
+
+//-- 55:20040421 Add Start
+// Annotation対象外の用紙に関しては、Annotationを外す
+//-- 65:20040511 Modified Start
+if ( aLogicalSheet.isAnnotationExcludeSheet() or not isAnnotationValid )
+//-- 65:20040511 Modified End
+	aReqForPlane.isPageNumPrint = FALSE;
+	aReqForPlane.isStampPrint      = FALSE;
+	aReqForPlane.isStampPrint_2  = FALSE;
+	aReqForPlane.isDatePrint         = FALSE;
+	aReqForPlane.isDatePrint_2     = FALSE;
+//--313:20060425 Add Start(tsuchitoi)
+	aReqForPlane.isBatesPrint        =FALSE;
+//--313:20060425 Add End(tsuchitoi)
+end if;
+//-- 55:20040421 Add End
+//-- 233:20050711 Add Start(tsuchitoi)
+
+//-- 469:20080201 Deleted Start (kanda)
+//-- 457:20080201 Deleted Start(kanda)
+// 上に移動
+//-- 286:20051019 Add Start
+//isWaterMarkCancel = FALSE;
+//-- 286:20051019 Add End
+//-- 457:20080201 Deleted End(kanda)
+//-- 469:20080201 Deleted End (kanda)
+
+if ( aLogicalSheet.isWaterMarkExcludeSheet() )
+//-- 286:20051019 Add Start
+	//シート単位でのキャンセル
+	isWaterMarkCancel = TRUE;
+elif ( not PF::isDigitalCodeOverWriteJob( jobID : anExecutingJob.jobID  ) )
+	if ( isPage1DigitalCodePrinted or isPage2DigitalCodePrinted )
+		isWaterMarkCancel = TRUE;
+	end if;	
+end if;
+
+if ( isWaterMarkCancel )
+//-- 286:20051019 Add End
+    aReqForPlane.isWaterMarkPrint = FALSE;
+    aReqForPlane.isHybridWaterMarkPrint = FALSE;
+//-- 265:20050914 Add Start
+    aReqForPlane.isCopiesNumPrint = FALSE;
+//-- 265:20050914 Add End
+ end if;
+//-- 233:20050711 Add End
+
+// 一つも設定されない場合は合成できないこととする
+//-- 233:20050711 Modified Start(tsuchitoi)
+// UUID Added 
+if ( not aReqForPlane.isWaterMarkPrint and not aReqForPlane.isCopiesNumPrint and
+	not aReqForPlane.isPageNumPrint and not aReqForPlane.isStampPrint and
+	not aReqForPlane.isDatePrint and not aReqForPlane.isFormPrint and
+	not aReqForPlane.isStampPrint_2 and not aReqForPlane.isDatePrint_2 and
+       not aReqForPlane.isUUIDPrint and not aReqForPlane.isHybridWaterMarkPrint 
+//--313:20060425 Add Start(tsuchitoi)
+	and not aReqForPlane.isBatesPrint
+//--313:20060425 Add End(tsuchitoi)
+//-- 469:20080201 Add Start (kanda)
+//-- 419:20080201 Add Start(kanda)
+	and not aReqForPlane.isForcedAnnotationPrint
+//-- 419:20080201 Add End(kanda)
+//-- 469:20080201 Add End (kanda)
+//-- 487:20080422 Add Start (kanda)
+	and not isSealPrint
+//-- 487:20080422 Add End (kanda)
+//-- 643:20110302 Add Start (saitou)
+	and not aReqForPlane.isSosekiPrint
+//-- 643:20010302 Add End (saitou)
+)
+//-- 233:20050711 Modified End
+	param.r_mergeColor = nullColor;
+	param.r_canMerge = FALSE;
+end if;
+
+//-- 77:20040517 Add Start
+// フォームの画像が付加されている場合、書き込む画像はフォームの画像方向に合わせて
+// 回転する必要がある。ここで付加されるフォームはイメージオーバーレイであり、
+// イメージオーバーレイの画像は１ページ目の画像方向に等しい
+if ( aReqForPlane.isFormPrint 
+//-- 289:20051031 Deleted Start (tsuchitoi)
+// and formType == IotSc_FormType::eImageOverlay 
+//-- 289:20051031 Deleted End
+)
+	overlayImageDirection = firstImageDirection;
+	rotationAngle = BL::getMergeImageRotationAngle( mainImageTop : imageDirection,
+						mergeImageTop : overlayImageDirection );
+	// オーバーレイの画像回転は180度か270度の回転で生じる	
+	if ( rotationAngle == "IOTIMG_ROTATION_180" or rotationAngle == "IOTIMG_ROTATION_270" )
+		if ( aReqForPlane.isPageNumPrint or  aReqForPlane.isDatePrint or aReqForPlane.isDatePrint_2 
+//--313:20060425 Add Start(tsuchitoi)
+			or aReqForPlane.isBatesPrint 			
+//--313:20060425 Add End(tsuchitoi)
+)
+			aReqForPlane.pageNoImageDirection = PF::get180RotatedDirection( imgDir :  aReqForPlane.pageNoImageDirection );
+		end if;
+		if ( aReqForPlane.isStampPrint or aReqForPlane.isStampPrint_2 )
+			aReqForPlane.stampImageDirection = PF::get180RotatedDirection( imgDir :  aReqForPlane.stampImageDirection );
+			aReqForPlane.stampImageDirection_2 = PF::get180RotatedDirection( imgDir :  aReqForPlane.stampImageDirection );
+			 if ( aSheetFace.is2in1 )
+				//現状はないが、一応考慮する。この場合は第１イメージと第２イメージが逆転する
+				tmpDir  = aReqForPlane.stampImageDirection;
+				aReqForPlane.stampImageDirection = aReqForPlane.stampImageDirection_2;
+				aReqForPlane.stampImageDirection_2 = tmpDir ;
+			end if;
+		end if;
+//-- 233:20050711 Add Start(tsuchitoi)
+		//UUID
+		if ( aReqForPlane.isUUIDPrint )
+			aReqForPlane.uuidImageDirection = PF::get180RotatedDirection( imgDir :  aReqForPlane.uuidImageDirection );
+               		end if;
+//-- 233:20050711 Add End
+
+//-- 233:20050714 Modified Start
+//		if ( aReqForPlane.isWaterMarkPrint and not aReqForPlane.isCopiesNumPrint )
+//--272:20050927 Deleted Start (tsuchitoi)
+// イメージ方向もisSameRequestParam()のチェック対象になるので、この条件を削除
+//		if ( ( aReqForPlane.isWaterMarkPrint or aReqForPlane.isHybridWaterMarkPrint ) and not aReqForPlane.isCopiesNumPrint )
+//--272:20050927 Deleted End
+
+//-- 233:20050714 Modified End
+			aReqForPlane.imageDirection = PF::get180RotatedDirection( imgDir : aReqForPlane.imageDirection );
+//--272:20050927 Deleted Start (tsuchitoi)
+//		end if;
+//--272:20050927 Deleted End (tsuchitoi)
+	end if;
+end if;			
+
+//-- 77:20040517 Add End
+
+
+
+//-- 358:20061221 Add Start(tsuchitoi)
+select any aTmpColorElement related by self->EI_CL[R608] where selected.no == planeNo;
+if ( not_empty aTmpColorElement )
+	param.r_mergeColor = aTmpColorElement.color;
+else
+	param.r_mergeColor = nullColor;
+	param.r_canMerge = FALSE;
+end if;
+
+//-- 487:20080501 Add Start (kanda)
+// ジョブログに合成イメージ情報を残す
+if ( param.r_canMerge )
+	if ( aReqForPlane.isWaterMarkPrint or aReqForPlane.isForcedAnnotationPrint )
+		PF::setPrintedSecurityInfo( jobID : anExecutingJob.jobID, securityInfo : IotSc_PrintedSecurityInfo::eAnalogWaterMark );
+	end if;
+	if ( aReqForPlane.isHybridWaterMarkPrint )
+		PF::setPrintedSecurityInfo( jobID : anExecutingJob.jobID, securityInfo : IotSc_PrintedSecurityInfo::eHybridWaterMark );
+	end if;
+	if ( aReqForPlane.isUUIDPrint )
+		PF::setPrintedSecurityInfo( jobID : anExecutingJob.jobID, securityInfo : IotSc_PrintedSecurityInfo::eUUID );
+	end if;
+	if ( aReqForPlane.isFormPrint and formType == IotSc_FormType::ePrinterTrustMark )
+		PF::setPrintedSecurityInfo( jobID : anExecutingJob.jobID, securityInfo : IotSc_PrintedSecurityInfo::eTrustMarking );
+	end if;
+
+//-- 496:20080602 Modified Start (kanda)
+	if ( isSealPrint and aReqForPlane.sealDrawParamPhaseBeforeStorage > 0 )
+		DL::setSealPrintedSecurityInfo( jobID : anExecutingJob.jobID, 
+			drawParamId : aReqForPlane.sealDrawParamPhaseBeforeStorage );
+	end if;
+	if ( isSealPrint and aReqForPlane.sealDrawParamPhaseAfterStorage > 0 )
+		DL::setSealPrintedSecurityInfo( jobID : anExecutingJob.jobID, 
+			drawParamId : aReqForPlane.sealDrawParamPhaseBeforeStorage );
+	end if;
+//-- 496:20080602 Modified End (kanda)
+
+end if;
+//-- 487:20080501 Add End (kanda)
+
+
+return aReqForPlane.ID;
+
+//-- 358:20061221 Add End(tsuchitoi)',
+	1,
+	'',
+	"b3cc29fe-c05b-43a0-8fc9-2e89359120f6");
+INSERT INTO O_TPARM
+	VALUES ("b7f7e6ec-b9a4-4321-b6db-992caed3d1d8",
+	"8c00c7f3-2a42-4a09-bd22-9e6c8de0b002",
+	'mergePlaneNo',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("719f9a3d-1df2-4c6c-8afd-35a43822d216",
+	"8c00c7f3-2a42-4a09-bd22-9e6c8de0b002",
+	'r_mergeColor',
+	"155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	1,
+	'',
+	"3339d481-9325-4adf-92aa-319ef1ebeedf",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_ImageColor',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("fada33a1-26a5-4b33-a59f-cecfe6200295",
+	"8c00c7f3-2a42-4a09-bd22-9e6c8de0b002",
+	'r_canMerge',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	1,
+	'',
+	"b7f7e6ec-b9a4-4321-b6db-992caed3d1d8",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("3339d481-9325-4adf-92aa-319ef1ebeedf",
+	"8c00c7f3-2a42-4a09-bd22-9e6c8de0b002",
+	'r_failType',
+	"fc9f933b-9ea7-4738-8135-29f1c90aa433",
+	1,
+	'',
+	"fada33a1-26a5-4b33-a59f-cecfe6200295",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("fc9f933b-9ea7-4738-8135-29f1c90aa433",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_FailType',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("b3cc29fe-c05b-43a0-8fc9-2e89359120f6",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	'addTmpColorPlane',
+	'指定された色のプレーンをテンポラリのColor Elementに追加します。
+
+追加できない場合にはfalseが返ります。
+
+Color Elementは呼ぶ前に作成されている必要があります。
+
+ただし、追加のされ方は固定的です（Yは必ずno=1であるとか）。
+したがって、Plane数が1の場合などで、複数機能をプレーンごとに振り分けるような場合（pageもYで、WaterMarkもYなど）ではこの関数によるチェックではなく、別の手段が必要になります。',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	1,
+	'//-- 358:20061219 Add Start (tsuchitoi)
+
+select many colorElements related by self->EI_CL[R608];
+
+for each aColorElement in colorElements
+     tmpColor = EI_CPS::getPlaneColor( color : param.color,
+		              no : aColorElement.no );
+    if ( tmpColor != "0" and aColorElement.color != "0"  and    
+         tmpColor != aColorElement.color )
+        // できない組み合わせ
+        return false;
+    end if;
+    if ( tmpColor != "0" ) 
+        aColorElement.color = tmpColor;
+    end if;
+end for;
+return true;
+//-- 358:20061219 Add End (tsuchitoi)',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("3674c4d6-4c58-44d2-8b1f-e0b53cd96d23",
+	"b3cc29fe-c05b-43a0-8fc9-2e89359120f6",
+	'color',
+	"155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("0144f972-d5c2-4fba-8471-b805a4d89a85",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	'judgeImageMerge',
+	'//-- 358:20061221 Add Start(tsuchitoi)
+合成画像が他の合成画像との組み合わせにおいて正常にプレーン配分できるかどうかを返します。
+
+プレーンの配分が可能で、かつ指定されたプレーンNoに対して画像を載せる場合には
+EI_CLにカラーが設定され、1を返します。
+プレーンの配分は可能ですが指定されたプレーンNoに対して画像を載せない場合には
+EI_CLにカラーが設定されず、0を返します。
+プレンの配分ができない場合には-1を返します。
+
+
+//-- 358:20061221 Add End(tsuchitoi)',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	1,
+	'//-- 358:20061221 Add Start(tsuchitoi)
+color = param.color;
+planeNo = param.planeNo;
+mergeType = param.mergeType;
+
+// 複数プレーンある場合は、カラーの配置で判断する
+if ( EI_CPS::getPlaneNum(color : color) > 1 ) 
+	if ( self.addTmpColorPlane( color :  color ) )
+		select any aTmpColorElement related by self->EI_CL[R608] where selected.no == planeNo and selected.color != "0";
+		if ( not_empty aTmpColorElement )
+			return 1;
+		end if;
+	else
+		return -1;
+
+	end if;
+
+else
+	// １プレーンの場合は機能によって配置が換わる
+	decidedPlaneNo = P_PSHF::getPlanePositionForSingleColor( type : mergeType,
+					color : color );
+	if ( planeNo == decidedPlaneNo ) 
+		select any aColorElement related by self->EI_CL[R608] where selected.no == decidedPlaneNo;
+//-- 845:20140227 Modified Start (saitou) 
+		FER::assert_with_return_zero(expression : not_empty aColorElement );
+//-- 845:20140227 Modified End (saitou) 
+		if ( aColorElement.color != "0" and aColorElement.color != color )
+			return -1;
+		else 
+			aColorElement.color	 = color;
+			return 1;
+		end if;
+	end if;
+end if;
+return 0;
+//-- 358:20061221 Add End(tsuchitoi)',
+	1,
+	'',
+	"da520db4-3218-4938-9d20-03789801d319");
+INSERT INTO O_TPARM
+	VALUES ("9cf2b9f0-2b86-46ad-9a51-0c8fc648b020",
+	"0144f972-d5c2-4fba-8471-b805a4d89a85",
+	'color',
+	"155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("a5ca93e0-5cb4-46b7-9adc-8c8b3f98c328",
+	"0144f972-d5c2-4fba-8471-b805a4d89a85",
+	'mergeType',
+	"eafd651c-a3c8-4ac5-8bbd-235b59080e4b",
+	0,
+	'',
+	"9cf2b9f0-2b86-46ad-9a51-0c8fc648b020",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("eafd651c-a3c8-4ac5-8bbd-235b59080e4b",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_AnnotationType',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("0c7b40bb-8745-4701-9b10-76b4ce2b1328",
+	"0144f972-d5c2-4fba-8471-b805a4d89a85",
+	'planeNo',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"a5ca93e0-5cb4-46b7-9adc-8c8b3f98c328",
+	'');
+INSERT INTO O_TFR
+	VALUES ("da520db4-3218-4938-9d20-03789801d319",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	'getPlanePositionForSingleColor',
+	'//-- 358:20061221 Add Start(tsuchitoi)
+合成イメージが単独のカラー（Y,M,C,K)である場合に、どのプレーンに割り付けるかを返します。
+
+例えばpageは２プレーン使用できる状態で、単独プレーンしか使わない場合、第２プレーンに割り付けられます（これはcontroller 機能仕様書に記述されています)
+
+複数カラーを扱えるようになった場合には変更が必要です。
+
+//-- 358:20061221 Add End(tsuchitoi)
+
+//-- 487:20080421 Add Start (kanda)
+Sealはアノテーションと同じプレーンにのせる制御をする
+//-- 487:20080421 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'//-- 358:20061221 Add Start(tsuchitoi)
+
+mergePlaneNum = 	PF::getConfigValue( config : IotSc_Config::eMergeImage_Plane_Num );
+type = param.type;
+color = param.color;
+
+if ( mergePlaneNum == 1 )
+	return 1;
+elif ( mergePlaneNum == 2 )
+	// スタンプ、ページ、Bates、UUID、Dateは２プレーン
+	if ( type == IotSc_AnnotationType::eStamp or 
+	     type == IotSc_AnnotationType::ePageNo or
+	     type == IotSc_AnnotationType::eBatesNo or
+	     type == IotSc_AnnotationType::eDate or
+	     type == IotSc_AnnotationType::eUuid
+//-- 487:20080421 Add Start (kanda)
+	     or type == IotSc_AnnotationType::eSeal
+//-- 487:20080421 Add End (kanda)
+	)
+	    return 2;
+	elif ( type == IotSc_AnnotationType::eForm )
+	    // 白黒の場合は第２プレーン、それ以外は第１プレーン
+	    if ( color == "IOT_IMAGE_COLOR_K" )
+	    	return 2;
+	    else
+		return 1;
+	    end if;
+//-- 643:20110301 Modified Start (saitou)
+	elif ( ( type == IotSc_AnnotationType::eWaterMark )or( type == IotSc_AnnotationType::eSoseki ) )
+//-- 643:20110301 Modified End (saitou)
+		return 1;
+//-- 582:20090715 Add Start (kanda)
+	else
+//-- 845:20140227 Modified Start (saitou) 
+		FER::assert_with_return_zero( expression : false );
+//-- 845:20140227 Modified End (saitou) 
+//-- 582:20090715 Add End (kanda)
+	end if;
+else
+//-- 845:20140227 Modified Start (saitou) 
+	FER::assert_with_return_zero( expression : false );
+//-- 845:20140227 Modified End (saitou) 
+	
+end if;
+
+
+//-- 358:20061221 Add End(tsuchitoi)',
+	1,
+	'',
+	"ad36c3dc-13c9-4c98-b511-916206ed8c88");
+INSERT INTO O_TPARM
+	VALUES ("1ca83f5a-5ebc-4375-b81f-8f71b0f8e660",
+	"da520db4-3218-4938-9d20-03789801d319",
+	'type',
+	"eafd651c-a3c8-4ac5-8bbd-235b59080e4b",
+	0,
+	'',
+	"3b1efa56-bca0-4d9e-aad8-91a7b4ccc2c3",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("3b1efa56-bca0-4d9e-aad8-91a7b4ccc2c3",
+	"da520db4-3218-4938-9d20-03789801d319",
+	'color',
+	"155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("ad36c3dc-13c9-4c98-b511-916206ed8c88",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	'getImageDirectionForBackCover',
+	'//-- 535:20081008 Add Start (kanda)
+// うら表紙に配置するイメージ向きを取得する
+
+Modify:Add
+Modify_No:535
+Modifier:kanda
+Modify_Date:20081007
+//-- 535:20081008 Add End (kanda)
+
+',
+	"0e679edd-bc97-4d41-b2cf-d3ecd2ac6212",
+	1,
+	'select one anExecutingJob related by self->P_PSHT[R404]->J_EJOB[R429];
+select one aRestartInfo related by anExecutingJob->S_JRI[R200];
+
+firstImageDirection = aRestartInfo.firstImageDirection;
+backCoverImageDirection = firstImageDirection;
+
+// 描画されたイメージ向きを取得する
+select one aLogicalSheet related by 
+	self->P_PSHT[R404]->P_PSLS[R423]->P_NPS[R430]->S_SHT[R435];
+select one aTraySelect related by aLogicalSheet->S_TSP[R224];
+select one aSheetFace related by aLogicalSheet->S_SHF[R247];
+if ( self.sheetSide == "IOT_SHEET_SIDE_2" )
+	select one aSheetFace related by aLogicalSheet->S_SHF[R248];
+end if;
+imageDirection = aSheetFace.imageDirection;
+
+// 基準とする両面綴じ方向を決める
+duplexDirection = self.getDuplexDirectionForBackCover();
+
+// 基準とするイメージ方向を決める(1stImageDirection/2ndImageDirection)
+use2ndImageDirection = FALSE;
+if ( firstImageDirection == IotSc_ImageDirection::eM_FS or firstImageDirection == IotSc_ImageDirection::eP_FS )
+	if ( imageDirection == IotSc_ImageDirection::eM_SS or imageDirection == IotSc_ImageDirection::eP_SS )
+		use2ndImageDirection = TRUE;
+	end if;
+else
+	if ( imageDirection == IotSc_ImageDirection::eM_FS or imageDirection == IotSc_ImageDirection::eP_FS )
+		use2ndImageDirection = TRUE;
+	end if;
+end if;
+
+// 2nd ImageDirectionを決定する
+secondImageDirection = imageDirection;
+if ( use2ndImageDirection )
+//-- 537:20081027 Add Start (kanda)
+	// 両面の場合はうら面用画像の補正が必要
+	if ( PF::getDuplexDirection( sectionID : aLogicalSheet.sectionID ) != IotSc_DuplexDirection::eNull )
+//-- 537:20081027 Add End (kanda)
+		// セクション内で奇数のページはおもて面/偶数はうら面
+		select one aPage related by aSheetFace->S_IMS[R222]->S_IMSI[R219]->D_PAGE[R218];
+//-- 848:20140522 Add Start (ikegaya)
+		FER::assert_with_return_zero( expression : not_empty aPage );
+//-- 848:20140522 Add End (ikegaya)
+		if ( aPage.no % 2 == 0 )
+			if ( PF::isBackSideNeedRotation( mediumDir : aTraySelect.direction, imgDir : imageDirection, duplexDirection : duplexDirection ) )
+				secondImageDirection = PF::get180RotatedDirection( imgDir : imageDirection );
+			end if;
+		end if;
+//-- 537:20081027 Add Start (kanda)
+	end if;
+//-- 537:20081027 Add End (kanda)
+	backCoverImageDirection = secondImageDirection;
+end if;
+
+// うら表紙のうら面だった場合、基準とするイメージ方向の180°回転を考慮する
+if ( self.sheetSide == "IOT_SHEET_SIDE_2" )
+	if (  PF::isBackSideNeedRotation( mediumDir : aTraySelect.direction, imgDir : backCoverImageDirection, duplexDirection : duplexDirection ) )
+		backCoverImageDirection = PF::get180RotatedDirection( imgDir : backCoverImageDirection );
+	end if;
+end if;
+
+return backCoverImageDirection;
+
+
+',
+	1,
+	'',
+	"99f4ef0a-080d-41c3-89df-635fe58c0b84");
+INSERT INTO S_DT_PROXY
+	VALUES ("0e679edd-bc97-4d41-b2cf-d3ecd2ac6212",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_ImageDirection',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("99f4ef0a-080d-41c3-89df-635fe58c0b84",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	'getDuplexDirectionForBackCover',
+	'//-- 535:20081016 Add Start (kanda)
+// うら表紙に配置するイメージ向きを取得する
+
+Modify:Add
+Modify_No:535
+Modifier:kanda
+Modify_Date:20081016
+//-- 535:20081016 Add End (kanda)
+',
+	"707d5fec-6d0d-4f32-a58d-694554e30884",
+	1,
+	'select one aLogicalSheet related by 
+	self->P_PSHT[R404]->P_PSLS[R423]->P_NPS[R430]->S_SHT[R435];
+select one aSheetFace related by aLogicalSheet->S_SHF[R247];
+if ( self.sheetSide == "IOT_SHEET_SIDE_2" )
+	select one aSheetFace related by aLogicalSheet->S_SHF[R248];
+end if;
+imageDirection = aSheetFace.imageDirection;
+
+// 基準とする両面綴じ方向を決める
+// IOTscで面付けするうら表紙の綴じ方向は、属するSectionに従う
+// SignatureではこのI/Fはコールされない前提なのでR222で関連付いたPageを取得すればよい
+select one aPage related by aSheetFace->S_IMS[R222]->S_IMSI[R219]->D_PAGE[R218];
+//-- 845:20140225 Add Start (saitou) 
+FER::assert_with_return_zero( expression : not_empty aPage );
+//-- 845:20140225 Add End (saitou) 
+duplexDirection = PF::getDuplexDirection( sectionID : aLogicalSheet.sectionID );
+select one aTraySelect related by aLogicalSheet->S_TSP[R224];
+if ( not aPage.isDuplexDirFollowImg )
+	duplexDirection = D_PAGE::getImgDuplexDirFromSheetDupDir(
+                                sheetDupDir : duplexDirection, imgDir : imageDirection, sheetDir : aTraySelect.direction );
+end if;
+
+// 片面であったら長辺綴じになるように両面方向を決める
+if ( duplexDirection == IotSc_DuplexDirection::eNull )
+	isPort = TRUE;
+	if ( imageDirection == IotSc_ImageDirection::eM_FS or imageDirection == IotSc_ImageDirection::eP_FS )
+		if ( aTraySelect.direction == "IOTDOC_MEDIUM_DIRECTION_SEF" )
+			isPort = FALSE;
+		end if;
+	else
+		if ( aTraySelect.direction == "IOTDOC_MEDIUM_DIRECTION_LEF" )
+			isPort = FALSE;
+		end if;
+	end if;
+	if ( isPort )
+		duplexDirection = IotSc_DuplexDirection::eLeftRight;
+	else
+		duplexDirection = IotSc_DuplexDirection::eTopBottom;
+	end if;
+end if;
+
+return duplexDirection;
+',
+	1,
+	'',
+	"ddd9b31a-cff5-4587-b08d-be7c532dda0b");
+INSERT INTO S_DT_PROXY
+	VALUES ("707d5fec-6d0d-4f32-a58d-694554e30884",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_DuplexDirection',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("ddd9b31a-cff5-4587-b08d-be7c532dda0b",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	'getCopiesNum',
+	'//-- 665:20110418 Add Start (saitou)
+// createMeageImageから切り出し
+// 現在部数を得る。
+// startOffsetから数え始める。(offsetしない場合は1を指定する)
+
+Modify:Add
+Modify_No:665
+Modifier:saitou
+Modify_Date:20110418
+//-- 665:20110418 Add Start (saitou)',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	1,
+	'select one aLogicalSheet related by 
+	self->P_PSHT[R404]->P_PSLS[R423]->P_NPS[R430]->S_SHT[R435];
+select one anExecutingOrigin related by aLogicalSheet->S_CS[R213]->S_EOS[R232];
+select one aCollateSet related by aLogicalSheet->S_CS[R213];
+select one aPhysicalNormalSheet related by 
+	self->P_PSHT[R404]->P_PSLS[R423]->P_NPS[R430];
+
+//-- 845:20140225 Add Start (saitou) 
+FER::assert_with_return_zero( expression : not_empty aCollateSet );
+FER::assert_with_return_zero( expression : not_empty aPhysicalNormalSheet );
+//-- 845:20140225 Add End (saitou) 
+
+//-- 353:20061101 Modified Start (kanda)
+// 位置指定サンプル分(外数)を補正する
+copiesNum = 0;
+currentNo = 0;
+createdSpotCheckNum = 0;
+select any aReplicator from instances of S_RPR; // 型あわせ
+if ( aCollateSet.collateMode == "IOT_COLLATE_ON" )
+	copiesNum = aCollateSet.no;
+	currentNo = aCollateSet.no;
+	select one aReplicator related by anExecutingOrigin->S_RPR[R273];
+else
+	copiesNum = aPhysicalNormalSheet.no;
+	select one  aReplicator related by 
+		self->P_PSHT[R404]->P_PSLS[R423]->P_NPS[R430]->P_SIR[R447]->S_RPR[R273];
+	currentNo = aPhysicalNormalSheet.no;
+end if;
+//-- 845:20140225 Add Start (saitou) 
+FER::assert_with_return_zero( expression : not_empty aReplicator );
+//-- 845:20140225 Add End (saitou) 
+//-- 387:20070223 Modified Start (kanda)
+createdSpotCheckNum = aReplicator.getCreatedSpotCheckPositionNum( currentNo : currentNo, byUserPosition : FALSE );
+//-- 387:20070223 Modified End (kanda)
+copiesNum = copiesNum - createdSpotCheckNum;
+//-- 353:20061101 Modified End (kanda)
+
+num = copiesNum + param.startOffset - 1;
+//-- 814 20130128 Modified Start (saitou) 
+rest = num % ( PF::getMaxAnnotationNo() );
+if ( rest == 0  and num > 0 )
+	rest = PF::getMaxAnnotationNo();
+end if;
+//-- 814 20130128 Modified Start (saitou) 
+
+return rest ;
+',
+	1,
+	'',
+	"ab745e9e-4150-4c22-bda5-37105b8e8a34");
+INSERT INTO O_TPARM
+	VALUES ("54ce460e-8909-42c5-8d09-ccba664c630e",
+	"ddd9b31a-cff5-4587-b08d-be7c532dda0b",
+	'startOffset',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("36e2fcbd-e21c-42ae-8979-fdee84f4a178",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	'delivered',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 11394:20130402 Add Start (ikegaya)
+// 1. Tray Exit（シート排出完了）で、Sheet Deliver Count Up
+// 2. Tray Exit（シート排出完了）で、JIS登録
+// 3. イメージ転送終了（ transEnd）と同期して、シート終了
+
+//-- 14599:20130701 Add Start (ikegaya)
+select any aPageInfo related by self->DV_PI[R805]
+	where( selected.sheetID == param.feedSheetID );
+FER::assert( expression : not_empty aPageInfo );
+//-- 14599:20130701 Add End (ikegaya)
+
+select one aPhysicalSheet related by self->P_PSHT[R460] ;
+FER::assert( expression : not_empty aPhysicalSheet );
+
+select one aPhysicalSet related by aPhysicalSheet->P_SET[R459];
+FER::assert( expression : not_empty aPhysicalSet );
+
+select one anExecutingJob related by aPhysicalSheet->J_EJOB[R429] ;
+FER::assert( expression : not_empty anExecutingJob ) ;
+
+// sheetIDがベースと異なる場合は、dm生成シートでダイナミックサンプルである
+isDynamicSample = FALSE;
+if ( aPageInfo.sheetID != aPageInfo.baseSheetID )
+	isDynamicSample = TRUE;
+end if;
+
+//-- 0104964:20140902 Add Start (saitou) 
+handle = TYPE::IotDoc_SheetHandle();
+ret = DDB::getSheetHandle( sheetID : self.sheetID, r_sheetHandle : handle );
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+plex = TYPE::IotDoc_Plex();
+ret = DDB::getSheetPlex( sheetHandle : handle, r_data : plex );
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 0104964:20140902 Add End (saitou) 
+
+//-- 14599:20130806 Modified Start (ikegaya)
+// Tray Exit（シート排出完了）のとき
+// -両面出力は第2印字面の面排出通知時
+// -片面出力は面排出通知時
+//-- 0104964:20140902 Modified Start (saitou) 
+if ( self.printSide == "IOT_PRINT_SIDE_2ND" or plex == "IOTDOC_PLEX_SIMPLEX" ) 
+//-- 0104964:20140902 Modified End (saitou) 
+
+//-- 0104524:20141028 Add Start (saitou)
+	// 強制リカバリOnの場合、カウントもJIS登録もしない
+	if  ( param.forcedRecovery != "IOT_FORCED_RECOVERY_ON" )
+//-- 0104524:20141028 Add End (saitou)
+		// ダイナミックサンプルでない場合、Sheet Deliver Count Up
+		if ( not isDynamicSample )
+			aPhysicalSheet.sheetDeliverCount = aPhysicalSheet.sheetDeliverCount + 1;
+		end if;
+
+//-- 0104524:20141028 Deleted Start (saitou)
+		// 強制リカバリ時のif文を上に移動
+//-- 0104524:20141028 Deleted End (saitou)
+		// ダイナミックサンプルでない場合
+		if  ( not isDynamicSample )
+			// JISにIOT動作状況を登録
+			select one aNextPhysicalSheet
+				related by aPhysicalSheet->P_PSHT[R403.''is next to''];
+			if ( empty aNextPhysicalSheet )
+				JIS::setPrintStatus(
+					jobID : anExecutingJob.jobID,
+					status : IotSc_PrintStatus::eSheetNotExist
+				);
+			end if;
+
+			// JISにジョブ経過時間を登録
+			currentTime = JIS::getCurrentTime();
+			elapsedTime = JIS::getLocalElapsedTime(
+				currentTime : currentTime,
+				startTime : anExecutingJob.printStartTime
+			);
+			anExecutingJob.printStartTime = currentTime;
+			anExecutingJob.elapsedTime = anExecutingJob.elapsedTime + elapsedTime;
+			JIS::setElapsedTime(
+				jobID : anExecutingJob.jobID,
+				elapsedTime : anExecutingJob.elapsedTime
+			);
+		end if;
+
+//-- 0104309:20150205 Add Start (ikegaya)
+		// plexはDUPLEXだが、『強制反転シート』は両面印刷扱いとしない
+		if ((plex == "IOTDOC_PLEX_DUPLEX") and (aPhysicalSheet.forcedInvertSheet != TRUE))
+			anExecutingJob.existPlexSheet = TRUE;
+		end if;
+//-- 0104309:20150205 Add End (ikegaya)
+
+		// JISにDelivered情報を登録
+		JIS::setDeliverSheetInfo(
+//-- 15679:20140430 Add Start (ikegaya)
+			jobID : anExecutingJob.jobID,
+			collate : aPhysicalSet.collate,
+//-- 0104964:20140902 Modified Start (saitou) 
+//-- 0104309:20150205 Modified Start (ikegaya)
+			existPlexSheet : anExecutingJob.existPlexSheet,
+//-- 0104309:20150205 Modified End (ikegaya)
+//-- 0104964:20140902 Modified End (saitou) 
+//-- 15679:20140430 Add End (ikegaya)
+			sheetID : param.feedSheetID,
+			sheetSide : self.sheetSide,
+			isDynamicSample : isDynamicSample,
+			sheetDeliverCount : aPhysicalSheet.sheetDeliverCount,
+			displaySetNo : aPhysicalSet.displaySetNo,
+//-- 0104318:20150409 Add Start (ikegaya)
+			initialSid : anExecutingJob.initialSid,
+			sid : self.sid
+//-- 0104318:20150409 Add End (ikegaya)
+		);
+//-- 0105388:20150213 Add Start (saitou)
+		// セットの排出カウントをカウントアップ
+		// 本当はStaticSample/DynamicSample以外の場合のみカウントアップしたい。
+		aPhysicalSet.deliverCount = aPhysicalSet.deliverCount + 1;
+//-- 0105388:20150213 Add End (saitou)
+	end if;
+
+// Dup Exitのとき
+else
+	// NA
+end if;
+
+// イメージ転送終了（ transEnd）と同期して、シート終了（既存SheetEnd受信処理と同等）
+//-- 0104524:20141028 Modified Start (saitou)
+// ただし強制リカバリOnの場合は未排出扱いとするため処理しない。
+if ( ( not isDynamicSample ) and ( param.forcedRecovery != "IOT_FORCED_RECOVERY_ON" ) )
+//-- 0104524:20141028 Modified End (saitou)
+	// 面排出通知（Delivered）待ちの関係を消去
+	unrelate self from aPhysicalSheet across R460;
+
+	// 面に対する全てのイメージ転送終了かつ
+	// シートに対する全ての面排出終了の場合、シート終了
+	select any aWaitingPlane related by self->EI_PL[R610];
+	select any aWaitingPhysicalSheetFace related by aPhysicalSheet->P_PSHF[R460];
+	if ( empty aWaitingPlane and empty aWaitingPhysicalSheetFace )
+		aPhysicalSheet.sheetCompleted();
+	end if;
+end if;
+//-- 14599:20130806 Modified End (ikegaya)
+
+return ;
+//-- 11394:20130402 Add End (ikegaya)
+',
+	1,
+	'',
+	"8c00c7f3-2a42-4a09-bd22-9e6c8de0b002");
+INSERT INTO O_TPARM
+	VALUES ("70ee87e5-29b6-4094-a5f9-7339b5980a2e",
+	"36e2fcbd-e21c-42ae-8979-fdee84f4a178",
+	'feedSheetID',
+	"c8447be4-d01e-4fe9-93f9-1b14504795d9",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("c8447be4-d01e-4fe9-93f9-1b14504795d9",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_SheetID',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("d87796d5-911f-4531-b0e4-1e51159a070b",
+	"36e2fcbd-e21c-42ae-8979-fdee84f4a178",
+	'forcedRecovery',
+	"dea0ec44-344a-4545-b7f2-0572e44c211f",
+	0,
+	'',
+	"70ee87e5-29b6-4094-a5f9-7339b5980a2e",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("dea0ec44-344a-4545-b7f2-0572e44c211f",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_ForcedRecovery',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("ab745e9e-4150-4c22-bda5-37105b8e8a34",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	'feed',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 14270:20130521 Add Start (ikegaya)
+//-- 14599:20130807 Modified Start (ikegaya)
+select any aPageInfo related by self->DV_PI[R805]
+	where( selected.sheetID == param.feedSheetID );
+FER::assert( expression : not_empty aPageInfo );
+
+select one aPhysicalSheet related by self->P_PSHT[R404];
+FER::assert( expression : not_empty aPhysicalSheet );
+
+select one aPhysicalSet related by aPhysicalSheet->P_SET[R459];
+FER::assert( expression : not_empty aPhysicalSet );
+
+select one anExecutingJob related by aPhysicalSheet->J_EJOB[R429];
+FER::assert( expression : not_empty anExecutingJob );
+
+pageAttrPtr = TYPE::IotSc_DvPageAttrPtr();
+if ( not_empty aPageInfo )
+	pageAttrPtr = aPageInfo.pageAttrPtr;
+else
+	pageAttrPtr = 0;
+end if;
+
+// sheetIDがベースと異なる場合は、dm生成シートでダイナミックサンプルである
+isDynamicSample = FALSE;
+if ( aPageInfo.sheetID != aPageInfo.baseSheetID )
+	isDynamicSample = TRUE;
+end if;
+
+// Tray Feed（第1印字面のFeed）のとき
+if ( self.printSide == "IOT_PRINT_SIDE_1ST" )
+	// ダイナミックサンプルでない場合
+	if ( not isDynamicSample )
+		// 給紙通知（Feed）済みをセット
+		self.isFeed = TRUE;
+
+		// Sheet Feed Count Up
+		aPhysicalSheet.sheetFeedCount = aPhysicalSheet.sheetFeedCount + 1;
+
+		// 現在時刻とJISジョブ経過時間をセット
+		if ( anExecutingJob.printStartTime == 0 )
+			anExecutingJob.printStartTime = JIS::getCurrentTime();
+			anExecutingJob.elapsedTime = JIS::getElapsedTime(
+				jobID : anExecutingJob.jobID );
+		end if;
+	end if;
+end if;
+
+//-- 0104964:20140902 Add Start (saitou) 
+handle = TYPE::IotDoc_SheetHandle();
+ret = DDB::getSheetHandle( sheetID : self.sheetID, r_sheetHandle : handle );
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+
+plex = TYPE::IotDoc_Plex();
+ret = DDB::getSheetPlex( sheetHandle : handle, r_data : plex );
+FER::assert( expression : ret == "IOTDOC_OK" ) ;
+//-- 0104964:20140902 Add End (saitou) 
+//-- 0104309:20150205 Add Start (ikegaya)
+// 『強制反転シート』はSIMPLEXとする
+if (aPhysicalSheet.forcedInvertSheet == TRUE)
+	plex = "IOTDOC_PLEX_SIMPLEX";
+end if;
+//-- 0104309:20150205 Add End (ikegaya)
+
+// JISにFeed情報を登録
+JIS::setFeedSheetInfo(
+//-- 15679:20140430 Add Start (ikegaya)
+	jobID : anExecutingJob.jobID,
+	collate : aPhysicalSet.collate,
+//-- 0104964:20140902 Modified Start (saitou) 
+	plex : plex,
+//-- 0104964:20140902 Modified End (saitou) 
+//-- 15679:20140430 Add End (ikegaya)
+	sheetID : param.feedSheetID,
+	sheetSide : self.sheetSide,
+	isDynamicSample : isDynamicSample,
+	sheetFeedCount : aPhysicalSheet.sheetFeedCount,
+//-- 15679:20140723 Deleted Start (ikegaya)
+//	collateSetNo : aPhysicalSet.collateSetNo,
+//-- 15679:20140723 Deleted End (ikegaya)
+	totalRunLength : aPhysicalSet.totalRunLength,
+	modifiedRunLength : aPhysicalSet.modifiedRunLength,
+	displaySetNo : aPhysicalSet.displaySetNo,
+	devidedSetNo : aPhysicalSet.devidedSetNo,
+	pageAttrPtr : pageAttrPtr
+) ;
+//-- 14599:20130807 Modified End (ikegaya)
+return ;
+//-- 14270:20130521 Add End (ikegaya)
+',
+	1,
+	'',
+	"36e2fcbd-e21c-42ae-8979-fdee84f4a178");
+INSERT INTO O_TPARM
+	VALUES ("61549c58-b080-4054-9863-d798d35e8820",
+	"ab745e9e-4150-4c22-bda5-37105b8e8a34",
+	'feedSheetID',
+	"c8447be4-d01e-4fe9-93f9-1b14504795d9",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("47dc0adf-624b-4802-af2b-04fa662c0705",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	'setWaitingTransEnd',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 103161:20140606 Add Start (ikegaya)
+// イメージ転送終了通知(TransEnd)待ちの関連を張る
+// 既に関連済みの場合は、張らない
+
+// waiting trans end
+select any aWaitingPlane related by self->EI_PL[R610] where (selected.color == param.color);
+
+if (empty aWaitingPlane)
+	// has
+	select any aPlane related by self->EI_PL[R611] where (selected.color == param.color);
+	FER::assert(expression : not_empty aPlane);
+
+	relate aPlane to self across R610;
+end if;
+
+return;
+//-- 103161:20140606 Add End (ikegaya)',
+	1,
+	'',
+	"0144f972-d5c2-4fba-8471-b805a4d89a85");
+INSERT INTO O_TPARM
+	VALUES ("0db25e4a-d76c-4154-aa0e-3a61b7d8d548",
+	"47dc0adf-624b-4802-af2b-04fa662c0705",
+	'color',
+	"155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("26eedcd7-35f7-4ec7-927a-1353c895626d",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_BATTR
+	VALUES ("26eedcd7-35f7-4ec7-927a-1353c895626d",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_ATTR
+	VALUES ("26eedcd7-35f7-4ec7-927a-1353c895626d",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"00000000-0000-0000-0000-000000000000",
+	'imageID',
+	'AUTOINC:TRUE
+AUTOINC_DATASIZE:4
+AUTOINC_LLIMIT:1
+AUTOINC_HLIMIT:0x7fffffff
+AUTOINC_DIR:UP
+AUTOINC_UNDEF:0',
+	'',
+	'imageID',
+	0,
+	"b3cecc13-9cc6-49b4-a87b-5c3307374136",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("b3cecc13-9cc6-49b4-a87b-5c3307374136",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_ImageID',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_REF
+	VALUES ("03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"7b9c9367-5986-4a3c-b523-e86fdfa77e3c",
+	0,
+	"07539041-6fee-440c-ac65-2d45595ac518",
+	"df5ea68a-68d6-4215-9853-6073bbf1fa5f",
+	"2792cee7-b49b-4e07-bdee-5dc2bcdf485a",
+	"04b4fb3a-f2b9-4531-8300-531dfd340121",
+	"31a85447-3790-4026-885e-b5e434ee79eb",
+	"714a8994-4ef3-4c3b-951e-04d4f3a1c18b",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Physical Sheet',
+	'ID',
+	'R404');
+INSERT INTO R_RGO_PROXY
+	VALUES ("03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"df5ea68a-68d6-4215-9853-6073bbf1fa5f",
+	"2792cee7-b49b-4e07-bdee-5dc2bcdf485a",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("07539041-6fee-440c-ac65-2d45595ac518",
+	"7b9c9367-5986-4a3c-b523-e86fdfa77e3c",
+	0,
+	"df5ea68a-68d6-4215-9853-6073bbf1fa5f",
+	"04b4fb3a-f2b9-4531-8300-531dfd340121",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("31a85447-3790-4026-885e-b5e434ee79eb",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"07539041-6fee-440c-ac65-2d45595ac518",
+	"7b9c9367-5986-4a3c-b523-e86fdfa77e3c",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("07539041-6fee-440c-ac65-2d45595ac518",
+	"7b9c9367-5986-4a3c-b523-e86fdfa77e3c",
+	'../Physical Sheet/Physical Sheet.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("31a85447-3790-4026-885e-b5e434ee79eb",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"26eedcd7-35f7-4ec7-927a-1353c895626d",
+	'sheetID',
+	'',
+	'',
+	'sheetID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("8b2f1e7f-de59-4ffe-a675-7ceb83e36c4f",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_BATTR
+	VALUES ("8b2f1e7f-de59-4ffe-a675-7ceb83e36c4f",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_ATTR
+	VALUES ("8b2f1e7f-de59-4ffe-a675-7ceb83e36c4f",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"31a85447-3790-4026-885e-b5e434ee79eb",
+	'sheetSide',
+	'',
+	'',
+	'sheetSide',
+	0,
+	"ad825e36-ef59-497e-b1f2-d7571151b69f",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("ad825e36-ef59-497e-b1f2-d7571151b69f",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_SheetSide',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("4fbf346b-331d-4385-80b7-5d524af4d52f",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_BATTR
+	VALUES ("4fbf346b-331d-4385-80b7-5d524af4d52f",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_ATTR
+	VALUES ("4fbf346b-331d-4385-80b7-5d524af4d52f",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"8b2f1e7f-de59-4ffe-a675-7ceb83e36c4f",
+	'isFeed',
+	'//-- 14270:20130521 Add Start (ikegaya)
+// 給紙通知（Feed）済みかを示す
+Modify:Add
+Modify_No:14270
+Modifier:ikegaya
+Modify_Date:20130521
+//-- 14270:20130521 Add End (ikegaya)
+',
+	'',
+	'isFeed',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("411c7d6b-b599-4ea0-9d4c-a14168468eed",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_BATTR
+	VALUES ("411c7d6b-b599-4ea0-9d4c-a14168468eed",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_ATTR
+	VALUES ("411c7d6b-b599-4ea0-9d4c-a14168468eed",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"4fbf346b-331d-4385-80b7-5d524af4d52f",
+	'isImageRequested',
+	'',
+	'',
+	'isImageRequested',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("e7dd32af-bc62-4f5c-86f6-5a395b01621c",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_BATTR
+	VALUES ("e7dd32af-bc62-4f5c-86f6-5a395b01621c",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_ATTR
+	VALUES ("e7dd32af-bc62-4f5c-86f6-5a395b01621c",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"411c7d6b-b599-4ea0-9d4c-a14168468eed",
+	'isImageValid',
+	'',
+	'',
+	'isImageValid',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("72508943-882c-48fa-b336-14435c89e078",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_BATTR
+	VALUES ("72508943-882c-48fa-b336-14435c89e078",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_ATTR
+	VALUES ("72508943-882c-48fa-b336-14435c89e078",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"e7dd32af-bc62-4f5c-86f6-5a395b01621c",
+	'isImageReady',
+	'',
+	'',
+	'isImageReady',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("3bbcaa74-1568-4f85-8dd7-49a4fc106dc9",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_BATTR
+	VALUES ("3bbcaa74-1568-4f85-8dd7-49a4fc106dc9",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_ATTR
+	VALUES ("3bbcaa74-1568-4f85-8dd7-49a4fc106dc9",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"72508943-882c-48fa-b336-14435c89e078",
+	'isInfoReady',
+	'',
+	'',
+	'isInfoReady',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("4327ca56-4cce-48eb-9759-eea1cde0b723",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_BATTR
+	VALUES ("4327ca56-4cce-48eb-9759-eea1cde0b723",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_ATTR
+	VALUES ("4327ca56-4cce-48eb-9759-eea1cde0b723",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"3bbcaa74-1568-4f85-8dd7-49a4fc106dc9",
+	'currentMergePlaneNo',
+	'',
+	'',
+	'currentMergePlaneNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c584feb0-9af9-48da-a196-1b82e4c8839c",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_BATTR
+	VALUES ("c584feb0-9af9-48da-a196-1b82e4c8839c",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_ATTR
+	VALUES ("c584feb0-9af9-48da-a196-1b82e4c8839c",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"4327ca56-4cce-48eb-9759-eea1cde0b723",
+	'resultColorType',
+	'',
+	'',
+	'resultColorType',
+	0,
+	"a2533753-ebb4-42e8-900c-d24196d37324",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("a2533753-ebb4-42e8-900c-d24196d37324",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_ColorType',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("27064215-a6f9-45a7-9e04-dabf463c0ee5",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_BATTR
+	VALUES ("27064215-a6f9-45a7-9e04-dabf463c0ee5",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_ATTR
+	VALUES ("27064215-a6f9-45a7-9e04-dabf463c0ee5",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"c584feb0-9af9-48da-a196-1b82e4c8839c",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("e5fe5abf-69bb-4096-add4-435ee44f8362",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_BATTR
+	VALUES ("e5fe5abf-69bb-4096-add4-435ee44f8362",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_ATTR
+	VALUES ("e5fe5abf-69bb-4096-add4-435ee44f8362",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"27064215-a6f9-45a7-9e04-dabf463c0ee5",
+	'isWaitSystemResourceAssign',
+	'//-- 627:20101012 Add Start (kanda)
+// システムリソースの割り当て待ちかどうか
+// 初期値はアーキテクチャによりFALSEがセットされる
+Modify:Add
+Modify_No:627
+Modifier:kanda
+Modify_Date:20101012
+//-- 627:20101012 Add End (kanda)
+',
+	'',
+	'isWaitSystemResourceAssign',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c16dbc01-79ea-43e1-881c-8372b9e84f02",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_BATTR
+	VALUES ("c16dbc01-79ea-43e1-881c-8372b9e84f02",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_ATTR
+	VALUES ("c16dbc01-79ea-43e1-881c-8372b9e84f02",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"e5fe5abf-69bb-4096-add4-435ee44f8362",
+	'sid',
+	'//-- 642:20110224 Add Start (sasaki_r)
+Modify:Add
+Modify_No:642
+Modifier:sasaki_r
+Modify_Date:20110224
+
+型名：UINT64
+意味：そのシートフェイスに割り当てたSID
+
+//-- 642:20110224 Add End (sasaki_r)',
+	'',
+	'sid',
+	0,
+	"05669bc6-03ef-4010-814c-5d17ccedd083",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("05669bc6-03ef-4010-814c-5d17ccedd083",
+	"00000000-0000-0000-0000-000000000000",
+	'UINT64',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("fdebbab7-c7d6-4573-a905-1525f3515192",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_BATTR
+	VALUES ("fdebbab7-c7d6-4573-a905-1525f3515192",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_ATTR
+	VALUES ("fdebbab7-c7d6-4573-a905-1525f3515192",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"c16dbc01-79ea-43e1-881c-8372b9e84f02",
+	'printSide',
+	'',
+	'',
+	'printSide',
+	0,
+	"4a87e96d-661a-43af-a74f-801589050e46",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("4a87e96d-661a-43af-a74f-801589050e46",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_PrintSide',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_REF
+	VALUES ("03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"7b9c9367-5986-4a3c-b523-e86fdfa77e3c",
+	0,
+	"07539041-6fee-440c-ac65-2d45595ac518",
+	"f2da8e50-0d7d-4c59-9464-b6dcbf51953d",
+	"7ecdce7a-d20e-469e-acbc-4aae7f4282fe",
+	"b0dcb4f4-7e8e-49df-bc80-f614c6335e7d",
+	"6964afa4-e67b-4d04-908c-948aa0947d86",
+	"09cdacee-9429-43d3-970c-39f026a7d47f",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Physical Sheet',
+	'ID',
+	'R460');
+INSERT INTO R_RGO_PROXY
+	VALUES ("03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"f2da8e50-0d7d-4c59-9464-b6dcbf51953d",
+	"7ecdce7a-d20e-469e-acbc-4aae7f4282fe",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("07539041-6fee-440c-ac65-2d45595ac518",
+	"7b9c9367-5986-4a3c-b523-e86fdfa77e3c",
+	0,
+	"f2da8e50-0d7d-4c59-9464-b6dcbf51953d",
+	"b0dcb4f4-7e8e-49df-bc80-f614c6335e7d",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("6964afa4-e67b-4d04-908c-948aa0947d86",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"07539041-6fee-440c-ac65-2d45595ac518",
+	"7b9c9367-5986-4a3c-b523-e86fdfa77e3c",
+	1,
+	'ID');
+INSERT INTO O_ATTR
+	VALUES ("6964afa4-e67b-4d04-908c-948aa0947d86",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	"fdebbab7-c7d6-4573-a905-1525f3515192",
+	'waitingSheetID',
+	'',
+	'waitingSheet',
+	'ID',
+	1,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_OIDA
+	VALUES ("26eedcd7-35f7-4ec7-927a-1353c895626d",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	0,
+	'imageID');
+INSERT INTO O_ID
+	VALUES (1,
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_OIDA
+	VALUES ("31a85447-3790-4026-885e-b5e434ee79eb",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	1,
+	'sheetID');
+INSERT INTO O_OIDA
+	VALUES ("8b2f1e7f-de59-4ffe-a675-7ceb83e36c4f",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	1,
+	'sheetSide');
+INSERT INTO O_ID
+	VALUES (2,
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540");
+INSERT INTO O_OIDA
+	VALUES ("fdebbab7-c7d6-4573-a905-1525f3515192",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	2,
+	'printSide');
+INSERT INTO O_OIDA
+	VALUES ("31a85447-3790-4026-885e-b5e434ee79eb",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	2,
+	'sheetID');
+INSERT INTO PE_PE
+	VALUES ("03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	1,
+	"28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Physical Sheet',
+	'このサブシステムは実際の出力を行うためのDMとのI/Fおよび論理シートだけでは
+表現できない出力に関する概念を抽象化したものです。
+
+このサブシステムで表現されるものには以下の項目があります。
+1. DMとのI/Fを実現する内部キュー
+2.キューが処理対象となった実シートおよび実イメージ
+3.バナー、合紙などの論理シート以外で表現されるシート（表紙は論理シートで表現される）
+
+DMとのI/Fといっても表現されるのは以下のものです。
+SC→DM
+SET_START_INFO
+SHEET_INFO
+SET_END_INFO
+JOB_END_INFO
+
+DM→SC
+NEXT_SHEET_REQ
+IMAGE_REQ
+SHEET_END
+
+JOB_START_INFOも当初含まれていましたが（モデルにもまだ存在するが）キューに
+おくことにより不具合が生じたため、現状ではJ_EJOBから直接ブリッジのコールが行われています。
+
+',
+	400,
+	'../Physical Sheet.xtuml');

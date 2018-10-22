@@ -1,0 +1,229 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("889c615d-b05f-4d28-a177-98860e8edc1c",
+	'Plane',
+	614,
+	'EI_PL',
+	'//-- 11394:20130402 Add Start (ikegaya)
+// 物理シート面についてのプレーン情報
+Modify:Add
+Modify_No:11394
+Modifier:ikegaya
+Modify_Date:20130402
+//-- 11394:20130402 Add End (ikegaya)
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("d2fbe92a-5aca-4ea7-aab2-a1e0a7198f76",
+	"889c615d-b05f-4d28-a177-98860e8edc1c",
+	'transEnd',
+	'//-- 11394:20130402 Add Start (ikegaya)
+// プレーン毎のTransEnd受信処理
+// 必要に応じてイメージ解放し、シート処理を終了する。
+//-- 11394:20130402 Add End (ikegaya)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 0104801:20140829 Add Start (saitou) 
+FER::assert( expression : not_empty self );
+//-- 0104801:20140829 Add End (saitou) 
+
+//-- 11394:20130402 Add Start (ikegaya)
+select one aPhysicalSheetFace related by self->P_PSHF[R610] ;
+FER::assert( expression : not_empty aPhysicalSheetFace );
+
+select one aPhysicalSheet related by aPhysicalSheetFace->P_PSHT[R404] ;
+FER::assert( expression : not_empty aPhysicalSheet );
+
+select one anExecutingJob related by aPhysicalSheet->J_EJOB[R429] ;
+FER::assert( expression : not_empty anExecutingJob ) ;
+
+if ( anExecutingJob.imageErase == IotSc_ImageEraseMode::eOn )
+	// イメージ転送終了でイメージ解放
+//-- 103611:20140609 Modified Start (ikegaya)
+	BL::transEnd( imageID : self.waitingImageID, color : self.color ) ;
+//-- 103611:20140609 Modified End (ikegaya)
+	// has as planeの関係を消去
+	unrelate self from aPhysicalSheetFace across R611 ;
+	delete object instance self ;
+else
+	// シート排出終了でイメージ解放
+	// NA
+end if ;
+
+//-- 103611:20140609 Modified Start (ikegaya)
+// イメージ転送終了通知（TransEnd）待ちの関係を消去
+unrelate self from aPhysicalSheetFace across R610 ;
+//-- 103611:20140609 Modified End (ikegaya)
+
+// 面排出通知（Delivered）と同期して、シート終了（既存SheetEnd受信処理と同等）
+// 面に対する全てのイメージ転送終了かつ
+// シートに対する全ての面排出終了の場合、シート終了
+select any aWaitingPlane related by aPhysicalSheetFace->EI_PL[R610] ;
+select any aWaitingPhysicalSheetFace related by aPhysicalSheet->P_PSHF[R460] ;
+if ( empty aWaitingPlane and empty aWaitingPhysicalSheetFace )
+	aPhysicalSheet.sheetCompleted() ;
+end if ;
+
+return ;
+//-- 11394:20130402 Add End (ikegaya)',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_REF
+	VALUES ("889c615d-b05f-4d28-a177-98860e8edc1c",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	0,
+	"26eedcd7-35f7-4ec7-927a-1353c895626d",
+	"8c719007-94ac-413f-baa9-b346d826674a",
+	"59d5e466-797f-4a6f-95bc-a91be7d44837",
+	"3330d78c-06d3-4c34-8ad4-70fe9b6f022c",
+	"ac9a384d-b2ae-4539-a429-90c810a3b77b",
+	"53bcd445-0b4a-44c3-ab2a-3a217a6cf4ed",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Physical Sheet Face',
+	'imageID',
+	'R610');
+INSERT INTO R_RGO_PROXY
+	VALUES ("889c615d-b05f-4d28-a177-98860e8edc1c",
+	"8c719007-94ac-413f-baa9-b346d826674a",
+	"59d5e466-797f-4a6f-95bc-a91be7d44837",
+	'../External Image.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("26eedcd7-35f7-4ec7-927a-1353c895626d",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	0,
+	"8c719007-94ac-413f-baa9-b346d826674a",
+	"3330d78c-06d3-4c34-8ad4-70fe9b6f022c",
+	'../External Image.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("ac9a384d-b2ae-4539-a429-90c810a3b77b",
+	"889c615d-b05f-4d28-a177-98860e8edc1c",
+	"26eedcd7-35f7-4ec7-927a-1353c895626d",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	0,
+	'imageID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("26eedcd7-35f7-4ec7-927a-1353c895626d",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	'../../Physical Sheet/Physical Sheet Face/Physical Sheet Face.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("ac9a384d-b2ae-4539-a429-90c810a3b77b",
+	"889c615d-b05f-4d28-a177-98860e8edc1c",
+	"00000000-0000-0000-0000-000000000000",
+	'waitingImageID',
+	'',
+	'',
+	'waitingImageID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("81606bde-ad09-42f3-a087-2261f23b1e4d",
+	"889c615d-b05f-4d28-a177-98860e8edc1c");
+INSERT INTO O_BATTR
+	VALUES ("81606bde-ad09-42f3-a087-2261f23b1e4d",
+	"889c615d-b05f-4d28-a177-98860e8edc1c");
+INSERT INTO O_ATTR
+	VALUES ("81606bde-ad09-42f3-a087-2261f23b1e4d",
+	"889c615d-b05f-4d28-a177-98860e8edc1c",
+	"ac9a384d-b2ae-4539-a429-90c810a3b77b",
+	'color',
+	'',
+	'',
+	'color',
+	0,
+	"155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_ImageColor',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_REF
+	VALUES ("889c615d-b05f-4d28-a177-98860e8edc1c",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	0,
+	"26eedcd7-35f7-4ec7-927a-1353c895626d",
+	"4a78143d-53e9-49ff-a376-57fb46e4f91d",
+	"7b3c6a51-f822-457b-8da7-6cad2fe9fce3",
+	"b0841cf2-b340-4bbc-bb5e-057a50769076",
+	"391aae3c-6ef4-4174-bf74-0c5c352fba47",
+	"009546e4-1984-4eb6-bb1a-5c8e3860fbb2",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Physical Sheet Face',
+	'imageID',
+	'R611');
+INSERT INTO R_RGO_PROXY
+	VALUES ("889c615d-b05f-4d28-a177-98860e8edc1c",
+	"4a78143d-53e9-49ff-a376-57fb46e4f91d",
+	"7b3c6a51-f822-457b-8da7-6cad2fe9fce3",
+	'../External Image.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("26eedcd7-35f7-4ec7-927a-1353c895626d",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	0,
+	"4a78143d-53e9-49ff-a376-57fb46e4f91d",
+	"b0841cf2-b340-4bbc-bb5e-057a50769076",
+	'../External Image.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("391aae3c-6ef4-4174-bf74-0c5c352fba47",
+	"889c615d-b05f-4d28-a177-98860e8edc1c",
+	"26eedcd7-35f7-4ec7-927a-1353c895626d",
+	"03660c8b-8d32-4dc6-87c8-55f252b9b540",
+	1,
+	'imageID');
+INSERT INTO O_ATTR
+	VALUES ("391aae3c-6ef4-4174-bf74-0c5c352fba47",
+	"889c615d-b05f-4d28-a177-98860e8edc1c",
+	"81606bde-ad09-42f3-a087-2261f23b1e4d",
+	'imageID',
+	'',
+	'',
+	'imageID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"889c615d-b05f-4d28-a177-98860e8edc1c");
+INSERT INTO O_OIDA
+	VALUES ("81606bde-ad09-42f3-a087-2261f23b1e4d",
+	"889c615d-b05f-4d28-a177-98860e8edc1c",
+	0,
+	'color');
+INSERT INTO O_OIDA
+	VALUES ("391aae3c-6ef4-4174-bf74-0c5c352fba47",
+	"889c615d-b05f-4d28-a177-98860e8edc1c",
+	0,
+	'imageID');
+INSERT INTO O_ID
+	VALUES (1,
+	"889c615d-b05f-4d28-a177-98860e8edc1c");
+INSERT INTO O_ID
+	VALUES (2,
+	"889c615d-b05f-4d28-a177-98860e8edc1c");
+INSERT INTO PE_PE
+	VALUES ("889c615d-b05f-4d28-a177-98860e8edc1c",
+	1,
+	"9ab1603b-91d1-40d4-b9ca-f2d5de97b938",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("9ab1603b-91d1-40d4-b9ca-f2d5de97b938",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'External Image',
+	'',
+	600,
+	'../External Image.xtuml');

@@ -1,0 +1,1202 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	'Executing Origin of Set',
+	220,
+	'S_EOS',
+	'//-- 358:20061215 Add Start (kanda)
+1セットに含まれるアノテーション対象となるシート面数
+1セット目確定時かパース終了時に設定される
+//-- 358:20061215 Add End (kanda)
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("2c8c3cae-f044-43d2-b3cf-23c5a4d6afad",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	'getRealRunLength',
+	'//-- 255:20050901 Add Start (kanda)
+引数isDisplayを追加
+(制御用と表示用で必要な値が異なるため、切り分けフラグを追加)
+//-- 255:20050901 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	1,
+	'select any anOriginParam from instances of S_OUP
+	where ( selected.ID == param.originParamID );
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero( expression : not_empty anOriginParam );
+//-- 845:20140227 Modified End (saitou) 
+
+//-- 40:20040412 Add Start
+select one anOrigin related by anOriginParam->D_OOS[R259];
+jobID = D_OOS::getJobID( sourceID : anOrigin.ID );
+overWrittenCopiesNum = PF::getOverWrittenCopiesNum( jobID : jobID );
+//-- 40:20040412 Add End
+
+tempRunLength = anOriginParam.runLength;
+//-- 40:20040412 Add Start
+if ( overWrittenCopiesNum > 0 and param.collateMode == "IOT_COLLATE_ON" )
+// ここでcopiesOverWriteが有効となるのはCollateの場合のみ
+	tempRunLength = overWrittenCopiesNum;
+end if;
+//-- 40:20040412 Add End
+
+if (	 anOriginParam.interleafMode == IotSc_InterleafMode::eOnWithImage or
+	 anOriginParam.interleafMode == IotSc_InterleafMode::eOnWithNoImage or
+	anOriginParam.nSet != IotSc_NSetMode::eOff )
+	if ( anOriginParam.nSet == IotSc_NSetMode::eOff )
+		tempRunLength = 1;
+	else
+//-- 255:20050901 Modified Start (kanda)
+		// isDisplayで処理を切り替える
+		if ( param.isDisplay )
+			// 表示用の場合はOHP分の補正はしない
+		else 
+			tempRunLength = tempRunLength + 1;
+		end if;
+//-- 255:20050901 Modified End (kanda)
+	end if;
+elif ( param.collateMode == "IOT_COLLATE_OFF" )
+	return 1;
+end if;
+
+//-- 58:20040423 Add Start
+if ( tempRunLength == 0 )
+//-- 353:20061026 Modified Start (kanda)
+//	return 1;
+	tempRunLength = 1;
+//-- 353:20061026 Modified End (kanda)
+
+end if;
+//-- 58:20040423 Add End
+
+//-- 353:20061026 Add Start (kanda)
+// コレートで位置指定サンプル外数の場合は要求部数を増やす
+if (  param.isDisplay )
+	// 表示用の場合は補正しない
+
+elif ( param.collateMode == "IOT_COLLATE_ON" )
+	select one aReplicator related by self->S_RPR[R273];
+	 tempRunLength = aReplicator.getOutputRunlength(runlength : tempRunLength);
+end if;
+//-- 353:20061026 Add End (kanda)
+
+return tempRunLength ;
+',
+	1,
+	'',
+	"f8f10430-897b-48c6-93f2-53913ac197b5");
+INSERT INTO O_TPARM
+	VALUES ("e428b0be-2869-43b0-9149-6cc1aeb32fcf",
+	"2c8c3cae-f044-43d2-b3cf-23c5a4d6afad",
+	'originParamID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"5d38bd82-96a6-4346-8322-d000b4dc5f24",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("533798f7-4a53-41a1-9a06-2f8eed99a52e",
+	"2c8c3cae-f044-43d2-b3cf-23c5a4d6afad",
+	'collateMode',
+	"f2f1c728-eccb-4ba2-8b38-410e69f40e89",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("f2f1c728-eccb-4ba2-8b38-410e69f40e89",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_CollateMode',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("5d38bd82-96a6-4346-8322-d000b4dc5f24",
+	"2c8c3cae-f044-43d2-b3cf-23c5a4d6afad",
+	'isDisplay',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'',
+	"533798f7-4a53-41a1-9a06-2f8eed99a52e",
+	'');
+INSERT INTO O_TFR
+	VALUES ("bd420236-93bb-4458-adec-b870269cb549",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	'getSetType',
+	'',
+	"b2dc3f7c-637a-4f47-9ba7-62828a3c588e",
+	0,
+	'select any anOriginParam from instances of S_OUP
+	where ( selected.ID == param.originParamID );
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero( expression : not_empty anOriginParam );
+//-- 845:20140227 Modified End (saitou) 
+
+
+// 以下の場合合紙をキャンセルする
+// Sectionの紙質がOHPでない場合
+// 合紙の指定トレイとセクションの指定トレイが同じ場合
+interleafMode = anOriginParam.interleafMode;
+nSetMode = anOriginParam.nSet;
+if ( interleafMode == IotSc_InterleafMode::eOnWithImage or 
+     interleafMode == IotSc_InterleafMode::eOnWithNoImage )
+	if ( param.setNo == 1 )
+		return IotSc_SetType::eOHPInserterSet;
+	end if;
+end if;
+if (  nSetMode == IotSc_NSetMode::eOn )
+	if ( param.setNo == 1 )
+		return IotSc_SetType::eOHPSet;
+	else
+		return IotSc_SetType::eNSet;
+	end if;
+end if;
+
+return IotSc_SetType::eNormalSet;',
+	1,
+	'',
+	"2c8c3cae-f044-43d2-b3cf-23c5a4d6afad");
+INSERT INTO O_TPARM
+	VALUES ("92fe1708-d8ab-42ce-9f67-8dcc9fc183e6",
+	"bd420236-93bb-4458-adec-b870269cb549",
+	'originParamID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("c24dc388-3bcb-4b06-837e-a84129e373f4",
+	"bd420236-93bb-4458-adec-b870269cb549",
+	'setNo',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"92fe1708-d8ab-42ce-9f67-8dcc9fc183e6",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("b2dc3f7c-637a-4f47-9ba7-62828a3c588e",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_SetType',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("f8f10430-897b-48c6-93f2-53913ac197b5",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	'getCollateSetNoByUserRunLength',
+	'//-- 387:20070223 Add Start (kanda)
+ユーザにとっての部数に対応するコレートセットのnoをリターンする。
+位置指定サンプルの場合はサンプルのnoを返す。
+//-- 387:20070223 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	1,
+	'//-- 387:20070223 Add Start (kanda)
+select any anOriginParam from instances of S_OUP
+	where ( selected.ID == param.originParamID );
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero( expression : not_empty anOriginParam );
+//-- 845:20140227 Modified End (saitou) 
+
+select one anOrigin related by anOriginParam->D_OOS[R259];
+jobID = D_OOS::getJobID( sourceID : anOrigin.ID );
+
+tempRunLength = param.userRunLength;
+
+if ( tempRunLength == 0 )
+	tempRunLength = 1;
+end if;
+
+// 位置指定サンプル外数分を補正
+if ( param.collateMode == "IOT_COLLATE_ON" )
+	select one aReplicator related by self->S_RPR[R273];
+	tempRunLength = tempRunLength
+		+ aReplicator.getCreatedSpotCheckPositionNum(currentNo : tempRunLength, byUserPosition : TRUE );
+end if;
+
+// NSet Jobの補正
+if ( anOriginParam.nSet != IotSc_NSetMode::eOff )
+	tempRunLength = tempRunLength + 1;
+elif ( param.collateMode == "IOT_COLLATE_OFF" )
+	return 1;
+end if;
+
+return tempRunLength ;
+
+//-- 387:20070223 Add End (kanda)
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("3074e981-1d91-4976-85d5-a53bbebfb175",
+	"f8f10430-897b-48c6-93f2-53913ac197b5",
+	'originParamID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"808b38f4-61b8-42c3-baf0-e959f1879f5e",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("808b38f4-61b8-42c3-baf0-e959f1879f5e",
+	"f8f10430-897b-48c6-93f2-53913ac197b5",
+	'collateMode',
+	"f2f1c728-eccb-4ba2-8b38-410e69f40e89",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("03cd36e5-213d-4619-a2a2-eebd21e2b867",
+	"f8f10430-897b-48c6-93f2-53913ac197b5",
+	'userRunLength',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"3074e981-1d91-4976-85d5-a53bbebfb175",
+	'');
+INSERT INTO O_TFR
+	VALUES ("9c2e00b2-3257-47c2-828c-d28eae392687",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	'setSheetParseParam',
+	'//-- 747:20120320 Modified Start (ikegaya)
+// setDfaProfileParam()->setSheetParseParam()にFunc名を変更
+//-- 747:20120320 Modified End (ikegaya)
+
+//-- 630:20101206 Add Start (kanda)
+// DFA Profileのセットに関するパラメータをaSheetParseMementoに設定する
+Modify:Add
+Modify_No:630
+Modifier:kanda
+Modify_Date:20101206
+//-- 630:20101206 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 631:20101206 Add Start (kanda)
+//-- 650:20110311 Modified Start (kanda)
+select one anExecutingJob related by self->S_NPS[R236]->J_EJOB[R252];
+//-- 848:20140424 Add Start (saitou)
+FER::assert( expression : not_empty anExecutingJob );
+//-- 848:20140424 Add End (saitou)
+
+//-- 771:20120611 Modified Start (ikegaya)
+if ((anExecutingJob.dfaProfileNo > 0) or (anExecutingJob.isPBJob))
+//-- 771:20120611 Modified End (ikegaya)
+	select one aSheetParseMemento related by anExecutingJob->S_SPM[R282];
+	FER::assert(expression : not_empty aSheetParseMemento);
+	select one aSetParam related by self->S_OSP[R260];
+	FER::assert(expression : not_empty aSetParam);
+
+	aSheetParseMemento.setSetParam(dfaProfileNo : anExecutingJob.dfaProfileNo,
+					outtray : aSetParam.outtray, exitFace : aSetParam.exitFace);
+
+end if;
+//-- 650:20110311 Modified End (kanda)
+//-- 631:20101206 Add End (kanda)
+',
+	1,
+	'',
+	"afbc4fb8-244f-4389-967b-ebb5cb9d8d9f");
+INSERT INTO O_TFR
+	VALUES ("afbc4fb8-244f-4389-967b-ebb5cb9d8d9f",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	'moderateDfaProfile',
+	'//-- 630:20101206 Add Start (kanda)
+// DFA プロファイルを調停する
+Modify:Add
+Modify_No:630
+Modifier:kanda
+Modify_Date:20101206
+//-- 630:20101206 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 631:20101206 Add Start (kanda)
+select any anExecutingJob from instances of J_EJOB
+	where (selected.jobID == self.jobID);
+FER::assert(expression : not_empty anExecutingJob);
+
+// DFAファイルに合わせて指示されたパラメータを調停する
+if (anExecutingJob.dfaProfileNo > 0)
+	// 排出順の調停
+	select one aSetParam related by self->S_OSP[R260];
+	exitFace = aSetParam.exitFace;
+	aSetParam.exitFace
+		= FINL::moderateDfaProfileExitFace(profile : anExecutingJob.dfaProfileNo, exitFace : exitFace);
+end if;
+//-- 631:20101206 Add End (kanda)
+',
+	1,
+	'',
+	"bd420236-93bb-4458-adec-b870269cb549");
+INSERT INTO O_NBATTR
+	VALUES ("5a013554-36e8-449f-863a-96dc3c4f0543",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("5a013554-36e8-449f-863a-96dc3c4f0543",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("5a013554-36e8-449f-863a-96dc3c4f0543",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'AUTOINC:TRUE
+AUTOINC_DATASIZE:4
+AUTOINC_LLIMIT:1
+AUTOINC_HLIMIT:0x7fffffff
+AUTOINC_DIR:UP
+AUTOINC_UNDEF:0',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6",
+	0,
+	"c30a9d8d-d20b-429b-9ee8-c8763f07e3f1",
+	"949bb878-4a77-44a2-8284-7ec2c758213b",
+	"c8181afa-a06f-4a38-9afe-5c21cf9dde7b",
+	"01e700e4-ad68-4eb9-bb8e-131aa9977af4",
+	"9f676015-03a3-4d01-8e57-7f3695f30b1c",
+	"85ce7399-0fd6-4af5-ba16-fbe6e544674d",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Normal Print Step',
+	'jobID',
+	'R231');
+INSERT INTO R_RGO_PROXY
+	VALUES ("37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"949bb878-4a77-44a2-8284-7ec2c758213b",
+	"c8181afa-a06f-4a38-9afe-5c21cf9dde7b",
+	'../Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("c30a9d8d-d20b-429b-9ee8-c8763f07e3f1",
+	"3427bbc1-12ca-4138-adc3-a687e11281c6",
+	0,
+	"949bb878-4a77-44a2-8284-7ec2c758213b",
+	"01e700e4-ad68-4eb9-bb8e-131aa9977af4",
+	'../Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("9f676015-03a3-4d01-8e57-7f3695f30b1c",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	1,
+	'jobID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	'../../Job/Job/Job.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("9f676015-03a3-4d01-8e57-7f3695f30b1c",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"5a013554-36e8-449f-863a-96dc3c4f0543",
+	'jobID',
+	'',
+	'',
+	'jobID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("9d30178b-5350-4c33-a353-2a2a530dd7c0",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("9d30178b-5350-4c33-a353-2a2a530dd7c0",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("9d30178b-5350-4c33-a353-2a2a530dd7c0",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"9f676015-03a3-4d01-8e57-7f3695f30b1c",
+	'no',
+	'',
+	'',
+	'no',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467",
+	0,
+	"6c3c1d1c-e63c-4b9e-9087-67d1b9ecc4e2",
+	"37d45dbc-27a3-40ed-840b-0423fd1160c4",
+	"ae9a0a0e-f33f-429a-bef7-391ebc030ae7",
+	"ff192445-daef-4b54-8eeb-5bbb1fe3569a",
+	"bb8e4ae1-2d16-44a5-95ad-4a4a4f8051f5",
+	"47c25492-1648-409a-a4d2-18b9955c3d61",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Origin Of Set',
+	'ID',
+	'R215');
+INSERT INTO R_RGO_PROXY
+	VALUES ("37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"37d45dbc-27a3-40ed-840b-0423fd1160c4",
+	"ae9a0a0e-f33f-429a-bef7-391ebc030ae7",
+	'../Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("6c3c1d1c-e63c-4b9e-9087-67d1b9ecc4e2",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467",
+	0,
+	"37d45dbc-27a3-40ed-840b-0423fd1160c4",
+	"ff192445-daef-4b54-8eeb-5bbb1fe3569a",
+	'../Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("bb8e4ae1-2d16-44a5-95ad-4a4a4f8051f5",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"6c3c1d1c-e63c-4b9e-9087-67d1b9ecc4e2",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("6c3c1d1c-e63c-4b9e-9087-67d1b9ecc4e2",
+	"4dd79c24-a02e-4edb-8174-e899d79c6467",
+	'../../Document/Origin Of Set/Origin Of Set.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("bb8e4ae1-2d16-44a5-95ad-4a4a4f8051f5",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"9d30178b-5350-4c33-a353-2a2a530dd7c0",
+	'originID',
+	'',
+	'',
+	'originID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("2694c578-45bc-4646-a601-ac4e2396a8d0",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("2694c578-45bc-4646-a601-ac4e2396a8d0",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("2694c578-45bc-4646-a601-ac4e2396a8d0",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"bb8e4ae1-2d16-44a5-95ad-4a4a4f8051f5",
+	'ohpInserterMode',
+	'',
+	'',
+	'ohpInserterMode',
+	0,
+	"675194fc-c3cd-47b7-8a48-5bb007b201ed",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("675194fc-c3cd-47b7-8a48-5bb007b201ed",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_OHPInserterMode',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("487e8039-0ac3-4a48-8900-0781c056e132",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("487e8039-0ac3-4a48-8900-0781c056e132",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("487e8039-0ac3-4a48-8900-0781c056e132",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"2694c578-45bc-4646-a601-ac4e2396a8d0",
+	'currentRunLength',
+	'',
+	'',
+	'currentRunLength',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("bbca8db7-bfc0-490a-b385-b77c6f17433a",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("bbca8db7-bfc0-490a-b385-b77c6f17433a",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("bbca8db7-bfc0-490a-b385-b77c6f17433a",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"487e8039-0ac3-4a48-8900-0781c056e132",
+	'logicalSheetNum',
+	'',
+	'',
+	'logicalSheetNum',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"832218a6-b1d8-46e3-b7ad-a10815bef1c6",
+	1,
+	"7268d40b-bd9b-4b9a-92f4-01dd91b2e58e",
+	"8f1ffa92-338c-4a28-b46c-613e20a81667",
+	"fb157278-5c41-4553-b773-82804c5d34ad",
+	"06cf0e62-ed14-4e60-a9cb-e219a387465d",
+	"fffb5351-8e34-4250-accc-3eda71dce137",
+	"9de8dfc3-edb2-4692-bbed-5648379c4358",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Collate Set',
+	'ID',
+	'R235.''is now processing''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"8f1ffa92-338c-4a28-b46c-613e20a81667",
+	"fb157278-5c41-4553-b773-82804c5d34ad",
+	'../Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("7268d40b-bd9b-4b9a-92f4-01dd91b2e58e",
+	"832218a6-b1d8-46e3-b7ad-a10815bef1c6",
+	1,
+	"8f1ffa92-338c-4a28-b46c-613e20a81667",
+	"06cf0e62-ed14-4e60-a9cb-e219a387465d",
+	'../Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("fffb5351-8e34-4250-accc-3eda71dce137",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"7268d40b-bd9b-4b9a-92f4-01dd91b2e58e",
+	"832218a6-b1d8-46e3-b7ad-a10815bef1c6",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("7268d40b-bd9b-4b9a-92f4-01dd91b2e58e",
+	"832218a6-b1d8-46e3-b7ad-a10815bef1c6",
+	'../Collate Set/Collate Set.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("fffb5351-8e34-4250-accc-3eda71dce137",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"bbca8db7-bfc0-490a-b385-b77c6f17433a",
+	'currentCollateSetID',
+	'',
+	'',
+	'currentCollateSetID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	0,
+	"d4097803-ff95-4cbc-b7d3-5e380298eb44",
+	"40ef438f-a8ae-4ea7-84c5-90a7f984f917",
+	"f470287f-3f01-4bee-8c12-5c44e5d4bc60",
+	"8afc9b8c-352d-43fe-ad9d-9473cfce770a",
+	"f921cddc-f0bd-47c0-80fe-08d5789f6bc4",
+	"a12f3b95-1958-46df-b799-f78b8283ca23",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Set Parameter',
+	'ID',
+	'R260.''uses as default''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"40ef438f-a8ae-4ea7-84c5-90a7f984f917",
+	"f470287f-3f01-4bee-8c12-5c44e5d4bc60",
+	'../Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("d4097803-ff95-4cbc-b7d3-5e380298eb44",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	0,
+	"40ef438f-a8ae-4ea7-84c5-90a7f984f917",
+	"8afc9b8c-352d-43fe-ad9d-9473cfce770a",
+	'../Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("f921cddc-f0bd-47c0-80fe-08d5789f6bc4",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"d4097803-ff95-4cbc-b7d3-5e380298eb44",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("d4097803-ff95-4cbc-b7d3-5e380298eb44",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	'../Set Parameter/Set Parameter.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("f921cddc-f0bd-47c0-80fe-08d5789f6bc4",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"fffb5351-8e34-4250-accc-3eda71dce137",
+	'defaultSetParamID',
+	'',
+	'',
+	'defaultSetParamID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("b8b4f274-5b14-4164-a292-f0077fb23f96",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("b8b4f274-5b14-4164-a292-f0077fb23f96",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("b8b4f274-5b14-4164-a292-f0077fb23f96",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"f921cddc-f0bd-47c0-80fe-08d5789f6bc4",
+	'outputColorMode',
+	'',
+	'',
+	'outputColorMode',
+	0,
+	"a2533753-ebb4-42e8-900c-d24196d37324",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("a2533753-ebb4-42e8-900c-d24196d37324",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_ColorType',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("7dad5ee5-a9fb-4ff6-b982-70d00c852107",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("7dad5ee5-a9fb-4ff6-b982-70d00c852107",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("7dad5ee5-a9fb-4ff6-b982-70d00c852107",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"b8b4f274-5b14-4164-a292-f0077fb23f96",
+	'offsetMode',
+	'このOffsetModeには以下の値が設定可能です
+
+eOff : OFF
+eNew : 全てのCollateSetに対して新しい位置のOFFSET位置を要求します
+eNew_1stSet : 最初のCollateSetに対してNewを指示し、それ以外はContの位置を指示します
+eCont : 全てのCollateSetに対してContを指示します',
+	'',
+	'offsetMode',
+	0,
+	"fb1d19e9-ef53-45f0-a301-0775247e6274",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("fb1d19e9-ef53-45f0-a301-0775247e6274",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_OffsetMode',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("6615ee81-beb1-47ee-bf5f-be00eb610acf",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("6615ee81-beb1-47ee-bf5f-be00eb610acf",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("6615ee81-beb1-47ee-bf5f-be00eb610acf",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"7dad5ee5-a9fb-4ff6-b982-70d00c852107",
+	'annotationTotalPageNum',
+	'',
+	'',
+	'annotationTotalPageNum',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("a2ec0d4b-9d1b-4403-9f09-e748abbfb669",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("a2ec0d4b-9d1b-4403-9f09-e748abbfb669",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("a2ec0d4b-9d1b-4403-9f09-e748abbfb669",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"6615ee81-beb1-47ee-bf5f-be00eb610acf",
+	'totalPageNum',
+	'',
+	'',
+	'totalPageNum',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("ab573805-8a3d-4f63-a6ef-ed4845fc7183",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("ab573805-8a3d-4f63-a6ef-ed4845fc7183",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("ab573805-8a3d-4f63-a6ef-ed4845fc7183",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"a2ec0d4b-9d1b-4403-9f09-e748abbfb669",
+	'topAnnotationNo',
+	'',
+	'',
+	'topAnnotationNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("1066af68-8668-48f5-9d97-3ebd9e613293",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("1066af68-8668-48f5-9d97-3ebd9e613293",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("1066af68-8668-48f5-9d97-3ebd9e613293",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"ab573805-8a3d-4f63-a6ef-ed4845fc7183",
+	'topSheetNoInSet',
+	'',
+	'',
+	'topSheetNoInSet',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("13ad43df-cbc9-4007-b247-a03cf1a399d7",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("13ad43df-cbc9-4007-b247-a03cf1a399d7",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("13ad43df-cbc9-4007-b247-a03cf1a399d7",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"1066af68-8668-48f5-9d97-3ebd9e613293",
+	'isParseEnd',
+	'',
+	'',
+	'isParseEnd',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("06af154a-2918-4d1b-bcad-8248f88b2760",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("06af154a-2918-4d1b-bcad-8248f88b2760",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("06af154a-2918-4d1b-bcad-8248f88b2760",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"13ad43df-cbc9-4007-b247-a03cf1a399d7",
+	'collateMode',
+	'',
+	'',
+	'collateMode',
+	0,
+	"f2f1c728-eccb-4ba2-8b38-410e69f40e89",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("d75e2f49-baa6-47ab-8620-735025a49ccd",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("d75e2f49-baa6-47ab-8620-735025a49ccd",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("d75e2f49-baa6-47ab-8620-735025a49ccd",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"06af154a-2918-4d1b-bcad-8248f88b2760",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("94cf8456-02a6-47d1-9db4-25b0a9c03d7d",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("94cf8456-02a6-47d1-9db4-25b0a9c03d7d",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("94cf8456-02a6-47d1-9db4-25b0a9c03d7d",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"d75e2f49-baa6-47ab-8620-735025a49ccd",
+	'batesTotalNo',
+	'//-- 313:20060424 Add Start (tsuchitoi)
+Bates番号のトータル数
+//-- 313:20060424 Add End (tsuchitoi)
+',
+	'',
+	'batesTotalNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"df927f03-db66-4031-be74-2046114966c2",
+	0,
+	"20e7fe41-95c9-44b6-bca2-a920e4445e44",
+	"2ec175b7-8dcf-48dc-bc39-20ea7a2d1cb9",
+	"b7ef165f-8fff-4fb2-b256-f9262d444753",
+	"bef9a69c-b14d-4cbe-bfab-46e6d2ca8c4b",
+	"11e2b206-fd1b-434f-844c-38b7161d7aed",
+	"0b828f67-92b9-4d2b-aad9-45cd03c3650b",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Replicator',
+	'ID',
+	'R273');
+INSERT INTO R_RGO_PROXY
+	VALUES ("37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"2ec175b7-8dcf-48dc-bc39-20ea7a2d1cb9",
+	"b7ef165f-8fff-4fb2-b256-f9262d444753",
+	'../Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("20e7fe41-95c9-44b6-bca2-a920e4445e44",
+	"df927f03-db66-4031-be74-2046114966c2",
+	0,
+	"2ec175b7-8dcf-48dc-bc39-20ea7a2d1cb9",
+	"bef9a69c-b14d-4cbe-bfab-46e6d2ca8c4b",
+	'../Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("11e2b206-fd1b-434f-844c-38b7161d7aed",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"20e7fe41-95c9-44b6-bca2-a920e4445e44",
+	"df927f03-db66-4031-be74-2046114966c2",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("20e7fe41-95c9-44b6-bca2-a920e4445e44",
+	"df927f03-db66-4031-be74-2046114966c2",
+	'../Replicator/Replicator.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("11e2b206-fd1b-434f-844c-38b7161d7aed",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"94cf8456-02a6-47d1-9db4-25b0a9c03d7d",
+	'replicaterID',
+	'',
+	'',
+	'replicaterID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("f65ebb87-f9b9-427c-8ac9-b62208bb706b",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("f65ebb87-f9b9-427c-8ac9-b62208bb706b",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("f65ebb87-f9b9-427c-8ac9-b62208bb706b",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"11e2b206-fd1b-434f-844c-38b7161d7aed",
+	'totalAnnotationTargetCount',
+	'',
+	'',
+	'totalAnnotationTargetCount',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c91a5b7c-f533-4880-8284-672eec27894c",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("c91a5b7c-f533-4880-8284-672eec27894c",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("c91a5b7c-f533-4880-8284-672eec27894c",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"f65ebb87-f9b9-427c-8ac9-b62208bb706b",
+	'totalAnnotationTargetCountExceptCoverAndInserter',
+	'//-- 358:20061215 Add Start (kanda)
+1セットに含まれるアノテーション対象となる表紙合紙数を除いたシート面数
+1セット目確定時かパース終了時に設定される
+//-- 358:20061215 Add End (kanda)
+',
+	'',
+	'totalAnnotationTargetCountExceptCoverAndInserter',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("465f70ee-4097-4a5c-9431-f07d7b3c4122",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("465f70ee-4097-4a5c-9431-f07d7b3c4122",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("465f70ee-4097-4a5c-9431-f07d7b3c4122",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"c91a5b7c-f533-4880-8284-672eec27894c",
+	'totalValidPageCount',
+	'//-- 445:20071108 Add Start (kanda)
+有効なページの通し番号の総数(ブランクページ以外のページ)
+Modify:Add
+Modify_No:445
+Modifier:kanda
+Modify_Date:20071108
+//-- 445:20071108 Add End (kanda)
+',
+	'',
+	'totalValidPageCount',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c1275dd7-9780-47f5-be40-f971e649b158",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("c1275dd7-9780-47f5-be40-f971e649b158",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("c1275dd7-9780-47f5-be40-f971e649b158",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"465f70ee-4097-4a5c-9431-f07d7b3c4122",
+	'firstValidPageCountOnJob',
+	'//-- 571:20090619 Add Start (kanda)
+// セット先頭のジョブ全体の有効ページ数
+Modify:Add
+Modify_No:571
+Modifier:kanda
+Modify_Date:20090619
+//-- 571:20090619 Add End (kanda)
+',
+	'',
+	'firstValidPageCountOnJob',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("aeeea6a7-7e3c-4c57-900d-41a418eeb8ff",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("aeeea6a7-7e3c-4c57-900d-41a418eeb8ff",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("aeeea6a7-7e3c-4c57-900d-41a418eeb8ff",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"c1275dd7-9780-47f5-be40-f971e649b158",
+	'totalValidPageCountOnJob',
+	'//-- 571:20090619 Add Start (kanda)
+// セット内のジョブ全体の有効ページ総数
+Modify:Add
+Modify_No:571
+Modifier:kanda
+Modify_Date:20090619
+//-- 571:20090619 Add End (kanda)
+',
+	'',
+	'totalValidPageCountOnJob',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	0,
+	"5a013554-36e8-449f-863a-96dc3c4f0543",
+	"405b60c0-909c-4f9d-8520-faca84070ade",
+	"7c5a205d-0659-4bc2-ac60-89d7d09c7c2b",
+	"9557f418-7add-409c-a6ff-20bb73ea15ea",
+	"44b5fd37-3ab1-4cc1-843a-4c66a83a2d93",
+	"8a81622a-dd36-4708-b3f7-119f597b16a3",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Executing Origin of Set',
+	'ID',
+	'R280.''is next to''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"405b60c0-909c-4f9d-8520-faca84070ade",
+	"7c5a205d-0659-4bc2-ac60-89d7d09c7c2b",
+	'../Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("5a013554-36e8-449f-863a-96dc3c4f0543",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	0,
+	"405b60c0-909c-4f9d-8520-faca84070ade",
+	"9557f418-7add-409c-a6ff-20bb73ea15ea",
+	'../Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("44b5fd37-3ab1-4cc1-843a-4c66a83a2d93",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"5a013554-36e8-449f-863a-96dc3c4f0543",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	0,
+	'ID');
+INSERT INTO O_ATTR
+	VALUES ("44b5fd37-3ab1-4cc1-843a-4c66a83a2d93",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"aeeea6a7-7e3c-4c57-900d-41a418eeb8ff",
+	'nextSetID',
+	'//-- 627:20100913 Add Start (kanda)
+// EOSの前後関係を表す
+Modify:Add
+Modify_No:627
+Modifier:kanda
+Modify_Date:20100913
+//-- 627:20100913 Add End (kanda)',
+	'',
+	'nextSetID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("1d16111b-53d9-43ba-8d28-35d6b798c04d",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("1d16111b-53d9-43ba-8d28-35d6b798c04d",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("1d16111b-53d9-43ba-8d28-35d6b798c04d",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"44b5fd37-3ab1-4cc1-843a-4c66a83a2d93",
+	'isSetRecovery',
+	'//-- 627:20101012 Add Start (kanda)
+Modify:Add
+Modify_No:627
+Modifier:kanda
+Modify_Date:20101012
+//-- 627:20101012 Add End (kanda)
+',
+	'',
+	'isSetRecovery',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("01304b22-69ac-4d3c-b5de-ce999974f97d",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("01304b22-69ac-4d3c-b5de-ce999974f97d",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("01304b22-69ac-4d3c-b5de-ce999974f97d",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"1d16111b-53d9-43ba-8d28-35d6b798c04d",
+	'isSheetParseEnd',
+	'//-- 630:20101206 Add Start (kanda)
+// シートパースが終了したかどうか
+Modify:Add
+Modify_No:630
+Modifier:kanda
+Modify_Date:20101206
+//-- 630:20101206 Add End (kanda)
+',
+	'',
+	'isSheetParseEnd',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("b6d96c80-2066-4ac5-acb5-19e96d73e0ca",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("b6d96c80-2066-4ac5-acb5-19e96d73e0ca",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("b6d96c80-2066-4ac5-acb5-19e96d73e0ca",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"01304b22-69ac-4d3c-b5de-ce999974f97d",
+	'initialSequentialPageNoOnJob',
+	'//-- 642:20110224 Add Start (sasaki_r)
+Modify:Add
+Modify_No:642
+Modifier:sasaki_r
+Modify_Date:20110224
+
+型名：integer
+意味：先行セットで割り当てた最後のページ通し番号
+
+//-- 642:20110224 Add End (sasaki_r)
+
+',
+	'',
+	'initialSequentialPageNoOnJob',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c8e33f0e-7454-458d-a654-438ae231ff0c",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_BATTR
+	VALUES ("c8e33f0e-7454-458d-a654-438ae231ff0c",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_ATTR
+	VALUES ("c8e33f0e-7454-458d-a654-438ae231ff0c",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	"b6d96c80-2066-4ac5-acb5-19e96d73e0ca",
+	'totalSequentialPageNoOnJob',
+	'//-- 642:20110224 Add Start (sasaki_r)
+Modify:Add
+Modify_No:642
+Modifier:sasaki_r
+Modify_Date:20110224
+
+型名：integer
+意味：セット内の全PAGE数
+
+//-- 642:20110224 Add End (sasaki_r)
+
+',
+	'',
+	'totalSequentialPageNoOnJob',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_OIDA
+	VALUES ("5a013554-36e8-449f-863a-96dc3c4f0543",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO O_OIDA
+	VALUES ("11e2b206-fd1b-434f-844c-38b7161d7aed",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	1,
+	'replicaterID');
+INSERT INTO O_ID
+	VALUES (2,
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d");
+INSERT INTO PE_PE
+	VALUES ("37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	1,
+	"3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Sheet',
+	'',
+	200,
+	'../Sheet.xtuml');

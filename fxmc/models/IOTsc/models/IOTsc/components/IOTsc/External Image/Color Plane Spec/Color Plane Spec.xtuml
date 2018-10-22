@@ -1,0 +1,182 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("4f2f28ba-f285-46e2-bedb-f2ed1fc543e3",
+	'Color Plane Spec',
+	612,
+	'EI_CPS',
+	'//-- 358:20061219 Add Start(tsuchitoi)
+色を構成するプレーンの仕様を表すクラスです。
+例えば
+
+R => Y,M
+G=> Y,C
+B=> M,C
+
+のような感じです。ただし、ここの分析ではRに含まれているカラーとGに含まれているカラーのPlane Colorは別インスタンスとして定義しています。
+（そうしないと関連クラスを用いる必要があり、面倒なため）
+
+//-- 358:20061219 Add End(tsuchitoi)
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("23133dcd-0d56-4189-9396-e9d19fa79576",
+	"4f2f28ba-f285-46e2-bedb-f2ed1fc543e3",
+	'getPlaneNum',
+	'色に含まれるカラーの数を返します。
+
+存在しないカラーを指定されたら落ちます。',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'//--358:20061219 Add Start (tsuchitoi)
+
+select any aColorPlaneSpec from instances of EI_CPS where selected.color == param.color;
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero(expression: not_empty aColorPlaneSpec);
+//-- 845:20140227 Modified End (saitou) 
+
+select many planeColors related by aColorPlaneSpec->EI_PC[R609];
+
+return cardinality planeColors; 
+
+
+//--358:20061219 Add End (tsuchitoi)
+',
+	1,
+	'',
+	"05fd3e73-48df-49f1-b945-05863c1bf65b");
+INSERT INTO O_TPARM
+	VALUES ("8ac2ae50-4ab2-4764-bb53-dc9e9e7c943b",
+	"23133dcd-0d56-4189-9396-e9d19fa79576",
+	'color',
+	"8b70262d-c859-45a3-9b86-d7858584682c",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("8b70262d-c859-45a3-9b86-d7858584682c",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_ColorMode',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("05fd3e73-48df-49f1-b945-05863c1bf65b",
+	"4f2f28ba-f285-46e2-bedb-f2ed1fc543e3",
+	'getPlaneColor',
+	'カラーに含まれる色を返します。
+
+noは順序付けを示しています。
+noに含まれるplaneColorがいない場合、0が返ります。',
+	"155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	0,
+	'//--358:20061219 Add Start (tsuchitoi)
+
+select any aColorPlaneSpec from instances of EI_CPS where selected.color == param.color;
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero(expression: not_empty aColorPlaneSpec);
+//-- 845:20140227 Modified End (saitou) 
+
+select any aPlaneColor related by aColorPlaneSpec->EI_PC[R609] where ( selected.no == param.no );
+
+if ( empty aPlaneColor )
+    return "0";
+else
+    return aPlaneColor.planeColor;
+end if;
+
+//--358:20061219 Add End (tsuchitoi)
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("78e17473-7feb-48e5-957b-804168ebe301",
+	"05fd3e73-48df-49f1-b945-05863c1bf65b",
+	'color',
+	"155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_ImageColor',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("455570bc-5f7e-49e6-9d6e-3563d4764d75",
+	"05fd3e73-48df-49f1-b945-05863c1bf65b",
+	'no',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"78e17473-7feb-48e5-957b-804168ebe301",
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("46cbe1a0-4de8-4da0-81e8-328c6567936a",
+	"4f2f28ba-f285-46e2-bedb-f2ed1fc543e3");
+INSERT INTO O_BATTR
+	VALUES ("46cbe1a0-4de8-4da0-81e8-328c6567936a",
+	"4f2f28ba-f285-46e2-bedb-f2ed1fc543e3");
+INSERT INTO O_ATTR
+	VALUES ("46cbe1a0-4de8-4da0-81e8-328c6567936a",
+	"4f2f28ba-f285-46e2-bedb-f2ed1fc543e3",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("f09dee12-27bb-4c5c-9309-9f930ad517be",
+	"4f2f28ba-f285-46e2-bedb-f2ed1fc543e3");
+INSERT INTO O_BATTR
+	VALUES ("f09dee12-27bb-4c5c-9309-9f930ad517be",
+	"4f2f28ba-f285-46e2-bedb-f2ed1fc543e3");
+INSERT INTO O_ATTR
+	VALUES ("f09dee12-27bb-4c5c-9309-9f930ad517be",
+	"4f2f28ba-f285-46e2-bedb-f2ed1fc543e3",
+	"46cbe1a0-4de8-4da0-81e8-328c6567936a",
+	'color',
+	'',
+	'',
+	'color',
+	0,
+	"155a7730-a7b4-4824-a4d4-597d3c27df3b",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"4f2f28ba-f285-46e2-bedb-f2ed1fc543e3");
+INSERT INTO O_OIDA
+	VALUES ("46cbe1a0-4de8-4da0-81e8-328c6567936a",
+	"4f2f28ba-f285-46e2-bedb-f2ed1fc543e3",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"4f2f28ba-f285-46e2-bedb-f2ed1fc543e3");
+INSERT INTO O_ID
+	VALUES (2,
+	"4f2f28ba-f285-46e2-bedb-f2ed1fc543e3");
+INSERT INTO PE_PE
+	VALUES ("4f2f28ba-f285-46e2-bedb-f2ed1fc543e3",
+	1,
+	"9ab1603b-91d1-40d4-b9ca-f2d5de97b938",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("9ab1603b-91d1-40d4-b9ca-f2d5de97b938",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'External Image',
+	'',
+	600,
+	'../External Image.xtuml');

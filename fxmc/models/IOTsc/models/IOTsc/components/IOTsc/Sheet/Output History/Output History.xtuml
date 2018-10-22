@@ -1,0 +1,449 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("010d10a3-9f08-4885-a4b5-96ca6dbac564",
+	'Output History',
+	235,
+	'S_OH',
+	'Modify:Add
+Modify_No:423
+Modifier:kanda
+Modify_Date:20070727
+
+//-- 423:20070727 Add Start (kanda)
+排出単位ごとへの排出指示をあらわす。
+排出指示をしたときに生成して、用紙排出時にisSheetDeliveredをTRUEにすること。
+//-- 423:20070727 Add End (kanda)
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("313c8210-e85d-452b-b486-eaa1c1e90340",
+	"010d10a3-9f08-4885-a4b5-96ca6dbac564",
+	'sheetSent',
+	'//-- 423:20070720 Add Start (kanda)
+outtrayで指定された排出先に排出指示をだしたことを通知する.
+outtrayで指定されたインスタンスが無ければ生成する/
+//-- 423:20070720 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 423:20070720 Add Start (kanda)
+select any aOutputUnit from instances of S_OU
+	where ( selected.ID == param.outputUnitID );
+FER::assert( expression : not_empty aOutputUnit );
+
+select any aOutputOrder related by aOutputUnit->S_OH[R278]
+	where ( selected.outtray == param.outtray );
+
+if ( empty aOutputOrder )
+	S_OH::createInstance( outputUnitID : aOutputUnit.ID, outtray : param.outtray );
+
+	select one aSheet related by aOutputUnit->S_SHT[R277];
+	select one aCollateSet related by aOutputUnit->S_CS[R277];
+	select one anExecutingJob related by aOutputUnit->J_EJOB[R277];
+
+	// 上の階層も更新する
+	if ( not_empty aSheet )
+		select one aCollateSet related by  aSheet->S_CS[R213];
+		select one aOutputUnitSet related by aCollateSet->S_OU[R277];
+		select any aOutputOrderSet related by aOutputUnitSet->S_OH[R278] 	where ( selected.outtray == param.outtray );
+		if ( empty aOutputOrderSet )
+			S_OH::createInstance( outputUnitID : aOutputUnitSet.ID, outtray : param.outtray );
+		end if;
+
+		select one anExecutingJob related by aCollateSet->S_EOS[R232]->S_NPS[R231]->J_EJOB[R252];
+		select one aOutputUnitJob related by anExecutingJob->S_OU[R277];
+		select any aOutputOrderJob related by aOutputUnitJob->S_OH[R278] where ( selected.outtray == param.outtray );
+		if ( empty aOutputOrderJob )
+			S_OH::createInstance( outputUnitID : aOutputUnitJob.ID, outtray : param.outtray);
+		end if;
+	elif ( not_empty aCollateSet )
+		select one anExecutingJob related by aCollateSet->S_EOS[R232]->S_NPS[R231]->J_EJOB[R252];
+		select one aOutputUnitJob related by anExecutingJob->S_OU[R277];
+		select any aOutputOrderJob related by aOutputUnitJob->S_OH[R278] where ( selected.outtray == param.outtray );
+		if ( empty aOutputOrderJob )
+			S_OH::createInstance( outputUnitID : aOutputUnitJob.ID, outtray : param.outtray);
+		end if;
+	end if;
+end if;
+//-- 423:20070720 Add End (kanda)
+',
+	1,
+	'',
+	"4c3f09c9-4c16-4d0f-b2e0-bf85181e7027");
+INSERT INTO O_TPARM
+	VALUES ("a1d1eee2-a5de-4612-b096-e3f7fb459e7d",
+	"313c8210-e85d-452b-b486-eaa1c1e90340",
+	'outputUnitID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("881806e0-4fac-43ec-8436-7cfcd98befa2",
+	"313c8210-e85d-452b-b486-eaa1c1e90340",
+	'outtray',
+	"5eaeeed9-440b-4894-b3a5-21b624ade58a",
+	0,
+	'',
+	"a1d1eee2-a5de-4612-b096-e3f7fb459e7d",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("5eaeeed9-440b-4894-b3a5-21b624ade58a",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_OutputTray',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("4c3f09c9-4c16-4d0f-b2e0-bf85181e7027",
+	"010d10a3-9f08-4885-a4b5-96ca6dbac564",
+	'sheetDelivered',
+	'//-- 423:20070720 Add Start (kanda)
+用紙が排出されたことを通知する.
+上流のOutputUnitへもあわせて通知する/
+//-- 423:20070720 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 423:20070720 Add Start (kanda)
+select any aOutputUnit from instances of S_OU
+	where ( selected.ID == param.outputUnitID );
+FER::assert( expression : not_empty aOutputUnit );
+
+select any aOutputOrder related by aOutputUnit->S_OH[R278]
+	where ( selected.outtray == param.outtray );
+FER::assert( expression : not_empty aOutputOrder );
+
+// その排出単位で初めてのDeliveredのみ処理すればよい
+if ( not aOutputOrder.isSheetDelivered )
+	aOutputOrder.isSheetDelivered = TRUE;
+
+	select one aSheet related by aOutputUnit->S_SHT[R277];
+	select one aCollateSet related by aOutputUnit->S_CS[R277];
+	select one anExecutingJob related by aOutputUnit->J_EJOB[R277];
+
+	// 上の階層も排出済みにする
+	if ( not_empty aSheet )
+		select one aCollateSet related by aSheet->S_CS[R213];
+		select one anExecutingJob related by aCollateSet->S_EOS[R232]->S_NPS[R231]->J_EJOB[R252];
+
+		select any aOutputOrderSet related by aCollateSet->S_OU[R277]->S_OH[R278]
+			where ( selected.outtray == param.outtray );
+		select any aOutputOrderJob related by anExecutingJob->S_OU[R277]->S_OH[R278]
+			where ( selected.outtray == param.outtray );
+//-- 845:20140225 Add Start (saitou) 
+		FER::assert( expression : not_empty aOutputOrderJob );
+		FER::assert( expression : not_empty aOutputOrderSet );
+//-- 845:20140225 Add End (saitou) 
+		aOutputOrderSet.isSheetDelivered = TRUE;
+		aOutputOrderJob.isSheetDelivered = TRUE;
+
+		// 割り込み再開情報の更新
+		select one aRestartInfo related by anExecutingJob->S_JRI[R200];
+		select any aOutputOrder related by aOutputUnit->S_OH[R278]
+			where ( selected.outtray != param.outtray and selected.isSheetDelivered );
+		if ( empty aOutputOrder )
+			aRestartInfo.firstOuttrayInSheet = param.outtray;
+			aRestartInfo.secondOuttrayInSheet = "0";
+		else
+			aRestartInfo.secondOuttrayInSheet = param.outtray;
+		end if;
+		select any aOutputOrderSet related by aCollateSet->S_OU[R277]->S_OH[R278]
+			where ( selected.outtray != param.outtray and selected.isSheetDelivered );
+		if ( empty aOutputOrderSet )
+			aRestartInfo.firstOuttrayInSet = param.outtray;
+			aRestartInfo.secondOuttrayInSet = "0";
+		else
+			aRestartInfo.secondOuttrayInSet = param.outtray;
+		end if;
+		select any aOutputOrderJob related by anExecutingJob->S_OU[R277]->S_OH[R278]
+			where ( selected.outtray != param.outtray and selected.isSheetDelivered );
+		if ( empty aOutputOrderJob )
+			aRestartInfo.firstOuttrayInJob = param.outtray;
+			aRestartInfo.secondOuttrayInJob = "0";
+		else
+			aRestartInfo.secondOuttrayInJob = param.outtray;
+		end if;
+	elif ( not_empty aCollateSet )
+		select one anExecutingJob related by aCollateSet->S_EOS[R232]->S_NPS[R231]->J_EJOB[R252];
+		select any aOutputOrderJob related by anExecutingJob->S_OU[R277]->S_OH[R278]
+			where ( selected.outtray == param.outtray );
+//-- 845:20140225 Add Start (saitou) 
+		FER::assert( expression : not_empty aOutputOrderJob );
+//-- 845:20140225 Add End (saitou) 
+		aOutputOrderJob.isSheetDelivered = TRUE;
+
+		// 割り込み再開情報の更新
+		select one aRestartInfo related by anExecutingJob->S_JRI[R200];
+		select any aOutputOrder related by aOutputUnit->S_OH[R278]
+			where ( selected.outtray != param.outtray and selected.isSheetDelivered );
+		if ( empty aOutputOrder )
+			aRestartInfo.firstOuttrayInSet = param.outtray;
+			aRestartInfo.secondOuttrayInSet = "0";
+		else
+			aRestartInfo.secondOuttrayInSet = param.outtray;
+		end if;
+		select any aOutputOrderJob related by anExecutingJob->S_OU[R277]->S_OH[R278]
+			where ( selected.outtray != param.outtray and selected.isSheetDelivered );
+		if ( empty aOutputOrderJob )
+			aRestartInfo.firstOuttrayInJob = param.outtray;
+			aRestartInfo.secondOuttrayInJob = "0";
+		else
+			aRestartInfo.secondOuttrayInJob = param.outtray;
+		end if;
+	else
+		// 割り込み再開情報の更新
+		select one aRestartInfo related by anExecutingJob->S_JRI[R200];
+		select any aOutputOrder related by aOutputUnit->S_OH[R278]
+			where ( selected.outtray != param.outtray and selected.isSheetDelivered );
+		if ( empty aOutputOrder )
+			aRestartInfo.firstOuttrayInJob = param.outtray;
+		else
+			aRestartInfo.secondOuttrayInJob = param.outtray;
+		end if;
+	end if;
+end if;
+//-- 423:20070720 Add End (kanda)
+',
+	1,
+	'',
+	"2b493fde-b412-4ff4-919d-67ac03a1d7e9");
+INSERT INTO O_TPARM
+	VALUES ("2dcd7400-3900-41bb-a291-4781d9041cfc",
+	"4c3f09c9-4c16-4d0f-b2e0-bf85181e7027",
+	'outputUnitID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("61856dfe-5944-400c-a2ca-598480f84e0c",
+	"4c3f09c9-4c16-4d0f-b2e0-bf85181e7027",
+	'outtray',
+	"5eaeeed9-440b-4894-b3a5-21b624ade58a",
+	0,
+	'',
+	"2dcd7400-3900-41bb-a291-4781d9041cfc",
+	'');
+INSERT INTO O_TFR
+	VALUES ("3ff7580d-ffc6-411e-af2a-48256847099d",
+	"010d10a3-9f08-4885-a4b5-96ca6dbac564",
+	'createInstance',
+	'//-- 423:20070720 Add Start (kanda)
+インスタンス生成します
+//-- 423:20070720 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 423:20070720 Add Start (kanda)
+select any aOutputUnit from instances of S_OU where ( selected.ID == param.outputUnitID );
+FER::assert( expression : not_empty aOutputUnit );
+
+create object instance aOutputOrder of S_OH;
+aOutputOrder.isSheetDelivered = FALSE;
+aOutputOrder.outtray = param.outtray;
+relate aOutputUnit to aOutputOrder across R278;
+//-- 423:20070720 Add End (kanda)
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("95d051a0-549c-459a-9603-0e9f95d89e92",
+	"3ff7580d-ffc6-411e-af2a-48256847099d",
+	'outputUnitID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("dd9d071f-ce4f-43d0-a090-1e2df52d0c4d",
+	"3ff7580d-ffc6-411e-af2a-48256847099d",
+	'outtray',
+	"5eaeeed9-440b-4894-b3a5-21b624ade58a",
+	0,
+	'',
+	"95d051a0-549c-459a-9603-0e9f95d89e92",
+	'');
+INSERT INTO O_TFR
+	VALUES ("2b493fde-b412-4ff4-919d-67ac03a1d7e9",
+	"010d10a3-9f08-4885-a4b5-96ca6dbac564",
+	'isAnySheetCreated',
+	'//-- 423:20070725 Add Start (kanda)
+outputUnitIDで指定した排出単位のouttrayで指定した排出先に
+排出し指示をしたかを返す
+//-- 423:20070725 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'//-- 423:20070725 Add Start (kanda)
+select any aOutputUnit from instances of S_OU
+	where ( selected.ID == param.outputUnitID );
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero( expression : not_empty aOutputUnit );
+//-- 845:20140227 Modified End (saitou) 
+
+select any aOutputOrder related by aOutputUnit->S_OH[R278]
+	where ( selected.outtray == param.outtray );
+
+return ( not_empty aOutputOrder );
+//-- 423:20070725 Add End (kanda)
+',
+	1,
+	'',
+	"3ff7580d-ffc6-411e-af2a-48256847099d");
+INSERT INTO O_TPARM
+	VALUES ("f8e1dc3f-ae37-4a9d-9344-eccffcf89e05",
+	"2b493fde-b412-4ff4-919d-67ac03a1d7e9",
+	'outputUnitID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("d73e492d-ff89-4b80-b12a-d3e0ccaae908",
+	"2b493fde-b412-4ff4-919d-67ac03a1d7e9",
+	'outtray',
+	"5eaeeed9-440b-4894-b3a5-21b624ade58a",
+	0,
+	'',
+	"f8e1dc3f-ae37-4a9d-9344-eccffcf89e05",
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("978e96ab-03e8-43a3-955f-b391c069f44c",
+	"010d10a3-9f08-4885-a4b5-96ca6dbac564");
+INSERT INTO O_BATTR
+	VALUES ("978e96ab-03e8-43a3-955f-b391c069f44c",
+	"010d10a3-9f08-4885-a4b5-96ca6dbac564");
+INSERT INTO O_ATTR
+	VALUES ("978e96ab-03e8-43a3-955f-b391c069f44c",
+	"010d10a3-9f08-4885-a4b5-96ca6dbac564",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("010d10a3-9f08-4885-a4b5-96ca6dbac564",
+	"1f04dc59-dc06-4b16-9925-382af529b54f",
+	0,
+	"741b05ab-8987-4245-a3d5-154743ddcae9",
+	"d6d0225a-c703-4dab-9932-363efcbab16d",
+	"477d6d80-2c02-4cf8-905a-5589fe31f72b",
+	"d617241e-3c32-44f9-9f00-7f5c9284e70c",
+	"cf0b5b73-ee0f-43e2-a0fc-beac97980ec1",
+	"30e4368b-16af-41ab-b168-e724a3dfab69",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Output Unit',
+	'ID',
+	'R278');
+INSERT INTO R_RGO_PROXY
+	VALUES ("010d10a3-9f08-4885-a4b5-96ca6dbac564",
+	"d6d0225a-c703-4dab-9932-363efcbab16d",
+	"477d6d80-2c02-4cf8-905a-5589fe31f72b",
+	'../Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("741b05ab-8987-4245-a3d5-154743ddcae9",
+	"1f04dc59-dc06-4b16-9925-382af529b54f",
+	0,
+	"d6d0225a-c703-4dab-9932-363efcbab16d",
+	"d617241e-3c32-44f9-9f00-7f5c9284e70c",
+	'../Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("cf0b5b73-ee0f-43e2-a0fc-beac97980ec1",
+	"010d10a3-9f08-4885-a4b5-96ca6dbac564",
+	"741b05ab-8987-4245-a3d5-154743ddcae9",
+	"1f04dc59-dc06-4b16-9925-382af529b54f",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("741b05ab-8987-4245-a3d5-154743ddcae9",
+	"1f04dc59-dc06-4b16-9925-382af529b54f",
+	'../Output Unit/Output Unit.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("cf0b5b73-ee0f-43e2-a0fc-beac97980ec1",
+	"010d10a3-9f08-4885-a4b5-96ca6dbac564",
+	"978e96ab-03e8-43a3-955f-b391c069f44c",
+	'outputUnitID',
+	'',
+	'',
+	'outputUnitID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("1bb848f7-9572-4356-9c8a-2c9a15fcfc4e",
+	"010d10a3-9f08-4885-a4b5-96ca6dbac564");
+INSERT INTO O_BATTR
+	VALUES ("1bb848f7-9572-4356-9c8a-2c9a15fcfc4e",
+	"010d10a3-9f08-4885-a4b5-96ca6dbac564");
+INSERT INTO O_ATTR
+	VALUES ("1bb848f7-9572-4356-9c8a-2c9a15fcfc4e",
+	"010d10a3-9f08-4885-a4b5-96ca6dbac564",
+	"cf0b5b73-ee0f-43e2-a0fc-beac97980ec1",
+	'outtray',
+	'',
+	'',
+	'outtray',
+	0,
+	"5eaeeed9-440b-4894-b3a5-21b624ade58a",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("d38630f8-99d7-4d16-a8d5-c512778941b9",
+	"010d10a3-9f08-4885-a4b5-96ca6dbac564");
+INSERT INTO O_BATTR
+	VALUES ("d38630f8-99d7-4d16-a8d5-c512778941b9",
+	"010d10a3-9f08-4885-a4b5-96ca6dbac564");
+INSERT INTO O_ATTR
+	VALUES ("d38630f8-99d7-4d16-a8d5-c512778941b9",
+	"010d10a3-9f08-4885-a4b5-96ca6dbac564",
+	"1bb848f7-9572-4356-9c8a-2c9a15fcfc4e",
+	'isSheetDelivered',
+	'',
+	'',
+	'isSheetDelivered',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"010d10a3-9f08-4885-a4b5-96ca6dbac564");
+INSERT INTO O_OIDA
+	VALUES ("978e96ab-03e8-43a3-955f-b391c069f44c",
+	"010d10a3-9f08-4885-a4b5-96ca6dbac564",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"010d10a3-9f08-4885-a4b5-96ca6dbac564");
+INSERT INTO O_ID
+	VALUES (2,
+	"010d10a3-9f08-4885-a4b5-96ca6dbac564");
+INSERT INTO PE_PE
+	VALUES ("010d10a3-9f08-4885-a4b5-96ca6dbac564",
+	1,
+	"3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Sheet',
+	'',
+	200,
+	'../Sheet.xtuml');

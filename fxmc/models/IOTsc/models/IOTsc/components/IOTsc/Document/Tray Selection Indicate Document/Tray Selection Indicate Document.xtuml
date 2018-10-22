@@ -1,0 +1,151 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("9b1a23b9-5a02-498a-b599-c89e3709bc2f",
+	'Tray Selection Indicate Document',
+	309,
+	'D_TSD',
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("9af32228-996c-442d-b13d-fb7cb8916d26",
+	"9b1a23b9-5a02-498a-b599-c89e3709bc2f",
+	'remove',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'// このtransformerはD_TSDとS_TSPの関係(R310)、
+//  D_TSDとSection/Pageの関係(R309)の関係を切って
+//  D_TSD / D_TSPを削除します。Section/Pageは削除しないので注意してください
+
+select any aTraySelectDocument from instances of D_TSD
+	where ( selected.ID == param.traySelectDocumentID );
+FER::assert( expression : not_empty aTraySelectDocument );
+
+select one aTraySelectParam related by aTraySelectDocument->S_TSP[R310];
+if ( not_empty aTraySelectParam )
+	unrelate aTraySelectParam from aTraySelectDocument across R310;
+	S_TSP::remove( traySelectID : aTraySelectParam.ID );
+end if;
+
+select one aSection related by aTraySelectDocument->D_SEC[R309];
+select one aPage related by aTraySelectDocument->D_PAGE[R309];
+if ( not_empty aSection )
+	unrelate aSection from aTraySelectDocument across R309;
+elif ( not_empty aPage )
+	unrelate aPage from aTraySelectDocument across R309;
+else
+	FER::assert( expression : FALSE );
+end if;
+
+delete object instance aTraySelectDocument;
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("4387a9c0-b1da-4832-b721-bc9a70efbee4",
+	"9af32228-996c-442d-b13d-fb7cb8916d26",
+	'traySelectDocumentID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("80f02e97-8f3f-4787-99fe-71fefcca0196",
+	"9b1a23b9-5a02-498a-b599-c89e3709bc2f");
+INSERT INTO O_BATTR
+	VALUES ("80f02e97-8f3f-4787-99fe-71fefcca0196",
+	"9b1a23b9-5a02-498a-b599-c89e3709bc2f");
+INSERT INTO O_ATTR
+	VALUES ("80f02e97-8f3f-4787-99fe-71fefcca0196",
+	"9b1a23b9-5a02-498a-b599-c89e3709bc2f",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("9b1a23b9-5a02-498a-b599-c89e3709bc2f",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	0,
+	"127fb87e-d2b1-4495-8fd6-ae8379592708",
+	"036e488d-1190-4a18-a03b-f012c3710c3c",
+	"a4eeee92-f80b-4cf9-939f-79b71a75f3f0",
+	"9e80f14d-d2d7-49e0-b1cf-cb06d1d6aace",
+	"39e39551-270b-44c1-9218-96c2860598c1",
+	"352a8df0-b416-4eda-9fc1-d6645f85fa2b",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Tray Selection Parameter',
+	'ID',
+	'R310');
+INSERT INTO R_RGO_PROXY
+	VALUES ("9b1a23b9-5a02-498a-b599-c89e3709bc2f",
+	"036e488d-1190-4a18-a03b-f012c3710c3c",
+	"a4eeee92-f80b-4cf9-939f-79b71a75f3f0",
+	'../Document.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("127fb87e-d2b1-4495-8fd6-ae8379592708",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	0,
+	"036e488d-1190-4a18-a03b-f012c3710c3c",
+	"9e80f14d-d2d7-49e0-b1cf-cb06d1d6aace",
+	'../Document.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("39e39551-270b-44c1-9218-96c2860598c1",
+	"9b1a23b9-5a02-498a-b599-c89e3709bc2f",
+	"127fb87e-d2b1-4495-8fd6-ae8379592708",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("127fb87e-d2b1-4495-8fd6-ae8379592708",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	'../../Sheet/Tray Selection Parameter/Tray Selection Parameter.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("39e39551-270b-44c1-9218-96c2860598c1",
+	"9b1a23b9-5a02-498a-b599-c89e3709bc2f",
+	"80f02e97-8f3f-4787-99fe-71fefcca0196",
+	'traySelectionID',
+	'',
+	'',
+	'traySelectionID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"9b1a23b9-5a02-498a-b599-c89e3709bc2f");
+INSERT INTO O_OIDA
+	VALUES ("80f02e97-8f3f-4787-99fe-71fefcca0196",
+	"9b1a23b9-5a02-498a-b599-c89e3709bc2f",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"9b1a23b9-5a02-498a-b599-c89e3709bc2f");
+INSERT INTO O_ID
+	VALUES (2,
+	"9b1a23b9-5a02-498a-b599-c89e3709bc2f");
+INSERT INTO PE_PE
+	VALUES ("9b1a23b9-5a02-498a-b599-c89e3709bc2f",
+	1,
+	"0ea143e2-8254-4ee0-b406-3901240ee102",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("0ea143e2-8254-4ee0-b406-3901240ee102",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Document',
+	'',
+	300,
+	'../Document.xtuml');

@@ -1,0 +1,163 @@
+-- BP 7.1.6 content: Package syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO EP_PKG
+	VALUES ("514bfbd4-15b6-43e6-ac25-e74d00db6aac",
+	"00000000-0000-0000-0000-000000000000",
+	"c75c10f5-4738-4630-a8ff-026788ef5442",
+	'ib_Ticker',
+	'',
+	0);
+INSERT INTO GD_MD
+	VALUES ("44255d34-523d-41c2-b5e8-479a8a48a10b",
+	112,
+	"514bfbd4-15b6-43e6-ac25-e74d00db6aac",
+	108,
+	0,
+	0,
+	1,
+	1,
+	1,
+	12,
+	1,
+	0,
+	0,
+	200,
+	150,
+	0,
+	'',
+	'Tick::pkg_tick::Componenets::co_Ticker::ib_Ticker');
+INSERT INTO GD_GE
+	VALUES ("28ae39a4-4c74-41ea-b1ab-0874b3eaac16",
+	"44255d34-523d-41c2-b5e8-479a8a48a10b",
+	"1fe321c7-d6fa-4b66-8c30-84ab0181bd9d",
+	21,
+	0,
+	'Tick::pkg_tick::Componenets::co_Ticker::ib_Ticker::Ticker');
+INSERT INTO GD_SHP
+	VALUES ("28ae39a4-4c74-41ea-b1ab-0874b3eaac16");
+INSERT INTO GD_NCS
+	VALUES ("28ae39a4-4c74-41ea-b1ab-0874b3eaac16");
+INSERT INTO DIM_ND
+	VALUES (200.000000,
+	150.000000,
+	"28ae39a4-4c74-41ea-b1ab-0874b3eaac16");
+INSERT INTO DIM_GE
+	VALUES (0.000000,
+	0.000000,
+	"28ae39a4-4c74-41ea-b1ab-0874b3eaac16",
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO DIM_ELE
+	VALUES ("28ae39a4-4c74-41ea-b1ab-0874b3eaac16",
+	0,
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO DIM_DIA
+	VALUES ("44255d34-523d-41c2-b5e8-479a8a48a10b",
+	'',
+	1.000000,
+	4000.000000,
+	3000.000000,
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO S_SYNC
+	VALUES ("4e5cf638-f026-4b55-9674-796945c6115d",
+	"00000000-0000-0000-0000-000000000000",
+	'ib_Ticker_reset',
+	'',
+	'// void ib_Ticker_reset( Rte_Instance self, sint16 resetCount )
+//{
+//	sint16*	count;
+//	count = Rte_Pim_pm_count( self );
+//	*count = resetCount;
+//}
+
+select any iTicker from instances of  TICKER;
+  iTicker.count = param.resetCount;
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'');
+INSERT INTO S_SPARM
+	VALUES ("628a4b2f-b592-45aa-beb3-0cd188f99674",
+	"4e5cf638-f026-4b55-9674-796945c6115d",
+	'resetCount',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO PE_PE
+	VALUES ("4e5cf638-f026-4b55-9674-796945c6115d",
+	1,
+	"514bfbd4-15b6-43e6-ac25-e74d00db6aac",
+	"00000000-0000-0000-0000-000000000000",
+	1);
+INSERT INTO S_SYNC
+	VALUES ("6ee7eab2-301c-4b17-ad85-21e474fdf215",
+	"00000000-0000-0000-0000-000000000000",
+	'ib_Ticker_initialize',
+	'',
+	'// FUNC(void, RTE_APPL_CODE) ib_Ticker_ru_Ticker_Initialize(Rte_Instance self)
+//{
+//	ib_Ticker_reset( self, 0 );
+//}
+select any iTicker from instances of TICKER;
+if (empty iTicker)
+	create object instance iTicker of TICKER;
+end if;
+::ib_Ticker_reset(resetCount:0);
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'');
+INSERT INTO PE_PE
+	VALUES ("6ee7eab2-301c-4b17-ad85-21e474fdf215",
+	1,
+	"514bfbd4-15b6-43e6-ac25-e74d00db6aac",
+	"00000000-0000-0000-0000-000000000000",
+	1);
+INSERT INTO S_SYNC
+	VALUES ("2921955f-e0d1-40e8-8209-a9411c72a4ca",
+	"00000000-0000-0000-0000-000000000000",
+	'ib_TickerTimer',
+	'',
+	'// FUNC(void, RTE_APPL_CODE) ib_Ticker_ru_TickerTimer( Rte_Instance self ) 
+//{
+//	sint16* count;
+//	count = Rte_Pim_pm_count( self );
+//	(*count)++;
+//	Rte_Write_pt_TickReq_tick_count( self, *count );
+//}
+
+select any iTicker from instances of  TICKER;
+iTicker.count = iTicker.count + 1;
+send pt_TickReq_tick::count(count:iTicker.count);',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'');
+INSERT INTO PE_PE
+	VALUES ("2921955f-e0d1-40e8-8209-a9411c72a4ca",
+	1,
+	"514bfbd4-15b6-43e6-ac25-e74d00db6aac",
+	"00000000-0000-0000-0000-000000000000",
+	1);
+INSERT INTO PE_PE
+	VALUES ("514bfbd4-15b6-43e6-ac25-e74d00db6aac",
+	1,
+	"00000000-0000-0000-0000-000000000000",
+	"2156135d-4fd4-47a3-9c1a-806dc9bc775a",
+	7);
+INSERT INTO C_C_PROXY
+	VALUES ("2156135d-4fd4-47a3-9c1a-806dc9bc775a",
+	"00000000-0000-0000-0000-000000000000",
+	"00000000-0000-0000-0000-000000000000",
+	'co_Ticker',
+	'autosar40.swcomponent.components.impl.ApplicationSwComponentTypeImpl@14991a0 (shortName: co_Ticker)',
+	0,
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'../co_Ticker.xtuml');
+INSERT INTO S_SYS_PROXY
+	VALUES ("c75c10f5-4738-4630-a8ff-026788ef5442",
+	'Tick',
+	1,
+	'../../../../Tick.xtuml');

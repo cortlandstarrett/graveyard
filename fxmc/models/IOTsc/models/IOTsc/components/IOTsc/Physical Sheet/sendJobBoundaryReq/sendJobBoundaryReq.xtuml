@@ -1,0 +1,229 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("c1cd4766-fadb-49d7-935e-ca8b30f93ae5",
+	'sendJobBoundaryReq',
+	433,
+	'P_SJBR',
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("1670fe90-c83a-42c8-96e2-69bed66680f9",
+	"c1cd4766-fadb-49d7-935e-ca8b30f93ae5",
+	'create',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'create object instance aSendJobBoundaryReq of P_SJBR;
+aSendJobBoundaryReq.jobID = param.jobID;
+
+docInfoReqID = P_SDIR::create();
+select any aSendDocInfo from instances of P_SDIR
+    where( selected.requestID == docInfoReqID );
+FER::assert( expression : not_empty aSendDocInfo );
+
+relate aSendJobBoundaryReq to aSendDocInfo across R467;
+//-- 0106001:20150206 Add Start (ikegaya)
+select any anExecutingJob from instances of J_EJOB where (selected.jobID == param.jobID);
+FER::assert(expression : not_empty anExecutingJob);
+
+anExecutingJob.isJobEndNotified = TRUE;	// 0106001:20150225 add (saitou)
+
+select one aJobRequestAccepter related by anExecutingJob->J_JOB[R104]->J_JRA[R102];
+FER::assert(expression : not_empty aJobRequestAccepter);
+
+//-- 0106953:20150312 Add Start (ikegaya)
+select any aPhysicalSheetRecovery from instances of SR_PSR;
+select any anExecutingJob from instances of J_EJOB where (selected.isWaitingSetRecoveryProcessEnd);
+if (not_empty aPhysicalSheetRecovery)
+	SR_PSR::nextPhysicalSheetRecovery();
+elif (not_empty anExecutingJob)
+	generate J_EJOB3:jobStartCheck to anExecutingJob;
+else
+//-- 0106953:20150325 Add End (ikegaya)
+	generate J_JRA5:allowToProcessJob to aJobRequestAccepter;
+//-- 0106953:20150325 Add Start (ikegaya)
+end if;
+//-- 0106953:20150312 Add End (ikegaya)
+//-- 0106001:20150206 Add End (ikegaya)
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("0870a4ed-9ada-4f6a-b86d-51e2453f7732",
+	"1670fe90-c83a-42c8-96e2-69bed66680f9",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("52e1a3be-f4a3-44b6-b65b-914f6fd5b4c8",
+	"c1cd4766-fadb-49d7-935e-ca8b30f93ae5",
+	'send',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'IOTD::sendJobBoundary( jobID : self.jobID );
+
+//-- 0105669:20141209 Add Start (ikegaya)
+//-- 0106001:20150225 Deleted Start (saitou)
+// move
+//select any anExecutingJob from instances of J_EJOB where (selected.jobID == self.jobID);
+//FER::assert(expression : not_empty anExecutingJob);
+//anExecutingJob.isJobEndNotified = TRUE;
+//-- 0106001:20150225 Deleted End (saitou)
+
+//-- 0106001:20150206 Deleted Start (ikegaya)
+// move
+//select one aJobRequestAccepter related by anExecutingJob->J_JOB[R104]->J_JRA[R102];
+//FER::assert(expression : not_empty aJobRequestAccepter);
+
+//generate J_JRA7 : checkJobAcceptable to aJobRequestAccepter;
+//-- 0106001:20150206 Deleted End (ikegaya)
+//-- 0105669:20141209 Add end (ikegaya)
+return;
+',
+	1,
+	'',
+	"31b7cb78-cd54-4a42-b406-feb45b8c7361");
+INSERT INTO O_TFR
+	VALUES ("31b7cb78-cd54-4a42-b406-feb45b8c7361",
+	"c1cd4766-fadb-49d7-935e-ca8b30f93ae5",
+	'getJobID',
+	'',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	1,
+	'return self.jobID ;',
+	1,
+	'',
+	"1670fe90-c83a-42c8-96e2-69bed66680f9");
+INSERT INTO O_NBATTR
+	VALUES ("2322c770-ed42-42d6-b94f-b06a54b39bb2",
+	"c1cd4766-fadb-49d7-935e-ca8b30f93ae5");
+INSERT INTO O_BATTR
+	VALUES ("2322c770-ed42-42d6-b94f-b06a54b39bb2",
+	"c1cd4766-fadb-49d7-935e-ca8b30f93ae5");
+INSERT INTO O_ATTR
+	VALUES ("2322c770-ed42-42d6-b94f-b06a54b39bb2",
+	"c1cd4766-fadb-49d7-935e-ca8b30f93ae5",
+	"00000000-0000-0000-0000-000000000000",
+	'jobID',
+	'',
+	'',
+	'jobID',
+	0,
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("c1cd4766-fadb-49d7-935e-ca8b30f93ae5",
+	"184b6ef4-c512-41c2-894b-52517cb996fd",
+	0,
+	"0072ba0c-444d-4457-8474-5750cd0c74b4",
+	"5a7a9592-4574-4c36-8d98-deac178bb4c7",
+	"4c323076-0f32-472a-9004-2b131125797b",
+	"a47e6c95-87a7-4dd0-b4a3-67eefb51f1bb",
+	"824c78a2-50e1-4781-89f6-3f06be60d3ce",
+	"4703f8d0-af00-4058-b32a-4ea9ef7fbd33",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'sendDocInfoReq',
+	'requestID',
+	'R467');
+INSERT INTO R_RGO_PROXY
+	VALUES ("c1cd4766-fadb-49d7-935e-ca8b30f93ae5",
+	"5a7a9592-4574-4c36-8d98-deac178bb4c7",
+	"4c323076-0f32-472a-9004-2b131125797b",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("0072ba0c-444d-4457-8474-5750cd0c74b4",
+	"184b6ef4-c512-41c2-894b-52517cb996fd",
+	0,
+	"5a7a9592-4574-4c36-8d98-deac178bb4c7",
+	"a47e6c95-87a7-4dd0-b4a3-67eefb51f1bb",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("824c78a2-50e1-4781-89f6-3f06be60d3ce",
+	"c1cd4766-fadb-49d7-935e-ca8b30f93ae5",
+	"0072ba0c-444d-4457-8474-5750cd0c74b4",
+	"184b6ef4-c512-41c2-894b-52517cb996fd",
+	1,
+	'requestID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("0072ba0c-444d-4457-8474-5750cd0c74b4",
+	"184b6ef4-c512-41c2-894b-52517cb996fd",
+	'../sendDocInfoReq/sendDocInfoReq.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("824c78a2-50e1-4781-89f6-3f06be60d3ce",
+	"c1cd4766-fadb-49d7-935e-ca8b30f93ae5",
+	"2322c770-ed42-42d6-b94f-b06a54b39bb2",
+	'requestID',
+	'',
+	'',
+	'requestID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"c1cd4766-fadb-49d7-935e-ca8b30f93ae5");
+INSERT INTO O_OIDA
+	VALUES ("824c78a2-50e1-4781-89f6-3f06be60d3ce",
+	"c1cd4766-fadb-49d7-935e-ca8b30f93ae5",
+	0,
+	'requestID');
+INSERT INTO O_ID
+	VALUES (1,
+	"c1cd4766-fadb-49d7-935e-ca8b30f93ae5");
+INSERT INTO O_ID
+	VALUES (2,
+	"c1cd4766-fadb-49d7-935e-ca8b30f93ae5");
+INSERT INTO PE_PE
+	VALUES ("c1cd4766-fadb-49d7-935e-ca8b30f93ae5",
+	1,
+	"28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Physical Sheet',
+	'このサブシステムは実際の出力を行うためのDMとのI/Fおよび論理シートだけでは
+表現できない出力に関する概念を抽象化したものです。
+
+このサブシステムで表現されるものには以下の項目があります。
+1. DMとのI/Fを実現する内部キュー
+2.キューが処理対象となった実シートおよび実イメージ
+3.バナー、合紙などの論理シート以外で表現されるシート（表紙は論理シートで表現される）
+
+DMとのI/Fといっても表現されるのは以下のものです。
+SC→DM
+SET_START_INFO
+SHEET_INFO
+SET_END_INFO
+JOB_END_INFO
+
+DM→SC
+NEXT_SHEET_REQ
+IMAGE_REQ
+SHEET_END
+
+JOB_START_INFOも当初含まれていましたが（モデルにもまだ存在するが）キューに
+おくことにより不具合が生じたため、現状ではJ_EJOBから直接ブリッジのコールが行われています。
+
+',
+	400,
+	'../Physical Sheet.xtuml');

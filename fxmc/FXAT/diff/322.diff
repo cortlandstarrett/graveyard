@@ -1,0 +1,44 @@
+Index: q.sys.populate.arc
+===================================================================
+--- q.sys.populate.arc	(revision 321)
++++ q.sys.populate.arc	(revision 322)
+@@ -2553,6 +2553,12 @@
+   .select one r_rel related by right_te_lnk->ACT_LNK[R2042]->R_REL[R681]
+   .assign te_lnk.rel_number = right_te_lnk.rel_number
+   .select one te_class related by r_rel->R_ASSOC[R206]->R_ASSR[R211]->R_RGO[R205]->R_OIR[R203]->O_OBJ[R201]->TE_CLASS[R2019]
++  .//-- 021:20130403 Add Start (nomura)
++  .select one aone related by r_rel->R_ASSOC[R206]->R_AONE[R209]
++  .select one aoth related by r_rel->R_ASSOC[R206]->R_AOTH[R210]
++  .select one assr related by r_rel->R_ASSOC[R206]->R_ASSR[R211]
++  .//-- 021:20130403 Add End (nomura)
++  .//.print "+++ aone:${aone.Obj_ID} aoth:${aoth.Obj_ID} assr:${assr.Obj_ID}"
+   .// relate te_lnk to te_class across R2076;
+   .assign te_lnk.te_classGeneratedName = te_class.GeneratedName
+   .// end relate
+@@ -2563,9 +2569,15 @@
+   .assign te_lnk.Mult = te_oir.Mult
+   .assign te_lnk.assoc_type = te_oir.assoc_type
+   .// Reflexive associatives put the relationship phrase onto the AONE/AOTH data members.
++  .//.print "right_te_lnk.rel_phrase:${right_te_lnk.rel_phrase}"
++  .//.print "te_lnk.Mult:${te_lnk.Mult}"
++  .//-- 021:20130403 Modified Start (nomura)
++  .if (aone.Obj_ID == aoth.Obj_ID )
+   .if ( "" != right_te_lnk.rel_phrase )
+     .assign te_lnk.linkage = ( te_lnk.linkage + "_" ) + "$_{right_te_lnk.rel_phrase}"
+   .end if
++  .end if
++  .//-- 021:20130403 Modified End (nomura)
+   .if ( not_empty left_te_lnk )
+     .// relate left_te_lnk to te_lnk across R2075.'succeeds';
+     .assign left_te_lnk.next_ID = te_lnk.ID
+@@ -2582,6 +2594,10 @@
+   .assign right_te_lnk.Mult = 0
+   .assign right_te_lnk.left = te_lnk.linkage
+   .assign attr_result = te_lnk
++.print "+++ te_lnk ID:${te_lnk.ID} rel_phrase:${te_lnk.rel_phrase} rel_number:${te_lnk.rel_number}"
++.print "+++ te_lnk OAL:${te_lnk.OAL} buffer:${te_lnk.buffer}"
++.print "+++ te_lnk linkage:${te_lnk.linkage} iterator:${te_lnk.iterator} left:${te_lnk.left}"
++.print "+++ te_lnk te_classGeneratedName:${te_lnk.te_classGeneratedName} assoc_type:${te_lnk.assoc_type}"
+ .end function
+ .//
+ .//============================================================================

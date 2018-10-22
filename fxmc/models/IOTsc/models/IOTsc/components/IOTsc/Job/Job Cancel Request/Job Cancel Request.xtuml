@@ -1,0 +1,403 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("d3cae8df-5cb7-48f0-8c46-26528d6b6841",
+	'Job Cancel Request',
+	104,
+	'J_JCR',
+	'Job Cancel Requestはジョブキャンセル要求を抽象化したクラスです。
+
+ジョブキャンセル要求を出し、処理終了を受けてジョブ内のオブジェクトを
+削除しに行きます。
+
+ジョブキャンセルが指示された後でジョブが正常終了した場合には
+Jobオブジェクトによって削除されます。
+
+それ以外のケースでは他のジョブ指示よりも優先されて処理が行われます。
+
+reason : キャンセル要因を示します。
+
+isCancelNotified : IOTMID_CANCEL_REQをdmに対して通知したかどうかを示します。
+
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("54f6d578-1a2a-4998-8534-36622e6d8222",
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841",
+	'removeJob',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'select any aJob from instances of J_JOB
+	where ( selected.jobID == param.jobID ) ;
+select one aJobRequest related by aJob->J_JRA[R102] ;
+
+//-- 11394:20130405 Deleted Start (ikegaya)
+// インスタンスオペレーション化により削除
+//select one aNextJob related by aJob->J_JOB[R101.''is next to''] ;
+//select one aPreviousJob related by aJob->J_JOB[R101.''is previous to''] ;
+//unrelate aJob from aJobRequest across R102 ;
+//if ( not_empty aNextJob )
+//	unrelate aJob from aNextJob across R101.''is next to'' ;
+//end if ;
+//select one aJobRequestAsLast related by aJob->J_JRA[R103];
+//if ( not_empty aJobRequestAsLast )
+//	unrelate aJob from aJobRequestAsLast across R103;
+//	if ( not_empty aPreviousJob )
+//		relate aPreviousJob to aJobRequestAsLast across R103;
+//	end if;
+//end if;
+//if ( not_empty aPreviousJob )
+//	unrelate aJob from aPreviousJob across R101.''is previous to'' ;
+// SC1495 Added.
+// Job is First -> change first job ID
+//elif ( not_empty aNextJob )
+//	PF::setFirstJobID( jobID : aNextJob.jobID ) ;
+//else
+//	PF::setFirstJobID( jobID : 0 ) ;
+//! SC1495
+//end if ;
+
+//if ( ( not_empty aNextJob ) and ( not_empty aPreviousJob ) )
+//	relate aPreviousJob to aNextJob across R101.''is next to'' ;
+//end if ;
+//-- 11394:20130405 Deleted End (ikegaya)
+//-- 11394:20130405 Add Start (ikegaya)
+aJob.setPrevNextJob() ;
+//-- 11394:20130405 Add End (ikegaya)
+
+// Pause Requestが存在していれば削除する
+select one aPauseReq related by aJob->J_JPR[R106] ;
+if ( not_empty aPauseReq )
+	aPauseReq.clear();
+	delete object instance aPauseReq;
+//-- 629:20101022 Add Start (kanda)
+	SR_SRF::notifyEndJobOperation();
+//-- 629:20101022 Add End (kanda)
+end if ;
+
+delete object instance aJob ;
+
+select any aJob from instances of J_JOB ;
+
+if ( empty aJob )
+// SC1495 Added.
+//	念のため
+	PF::setFirstJobID( jobID : 0 ) ;
+// !SC1495	
+	select many subSysFails from instances of J_SSF ;
+	for each aSubSysFail in subSysFails ;
+		generate J_SSF2:allJobEnd to aSubSysFail ;
+	end for ; // aSubSysFail 
+end if ;
+
+//-- 11394:20130405 Deleted Start (ikegaya)
+//generate J_JRA6:jobReleased to aJobRequest ;
+//-- 11394:20130405 Deleted End (ikegaya)
+//-- 0106953:20150324 Add Start (ikegaya)
+generate J_JRA6:jobReleased to aJobRequest ;
+//-- 0106953:20150324 Modified End (ikegaya)
+
+if ( param.isNextJobNeed )
+	generate J_JRA5:allowToProcessJob to aJobRequest ;
+end if ;
+',
+	1,
+	'',
+	"2709e8e8-54f0-49a2-b1c8-838b1468e984");
+INSERT INTO O_TPARM
+	VALUES ("fab502c1-f7e7-4ced-99c7-1e49a16630b6",
+	"54f6d578-1a2a-4998-8534-36622e6d8222",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"f6147ceb-417c-4867-b175-3e5c6e6f7c74",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("f6147ceb-417c-4867-b175-3e5c6e6f7c74",
+	"54f6d578-1a2a-4998-8534-36622e6d8222",
+	'isNextJobNeed',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("2709e8e8-54f0-49a2-b1c8-838b1468e984",
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841",
+	'jobCancelRequest',
+	'//-- 347:20060921 Add Start (kanda)
+B_PF_CancelReqの内容をここに移動
+//-- 347:20060921 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 347:20060921 Modified Start (kanda)
+select any aJob from instances of J_JOB
+	where ( selected.jobID == param.jobID ) ;
+if ( not_empty aJob )
+	select one aJobCancel related by aJob->J_JCR[R105] ;
+	if ( empty aJobCancel )
+//-- 629:20100914 Modified Start (kanda)
+		J_JCR::createInstance(jobID : aJob.jobID, reason : param.reason);
+		select one aJobCancel related by aJob->J_JCR[R105];
+		FER::assert(expression : not_empty aJobCancel);
+		generate J_JCR3:cancelProcess to aJobCancel;
+//-- 629:20100914 Modified End (kanda)
+	else
+//-- 101:20040608 Modified Start
+		if ( aJobCancel.reason != IotSc_CancelReason::eByForcedJobEnd )
+			// Job Holdでキャンセルされている場合はReasonを変更
+			aJobCancel.reason = param.reason;
+			if ( aJobCancel.reason !=  IotSc_CancelReason::eBySystem and
+			aJobCancel.reason != IotSc_CancelReason::eByForcedJobEnd )
+				// Block配布待ちの可能性があるので、Abrotを呼ぶ
+				if ( aJobCancel.isCancelNotified )
+					BL::abortImage( jobID : aJob.jobID , isCancel : TRUE );
+				end if;
+			end if;
+		end if;
+//-- 101:20040608 Modified End
+		
+	end if ;
+
+end if ;
+//-- 347:20060921 Modified End (kanda)
+',
+	1,
+	'',
+	"9d3356c1-e0c9-4470-bb64-90d1817f85c5");
+INSERT INTO O_TPARM
+	VALUES ("5bcce435-adf6-4c4a-bd4c-cbc3d36b5d96",
+	"2709e8e8-54f0-49a2-b1c8-838b1468e984",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("ebe24491-fb72-4e34-afc6-046c6c4042ee",
+	"2709e8e8-54f0-49a2-b1c8-838b1468e984",
+	'reason',
+	"62ba2517-632c-4c09-a31e-69ad42a15e37",
+	0,
+	'',
+	"5bcce435-adf6-4c4a-bd4c-cbc3d36b5d96",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("62ba2517-632c-4c09-a31e-69ad42a15e37",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_CancelReason',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("9d3356c1-e0c9-4470-bb64-90d1817f85c5",
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841",
+	'createInstance',
+	'//-- 627:20100913 Add Start (kanda)
+Modify:Add
+Modify_No:627
+Modifier:kanda
+Modify_Date:20100913
+//-- 627:20100913 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+select any aJob from instances of J_JOB 
+	where(selected.jobID == param.jobID);
+FER::assert(expression : not_empty aJob);
+
+create object instance this of J_JCR;
+
+relate this to aJob across R105;
+
+this.isCancelNotified = FALSE;
+this.reason = param.reason;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("6b8c2e99-25a2-4a09-8333-e312d3cdd7eb",
+	"9d3356c1-e0c9-4470-bb64-90d1817f85c5",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("35ffcdbf-e0f5-480e-8b43-dbcd4797fd0f",
+	"9d3356c1-e0c9-4470-bb64-90d1817f85c5",
+	'reason',
+	"62ba2517-632c-4c09-a31e-69ad42a15e37",
+	0,
+	'',
+	"6b8c2e99-25a2-4a09-8333-e312d3cdd7eb",
+	'');
+INSERT INTO O_REF
+	VALUES ("d3cae8df-5cb7-48f0-8c46-26528d6b6841",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	0,
+	"47673d6f-a3be-45e6-8453-46bc9a597882",
+	"7f2f1b69-7862-4784-acc6-96a62c93afcf",
+	"eed011ac-6b0e-462e-a3b9-91bc36211881",
+	"7770ff3f-56c1-4f33-b589-d11ec12cf868",
+	"c681e97f-628b-4684-8182-cf5d16fb3017",
+	"85a6e22b-21b0-420d-9381-59bf76207104",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Job',
+	'jobID',
+	'R105.''request to cancel''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("d3cae8df-5cb7-48f0-8c46-26528d6b6841",
+	"7f2f1b69-7862-4784-acc6-96a62c93afcf",
+	"eed011ac-6b0e-462e-a3b9-91bc36211881",
+	'../Job.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	0,
+	"7f2f1b69-7862-4784-acc6-96a62c93afcf",
+	"7770ff3f-56c1-4f33-b589-d11ec12cf868",
+	'../Job.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("c681e97f-628b-4684-8182-cf5d16fb3017",
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841",
+	"47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	1,
+	'jobID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	'../Job/Job.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("c681e97f-628b-4684-8182-cf5d16fb3017",
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841",
+	"00000000-0000-0000-0000-000000000000",
+	'jobID',
+	'',
+	'',
+	'jobID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("30ee7450-ef3d-4bc7-9918-64e0b0b41bcd",
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841");
+INSERT INTO O_BATTR
+	VALUES ("30ee7450-ef3d-4bc7-9918-64e0b0b41bcd",
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841");
+INSERT INTO O_ATTR
+	VALUES ("30ee7450-ef3d-4bc7-9918-64e0b0b41bcd",
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841",
+	"c681e97f-628b-4684-8182-cf5d16fb3017",
+	'reason',
+	'',
+	'',
+	'reason',
+	0,
+	"62ba2517-632c-4c09-a31e-69ad42a15e37",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("10ac8281-29d3-4d33-a665-8bcb84b1c95f",
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841");
+INSERT INTO O_BATTR
+	VALUES ("10ac8281-29d3-4d33-a665-8bcb84b1c95f",
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841");
+INSERT INTO O_ATTR
+	VALUES ("10ac8281-29d3-4d33-a665-8bcb84b1c95f",
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841",
+	"30ee7450-ef3d-4bc7-9918-64e0b0b41bcd",
+	'isCancelNotified',
+	'',
+	'',
+	'isCancelNotified',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("b5bcece8-bff2-47b4-9ac6-7953f994f906",
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841");
+INSERT INTO O_BATTR
+	VALUES ("b5bcece8-bff2-47b4-9ac6-7953f994f906",
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841");
+INSERT INTO O_ATTR
+	VALUES ("b5bcece8-bff2-47b4-9ac6-7953f994f906",
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841",
+	"10ac8281-29d3-4d33-a665-8bcb84b1c95f",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("e3e87e46-9c2d-43ac-ba98-870cd93f23a5",
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841");
+INSERT INTO O_BATTR
+	VALUES ("e3e87e46-9c2d-43ac-ba98-870cd93f23a5",
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841");
+INSERT INTO O_ATTR
+	VALUES ("e3e87e46-9c2d-43ac-ba98-870cd93f23a5",
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841",
+	"b5bcece8-bff2-47b4-9ac6-7953f994f906",
+	'isProcessEnd',
+	'//-- 627:20101021 Add Start (kanda)
+ジョブ操作が終了したことを表す
+//-- 627:20101021 Add End (kanda)
+',
+	'',
+	'isProcessEnd',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841");
+INSERT INTO O_OIDA
+	VALUES ("c681e97f-628b-4684-8182-cf5d16fb3017",
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841",
+	0,
+	'jobID');
+INSERT INTO O_ID
+	VALUES (1,
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841");
+INSERT INTO O_ID
+	VALUES (2,
+	"d3cae8df-5cb7-48f0-8c46-26528d6b6841");
+INSERT INTO PE_PE
+	VALUES ("d3cae8df-5cb7-48f0-8c46-26528d6b6841",
+	1,
+	"1ef61a85-d4bb-4a75-8902-08208261e3ec",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("1ef61a85-d4bb-4a75-8902-08208261e3ec",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Job',
+	'',
+	100,
+	'../Job.xtuml');

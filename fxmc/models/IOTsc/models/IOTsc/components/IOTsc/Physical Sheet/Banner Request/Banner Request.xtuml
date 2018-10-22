@@ -1,0 +1,267 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("f08ea9aa-610f-4536-96eb-526d26485241",
+	'Banner Request',
+	412,
+	'P_BNR',
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("707ea768-b572-4068-ad30-6042b2c24e96",
+	"f08ea9aa-610f-4536-96eb-526d26485241",
+	'remove',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'select any aBannerRequest from instances of P_BNR
+	where ( selected.ID == param.bannerRequestID );
+FER::assert( expression : not_empty aBannerRequest );
+
+select one aTraySelect related by aBannerRequest->S_TSP[R434];
+unrelate aBannerRequest from aTraySelect across R434;
+S_TSP::remove( traySelectID : aTraySelect.ID );
+
+select one anEndBanner related by aBannerRequest->P_EBNR[R417];
+select one aStartBanner related by aBannerRequest->P_SBNR[R417];
+if ( not_empty anEndBanner )
+	select one anExecutingJob related by anEndBanner->J_EJOB[R425];
+	unrelate anExecutingJob from  anEndBanner across R425;
+	unrelate anEndBanner from aBannerRequest across R417;
+	delete object instance anEndBanner;
+elif ( not_empty aStartBanner )
+	select one anExecutingJob related by aStartBanner->J_EJOB[R424];
+	unrelate anExecutingJob from aStartBanner across R424;
+	unrelate aStartBanner from aBannerRequest across R417;
+	delete object instance aStartBanner;
+end if;
+
+delete object instance aBannerRequest;
+ ',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("13b467fa-bffc-481d-87b7-c20d72adfdc2",
+	"707ea768-b572-4068-ad30-6042b2c24e96",
+	'bannerRequestID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("8841632c-debf-4669-80af-29736225930e",
+	"f08ea9aa-610f-4536-96eb-526d26485241");
+INSERT INTO O_BATTR
+	VALUES ("8841632c-debf-4669-80af-29736225930e",
+	"f08ea9aa-610f-4536-96eb-526d26485241");
+INSERT INTO O_ATTR
+	VALUES ("8841632c-debf-4669-80af-29736225930e",
+	"f08ea9aa-610f-4536-96eb-526d26485241",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c4960958-60e2-4fb0-9670-2281b0b9a226",
+	"f08ea9aa-610f-4536-96eb-526d26485241");
+INSERT INTO O_BATTR
+	VALUES ("c4960958-60e2-4fb0-9670-2281b0b9a226",
+	"f08ea9aa-610f-4536-96eb-526d26485241");
+INSERT INTO O_ATTR
+	VALUES ("c4960958-60e2-4fb0-9670-2281b0b9a226",
+	"f08ea9aa-610f-4536-96eb-526d26485241",
+	"8841632c-debf-4669-80af-29736225930e",
+	'isInformationCreated',
+	'',
+	'',
+	'isInformationCreated',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("200ea463-8df8-4ba4-9b41-9577f61e5d9e",
+	"f08ea9aa-610f-4536-96eb-526d26485241");
+INSERT INTO O_BATTR
+	VALUES ("200ea463-8df8-4ba4-9b41-9577f61e5d9e",
+	"f08ea9aa-610f-4536-96eb-526d26485241");
+INSERT INTO O_ATTR
+	VALUES ("200ea463-8df8-4ba4-9b41-9577f61e5d9e",
+	"f08ea9aa-610f-4536-96eb-526d26485241",
+	"c4960958-60e2-4fb0-9670-2281b0b9a226",
+	'resolution',
+	'',
+	'',
+	'resolution',
+	0,
+	"d1173263-0e65-4b2d-b958-a13d316481c2",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("d1173263-0e65-4b2d-b958-a13d316481c2",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_Resolution',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_REF
+	VALUES ("f08ea9aa-610f-4536-96eb-526d26485241",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	0,
+	"127fb87e-d2b1-4495-8fd6-ae8379592708",
+	"53ca9b51-c2c2-4dd6-8acd-fb682288f8ee",
+	"1c28fa56-65f5-4824-8ed4-548b41303908",
+	"77097802-46e9-42be-a4f8-c8773f241cc0",
+	"476c30f4-6c7a-4b38-8d68-dafe763d2f25",
+	"c490438f-8dba-497b-bb6b-b621479ab893",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Tray Selection Parameter',
+	'ID',
+	'R434');
+INSERT INTO R_RGO_PROXY
+	VALUES ("f08ea9aa-610f-4536-96eb-526d26485241",
+	"53ca9b51-c2c2-4dd6-8acd-fb682288f8ee",
+	"1c28fa56-65f5-4824-8ed4-548b41303908",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("127fb87e-d2b1-4495-8fd6-ae8379592708",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	0,
+	"53ca9b51-c2c2-4dd6-8acd-fb682288f8ee",
+	"77097802-46e9-42be-a4f8-c8773f241cc0",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("476c30f4-6c7a-4b38-8d68-dafe763d2f25",
+	"f08ea9aa-610f-4536-96eb-526d26485241",
+	"127fb87e-d2b1-4495-8fd6-ae8379592708",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("127fb87e-d2b1-4495-8fd6-ae8379592708",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	'../../Sheet/Tray Selection Parameter/Tray Selection Parameter.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("476c30f4-6c7a-4b38-8d68-dafe763d2f25",
+	"f08ea9aa-610f-4536-96eb-526d26485241",
+	"200ea463-8df8-4ba4-9b41-9577f61e5d9e",
+	'traySelectID',
+	'',
+	'',
+	'traySelectID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("a16cbf6c-a5ee-46e6-909c-d8e8098f2720",
+	"f08ea9aa-610f-4536-96eb-526d26485241");
+INSERT INTO O_BATTR
+	VALUES ("a16cbf6c-a5ee-46e6-909c-d8e8098f2720",
+	"f08ea9aa-610f-4536-96eb-526d26485241");
+INSERT INTO O_ATTR
+	VALUES ("a16cbf6c-a5ee-46e6-909c-d8e8098f2720",
+	"f08ea9aa-610f-4536-96eb-526d26485241",
+	"476c30f4-6c7a-4b38-8d68-dafe763d2f25",
+	'color',
+	'',
+	'',
+	'color',
+	0,
+	"a2533753-ebb4-42e8-900c-d24196d37324",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("a2533753-ebb4-42e8-900c-d24196d37324",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_ColorType',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("4fad0b18-3b49-453b-8f92-40948c0e7f4e",
+	"f08ea9aa-610f-4536-96eb-526d26485241");
+INSERT INTO O_BATTR
+	VALUES ("4fad0b18-3b49-453b-8f92-40948c0e7f4e",
+	"f08ea9aa-610f-4536-96eb-526d26485241");
+INSERT INTO O_ATTR
+	VALUES ("4fad0b18-3b49-453b-8f92-40948c0e7f4e",
+	"f08ea9aa-610f-4536-96eb-526d26485241",
+	"a16cbf6c-a5ee-46e6-909c-d8e8098f2720",
+	'isBannerOffset',
+	'//-- 445:20071129 Add Start (kanda)
+Modify:Add
+Modify_No:445
+Modifier:kanda
+Modify_Date:20071129
+
+この値がTRUEのときバナーシートをオフセットさせる
+
+//-- 445:20071129 Add End (kanda)
+',
+	'',
+	'isBannerOffset',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"f08ea9aa-610f-4536-96eb-526d26485241");
+INSERT INTO O_OIDA
+	VALUES ("8841632c-debf-4669-80af-29736225930e",
+	"f08ea9aa-610f-4536-96eb-526d26485241",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"f08ea9aa-610f-4536-96eb-526d26485241");
+INSERT INTO O_ID
+	VALUES (2,
+	"f08ea9aa-610f-4536-96eb-526d26485241");
+INSERT INTO PE_PE
+	VALUES ("f08ea9aa-610f-4536-96eb-526d26485241",
+	1,
+	"28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Physical Sheet',
+	'このサブシステムは実際の出力を行うためのDMとのI/Fおよび論理シートだけでは
+表現できない出力に関する概念を抽象化したものです。
+
+このサブシステムで表現されるものには以下の項目があります。
+1. DMとのI/Fを実現する内部キュー
+2.キューが処理対象となった実シートおよび実イメージ
+3.バナー、合紙などの論理シート以外で表現されるシート（表紙は論理シートで表現される）
+
+DMとのI/Fといっても表現されるのは以下のものです。
+SC→DM
+SET_START_INFO
+SHEET_INFO
+SET_END_INFO
+JOB_END_INFO
+
+DM→SC
+NEXT_SHEET_REQ
+IMAGE_REQ
+SHEET_END
+
+JOB_START_INFOも当初含まれていましたが（モデルにもまだ存在するが）キューに
+おくことにより不具合が生じたため、現状ではJ_EJOBから直接ブリッジのコールが行われています。
+
+',
+	400,
+	'../Physical Sheet.xtuml');

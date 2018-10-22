@@ -1,0 +1,382 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("df927f03-db66-4031-be74-2046114966c2",
+	'Replicator',
+	234,
+	'S_RPR',
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("a8984205-d10b-40e8-a298-525e21c73700",
+	"df927f03-db66-4031-be74-2046114966c2",
+	'createSpotCheckList',
+	'//-- 353:20061121 Add Start (kanda)
+Replicaterが使用する位置指定サンプル位置のリストを生成する。
+runlengthに「0」を指定した場合はrunlengthに無限大が指定されたものとする。
+//-- 353:20061121 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 353:20061121 Add Start (kanda)
+select any anExecutingJob from instances of J_EJOB
+	where ( selected.jobID == param.jobID );
+FER::assert( expression : not_empty anExecutingJob );
+
+select one aSpotCheckInstrution related by anExecutingJob->S_SCI[R266];
+
+while ( not_empty aSpotCheckInstrution )
+//-- 376:20070119 Modified Start (kanda)
+	 if ( aSpotCheckInstrution.logicalPosition > param.startNo )
+//-- 376:20070119 Modified End (kanda)
+		break;
+	end if;
+	select one aSpotCheckInstrution related by aSpotCheckInstrution->S_SCI[R267.''next''];
+end while;
+
+// 外数補正用
+createdNum = 0;
+
+// OHP + NSetの場合は1部分進める(OHPセットは位置指定サンプルのカウント対象外)
+select one anOriginParam related by self->S_EOS[R273]->D_OOS[R215]->S_OUP[R259];
+if ( not_empty anOriginParam )
+	if ( anOriginParam.nSet == IotSc_NSetMode::eOn )
+		createdNum = createdNum + 1;
+	end if;
+end if;
+
+select one aSpotCheck related by self->S_SC[R274];
+while ( not_empty aSpotCheckInstrution )
+	if ( ( param.runlength == 0 )
+		or ( aSpotCheckInstrution.logicalPosition <= ( param.startNo + param.runlength ) ) )
+
+		create object instance newSpotCheck of S_SC;
+		newSpotCheck.position = aSpotCheckInstrution.logicalPosition - param.startNo + createdNum;
+//-- 387:20070222 Add Start (kanda)
+		newSpotCheck.userPosition = aSpotCheckInstrution.logicalPosition;
+//-- 387:20070222 Add End (kanda)
+		relate self to newSpotCheck across R276;
+		if ( empty  aSpotCheck )
+			relate self to newSpotCheck across R274;
+		else
+			relate aSpotCheck to newSpotCheck across R270.''next'';
+		end if;
+		if ( aSpotCheckInstrution.isAdditional ) // 外数分の補正
+			createdNum = createdNum + 1;
+		end if;
+		aSpotCheck = newSpotCheck;
+	end if;
+	select one aSpotCheckInstrution related by aSpotCheckInstrution->S_SCI[R267.''next''];
+end while;
+//-- 353:20061121 Add End (kanda)
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("fbd3f833-c3fa-4f69-91f8-268e504ff9b7",
+	"a8984205-d10b-40e8-a298-525e21c73700",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("cae077b2-4a0a-48b2-87f7-e95f4f89fb4d",
+	"a8984205-d10b-40e8-a298-525e21c73700",
+	'startNo',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"f1bf8e50-37b3-422f-9c9f-a90feeb180b4",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("f1bf8e50-37b3-422f-9c9f-a90feeb180b4",
+	"a8984205-d10b-40e8-a298-525e21c73700",
+	'runlength',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"fbd3f833-c3fa-4f69-91f8-268e504ff9b7",
+	'');
+INSERT INTO O_TFR
+	VALUES ("f6ec4d70-489d-47b3-8255-398c266b5ae3",
+	"df927f03-db66-4031-be74-2046114966c2",
+	'isSpotCheckPosition',
+	'//-- 353:20061121 Add Start (kanda)
+currentNoで指定したポジションが位置指定サンプルか確認する
+//-- 353:20061121 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	1,
+	'//-- 353:20061121 Add Start (kanda)
+select any aSpotCheck from instances of S_SC
+	where ( selected.position == param.currentNo );
+return ( not_empty aSpotCheck );
+//-- 353:20061121 Add End (kanda)
+',
+	1,
+	'',
+	"15b751e0-3f14-477a-beb1-4b5b09d6f417");
+INSERT INTO O_TPARM
+	VALUES ("eeb58d54-d13e-4303-8d94-25e5d27a3eb9",
+	"f6ec4d70-489d-47b3-8255-398c266b5ae3",
+	'currentNo',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("15b751e0-3f14-477a-beb1-4b5b09d6f417",
+	"df927f03-db66-4031-be74-2046114966c2",
+	'getOutputRunlength',
+	'//-- 353:20061121 Add Start (kanda)
+実際に出力する部数を返す。
+引数に指定されたrunlengthに外数として要求されている部数分を加えた値が返る。
+//-- 353:20061121 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	1,
+	'//-- 353:20061121 Add Start (kanda)
+
+//-- 375:20070122 Add Start (kanda)
+additionalRunlength = 0;
+//-- 375:20070122 Add End (kanda)
+
+//-- 845:20140225 Modified Start (saitou) 
+jobID = TYPE::Iot_JobID();	// 型合わせ
+jobID = 0;
+//-- 845:20140225 Modified End (saitou) 
+
+select one aSheet related by self->P_SIR[R273]->S_SHT[R409];
+if ( not_empty aSheet )
+	// シート単位
+	jobID = aSheet.jobID;
+//-- 375:20070122 Add Start (kanda)
+	select many spotChecks related by self->S_SC[R276];
+	additionalRunlength = cardinality spotChecks;
+//-- 375:20070122 Add End (kanda)
+
+else
+	// セット単位
+	select one anExecutingOrigin related by self->S_EOS[R273];
+//-- 851:20140507 Add Start (ikegaya)
+	FER::assert_with_return_zero( expression : not_empty anExecutingOrigin );
+//-- 851:20140507 Add End (ikegaya)
+	jobID = anExecutingOrigin.jobID;
+//-- 375:20070122 Add Start (kanda)
+//-- 387:20070223 Modified Start (kanda)
+	additionalRunlength
+		= self.getCreatedSpotCheckPositionNum( currentNo : anExecutingOrigin.currentRunLength, byUserPosition : FALSE );
+//-- 387:20070223 Modified End (kanda)
+//-- 375:20070122 Add End (kanda)
+
+end if;
+
+//-- 375:20070122 Deleted Start (kanda)
+// // 内数の場合はrunlengthをそのまま返す
+// requestedNum = 0;
+// if ( S_SCI::isSpotCheckAdditional( jobID : jobID ) )
+//	select many spotChecks related by self->S_SC[R276];
+//	requestedNum = cardinality spotChecks;
+// end if;
+// return param.runlength + requestedNum;
+//-- 375:20070122 Deleted End (kanda)
+
+
+//-- 375:20070122 Add Start (kanda)
+// 外数の場合だけ補正した部数を返す
+if ( S_SCI::isSpotCheckAdditional( jobID : jobID ) )
+	return param.runlength + additionalRunlength;
+end if;
+return param.runlength;
+//-- 375:20070122 Add End (kanda)
+
+//-- 353:20061121 Add End (kanda)
+',
+	1,
+	'',
+	"582fb3b8-6824-420a-abe4-85bcee9c3042");
+INSERT INTO O_TPARM
+	VALUES ("fe9ce200-28d0-443f-b1c5-d15979f3b594",
+	"15b751e0-3f14-477a-beb1-4b5b09d6f417",
+	'runlength',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("582fb3b8-6824-420a-abe4-85bcee9c3042",
+	"df927f03-db66-4031-be74-2046114966c2",
+	'getCreatedSpotCheckPositionNum',
+	'//-- 353:20061121 Add Start (kanda)
+currentNoで指定した位置までに外数で生成したサンプルセット/サンプルシート数を返す
+//-- 353:20061121 Add End (kanda)
+
+//-- 387:20070223 Add Start (kanda)
+byUserPositionを追加
+ユーザ指定の位置で生成済みサンプル数を取得できるようにした。
+//-- 387:20070223 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	1,
+	'//-- 353:20061121 Add Start (kanda)
+//-- 845:20140225 Modified Start (saitou) 
+jobID = TYPE::Iot_JobID();	// 型合わせ
+jobID = 0;
+//-- 845:20140225 Modified End (saitou) 
+
+select one aSheet related by self->P_SIR[R273]->S_SHT[R409];
+if ( not_empty aSheet )
+	jobID = aSheet.jobID;
+else
+	select one anExecutingOrigin related by self->S_EOS[R273];
+//-- 851:20140507 Add Start (ikegaya)
+	FER::assert_with_return_zero( expression : not_empty anExecutingOrigin );
+//-- 851:20140507 Add End (ikegaya)
+	jobID = anExecutingOrigin.jobID;
+end if;
+
+createdNum = 0;
+if ( S_SCI::isSpotCheckAdditional( jobID : jobID ) )
+	select many spotChecks from instances of S_SC
+		where ( selected.position < param.currentNo );
+//-- 387:20070223 Modified Start (kanda)
+	if ( param.byUserPosition )
+		select many spotChecks from instances of S_SC
+			where ( selected.userPosition < param.currentNo );
+	end if;
+//-- 387:20070223 Modified End (kanda)
+	createdNum = cardinality spotChecks;
+end if;
+return createdNum;
+//-- 353:20061121 Add End (kanda)
+',
+	1,
+	'',
+	"a8984205-d10b-40e8-a298-525e21c73700");
+INSERT INTO O_TPARM
+	VALUES ("029c9deb-5724-4366-a1fe-b67580cb04a2",
+	"582fb3b8-6824-420a-abe4-85bcee9c3042",
+	'currentNo',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"988d6c19-dcb3-4849-a3b2-d2bd0527a2dd",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("988d6c19-dcb3-4849-a3b2-d2bd0527a2dd",
+	"582fb3b8-6824-420a-abe4-85bcee9c3042",
+	'byUserPosition',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("20e7fe41-95c9-44b6-bca2-a920e4445e44",
+	"df927f03-db66-4031-be74-2046114966c2");
+INSERT INTO O_BATTR
+	VALUES ("20e7fe41-95c9-44b6-bca2-a920e4445e44",
+	"df927f03-db66-4031-be74-2046114966c2");
+INSERT INTO O_ATTR
+	VALUES ("20e7fe41-95c9-44b6-bca2-a920e4445e44",
+	"df927f03-db66-4031-be74-2046114966c2",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("df927f03-db66-4031-be74-2046114966c2",
+	"ce30bf7b-ce27-4cd1-921f-38633b970062",
+	0,
+	"c007251b-21d5-451a-8e23-fd073ef262ea",
+	"5dc9c60c-bb2c-4b3f-a309-f6e19a012e9a",
+	"5a1f7587-9d3c-4a43-a035-90def9a6685c",
+	"49f19f2f-e421-4522-bce0-8191223b3628",
+	"a7e25bc8-5efd-4e28-947b-8dc95e429188",
+	"e9f28d7e-fe55-4492-9694-bf1c8480d826",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Spot Check',
+	'ID',
+	'R274.''to use first''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("df927f03-db66-4031-be74-2046114966c2",
+	"5dc9c60c-bb2c-4b3f-a309-f6e19a012e9a",
+	"5a1f7587-9d3c-4a43-a035-90def9a6685c",
+	'../Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("c007251b-21d5-451a-8e23-fd073ef262ea",
+	"ce30bf7b-ce27-4cd1-921f-38633b970062",
+	0,
+	"5dc9c60c-bb2c-4b3f-a309-f6e19a012e9a",
+	"49f19f2f-e421-4522-bce0-8191223b3628",
+	'../Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("a7e25bc8-5efd-4e28-947b-8dc95e429188",
+	"df927f03-db66-4031-be74-2046114966c2",
+	"c007251b-21d5-451a-8e23-fd073ef262ea",
+	"ce30bf7b-ce27-4cd1-921f-38633b970062",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("c007251b-21d5-451a-8e23-fd073ef262ea",
+	"ce30bf7b-ce27-4cd1-921f-38633b970062",
+	'../Spot Check/Spot Check.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("a7e25bc8-5efd-4e28-947b-8dc95e429188",
+	"df927f03-db66-4031-be74-2046114966c2",
+	"20e7fe41-95c9-44b6-bca2-a920e4445e44",
+	'firstSpotCheckID',
+	'',
+	'',
+	'firstSpotCheckID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"df927f03-db66-4031-be74-2046114966c2");
+INSERT INTO O_OIDA
+	VALUES ("20e7fe41-95c9-44b6-bca2-a920e4445e44",
+	"df927f03-db66-4031-be74-2046114966c2",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"df927f03-db66-4031-be74-2046114966c2");
+INSERT INTO O_ID
+	VALUES (2,
+	"df927f03-db66-4031-be74-2046114966c2");
+INSERT INTO PE_PE
+	VALUES ("df927f03-db66-4031-be74-2046114966c2",
+	1,
+	"3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Sheet',
+	'',
+	200,
+	'../Sheet.xtuml');

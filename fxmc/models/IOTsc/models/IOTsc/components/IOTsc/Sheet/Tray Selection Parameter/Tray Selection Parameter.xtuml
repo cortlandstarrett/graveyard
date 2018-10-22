@@ -1,0 +1,594 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	'Tray Selection Parameter',
+	214,
+	'S_TSP',
+	'//-- 446:20071101 Add Start (kanda)
+paperWeight つぼ量追加
+//-- 446:20071101 Add End (kanda)
+
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("0321aca0-2ef2-4525-9550-5d09e196dfed",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	'arrangementTrayParam',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'// このtransformerではaFirstParamに設定されていない場合に
+// aSecondParamの値を使用してaFirstParamを書き換えるという仕様です
+// ただし、APSのときはTraySwitchをONにするということはしないので注意。
+// これはSheetの中で行うこと
+
+
+select any aFirstParam from instances of S_TSP
+	where ( selected.ID == param.firstParamID );
+select any aSecondParam from instances of S_TSP
+	where ( selected.ID == param.secondParamID );
+FER::assert( expression : not_empty aFirstParam );
+FER::assert( expression : not_empty aSecondParam );
+
+if ( aFirstParam.inputTray == "0" )
+	aFirstParam.inputTray= aSecondParam.inputTray ;
+	aFirstParam.clusterPageID = aSecondParam.clusterPageID;
+end if ;
+
+// PaperTypeについての整合確認
+if ( aFirstParam.paperType == "0" )
+	aFirstParam.paperType= aSecondParam.paperType;
+//-- 478:20080303 Add Start (kanda)
+	aFirstParam.paperWeight = aSecondParam.paperWeight;
+//-- 478:20080303 Add End (kanda)
+
+end if ;
+
+// OutputSizeについての整合確認
+if ( aFirstParam.outputSize == "0" )
+	aFirstParam.outputSize= aSecondParam.outputSize ;
+end if ;
+
+// LengthUnitについての整合確認
+//if ( aFirstParam.lengthUnit == "0" )
+//	aFirstParam.lengthUnit= aSecondParam.lengthUnit ;
+//end if ;
+
+// ShortLengthについての整合確認
+if ( aFirstParam.shortLength == 0 )
+	aFirstParam.shortLength= aSecondParam.shortLength ;
+end if ;
+
+// LongLengthについての整合確認
+if ( aFirstParam.longLength == 0 )
+	aFirstParam.longLength= aSecondParam.longLength ;
+end if ;
+
+// Directionについての整合確認
+if ( aFirstParam.direction == "0" )
+	aFirstParam.direction= aSecondParam.direction ;
+end if ;
+
+if ( aFirstParam.traySwitch == "0" )
+	aFirstParam.traySwitch = aSecondParam.traySwitch ;
+end if ;
+
+//-- 20:20040323 Add Start
+// 用紙属性に関する調停
+if ( aFirstParam.paperColorType == "0" )
+	aFirstParam.paperColorType = aSecondParam.paperColorType;
+end if;
+
+
+if ( aFirstParam.paperPrePunched == "0" )
+	aFirstParam.paperPrePunched = aSecondParam.paperPrePunched;
+end if;
+
+//-- 20:20040323 Add End
+
+//-- 478:20080303 Deleted Start (kanda)
+//-- 446:20071101 Add Start (kanda)
+//if ( aFirstParam.paperWeight == "0" )
+//	aFirstParam.paperWeight = aSecondParam.paperWeight;
+//end if;
+//-- 446:20071101 Add End (kanda)
+//-- 478:20080303 Deleted End (kanda)
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("3b9caa51-9da7-4bfc-a69a-6f119b65edb3",
+	"0321aca0-2ef2-4525-9550-5d09e196dfed",
+	'firstParamID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("48d2b4fd-18f7-4d1a-92a4-074b0a1ed852",
+	"0321aca0-2ef2-4525-9550-5d09e196dfed",
+	'secondParamID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"3b9caa51-9da7-4bfc-a69a-6f119b65edb3",
+	'');
+INSERT INTO O_TFR
+	VALUES ("746a78be-38e9-463b-919b-6a1a2fd7ca01",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	'init',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'self.inputTray = "0";
+self.paperType = "0";
+self.outputSize = "0";
+self.shortLength = 0;
+self.longLength = 0;
+self.direction = "0";
+self.traySwitch = "0";
+self.clusterPageID = 0;
+self.paperColorType = "0";
+self.paperPrePunched = "0";
+//-- 446:20071101 Add Start (kanda)
+self.paperWeight = "0";
+//-- 446:20071101 Add End (kanda)
+',
+	1,
+	'',
+	"8c71f58b-a3a6-4208-aa85-9dc5712b07fc");
+INSERT INTO O_TFR
+	VALUES ("cc34acf1-aa7c-458d-8e27-4d925bd71891",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	'remove',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'// このtransformerを呼ぶ前に S_TSPを使用している関係を切っておくこと
+// R310 / 225 /  224など
+
+select any aTraySelect from instances of S_TSP
+	where ( selected.ID == param.traySelectID );
+FER::assert( expression : not_empty aTraySelect );
+
+//select many clusterTrays related by aTraySelect->S_CLT[R249];
+//for each aClusterTray in clusterTrays
+	// R250は切らなくてもインスタンスがすべて消えるので大丈夫
+//	unrelate aTraySelect from aClusterTray across R249;
+//	delete object instance aClusterTray;
+//end for;
+
+delete object instance aTraySelect;
+',
+	1,
+	'',
+	"746a78be-38e9-463b-919b-6a1a2fd7ca01");
+INSERT INTO O_TPARM
+	VALUES ("de80ec84-13e5-488d-972d-fac97281ff63",
+	"cc34acf1-aa7c-458d-8e27-4d925bd71891",
+	'traySelectID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("8c71f58b-a3a6-4208-aa85-9dc5712b07fc",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	'arrangementTraySwitch',
+	'//-- 335:20061106 Add Start (kanda)
+トレイ指定、紙質指定、ATS指定をもとに最終的なATSモードを決定してセットする。
+//-- 335:20061106 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 335:20061106 Add Start (kanda)
+isDTS = FALSE;
+if (  self.inputTray != "IOTDOC_INTRAY_AUTO" and
+     self.inputTray != "IOTDOC_INTRAY_CLUSTER" )
+	isDTS = TRUE;
+end if;
+
+paperType = self.paperType;
+//-- 366:20061220 Add Start (kanda)
+paperColorType = self.paperColorType;
+//-- 366:20061220 Add End (kanda)
+
+resultTraySwitch = self.traySwitch;  // 型合わせ
+resultTraySwitch = "IOTDOC_TRAY_SWITCH_ON"; // デフォルト 
+
+if ( isDTS )
+	if ( paperType == "0" )
+		paperType = FINL::getMediumTypeInTray( tray : self.inputTray );
+	end if;
+	mode = IotSc_ATSExecMode::eNull;
+	if ( self.traySwitch == "IOTDOC_TRAY_SWITCH_ON_BY_SYSTEM"
+		or self.traySwitch == "0" )
+		mode = PF::getSystemTraySwitchMode();
+	end if;
+//-- 545:20081205 Modified Start (kanda)
+	if ( ( ( mode == IotSc_ATSExecMode::eOnMediumAtDTS ) 
+		and ( not ( ( self.paperType == "0" ) and ( self.paperColorType == "0" ) and ( self.paperPrePunched == "0" )
+			and (FINL::getMediumTypePriority( mediumType : paperType ) == 255) ) ) ) )
+//-- 545:20081205 Modified End (kanda)
+		resultTraySwitch = "IOTDOC_TRAY_SWITCH_ON_MEDIUM";
+	elif ( self.traySwitch == "IOTDOC_TRAY_SWITCH_OFF"
+		or ( mode == IotSc_ATSExecMode::eAPSOnly )
+		or ( FINL::getMediumTypePriority( mediumType : paperType ) == 255 )
+	)
+		resultTraySwitch = "IOTDOC_TRAY_SWITCH_OFF";
+//-- 366:20061220 Add Start (kanda)
+	elif ( self.traySwitch == "IOTDOC_TRAY_SWITCH_ON_MEDIUM" 
+//-- 416:20070620 Modified Start  (kanda)
+//-- 446:20071102 Modified Start (kanda)
+		or ( ( self.paperType != "0" or self.paperColorType != "0" or self.paperPrePunched != "0" or self.paperWeight != "0" )
+//-- 446:20071102 Modified End (kanda)
+//-- 416:20070620 Modified End (kanda)
+			and self.traySwitch == "IOTDOC_TRAY_SWITCH_ON"
+		) 
+	)
+//-- 366:20061220 Add End (kanda)
+		resultTraySwitch = "IOTDOC_TRAY_SWITCH_ON_MEDIUM";
+	end if;
+
+//-- 366:20061220 Add Start (kanda)
+	// 指定されたトレイがATS禁止の場合はOFFに変更
+	if ( FINL::isAtsProhibitedTray( tray : self.inputTray ) )
+		resultTraySwitch = "IOTDOC_TRAY_SWITCH_OFF";
+	end if;
+//-- 366:20061220 Add End (kanda)
+
+else
+//-- 366:20061220 Add Start (kanda)
+//-- 416:20070620 Modified Start  (kanda)
+//-- 446:20071102 Modified Start (kanda)
+	if ( self.paperType != "0"  or self.paperColorType != "0"  or self.paperPrePunched != "0" or self.paperWeight != "0" )
+//-- 446:20071102 Modified End (kanda)
+//-- 416:20070620 Modified End (kanda)
+//-- 366:20061220 Add End (kanda)
+		resultTraySwitch = "IOTDOC_TRAY_SWITCH_ON_MEDIUM"; 
+	end if;
+end if;
+
+//-- 368:20061221 Modified Start (kanda)
+//-- 622:20100723 Modified Start (kanda)
+// 指定が大サイズATS、または結果がOffの場合は結果で更新
+if ( self.traySwitch != "IOTDOC_TRAY_SWITCH_ON_LARGE_SIZE"
+//-- 622:20100723 Modified End (kanda)
+	or resultTraySwitch == "IOTDOC_TRAY_SWITCH_OFF" )
+	self.traySwitch = resultTraySwitch;
+end if;
+
+//-- 622:20100723 Add Start (kanda)
+// 大サイズATSで用紙種類が指定されている場合はLARGE_SIZE_MEDIUMに変換する
+if ( self.traySwitch == "IOTDOC_TRAY_SWITCH_ON_LARGE_SIZE" )
+	if ( self.paperType != "0"  or self.paperColorType != "0"  or self.paperPrePunched != "0" or self.paperWeight != "0" )
+		self.traySwitch = "IOTDOC_TRAY_SWITCH_ON_LARGE_SIZE_MEDIUM";
+	end if;
+end if;
+//-- 622:20100723 Add End (kanda)
+
+// self.traySwitch = resultTraySwitch;
+//-- 368:20061221 Modified End (kanda)
+
+//-- 335:20061106 Add End (kanda)
+',
+	1,
+	'',
+	"0321aca0-2ef2-4525-9550-5d09e196dfed");
+INSERT INTO O_NBATTR
+	VALUES ("127fb87e-d2b1-4495-8fd6-ae8379592708",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_BATTR
+	VALUES ("127fb87e-d2b1-4495-8fd6-ae8379592708",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_ATTR
+	VALUES ("127fb87e-d2b1-4495-8fd6-ae8379592708",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("8494a35c-b5ab-4b22-a047-d5aaf3a44b29",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_BATTR
+	VALUES ("8494a35c-b5ab-4b22-a047-d5aaf3a44b29",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_ATTR
+	VALUES ("8494a35c-b5ab-4b22-a047-d5aaf3a44b29",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	"127fb87e-d2b1-4495-8fd6-ae8379592708",
+	'inputTray',
+	'',
+	'',
+	'inputTray',
+	0,
+	"4748d4e8-84d7-4b54-9198-5ad3ae312114",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("4748d4e8-84d7-4b54-9198-5ad3ae312114",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_InputTray',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("9821882a-16f4-4407-bcf4-a223afb6fb02",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_BATTR
+	VALUES ("9821882a-16f4-4407-bcf4-a223afb6fb02",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_ATTR
+	VALUES ("9821882a-16f4-4407-bcf4-a223afb6fb02",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	"8494a35c-b5ab-4b22-a047-d5aaf3a44b29",
+	'paperType',
+	'',
+	'',
+	'paperType',
+	0,
+	"26bd81a9-1e23-457f-a735-96f716bb5954",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("26bd81a9-1e23-457f-a735-96f716bb5954",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_MediumType',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("e16efc8d-7424-41c6-a9ec-e3c387b25569",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_BATTR
+	VALUES ("e16efc8d-7424-41c6-a9ec-e3c387b25569",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_ATTR
+	VALUES ("e16efc8d-7424-41c6-a9ec-e3c387b25569",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	"9821882a-16f4-4407-bcf4-a223afb6fb02",
+	'outputSize',
+	'',
+	'',
+	'outputSize',
+	0,
+	"ca85c291-393b-4f9a-b277-e862ef572307",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("ca85c291-393b-4f9a-b277-e862ef572307",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_MediumSize',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("7fe1fdfc-2814-4eb4-a27c-16507f6af502",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_BATTR
+	VALUES ("7fe1fdfc-2814-4eb4-a27c-16507f6af502",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_ATTR
+	VALUES ("7fe1fdfc-2814-4eb4-a27c-16507f6af502",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	"e16efc8d-7424-41c6-a9ec-e3c387b25569",
+	'shortLength',
+	'',
+	'',
+	'shortLength',
+	0,
+	"01a0550f-9ce0-4192-87a0-df378f66a0a2",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("01a0550f-9ce0-4192-87a0-df378f66a0a2",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_MediumDimLength',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("a546ff93-c0af-421b-b78d-ce3797abf20f",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_BATTR
+	VALUES ("a546ff93-c0af-421b-b78d-ce3797abf20f",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_ATTR
+	VALUES ("a546ff93-c0af-421b-b78d-ce3797abf20f",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	"7fe1fdfc-2814-4eb4-a27c-16507f6af502",
+	'longLength',
+	'',
+	'',
+	'longLength',
+	0,
+	"01a0550f-9ce0-4192-87a0-df378f66a0a2",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("8cc10f0f-c44c-4316-9816-556ad30c0745",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_BATTR
+	VALUES ("8cc10f0f-c44c-4316-9816-556ad30c0745",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_ATTR
+	VALUES ("8cc10f0f-c44c-4316-9816-556ad30c0745",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	"a546ff93-c0af-421b-b78d-ce3797abf20f",
+	'direction',
+	'',
+	'',
+	'direction',
+	0,
+	"0367df22-ce15-470d-9f46-cf60c37eca0c",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0367df22-ce15-470d-9f46-cf60c37eca0c",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_MediumDirection',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("d485d790-75f7-49c7-8138-e96abfab2b10",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_BATTR
+	VALUES ("d485d790-75f7-49c7-8138-e96abfab2b10",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_ATTR
+	VALUES ("d485d790-75f7-49c7-8138-e96abfab2b10",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	"8cc10f0f-c44c-4316-9816-556ad30c0745",
+	'traySwitch',
+	'',
+	'',
+	'traySwitch',
+	0,
+	"682a5944-175c-4585-8d68-e98a22645347",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("682a5944-175c-4585-8d68-e98a22645347",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_TraySwitch',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("2d7ee724-d19f-4678-88ca-d23b205f46b4",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_BATTR
+	VALUES ("2d7ee724-d19f-4678-88ca-d23b205f46b4",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_ATTR
+	VALUES ("2d7ee724-d19f-4678-88ca-d23b205f46b4",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	"d485d790-75f7-49c7-8138-e96abfab2b10",
+	'clusterPageID',
+	'',
+	'',
+	'clusterPageID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("4f0b1a1b-07b1-4ed5-9901-46924d6ceed8",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_BATTR
+	VALUES ("4f0b1a1b-07b1-4ed5-9901-46924d6ceed8",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_ATTR
+	VALUES ("4f0b1a1b-07b1-4ed5-9901-46924d6ceed8",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	"2d7ee724-d19f-4678-88ca-d23b205f46b4",
+	'paperColorType',
+	'',
+	'',
+	'paperColorType',
+	0,
+	"5f0e9eb9-363b-446f-8dcd-86c91f7cd684",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("5f0e9eb9-363b-446f-8dcd-86c91f7cd684",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_PaperColorType',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("af558839-edb9-48b8-98ab-12a9955970ef",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_BATTR
+	VALUES ("af558839-edb9-48b8-98ab-12a9955970ef",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_ATTR
+	VALUES ("af558839-edb9-48b8-98ab-12a9955970ef",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	"4f0b1a1b-07b1-4ed5-9901-46924d6ceed8",
+	'paperPrePunched',
+	'',
+	'',
+	'paperPrePunched',
+	0,
+	"ca434774-68fa-427d-8d89-4ffba9ecd387",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("ca434774-68fa-427d-8d89-4ffba9ecd387",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_PaperPrePunchedType',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("d9b4e94d-661d-4b62-a4e1-7262c6735d00",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_BATTR
+	VALUES ("d9b4e94d-661d-4b62-a4e1-7262c6735d00",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_ATTR
+	VALUES ("d9b4e94d-661d-4b62-a4e1-7262c6735d00",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	"af558839-edb9-48b8-98ab-12a9955970ef",
+	'paperWeight',
+	'//-- 446:20071101 Add Start (kanda)
+Modify:Add
+Modify_No:446
+Modifier:kanda
+Modify_Date:20071101
+//-- 446:20071101 Add End (kanda)
+',
+	'',
+	'paperWeight',
+	0,
+	"93fcea1a-2161-455d-910e-a939b4f4d094",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("93fcea1a-2161-455d-910e-a939b4f4d094",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_MediumWeight',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_ID
+	VALUES (0,
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_OIDA
+	VALUES ("127fb87e-d2b1-4495-8fd6-ae8379592708",
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO O_ID
+	VALUES (2,
+	"eb1ba69e-3be8-4d11-9e77-a0498512b9e9");
+INSERT INTO PE_PE
+	VALUES ("eb1ba69e-3be8-4d11-9e77-a0498512b9e9",
+	1,
+	"3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Sheet',
+	'',
+	200,
+	'../Sheet.xtuml');

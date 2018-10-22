@@ -1,0 +1,462 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	'System Resource Recovery',
+	702,
+	'SR_SRC',
+	'//-- 627:20100907 Add Start (kanda)
+// システムリソースの再取得を行う
+Modify:Add
+Modify_No:627
+Modifier:kanda
+Modify_Date:20100907
+//-- 627:20100907 Add End (kanda)
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("2bb4a889-57a1-41f0-9a39-79f0c6e198b4",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	'allSystemResourceFree',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+// 論理シートに関連付いているシステムリソースを解放する
+select many sheets from instances of S_SHT;
+for each aSheet in sheets
+	aSheet.keep();
+end for;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("fd4769b9-4697-494b-8edd-e8c4929734ec",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	'nextSystemResourceRecovery',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+// リカバリーが終了していない先頭のシステムリソースシーケンスを開始する
+select any firstSysytemResouceRecovery from instances of SR_SRC
+	where (selected.isProcessEnd == FALSE);
+
+if (not_empty firstSysytemResouceRecovery)
+	prevSysytemResouceRecovery = firstSysytemResouceRecovery;
+	while (not_empty prevSysytemResouceRecovery)
+		select one aJob related by firstSysytemResouceRecovery->J_EJOB[R701]->J_JOB[R104];
+		select one prevSysytemResouceRecovery
+			related by aJob->J_JOB[R101.''is previous to'']->J_EJOB[R104]->SR_SRC[R701];
+		if (not_empty prevSysytemResouceRecovery)
+			firstSysytemResouceRecovery = prevSysytemResouceRecovery;
+		end if;
+	end while;
+	generate SR_SRC1:start to firstSysytemResouceRecovery;
+end if;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"e30c7591-69f9-4733-a2be-9e672db225f1");
+INSERT INTO O_TFR
+	VALUES ("e30c7591-69f9-4733-a2be-9e672db225f1",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	'delete',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+select any this from instances of SR_SRC
+	where (selected.jobID == param.jobID);
+
+if (not_empty this)
+	select one anExecutingOrigin related by this->S_EOS[R702];
+	if (not_empty anExecutingOrigin)
+		unrelate anExecutingOrigin from this across R702;
+	end if;
+
+	select one aCollateSet related by this->S_CS[R703];
+	if (not_empty aCollateSet)
+		unrelate aCollateSet from this across R703;
+	end if;
+
+	select one aSheet related by this->S_SHT[R704];
+	if (not_empty aSheet)
+		unrelate aSheet from this across R704;
+	end if;
+
+	delete object instance this;
+end if;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"6f5ea328-a1d1-47ce-a182-20406518d69b");
+INSERT INTO O_TPARM
+	VALUES ("181d12fc-152c-41ce-8bbb-9c26acb169ed",
+	"e30c7591-69f9-4733-a2be-9e672db225f1",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("cc10de91-b8d4-4ce4-b3f7-a6d369681ffb",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	'notifyReopen',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 629:20101104 Add Start (kanda)
+// システムリソースの割り当てを待っているインスタンスに再取得を通知する
+// システムリソース割り当て待ちは高々１つ
+// DMからNextSheetReqがきていない場合は、待っているインスタンスはない⇒この場合無視で良い。
+select any aPhysicalSheetRecovery from instances of SR_PSR
+	where (selected.isWaitSystemResourceAssign);
+
+select any aPhysicalSheet from instances of P_PSHT
+	where (selected.isWaitSystemResourceAssign);
+
+select any aPhysicalSheetFace from instances of P_PSHF
+	where (selected.isWaitSystemResourceAssign);
+
+if (not_empty aPhysicalSheetRecovery)
+	generate SR_PSR4:reOpened to aPhysicalSheetRecovery;
+elif (not_empty aPhysicalSheet)
+	select one aNormalPhysicalSheet related by aPhysicalSheet->P_PSLS[R423]->P_NPS[R430];
+	FER::assert(expression : not_empty aNormalPhysicalSheet);
+	generate P_NPS6:reOpened to aNormalPhysicalSheet;
+elif (not_empty aPhysicalSheetFace)
+	generate P_PSHF8:reOpened to aPhysicalSheetFace;
+end if;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"fd4769b9-4697-494b-8edd-e8c4929734ec");
+INSERT INTO O_TFR
+	VALUES ("6f5ea328-a1d1-47ce-a182-20406518d69b",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	'createInstance',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+select any anExecutingJob from instances of J_EJOB
+	where (selected.jobID == param.jobID);
+FER::assert(expression : not_empty anExecutingJob);
+
+create object instance aSysytemResouceRecovery of SR_SRC;
+relate aSysytemResouceRecovery to anExecutingJob across R701;
+//-- 629:20101104 Add End (kanda)
+',
+	1,
+	'',
+	"2bb4a889-57a1-41f0-9a39-79f0c6e198b4");
+INSERT INTO O_TPARM
+	VALUES ("3028dffe-e03c-4907-8994-0541e2f1cca2",
+	"6f5ea328-a1d1-47ce-a182-20406518d69b",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_REF
+	VALUES ("89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	0,
+	"4827bd93-1cdd-4255-84c1-3d508e127ad1",
+	"79dbaa7d-7811-498e-9dc5-1c8c291c69b8",
+	"e5d0a96b-f0c6-4dc4-be62-b7254456c33c",
+	"38349a93-5df3-4e20-8f08-25202326b7fd",
+	"221ab9b0-d8d6-47ef-8b13-aa5a13924cba",
+	"8123657f-c425-4573-8187-1f65c630df11",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Executing Job',
+	'jobID',
+	'R701');
+INSERT INTO R_RGO_PROXY
+	VALUES ("89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	"79dbaa7d-7811-498e-9dc5-1c8c291c69b8",
+	"e5d0a96b-f0c6-4dc4-be62-b7254456c33c",
+	'../SetRecovery.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("4827bd93-1cdd-4255-84c1-3d508e127ad1",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	0,
+	"79dbaa7d-7811-498e-9dc5-1c8c291c69b8",
+	"38349a93-5df3-4e20-8f08-25202326b7fd",
+	'../SetRecovery.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("221ab9b0-d8d6-47ef-8b13-aa5a13924cba",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	"47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	1,
+	'jobID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	'../../Job/Job/Job.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("221ab9b0-d8d6-47ef-8b13-aa5a13924cba",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	"00000000-0000-0000-0000-000000000000",
+	'jobID',
+	'',
+	'',
+	'jobID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	0,
+	"5a013554-36e8-449f-863a-96dc3c4f0543",
+	"d0b09a0b-9b0e-48ca-be43-62f0bbcdc1e6",
+	"988e6576-a878-4b36-ad45-cc82886a2853",
+	"aaeb835e-b35b-4404-98ee-dfe7cecfa253",
+	"0a74686c-8ada-4bf3-b9f1-3f7ca638ed15",
+	"e93165c2-2f7a-4ee5-818d-8317ca251330",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Executing Origin of Set',
+	'ID',
+	'R702');
+INSERT INTO R_RGO_PROXY
+	VALUES ("89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	"d0b09a0b-9b0e-48ca-be43-62f0bbcdc1e6",
+	"988e6576-a878-4b36-ad45-cc82886a2853",
+	'../SetRecovery.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("5a013554-36e8-449f-863a-96dc3c4f0543",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	0,
+	"d0b09a0b-9b0e-48ca-be43-62f0bbcdc1e6",
+	"aaeb835e-b35b-4404-98ee-dfe7cecfa253",
+	'../SetRecovery.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("0a74686c-8ada-4bf3-b9f1-3f7ca638ed15",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	"5a013554-36e8-449f-863a-96dc3c4f0543",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("5a013554-36e8-449f-863a-96dc3c4f0543",
+	"37bb7ec2-c60d-40e4-a83b-4bf731466a2d",
+	'../../Sheet/Executing Origin of Set/Executing Origin of Set.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("0a74686c-8ada-4bf3-b9f1-3f7ca638ed15",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	"221ab9b0-d8d6-47ef-8b13-aa5a13924cba",
+	'iterationExectuingOriginID',
+	'',
+	'',
+	'iterationExectuingOriginID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	"832218a6-b1d8-46e3-b7ad-a10815bef1c6",
+	1,
+	"7268d40b-bd9b-4b9a-92f4-01dd91b2e58e",
+	"0036c710-a3fb-4702-9c6e-f925079d6100",
+	"374ce57b-3575-4f55-8ba9-06b28b52642c",
+	"8cecf241-5466-445a-b5d0-a55f87c4b245",
+	"ca461fd0-3e6a-4330-b0c0-8358d0f391fd",
+	"1fda0568-61b7-4057-bdf1-17411d8a7bb0",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Collate Set',
+	'ID',
+	'R703');
+INSERT INTO R_RGO_PROXY
+	VALUES ("89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	"0036c710-a3fb-4702-9c6e-f925079d6100",
+	"374ce57b-3575-4f55-8ba9-06b28b52642c",
+	'../SetRecovery.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("7268d40b-bd9b-4b9a-92f4-01dd91b2e58e",
+	"832218a6-b1d8-46e3-b7ad-a10815bef1c6",
+	1,
+	"0036c710-a3fb-4702-9c6e-f925079d6100",
+	"8cecf241-5466-445a-b5d0-a55f87c4b245",
+	'../SetRecovery.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("ca461fd0-3e6a-4330-b0c0-8358d0f391fd",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	"7268d40b-bd9b-4b9a-92f4-01dd91b2e58e",
+	"832218a6-b1d8-46e3-b7ad-a10815bef1c6",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("7268d40b-bd9b-4b9a-92f4-01dd91b2e58e",
+	"832218a6-b1d8-46e3-b7ad-a10815bef1c6",
+	'../../Sheet/Collate Set/Collate Set.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("ca461fd0-3e6a-4330-b0c0-8358d0f391fd",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	"0a74686c-8ada-4bf3-b9f1-3f7ca638ed15",
+	'iterationCollateSetID',
+	'',
+	'',
+	'iterationCollateSetID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	"8e3132c4-07d6-4c8b-8aa4-58984ebd75f6",
+	0,
+	"098702d5-2ced-46dd-bd94-3127d068c12c",
+	"ea249f88-cd90-4263-95f0-575eeb7c83ca",
+	"22aa5e53-83e0-4f59-89ad-638b9f0572b4",
+	"52c3fbca-6c60-4fed-8711-11bf3d3066da",
+	"617329a1-3de2-4c2a-89ce-fdfbfcd72205",
+	"977affdb-455d-4d6e-a696-edc8654cf5cc",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Sheet',
+	'ID',
+	'R704');
+INSERT INTO R_RGO_PROXY
+	VALUES ("89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	"ea249f88-cd90-4263-95f0-575eeb7c83ca",
+	"22aa5e53-83e0-4f59-89ad-638b9f0572b4",
+	'../SetRecovery.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("098702d5-2ced-46dd-bd94-3127d068c12c",
+	"8e3132c4-07d6-4c8b-8aa4-58984ebd75f6",
+	0,
+	"ea249f88-cd90-4263-95f0-575eeb7c83ca",
+	"52c3fbca-6c60-4fed-8711-11bf3d3066da",
+	'../SetRecovery.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("617329a1-3de2-4c2a-89ce-fdfbfcd72205",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	"098702d5-2ced-46dd-bd94-3127d068c12c",
+	"8e3132c4-07d6-4c8b-8aa4-58984ebd75f6",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("098702d5-2ced-46dd-bd94-3127d068c12c",
+	"8e3132c4-07d6-4c8b-8aa4-58984ebd75f6",
+	'../../Sheet/Sheet/Sheet.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("617329a1-3de2-4c2a-89ce-fdfbfcd72205",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	"ca461fd0-3e6a-4330-b0c0-8358d0f391fd",
+	'iterationSheetID',
+	'',
+	'',
+	'iterationSheetID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("4807f66f-cc47-4005-8b6e-974d0b3a7747",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f");
+INSERT INTO O_BATTR
+	VALUES ("4807f66f-cc47-4005-8b6e-974d0b3a7747",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f");
+INSERT INTO O_ATTR
+	VALUES ("4807f66f-cc47-4005-8b6e-974d0b3a7747",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	"617329a1-3de2-4c2a-89ce-fdfbfcd72205",
+	'isProcessEnd',
+	'すべての処理が終了しているかどうか(=消滅待ち)',
+	'',
+	'isProcessEnd',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("74d7635f-a66b-4c80-8bed-5f649dfca494",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f");
+INSERT INTO O_BATTR
+	VALUES ("74d7635f-a66b-4c80-8bed-5f649dfca494",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f");
+INSERT INTO O_ATTR
+	VALUES ("74d7635f-a66b-4c80-8bed-5f649dfca494",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	"4807f66f-cc47-4005-8b6e-974d0b3a7747",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("db6f136d-0585-4776-87cf-8e7b841ea30c",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f");
+INSERT INTO O_BATTR
+	VALUES ("db6f136d-0585-4776-87cf-8e7b841ea30c",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f");
+INSERT INTO O_ATTR
+	VALUES ("db6f136d-0585-4776-87cf-8e7b841ea30c",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	"74d7635f-a66b-4c80-8bed-5f649dfca494",
+	'isWaitingPageAssigned',
+	'ページ(システムリソース)割り当て待ちかどうか
+',
+	'',
+	'isWaitingPageAssigned',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f");
+INSERT INTO O_OIDA
+	VALUES ("221ab9b0-d8d6-47ef-8b13-aa5a13924cba",
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	0,
+	'jobID');
+INSERT INTO O_ID
+	VALUES (1,
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f");
+INSERT INTO O_ID
+	VALUES (2,
+	"89a62c6a-e760-469d-9a8d-9e95c1534a0f");
+INSERT INTO PE_PE
+	VALUES ("89a62c6a-e760-469d-9a8d-9e95c1534a0f",
+	1,
+	"012246fa-449f-4e4a-8011-94451c5e3d32",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("012246fa-449f-4e4a-8011-94451c5e3d32",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'SetRecovery',
+	'',
+	700,
+	'../SetRecovery.xtuml');

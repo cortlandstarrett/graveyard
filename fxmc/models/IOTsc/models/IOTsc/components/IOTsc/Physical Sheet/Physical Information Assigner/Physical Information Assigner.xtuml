@@ -1,0 +1,376 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	'Physical Information Assigner',
+	400,
+	'P_PSA',
+	'//-- 246:20050818 Add Start (kanda)
+状態「Waiting Physical Sheet Deletion」を追加
+メンバ「isWaitingPhysica SheetDeletion」を追加
+イベント「waitPhysicalSheetDeletion」を追加
+//-- 246:20050818 Add End (kanda)
+//-- 671:20110420 Add Start (ikegaya)
+イベント「requestProcess」を追加
+//-- 671:20110420 Add End (ikegaya)
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("34ce5b6d-624f-4ad0-8c14-751544fb9eff",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	'addRequest',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'select any aNewRequest from instances of P_PISR
+	where ( selected.ID == param.requestID );
+FER::assert( expression : not_empty aNewRequest );
+
+select any aPhysicalRequest related by self->P_PISR[R406];
+
+relate self to aNewRequest across R406;
+
+if ( not_empty aPhysicalRequest )
+	select one aNextRequest related by aPhysicalRequest->P_PISR[R408.''is next to''];
+	while ( not_empty aNextRequest )
+		aPhysicalRequest = aNextRequest;
+		select one anAssigner related by aPhysicalRequest->P_PSA[R406];
+		if ( empty anAssigner )
+			relate self to aPhysicalRequest across R406;
+		end if;
+		select one aNextRequest related by aPhysicalRequest->P_PISR[R408.''is next to''];
+	end while;
+	relate aPhysicalRequest to aNewRequest across R408.''is next to'';
+else
+	// 先頭の関係を張る
+	relate aNewRequest to self across R414;
+end if;
+
+	',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("2dc85a77-f7e4-4ace-84b8-9547f8c94930",
+	"34ce5b6d-624f-4ad0-8c14-751544fb9eff",
+	'requestID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("e8304268-30d0-4465-b28c-cb846f60bc11",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	'removeRequest',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'select any aRemoveRequest from instances of P_PISR
+	where ( selected.ID == param.requestID );
+FER::assert( expression : not_empty aRemoveRequest );
+
+unrelate self from aRemoveRequest across R406;
+
+isFirst = FALSE;
+select one aTmpAssigner related by aRemoveRequest->P_PSA[R414];
+if ( not_empty aTmpAssigner )
+	isFirst = TRUE;
+	unrelate self from aRemoveRequest across R414;
+end if;
+
+select one aNextRequest related by aRemoveRequest->P_PISR[R408.''is next to''];
+if ( not_empty aNextRequest )
+	unrelate aRemoveRequest from aNextRequest across R408.''is next to'';
+	if ( isFirst )
+		relate self to aNextRequest across R414;
+	end if;
+end if;
+',
+	1,
+	'',
+	"3239ef6a-922d-4f42-b1cb-1998879023bc");
+INSERT INTO O_TPARM
+	VALUES ("21bbf0a0-798f-447f-9a60-90627bbfb650",
+	"e8304268-30d0-4465-b28c-cb846f60bc11",
+	'requestID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("3239ef6a-922d-4f42-b1cb-1998879023bc",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	'physicalSheetDeleted',
+	'//-- 246:20050822 Add Start (kanda)
+物理シートが消滅したことを通知する。(排出やアボートなど)
+//-- 246:20050822 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 246:20050822 Add Start (kanda)
+select any aRequestAssigner from instances of P_PSA
+	where ( selected.isWaitingPhysicalSheetDeletion );
+if ( not_empty aRequestAssigner )
+	generate P_PSA9 : physicalSheetDeleted to aRequestAssigner;
+end if;
+//-- 246:20050822 Add End (kanda)
+',
+	1,
+	'',
+	"34ce5b6d-624f-4ad0-8c14-751544fb9eff");
+INSERT INTO O_REF
+	VALUES ("9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	"5502ec61-dff3-491b-89ef-8c6e6f0a8561",
+	0,
+	"e068eaa2-b871-49f9-acbe-b2c1075055fe",
+	"755cece6-b92a-4087-8bdf-b1dc403af8bb",
+	"8aa82ee7-51be-47fd-b22f-c220752029cf",
+	"28924a47-7c3a-4117-a1e0-0a069a925566",
+	"59236d6d-03b4-4f0a-88bf-e86fd5954294",
+	"f0cd8d71-174e-4cf2-b6ff-043686549cba",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Physical Information Accepter',
+	'jobID',
+	'R416');
+INSERT INTO R_RGO_PROXY
+	VALUES ("9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	"755cece6-b92a-4087-8bdf-b1dc403af8bb",
+	"8aa82ee7-51be-47fd-b22f-c220752029cf",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("e068eaa2-b871-49f9-acbe-b2c1075055fe",
+	"5502ec61-dff3-491b-89ef-8c6e6f0a8561",
+	0,
+	"755cece6-b92a-4087-8bdf-b1dc403af8bb",
+	"28924a47-7c3a-4117-a1e0-0a069a925566",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("59236d6d-03b4-4f0a-88bf-e86fd5954294",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	"47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	0,
+	'jobID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	'../../Job/Job/Job.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("59236d6d-03b4-4f0a-88bf-e86fd5954294",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	"00000000-0000-0000-0000-000000000000",
+	'jobID',
+	'',
+	'',
+	'jobID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	0,
+	"d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	"68f87579-cdb4-4edb-ac37-45e0c38bbba9",
+	"e006d2ca-5bba-48da-a7fd-fafb0bfa08af",
+	"69402c25-a4fa-494b-94b8-d248161a281b",
+	"b866bf32-e70c-4916-89af-4b06ae29128c",
+	"741754c9-f4b8-444a-b759-93d5e3ddafee",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Physical Information Send Request',
+	'ID',
+	'R414.''current''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	"68f87579-cdb4-4edb-ac37-45e0c38bbba9",
+	"e006d2ca-5bba-48da-a7fd-fafb0bfa08af",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	0,
+	"68f87579-cdb4-4edb-ac37-45e0c38bbba9",
+	"69402c25-a4fa-494b-94b8-d248161a281b",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("b866bf32-e70c-4916-89af-4b06ae29128c",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	"d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	'../Physical Information Send Request/Physical Information Send Request.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("b866bf32-e70c-4916-89af-4b06ae29128c",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	"59236d6d-03b4-4f0a-88bf-e86fd5954294",
+	'currentRequestID',
+	'',
+	'',
+	'currentRequestID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("088ae9c4-d30f-482d-bf06-3a1bb8313162",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c");
+INSERT INTO O_BATTR
+	VALUES ("088ae9c4-d30f-482d-bf06-3a1bb8313162",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c");
+INSERT INTO O_ATTR
+	VALUES ("088ae9c4-d30f-482d-bf06-3a1bb8313162",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	"b866bf32-e70c-4916-89af-4b06ae29128c",
+	'isSheetRequestReceived',
+	'',
+	'',
+	'isSheetRequestReceived',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("ed69f11a-195d-4170-83da-2da237c8b582",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c");
+INSERT INTO O_BATTR
+	VALUES ("ed69f11a-195d-4170-83da-2da237c8b582",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c");
+INSERT INTO O_ATTR
+	VALUES ("ed69f11a-195d-4170-83da-2da237c8b582",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	"088ae9c4-d30f-482d-bf06-3a1bb8313162",
+	'isWaitingNextSheet',
+	'//-- 114:20040618 Add
+PPMを出すために１枚目の出力をこらえる為の対応で、
+次のSheetまたはSet Endまたはタイムアウトを待っていることを
+示すフラグ
+
+これがTRUEの場合にはこれらの場合にイベントを受けるようにすること',
+	'',
+	'isWaitingNextSheet',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c8034bbb-2a47-47fd-9b39-1dd7c0ba3a3e",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c");
+INSERT INTO O_BATTR
+	VALUES ("c8034bbb-2a47-47fd-9b39-1dd7c0ba3a3e",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c");
+INSERT INTO O_ATTR
+	VALUES ("c8034bbb-2a47-47fd-9b39-1dd7c0ba3a3e",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	"ed69f11a-195d-4170-83da-2da237c8b582",
+	'isAnySheetProcessed',
+	'//-- 114:20040618 Add Start
+シートを一つでも処理したかどうかを示す。
+処理とはP_PSIRに対してprocessを送ったかどうかを示す。',
+	'',
+	'isAnySheetProcessed',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("be6a4fad-8426-4bcf-983a-89815c377e21",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c");
+INSERT INTO O_BATTR
+	VALUES ("be6a4fad-8426-4bcf-983a-89815c377e21",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c");
+INSERT INTO O_ATTR
+	VALUES ("be6a4fad-8426-4bcf-983a-89815c377e21",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	"c8034bbb-2a47-47fd-9b39-1dd7c0ba3a3e",
+	'isWaitingPhysicalSheetDeletion',
+	'//-- 246:20050818 Add Start (kanda)
+物理シートがsheetLibの最大数に達し、削除待ちであることを示す。
+生成時にアーキテクチャにより、FALSEにセットされる。
+//-- 246:20050818 Add End (kanda)
+',
+	'',
+	'isWaitingPhysicalSheetDeletion',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("e18cb36c-bd87-4c6a-8573-fa50e1bb844a",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c");
+INSERT INTO O_BATTR
+	VALUES ("e18cb36c-bd87-4c6a-8573-fa50e1bb844a",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c");
+INSERT INTO O_ATTR
+	VALUES ("e18cb36c-bd87-4c6a-8573-fa50e1bb844a",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	"be6a4fad-8426-4bcf-983a-89815c377e21",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c");
+INSERT INTO O_OIDA
+	VALUES ("59236d6d-03b4-4f0a-88bf-e86fd5954294",
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	0,
+	'jobID');
+INSERT INTO O_ID
+	VALUES (1,
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c");
+INSERT INTO O_ID
+	VALUES (2,
+	"9b25e3b0-65da-417c-ae06-3ad3be71ea0c");
+INSERT INTO PE_PE
+	VALUES ("9b25e3b0-65da-417c-ae06-3ad3be71ea0c",
+	1,
+	"28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Physical Sheet',
+	'このサブシステムは実際の出力を行うためのDMとのI/Fおよび論理シートだけでは
+表現できない出力に関する概念を抽象化したものです。
+
+このサブシステムで表現されるものには以下の項目があります。
+1. DMとのI/Fを実現する内部キュー
+2.キューが処理対象となった実シートおよび実イメージ
+3.バナー、合紙などの論理シート以外で表現されるシート（表紙は論理シートで表現される）
+
+DMとのI/Fといっても表現されるのは以下のものです。
+SC→DM
+SET_START_INFO
+SHEET_INFO
+SET_END_INFO
+JOB_END_INFO
+
+DM→SC
+NEXT_SHEET_REQ
+IMAGE_REQ
+SHEET_END
+
+JOB_START_INFOも当初含まれていましたが（モデルにもまだ存在するが）キューに
+おくことにより不具合が生じたため、現状ではJ_EJOBから直接ブリッジのコールが行われています。
+
+',
+	400,
+	'../Physical Sheet.xtuml');

@@ -1,0 +1,40 @@
+Index: q.val.translate.arc
+===================================================================
+--- q.val.translate.arc	(revision 316)
++++ q.val.translate.arc	(revision 318)
+@@ -522,12 +522,16 @@
+ .//-- 002: 20140123 Add Start (saitou) 
+       .if ( ( l_te_dt.IsExternalMacro ) or ( r_te_dt.IsExternalMacro ) )
+         .// external macro
++        .//
++        .// external macro でない方も、文字列ならOALを。そうでなければ元のままbufferを用いる。
+         .assign lBuffer = l_te_val.buffer
+-        .if( not l_te_dt.IsExternalMacro )
++        .select one l_v_lst related by l_te_val->V_VAL[R2040]->V_LST[R801]
++        .if ( ( not l_te_dt.IsExternalMacro ) and ( not_empty l_v_lst ) )
+           .assign lBuffer = l_te_val.OAL
+         .end if
+         .assign rBuffer = r_te_val.buffer
+-        .if( not r_te_dt.IsExternalMacro )
++        .select one r_v_lst related by r_te_val->V_VAL[R2040]->V_LST[R801]
++        .if ( ( not r_te_dt.IsExternalMacro ) and ( not_empty r_v_lst ) )
+           .assign rBuffer = r_te_val.OAL
+         .end if
+         .//
+Index: q.smt.generate.arc
+===================================================================
+--- q.smt.generate.arc	(revision 316)
++++ q.smt.generate.arc	(revision 318)
+@@ -1521,7 +1521,11 @@
+     .end if
+     .if ( not_empty func_ret_s_dt )
+       .if ( func_ret_s_dt.IsExternalMacro )
+-        .assign value = te_val.OAL
++        .// 文字列ならOALを。そうでなければ元のままbufferを用いる。
++        .select one v_lst related by te_val->V_VAL[R2040]->V_LST[R801]
++        .if ( not_empty v_lst )
++          .assign value = te_val.OAL
++        .end if
+       .end if
+     .end if
+ .//-- 002: 20140317 Add End (saitou) 

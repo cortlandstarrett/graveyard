@@ -1,0 +1,348 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	'Need Interaction Process',
+	118,
+	'J_NIP',
+	'Need Interaction Processは、リクエスタへの介入が必要な要因をクラスとして抽出したものです。
+
+１つのジョブについて介入が必要な要因は複数存在することがありますが、その場合R117の関係により、順番待ちとなります。先頭のものに対してのみ介入要求ができます。
+
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("a54aa9db-e8e4-4471-b06b-9409963a1922",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	'addToInteractionQ',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	1,
+	'// このオペレーションはInteractionキューに自分自身を登録し、
+// もし自分がキューの先頭（すなわち他にいない場合）はTRUEを、
+// 他にキュー内にいる場合にはFALSEを返します。
+// このオペレーションを呼ぶ前にR118の関係を張っておくこと
+select one anExecutingJob related by self->J_EJOB[R118];
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero( expression : not_empty anExecutingJob );
+//-- 845:20140227 Modified End (saitou) 
+select any aProcess related by anExecutingJob->J_NIP[R118]
+	where ( selected.ID != self.ID );
+
+if ( empty aProcess )
+	return TRUE;
+end if;
+
+select one aNextProcess related by aProcess->J_NIP[R117.''is next to''];
+while ( not_empty aNextProcess )
+	aProcess = aNextProcess;
+	select one aNextProcess related by aProcess->J_NIP[R117.''is next to''];
+end while;
+
+//-- 129:20040707 Modified Start
+relate aProcess to self across R117.''is next to'';
+//-- 129:20040707 Modified End
+
+return FALSE;',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("e0ead4d5-51a3-4a40-b60a-663f06a4fbe8",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	'removeFromInteractionQ',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	1,
+	'// このオペレーションはInteractionキューから自分自身を削除し、
+// もし削除後他のProcessが存在する場合にはTRUEを、
+// 存在しない場合にはFALSEを返します。
+
+select one aNextProcess related by self->J_NIP[R117.''is next to''];
+select one aPrevProcess related by self->J_NIP[R117.''is previous to''];
+
+if ( empty aNextProcess )
+	return FALSE;
+end if;
+
+unrelate self from aNextProcess across R117.''is next to'';
+
+// 前がいる場合にはつないでおく
+if ( not_empty aPrevProcess )
+	relate aPrevProcess to aNextProcess across R117.''is next to'';
+end if;
+
+return TRUE;
+',
+	1,
+	'',
+	"d85b41c3-ad1b-4d8f-85c6-b825f400dbe7");
+INSERT INTO O_TFR
+	VALUES ("d85b41c3-ad1b-4d8f-85c6-b825f400dbe7",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	'isFirst',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	1,
+	'select one aPrevProcess related by self->J_NIP[R117.''is previous to''];
+
+return empty aPrevProcess;',
+	1,
+	'',
+	"a54aa9db-e8e4-4471-b06b-9409963a1922");
+INSERT INTO O_REF
+	VALUES ("07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	"60fd7d55-9b60-41e2-a5c9-f5b80a2c6965",
+	0,
+	"f33cf85a-a598-4386-b390-de42907873d8",
+	"5997f465-2e35-4a0a-9b7e-282d35e3b3d0",
+	"ebdb6f5c-a966-4a19-94cf-77809d66ddbc",
+	"297b3fa3-76b3-4404-b788-9e7523084515",
+	"38b43a08-77a6-4393-9b09-3fcc05b00c60",
+	"0e9f561f-9126-4bd7-9011-137e520b5b2f",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Need Print Pause Process',
+	'ID',
+	'R110');
+INSERT INTO R_RGO_PROXY
+	VALUES ("07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	"5997f465-2e35-4a0a-9b7e-282d35e3b3d0",
+	"ebdb6f5c-a966-4a19-94cf-77809d66ddbc",
+	'../Job.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("f33cf85a-a598-4386-b390-de42907873d8",
+	"60fd7d55-9b60-41e2-a5c9-f5b80a2c6965",
+	0,
+	"5997f465-2e35-4a0a-9b7e-282d35e3b3d0",
+	"297b3fa3-76b3-4404-b788-9e7523084515",
+	'../Job.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("38b43a08-77a6-4393-9b09-3fcc05b00c60",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	"f33cf85a-a598-4386-b390-de42907873d8",
+	"60fd7d55-9b60-41e2-a5c9-f5b80a2c6965",
+	1,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("f33cf85a-a598-4386-b390-de42907873d8",
+	"60fd7d55-9b60-41e2-a5c9-f5b80a2c6965",
+	'../Need Print Pause Process/Need Print Pause Process.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("38b43a08-77a6-4393-9b09-3fcc05b00c60",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	0,
+	"4827bd93-1cdd-4255-84c1-3d508e127ad1",
+	"3acbde8d-4ce5-4d98-996c-c37a542ac5f5",
+	"7792f921-40f0-4be6-b77e-fa9713553ecd",
+	"99dc2405-170b-4087-b8c7-a0a166664d6c",
+	"9e473ab4-3aea-4430-9736-46808d6a8985",
+	"7489ae2f-0d36-4401-857d-970a6b01dd32",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Executing Job',
+	'jobID',
+	'R118');
+INSERT INTO R_RGO_PROXY
+	VALUES ("07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	"3acbde8d-4ce5-4d98-996c-c37a542ac5f5",
+	"7792f921-40f0-4be6-b77e-fa9713553ecd",
+	'../Job.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("4827bd93-1cdd-4255-84c1-3d508e127ad1",
+	"d158f8ef-7ce6-4a33-9861-e139cf8e0d5c",
+	0,
+	"3acbde8d-4ce5-4d98-996c-c37a542ac5f5",
+	"99dc2405-170b-4087-b8c7-a0a166664d6c",
+	'../Job.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("9e473ab4-3aea-4430-9736-46808d6a8985",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	"47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	1,
+	'jobID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	'../Job/Job.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("9e473ab4-3aea-4430-9736-46808d6a8985",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	"38b43a08-77a6-4393-9b09-3fcc05b00c60",
+	'jobID',
+	'',
+	'',
+	'jobID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	0,
+	"38b43a08-77a6-4393-9b09-3fcc05b00c60",
+	"511fc821-fe58-47a2-a492-904225657d2e",
+	"3f1e4928-95b5-47c8-a919-2c2f540731a9",
+	"a8a53852-c4cd-4f71-85ad-36fa677e707f",
+	"aac998b0-148c-4460-ac46-c7ce4b8b912a",
+	"30d9694e-1e30-4e50-af5f-f4bb06bb23e4",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Need Interaction Process',
+	'ID',
+	'R117.''is next to''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	"511fc821-fe58-47a2-a492-904225657d2e",
+	"3f1e4928-95b5-47c8-a919-2c2f540731a9",
+	'../Job.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("38b43a08-77a6-4393-9b09-3fcc05b00c60",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	0,
+	"511fc821-fe58-47a2-a492-904225657d2e",
+	"a8a53852-c4cd-4f71-85ad-36fa677e707f",
+	'../Job.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("aac998b0-148c-4460-ac46-c7ce4b8b912a",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	"f33cf85a-a598-4386-b390-de42907873d8",
+	"60fd7d55-9b60-41e2-a5c9-f5b80a2c6965",
+	0,
+	'ID');
+INSERT INTO O_ATTR
+	VALUES ("aac998b0-148c-4460-ac46-c7ce4b8b912a",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	"9e473ab4-3aea-4430-9736-46808d6a8985",
+	'nextInteractionProcess',
+	'',
+	'',
+	'nextInteractionProcess',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("806c4556-c1ee-43f2-80ad-d43c37810d63",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9");
+INSERT INTO O_BATTR
+	VALUES ("806c4556-c1ee-43f2-80ad-d43c37810d63",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9");
+INSERT INTO O_ATTR
+	VALUES ("806c4556-c1ee-43f2-80ad-d43c37810d63",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	"aac998b0-148c-4460-ac46-c7ce4b8b912a",
+	'failCode',
+	'',
+	'',
+	'failCode',
+	0,
+	"adab3b81-ff2c-417d-b169-f9374ac12561",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("adab3b81-ff2c-417d-b169-f9374ac12561",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_FailCode',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("a5d98e8d-2e0d-4409-8d1f-6d0c3686163e",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9");
+INSERT INTO O_BATTR
+	VALUES ("a5d98e8d-2e0d-4409-8d1f-6d0c3686163e",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9");
+INSERT INTO O_ATTR
+	VALUES ("a5d98e8d-2e0d-4409-8d1f-6d0c3686163e",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	"806c4556-c1ee-43f2-80ad-d43c37810d63",
+	'paramID',
+	'',
+	'',
+	'paramID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("c5f5b821-8831-4a12-a6fc-3929d6cb12e9",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9");
+INSERT INTO O_BATTR
+	VALUES ("c5f5b821-8831-4a12-a6fc-3929d6cb12e9",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9");
+INSERT INTO O_ATTR
+	VALUES ("c5f5b821-8831-4a12-a6fc-3929d6cb12e9",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	"a5d98e8d-2e0d-4409-8d1f-6d0c3686163e",
+	'isInteractionEnd',
+	'',
+	'',
+	'isInteractionEnd',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("acf9d51c-2096-4590-a724-3e1e062a54b6",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9");
+INSERT INTO O_BATTR
+	VALUES ("acf9d51c-2096-4590-a724-3e1e062a54b6",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9");
+INSERT INTO O_ATTR
+	VALUES ("acf9d51c-2096-4590-a724-3e1e062a54b6",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	"c5f5b821-8831-4a12-a6fc-3929d6cb12e9",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9");
+INSERT INTO O_OIDA
+	VALUES ("38b43a08-77a6-4393-9b09-3fcc05b00c60",
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9");
+INSERT INTO O_ID
+	VALUES (2,
+	"07bb266e-0dc4-44e3-8b41-46ee4d0331e9");
+INSERT INTO PE_PE
+	VALUES ("07bb266e-0dc4-44e3-8b41-46ee4d0331e9",
+	1,
+	"1ef61a85-d4bb-4a75-8902-08208261e3ec",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("1ef61a85-d4bb-4a75-8902-08208261e3ec",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Job',
+	'',
+	100,
+	'../Job.xtuml');

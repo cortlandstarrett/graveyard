@@ -1,0 +1,355 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("05ac7fe0-18e1-4726-8117-6cd94e85fc25",
+	'Set Start Request',
+	406,
+	'P_SSR',
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("5e710ac0-c6a6-4d12-97b0-08c25db15e15",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25",
+	'createInstance',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'create object instance this of P_SSR;
+
+select any aRequestAccepter from instances of P_PIA
+	where ( selected.jobID == param.jobID );
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero( expression : not_empty aRequestAccepter );
+//-- 845:20140227 Modified End (saitou) 
+
+create object instance aPhysicalRequest of P_PISR;
+relate this to aPhysicalRequest across R407;
+aPhysicalRequest.isSheetRequestNeed = TRUE;
+
+select any aCollateSet from instances of S_CS
+	where ( selected.ID == param.collateSetID );
+//-- 845:20140227 Modified Start (saitou) 
+FER::assert_with_return_zero( expression : not_empty aCollateSet );
+//-- 845:20140227 Modified End (saitou) 
+relate this to aCollateSet across R412;
+
+// Accepterにイベントを送信
+//generate P_PIA1:requestArrived( requestID : aPhysicalRequest.ID ) to aRequestAccepter;
+
+this.sendOffsetMode = param.offset;
+//this.startOffsetPosition = param.startOffsetPosition;
+this.totalRunLength = param.totalRunLength;
+
+return  aPhysicalRequest.ID;',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("b37bca30-ad26-4279-81d9-c94a16f248ad",
+	"5e710ac0-c6a6-4d12-97b0-08c25db15e15",
+	'collateSetID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("68f5e8e6-c03d-4142-81a8-a05762347750",
+	"5e710ac0-c6a6-4d12-97b0-08c25db15e15",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"26555502-fff9-402f-b8e2-6a46b0b2607d",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("dc4cd586-f5db-4a9f-86a3-55be58a6e613",
+	"5e710ac0-c6a6-4d12-97b0-08c25db15e15",
+	'totalRunLength',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"0c65c204-5e05-488b-a329-6ad1a0fa18eb",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("0c65c204-5e05-488b-a329-6ad1a0fa18eb",
+	"5e710ac0-c6a6-4d12-97b0-08c25db15e15",
+	'offset',
+	"0fe07d66-b874-4a2b-b9ed-85678fa18a41",
+	0,
+	'',
+	"68f5e8e6-c03d-4142-81a8-a05762347750",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0fe07d66-b874-4a2b-b9ed-85678fa18a41",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_OffsetMode',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("26555502-fff9-402f-b8e2-6a46b0b2607d",
+	"5e710ac0-c6a6-4d12-97b0-08c25db15e15",
+	'devidedNo',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"b37bca30-ad26-4279-81d9-c94a16f248ad",
+	'');
+INSERT INTO O_REF
+	VALUES ("05ac7fe0-18e1-4726-8117-6cd94e85fc25",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	0,
+	"d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	"48dc12f6-3206-42ee-9325-efe27bcce2ef",
+	"05c276ab-8ef5-42e1-a094-0899b2dae0c7",
+	"89da0332-6f52-4a49-bb13-3512d3c93033",
+	"aab171de-c4b1-4b3b-8897-4c8853eabc20",
+	"aef9653e-e19e-4530-9777-4653041537a1",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Physical Information Send Request',
+	'ID',
+	'R407');
+INSERT INTO R_RGO_PROXY
+	VALUES ("05ac7fe0-18e1-4726-8117-6cd94e85fc25",
+	"48dc12f6-3206-42ee-9325-efe27bcce2ef",
+	"05c276ab-8ef5-42e1-a094-0899b2dae0c7",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	0,
+	"48dc12f6-3206-42ee-9325-efe27bcce2ef",
+	"89da0332-6f52-4a49-bb13-3512d3c93033",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("aab171de-c4b1-4b3b-8897-4c8853eabc20",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25",
+	"d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	1,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("d7ca78d0-a712-4eb8-9f5f-282ac7d1f494",
+	"f04b829e-5532-49d9-a442-0a76bbe299b6",
+	'../Physical Information Send Request/Physical Information Send Request.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("aab171de-c4b1-4b3b-8897-4c8853eabc20",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("ff5f4206-cb41-4544-b860-5f06c97088f5",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25");
+INSERT INTO O_BATTR
+	VALUES ("ff5f4206-cb41-4544-b860-5f06c97088f5",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25");
+INSERT INTO O_ATTR
+	VALUES ("ff5f4206-cb41-4544-b860-5f06c97088f5",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25",
+	"aab171de-c4b1-4b3b-8897-4c8853eabc20",
+	'startOffsetPosition',
+	'',
+	'',
+	'startOffsetPosition',
+	0,
+	"3023bb0c-ee82-413f-8bcc-8af53537b337",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("3023bb0c-ee82-413f-8bcc-8af53537b337",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_OffsetPosition',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("4eb9d0be-55f3-4e50-95b1-546a5c5077e8",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25");
+INSERT INTO O_BATTR
+	VALUES ("4eb9d0be-55f3-4e50-95b1-546a5c5077e8",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25");
+INSERT INTO O_ATTR
+	VALUES ("4eb9d0be-55f3-4e50-95b1-546a5c5077e8",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25",
+	"ff5f4206-cb41-4544-b860-5f06c97088f5",
+	'totalRunLength',
+	'',
+	'',
+	'totalRunLength',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("05ac7fe0-18e1-4726-8117-6cd94e85fc25",
+	"832218a6-b1d8-46e3-b7ad-a10815bef1c6",
+	1,
+	"7268d40b-bd9b-4b9a-92f4-01dd91b2e58e",
+	"80a80154-8934-498c-a25e-3a63301b76d3",
+	"5ec7b398-7094-4ea4-a80f-f0b324278ec2",
+	"d9b7bed1-25ed-4e0c-9035-f52cb636ec14",
+	"9dd411fc-42a8-4d49-b39c-71f3f9f6077e",
+	"6f34089d-ca4f-45aa-a3ff-05ce1573a2ce",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Collate Set',
+	'ID',
+	'R412');
+INSERT INTO R_RGO_PROXY
+	VALUES ("05ac7fe0-18e1-4726-8117-6cd94e85fc25",
+	"80a80154-8934-498c-a25e-3a63301b76d3",
+	"5ec7b398-7094-4ea4-a80f-f0b324278ec2",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("7268d40b-bd9b-4b9a-92f4-01dd91b2e58e",
+	"832218a6-b1d8-46e3-b7ad-a10815bef1c6",
+	1,
+	"80a80154-8934-498c-a25e-3a63301b76d3",
+	"d9b7bed1-25ed-4e0c-9035-f52cb636ec14",
+	'../Physical Sheet.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("9dd411fc-42a8-4d49-b39c-71f3f9f6077e",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25",
+	"7268d40b-bd9b-4b9a-92f4-01dd91b2e58e",
+	"832218a6-b1d8-46e3-b7ad-a10815bef1c6",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("7268d40b-bd9b-4b9a-92f4-01dd91b2e58e",
+	"832218a6-b1d8-46e3-b7ad-a10815bef1c6",
+	'../../Sheet/Collate Set/Collate Set.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("9dd411fc-42a8-4d49-b39c-71f3f9f6077e",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25",
+	"4eb9d0be-55f3-4e50-95b1-546a5c5077e8",
+	'collateSetID',
+	'',
+	'',
+	'collateSetID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("47c29cc9-0953-4816-9e12-c59fc0c53e91",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25");
+INSERT INTO O_BATTR
+	VALUES ("47c29cc9-0953-4816-9e12-c59fc0c53e91",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25");
+INSERT INTO O_ATTR
+	VALUES ("47c29cc9-0953-4816-9e12-c59fc0c53e91",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25",
+	"9dd411fc-42a8-4d49-b39c-71f3f9f6077e",
+	'sendOffsetMode',
+	'',
+	'',
+	'sendOffsetMode',
+	0,
+	"0fe07d66-b874-4a2b-b9ed-85678fa18a41",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("9869933d-b5b3-49ff-829c-985bcd988a1d",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25");
+INSERT INTO O_BATTR
+	VALUES ("9869933d-b5b3-49ff-829c-985bcd988a1d",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25");
+INSERT INTO O_ATTR
+	VALUES ("9869933d-b5b3-49ff-829c-985bcd988a1d",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25",
+	"47c29cc9-0953-4816-9e12-c59fc0c53e91",
+	'devidedNo',
+	'',
+	'',
+	'devidedNo',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("8206ca67-c1ab-4320-9672-3fae198a7a85",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25");
+INSERT INTO O_BATTR
+	VALUES ("8206ca67-c1ab-4320-9672-3fae198a7a85",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25");
+INSERT INTO O_ATTR
+	VALUES ("8206ca67-c1ab-4320-9672-3fae198a7a85",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25",
+	"9869933d-b5b3-49ff-829c-985bcd988a1d",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25");
+INSERT INTO O_OIDA
+	VALUES ("aab171de-c4b1-4b3b-8897-4c8853eabc20",
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25");
+INSERT INTO O_ID
+	VALUES (2,
+	"05ac7fe0-18e1-4726-8117-6cd94e85fc25");
+INSERT INTO PE_PE
+	VALUES ("05ac7fe0-18e1-4726-8117-6cd94e85fc25",
+	1,
+	"28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("28fc50bb-7ef4-4c01-8869-47dfe8e56857",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Physical Sheet',
+	'このサブシステムは実際の出力を行うためのDMとのI/Fおよび論理シートだけでは
+表現できない出力に関する概念を抽象化したものです。
+
+このサブシステムで表現されるものには以下の項目があります。
+1. DMとのI/Fを実現する内部キュー
+2.キューが処理対象となった実シートおよび実イメージ
+3.バナー、合紙などの論理シート以外で表現されるシート（表紙は論理シートで表現される）
+
+DMとのI/Fといっても表現されるのは以下のものです。
+SC→DM
+SET_START_INFO
+SHEET_INFO
+SET_END_INFO
+JOB_END_INFO
+
+DM→SC
+NEXT_SHEET_REQ
+IMAGE_REQ
+SHEET_END
+
+JOB_START_INFOも当初含まれていましたが（モデルにもまだ存在するが）キューに
+おくことにより不具合が生じたため、現状ではJ_EJOBから直接ブリッジのコールが行われています。
+
+',
+	400,
+	'../Physical Sheet.xtuml');

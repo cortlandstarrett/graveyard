@@ -1,0 +1,131 @@
+Index: t.smt_sr.many_atobmwhere.c
+===================================================================
+--- t.smt_sr.many_atobmwhere.c	(revision 392)
++++ t.smt_sr.many_atobmwhere.c	(revision 394)
+@@ -9,10 +9,12 @@
+ .// property of Mentor Graphics Corp.  No part of this document may be
+ .// reproduced without the express written permission of Mentor Graphics Corp.
+ .//============================================================================
++.//-- 031:20140515 Modified Start (nomura)
+ .//-- 027:20140417 Modified Start (nomura)
+-${ws}${te_set.module}${te_set.Init}( ${te_select_related.result_var}, &pG_${te_class.GeneratedName}_extent );
+-/*${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var} ); */
++/* ${ws}${te_set.module}${te_set.Init}( ${te_select_related.result_var}, &pG_${te_class.GeneratedName}_extent ); */
++${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var}, &pG_${te_class.GeneratedName}_extent );
+ .//-- 027:20140417 Modified End (nomura)
++.//-- 031:20140515 Modified End (nomura)
+ ${ws}{${te_lnk.te_classGeneratedName} * selected;
+ ${ws}${te_set.scope}${te_set.iterator_class_name} ${te_lnk.iterator};
+ ${ws}${te_set.iterator_reset}( &${te_lnk.iterator}, &${te_lnk.left}->${te_lnk.linkage} );
+Index: t.smt.select_where.c
+===================================================================
+--- t.smt.select_where.c	(revision 392)
++++ t.smt.select_where.c	(revision 394)
+@@ -8,10 +8,12 @@
+   .if ( te_select_where.is_implicit )
+     .// CDS Check here if we are in a while loop or not.
+     .// if ( in_loop )
++.//--031:20140515 Modified Start (nomura)
+ .//--027:20140417 Modified Start (nomura)
+-${ws}${te_set.module}${te_set.init}( ${te_select_where.var_name}, &pG_${te_select_where.class_name}_extent ); 
+-/* ${ws}${te_set.module}${te_set.clear}( ${te_select_where.var_name} ); */ 
++/* ${ws}${te_set.module}${te_set.init}( ${te_select_where.var_name}, &pG_${te_select_where.class_name}_extent ); */
++${ws}${te_set.module}${te_set.clear}( ${te_select_where.var_name}, &pG_${te_select_where.class_name}_extent  );  
+ .//--027:20140417 Modified End (nomura)
++.//--031:20140515 Modified End (nomura)
+     .// end if
+   .else
+     .// Existing inst_ref_set<Object> handle set. Clear current contents of collection.
+Index: q.smt.generate.arc
+===================================================================
+--- q.smt.generate.arc	(revision 392)
++++ q.smt.generate.arc	(revision 394)
+@@ -221,8 +221,13 @@
+     .elif ( ( 9 == te_assign.Core_Typ ) or ( 21 == te_assign.Core_Typ ) )
+       .// First OAL use of inst_ref_set<Object> handle set. Initialize with class extent.
+       .assign selection_result_variable = te_assign.lval
+-      .assign d = "${te_set.scope}${te_set.base_class} ${selection_result_variable}_space={0};${te_set.scope}${te_set.base_class} * ${selection_result_variable} = &${selection_result_variable}_space;"
++      .assign d = "\n${ws}${te_set.scope}${te_set.base_class} ${selection_result_variable}_space={0};\n${ws}${te_set.scope}${te_set.base_class} * ${selection_result_variable} = &${selection_result_variable}_space;"
+       .invoke blk_declaration_append( te_blk, d )
++.//-- 031:20140514 Modified Start (nomura)
++      .assign d = "\n${ws}${te_set.module}${te_set.init}( ${selection_result_variable}, &pG_${te_class.GeneratedName}_extent );"
++      .invoke blk_declaration_append( te_blk, d )
++.//-- 031:20140514 Modified End (nomura)
++      
+       .// Push deallocation into the block so that it is available at gen time for break/continue/return.
+ .//-- 027:20140418 Modified Start (nomura)
+       .//.assign d = ( ( te_set.module + te_set.clear ) + ( "( " + te_assign.lval ) ) + " );"
+@@ -758,6 +763,10 @@
+         .assign selection_result_variable = te_select.var_name
+         .assign d = "\n${ws}${te_set.scope}${te_set.base_class} ${selection_result_variable}_space={0}; \n${ws}${te_set.scope}${te_set.base_class} * ${selection_result_variable} = &${selection_result_variable}_space;"
+         .invoke blk_declaration_append( te_blk, d )
++.//-- 031:20140514 Modified Start (nomura)
++      .assign d = "\n${ws}${te_set.module}${te_set.init}( ${selection_result_variable}, &pG_${te_class.GeneratedName}_extent );"
++      .invoke blk_declaration_append( te_blk, d )
++.//-- 031:20140514 Modified End (nomura)
+         .// Push deallocation into the block so that it is available at gen time for break/continue/return.
+ .//-- 027:20140418 Modified Start (nomura)
+         .//.assign d = ( ( te_set.module + te_set.clear ) + ( "( " + te_select.var_name ) ) + " );"
+@@ -867,8 +876,12 @@
+       .if ( te_select_where.is_implicit )
+         .// First OAL usage of inst_ref_set<Object> handle set
+         .assign selection_result_variable = te_select_where.var_name
+-        .assign d = "${te_set.scope}${te_set.base_class} ${selection_result_variable}_space={0};  ${te_set.scope}${te_set.base_class} * ${selection_result_variable} = &${selection_result_variable}_space;"
++        .assign d = "\n${ws}${te_set.scope}${te_set.base_class} ${selection_result_variable}_space={0};  \n${ws}${te_set.scope}${te_set.base_class} * ${selection_result_variable} = &${selection_result_variable}_space;"
+         .invoke blk_declaration_append( te_blk, d )
++.//-- 031:20140514 Modified Start (nomura)
++      .assign d = "\n${ws}${te_set.init}( ${selection_result_variable}, &pG_${te_class.GeneratedName}_extent );"
++      .invoke blk_declaration_append( te_blk, d )
++.//-- 031:20140514 Modified End (nomura)
+         .// Push deallocation into the block so that it is available at gen time for break/continue/return.
+ .//-- 027:20140418 Modified Start (nomura)
+         .//.assign d = ( ( te_set.module + te_set.clear ) + ( "( " + te_select_where.var_name ) ) + " );"
+@@ -1808,8 +1821,12 @@
+   .// declaration
+   .if ( te_select_related.is_implicit )
+     .if ( "many" == te_select_related.multiplicity )
+-      .assign d = "${te_set.scope}${te_set.base_class} ${te_select_related.result_var}_space={0};  ${te_set.scope}${te_set.base_class} * ${te_select_related.result_var} = &${te_select_related.result_var}_space;"
++      .assign d = "\n${ws}${te_set.scope}${te_set.base_class} ${te_select_related.result_var}_space={0};  \n${ws}${te_set.scope}${te_set.base_class} * ${te_select_related.result_var} = &${te_select_related.result_var}_space;"
+       .invoke blk_declaration_append( te_blk, d )
++.//-- 031:20140514 Modified Start (nomura)
++      .assign d = "\n${ws}${te_set.init}( ${te_select_related.result_var}, &pG_${te_class.GeneratedName}_extent );"
++      .invoke blk_declaration_append( te_blk, d )
++.//-- 031:20140514 Modified End (nomura)
+ .//-- 027:20140418 Modified Start (nomura)
+       .assign d = "${te_set.module}${te_set.clear}( ${te_select_related.result_var}, &pG_${te_class.GeneratedName}_extent ); "
+ .//-- 027:20140418 Modified End (nomura)
+Index: t.smt.select.c
+===================================================================
+--- t.smt.select.c	(revision 392)
++++ t.smt.select.c	(revision 394)
+@@ -4,8 +4,10 @@
+ .elif ( "many" == te_select.multiplicity )
+   .// The copy method will clear out and free up system resources
+   .// used within the set.
++.//-- 031:20140515 Delete Start (nomura)
+ .//-- 027:20140417 Add Start (nomura)
+-${ws}${te_set.module}${te_set.init}( ${te_select.var_name}, &${extent} );
++/* ${ws}${te_set.module}${te_set.init}( ${te_select.var_name}, &${extent} ); */
+ .//-- 027:20140417 Add End (nomura)
++.//-- 031:20140515 Delete End (nomura)
+ ${ws}${te_set.module}${te_set.copy}( ${te_select.var_name}, &${extent}.${te_extent.active} );
+ .end if
+Index: t.smt_sr.many_atobm.c
+===================================================================
+--- t.smt_sr.many_atobm.c	(revision 392)
++++ t.smt_sr.many_atobm.c	(revision 394)
+@@ -9,10 +9,12 @@
+ .// property of Mentor Graphics Corp.  No part of this document may be
+ .// reproduced without the express written permission of Mentor Graphics Corp.
+ .//============================================================================
++.//--031:20140515 Delete Start (nomura)
+ .//--027:20140417 Modified Start (nomura)
+-${ws}${te_set.module}${te_set.init}( ${te_select_related.result_var}, &pG_${te_class.GeneratedName}_extent );
+-/*${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var} );*/
++/* ${ws}${te_set.module}${te_set.init}( ${te_select_related.result_var}, &pG_${te_class.GeneratedName}_extent ); */
++/* ${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var}, &${te_lnk.left}->${te_lnk.linkage} ); */
+ .//--027:20140417 Modified End (nomura)
++.//--031:20140515 Delete End (nomura)
+ ${ws}if ( 0 != ${te_lnk.left} ) {
+ ${ws}  ${te_set.module}${te_set.copy}( ${te_select_related.result_var}, &${te_lnk.left}->${te_lnk.linkage} );
+ ${ws}}

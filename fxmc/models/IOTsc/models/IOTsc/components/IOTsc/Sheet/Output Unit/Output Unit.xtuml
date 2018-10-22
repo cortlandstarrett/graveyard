@@ -1,0 +1,117 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("1f04dc59-dc06-4b16-9925-382af529b54f",
+	'Output Unit',
+	236,
+	'S_OU',
+	'Modify:Add
+Modify_No:423
+Modifier:kanda
+Modify_Date:20070727
+
+//-- 423:20070727 Add Start (kanda)
+排出単位を抽象化したもの。
+排出単位とはジョブやセット、シートのこと。
+//-- 423:20070727 Add End (kanda)
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("7af4bea1-0902-4815-bc97-72ac827a1792",
+	"1f04dc59-dc06-4b16-9925-382af529b54f",
+	'delete',
+	'//-- 423:20070724 Add Start (kanda)
+outputUnitIDで指定したS_OUと関連などの後始末を実施する
+//-- 423:20070724 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 423:20070724 Add Start (kanda)
+select any aOutputUnit from instances of S_OU
+	where ( selected.ID == param.outputUnitID );
+FER::assert( expression : not_empty aOutputUnit );
+
+select many outputOrders related by aOutputUnit->S_OH[R278];
+for each aOutputOrder in outputOrders
+	unrelate aOutputOrder from aOutputUnit across R278;
+	delete object instance aOutputOrder;
+end for;
+
+select one aSheet related by aOutputUnit->S_SHT[R277];
+select one aCollateSet related by aOutputUnit->S_CS[R277];
+select one anExecutingJob related by aOutputUnit->J_EJOB[R277];
+
+if ( not_empty aSheet )
+	unrelate aOutputUnit from aSheet across R277;
+end if;
+
+if ( not_empty aCollateSet )
+	unrelate aOutputUnit from aCollateSet across R277;
+end if;
+
+if ( not_empty anExecutingJob )
+	unrelate aOutputUnit from anExecutingJob across R277;
+end if;
+
+delete object instance aOutputUnit;
+
+//-- 423:20070724 Add End (kanda)
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("52d06bd1-c4fc-4ade-8aa0-9436bfed5acc",
+	"7af4bea1-0902-4815-bc97-72ac827a1792",
+	'outputUnitID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("741b05ab-8987-4245-a3d5-154743ddcae9",
+	"1f04dc59-dc06-4b16-9925-382af529b54f");
+INSERT INTO O_BATTR
+	VALUES ("741b05ab-8987-4245-a3d5-154743ddcae9",
+	"1f04dc59-dc06-4b16-9925-382af529b54f");
+INSERT INTO O_ATTR
+	VALUES ("741b05ab-8987-4245-a3d5-154743ddcae9",
+	"1f04dc59-dc06-4b16-9925-382af529b54f",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"1f04dc59-dc06-4b16-9925-382af529b54f");
+INSERT INTO O_OIDA
+	VALUES ("741b05ab-8987-4245-a3d5-154743ddcae9",
+	"1f04dc59-dc06-4b16-9925-382af529b54f",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"1f04dc59-dc06-4b16-9925-382af529b54f");
+INSERT INTO O_ID
+	VALUES (2,
+	"1f04dc59-dc06-4b16-9925-382af529b54f");
+INSERT INTO PE_PE
+	VALUES ("1f04dc59-dc06-4b16-9925-382af529b54f",
+	1,
+	"3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Sheet',
+	'',
+	200,
+	'../Sheet.xtuml');

@@ -1,0 +1,636 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	'Job Hold Request',
+	106,
+	'J_JHR',
+	'Job Hold Requestはジョブの資源解放要求（held）を抽象化したクラスです。
+
+この指示を受けた場合は再開情報を残してジョブ内の情報をすべて削除します。
+Pause指示との優先順関係はJob Pause Requestを参照してください。
+
+Heldの処理を行うにはまずdmにPRINT_PAUSE指示を出し、その後内部のデータを
+削除するという順を取ります。したがって、Print Pause Processのサブタイプと
+なっています。
+
+割り込み時にはInterrupt Requestが先にできて、Held指示が来ますが、FAXの
+キャンセルの場合には単独でheldが指示される場合があります。
+
+//-- 347: 20060915 Add Start (kanda)
+セットリカバリ時に先頭ジョブまで巻き戻すために内部的にHold処理を実施する。
+通常のHold処理とセットリカバリを区別するためにAttributeにreasonを追加。
+//-- 347: 20060915 Add End (kanda)
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("0d26c34f-69f1-487b-9143-b83b67b84b0b",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	'remove',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'select any aJobHold from instances of J_JHR
+	where( selected.jobID == param.jobID );
+if ( not_empty aJobHold )
+	select one aJob related by aJobHold->J_JOB[R107];
+	select one aPauseProcess related by aJobHold->J_NPP[R110];
+	select one aPrintPauseRequest related by aPauseProcess->J_PPR[R111];
+	if ( not_empty aPrintPauseRequest )
+		select any anOtherNeedPrintPause related by aPrintPauseRequest->J_NPP[R111]
+			where ( selected.ID != aPauseProcess.ID );
+		if ( empty anOtherNeedPrintPause )
+			unrelate aPrintPauseRequest from aPauseProcess across R111;
+			generate J_PPR3:resumeRequest to aPrintPauseRequest;
+		end if;
+	end if;
+
+	unrelate aPauseProcess from aJobHold across R110;
+	unrelate aJobHold from aJob across R107;
+	delete object instance aJobHold;
+	delete object instance aPauseProcess;
+
+//-- 629:20101022 Add Start (kanda)
+	SR_SRF::notifyEndJobOperation();
+//-- 629:20101022 Add End (kanda)
+
+end if;',
+	1,
+	'',
+	"dea1d52c-e69a-4c1e-ba01-bf623f809088");
+INSERT INTO O_TPARM
+	VALUES ("31754f27-166c-4ce7-beab-5d9cb34d692b",
+	"0d26c34f-69f1-487b-9143-b83b67b84b0b",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("edb8e036-6215-4fd1-b313-7369607a1648",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	'setResumeInfo',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//select one anExecutingJob related by self->J_JOB[R107]->J_EJOB[R104];
+select any anExecutingJob from instances of J_EJOB
+	where ( selected.jobID == param.jobID );
+if ( not_empty anExecutingJob )
+	if ( not anExecutingJob.isParamFixed )
+		// パラメータが確定していないので割り込み情報設定
+		// 対象外
+		return;
+	end if;
+	select one aRestartParam related by anExecutingJob->S_PFR[R234];
+	if ( not_empty aRestartParam )
+		// 再開処理中は更新を行わない
+		// これは再開後すぐに割り込みボタンが押されるケースを考えてのこと
+		return;
+	end if;
+
+	jobID = anExecutingJob.jobID;
+	select one aJobRestartInfo related by anExecutingJob->S_JRI[R200];
+	select one aStartBannerRequest related by anExecutingJob->P_SBNR[R424];
+	select one anEndBannerRequest related by anExecutingJob-> P_EBNR[R425];
+	select one aNormalPrintStep related by anExecutingJob->S_NPS[R252];
+	
+	isStartBannerDelivered = FALSE;
+
+	bannerMode = PF::getBannerMode( jobID : jobID );
+	if (	bannerMode == IotSc_BannerMode::eStartBannerOnly or 
+		bannerMode == IotSc_BannerMode::eStartAndEndBanner  )
+		// Banner指定はあるが、P_SBNRが存在しないので、出力されたことを示す。
+		if ( empty aStartBannerRequest )
+			isStartBannerDelivered = TRUE;
+		end if;
+	end if;
+
+	PF::setRestartPositionInfo(
+		rootDocUserNo : aJobRestartInfo.rootDocNo,
+		documentUserNo : aJobRestartInfo.documentNo,
+		sectionUserNo : aJobRestartInfo.sectionNo,
+		restartFaceNo :  aJobRestartInfo.lastFaceNo,
+		jobID : jobID,
+		sheetNoInSet : aJobRestartInfo.sheetNoInSet,
+//-- 238:20050725 Add Start (kanda)
+		physicalSheetNoInSet : aJobRestartInfo.physicalSheetNoInSet,
+//-- 238:20050725 Add End (kanda)
+//-- 353:20061121 Add Start (kanda)
+		userSheetNum : aJobRestartInfo.userSheetNum,
+//-- 353:20061121 Add End (kanda)
+		runLength : aJobRestartInfo.runLength );
+
+	PF::setRestartParamInfo(
+		jobID : jobID,
+		outtray : aJobRestartInfo.outtray,
+		colorType : aJobRestartInfo.outputColorMode,
+		stapleMode : aJobRestartInfo.staple,
+//-- 14270:20130507 Deleted Start (ikegaya)
+//		isStartBlankPage : FALSE ,   // Temporary
+//-- 14270:20130507 Deleted End (ikegaya)
+		isProofRestarted : aJobRestartInfo.isReceivedPrintAllConfirmation,
+		isStartEndBanner : FALSE , // このパラメータは必要ない
+		fold : aJobRestartInfo.fold,
+		punch : aJobRestartInfo.punch,
+		exitFace : aJobRestartInfo.exitFace,
+		firstImageDirection : aJobRestartInfo.firstImageDirection,
+		annotationTotalPageNum : aJobRestartInfo.annotationTotalPageNum,
+		// total pageは使用せず、BookletのTotal Pageを格納することにした
+		isStartBannerDelivered : isStartBannerDelivered ,
+		annotationStartNo : aJobRestartInfo.annotationStartNo,
+//-- 14270:20130507 Deleted Start (ikegaya)
+//		deliveredSheetNumInSet : aJobRestartInfo.deliveredSheetNumInSet,
+//-- 14270:20130507 Deleted End (ikegaya)
+		pageRequireOrderFor1stSet : aJobRestartInfo.pageRequireOrderFor1stSet,
+		firstInterleafMode : aJobRestartInfo.firstInterleafMode,
+		resolution : aJobRestartInfo.resolution,
+		firstPunchSize : aJobRestartInfo.firstPunchSize,
+		firstPunchDirection : aJobRestartInfo.firstPunchDirection ,
+		isJobNotNeedDevide : aJobRestartInfo.isJobNotNeedDevide,
+		totalPageNum : aJobRestartInfo.bookletTotalPage,
+		is1stPageBackSide : aJobRestartInfo.is1stPageBackSide,
+		jobDuplexDirection : aJobRestartInfo.jobDuplexDirection
+//-- 226:20050706 Add Start (kanda)
+		, isStickingSheetExist : aJobRestartInfo.isStickingSheetExist
+//-- 226:20050706 Add End (kanda)
+//-- 313:20060426 Add Start (kanda)
+		, batesTotalNo : aJobRestartInfo.batesTotalNo
+		, batesStartNo : aJobRestartInfo.batesStartNo
+//-- 313:20060426 Add End (kanda)
+//-- 350:20061012 Add Start (kanda)
+		, isSetSeparatorSheetDelivered : aJobRestartInfo.isSetSeparatorSheetDelivered
+//-- 350:20061012 Add End (kanda)
+//-- 358:20061225 Add Start (kanda)
+		, totalAnnotationTargetCount : aJobRestartInfo.totalAnnotationTargetCount
+		, totalAnnotationTargetCountExceptCoverAndInserter : 
+			aJobRestartInfo.totalAnnotationTargetCountExceptCoverAndInserter
+		, annotationTargetCountStartNo : aJobRestartInfo.annotationTargetCountStartNo
+		, annotationTargetCountExceptCoverAndInserterStartNo : 
+			aJobRestartInfo.annotationTargetCountExceptCoverAndInserterStartNo
+//-- 358:20061225 Add End (kanda)
+//-- 423:20070727 Add Start (kanda)
+		, firstOuttrayInJob : aJobRestartInfo.firstOuttrayInJob
+		, firstOuttrayInSet : aJobRestartInfo.firstOuttrayInSet
+		, firstOuttrayInSheet : aJobRestartInfo.firstOuttrayInSheet
+		, secondOuttrayInJob : aJobRestartInfo.secondOuttrayInJob
+		, secondOuttrayInSet : aJobRestartInfo.secondOuttrayInSet
+		, secondOuttrayInSheet : aJobRestartInfo.secondOuttrayInSheet
+//-- 423:20070727 Add End (kanda)
+//-- 445:20071121 Add Start (kanda)
+		, validPageCount : aJobRestartInfo.validPageCount
+		, totalValidPageCount : aJobRestartInfo.totalValidPageCount
+		, isBoundary : aJobRestartInfo.isBoundary
+//-- 445:20071121 Add End (kanda)
+//-- 530:20080911 Add Start (kanda)
+		, isBookletTrimmingCanceled : aJobRestartInfo.isBookletTrimmingCanceled
+		, isBookletSqFoldCanceled : aJobRestartInfo.isBookletSqFoldCanceled
+//-- 530:20080911 Add End (kanda)
+//-- 571:20090626 Add Start (kanda)
+		, totalValidPageCountOnJob : aJobRestartInfo.totalValidPageCountOnJob
+		, totalValidPageCountOnJobInSet : aJobRestartInfo.totalValidPageCountOnJobInSet
+		, firstValidPageCountOnJobInSet : aJobRestartInfo.firstValidPageCountOnJobInSet
+		, validPageCountOnJobNumInSet : aJobRestartInfo.validPageCountOnJobNumInSet
+		, isJobParseEnd : aJobRestartInfo.isJobParseEnd
+//-- 571:20090626 Add End (kanda)
+//-- 639:20110214 Add Start (kanda)
+		, isNextSheetPadCover : aJobRestartInfo.isNextSheetPadCover
+//-- 639:20110214 Add End (kanda)
+//-- 643:20110228 Add Start (ikegaya)
+		, sequentialPageNoOnJobNumInSet : aJobRestartInfo.sequentialPageNoOnJobNumInSet
+		, initialSequentialPageNoOnJobInSet : aJobRestartInfo.initialSequentialPageNoOnJobInSet
+		, totalSequentialPageNoOnJobInSet : aJobRestartInfo.totalSequentialPageNoOnJobInSet
+//-- 643:20110228 Add End (ikegaya)
+		);
+		
+end if;
+	
+	
+		
+	
+	',
+	1,
+	'',
+	"0d26c34f-69f1-487b-9143-b83b67b84b0b");
+INSERT INTO O_TPARM
+	VALUES ("95a79c00-6bda-4c11-ac92-16386b4d89e9",
+	"edb8e036-6215-4fd1-b313-7369607a1648",
+	'isSetTreeInfo',
+	"ba5eda7a-def5-0000-0000-000000000001",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("4a9f1732-29d7-4879-a011-9e74706cbd65",
+	"edb8e036-6215-4fd1-b313-7369607a1648",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"95a79c00-6bda-4c11-ac92-16386b4d89e9",
+	'');
+INSERT INTO O_TFR
+	VALUES ("c85e0fd9-338f-4850-a8b9-83b5aae70283",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	'createInstance',
+	'//-- 627:20100915 Add Start (kanda)
+Modify:Add
+Modify_No:627
+Modifier:kanda
+Modify_Date:20100915
+//-- 627:20100915 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 629:20101104 Add Start (kanda)
+select any aJob from instances of J_JOB
+	where (selected.jobID == param.jobID);
+FER::assert(expression : not_empty aJob);
+
+create object instance this of J_JHR;
+
+relate this to aJob across R107;
+
+this.reason = param.reason;
+this.isHoldEnd = FALSE ;
+this.isHoldCancelEnable = TRUE;
+this.isNextJobNeed = FALSE;
+
+//スーパータイプの構築
+create object instance  aPauseProcess of J_NPP;
+relate this to aPauseProcess across R110;
+//-- 629:20101104 Add End (kanda)
+
+//-- 846:20140414 Add Start (ikegaya)
+// 割り込み要求の場合は、JobOrderHoldされるジョブとしてリスト（記憶）する
+select any anInterrupt from instances of J_ITR;
+if (not_empty anInterrupt)
+	anInterrupt.listWaitForHeldJob(isFixedListWaitForHeldJob : TRUE);
+end if;
+//-- 846:20140414 Add End (ikegaya)
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("3785ce5a-f5ff-4b7c-9c91-85428745e455",
+	"c85e0fd9-338f-4850-a8b9-83b5aae70283",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("0d7f0586-b091-44be-b0fe-5aed64a5ddc4",
+	"c85e0fd9-338f-4850-a8b9-83b5aae70283",
+	'reason',
+	"43bca094-b1f8-475b-869c-d863a5498679",
+	0,
+	'',
+	"3785ce5a-f5ff-4b7c-9c91-85428745e455",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("43bca094-b1f8-475b-869c-d863a5498679",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_HoldReason',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("dea1d52c-e69a-4c1e-ba01-bf623f809088",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	'jobHoldRequest',
+	'//-- 627:20100915 Add Start (kanda)
+Modify:Add
+Modify_No:627
+Modifier:kanda
+Modify_Date:20100915
+//-- 627:20100915 Add End (kanda)
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'select any aJob from instances of J_JOB
+	where (selected.jobID == param.jobID);
+//-- 0104801:20140827 Add Start (ikegaya)
+FER::assert(expression : not_empty aJob);
+//-- 0104801:20140827 Add End (ikegaya)
+
+select one aJobHold related by aJob->J_JHR[R107] ;
+select one aJobPause related by aJob->J_JPR[R106];
+
+if (not_empty aJobPause)
+	if (not aJobPause.isPauseEndNotified)
+		return;
+	end if;
+end if;
+
+if (empty aJobHold)
+	J_JHR::createInstance(jobID : aJob.jobID, reason : param.reason);
+	select any aJobHoldRequest from instances of J_JHR
+		where (selected.jobID == aJob.jobID);
+	FER::assert(expression : not_empty aJobHoldRequest);
+	generate J_JHR1:printPauseRequest to aJobHoldRequest;
+end if;
+',
+	1,
+	'',
+	"c85e0fd9-338f-4850-a8b9-83b5aae70283");
+INSERT INTO O_TPARM
+	VALUES ("fa07c5de-8cf7-4936-9b88-2409e737c7e4",
+	"dea1d52c-e69a-4c1e-ba01-bf623f809088",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("23426809-4477-481f-b292-9a247dc4d3a1",
+	"dea1d52c-e69a-4c1e-ba01-bf623f809088",
+	'reason',
+	"43bca094-b1f8-475b-869c-d863a5498679",
+	0,
+	'',
+	"fa07c5de-8cf7-4936-9b88-2409e737c7e4",
+	'');
+INSERT INTO O_REF
+	VALUES ("858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	0,
+	"47673d6f-a3be-45e6-8453-46bc9a597882",
+	"cb612c4d-c1f7-43b1-8265-e1c7e730aa7d",
+	"71c9c89a-47f1-4bc6-9d08-cb0e032e7d20",
+	"8596ed48-73bb-4f87-a48f-cc81ad96d6f7",
+	"6179ee2c-54f2-40fb-a3e2-fc589b80b953",
+	"3a149445-6a2b-4453-bbb8-bef6c248e223",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Job',
+	'jobID',
+	'R107.''request to hold''');
+INSERT INTO R_RGO_PROXY
+	VALUES ("858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	"cb612c4d-c1f7-43b1-8265-e1c7e730aa7d",
+	"71c9c89a-47f1-4bc6-9d08-cb0e032e7d20",
+	'../Job.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	0,
+	"cb612c4d-c1f7-43b1-8265-e1c7e730aa7d",
+	"8596ed48-73bb-4f87-a48f-cc81ad96d6f7",
+	'../Job.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("6179ee2c-54f2-40fb-a3e2-fc589b80b953",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	"47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	1,
+	'jobID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("47673d6f-a3be-45e6-8453-46bc9a597882",
+	"1437bed7-7362-4ced-900a-fd8fc7af941d",
+	'../Job/Job.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("6179ee2c-54f2-40fb-a3e2-fc589b80b953",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	"00000000-0000-0000-0000-000000000000",
+	'jobID',
+	'',
+	'',
+	'jobID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_REF
+	VALUES ("858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	"60fd7d55-9b60-41e2-a5c9-f5b80a2c6965",
+	0,
+	"f33cf85a-a598-4386-b390-de42907873d8",
+	"5997f465-2e35-4a0a-9b7e-282d35e3b3d0",
+	"3ae9fa5e-f6c8-4696-902a-41b882f3b461",
+	"297b3fa3-76b3-4404-b788-9e7523084515",
+	"5b50434a-4ea5-4817-a014-dc2d4787ed78",
+	"b2a09eb4-eee5-415a-bd53-134d780efbd2",
+	"00000000-0000-0000-0000-000000000000",
+	0,
+	'',
+	'Need Print Pause Process',
+	'ID',
+	'R110');
+INSERT INTO R_RGO_PROXY
+	VALUES ("858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	"5997f465-2e35-4a0a-9b7e-282d35e3b3d0",
+	"3ae9fa5e-f6c8-4696-902a-41b882f3b461",
+	'../Job.xtuml');
+INSERT INTO O_RTIDA_PROXY
+	VALUES ("f33cf85a-a598-4386-b390-de42907873d8",
+	"60fd7d55-9b60-41e2-a5c9-f5b80a2c6965",
+	0,
+	"5997f465-2e35-4a0a-9b7e-282d35e3b3d0",
+	"297b3fa3-76b3-4404-b788-9e7523084515",
+	'../Job.xtuml');
+INSERT INTO O_RATTR
+	VALUES ("5b50434a-4ea5-4817-a014-dc2d4787ed78",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	"f33cf85a-a598-4386-b390-de42907873d8",
+	"60fd7d55-9b60-41e2-a5c9-f5b80a2c6965",
+	0,
+	'ID');
+INSERT INTO O_BATTR_PROXY
+	VALUES ("f33cf85a-a598-4386-b390-de42907873d8",
+	"60fd7d55-9b60-41e2-a5c9-f5b80a2c6965",
+	'../Need Print Pause Process/Need Print Pause Process.xtuml');
+INSERT INTO O_ATTR
+	VALUES ("5b50434a-4ea5-4817-a014-dc2d4787ed78",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	"6179ee2c-54f2-40fb-a3e2-fc589b80b953",
+	'processID',
+	'',
+	'',
+	'processID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000007",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("495d9d79-1d85-4e9c-9d4d-e6a4dcabb7eb",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e");
+INSERT INTO O_BATTR
+	VALUES ("495d9d79-1d85-4e9c-9d4d-e6a4dcabb7eb",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e");
+INSERT INTO O_ATTR
+	VALUES ("495d9d79-1d85-4e9c-9d4d-e6a4dcabb7eb",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	"5b50434a-4ea5-4817-a014-dc2d4787ed78",
+	'isHoldEnd',
+	'',
+	'',
+	'isHoldEnd',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("a2fb305e-acdf-4ded-9f71-5b44259fe1e0",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e");
+INSERT INTO O_BATTR
+	VALUES ("a2fb305e-acdf-4ded-9f71-5b44259fe1e0",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e");
+INSERT INTO O_ATTR
+	VALUES ("a2fb305e-acdf-4ded-9f71-5b44259fe1e0",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	"495d9d79-1d85-4e9c-9d4d-e6a4dcabb7eb",
+	'isHoldCancelEnable',
+	'',
+	'',
+	'isHoldCancelEnable',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("27741c5b-50ad-40fc-aa1f-f5dbe03025d1",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e");
+INSERT INTO O_BATTR
+	VALUES ("27741c5b-50ad-40fc-aa1f-f5dbe03025d1",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e");
+INSERT INTO O_ATTR
+	VALUES ("27741c5b-50ad-40fc-aa1f-f5dbe03025d1",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	"a2fb305e-acdf-4ded-9f71-5b44259fe1e0",
+	'isNextJobNeed',
+	'',
+	'',
+	'isNextJobNeed',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("e5e59d9c-9391-4f0a-8df8-c6acef367f48",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e");
+INSERT INTO O_BATTR
+	VALUES ("e5e59d9c-9391-4f0a-8df8-c6acef367f48",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e");
+INSERT INTO O_ATTR
+	VALUES ("e5e59d9c-9391-4f0a-8df8-c6acef367f48",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	"27741c5b-50ad-40fc-aa1f-f5dbe03025d1",
+	'reason',
+	'',
+	'',
+	'reason',
+	0,
+	"43bca094-b1f8-475b-869c-d863a5498679",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("f91bff77-6087-4f40-ba63-73ba2c35fac8",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e");
+INSERT INTO O_BATTR
+	VALUES ("f91bff77-6087-4f40-ba63-73ba2c35fac8",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e");
+INSERT INTO O_ATTR
+	VALUES ("f91bff77-6087-4f40-ba63-73ba2c35fac8",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	"e5e59d9c-9391-4f0a-8df8-c6acef367f48",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("7629dc61-fcfb-4eb6-8acb-2b569c316d1f",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e");
+INSERT INTO O_BATTR
+	VALUES ("7629dc61-fcfb-4eb6-8acb-2b569c316d1f",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e");
+INSERT INTO O_ATTR
+	VALUES ("7629dc61-fcfb-4eb6-8acb-2b569c316d1f",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	"f91bff77-6087-4f40-ba63-73ba2c35fac8",
+	'isHoldNotified',
+	'//-- 627:20101012 Add Start (kanda)
+// 割り込み処理が開始されているかどうかを示す
+Modify:Add
+Modify_No:627
+Modifier:kanda
+Modify_Date:20101012
+//-- 627:20101012 Add End (kanda)
+',
+	'',
+	'isHoldNotified',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("36e2f18c-49a8-4802-a799-71c08d9db4f3",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e");
+INSERT INTO O_BATTR
+	VALUES ("36e2f18c-49a8-4802-a799-71c08d9db4f3",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e");
+INSERT INTO O_ATTR
+	VALUES ("36e2f18c-49a8-4802-a799-71c08d9db4f3",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	"7629dc61-fcfb-4eb6-8acb-2b569c316d1f",
+	'isProcessEnd',
+	'//-- 627:20101021 Add Start (kanda)
+ジョブ操作が終了したことを表す
+//-- 627:20101021 Add End (kanda)
+',
+	'',
+	'isProcessEnd',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000001",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e");
+INSERT INTO O_OIDA
+	VALUES ("6179ee2c-54f2-40fb-a3e2-fc589b80b953",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	0,
+	'jobID');
+INSERT INTO O_ID
+	VALUES (1,
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e");
+INSERT INTO O_OIDA
+	VALUES ("5b50434a-4ea5-4817-a014-dc2d4787ed78",
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	1,
+	'processID');
+INSERT INTO O_ID
+	VALUES (2,
+	"858f8a2f-2e40-469c-a7f8-a07dd8a9a09e");
+INSERT INTO PE_PE
+	VALUES ("858f8a2f-2e40-469c-a7f8-a07dd8a9a09e",
+	1,
+	"1ef61a85-d4bb-4a75-8902-08208261e3ec",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("1ef61a85-d4bb-4a75-8902-08208261e3ec",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Job',
+	'',
+	100,
+	'../Job.xtuml');

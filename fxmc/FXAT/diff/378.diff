@@ -1,0 +1,473 @@
+Index: q.sys.populate.arc
+===================================================================
+--- q.sys.populate.arc	(revision 374)
++++ q.sys.populate.arc	(revision 378)
+@@ -2594,10 +2594,6 @@
+   .assign right_te_lnk.Mult = 0
+   .assign right_te_lnk.left = te_lnk.linkage
+   .assign attr_result = te_lnk
+-.print "+++ te_lnk ID:${te_lnk.ID} rel_phrase:${te_lnk.rel_phrase} rel_number:${te_lnk.rel_number}"
+-.print "+++ te_lnk OAL:${te_lnk.OAL} buffer:${te_lnk.buffer}"
+-.print "+++ te_lnk linkage:${te_lnk.linkage} iterator:${te_lnk.iterator} left:${te_lnk.left}"
+-.print "+++ te_lnk te_classGeneratedName:${te_lnk.te_classGeneratedName} assoc_type:${te_lnk.assoc_type}"
+ .end function
+ .//
+ .//============================================================================
+Index: t.smt_sr.many_atobmwhere.c
+===================================================================
+--- t.smt_sr.many_atobmwhere.c	(revision 374)
++++ t.smt_sr.many_atobmwhere.c	(revision 378)
+@@ -9,7 +9,10 @@
+ .// property of Mentor Graphics Corp.  No part of this document may be
+ .// reproduced without the express written permission of Mentor Graphics Corp.
+ .//============================================================================
+-${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var} );
++.//-- 027:20140417 Modified Start (nomura)
++${ws}${te_set.module}${te_set.Init}( ${te_select_related.result_var}, &pG_${te_class.GeneratedName}_extent );
++/*${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var} ); */
++.//-- 027:20140417 Modified End (nomura)
+ ${ws}{${te_lnk.te_classGeneratedName} * selected;
+ ${ws}${te_set.scope}${te_set.iterator_class_name} ${te_lnk.iterator};
+ ${ws}${te_set.iterator_reset}( &${te_lnk.iterator}, &${te_lnk.left}->${te_lnk.linkage} );
+Index: t.smt.select_where.c
+===================================================================
+--- t.smt.select_where.c	(revision 374)
++++ t.smt.select_where.c	(revision 378)
+@@ -8,11 +8,16 @@
+   .if ( te_select_where.is_implicit )
+     .// CDS Check here if we are in a while loop or not.
+     .// if ( in_loop )
+-${ws}${te_set.module}${te_set.clear}( ${te_select_where.var_name} );
++.//--027:20140417 Modified Start (nomura)
++${ws}${te_set.module}${te_set.init}( ${te_select_where.var_name}, &pG_${te_select_where.class_name}_extent ); 
++/* ${ws}${te_set.module}${te_set.clear}( ${te_select_where.var_name} ); */ 
++.//--027:20140417 Modified End (nomura)
+     .// end if
+   .else
+     .// Existing inst_ref_set<Object> handle set. Clear current contents of collection.
+-${ws}${te_set.module}${te_set.clear}( ${te_select_where.var_name} );
++.//--027:20140417 Modified Start (nomura)
++${ws}${te_set.module}${te_set.clear}( ${te_select_where.var_name}, &pG_${te_select_where.class_name}_extent ); 
++.//--027:20140417 Modified end (nomura)
+   .end if
+ .end if
+ .//
+Index: t.smt_sr.deallocate_set.c
+===================================================================
+--- t.smt_sr.deallocate_set.c	(revision 374)
++++ t.smt_sr.deallocate_set.c	(revision 378)
+@@ -9,4 +9,6 @@
+ .// property of Mentor Graphics Corp.  No part of this document may be
+ .// reproduced without the express written permission of Mentor Graphics Corp.
+ .//============================================================================
+-${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var} ); /* ${te_select_related.result_var_OAL} (${te_class.Key_Lett}) */"
++.//-- 027:20140418 Modified Start (nomura)
++${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var}, &pG_${te_class.GeneratedName}_extent );  /* ${te_select_related.result_var_OAL} (${te_class.Key_Lett}) */"
++.//-- 027:20140418 Modified End (nomura)
+Index: t.smt_sr.many_astobm.c
+===================================================================
+--- t.smt_sr.many_astobm.c	(revision 374)
++++ t.smt_sr.many_astobm.c	(revision 378)
+@@ -9,7 +9,9 @@
+ .// property of Mentor Graphics Corp.  No part of this document may be
+ .// reproduced without the express written permission of Mentor Graphics Corp.
+ .//============================================================================
+-${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var} );
++.//-- 027:20140418 Modified Start (nomura)
++${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var}, &pG_${te_select_related.te_classGeneratedName}_extent );
++.//-- 027:20140418 Modified End (nomura)
+ ${ws}{${te_select_related.te_classGeneratedName} * ${te_lnk.left};
+ ${ws}${te_set.scope}${te_set.iterator_class_name} start_many_iterator;
+ ${ws}${te_set.iterator_reset}( &start_many_iterator, ${te_select_related.start_var} );
+Index: t.smt_sr.many_astobmwhere.c
+===================================================================
+--- t.smt_sr.many_astobmwhere.c	(revision 374)
++++ t.smt_sr.many_astobmwhere.c	(revision 378)
+@@ -9,7 +9,9 @@
+ .// property of Mentor Graphics Corp.  No part of this document may be
+ .// reproduced without the express written permission of Mentor Graphics Corp.
+ .//============================================================================
+-${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var} );
++.//-- 027:20140418 Modified Start (nomura)
++${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var}, &pG_${te_select_related.te_classGeneratedName}_extent );
++.//-- 027:20140418 Modified End (nomura)
+ ${ws}{${te_select_related.te_classGeneratedName} * ${te_lnk.left};
+ ${ws}${te_set.scope}${te_set.iterator_class_name} start_many_iterator;
+ ${ws}${te_set.iterator_reset}( &start_many_iterator, ${te_select_related.start_var} );
+Index: t.smt_sr.many_atob1where.c
+===================================================================
+--- t.smt_sr.many_atob1where.c	(revision 374)
++++ t.smt_sr.many_atob1where.c	(revision 378)
+@@ -9,7 +9,9 @@
+ .// property of Mentor Graphics Corp.  No part of this document may be
+ .// reproduced without the express written permission of Mentor Graphics Corp.
+ .//============================================================================
+-${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var} );
++.//-- 027:20140418 Modified Start (nomura)
++${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var}, &pG_${te_select_related.te_classGeneratedName}_extent );
++.//-- 027:20140418 Modified Start (nomura)
+ ${ws}{${te_lnk.te_classGeneratedName} * selected = ${te_lnk.left}->${te_lnk.linkage};
+ ${ws}if ( ( 0 != selected ) && ( ${te_select_related.where_clause} ) ) {
+ ${ws}  ${te_set.module}${te_set.insert_element}( (${te_set.scope}${te_set.base_class} *) ${te_select_related.result_var}, selected );
+Index: fx_domain_debug.arc
+===================================================================
+--- fx_domain_debug.arc	(revision 374)
++++ fx_domain_debug.arc	(revision 378)
+@@ -66,6 +66,8 @@
+     .// extentTable
+ static const struct mc3020fx_class_element extentTable[] = {
+     .select many te_classes related by te_c->TE_CLASS[R2064] where ( not selected.ExcludeFromGen )
++    .invoke class_sort(te_classes)
++    .select many te_classes related by te_c->TE_CLASS[R2064] where ( not selected.ExcludeFromGen )
+     .assign numClasses = cardinality te_classes
+     .assign i = 0
+     .for each te_class in te_classes
+Index: t.smt.c
+===================================================================
+--- t.smt.c	(revision 374)
++++ t.smt.c	(revision 378)
+@@ -67,7 +67,9 @@
+     .if ( ( 9 == te_assign.Core_Typ ) or ( 21 == te_assign.Core_Typ ) )
+       .// First OAL use of inst_ref_set<Object> handle set. Initialize with class extent.
+       .assign te_smt.declaration = "${te_set.scope}${te_set.base_class} ${te_assign.lval}_space={0}; ${te_set.scope}${te_set.base_class} * ${te_assign.lval} = &${te_assign.lval}_space;"
+-      .assign te_smt.deallocation = "${te_set.module}${te_set.clear}( ${te_assign.lval} );"
++.//-- 027:20140418 Modified start (nomura)
++      .assign te_smt.deallocation = "${te_set.module}${te_set.clear}( ${te_assign.lval}, 0 );"
++.//-- 027:20140418 Modified end (nomura)
+     .else
+       .assign te_smt.declaration = ( te_assign.left_declaration + te_assign.array_spec ) + ";"
+     .end if
+@@ -338,6 +340,9 @@
+   .assign attr_deallocation = ""
+   .select any te_set from instances of TE_SET
+   .invoke extent_info = GetFixedSizeClassExtentInfo( o_obj )
++.//-- 027:20140418 Add start (nomura)
++  .select one te_class related by o_obj->TE_CLASS[R2019];
++.//-- 027:20140418 Add end (nomura)
+   .assign type_cast = ""
+   .if ( te_select.multiplicity == "any" )
+     .assign type_cast = "(${te_select.class_name} *)"
+@@ -351,7 +356,9 @@
+     .if ( te_select.is_implicit )
+       .// First OAL use of inst_ref_set<Object> handle set. Initialize with class extent.
+       .assign attr_declaration = "${te_set.scope}${te_set.base_class} ${te_select.var_name}_space={0}; ${te_set.scope}${te_set.base_class} * ${te_select.var_name} = &${te_select.var_name}_space; /* ${te_select.var_name} (${o_obj.Key_Lett}) */"
+-      .assign attr_deallocation = "${te_set.module}${te_set.clear}( ${te_select.var_name} );"
++.//-- 027:20140418 Modified start (nomura)
++      .assign attr_deallocation = "${te_set.module}${te_set.clear}( ${te_select.var_name}, &pG_${te_class.GeneratedName}_extent );"
++.//-- 027:20140418 Modified end (nomura)
+     .end if
+     .// The copy method will clear out and free up system resources
+     .// used within the set.
+@@ -370,6 +377,9 @@
+   .assign attr_declaration = ""
+   .assign attr_deallocation = ""
+   .select any te_set from instances of TE_SET
++.//-- 027:20140418 Add start (nomura)
++  .select one te_class related by o_obj->TE_CLASS[R2019];
++.//-- 027:20140418 Add end (nomura)
+   .if ( "any" == te_select_where.multiplicity )
+     .if ( te_select_where.is_implicit )
+       .// Declare (first OAL usage of) inst_ref<Object> handle variable.
+@@ -384,14 +394,20 @@
+     .if ( te_select_where.is_implicit )
+       .// First OAL usage of inst_ref_set<Object> handle set
+       .assign attr_declaration = "${te_set.scope}${te_set.base_class} ${te_select_where.var_name}_space={0}; ${te_set.scope}${te_set.base_class} * ${te_select_where.var_name} = &${te_select_where.var_name}_space; /* ${te_select_where.oal_var_name} (${o_obj.Key_Lett}) */"
+-      .assign attr_deallocation = "${te_set.module}${te_set.clear}( ${te_select_where.var_name} );  /* Clear set: ${te_select_where.oal_var_name} */"
++.//-- 027:20140418 Modified start (nomura)
++      .assign attr_deallocation = "${te_set.module}${te_set.clear}( ${te_select_where.var_name}, &pG_${te_class.GeneratedName}_extent );  /* Clear set: ${te_select_where.oal_var_name} */"
++.//-- 027:20140418 Modified end (nomura)
+       .// CDS Check here if we are in a while loop or not.
+       .// if ( in_loop )
+-${ws}${te_set.module}${te_set.clear}( ${te_select_where.var_name} );
++.//-- 027:20140418 Modified start (nomura)
++${ws}${te_set.module}${te_set.clear}( ${te_select_where.var_name}, &pG_${te_class.GeneratedName}_extent ); 
++.//-- 027:20140418 Modified end (nomura)
+       .// end if
+     .else
+       .// Existing inst_ref_set<Object> handle set. Clear current contents of collection.
+-${ws}${te_set.module}${te_set.clear}( ${te_select_where.var_name} );
++.//-- 027:20140418 Modified start (nomura)
++${ws}${te_set.module}${te_set.clear}( ${te_select_where.var_name}, &pG_${te_class.GeneratedName}_extent ); 
++.//-- 027:20140418 Modified end (nomura)
+     .end if
+   .else
+     .print "\nERROR:  stmt_select_from_instances_of_where: Select ${multiplicity} is not any or many."
+Index: t.smt_sr.result_set_init.c
+===================================================================
+--- t.smt_sr.result_set_init.c	(revision 374)
++++ t.smt_sr.result_set_init.c	(revision 378)
+@@ -9,4 +9,6 @@
+ .// property of Mentor Graphics Corp.  No part of this document may be
+ .// reproduced without the express written permission of Mentor Graphics Corp.
+ .//============================================================================
+-${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var} );
++.//-- 027:20140418 Modified Start (nomura)
++${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var}, &pG_${te_select_related.te_classGeneratedName}_extent );
++.//-- 027:20140418 Modified Start (nomura)
+Index: t.smt_sr.many_astob1where.c
+===================================================================
+--- t.smt_sr.many_astob1where.c	(revision 374)
++++ t.smt_sr.many_astob1where.c	(revision 378)
+@@ -9,7 +9,9 @@
+ .// property of Mentor Graphics Corp.  No part of this document may be
+ .// reproduced without the express written permission of Mentor Graphics Corp.
+ .//============================================================================
+-${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var} );
++.//-- 027:20140418 Modified Start (nomura)
++${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var}, &pG_${te_select_related.te_classGeneratedName}_extent );
++.//-- 027:20140418 Modified End (nomura)
+ ${ws}{${te_select_related.te_classGeneratedName} * ${te_lnk.left};
+ ${ws}${te_set.scope}${te_set.iterator_class_name} start_many_iterator;
+ ${ws}${te_set.iterator_reset}( &start_many_iterator, ${te_select_related.start_var} );
+Index: t.smt_sr.many_atob1.c
+===================================================================
+--- t.smt_sr.many_atob1.c	(revision 374)
++++ t.smt_sr.many_atob1.c	(revision 378)
+@@ -9,7 +9,9 @@
+ .// property of Mentor Graphics Corp.  No part of this document may be
+ .// reproduced without the express written permission of Mentor Graphics Corp.
+ .//============================================================================
+-${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var} );
++.//-- 027:20140418 Modified Start (nomura)
++${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var}, &pG_${te_select_related.te_classGeneratedName}_extent );
++.//-- 027:20140418 Modified Start (nomura)
+ ${ws}if ( 0 != ${te_lnk.linkage} ) {
+ ${ws}  ${te_set.module}${te_set.insert_element}( (${te_set.scope}${te_set.base_class} *) ${te_select_related.result_var}, ${te_lnk.linkage} );
+ ${ws}}
+Index: q.smt.generate.arc
+===================================================================
+--- q.smt.generate.arc	(revision 374)
++++ q.smt.generate.arc	(revision 378)
+@@ -221,10 +221,13 @@
+     .elif ( ( 9 == te_assign.Core_Typ ) or ( 21 == te_assign.Core_Typ ) )
+       .// First OAL use of inst_ref_set<Object> handle set. Initialize with class extent.
+       .assign selection_result_variable = te_assign.lval
+-      .assign d = "${te_set.scope}${te_set.base_class} ${selection_result_variable}_space={0}; ${te_set.scope}${te_set.base_class} * ${selection_result_variable} = &${selection_result_variable}_space;"
++      .assign d = "${te_set.scope}${te_set.base_class} ${selection_result_variable}_space={0};${te_set.scope}${te_set.base_class} * ${selection_result_variable} = &${selection_result_variable}_space;"
+       .invoke blk_declaration_append( te_blk, d )
+       .// Push deallocation into the block so that it is available at gen time for break/continue/return.
+-      .assign d = ( ( te_set.module + te_set.clear ) + ( "( " + te_assign.lval ) ) + " );"
++.//-- 027:20140418 Modified Start (nomura)
++      .//.assign d = ( ( te_set.module + te_set.clear ) + ( "( " + te_assign.lval ) ) + " );"
++      .assign d = "${te_set.module}${te_set.clear}(${te_assign.lval}, &pG_${te_class.GeneratedName}_extent); "
++.//-- 027:20140418 Modified End (nomura)
+       .invoke blk_deallocation_append( te_blk, d )
+     .else
+       .assign d = ( te_assign.left_declaration + te_assign.array_spec ) + ";"
+@@ -753,10 +756,13 @@
+       .if ( te_select.is_implicit )
+         .// First OAL use of inst_ref_set<Object> handle set. Initialize with class extent.
+         .assign selection_result_variable = te_select.var_name
+-        .assign d = "${te_set.scope}${te_set.base_class} ${selection_result_variable}_space={0}; ${te_set.scope}${te_set.base_class} * ${selection_result_variable} = &${selection_result_variable}_space;"
++        .assign d = "\n${ws}${te_set.scope}${te_set.base_class} ${selection_result_variable}_space={0}; \n${ws}${te_set.scope}${te_set.base_class} * ${selection_result_variable} = &${selection_result_variable}_space;"
+         .invoke blk_declaration_append( te_blk, d )
+         .// Push deallocation into the block so that it is available at gen time for break/continue/return.
+-        .assign d = ( ( te_set.module + te_set.clear ) + ( "( " + te_select.var_name ) ) + " );"
++.//-- 027:20140418 Modified Start (nomura)
++        .//.assign d = ( ( te_set.module + te_set.clear ) + ( "( " + te_select.var_name ) ) + " );"
++	.assign d = "${te_set.module}${te_set.clear}(${te_select.var_name}, &pG_${te_class.GeneratedName}_extent); "
++.//-- 027:20140418 Modified end (nomura)
+         .invoke blk_deallocation_append( te_blk, d )
+       .end if
+     .else
+@@ -861,10 +867,13 @@
+       .if ( te_select_where.is_implicit )
+         .// First OAL usage of inst_ref_set<Object> handle set
+         .assign selection_result_variable = te_select_where.var_name
+-        .assign d = "${te_set.scope}${te_set.base_class} ${selection_result_variable}_space={0}; ${te_set.scope}${te_set.base_class} * ${selection_result_variable} = &${selection_result_variable}_space;"
++        .assign d = "${te_set.scope}${te_set.base_class} ${selection_result_variable}_space={0};  ${te_set.scope}${te_set.base_class} * ${selection_result_variable} = &${selection_result_variable}_space;"
+         .invoke blk_declaration_append( te_blk, d )
+         .// Push deallocation into the block so that it is available at gen time for break/continue/return.
+-        .assign d = ( ( te_set.module + te_set.clear ) + ( "( " + te_select_where.var_name ) ) + " );"
++.//-- 027:20140418 Modified Start (nomura)
++        .//.assign d = ( ( te_set.module + te_set.clear ) + ( "( " + te_select_where.var_name ) ) + " );"
++	.assign d = "${te_set.module}${te_set.clear}(${te_select_where.var_name}, &pG_${te_class.GeneratedName}_extent);"
++.//-- 027:20140418 Modified End (nomura)
+         .invoke blk_deallocation_append( te_blk, d )
+       .end if
+     .else
+@@ -1799,9 +1808,11 @@
+   .// declaration
+   .if ( te_select_related.is_implicit )
+     .if ( "many" == te_select_related.multiplicity )
+-      .assign d = "${te_set.scope}${te_set.base_class} ${te_select_related.result_var}_space={0}; ${te_set.scope}${te_set.base_class} * ${te_select_related.result_var} = &${te_select_related.result_var}_space;"
++      .assign d = "${te_set.scope}${te_set.base_class} ${te_select_related.result_var}_space={0};  ${te_set.scope}${te_set.base_class} * ${te_select_related.result_var} = &${te_select_related.result_var}_space;"
+       .invoke blk_declaration_append( te_blk, d )
+-      .assign d = "${te_set.module}${te_set.clear}( ${te_select_related.result_var} ); "
++.//-- 027:20140418 Modified Start (nomura)
++      .assign d = "${te_set.module}${te_set.clear}( ${te_select_related.result_var}, &pG_${te_class.GeneratedName}_extent ); "
++.//-- 027:20140418 Modified End (nomura)
+       .// Push deallocation into the block so that it is available at gen time for break/continue/return.
+       .invoke blk_deallocation_append( te_blk, d )
+     .else
+Index: t.class.extent.c
+===================================================================
+--- t.class.extent.c	(revision 374)
++++ t.class.extent.c	(revision 378)
+@@ -185,7 +185,7 @@
+     .end if
+     .invoke default_prefix = fx_get_default_arch_prefix_name()
+ 
+-    node = ${default_prefix.result}_SetRemoveNode(&(dci->${te_extent.active}), instance);
++    node = ${default_prefix.result}_SetRemoveNode(&(dci->${te_extent.active}), instance, &${classExtent.result});
+     node->next = dci->${te_extent.inactive}.head;
+     dci->${te_extent.inactive}.head = node;
+ 
+Index: t.smt.select.c
+===================================================================
+--- t.smt.select.c	(revision 374)
++++ t.smt.select.c	(revision 378)
+@@ -4,5 +4,8 @@
+ .elif ( "many" == te_select.multiplicity )
+   .// The copy method will clear out and free up system resources
+   .// used within the set.
++.//-- 027:20140417 Add Start (nomura)
++${ws}${te_set.module}${te_set.init}( ${te_select.var_name}, &${extent} );
++.//-- 027:20140417 Add End (nomura)
+ ${ws}${te_set.module}${te_set.copy}( ${te_select.var_name}, &${extent}.${te_extent.active} );
+ .end if
+Index: t.smt_sr.many_atobm.c
+===================================================================
+--- t.smt_sr.many_atobm.c	(revision 374)
++++ t.smt_sr.many_atobm.c	(revision 378)
+@@ -9,7 +9,10 @@
+ .// property of Mentor Graphics Corp.  No part of this document may be
+ .// reproduced without the express written permission of Mentor Graphics Corp.
+ .//============================================================================
+-${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var} );
++.//--027:20140417 Modified Start (nomura)
++${ws}${te_set.module}${te_set.init}( ${te_select_related.result_var}, &pG_${te_class.GeneratedName}_extent );
++/*${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var} );*/
++.//--027:20140417 Modified End (nomura)
+ ${ws}if ( 0 != ${te_lnk.left} ) {
+ ${ws}  ${te_set.module}${te_set.copy}( ${te_select_related.result_var}, &${te_lnk.left}->${te_lnk.linkage} );
+ ${ws}}
+Index: q.class.link.arc
+===================================================================
+--- q.class.link.arc	(revision 374)
++++ q.class.link.arc	(revision 378)
+@@ -1211,7 +1211,9 @@
+     .else
+       .// relationship data storage for link to MANY
+       .if ( storage_needed )
+-        .assign data_init = "  ${te_set.init}( &${te_instance.self}->${member_data_name.result} );\n"
++.//-- 027:20140418 Modified Start (nomura)
++        .assign data_init = "  ${te_set.init}( &${te_instance.self}->${member_data_name.result} , 0 );\n"
++.//-- 027:20140418 Modified End (nomura)
+ .//-- 010:20140225 Modified Start (nomura)
+         .//.assign data_fini = "  ${te_set.module}${te_set.clear}( &${te_instance.self}->${member_data_name.result} );\n"
+         .assign data_fini = "${rel_fini.body}"
+Index: fx_domain_mech.arc
+===================================================================
+--- fx_domain_mech.arc	(revision 374)
++++ fx_domain_mech.arc	(revision 378)
+@@ -64,6 +64,8 @@
+     .assign domainName = te_c.Name
+     .assign basePrefix = base_arch_prefix.result
+     .assign defaultPrefix = default_arch_prefix.result
++    .select any te_set from instances of TE_SET
++    .select any te_extent from instances of TE_EXTENT
+     .//
+     .// Event
+     .assign event_t = "${defaultPrefix}_xtUMLEvent_t"
+@@ -104,12 +106,13 @@
+  ***********************************************************************/
+ 
+ #define ${defaultPrefix}_SetFactoryInit() ${domainObjNodePrefix}_SetFactoryInit()
+-#define ${defaultPrefix}_InitSet(set) ${domainObjNodePrefix}_InitSet((set))
+-#define ${defaultPrefix}_ClearSet(set) ${domainObjNodePrefix}_ClearSet((set))
++#define ${defaultPrefix}_InitSet(set, extent) ${domainObjNodePrefix}_InitSet((set), (extent))
++#define ${defaultPrefix}_ClearSet(set, extent) ${domainObjNodePrefix}_ClearSet((set), (extent))
+ #define ${defaultPrefix}_CopySet(to_set,from_set) ${domainObjNodePrefix}_CopySet((to_set),(from_set))
+ #define ${defaultPrefix}_SetInsertElement(set,substance) ${domainObjNodePrefix}_SetInsertElement((set),(substance))
+ #define ${defaultPrefix}_SetInsertBlock(container,instance,length,count) ${domainObjNodePrefix}_SetInsertBlock((container),(instance),(length),(count))
+ #define ${defaultPrefix}_SetRemoveElement(set ,elem) ${domainObjNodePrefix}_SetRemoveElement((set),(elem))
++#define ${defaultPrefix}_SetRemoveNode(set ,instance, extent) ${domainObjNodePrefix}_SetRemoveNode((set),(instance),(extent))
+ 
+ /***********************************************************************
+  * Object Collection Iteration node management for Each Domain
+@@ -119,13 +122,15 @@
+     .assign ihandle = "${defaultPrefix}_iHandle_t"
+     .assign classsize = "${defaultPrefix}_ClassSize_t"
+     .assign instanceindex = "${defaultPrefix}_InstanceIndex_t"
++    .assign extents = "${te_set.scope}${te_extent.type}"
+ extern void ${domainObjNodePrefix}_SetFactoryInit();
+-extern void ${domainObjNodePrefix}_InitSet(${objectSet} * set);
+-extern void ${domainObjNodePrefix}_ClearSet(${objectSet} * set);
++extern void ${domainObjNodePrefix}_InitSet(${objectSet} * set, ${extents} * extent);
++extern void ${domainObjNodePrefix}_ClearSet(${objectSet} * set, ${extents} * extent);
+ extern void ${domainObjNodePrefix}_CopySet(${objectSet} * to_set, ${objectSet} * from_set);
+ extern void ${domainObjNodePrefix}_SetInsertElement(${objectSet} * set, void * const substance);
+ extern ${defaultPrefix}_SetElement_s * ${domainObjNodePrefix}_SetInsertBlock(${defaultPrefix}_SetElement_s * container, const ${ihandle} * instance, const ${classsize} length, ${instanceindex} count);
+ extern void ${domainObjNodePrefix}_SetRemoveElement(${objectSet} * set, void * const elem);
++extern ${defaultPrefix}_SetElement_s * ${domainObjNodePrefix}_SetRemoveNode(${objectSet} * set, void * const node, ${extents} * extent);
+     .// Misc
+     .assign domainMiscPrefix = "${domainName}_Mech"
+ 
+@@ -185,6 +190,8 @@
+     .assign event_t = "${defaultPrefix}_xtUMLEvent_t"
+     .assign eventconst_t = "${defaultPrefix}_xtUMLEventConstant_t"
+     .assign domainEventPrefix = "${domainName}_MechEvent"
++    .select any te_set from instances of TE_SET
++    .select any te_extent from instances of TE_EXTENT
+ 
+ /* Max Mesuring macro */
+ #ifdef MC3020_MAX_NUM_MEASURE
+@@ -253,6 +260,7 @@
+     .// Object Node
+     .assign objectSet = "${defaultPrefix}_ObjectSet_s"
+     .assign domainObjNodePrefix = "${domainName}_MechObjNode"
++    .assign extents = "${te_set.scope}${te_extent.type}"
+ /***********************************************************************
+  * Object Collection Iteration node management for Each Domain
+  ***********************************************************************/
+@@ -261,14 +269,14 @@
+     ${basePrefix}_SetFactoryInit(${domainInfo}.objNodeDB);
+ }
+ 
+-void ${domainObjNodePrefix}_InitSet(${objectSet} * set)
++void ${domainObjNodePrefix}_InitSet(${objectSet} * set, ${extents} * extent)
+ {
+-    ${basePrefix}_InitSet(set);
++    ${basePrefix}_InitSet(set, extent, ${domainInfo}.objNodeDB);
+ }
+ 
+-void ${domainObjNodePrefix}_ClearSet(${objectSet} * set)
++void ${domainObjNodePrefix}_ClearSet(${objectSet} * set, ${extents} * extent)
+ {
+-    ${basePrefix}_ClearSet(set, ${domainInfo}.objNodeDB);
++    ${basePrefix}_ClearSet(set, extent, ${domainInfo}.objNodeDB);
+ }
+ 
+ void ${domainObjNodePrefix}_CopySet(${objectSet} * to_set, ${objectSet} * from_set)
+@@ -301,6 +309,15 @@
+ #endif
+ }
+ 
++${defaultPrefix}_SetElement_s *  ${domainObjNodePrefix}_SetRemoveNode(${objectSet} * set, void * const elem, ${extents} * extent)
++{
++    ${defaultPrefix}_SetElement_s * re;
++    re = ${basePrefix}_SetRemoveNode(set, elem, extent, ${domainInfo}.objNodeDB);
++#ifdef MC3020_MAX_NUM_MEASURE
++    g_${te_c.Name}_useNodeNum--;
++#endif
++    return re;
++}
+     .// Misc
+     .assign domainMiscPrefix = "${domainName}_Mech"
+ 
+Index: t.smt_sr.many_astob1.c
+===================================================================
+--- t.smt_sr.many_astob1.c	(revision 374)
++++ t.smt_sr.many_astob1.c	(revision 378)
+@@ -9,7 +9,9 @@
+ .// property of Mentor Graphics Corp.  No part of this document may be
+ .// reproduced without the express written permission of Mentor Graphics Corp.
+ .//============================================================================
+-${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var} );
++.//-- 027:20140418 Modified Start (nomura)
++${ws}${te_set.module}${te_set.clear}( ${te_select_related.result_var}, &pG_${te_select_related.te_classGeneratedName}_extent );
++.//-- 027:20140418 Modified End (nomura)
+ ${ws}{${te_select_related.te_classGeneratedName} * ${te_lnk.left};
+ ${ws}${te_set.scope}${te_set.iterator_class_name} start_many_iterator;
+ ${ws}${te_set.iterator_reset}( &start_many_iterator, ${te_select_related.start_var} );

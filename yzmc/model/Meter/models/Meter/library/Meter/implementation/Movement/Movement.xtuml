@@ -1,0 +1,155 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("43b1c1e9-c1b8-404f-9fb3-2b16909296cd",
+	'Movement',
+	6,
+	'Movement',
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("6fdc70cd-e4c0-4f39-9430-36f30d5c0f6b",
+	"43b1c1e9-c1b8-404f-9fb3-2b16909296cd",
+	'setSpeed',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'if ( param.newSpeed != self.currentSpeed )
+  if ( param.newSpeed > self.currentSpeed )
+    self.speedMode = SPEED_MODE::ACCELERATING;
+  else
+    self.speedMode = SPEED_MODE::DECELERATING;
+  end if;
+  self.currentSpeed = param.newSpeed;
+else
+  self.speedMode = SPEED_MODE::CONSTANT;
+end if;
+
+generate Movement2:''pop'' to self;',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("33cc78b2-1cb0-4b88-ada6-f72ce0099c7a",
+	"6fdc70cd-e4c0-4f39-9430-36f30d5c0f6b",
+	'newSpeed',
+	"ba5eda7a-def5-0000-0000-000000000002",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("c9819830-35cc-4bda-85b2-a28f92c82b2f",
+	"43b1c1e9-c1b8-404f-9fb3-2b16909296cd",
+	'init',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'create object instance doors of Doors;
+create object instance mvmt_decel_guard of MovementDecelerationGuard; 
+create object instance door_animator of DoorAnimator;
+
+relate self to mvmt_decel_guard across R1;
+relate self to doors across R2;
+relate doors to mvmt_decel_guard across R3;
+relate doors to door_animator across R4;
+
+self.currentSpeed = 0;
+self.speedMode = SPEED_MODE::CONSTANT;
+
+doors.allClosed = true;
+door_animator.doorState = CLOSED;
+door_animator.iteration = 0;
+
+// Make sure we start up "quiet"
+send BUZZ::setState(newState: OFF);
+send TELL::setStatus(newStatus: OFF);
+send DISP::clear();
+ ',
+	1,
+	'',
+	"6fdc70cd-e4c0-4f39-9430-36f30d5c0f6b");
+INSERT INTO O_NBATTR
+	VALUES ("6720bbcb-b519-4408-867a-4807e33071e1",
+	"43b1c1e9-c1b8-404f-9fb3-2b16909296cd");
+INSERT INTO O_BATTR
+	VALUES ("6720bbcb-b519-4408-867a-4807e33071e1",
+	"43b1c1e9-c1b8-404f-9fb3-2b16909296cd");
+INSERT INTO O_ATTR
+	VALUES ("6720bbcb-b519-4408-867a-4807e33071e1",
+	"43b1c1e9-c1b8-404f-9fb3-2b16909296cd",
+	"00000000-0000-0000-0000-000000000000",
+	'current_state',
+	'',
+	'',
+	'current_state',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000006",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("a6b6ae14-5c8b-4f8d-93a0-b23ba48a6b1b",
+	"43b1c1e9-c1b8-404f-9fb3-2b16909296cd");
+INSERT INTO O_BATTR
+	VALUES ("a6b6ae14-5c8b-4f8d-93a0-b23ba48a6b1b",
+	"43b1c1e9-c1b8-404f-9fb3-2b16909296cd");
+INSERT INTO O_ATTR
+	VALUES ("a6b6ae14-5c8b-4f8d-93a0-b23ba48a6b1b",
+	"43b1c1e9-c1b8-404f-9fb3-2b16909296cd",
+	"6720bbcb-b519-4408-867a-4807e33071e1",
+	'currentSpeed',
+	'',
+	'',
+	'currentSpeed',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("30acaf1b-6aaa-48c3-8f21-617f0a98821e",
+	"43b1c1e9-c1b8-404f-9fb3-2b16909296cd");
+INSERT INTO O_BATTR
+	VALUES ("30acaf1b-6aaa-48c3-8f21-617f0a98821e",
+	"43b1c1e9-c1b8-404f-9fb3-2b16909296cd");
+INSERT INTO O_ATTR
+	VALUES ("30acaf1b-6aaa-48c3-8f21-617f0a98821e",
+	"43b1c1e9-c1b8-404f-9fb3-2b16909296cd",
+	"a6b6ae14-5c8b-4f8d-93a0-b23ba48a6b1b",
+	'speedMode',
+	'',
+	'',
+	'speedMode',
+	0,
+	"d4077f0b-9886-4316-8fac-c1aa80d5d4ed",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("d4077f0b-9886-4316-8fac-c1aa80d5d4ed",
+	"00000000-0000-0000-0000-000000000000",
+	'SPEED_MODE',
+	'',
+	'',
+	'../../../../Data Types/Data Types.xtuml');
+INSERT INTO O_ID
+	VALUES (0,
+	"43b1c1e9-c1b8-404f-9fb3-2b16909296cd");
+INSERT INTO O_ID
+	VALUES (1,
+	"43b1c1e9-c1b8-404f-9fb3-2b16909296cd");
+INSERT INTO O_ID
+	VALUES (2,
+	"43b1c1e9-c1b8-404f-9fb3-2b16909296cd");
+INSERT INTO PE_PE
+	VALUES ("43b1c1e9-c1b8-404f-9fb3-2b16909296cd",
+	1,
+	"6149c1ca-eae9-4eee-9e85-0e5cd4e90445",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("6149c1ca-eae9-4eee-9e85-0e5cd4e90445",
+	"00000000-0000-0000-0000-000000000000",
+	"50d3847b-b62e-4c83-b3c4-603279d93b9e",
+	'implementation',
+	'',
+	0,
+	'../implementation.xtuml');

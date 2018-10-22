@@ -1,0 +1,714 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	'Set Parameter',
+	210,
+	'S_OSP',
+	'セットに関するパラメータを設定する.
+R258で関連づいているS_OSPは上流から指定されたパラメータが入っている。
+R260で関連づいているS_OSPは調停後のパラメータが入っている。
+
+',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("48c65227-898e-4ca3-94f0-c3cc30cc1da7",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	'init',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'self.stapleMode = "IOT_STAPLE_OFF";
+self.punchMode = "IOT_PUNCH_OFF";
+self.foldMode = "IOT_FOLD_OFF";
+self.outtray = "0";
+//self.collateMode = "0";
+self.startOffsetPosition = "0";
+//self.color = "0";
+self.offset = "0";
+self.outputOrder = IotSc_OutputOrder::eNull;
+self.exitFace = "0";
+self.foldSide = IotSc_FoldSide::eNull;
+self.foldBindMode = IotSc_FoldBindMode::eNull;
+self.foldBindNum = 0;
+self.foldBindTotalNum = 0;
+
+//-- 504:20080626 Add Start (kanda)
+self.bookletSqFoldLevel = "IOT_BOOKLET_SQ_FOLD_LEVEL_NULL";
+self.bookletTrimming = "IOT_BOOKLET_TRIMMING_OFF";
+self.bookletTrimmedWidth = 0;
+//-- 504:20080626 Add End (kanda)
+',
+	1,
+	'',
+	"ef8cbe43-dbb7-4ab5-b80f-cd2e4306f338");
+INSERT INTO O_TFR
+	VALUES ("ef8cbe43-dbb7-4ab5-b80f-cd2e4306f338",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	'copy',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'select any aSetParam from instances of S_OSP
+	where ( selected.ID == param.sourceID );
+FER::assert( expression : not_empty aSetParam );
+
+self.stapleMode = aSetParam.stapleMode;
+self.punchMode = aSetParam.punchMode;
+self.foldMode = aSetParam.foldMode;
+self.outtray = aSetParam.outtray;
+//self.collateMode = aSetParam.collateMode;
+self.startOffsetPosition = aSetParam.startOffsetPosition;
+//self.color = aSetParam.color;
+self.offset = aSetParam.offset;
+self.outputOrder = aSetParam.outputOrder;
+self.exitFace = aSetParam.exitFace;
+self.foldSide = aSetParam.foldSide;
+self.foldBindMode = aSetParam.foldBindMode;
+self.foldBindNum = aSetParam.foldBindNum;
+self.foldBindTotalNum = aSetParam.foldBindTotalNum;
+
+//-- 504:20080626 Add Start (kanda)
+self.bookletSqFoldLevel = aSetParam.bookletSqFoldLevel;
+self.bookletTrimming = aSetParam.bookletTrimming;
+self.bookletTrimmedWidth = aSetParam.bookletTrimmedWidth;
+//-- 504:20080626 Add End (kanda)
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("d7f08554-0c11-46b6-9f95-ecc69df43a54",
+	"ef8cbe43-dbb7-4ab5-b80f-cd2e4306f338",
+	'sourceID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("34c0489c-5816-47b6-b7a3-4e6440c0c79f",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	'release',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'// 回りの関係がない場合にのみ
+select any aSetParam from instances of S_OSP
+	where ( selected.ID == param.setParamID );
+FER::assert( expression : not_empty aSetParam );
+
+select one anOrigin related by aSetParam->D_OOS[R258];
+select one anExecutingOrigin related by aSetParam->S_EOS[R260];
+select any aCollateSet related by aSetParam->S_CS[R256];
+
+if ( empty anOrigin and empty anExecutingOrigin and empty aCollateSet )
+	delete object instance aSetParam;
+end if;',
+	1,
+	'',
+	"48c65227-898e-4ca3-94f0-c3cc30cc1da7");
+INSERT INTO O_TPARM
+	VALUES ("f35dbc43-c8df-46f6-8e54-92855c1c9e91",
+	"34c0489c-5816-47b6-b7a3-4e6440c0c79f",
+	'setParamID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("20643eb2-c1ba-411e-819f-3f9ec3755e70",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	'setOriginSetStapleMode',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 0105124:20141114 Add Start (ikegaya)
+select any anExecutingJob from instances of J_EJOB where (selected.jobID == param.jobID);
+
+if (not_empty anExecutingJob)
+	select many executingOrigins related by anExecutingJob->S_NPS[R252]->S_EOS[R231];
+	select many collateSets related by anExecutingJob->S_NPS[R252]->S_EOS[R231]->S_CS[R232];
+
+	for each anExecutingOrigin in executingOrigins
+		select one aSetParam related by anExecutingOrigin->S_OSP[R260];
+		FER::assert( expression : not_empty aSetParam );
+		aSetParam.stapleMode = param.data;
+	end for;
+		
+	for each aCollateSet in collateSets
+		select one aSetParam related by aCollateSet->S_OSP[R256];
+		FER::assert( expression : not_empty aSetParam );
+		aSetParam.stapleMode = param.data;
+	end for;
+end if;
+
+return;
+//-- 0105124:20141114 Add End (ikegaya)
+',
+	1,
+	'',
+	"34c0489c-5816-47b6-b7a3-4e6440c0c79f");
+INSERT INTO O_TPARM
+	VALUES ("bd92f9b0-ba0f-4245-9ace-e8536de98dce",
+	"20643eb2-c1ba-411e-819f-3f9ec3755e70",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TPARM
+	VALUES ("de1cc1cc-1b13-43ae-b7dc-b1b1e6ac5fb0",
+	"20643eb2-c1ba-411e-819f-3f9ec3755e70",
+	'data',
+	"c4a4d57a-80da-46f6-9346-03e085b627a6",
+	0,
+	'',
+	"bd92f9b0-ba0f-4245-9ace-e8536de98dce",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("c4a4d57a-80da-46f6-9346-03e085b627a6",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_StapleMode',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("812a867e-1999-4503-8afa-b9200f04cdde",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	'setOriginSetPunchMode',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 0105124:20141114 Add Start (ikegaya)
+select any anExecutingJob from instances of J_EJOB where (selected.jobID == param.jobID);
+
+if (not_empty anExecutingJob)
+	select many executingOrigins related by anExecutingJob->S_NPS[R252]->S_EOS[R231];
+	select many collateSets related by anExecutingJob->S_NPS[R252]->S_EOS[R231]->S_CS[R232];
+
+	for each anExecutingOrigin in executingOrigins
+		select one aSetParam related by anExecutingOrigin->S_OSP[R260];
+		FER::assert( expression : not_empty aSetParam );
+		aSetParam.punchMode = param.data;
+	end for;
+		
+	for each aCollateSet in collateSets
+		select one aSetParam related by aCollateSet->S_OSP[R256];
+		FER::assert( expression : not_empty aSetParam );
+		aSetParam.punchMode = param.data;
+	end for;
+end if;
+
+return;
+//-- 0105124:20141114 Add End (ikegaya)
+',
+	1,
+	'',
+	"20643eb2-c1ba-411e-819f-3f9ec3755e70");
+INSERT INTO O_TPARM
+	VALUES ("6cc5d3bf-24c4-4f29-ab74-3860037ca33d",
+	"812a867e-1999-4503-8afa-b9200f04cdde",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("673cf4c8-9e98-44c5-b80e-09ac6a09ea8e",
+	"812a867e-1999-4503-8afa-b9200f04cdde",
+	'data',
+	"59fe3fad-3731-40ec-a0cb-13634f895d3d",
+	0,
+	'',
+	"6cc5d3bf-24c4-4f29-ab74-3860037ca33d",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("59fe3fad-3731-40ec-a0cb-13634f895d3d",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_PunchMode',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("b317cddc-9c4d-492a-b6d1-ee228020d293",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	'setOriginSetBookletTrimming',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'//-- 0105124:20141114 Add Start (ikegaya)
+select any anExecutingJob from instances of J_EJOB where (selected.jobID == param.jobID);
+
+if (not_empty anExecutingJob)
+	select many executingOrigins related by anExecutingJob->S_NPS[R252]->S_EOS[R231];
+	select many collateSets related by anExecutingJob->S_NPS[R252]->S_EOS[R231]->S_CS[R232];
+
+	for each anExecutingOrigin in executingOrigins
+		select one aSetParam related by anExecutingOrigin->S_OSP[R260];
+		FER::assert( expression : not_empty aSetParam );
+		aSetParam.bookletTrimming = param.data;
+	end for;
+		
+	for each aCollateSet in collateSets
+		select one aSetParam related by aCollateSet->S_OSP[R256];
+		FER::assert( expression : not_empty aSetParam );
+		aSetParam.bookletTrimming = param.data;
+	end for;
+end if;
+
+return;
+//-- 0105124:20141114 Add End (ikegaya)
+',
+	1,
+	'',
+	"812a867e-1999-4503-8afa-b9200f04cdde");
+INSERT INTO O_TPARM
+	VALUES ("ed95f748-3098-4940-a0fb-b30e33e928ad",
+	"b317cddc-9c4d-492a-b6d1-ee228020d293",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("1b0408cf-8e52-48ba-9630-3c55919230cd",
+	"b317cddc-9c4d-492a-b6d1-ee228020d293",
+	'data',
+	"94a8b8db-4b61-4d28-9de1-a6dce41c2e49",
+	0,
+	'',
+	"ed95f748-3098-4940-a0fb-b30e33e928ad",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("94a8b8db-4b61-4d28-9de1-a6dce41c2e49",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_BookletTrimming',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("d4097803-ff95-4cbc-b7d3-5e380298eb44",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_BATTR
+	VALUES ("d4097803-ff95-4cbc-b7d3-5e380298eb44",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_ATTR
+	VALUES ("d4097803-ff95-4cbc-b7d3-5e380298eb44",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("2c7044fc-a8b5-426a-b878-57207e020d48",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_BATTR
+	VALUES ("2c7044fc-a8b5-426a-b878-57207e020d48",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_ATTR
+	VALUES ("2c7044fc-a8b5-426a-b878-57207e020d48",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	"d4097803-ff95-4cbc-b7d3-5e380298eb44",
+	'stapleMode',
+	'',
+	'',
+	'stapleMode',
+	0,
+	"c4a4d57a-80da-46f6-9346-03e085b627a6",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("563734b8-8160-4db5-a48d-431312415535",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_BATTR
+	VALUES ("563734b8-8160-4db5-a48d-431312415535",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_ATTR
+	VALUES ("563734b8-8160-4db5-a48d-431312415535",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	"2c7044fc-a8b5-426a-b878-57207e020d48",
+	'punchMode',
+	'',
+	'',
+	'punchMode',
+	0,
+	"59fe3fad-3731-40ec-a0cb-13634f895d3d",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("ab67c3c4-4417-4f4a-9364-5f418cc2fca4",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_BATTR
+	VALUES ("ab67c3c4-4417-4f4a-9364-5f418cc2fca4",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_ATTR
+	VALUES ("ab67c3c4-4417-4f4a-9364-5f418cc2fca4",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	"563734b8-8160-4db5-a48d-431312415535",
+	'foldMode',
+	'',
+	'',
+	'foldMode',
+	0,
+	"5301e9d4-d5d2-40aa-b875-728f2a985d77",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("5301e9d4-d5d2-40aa-b875-728f2a985d77",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_FoldMode',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("1d0eb873-d04d-4448-879a-d7700d2dbf82",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_BATTR
+	VALUES ("1d0eb873-d04d-4448-879a-d7700d2dbf82",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_ATTR
+	VALUES ("1d0eb873-d04d-4448-879a-d7700d2dbf82",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	"ab67c3c4-4417-4f4a-9364-5f418cc2fca4",
+	'foldSide',
+	'',
+	'',
+	'foldSide',
+	0,
+	"9955d669-48a5-4ec3-9bd7-0ce7ddd15226",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("9955d669-48a5-4ec3-9bd7-0ce7ddd15226",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_FoldSide',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("25b8c198-c1d1-4cff-b74c-cd5efeab0118",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_BATTR
+	VALUES ("25b8c198-c1d1-4cff-b74c-cd5efeab0118",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_ATTR
+	VALUES ("25b8c198-c1d1-4cff-b74c-cd5efeab0118",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	"1d0eb873-d04d-4448-879a-d7700d2dbf82",
+	'foldBindMode',
+	'',
+	'',
+	'foldBindMode',
+	0,
+	"12fc26f3-8b4b-4675-aa88-6788a853a2fc",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("12fc26f3-8b4b-4675-aa88-6788a853a2fc",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_FoldBindMode',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("23824141-8b4e-4ab7-8d8d-02eb31be853c",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_BATTR
+	VALUES ("23824141-8b4e-4ab7-8d8d-02eb31be853c",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_ATTR
+	VALUES ("23824141-8b4e-4ab7-8d8d-02eb31be853c",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	"25b8c198-c1d1-4cff-b74c-cd5efeab0118",
+	'foldBindNum',
+	'',
+	'',
+	'foldBindNum',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("6fa8c329-5813-45c9-87f3-e8233864f0e4",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_BATTR
+	VALUES ("6fa8c329-5813-45c9-87f3-e8233864f0e4",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_ATTR
+	VALUES ("6fa8c329-5813-45c9-87f3-e8233864f0e4",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	"23824141-8b4e-4ab7-8d8d-02eb31be853c",
+	'foldBindTotalNum',
+	'',
+	'',
+	'foldBindTotalNum',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000002",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("89b8b81f-ed55-40be-98aa-185adaeffa81",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_BATTR
+	VALUES ("89b8b81f-ed55-40be-98aa-185adaeffa81",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_ATTR
+	VALUES ("89b8b81f-ed55-40be-98aa-185adaeffa81",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	"6fa8c329-5813-45c9-87f3-e8233864f0e4",
+	'outtray',
+	'',
+	'',
+	'outtray',
+	0,
+	"5eaeeed9-440b-4894-b3a5-21b624ade58a",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("5eaeeed9-440b-4894-b3a5-21b624ade58a",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_OutputTray',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("2d628f6d-09b1-4cd8-b209-332deb782e19",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_BATTR
+	VALUES ("2d628f6d-09b1-4cd8-b209-332deb782e19",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_ATTR
+	VALUES ("2d628f6d-09b1-4cd8-b209-332deb782e19",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	"89b8b81f-ed55-40be-98aa-185adaeffa81",
+	'startOffsetPosition',
+	'',
+	'',
+	'startOffsetPosition',
+	0,
+	"3023bb0c-ee82-413f-8bcc-8af53537b337",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("3023bb0c-ee82-413f-8bcc-8af53537b337",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_OffsetPosition',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("b1bee5d9-cfa0-4efb-a0e0-7386001c3fe5",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_BATTR
+	VALUES ("b1bee5d9-cfa0-4efb-a0e0-7386001c3fe5",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_ATTR
+	VALUES ("b1bee5d9-cfa0-4efb-a0e0-7386001c3fe5",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	"2d628f6d-09b1-4cd8-b209-332deb782e19",
+	'outputOrder',
+	'',
+	'',
+	'outputOrder',
+	0,
+	"a2ed8bf6-c6da-46bf-8cf9-be4148f78664",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("a2ed8bf6-c6da-46bf-8cf9-be4148f78664",
+	"00000000-0000-0000-0000-000000000000",
+	'IotSc_OutputOrder',
+	'',
+	'',
+	'../../Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("b6ed2ed9-2b8e-4197-9ce9-709e2ca4bc1f",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_BATTR
+	VALUES ("b6ed2ed9-2b8e-4197-9ce9-709e2ca4bc1f",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_ATTR
+	VALUES ("b6ed2ed9-2b8e-4197-9ce9-709e2ca4bc1f",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	"b1bee5d9-cfa0-4efb-a0e0-7386001c3fe5",
+	'exitFace',
+	'',
+	'',
+	'exitFace',
+	0,
+	"8d6ad5eb-8220-4745-a5bb-f3e50070d5de",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("8d6ad5eb-8220-4745-a5bb-f3e50070d5de",
+	"00000000-0000-0000-0000-000000000000",
+	'IotDoc_ExitFace',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("5a43ab47-2db5-4224-a576-a5b7354b13c1",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_BATTR
+	VALUES ("5a43ab47-2db5-4224-a576-a5b7354b13c1",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_ATTR
+	VALUES ("5a43ab47-2db5-4224-a576-a5b7354b13c1",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	"b6ed2ed9-2b8e-4197-9ce9-709e2ca4bc1f",
+	'offset',
+	'',
+	'',
+	'offset',
+	0,
+	"0fe07d66-b874-4a2b-b9ed-85678fa18a41",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0fe07d66-b874-4a2b-b9ed-85678fa18a41",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_OffsetMode',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("1d7e2eac-0d53-4d2c-96fc-90acb82920f1",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_BATTR
+	VALUES ("1d7e2eac-0d53-4d2c-96fc-90acb82920f1",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_ATTR
+	VALUES ("1d7e2eac-0d53-4d2c-96fc-90acb82920f1",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	"5a43ab47-2db5-4224-a576-a5b7354b13c1",
+	'bookletSqFoldLevel',
+	'//--504:20080626 Add Start (kanda)
+// SQ Foldの強さをあらわす
+// Bi-Fold, SaddleStapleと同じ階層のものを取得する
+// 調停はIOTD::sendSetStartInfo()内で行う
+Modify:Add
+Modify_No:504
+Modifier:kanda
+Modify_Date:20080626
+//-- 504:20080626 Add End (kanda)
+',
+	'',
+	'bookletSqFoldLevel',
+	0,
+	"e70614b0-58b5-4870-938e-580e3fdcc72d",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("e70614b0-58b5-4870-938e-580e3fdcc72d",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_BookletSQFoldLevel',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_NBATTR
+	VALUES ("8b4ee113-e98c-4ca3-b466-f7d9336b16b6",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_BATTR
+	VALUES ("8b4ee113-e98c-4ca3-b466-f7d9336b16b6",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_ATTR
+	VALUES ("8b4ee113-e98c-4ca3-b466-f7d9336b16b6",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	"1d7e2eac-0d53-4d2c-96fc-90acb82920f1",
+	'bookletTrimming',
+	'//--504:20080626 Add Start (kanda)
+// Booklet Trimming指示
+// Bi-Fold, SaddleStapleと同じ階層のものを取得する
+// 調停はIOTD::sendSetStartInfo()内で行う
+Modify:Add
+Modify_No:504
+Modifier:kanda
+Modify_Date:20080626
+//-- 504:20080626 Add End (kanda)
+
+',
+	'',
+	'bookletTrimming',
+	0,
+	"94a8b8db-4b61-4d28-9de1-a6dce41c2e49",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("7dfde8ad-c4cd-427a-8860-faa34d8eaba2",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_BATTR
+	VALUES ("7dfde8ad-c4cd-427a-8860-faa34d8eaba2",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_ATTR
+	VALUES ("7dfde8ad-c4cd-427a-8860-faa34d8eaba2",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	"8b4ee113-e98c-4ca3-b466-f7d9336b16b6",
+	'bookletTrimmedWidth',
+	'//--504:20080626 Add Start (kanda)
+// Booklet Trimming処理の仕上がり幅
+// Bi-Fold, SaddleStapleと同じ階層のものを取得する
+// 調停はIOTD::sendSetStartInfo()内で行う
+Modify:Add
+Modify_No:504
+Modifier:kanda
+Modify_Date:20080626
+//-- 504:20080626 Add End (kanda)
+',
+	'',
+	'bookletTrimmedWidth',
+	0,
+	"3e521a12-f340-4e6d-889e-ec8372595255",
+	'',
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("3e521a12-f340-4e6d-889e-ec8372595255",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_BookletTrimmedWidth',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_ID
+	VALUES (0,
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_OIDA
+	VALUES ("d4097803-ff95-4cbc-b7d3-5e380298eb44",
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO O_ID
+	VALUES (2,
+	"5bac75a6-b93f-4137-a9fe-b31e4e99f3f6");
+INSERT INTO PE_PE
+	VALUES ("5bac75a6-b93f-4137-a9fe-b31e4e99f3f6",
+	1,
+	"3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("3379aa21-e73e-41f1-8fbb-7bcbbca9b1dc",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'Sheet',
+	'',
+	200,
+	'../Sheet.xtuml');

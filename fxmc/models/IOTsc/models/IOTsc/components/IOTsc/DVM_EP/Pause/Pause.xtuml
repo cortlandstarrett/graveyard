@@ -1,0 +1,440 @@
+-- BP 7.1.6 content: ModelClass syschar: 3 persistence-version: 7.1.6
+
+INSERT INTO O_OBJ
+	VALUES ("96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	'Pause',
+	811,
+	'DV_PAUSE',
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TFR
+	VALUES ("75944489-4634-42a5-a166-072ba55bebe4",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	'jobPause',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'// 要求元と関連を張る
+select any aJobPauseReq from instances of J_JPR
+  where( selected.jobID == param.jobID );
+FER::assert( expression : not_empty aJobPauseReq );
+
+//-- 0106522:20150220 Add Start (saitou) 
+select one aDVPause related by aJobPauseReq->DV_PAUSE[R821];
+if( empty aDVPause )
+//-- 0106522:20150220 Add End (saitou) 
+  create object instance aDVPause of DV_PAUSE;
+  relate aDVPause to aJobPauseReq across R821;
+  aDVPause._stop( DVPauseID : aDVPause.ID, targetJobID : param.jobID );
+//-- 0106522:20150220 Add Start (saitou) 
+else
+  aDVPause.stopAns();
+end if;
+//-- 0106522:20150220 Add End (saitou) 
+
+',
+	1,
+	'',
+	"00000000-0000-0000-0000-000000000000");
+INSERT INTO O_TPARM
+	VALUES ("28f723c8-0b74-4a9d-b906-f11a14b063bb",
+	"75944489-4634-42a5-a166-072ba55bebe4",
+	'jobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO S_DT_PROXY
+	VALUES ("0080beca-ba52-48d3-998d-b265b934a961",
+	"00000000-0000-0000-0000-000000000000",
+	'Iot_JobID',
+	'',
+	'',
+	'../../../../../../../IOTcShare/models/IOTcShare/components/Datatypes/Datatypes.xtuml');
+INSERT INTO O_TFR
+	VALUES ("9682500d-5c59-4a99-a1e2-80de1667a910",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	'printPause',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'// 要求元と関連を張る
+select any aPrintPauseReq from instances of J_PPR
+  where( selected.printPauseID == param.printPauseID );
+FER::assert( expression : not_empty aPrintPauseReq );
+
+//-- 0106522:20150220 Add Start (saitou) 
+select one aDVPause related by aPrintPauseReq->DV_PAUSE[R822];
+if( empty aDVPause )
+//-- 0106522:20150220 Add End (saitou) 
+  create object instance aDVPause of DV_PAUSE;
+  relate aDVPause to aPrintPauseReq across R822;
+  // 全ジョブ対象なので targetJobID は 0 を指定
+  aDVPause._stop( DVPauseID : aDVPause.ID, targetJobID : 0 );
+//-- 0106522:20150220 Add Start (saitou) 
+else
+  aDVPause.stopAns();
+end if;
+//-- 0106522:20150220 Add End (saitou) 
+',
+	1,
+	'',
+	"75944489-4634-42a5-a166-072ba55bebe4");
+INSERT INTO O_TPARM
+	VALUES ("36e797d4-639c-4e72-8cd6-ca4d92c597f8",
+	"9682500d-5c59-4a99-a1e2-80de1667a910",
+	'printPauseID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TFR
+	VALUES ("0242ad1f-2caf-45ca-94c4-3e9212816044",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	'restartReq',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	0,
+	'// 要求元と関連を張る
+select any aRestartReq from instances of DV_RR
+  where( selected.ID == param.restartReqID );
+FER::assert( expression : not_empty aRestartReq );
+
+//-- 0106522:20150220 Add Start (saitou) 
+select one aDVPause related by aRestartReq->DV_PAUSE[R823];
+if( empty aDVPause )
+//-- 0106522:20150220 Add End (saitou) 
+  create object instance aDVPause of DV_PAUSE;
+  relate aDVPause to aRestartReq across R823;
+  // 全ジョブ対象なので targetJobID は 0 を指定
+  aDVPause._stop( DVPauseID : aDVPause.ID, targetJobID : 0 );
+//-- 0106522:20150220 Add Start (saitou) 
+else
+  aDVPause.stopAns();
+end if;
+//-- 0106522:20150220 Add End (saitou) 
+',
+	1,
+	'',
+	"9682500d-5c59-4a99-a1e2-80de1667a910");
+INSERT INTO O_TPARM
+	VALUES ("142379b3-b2e4-43a3-af71-e4d2f5752fce",
+	"0242ad1f-2caf-45ca-94c4-3e9212816044",
+	'restartReqID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'select any aPrintPauseReq from instances of J_PPR
+  where( selected.printPauseID == param.printPauseID );
+FER::assert( expression : not_empty aPrintPauseReq );
+
+// DV_JOBは先頭だけ止めればよい
+jobID = DV_JOB::getFirstJobID();
+
+isNeedWaitAns = DV_PR::_stop( jobID : jobID );
+if( isNeedWaitAns )
+  // 待つ必要がある場合は関連を張って待つ
+  select any aDVPauseReq from instances of DV_PR
+    where( selected.jobID == jobID );
+  FER::assert( expression : not_empty aDVPauseReq );
+  relate aDVPauseReq to aPrintPauseReq across R809;
+else
+  // 待つ必要が無ければ即応答を返す
+  generate J_PPR6:DVPauseAns to aPrintPauseReq;
+end if;
+');
+INSERT INTO O_TFR
+	VALUES ("dffed13e-1073-4bbd-97a0-3fda8c4abcc8",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	'stopAns',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 0104131:20140814 Modified Start (saitou) 
+// 応答待ちの相手に対し応答を返す
+// JobPause
+select one aJobPauseReq related by self->J_JPR[R821];
+if( not_empty aJobPauseReq )
+  generate J_JPR8:DVJobPauseAns to aJobPauseReq;
+end if;
+
+// PrintPause
+select one aPrintPauseReq related by self->J_PPR[R822];
+if( not_empty aPrintPauseReq )
+  generate J_PPR6:DVPauseAns to aPrintPauseReq;
+end if;
+
+// RestartReq
+select one aRestartReq related by self->DV_RR[R823];
+if( not_empty aRestartReq )
+//-- 0105804:20141218 Modified Start (saitou) 
+  generate DV_RR2:stopped to aRestartReq;
+//-- 0105804:20141218 Modified End (saitou) 
+end if;
+
+// 停止応答待ちの関連を切る
+select one aDVJob related by self->DV_JOB[R807];
+if( not_empty aDVJob )
+  unrelate self from aDVJob across R807;
+end if;
+//-- 0104131:20140814 Modified End (saitou) ',
+	1,
+	'',
+	"0242ad1f-2caf-45ca-94c4-3e9212816044");
+INSERT INTO O_TFR
+	VALUES ("9e4bcffc-3759-4995-9064-558b27de0fe9",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	'_stop',
+	'処理共通化のためのローカル関数。
+BridgePointの制限でprivate指定できない。
+他のクラス等から使用することは想定していないので、使用しないこと。
+',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 0104131:20140814 Modified Start (saitou) 
+self.targetJobID = param.targetJobID;
+
+// 対象Jobが居たら関連を張って停止要因を作る
+// 0(全Jobが対象)の場合、実際に止めるのは先頭Jobだけなので置き換える
+isExistDVJob = true;
+firstDVJobID = DV_JOB::getFirstJobID();
+if( firstDVJobID == 0 )
+  isExistDVJob = false;
+end if;
+
+targetJobID = param.targetJobID;
+if( isExistDVJob )
+  if( targetJobID == 0 )
+    targetJobID = firstDVJobID;
+  end if;
+end if;
+
+select any aDVJob from instances of DV_JOB
+	where( selected.jobID == targetJobID );
+
+// 応答を待つべきかどうかを判断。
+isNeedDVJobStopAns = false;
+
+if( not_empty aDVJob )
+  create object instance aPauseFactor of DV_PF;
+  relate self to aDVJob across R816 using aPauseFactor;
+
+//-- 0105317:20150205 Modified Start (saitou) 
+  if( ( aDVJob.isPrinting ) and ( aDVJob.jobID == firstDVJobID ) )
+//-- 0105317:20150205 Modified End (saitou) 
+    isNeedDVJobStopAns = true;
+  end if;
+
+  // DV_JOBの停止応答を待つ必要があるなら、停止を指示し、関連を張って待つ。
+  if( isNeedDVJobStopAns )
+    if( aDVJob.stop() )
+      relate self to aDVJob across R807;
+    else
+      // DV_JOB側の判断で停止不要と判断された。
+      isNeedDVJobStopAns = false;
+    end if;
+  end if;
+
+else
+  // 対象Jobが居ないなら応答を待つ必要は無い
+　　isNeedDVJobStopAns = false;
+end if;
+
+if( not isNeedDVJobStopAns )
+  // 応答を待つ必要が無ければ即応答
+  self.stopAns();
+end if;
+//-- 0104131:20140814 Modified End (saitou) 
+',
+	1,
+	'',
+	"dffed13e-1073-4bbd-97a0-3fda8c4abcc8");
+INSERT INTO O_TPARM
+	VALUES ("ebb27867-2a15-46e4-92ec-1248d6e1c733",
+	"9e4bcffc-3759-4995-9064-558b27de0fe9",
+	'DVPauseID',
+	"ba5eda7a-def5-0000-0000-000000000005",
+	0,
+	'',
+	"00000000-0000-0000-0000-000000000000",
+	'');
+INSERT INTO O_TPARM
+	VALUES ("c93e14a8-af1c-4554-bc1f-cc89d4d99ad0",
+	"9e4bcffc-3759-4995-9064-558b27de0fe9",
+	'targetJobID',
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	0,
+	'',
+	"ebb27867-2a15-46e4-92ec-1248d6e1c733",
+	'');
+INSERT INTO O_TFR
+	VALUES ("600bd39b-8ba8-4dc0-9977-da47a3423215",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	'resumeAns',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 0104131:20140814 Add Start (saitou) 
+// 再開応答待ちの関連を切る
+select one aDVJob related by self->DV_JOB[R808];
+if( not_empty aDVJob )
+  unrelate self from aDVJob across R808;
+end if;
+
+// 応答待ちの相手に対し応答を返す
+// JobPause
+select one aJobPauseReq related by self->J_JPR[R821];
+if( not_empty aJobPauseReq )
+  generate J_JPR10:DVJobResumed to aJobPauseReq;
+end if;
+
+// PrintPause
+select one aPrintPauseReq related by self->J_PPR[R822];
+if( not_empty aPrintPauseReq )
+  generate J_PPR7:''DVJob Resumed'' to aPrintPauseReq;
+end if;
+
+// RestartReq
+select one aRestartReq related by self->DV_RR[R823];
+if( not_empty aRestartReq )
+//-- 0105804:20141218 Modified Start (saitou) 
+  generate DV_RR3:resumed to aRestartReq;
+//-- 0105804:20141218 Modified End (saitou) 
+end if;
+
+// 応答を返したのでPauseも削除
+delete object instance self;
+//-- 0104131:20140814 Add End (saitou) ',
+	1,
+	'',
+	"9e4bcffc-3759-4995-9064-558b27de0fe9");
+INSERT INTO O_TFR
+	VALUES ("eb2396c6-d8ba-40d5-b869-34f30b240a63",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	'resume',
+	'',
+	"ba5eda7a-def5-0000-0000-000000000000",
+	1,
+	'//-- 0104131:20140814 Add Start (saitou) 
+select any aDVJob related by self->DV_JOB[R816];
+
+// 停止要因を消す
+//-- 0105604:20141128 Modified Start (saitou) 
+select any aPauseFactor related by self->DV_PF[R816];
+if( not_empty aPauseFactor )
+  delete object instance aPauseFactor;
+  if( not_empty aDVJob )
+    unrelate self from aDVJob across R816 using aPauseFactor;
+  end if;
+end if;
+//-- 0105604:20141128 Modified End (saitou) 
+
+// 応答を待つべきかどうかを判断。
+isNeedDVJobResumeAns = false;
+
+// 再開させる必要があるか判断
+isNeedDVJobResume = false;
+
+if( not_empty aDVJob )
+  if( not aDVJob.isPrinting )
+    // 停止しているので再開させる必要がある
+    isNeedDVJobResume = true;
+  end if;
+  
+  if( isNeedDVJobResume )
+    if( aDVJob.resume() )
+      // 再開要求中の関連を張る
+      relate self to aDVJob across R808;
+    
+      // 再開応答を待つ必要があるかは戻り値で判断できる
+      isNeedDVJobResumeAns = aDVJob.resume();
+    else
+      // 再開させる必要が無いなら、応答を待つ必要もない
+      isNeedDVJobStopAns = false;
+    end if;
+  end if;
+else
+  // 再開対象Jobが居ないなら応答を待つ必要もない
+  isNeedDVJobResumeAns = false;
+end if;
+
+// 再開応答を待つ必要が無ければ、即応答。
+if( not isNeedDVJobResumeAns )
+  self.resumeAns();
+end if;
+//-- 0104131:20140814 Add End (saitou) 
+',
+	1,
+	'',
+	"600bd39b-8ba8-4dc0-9977-da47a3423215");
+INSERT INTO O_NBATTR
+	VALUES ("deb13f6a-fd22-4721-810b-2c62b7d22769",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473");
+INSERT INTO O_BATTR
+	VALUES ("deb13f6a-fd22-4721-810b-2c62b7d22769",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473");
+INSERT INTO O_ATTR
+	VALUES ("deb13f6a-fd22-4721-810b-2c62b7d22769",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	"00000000-0000-0000-0000-000000000000",
+	'ID',
+	'',
+	'',
+	'ID',
+	0,
+	"ba5eda7a-def5-0000-0000-000000000005",
+	'',
+	'');
+INSERT INTO O_NBATTR
+	VALUES ("7e6fcba2-5925-46b5-8e80-37dba8debf23",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473");
+INSERT INTO O_BATTR
+	VALUES ("7e6fcba2-5925-46b5-8e80-37dba8debf23",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473");
+INSERT INTO O_ATTR
+	VALUES ("7e6fcba2-5925-46b5-8e80-37dba8debf23",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	"deb13f6a-fd22-4721-810b-2c62b7d22769",
+	'targetJobID',
+	'停止させる対象のJobIDを指定する。
+0 の場合は全ジョブが対象となる。',
+	'',
+	'targetJobID',
+	0,
+	"0080beca-ba52-48d3-998d-b265b934a961",
+	'',
+	'');
+INSERT INTO O_ID
+	VALUES (0,
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473");
+INSERT INTO O_OIDA
+	VALUES ("deb13f6a-fd22-4721-810b-2c62b7d22769",
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	0,
+	'ID');
+INSERT INTO O_ID
+	VALUES (1,
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473");
+INSERT INTO O_ID
+	VALUES (2,
+	"96d0afc1-58ec-4c0b-8e97-5248a62f0473");
+INSERT INTO PE_PE
+	VALUES ("96d0afc1-58ec-4c0b-8e97-5248a62f0473",
+	1,
+	"af611e23-e432-451f-96ec-b77f935091bf",
+	"00000000-0000-0000-0000-000000000000",
+	4);
+INSERT INTO EP_PKG_PROXY
+	VALUES ("af611e23-e432-451f-96ec-b77f935091bf",
+	"00000000-0000-0000-0000-000000000000",
+	"fd41c346-e09d-469b-a4ca-1610b026ce44",
+	'DVM_EP',
+	'DVM/EP についての処理を担当するサブシステム。
+
+ここで全てのDVMやEPについての処理をするわけではなく、
+あくまでモデルでやる部分を集約させたもの。',
+	800,
+	'../DVM_EP.xtuml');
