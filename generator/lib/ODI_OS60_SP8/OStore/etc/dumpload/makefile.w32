@@ -1,0 +1,178 @@
+# generated Makefile to build osload.exe
+
+USER_LOAD_SOURCES =
+
+USER_LOAD_OBJECTS =
+
+USER_LOAD_LDB =
+
+USER_LOAD_LIBRARIES =
+
+USER_DUMP_SOURCES =
+
+USER_DUMP_OBJECTS =
+
+USER_DUMP_SCHEMA_SOURCE =
+
+USER_DUMP_SCHEMA_OBJECT =
+
+USER_DUMP_LDB =
+
+USER_DUMP_LIBRARIES =
+
+USER_FLAGS =
+
+OBJ_DIR=.
+SRC_DIR=.
+DEF_DIR=.
+INCLUDE_DIR=$(OS_ROOTDIR)\include
+
+LIB_DIR=$(OS_ROOTDIR)\lib
+INCLUDE=$(INCLUDE_DIR);.;$(INCLUDE)
+
+CPP=cl.exe
+LINK32=link.exe
+!ifdef DEBUG
+CPP_PROJ=/nologo /MD /W3 /EHa /Zi /Od /D"DEBUG" /D"WIN32" \
+/D$(OS_EXCEPT_USAGE) /I$(INCLUDE_DIR) /vmg /vmv /D_X86_=1 /c /TP
+
+LINK32_FLAGS=$(LIB_DIR)\ostored.lib $(LIB_DIR)\ostrvrsd.lib \
+$(LIB_DIR)\osmsgsysd.lib \
+$(LIB_DIR)\osmsgsd.lib \
+/nologo /incremental:no /MACHINE:I386 /NODEFAULTLIB:OSTORE.LIB /debug
+
+OSTORE_LIBS = $(LIB_DIR)\ostored.lib
+OSLOAD_LIB = $(LIB_DIR)\osloadd.lib
+OSDUMP_LIB = $(LIB_DIR)\osdumpd.lib
+
+!else
+CPP_PROJ=/nologo /MD /W3 /EHa /D"NDEBUG" /D"WIN32" \
+/D$(OS_EXCEPT_USAGE) /I$(INCLUDE_DIR) /vmg /vmv /D_X86_=1 /c /TP
+
+LINK32_FLAGS=$(LIB_DIR)\ostore.lib $(LIB_DIR)\ostrvrs.lib \
+$(LIB_DIR)\osmsgsys.lib \
+$(LIB_DIR)\osmsgs.lib \
+/nologo /incremental:no /MACHINE:I386 /NODEFAULTLIB:OSTORED.LIB
+
+OSTORE_LIBS = $(LIB_DIR)\ostore.lib
+OSLOAD_LIB = $(LIB_DIR)\osload.lib
+OSDUMP_LIB = $(LIB_DIR)\osdump.lib
+
+!endif
+
+CPP_PROJ=$(CPP_PROJ) /FR
+
+LOAD_SOURCES = \
+ $(SRC_DIR)\ldrsch00.cpp \
+ $(SRC_DIR)\ldrmai00.cpp \
+ $(SRC_DIR)\ldrldr00.cpp \
+ $(USER_LOAD_SOURCES)
+
+LOAD_OBJECTS = \
+ $(OBJ_DIR)\osschema.obj \
+ $(OBJ_DIR)\typespec.obj \
+ $(OBJ_DIR)\ldrldr00.obj \
+ $(OBJ_DIR)\ldrmai00.obj \
+ $(USER_LOAD_OBJECTS)
+
+LOAD_LDB = \
+ $(LIB_DIR)\osload.ldb \
+ $(USER_LOAD_LDB)
+
+LOAD_LIBRARIES = \
+ $(OSLOAD_LIB) \
+ $(USER_LOAD_LIBRARIES)
+
+EXECUTABLES = $(OBJ_DIR)\osload.exe
+
+.SUFFIXES: .cc
+.cc.obj:
+	$(CPP) $(SCH_FLAGS) $(CPP_PROJ) -c $*.cc
+
+all: $(EXECUTABLES)
+
+objects: $(OBJECTS)
+
+debug:
+	$(MAKE) "DEBUG=1" "RUNTIME_LIB=msvcrtd.lib" "COMPILE_RUNTIME=/MDd" -f makefile.w32 all
+
+$(OBJ_DIR)\osload.exe : $(LOAD_OBJECTS)
+	@echo Linking osload.exe
+	$(LINK32) @<<
+	$(LINK32_FLAGS) /out:$(OBJ_DIR)\osload.exe $(LOAD_OBJECTS) $(LOAD_LIBRARIES)
+<<
+
+$(OBJ_DIR)\typespec.obj: $(SRC_DIR)\ldrsch00.cpp
+	ossg $(SCH_FLAGS) $(CPP_PROJ) -tssf $(OBJ_DIR)\typespec.obj $(SRC_DIR)\ldrsch00.cpp \
+
+$(OBJ_DIR)\osschema.obj: $(SRC_DIR)\ldrsch00.cpp
+	ossg $(ARCH) $(SCH_FLAGS) -asof $(OBJ_DIR)\osschema.obj -asdb $(OBJ_DIR)\osload.adb \
+	$(SRC_DIR)\ldrsch00.cpp $(LOAD_LDB)
+
+$(OBJ_DIR)\ldrmai00.obj: $(SRC_DIR)\ldrmai00.cpp
+	$(CPP) @<<
+	$(SCH_FLAGS) $(CPP_PROJ) $(SRC_DIR)\ldrmai00.cpp
+<<
+
+$(OBJ_DIR)\ldrldr00.obj: $(SRC_DIR)\ldrldr00.cpp
+	$(CPP) @<<
+	$(SCH_FLAGS) $(CPP_PROJ) $(SRC_DIR)\ldrldr00.cpp
+<<
+
+$(OBJ_DIR)\ldrcls00.obj: $(SRC_DIR)\ldrcls00.cpp
+	$(CPP) @<<
+	$(SCH_FLAGS) $(CPP_PROJ) $(SRC_DIR)\ldrcls00.cpp
+<<
+
+
+#
+# osdump build rules
+#  dump.cpp can be found in \os\top\etc\dumpload
+#
+
+osdump: $(OBJ_DIR)\osdump.exe
+
+DUMP_SOURCES = \
+	$(SRC_DIR)\dump.cpp \
+	$(USER_DUMP_SCHEMA_SOURCE) \
+	$(USER_DUMP_SOURCES)
+
+DUMP_OBJECTS = \
+	$(OBJ_DIR)\dump.obj \
+	$(USER_DUMP_SCHEMA_OBJECT) \
+	$(USER_DUMP_OBJECTS)
+
+DUMP_LDB = \
+	$(LIB_DIR)\osdump.ldb \
+	$(USER_DUMP_LDB)
+
+DUMP_LIBRARIES = \
+	$(OSDUMP_LIB) \
+	$(USER_DUMP_LIBRARIES)
+
+$(OBJ_DIR)\osdump.exe : $(DUMP_OBJECTS)
+	@echo Linking osdump.exe
+	$(LINK32) @<<
+	$(LINK32_FLAGS) /out:$(OBJ_DIR)\osdump.exe $(DUMP_OBJECTS) $(DUMP_LIBRARIES)
+<<
+
+$(OBJ_DIR)\dump.obj: $(SRC_DIR)\dump.cpp
+	$(CPP) @<<
+	$(CPP_PROJ) $(SRC_DIR)\dump.cpp
+<<
+
+!if "$(USER_DUMP_SCHEMA_OBJECT)" != ""
+$(USER_DUMP_SCHEMA_OBJECT): $(USER_DUMP_SCHEMA_SOURCE)
+	ossg $(ARCH) $(SCH_FLAGS) -asof $(USER_DUMP_SCHEMA_OBJECT) \
+	-asdb $(OBJ_DIR)\osdump.adb \
+	$(USER_DUMP_SCHEMA_SOURCE) $(DUMP_LDB)
+!endif
+
+clean:
+ -del $(OBJ_DIR)\ldrldr00.obj
+ -del $(OBJ_DIR)\ldrmai00.obj
+ -del $(OBJ_DIR)\typespec.obj
+ -del $(OBJ_DIR)\osschema.obj
+ -del $(OBJ_DIR)\osload.adb
+ -del $(OBJ_DIR)\osload.exe
+ -del $(OBJ_DIR)\osdump.exe

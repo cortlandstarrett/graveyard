@@ -1,0 +1,399 @@
+# $Id: environ.nt,v 1.54 1997/10/27 20:12:01 jim Exp $
+
+# Environ file for NT, make-based builds
+#
+# The Options in this file can be overridden by setenv'ing them into
+# your environment or adding them to the command line.
+#
+# It should not be necesary to edit anything after the Options section.
+#
+# This file assumes you have GALAXYHOME set in your environment.
+
+############################ Options ###################################
+
+#VBUILDTYPE = debug    # galaxy and compiler debugging, staticly linked
+#VBUILDTYPE = dynamic  # no debugging, optimized compile, dynamicly linked
+#VBUILDTYPE = dyndebug # galaxy and compiler debugging, dynamicly linked
+#VBUILDTYPE = static   # no debugging, optimized compile, staticly linked
+
+#VCOMPILER = borland    # Use Borland's compilation tools
+#VCOMPILER = visualc    # Use Microsoft's Visual C/C++ compilers
+
+# POSTPROCESS can be used to process object code and libraries before linking
+#
+#POSTPROCESS = purify -best-effort      # for Pure's Purify
+#POSTPROCESS = purelink                 # for Pure's PureLink without Purify
+#POSTPROCESS = proof                    # for CenterLine's TestCenter
+
+# EXTRACFLAGS are any extra flags for a particular compiler
+#
+#EXTRACFLAGS = -sb              # tell SparcCompilers to talk to SourceBrowser
+#EXTRACFLAGS = -Xe              # tell lcc to talk to Energize 
+
+
+############################# Definitions ###############################
+
+# Validate GALAXYHOME
+#
+!IFNDEF GALAXYHOME
+!ERROR GALAXYHOME not set
+!ENDIF
+
+# Validate VBIKHOME
+#
+!IFDEF NEEDVBIK
+!IFNDEF VBIKHOME
+!ERROR VBIKHOME not set
+!ENDIF
+!ENDIF
+
+# Validate DBSHOME
+#
+!IFDEF NEEDDBS
+!IFNDEF DBSHOME
+!ERROR DBSHOME not set
+!ENDIF
+!ENDIF
+
+# Validate DBSORAHOME
+#
+!IFDEF NEEDDBSORA
+!IFNDEF DBSORAHOME
+!ERROR DBSORAHOME not set
+!ENDIF
+!ENDIF
+
+# Validate DBSSYBHOME
+#
+!IFDEF NEEDDBSSYB
+!IFNDEF DBSSYBHOME
+!ERROR DBSSYBHOME not set
+!ENDIF
+!ENDIF
+
+# Validate DREAMHOME
+#
+!IFDEF NEEDDREAM
+!IFNDEF DREAMHOME
+!ERROR DREAMHOME not set
+!ENDIF
+!ENDIF
+
+# Defaultify VCOMPILER
+#
+!IFNDEF VCOMPILER
+!IF "$(AS)"=="tasm"
+VCOMPILER = borland
+!ELSE
+VCOMPILER = visualc
+!ENDIF
+!ENDIF
+
+# Validate VCOMPILER
+#
+!IF "$(VCOMPILER)"!="borland"
+!IF "$(VCOMPILER)"!="visualc"
+!ERROR VCOMPILER must be borland or visualc
+!ENDIF
+!ENDIF
+
+# Defaultify VBUILDTYPE
+#
+!IFNDEF VBUILDTYPE
+VBUILDTYPE      = dynamic
+!ENDIF
+
+# Validate VBUILDTYPE
+#
+!IF "$(VBUILDTYPE)"!="debug"
+!IF "$(VBUILDTYPE)"!="dynamic"
+!IF "$(VBUILDTYPE)"!="dyndebug"
+!IF "$(VBUILDTYPE)"!="static"
+!ERROR VBUILDTYPE must be dynamic, dyndebug, debug, or static
+!ENDIF
+!ENDIF
+!ENDIF
+!ENDIF
+
+# Update LIB to have all possible lib dirs
+#
+!IF "$(VCOMPILER)"=="borland"
+LDFLAGS=-L$(DBSORAHOME)\lib -L$(DBSHOME)\lib -L$(VBIKHOME)\lib -L$(GALAXYHOME)\lib
+!ELSE
+LIB=$(LIB);$(DBSORAHOME)\lib;$(DBSHOME)\lib;$(VBIKHOME)\lib;$(GALAXYHOME)\lib;$(ORACLE_HOME)\proc16\lib;$(SYBASE)\lib
+!ENDIF
+
+# CPP is used to preprocess C files into intermediate .i files
+#
+!IFNDEF CPP
+!IF "$(VCOMPILER)"=="borland"
+CPP = cpp32             # Borland's Win32s pre processor
+!ELSE
+CPP = cl -P
+!ENDIF
+!ENDIF
+
+# CXXPP is used to preprocess CXX files into intermediate .i files
+#
+!IFNDEF CXXPP
+!IF "$(VCOMPILER)"=="borland"
+CXXPP = cpp32           # Borland's Win32s pre processor
+!ELSE
+CXXPP = cl -P
+!ENDIF
+!ENDIF
+
+# CC is used to compile C code
+#
+
+# Can't use 16-bit compilers
+!IF "$(CC)"=="bcc"
+!UNDEF CC
+!ENDIF
+
+!IFNDEF CC
+!IF "$(VCOMPILER)"=="borland"
+CC      = bcc32
+!ENDIF
+!IF "$(VCOMPILER)"=="visualc"
+CC      = cl
+!ENDIF
+!ENDIF
+
+# CCXX is used to compile C++ code
+#
+!IFNDEF CCXX
+!IF "$(VCOMPILER)"=="borland"
+CCXX    = bcc32 -P
+!ELSE
+CCXX    = $(CC)
+!ENDIF
+!ENDIF
+
+# IFLAGS is the list of -Idir flags passed to the pre-processor
+#
+IFLAGS = -I"$(GALAXYHOME)\include"
+
+# VDLL
+#
+!IF "$(VBUILDTYPE)"=="dynamic"
+VDLL=1
+!ENDIF
+!IF "$(VBUILDTYPE)"=="dyndebug"
+VDLL=1
+!ENDIF
+!IF "$(VDLL)"=="1"
+!ELSE
+VDLL=0
+!ENDIF
+
+# MTDLL tells whether to use a static lib or a DLL version of
+# the multithreaded libc
+#
+!IF "$(VCOMPILER)"=="borland"
+!IF "$(VDLL)"=="1"
+MTDLL = -W -D_RTLDLL -DvportGALAXY_DLL=1        # generate Windows code
+!ELSE
+MTDLL = -W                                      # generate Windows code
+!ENDIF
+!ENDIF
+!IF "$(VCOMPILER)"=="visualc"
+!IF "$(VDLL)"=="1"
+MTDLL = -DvportGALAXY_DLL=1 -MD                 # Visual C++
+!ELSE
+MTDLL = -MT                                     # Visual C++
+!ENDIF
+!ENDIF
+
+# VDEBUGFLAGS
+#
+
+!IF "$(VBUILDTYPE)"=="dynamic"
+VDEBUGFLAGS=-DvdebugDEBUG=0
+!ENDIF
+!IF "$(VBUILDTYPE)"=="static"
+VDEBUGFLAGS=-DvdebugDEBUG=0
+!ENDIF
+
+!IF "$(VDEBUGFLAGS)"==""
+
+!IF "$(VCOMPILER)"=="borland"
+DEBUGOPTFLAGS = -v -w-par -w-stu -a2
+!ENDIF
+!IF "$(VCOMPILER)"=="visualc"
+DEBUGOPTFLAGS = -Zi -Ob1 -Gf -GX -DWIN32 -D_WINDOWS
+!ENDIF
+
+!ELSE
+
+!IF "$(VCOMPILER)"=="borland"
+DEBUGOPTFLAGS = -w-par -w-stu -a2
+!ELSE
+DEBUGOPTFLAGS = -Ox -Ob1 -Gf -GX -DWIN32 -D_WINDOWS
+!ENDIF
+
+!ENDIF
+
+# VBIK*
+#
+!IFDEF VBIKHOME
+
+VBIKHOMEINCLUDE = -I$(VBIKHOME)\include
+
+!ENDIF
+
+# DBSHOMEINCLUDE
+#
+!IFDEF DBSHOME
+
+DBSHOMEINCLUDE = -I$(DBSHOME)\include
+
+!ENDIF
+
+# VCHARDEF - character codeset definitions
+#
+!IF "foo"=="bar"
+VCHARDEF = -DvportVCHAR_CODESET=vportCODESET_UNICODE -DvportJAPANESE_MS_WINDOWS=1
+!ENDIF
+
+# CPPFLAGS is the list of flags passed to the C pre-processor
+#
+CPPFLAGS = $(VDEBUGFLAGS) $(VBIKHOMEINCLUDE) $(DBSHOMEINCLUDE) $(DREAMHOMEINCLUDE) $(IFLAGS) $(MTDLL) $(VCHARDEF)
+
+# CFLAGS is the list of flags passed to the C compiler
+#
+CFLAGS = $(DEBUGOPTFLAGS) $(EXTRACFLAGS)
+
+# SYSLIBS is any system libs needed by a Galaxy app
+#
+!IF "$(VCOMPILER)"=="borland"
+!IF "$(VDLL)"=="1"
+SYSLIBS = import32.lib cw32i.lib
+!ENDIF
+!ELSE
+SYSLIBS = /link -subsystem:windows
+!ENDIF
+
+# LDLIBS is the list of libraries to pass to the linker/loader
+#
+LDLIBS = $(LDLIBS_HOOK) $(VBIKLIBS) $(DBSLIBS) $(SYSLIBS)
+
+# O is the object file name suffix
+#
+O =.obj
+
+# E is the executable file name suffix
+#
+E =.exe
+
+# OUTFLAGS name the resulting output file
+#
+!IF "$(VCOMPILER)"=="borland"
+OUTFLAGS = -e
+!ENDIF
+!IF "$(VCOMPILER)"=="visualc"
+OUTFLAGS = -Fe
+!ENDIF
+
+!IF "$(VCOMPILER)"=="borland"
+
+# COMPILE_AND_LINK is used to compile programs with more than one C file.
+# foo$(E) : bar$(O) baz$(O)
+#       $(COMPILE_AND_LINK)$@ $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $< $(LDLIBS)
+#
+COMPILE_AND_LINK = $(POSTPROCESS) $(CC) $(OUTFLAGS)
+
+# COMPILE_CXX_AND_LINK is used to compile programs with more than one C++ file
+# foo$(E) : bar$(O) baz$(O)
+#       $(COMPILE_CXX_AND_LINK)$@ $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $< $(LDLIBS)
+#
+COMPILE_CXX_AND_LINK = $(POSTPROCESS) $(CCXX) $(OUTFLAGS)
+
+!ELSE
+
+# COMPILE_AND_LINK is used to compile programs with more than one C file.
+# foo$(E) : bar$(O) baz$(O)
+#       $(COMPILE_AND_LINK)$@ $< $(LDLIBS)
+#
+COMPILE_AND_LINK = $(POSTPROCESS) $(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(OUTFLAGS)
+
+# COMPILE_CXX_AND_LINK is used to compile programs with more than one C++ file
+# foo$(E) : bar$(O) baz$(O)
+#       $(COMPILE_CXX_AND_LINK)$@ $< $(LDLIBS)
+#
+COMPILE_CXX_AND_LINK = $(POSTPROCESS) $(CCXX) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(OUTFLAGS)
+
+!ENDIF
+
+#################################### Rules ################################
+
+.SUFFIXES:
+.SUFFIXES: .exe .obj .i .c .cxx
+
+!IF "$(VCOMPILER)"=="borland"
+
+.c.i :
+	$(CPP) @&&|
+	$(CPPFLAGS)
+| $<
+
+.cxx.i :
+	$(CXXPP) @&&|
+	$(CPPFLAGS)
+| $<
+
+.c.obj :
+	$(CC) @&&|
+	$(CPPFLAGS) $(CFLAGS)
+| -c $<
+
+.cxx.obj :
+	$(CCXX) @&&|
+	$(CPPFLAGS) $(CFLAGS)
+| -c $<
+
+.c.exe :
+	$(POSTPROCESS) $(CC) @&&|
+	$(OUTFLAGS)$@ $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $< $(LDLIBS)
+|
+
+.cxx.exe :
+	$(POSTPROCESS) $(CCXX) @&&|
+	$(OUTFLAGS)$@ $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $< $(LDLIBS)
+|
+
+!ELSE
+
+.c.i :
+	$(CPP) $(CPPFLAGS) $<
+
+.cxx.i :
+	$(CXXPP) $(CPPFLAGS) $<
+
+.c.obj :
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $<
+
+.cxx.obj :
+	$(CCXX) $(CPPFLAGS) $(CFLAGS) -c $<
+
+.c.exe :
+	$(POSTPROCESS) $(CC) $(OUTFLAGS)$@ $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $< $(LDLIBS)
+
+.cxx.exe :
+	$(POSTPROCESS) $(CCXX) $(OUTFLAGS)$@ $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $< $(LDLIBS)
+
+!ENDIF
+
+all : $(ALL_TARGETS)
+	-@
+
+clean :
+	del *.obj
+	del *.i
+	del *.exe
+	del *.bsc
+	del *.sbr
+	del *.ilk
+	del *.pdb
+#	del $(ALL_TARGETS)
+

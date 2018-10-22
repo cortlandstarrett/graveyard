@@ -1,0 +1,584 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vhelptextlocator prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vhelptextlocator prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vhelptextlocator-x.html#section_DataType">Types</A> [2]</TD>
+<TD><A HREF="vhelptextlocator-x.html#section_Function">Functions</A> [18]</TD>
+<TD><A HREF="vhelptextlocator-x.html#section_Message">Messages</A> [6]</TD>
+<TD><A HREF="vhelptextlocator-x.html#section_Constant">Constants</A> [1]</TD>
+<TD><A HREF="vhelptextlocator-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vhelptextlocator"><HR><H4>vhelptextlocator</H4></A>
+<PRE>
+        typedef ... <B>vhelptextlocator</B>;
+</PRE>
+
+<DL><DD>
+Help text locators are referenced by <CODE><A HREF="vhelpobject-x.html#vhelpobject"><CODE>vhelpobject</CODE></A></CODE>s.  When
+<CODE><A HREF="vhelpobject-x.html#vhelpobjectDisplayHelp"><CODE>vhelpobjectDisplayHelp</CODE></A></CODE> is called, the help object will
+pass a help request to the help locator.  The locator is responsible
+for finding the help data and adding it to the request, in this case
+the help data is the actual help text.
+<p>
+Help text locators first search the UI hierarchy command spaces for a
+dictionary bearing a certain name (refer to
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorSetDictionaryName"><CODE>vhelptextlocatorSetDictionaryName</CODE></A></CODE>).  If such a
+dictionary is found, the locator then searches the dictionary for an
+entry whose key matches the tag name of the object requesting help.
+If a match is found in the dictionary, the locator creates a vhelptext
+from the dictionary value (it is assumed to be a <CODE><A HREF="vstr-x.html#vstr"><CODE>vstr</CODE></A></CODE> *)
+and sets it as the help data in the help request.
+<p>
+If no help data is found in the UI hierarchy, then the locator
+searches the application resource file for a top-level dictionary
+bearing the proper name.  If it finds such a dictionary and a match in
+the dictionary, it creates a vhelptext and associates it with the help
+request as described above.
+<p>
+Alternatively, a help text locator can forgo the above search and
+instead create a vhelptext using a <CODE><A HREF="vdialog-x.html#vdialogItem"><CODE>vdialogItem</CODE></A></CODE>'s title
+(refer to <CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorSetUseItemTitle"><CODE>vhelptextlocatorSetUseItemTitle</CODE></A></CODE>).  If the object
+of the help request is not a <A HREF="vdialog-x.html#vdialogItem"><CODE>vdialogItem</CODE></A> or has no title, then the
+help text locator will continue with the search as outlined above.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorClass"><HR><H4>vhelptextlocatorClass</H4></A>
+<PRE>
+        typedef ... <B>vhelptextlocatorClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variable bindings for objects of type
+<CODE>vhelptextlocator</CODE> . Classes declared with this type 
+contain the same set of methods and variables as the
+default help reference class, but the behavior of methods and the
+contents of variables may vary. This class type is derived
+from <CODE><A HREF="vhelplocator-x.html#vhelplocatorClass"><CODE>vhelplocatorClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vhelptextlocatorCreate"><HR><H4>vhelptextlocatorCreate</H4></A>
+<PRE>
+        vhelptextlocator * <B>vhelptextlocatorCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates an instance of the default class of vhelptextlocator and returns
+a pointer to its contents.  Space
+for the object is allocated dynamically.  The Class Manager reclaims 
+the storage occupied by the object when it is destroyed with
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorDestroy"><CODE>vhelptextlocatorDestroy</CODE></A></CODE>.  Higher-level interfaces based
+on the core vhelptextlocator type can define a macro to this function
+for their <CODE>Create</CODE> function.  This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorInit"><CODE>vhelptextlocatorInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorCreateOfClass"><HR><H4>vhelptextlocatorCreateOfClass</H4></A>
+<PRE>
+        vhelptextlocator * <B>vhelptextlocatorCreateOfClass</B>(
+                vhelptextlocatorClass * helptextlocatorClass);
+</PRE>
+
+<DL><DD>
+Creates an instance of class <SAMP>helptextlocatorClass</SAMP> and returns
+a pointer to its contents. Space
+for the object is allocated dynamically based on the object
+size of the class. The Class Manager reclaims the storage
+occupied by the object when it is destroyed with
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorDestroy"><CODE>vhelptextlocatorDestroy</CODE></A></CODE>. Higher-level interfaces based
+on the core vhelptextlocator type can define a macro to this function
+for their <CODE>Create</CODE> function. This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorInitOfClass"><CODE>vhelptextlocatorInitOfClass</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorDestroy"><HR><H4>vhelptextlocatorDestroy</H4></A>
+<PRE>
+        vhelptextlocator * <B>vhelptextlocatorDestroy</B>(
+                vhelptextlocator * helptextlocator);
+</PRE>
+
+<DL><DD>
+Destroys the object <SAMP>helptextlocator</SAMP>, which must have
+been created or initialized by a Class Manager function.
+Interfaces based on the core object class can define a
+macro to this function for their <CODE>Destroy</CODE>
+function. This function is implemented by sending the
+message <CODE><A HREF="vinstance-x.html#vinstanceDESTROY"><CODE>vinstanceDESTROY</CODE></A></CODE> to <SAMP>helptextlocator</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorGetClass"><HR><H4>vhelptextlocatorGetClass</H4></A>
+<PRE>
+        vhelptextlocatorClass * <B>vhelptextlocatorGetClass</B>(
+                vhelptextlocator * helptextlocator);
+</PRE>
+
+<DL><DD>
+Returns the class of the object <SAMP>helptextlocator</SAMP>. This
+pointer can be cast to higher-level classes if it is known
+that it is of the appropriate type. Class types can be
+verified with <CODE><A HREF="vclass-x.html#vclassIsKindOf"><CODE>vclassIsKindOf</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorGetDefaultClass"><HR><H4>vhelptextlocatorGetDefaultClass</H4></A>
+<PRE>
+        vhelptextlocatorClass * <B>vhelptextlocatorGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+This class can be modified to alter the behavior
+of subclasses of vhelptextlocator.  This function can be called to
+explicitly register the default help text locator class with the Class
+Manager.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorGetDictionaryName"><HR><H4>vhelptextlocatorGetDictionaryName</H4></A>
+<PRE>
+        const vname * <B>vhelptextlocatorGetDictionaryName</B>(
+                vhelptextlocator * helplocator);
+</PRE>
+
+<DL><DD>
+The locator will search the UI hierarchy and the application resource
+file for a dictionary bearing under this name.  A newly created help
+text locator has no default name.  When help text locators are created
+for use with status bars and tooltips (refer to
+<CODE><A HREF="vhelp-x.html#vhelpStartupStatus"><CODE>vhelpStartupStatus</CODE></A></CODE> and <CODE><A HREF="vhelp-x.html#vhelpStartupTooltip"><CODE>vhelpStartupTooltip</CODE></A></CODE>),
+the dictionary name is set to <CODE>vname_Status</CODE> and
+<CODE>vname_Phrase</CODE>, respectively.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorGetLocator"><HR><H4>vhelptextlocatorGetLocator</H4></A>
+<PRE>
+        vhelplocator * <B>vhelptextlocatorGetLocator</B>(
+                vhelptextlocator * helptextlocator);
+</PRE>
+
+<DL><DD>
+Returns the <A HREF="vhelplocator-x.html#vhelplocator"><CODE>vhelplocator</CODE></A> on which the help text locator
+<SAMP>helptextlocator</SAMP> is built.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorGetSearchResources"><HR><H4>vhelptextlocatorGetSearchResources</H4></A>
+<PRE>
+        vbool <B>vhelptextlocatorGetSearchResources</B>(
+                vhelptextlocator * helplocator);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>vTRUE</SAMP> if this help text locator will search the
+application resource file for a dictionary containing help data,
+otherwise returns <SAMP>vFALSE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorGetSearchUIHierarchy"><HR><H4>vhelptextlocatorGetSearchUIHierarchy</H4></A>
+<PRE>
+        vbool <B>vhelptextlocatorGetSearchUIHierarchy</B>(
+                vhelptextlocator * helplocator);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>vTRUE</SAMP> if this help text locator will search UI
+hierarchy for dictionaries containing help data, otherwise returns
+<SAMP>vFALSE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorGetUseItemTitle"><HR><H4>vhelptextlocatorGetUseItemTitle</H4></A>
+<PRE>
+        vbool <B>vhelptextlocatorGetUseItemTitle</B>(
+                vhelptextlocator * helplocator);
+</PRE>
+
+<DL><DD>
+If the object requesting help isn't a dialog item or does not have a
+title, the locator will attempt to search the UI hierarchy and
+application resource file.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorInit"><HR><H4>vhelptextlocatorInit</H4></A>
+<PRE>
+        vhelptextlocator * <B>vhelptextlocatorInit</B>(
+                vhelptextlocator * helptextlocator);
+</PRE>
+
+<DL><DD>
+Initializes the memory addressed by <SAMP>helptextlocator</SAMP> in
+such a way that the resulting structure can be used to
+store any objects whose classes inherit from
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorClass"><CODE>vhelptextlocatorClass</CODE></A></CODE>. 
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorInitOfClass"><HR><H4>vhelptextlocatorInitOfClass</H4></A>
+<PRE>
+        vhelptextlocator * <B>vhelptextlocatorInitOfClass</B>(
+                vhelptextlocator * helptextlocator,
+                vhelptextlocatorClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes an object of class <SAMP>clas</SAMP> in the
+memory addressed by <SAMP>helptextlocator</SAMP>.  Interfaces 
+based on the core text locator class can
+define a macro to this function for their <CODE>Init</CODE>
+function. This function simply stores the class in the
+class field of the object structure and sends it the
+message <CODE><A HREF="vinstance-x.html#vinstanceINIT"><CODE>vinstanceINIT</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorSearchResources"><HR><H4>vhelptextlocatorSearchResources</H4></A>
+<PRE>
+        vbool <B>vhelptextlocatorSearchResources</B>(
+                vhelptextlocator * helplocator,
+                vhelprequest * request);
+</PRE>
+
+<DL><DD>
+The developer should never need to call this function directly.  It is
+called automatically as part of
+<CODE>vhelptextlocatorLocateHelp</CODE>.  It is only called if the
+locator is supposed to search resources (refer to
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorSetSearchResources"><CODE>vhelptextlocatorSetSearchResources</CODE></A></CODE>).
+<p>
+Normally, this function searches the top level of the application
+resource file for a dictionary bearing a certain name (refer to
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorSetDictionaryName"><CODE>vhelptextlocatorSetDictionaryName</CODE></A></CODE>).  If it finds such a
+dictionary, it searches the dictionary for an entry whose key matches
+the tag name of the object.  If a match is found in the dictionary,
+this function constructs a <CODE>vhelptext</CODE> from the dictionary
+entry (assumed to be a <CODE><A HREF="vstr-x.html#vstr"><CODE>vstr</CODE></A></CODE>) and adds it to the help
+request.  Developers should override this function in order to change
+the way the locator searches resources (for example, to search other
+resources).
+<p>
+This function is implemented by sending the message 
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorSEARCH_RESOURCES"><CODE>vhelptextlocatorSEARCH_RESOURCES</CODE></A></CODE> to <SAMP>helplocator</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorSearchUIHierarchy"><HR><H4>vhelptextlocatorSearchUIHierarchy</H4></A>
+<PRE>
+        vbool <B>vhelptextlocatorSearchUIHierarchy</B>(
+                vhelptextlocator * helplocator,
+                vhelprequest * request);
+</PRE>
+
+<DL><DD>
+The developer should never need to call this function directly.  It is
+called automatically as part of
+<CODE>vhelptextlocatorLocateHelp</CODE>.  It is only called if the
+locator is supposed to search resources (refer to
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorSetSearchUIHierarchy"><CODE>vhelptextlocatorSetSearchUIHierarchy</CODE></A></CODE>).
+<p>
+Normally, this function searches the UI hierarchy "above" the object of
+the help request (that is, all of the containing and parent object's
+command spaces).  In each command space, it searches for a dictionary
+bearing a certain name (refer to
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorSetDictionaryName"><CODE>vhelptextlocatorSetDictionaryName</CODE></A></CODE>).  If it finds such a
+dictionary, it searches the dictionary for an entry whose key matches
+the tag name of the object.  If a match is found in the dictionary,
+this function constructs a <CODE>vhelptext</CODE> from the dictionary
+entry (assumed to be a <CODE><A HREF="vstr-x.html#vstr"><CODE>vstr</CODE></A></CODE>) and adds it to the help
+request.  Developers should override this function in order to change
+the way the locator searches the UI hierarchy.
+<p>
+This function is implemented by sending the message
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorSEARCH_UI_HIERARCHY"><CODE>vhelptextlocatorSEARCH_UI_HIERARCHY</CODE></A></CODE> to
+<SAMP>helplocator</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorSetDictionaryName"><HR><H4>vhelptextlocatorSetDictionaryName</H4></A>
+<PRE>
+        void <B>vhelptextlocatorSetDictionaryName</B>(
+                vhelptextlocator * helplocator,
+                const vname * dictName);
+</PRE>
+
+<DL><DD>
+Sets the name of the dictionary for which the locator will search in
+the UI hierarchy and application resource file.
+<p>
+This function is implemented by sending the message
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorSET_DICTIONARY_NAME"><CODE>vhelptextlocatorSET_DICTIONARY_NAME</CODE></A></CODE> to
+<SAMP>helplocator</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorSetSearchResources"><HR><H4>vhelptextlocatorSetSearchResources</H4></A>
+<PRE>
+        void <B>vhelptextlocatorSetSearchResources</B>(
+                vhelptextlocator * helplocator,
+                vbool yesNo);
+</PRE>
+
+<DL><DD>
+Pass in <SAMP>vTRUE</SAMP> to turn on this option or
+<SAMP>vFALSE</SAMP> to turn off this option.  By default, this option
+is on.
+<p>
+This function is implemented by sending the message
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorSET_SEARCH_RESOURCES"><CODE>vhelptextlocatorSET_SEARCH_RESOURCES</CODE></A></CODE> to
+<SAMP>helplocator</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorSetSearchUIHierarchy"><HR><H4>vhelptextlocatorSetSearchUIHierarchy</H4></A>
+<PRE>
+        void <B>vhelptextlocatorSetSearchUIHierarchy</B>(
+                vhelptextlocator * helplocator,
+                vbool yesNo);
+</PRE>
+
+<DL><DD>
+Pass in <SAMP>vTRUE</SAMP> to turn on this option or
+<SAMP>vFALSE</SAMP> to turn off this option.  By default, this option
+is on.
+<p>
+This function is implemented by sending the message
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorSET_SEARCH_UI_HIERARCHY"><CODE>vhelptextlocatorSET_SEARCH_UI_HIERARCHY</CODE></A></CODE> to
+<SAMP>helplocator</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorSetUseItemTitle"><HR><H4>vhelptextlocatorSetUseItemTitle</H4></A>
+<PRE>
+        void <B>vhelptextlocatorSetUseItemTitle</B>(
+                vhelptextlocator * helplocator,
+                vbool yesNo);
+</PRE>
+
+<DL><DD>
+Pass in <SAMP>vTRUE</SAMP> to turn on this option or
+<SAMP>vFALSE</SAMP> to turn off this option.  By default, this option
+is off.
+<p>
+This option operates only on objects that are instances of
+<CODE><A HREF="vdialog-x.html#vdialogItem"><CODE>vdialogItem</CODE></A></CODE> and have titles.  If either of these
+conditions are not met, the locator will continue by attempting to
+search the UI hierarchy and application resources (provided these
+options are turned on).
+<p>
+This function is implemented by sending the message
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorSET_USE_ITEM_TITLE"><CODE>vhelptextlocatorSET_USE_ITEM_TITLE</CODE></A></CODE> to
+<SAMP>helplocator</SAMP>.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vhelptextlocatorSEARCH_RESOURCES"><HR><H4>vhelptextlocatorSEARCH_RESOURCES</H4></A>
+<PRE>
+        &lt;<B>vhelptextlocatorSEARCH_RESOURCES</B>&gt;
+</PRE>
+
+<DL><DD>
+The developer should never need to call this message directly.  It is
+called automatically as part of
+<CODE>vhelptextlocatorLocateHelp</CODE>.  It is only called if the
+locator is supposed to search resources (refer to
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorSetSearchResources"><CODE>vhelptextlocatorSetSearchResources</CODE></A></CODE>).
+<p>
+Normally, this message searches the top level of the application
+resource file for a dictionary bearing a certain name (refer to
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorSetDictionaryName"><CODE>vhelptextlocatorSetDictionaryName</CODE></A></CODE>).  If it finds such a
+dictionary, it searches the dictionary for an entry whose key matches
+the tag name of the object.  If a match is found in the dictionary,
+this message constructs a <CODE>vhelptext</CODE> from the dictionary
+entry (assumed to be a <CODE><A HREF="vstr-x.html#vstr"><CODE>vstr</CODE></A></CODE>) and adds it to the help
+request.  Developers should override this message in order to change
+the way the locator searches resources (for example, to search other
+resources).
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorSEARCH_UI_HIERARCHY"><HR><H4>vhelptextlocatorSEARCH_UI_HIERARCHY</H4></A>
+<PRE>
+        &lt;<B>vhelptextlocatorSEARCH_UI_HIERARCHY</B>&gt;
+</PRE>
+
+<DL><DD>
+The developer should never need to call this message directly.  It is
+called automatically as part of
+<CODE>vhelptextlocatorLocateHelp</CODE>.  It is only called if the
+locator is supposed to search resources (refer to
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorSetSearchUIHierarchy"><CODE>vhelptextlocatorSetSearchUIHierarchy</CODE></A></CODE>).
+<p>
+Normally, this message searches the UI hierarchy "above" the object of
+the help request (that is, all of the containing and parent object's
+command spaces).  In each command space, it searches for a dictionary
+bearing a certain name (refer to
+<CODE><A HREF="vhelptextlocator-x.html#vhelptextlocatorSetDictionaryName"><CODE>vhelptextlocatorSetDictionaryName</CODE></A></CODE>).  If it finds such a
+dictionary, it searches the dictionary for an entry whose key matches
+the tag name of the object.  If a match is found in the dictionary,
+this message constructs a <CODE>vhelptext</CODE> from the dictionary
+entry (assumed to be a <CODE><A HREF="vstr-x.html#vstr"><CODE>vstr</CODE></A></CODE>) and adds it to the help
+request.  Developers should override this message in order to change
+the way the locator searches the UI hierarchy.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorSET_DICTIONARY_NAME"><HR><H4>vhelptextlocatorSET_DICTIONARY_NAME</H4></A>
+<PRE>
+        &lt;<B>vhelptextlocatorSET_DICTIONARY_NAME</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the name of the dictionary for which the locator will search in
+the UI hierarchy and application resource file.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorSET_SEARCH_RESOURCES"><HR><H4>vhelptextlocatorSET_SEARCH_RESOURCES</H4></A>
+<PRE>
+        &lt;<B>vhelptextlocatorSET_SEARCH_RESOURCES</B>&gt;
+</PRE>
+
+<DL><DD>
+Pass in <SAMP>vTRUE</SAMP> to turn on this option or
+<SAMP>vFALSE</SAMP> to turn off this option.  By default, this option
+is on.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorSET_SEARCH_UI_HIERARCHY"><HR><H4>vhelptextlocatorSET_SEARCH_UI_HIERARCHY</H4></A>
+<PRE>
+        &lt;<B>vhelptextlocatorSET_SEARCH_UI_HIERARCHY</B>&gt;
+</PRE>
+
+<DL><DD>
+Pass in <SAMP>vTRUE</SAMP> to turn on this option or
+<SAMP>vFALSE</SAMP> to turn off this option.  By default, this option
+is on.
+</DD></DL>
+<P>
+<A NAME="vhelptextlocatorSET_USE_ITEM_TITLE"><HR><H4>vhelptextlocatorSET_USE_ITEM_TITLE</H4></A>
+<PRE>
+        &lt;<B>vhelptextlocatorSET_USE_ITEM_TITLE</B>&gt;
+</PRE>
+
+<DL><DD>
+Pass in <SAMP>vTRUE</SAMP> to turn on this option or
+<SAMP>vFALSE</SAMP> to turn off this option.  By default, this option
+is off.
+<p>
+This option operates only on objects that are instances of
+<CODE><A HREF="vdialog-x.html#vdialogItem"><CODE>vdialogItem</CODE></A></CODE> and have titles.  If either of these
+conditions are not met, the locator will continue by attempting to
+search the UI hierarchy and application resources (provided these
+options are turned on).
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vhelptextlocatorINCLUDED"><HR><H4>vhelptextlocatorINCLUDED</H4></A>
+<PRE>
+        <B>vhelptextlocatorINCLUDED</B>
+</PRE>
+
+<DL><DD>
+This constant is intended to be used in this way when including header files:
+
+<BLOCKQUOTE>
+<PRE>
+#ifndef  vhelptextlocatorINCLUDED
+#include vhelptextlocatorHEADER
+#endif
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vhelptextlocatorCLASS"><HR><H4>vhelptextlocatorCLASS</H4></A>
+<PRE>
+        #define <B>vhelptextlocatorCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Use this macro to build subclasses of vhelptextlocator.  Refer to
+<CODE><A HREF="vclass-x.html#vclass"><CODE>vclass</CODE></A></CODE> for more information on subclassing.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

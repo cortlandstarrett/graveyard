@@ -1,0 +1,386 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vclient prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vclient prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vclient-x.html#section_DataType">Types</A> [3]</TD>
+<TD><A HREF="vclient-x.html#section_Function">Functions</A> [15]</TD>
+<TD></TD>
+<TD><A HREF="vclient-x.html#section_Constant">Constants</A> [1]</TD>
+<TD></TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vclient"><HR><H4>vclient</H4></A>
+<PRE>
+        typedef ... <B>vclient</B>;
+</PRE>
+
+<DL><DD>
+Contains information about a client manager's client. Each
+client object contains the data spaces of the modules used
+by the client, a set of master pointers that reference
+them, and the per-client shutdown procedures of each
+module.
+<P>
+The master pointers are loaded into the global
+master pointer set when the active client is changed. There
+is typically a one-to-one correspondence between the
+application objects and the client manager clients. 
+A client object is created by the application manager 
+for each application object. Client objects are referenced 
+by a pointer to this type. You can create a new 
+client object with <CODE><A HREF="vclient-x.html#vclientCreate"><CODE>vclientCreate</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vclientShutdownProc"><HR><H4>vclientShutdownProc</H4></A>
+<PRE>
+        typedef ... <B>vclientShutdownProc</B>;
+</PRE>
+
+<DL><DD>
+Represents a per-client or global shutdown procedure for a
+module. Function pointers of this type are passed to
+<CODE><A HREF="vclient-x.html#vclientRegisterShutdown"><CODE>vclientRegisterShutdown</CODE></A></CODE> and
+<CODE><A HREF="vclient-x.html#vclientRegisterGlobalShutdown"><CODE>vclientRegisterGlobalShutdown</CODE></A></CODE> to register code
+to be called during process or client shutdown.
+</DD></DL>
+<P>
+<A NAME="vclientStartupProc"><HR><H4>vclientStartupProc</H4></A>
+<PRE>
+        typedef ... <B>vclientStartupProc</B>;
+</PRE>
+
+<DL><DD>
+Represents a global startup procedure for a module.
+Function pointers of this type are passed to
+<SAMP><A HREF="vclient-x.html#vclientRegisterGlobalStartup"><CODE>vclientRegisterGlobalStartup</CODE></A></SAMP> to register code
+to be called during process startup.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vclientAllocateModule"><HR><H4>vclientAllocateModule</H4></A>
+<PRE>
+        void <B>vclientAllocateModule</B>(
+                void ** master,
+                size_t size);
+</PRE>
+
+<DL><DD>
+Allocates a block of global variables, to each client, of size
+<SAMP>size</SAMP> on behalf of the module whose master
+pointer is <SAMP>master</SAMP>. A module calls this
+function when it finds that its master pointer contains
+<SAMP>NULL</SAMP>, and then initializes its
+global variables to each client.
+</DD></DL>
+<P>
+<A NAME="vclientCallGlobalStartups"><HR><H4>vclientCallGlobalStartups</H4></A>
+<PRE>
+        void <B>vclientCallGlobalStartups</B>();
+</PRE>
+
+<DL><DD>
+Calls all of the startup procedures registered by
+<CODE><A HREF="vclient-x.html#vclientRegisterGlobalStartup"><CODE>vclientRegisterGlobalStartup</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vclientCallOneGlobalStartup"><HR><H4>vclientCallOneGlobalStartup</H4></A>
+<PRE>
+        vbool <B>vclientCallOneGlobalStartup</B>();
+</PRE>
+
+<DL><DD>
+Calls one of the startup procedures registered by
+<CODE><A HREF="vclient-x.html#vclientRegisterGlobalStartup"><CODE>vclientRegisterGlobalStartup</CODE></A></CODE> and unregisters it.
+</DD></DL>
+<P>
+<A NAME="vclientCreate"><HR><H4>vclientCreate</H4></A>
+<PRE>
+        vclient * <B>vclientCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a client object with no registered per-client
+modules. You can destroy the client with
+<CODE><A HREF="vclient-x.html#vclientDestroy"><CODE>vclientDestroy</CODE></A></CODE>. The client manager
+automatically creates a client object for the current
+process in a kernel-based environment, and the server is
+responsible for creating clients (usually through the
+application manager) in a distributed environment, so
+applications need never call this function directly. This
+function is called by <CODE><A HREF="vapplication-x.html#vapplicationCreate"><CODE>vapplicationCreate</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vclientDestroy"><HR><H4>vclientDestroy</H4></A>
+<PRE>
+        void <B>vclientDestroy</B>(
+                vclient * client);
+</PRE>
+
+<DL><DD>
+Calls each function in the per-client shutdown list of the
+client <SAMP>client</SAMP> and destroys the client itself.
+This function sets the current client to the root client
+once <SAMP>client</SAMP> has been destroyed. Applications
+should never need to call this function directly. This
+function is called by <CODE><A HREF="vapplication-x.html#vapplicationDestroy"><CODE>vapplicationDestroy</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vclientDump"><HR><H4>vclientDump</H4></A>
+<PRE>
+        void <B>vclientDump</B>(
+                vclient * client,
+                FILE * stream);
+</PRE>
+
+<DL><DD>
+Prints information about a client <SAMP>client</SAMP> on
+the file stream <SAMP>stream</SAMP>. This information is
+for debugging purposes only and is available
+only when debugging is enabled.
+</DD></DL>
+<P>
+<A NAME="vclientGetCurrent"><HR><H4>vclientGetCurrent</H4></A>
+<PRE>
+        vclient * <B>vclientGetCurrent</B>();
+</PRE>
+
+<DL><DD>
+Returns the client that is currently active. The current
+client's master pointers will have been loaded into the
+global master pointer set. This is usually the client which
+is handling the current event.
+</DD></DL>
+<P>
+<A NAME="vclientGetModuleMax"><HR><H4>vclientGetModuleMax</H4></A>
+<PRE>
+        int <B>vclientGetModuleMax</B>();
+</PRE>
+
+<DL><DD>
+Returns the maximum number of library modules with
+per-client data that can be registered with the client
+manager.
+</DD></DL>
+<P>
+<A NAME="vclientGetRoot"><HR><H4>vclientGetRoot</H4></A>
+<PRE>
+        vclient * <B>vclientGetRoot</B>();
+</PRE>
+
+<DL><DD>
+Returns the root client. The root client is automatically
+created by the Client Manager and is the only active client
+until new clients are explicitly created. In a kernel-based
+environment, the root client serves the needs of the entire
+process. In a distributed environment, the root client is
+used by the server to represent itself, and new clients are
+created for each active connection. Applications should
+never refer to the root client explicitly; use
+<CODE><A HREF="vclient-x.html#vclientGetCurrent"><CODE>vclientGetCurrent</CODE></A></CODE> instead. The root client
+corresponds to the root application.
+</DD></DL>
+<P>
+<A NAME="vclientRegisterGlobalShutdown"><HR><H4>vclientRegisterGlobalShutdown</H4></A>
+<PRE>
+        void <B>vclientRegisterGlobalShutdown</B>(
+                vclientShutdownProc shutdown);
+</PRE>
+
+<DL><DD>
+Registers a shutdown procedure for a module with global
+state that is not part of its per-client global state.
+Modules that have global state independent of individual
+clients use this function to clean-up before the current
+process exits. Applications should clean-up before
+returning from <SAMP>main</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vclientRegisterGlobalStartup"><HR><H4>vclientRegisterGlobalStartup</H4></A>
+<PRE>
+        void <B>vclientRegisterGlobalStartup</B>(
+                vclientStartupProc startup);
+</PRE>
+
+<DL><DD>
+Registers a global startup procedure.  These procedures are called by
+<CODE><A HREF="vclient-x.html#vclientCallGlobalStartups"><CODE>vclientCallGlobalStartups</CODE></A></CODE> and
+<CODE><A HREF="vclient-x.html#vclientCallOneGlobalStartup"><CODE>vclientCallOneGlobalStartup</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vclientRegisterModule"><HR><H4>vclientRegisterModule</H4></A>
+<PRE>
+        void ** <B>vclientRegisterModule</B>();
+</PRE>
+
+<DL><DD>
+Registers a module with per-client global state with the
+client manager and returns its master pointer. The master
+pointer contains the address of the module's global
+variables for the current client, or <SAMP>NULL</SAMP> if
+the global variable block has not been created yet. Use
+<CODE><A HREF="vclient-x.html#vclientAllocateModule"><CODE>vclientAllocateModule</CODE></A></CODE> to create a global
+variable block for a client.
+</DD></DL>
+<P>
+<A NAME="vclientRegisterShutdown"><HR><H4>vclientRegisterShutdown</H4></A>
+<PRE>
+        void <B>vclientRegisterShutdown</B>(
+                vclientShutdownProc shutdown);
+</PRE>
+
+<DL><DD>
+Registers the per-client shutdown procedure
+<SAMP>shutdown</SAMP> with the client manager. This
+function is called when the current client is destroyed.
+Modules with per-client global variables should call this
+function to register their clean-up function after their
+data is initialized. The shutdown function should destroy
+all objects that were created during initialization, as
+well as any objects created during the lifetime of the
+client that were not otherwise accounted for. Applications
+should clean-up before returning from <SAMP>main</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vclientSetCurrent"><HR><H4>vclientSetCurrent</H4></A>
+<PRE>
+        void <B>vclientSetCurrent</B>(
+                vclient * client);
+</PRE>
+
+<DL><DD>
+Changes the current client to <SAMP>client</SAMP>. The
+master pointer set for the client's modules is loaded into
+the global master pointer set so that each active module
+addresses the correct block of global state. Has no effect
+if the current client is already <SAMP>client</SAMP>.
+Applications should not call this function: It will be
+called automatically by the application manager, if
+necessary, when an event is handled.
+</DD></DL>
+<P>
+<A NAME="vclientSetModuleMax"><HR><H4>vclientSetModuleMax</H4></A>
+<PRE>
+        void <B>vclientSetModuleMax</B>(
+                int count);
+</PRE>
+
+<DL><DD>
+Changes the maximum number of library modules with
+per-client data that can be registered with the client
+manager. This function must be called before any clients
+are created or any modules are registered because master
+pointers are allocated in a fixed block. Generates
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> if <SAMP>count</SAMP> is
+less than zero. 
+<P>
+Note that setting the module limit too low
+may result in <CODE><A HREF="vex-x.html#vexModuleLimitException"><CODE>vexModuleLimitException</CODE></A></CODE> being
+generated later. Generates <CODE><A HREF="vex-x.html#vexModuleStartupException"><CODE>vexModuleStartupException</CODE></A></CODE> 
+if any clients have been created. 
+This function must be called before any other
+library calls, if it is to be called at all.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vclientINCLUDED"><HR><H4>vclientINCLUDED</H4></A>
+<PRE>
+        <B>vclientINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vclient.h</SAMP> is
+included.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

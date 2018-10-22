@@ -1,0 +1,675 @@
+<HTML>
+<HEAD>
+<TITLE>Drawing</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Drawing</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Drag.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Event.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3352"></A>
+The Drawing classes provide a consistent and powerful rendering abstraction based on the PostScript imaging model. The Drawing classes also encapsulate platform-specific graphics systems, such as Macintosh QuickDraw, X11 Xlib, or the Windows Graphics Device Interface (GDI), to provide functions that an application uses to generate graphical output for displays, printers, and other raster-graphics hardware devices.<P>
+The Drawing classes insulate you from the details of the actual hardware device used for rendering, letting you deal with an idealized environment. The Drawing classes take care of translating rendering directives from this idealized space to the actual hardware device environment. The use of an idealized rendering environment allows for the creation of device-independent graphics. Thus a single rendering algorithm can be expressed on a variety of output devices, including bitmap displays, printers, and off-screen images.<P>
+<A NAME="3602"><H2> Glossary</H2></A>
+<UL><EM><B>closed path</B></EM>	A path in which each point in the path has both an 
+incoming and outgoing connection to another point in 
+the path.
+<P><EM><B>clipping path</B></EM>	A path defining the boundary in which all output is 
+drawn. Sometimes referred to as a clipping region.
+<P><EM><B>coordinate system</B></EM>	Describes a point space of a given dimension with respect 
+to a system of lines or other fixed reference.
+<P><EM><B>device independence</B></EM>	Ability to generate page descriptions that can be expressed 
+on any output device.
+<P><EM><B>device-space</B></EM>	Coordinate system that reflects the metrics of the actual 
+hardware device's page, including the page's dimensions 
+(width and height) as well as its resolution.
+<P><EM><B>display device</B></EM>	Any hardware device that presents information in a visual 
+form.
+<P><EM><B>fill</B></EM>	Basic operation that paints within a given path or 
+rectangle.
+<P><EM><B>graphics</B></EM>	A pictorial representation of data.
+<P><EM><B>path</B></EM>	Arbitrary sequence of points. Refer to <A HREF="Drawing.html#3612">Figure 28</A>.
+<P></UL><A NAME="3612"><I>Figure 28.  Paths, segments, and subpaths
+</I><P>
+<IMG SRC="Drawing.anc.gif"><P>
+<UL><EM><B>point</B></EM>	Quantity that specifies a location of a particular 
+coordinate.
+<P><EM><B>PostScript</B></EM>	Popular page-description language, developed by Adobe 
+Systems Inc. Postscript is designed to translate printable 
+graphics from a computer-based composition system to a 
+raster-output system.
+<P><EM><B>PostScript interpreter</B></EM>	Software program that translates PostScript directives into 
+device-specific codes to generate the graphics drawn on a 
+page.
+<P><EM><B>PostScript imaging model</B></EM>	Page description abstraction that describes a page as a two-
+dimensional coordinate system. Images are built by 
+drawing on selected areas using fill and stoke operations. 
+Analogous to an artist moving a pen or brush across a page 
+of paper.
+<P><EM><B>render</B></EM>	Represent or draw a graphic.
+<P><EM><B>resolution</B></EM>	Density of points in a particular coordinate space. In user-
+space, a point is defined to be exactly 1/72 of an inch. In 
+device-space, resolution varies from device to device.
+<P><EM><B>rotation</B></EM>	Rotating the axis of a particular coordinate space.
+<P><EM><B>scaling</B></EM>	Changing the dimensions of a point relative to a particular 
+reference axis.
+<P><EM><B>segment</B></EM>	One line in a subpath. Refer to <A HREF="Drawing.html#3612">Figure 28</A>.
+<P><EM><B>subpath</B></EM>	Section of a path. Refer to <A HREF="Drawing.html#3612">Figure 28</A>.
+<P><EM><B>transformation</B></EM>	Mapping one coordinate system into another.
+<P><EM><B>translation</B></EM>	Moving the origin of a particular coordinate space.
+<P><EM><B>user-space</B></EM>	Idealized two-dimensional coordinate system within 
+which all rendering directives are made. The drawing 
+classes are responsible for translating these directives into 
+the appropriate hardware device-space.
+<P></UL><A NAME="3627"><H3> Drawing Path</H3></A>
+One method of rendering is accomplished by constructing a path (<TT>vdrawpath</TT>) of line and curve segments, then either drawing (outlining) it or filling it with color. In a path composed of disconnected segments, each disconnected part of the path is known as a subpath. Paths are created by a series of path construction functions, the most basic of which are described below.<P>
+The Drawing rendering model uses the concept of a set of connected points (a path) in a two-dimensional coordinate space. The location of the origin is arbitrary and is defined to be whatever is most convenient. Usually the origin is defined as the lower, left-hand corner of a page, meaning that a positive x and y pair describes each point on the page. Note that this coordinate system model is different from those used by many other graphics system where the origin is usually defined as the upper, left-hand corner of the display device.<P>
+For efficiency as well as convenience, the drawing context class (<TT>vdrawcontext</TT>) provides fill and draw operations to construct and render rectangular paths. When rendering on a window or image device, these functions are likely to be more efficient than creating rectangular paths with path construction functions. To specify a rectangular region, the drawing context class uses the rectangle class (<TT>vrect</TT>).<P>
+The Drawing classes also use the transform class (<TT>vtransform</TT>) to transform page description information from one coordinate space to another. The three types of transformations that can be accomplished are translation, rotation, and scaling.<P>
+Most standard drawing functions accept double and integer values as arguments.<P>
+<A NAME="3633"><H3> Drawing Context</H3></A>
+A drawing context (<TT>vdrawcontext</TT>) contains information such as the current drawing location and the pen used for drawing. A pen (<TT>vdrawpen</TT>), in turn, contains attributes such as the color and line width. The drawing context uses these attributes to directly fill or draw lines, rectangles, arcs, strings and other drawing objects. A drawing context also can fill in or draw a specific drawing path.<P>
+Drawing operations can be directed at different kinds of devices. The device attribute of a drawing context specifies the device on which a painting function leaves marks, and is called the current drawing device. Galaxy provides device drivers for windows, images, and PostScript printers.<P>
+<A NAME="3636"><H3> User Space And Device Space</H3></A>
+The drawing context class maintains two parallel coordinate systems for drawing operations: user space and device space. In the user-space coordinate system, a drawing is specified as an ideal, device-independent, picture description, often expressed in points. In the device-space coordinate system, a drawing is specified in terms of actual device pixels. The drawing context class maps user-space coordinates to device-space coordinates according to the current transformation matrix specified in the drawing context.<P>
+<A NAME="3638"><I>Figure 29.  User space and device space
+</I><P>
+<IMG SRC="Drawing.anc1.gif"><P>
+The user-space origin is located in the lower left corner of the device, with coordinate values increasing up and to the right. User-space units are initialized to one point (1/72 inch). The scale and orientation of the coordinate system, however, can be changed through the drawing context class. Functional interfaces for the most common display transformations, such as rotation and scaling, are provided so explicit scaling and rotating computations are generally not necessary.<P>
+<A NAME="3640"><H3> Image and Character Space</H3></A>
+The drawing classes use another kind of coordinate system, image space, for image operations. When images are brought into Galaxy, the drawing imposes a known rectangular coordinate system on the image data. The purpose of the image space coordinate system is to structure the source image so that it can be mapped to user space, and from there to device space. The Drawing class uses the image matrix to perform the transformation from image space to user space. Once mapped to user space, the image can be drawn onto the target device using the drawing context's transformation matrix.<P>
+<A NAME="3642"><I>Figure 30.  Image transformations
+</I><P>
+<IMG SRC="Drawing.anc2.gif"><P>
+The drawing classes uses another similar coordinate system, called character space, to specify character shapes. Font class methods transform these shapes to user-space and subsequently to device-space. Refer to the Font chapter for information on how to specify, create, and modify fonts.<P>
+<A NAME="3644"><H3> Clipping Paths</H3></A>
+The drawing context class provides two clipping regions: the view clipping path and the user clipping path. Pixels must lie inside both clipping paths to be painted by drawing operations; pixels outside either of the two paths are unaffected by drawing. For example, trying to draw outside of an application's known windows is not possible, since the view clipping path extends only to windows that belong to your application.<P>
+<A NAME="3646"><I>Figure 31.  Clipping paths
+</I><P>
+<IMG SRC="Drawing.anc3.gif"><P>
+Whenever portions of the window need to be redrawn, the window class sets the view clipping path. For this reason, you should not modify the view clipping path while updating is taking place. Some devices ignore the view clipping path, so it is important that you not depend on the view clipping path for your drawing.<P>
+You can set the user clipping path to specify the region to be rendered as required by your drawing. The user clipping path is stored on a per-drawing-context basis.<P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+Most drawing operations take place in four steps:<P>
+<OL>
+<LI>Get the current drawing context.
+<BR>
+</OL>
+<UL>Most drawing routines provide a drawing context for you. For example, a dialog item's draw method looks like the following:<P>
+<PRE><UL>void myDraw (vdrawcontext *context)
+{
+   // Do your drawing here.
+}
+
+</UL></PRE>Sometimes, though, it is necessary to create a drawing context. As a result, most graphical objects provide a <TT>CreateDrawcontext</TT> method. For example, the following creates a drawing context from a dialog item:<P>
+<PRE><UL>{
+   vdrawcontext *context;
+   vdialogItem  *diSomething;
+
+   //...
+   context = vdialogCreateItemDrawcontext(diSomething);
+   // Now use the context to draw on the dialog item
+   //...
+}
+
+</UL></PRE>This ensures that all drawing takes place on an isolated graphics state and does not interfere with or overwrite other drawing actions that might be performed.<P>
+</UL><OL>
+<LI>Modify the drawing context's attributes.
+<BR>
+</OL>
+<UL>Before drawing, it is sometimes necessary to modify the attributes of the drawing context. If the drawing context is passed in as an argument to a method from the calling method, do not modify it. Instead, clone it and modify the clone. Modifying a drawing context passed as an argument to a method can cause unpredictable behavior later in the program's execution. If the drawing context was created in the method with <TT>vdialogItemCreateDrawcontext</TT> or another method that returns a drawing context, it is not necessary to clone it before changing its attributes.<P>
+Many attributes are set by modifying the context's pen. Retrieve the current pen by using <TT>GetPen</TT>. The pen can then be used to set various drawing attributes. To specify the color when drawing or filling, use <TT>SetColor</TT>. For information on defining colors and color specifications, refer to the Color chapter.<P>
+Use <TT>SetLineWidth</TT> to specify the pixel width of lines. The default width is one pixel, although this can be set to be a higher value as needed. You can also use <TT>SetLineCapStyle</TT>, <TT>SetLineJoinStyle</TT>, and <TT>SetLineJoinMiterLimit</TT> to control the style of line drawing you may want to perform.<P>
+When drawing text, specify the font for the text with <TT>SetFont</TT>. For information on fonts, refer to the Font chapter.<P>
+All drawing is done from a point of origin (where both the x offset and the y offset are equal to zero). The default point of origin for a drawing context is the lower left hand corner of the current device coordinate system (for example, a dialog or container). Use <TT>Translate</TT> to change the point of origin to some other location. <A HREF="Drawing.html#3697">Example 45</A> changes the point of origin from the current location to the lower left hand corner of a dialog item.<P>
+</UL><A NAME="3697"><I>Example 45.  Changing the point of origin
+</I><P>
+<PRE><UL>void ChangeOriginToItem (vdrawcontext *context, vdialogItem *item)
+{
+   /* First, get the rectangle of the dialog item */
+   const vrect *rect = vdialogGetItemRect(item);
+
+   /*
+    * Change the origin to the lower left of dialog item.
+    */
+   vdrawcontextTranslate(context, rect-&gt;x, rect-&gt;y);
+}
+
+</UL></PRE><OL>
+<LI>Create a drawing path (optional).
+<BR>
+</OL>
+<UL>One method of drawing is done by creating a path (<TT>vdrawpath</TT>), and then stroking or filling the path. To create a path, you can use several different functions, some of which are illustrated in <A HREF="Drawing.html#3721">Example 46</A>.<P>
+</UL><A NAME="3721"><I>Example 46.  Creating a path
+</I><P>
+<PRE><UL>void DrawXOnItem (vdialogItem *item)
+{
+   /* Get the drawing context */
+   vdrawcontext *context = vdialogCreateItemDrawcontext(item);
+
+   /* Create a DrawPath */
+   vdrawpath *path = vdrawpathCreate();
+
+   /* Get the item's rectangle */
+   const vrect *rect = vdialogGetItemRect(item);
+
+   /* Go to the lower left hand corner of the dialog item */
+   vdrawpathMoveTo(path, rect-&gt;x, rect-&gt;y);
+
+   /*
+    * Now add a line to the path that goes to the upper right
+    * corner of the dialog item
+    */
+   vdrawpathAppendLineTo(path, rect-&gt;w, rect-&gt;h);
+
+   /* Move to the upper left corner of the dialog item */
+   vdrawpathMoveTo(path, rect-&gt;x, rect-&gt;h);
+
+   /*
+    * Now add a line to the path that goes to the
+    * lower right corner of
+    * the dialog item
+    */
+   vdrawpathAppendLineTo(path, rect-&gt;w, rect-&gt;y);
+
+</UL></PRE><UL>Note that the above functions only create a path, and that nothing has yet been drawn on the device.<P>
+Sometimes it is necessary to create several subpaths in one drawing operation. To do this, a new path should be created separate from other subpaths previously created.<P>
+</UL><OL>
+<LI>Perform the actual drawing.
+<BR>
+</OL>
+<UL>The following code fragment shows how to draw the "X" path, created in step number three, to be drawn across the item.<P>
+<PRE><UL>   /* Now draw the path with the drawing context */
+   vdrawcontextDrawPath(context, path);
+}
+
+</UL></PRE>You also could have drawn the "X" by using the drawing context. For example:<P>
+<PRE><UL>void DrawXOnItemAgain (vdialogItem *item)
+{
+   /* Create a DrawingContext */
+   vdrawcontext *context = vdialogCreateItemDrawcontext(item);
+
+   /* Get the item's rectangle */
+   const vrect *rect = vdialogGetItemRect(item);
+
+   /* Go to the lower left hand corner of the dialog item */
+   vdrawcontextSetCurrentPoint(context, rect-&gt;x, rect-&gt;y);
+
+   /*
+    * Now draw a line that goes to the upper right corner of
+    * the dialog item
+    */
+   vdrawcontextDrawLineTo(context, rect-&gt;w, rect-&gt;h);
+
+   /* Move to the upper left corner of the dialog item */
+   vdrawcontextSetCurrentPoint(context, rect-&gt;x, rect-&gt;h);
+
+   /*
+    * Now add a line to the path that goes to the
+    * lower right corner of the dialog item
+    */
+   vdrawcontextDrawLineTo(context, rect-&gt;w, rect-&gt;y);
+}
+
+</UL></PRE>Sometimes, though it is more desirable to create a drawing path. The path can be saved and used time and again. This makes your application quicker, since you do not have to create the same path routines every time, only execute a <TT>DrawPath</TT>.<P>
+Note that it is also possible to fill a path, as illustrated in <A HREF="Drawing.html#3846">Example 47</A>.<P>
+</UL><A NAME="3846"><I>Example 47.  Filling a path
+</I><P>
+<PRE><UL>void DrawFilledArcOnItem (vdialogItem *item)
+{
+   const vrect  *rect = vdialogGetItemRect(item);
+   float         radius;
+   vdrawpath    *path = vdrawpathCreate();
+   vdrawcontext *context = vdialogCreateItemDrawcontext(item);
+
+   /* Determine how big the circle should be */
+   if (rect-&gt;w &gt; rect-&gt;h) /* It is wider than it is high */
+     radius = rect-&gt;h / 2;
+   else                     /* It is higher than is it wide */
+     radius = rect-&gt;w / 2;
+
+   /* Go to the middle of the dialog item, and draw a circle */
+   vdrawpathAppendArcClockwise(path,
+                               rect-&gt;x + (rect-&gt;w / 2), /* X */
+                               rect-&gt;y + (rect-&gt;h / 2), /* Y */
+                               radius, /* radius of arc */
+                               0,     /* Starting angle */
+                               360);   /* Ending angle */
+
+   /* Now draw the path with the drawing context,
+    * filling the circle */
+   vdrawcontextFillPath(context, path);
+}
+
+void DrawFilledArcOnItemAgain (vdialogItem *item)
+{
+   const vrect  *itemRect = vdialogGetItemRect(item);
+   float         radius;
+   vdrawcontext *context = vdialogCreateItemDrawcontext(item);
+   vrect         rect;
+
+   /* Make the rectangle half the width and height,
+    * centered in item */
+   rect.w = itemRect-&gt;w/2;
+   rect.h = itemRect-&gt;h/2;
+   rect.x += (itemRect-&gt;w - itemRect-&gt;x) / 2;
+   rect.y += (itemRect-&gt;h - itemRect-&gt;y) / 2;
+
+   /* Now draw a circle in the new rectangle */
+   vdrawcontextDrawArcs(context, &amp;rect, 2, 0, 360);
+}
+
+</UL></PRE><A NAME="3365"><H2> Additional Functionality</H2></A>
+<A NAME="3946"><H3> Rectangle Drawing</H3></A>
+In order to speed up common drawing functions and to provide an easier interface, the drawing context class provides rectangular drawing functions. These allow you to quickly and concisely draw rectangles in the current graphics state, as illustrated in <A HREF="Drawing.html#3948">Example 48</A>.<P>
+<A NAME="3948"><I>Example 48.  Drawing rectangles
+</I><P>
+<PRE><UL>void DrawRectanglesInDialog (vdialog *dialog)
+{
+   /* Get the rectangle of the dialog */
+   const vrect *rect = (vrect *)vdialogGetRect(dialog);
+   vrect       drawRect;
+
+   /* Get the drawing context of the dialog */
+   vdrawcontext *context =
+     vwindowCreateDrawcontext(vdialogGetWindow(dialog));
+
+   /* Draw a rectangle in lower left hand corner,
+    * 1/3 size of dialog */
+   drawRect.x = drawRect.y = 0;
+   drawRect.w = rect-&gt;w / 3;
+   drawRect.h = rect-&gt;h / 3;
+   vdrawcontextDrawRectangle(context, &amp;drawRect);
+
+   /* Draw a filled rectangle in the upper left hand corner,
+    * 1/3 size */
+   drawRect.y = rect-&gt;y +( (rect-&gt;h - rect-&gt;y) / 3);
+   vdrawcontextFillRectangle(context, drawRect);
+}
+
+</UL></PRE>There are also convenience functions that allow you to draw arcs and ellipses in a rectangle. Refer to the <EM>Galaxy Reference Manual</EM> for a complete list of functions. <A HREF="Drawing.html#3992">Example 49</A> draws a white filled ellipse with a black border:<P>
+<A NAME="3992"><I>Example 49.  Drawing ellipses using rectangles
+</I><P>
+<PRE><UL>void DrawEllipseInDialog (vdialog *dialog)
+{
+   const vrect *rect = vwindowGetRect(vdialogGetWindow(dialog));
+
+   /* Get the drawing context from the dialog */
+   vdrawcontext *context =
+     vwindowCreateDrawcontext(vdialogGetWindow(dialog));
+
+   /* Get the drawing context's pen,
+    * and change colors to white */
+   vdrawpen *pen = vdrawcontextGetPen(context);
+   vdrawpenSetColor(pen, vcolorGetWhite());
+
+   /* Draw the ellipse inside the dialog's rectangle */
+   vdrawcontextFillEllipse(context, rect);
+
+   /* Change colors to black */
+   vdrawpenSetColor(pen, vcolorGetBlack());
+
+   /* Draw a black ellipse around
+    * the previously drawn blue ellipse */
+   vdrawcontextDrawEllipse(context, rect);
+}
+
+</UL></PRE><A NAME="4034"><H3> Multiple Rectangle Drawing</H3></A>
+Rather than specifying each rectangle individually, it is possible to pass a set of rectangles (<TT>vdrawrectset</TT>) to several drawing context methods. All of these functions are set apart in their naming style by being plural. Where <TT>FillRectangle</TT> draws one filled rectangle, <TT>FillRectangles</TT> accepts a rectangle set.<P>
+Note the similarity between <A HREF="Drawing.html#4037">Example 50</A> where the entire rectangle is referenced, and Example 23 where each point in the rectangle is specified.<P>
+<A NAME="4037"><I>Example 50.  Using a rectangle to draw an ellipse
+</I><P>
+<PRE><UL>void DrawEllipseInDialogs (vdialog *dialog)
+{
+   vdrawrectset *rects = vdrawrectsetCreate();
+   const vrect  *rect =
+     vwindowGetRect(vdialogGetWindow(dialog));
+   vdrawcontext *context =
+     vwindowCreateDrawcontext(vdialogGetWindow(dialog));
+   vdrawpen     *pen = vdrawcontextGetPen(context);
+
+   /*
+    * Divide the rectangle in half, and place the two
+    * new rectangles in the rectangle set
+    */
+   vrect rect1;
+   vrect rect2;
+
+   vrectSet(rect-&gt;x, rect-&gt;y, rect-&gt;w / 2, rect-&gt;h, &amp;rect1);
+   vrectSet((rect-&gt;w - rect-&gt;x) / 2 ,rect-&gt;y, rect-&gt;w / 2,
+            rect-&gt;h, &amp;rect2);
+
+   vdrawrectsetAppend(rects, &amp;rect1);
+   vdrawrectsetAppend(rects, &amp;rect2);
+
+   /* Set the pen color to white */
+   vdrawpenSetColor(pen, vcolorGetWhite());
+
+   /* Draw the ellipses inside the two rectangles */
+   vdrawcontextFillEllipses(context, (const vrect *)rects, 2);
+
+   /* Change colors to black */
+   vdrawpenSetColor(pen, vcolorGetBlack());
+
+   /* Draw black ellipses around the previously drawn
+    * blue ellipses
+    */
+   vdrawcontextDrawEllipses(context,(const vrect *)rects, 2);
+}
+
+</UL></PRE><A NAME="4103"><H3> Drawing Text</H3></A>
+The drawing context class also allows you to draw text. <A HREF="Drawing.html#4105">Example 51</A> draws the string "Hello World!" centered in the visible portion of a window.<P>
+<A NAME="4105"><I>Example 51.  Drawing text
+</I><P>
+<PRE><UL>void DrawHello (vdialog *dialog)
+{
+   const vrect  *rect =
+     vwindowGetRect(vdialogGetWindow(dialog));
+   vdrawcontext *context =
+     vwindowCreateDrawcontext(vdialogGetWindow(dialog));
+
+   /* Draw the string in the center of the rectangle */
+   vdrawcontextDrawScribe(context,
+                    vcharScribeLiteral("Hello World!"), rect);
+}
+
+</UL></PRE><A NAME="4126"><H3> Drawing Images</H3></A>
+The drawing context class provides several functions to draw images. Refer to the Image chapter for information on creating and manipulating images. The simplest image drawing function is <TT>DrawImage</TT>. You can also tile an image inside a rectangle by using <TT>DrawImageTiled</TT>.<P>
+<A HREF="Drawing.html#4129">Example 52</A> loads an image from the application resource file and displays it in the window's visible area. The image is automatically scaled to fit the drawing context's displayable area.<P>
+<A NAME="4129"><I>Example 52.  Drawing images
+</I><P>
+<PRE><UL>void DrawImageOnWindow (vwindow *window)
+{
+   /*
+    * Image to display in window -
+    * called Sample and located in the
+    * root resource dictionary
+    */
+   vimage *image =
+     (vimage *) vimageLoad(vresourceGet
+                 (rRoot,vnameInternGlobalLiteral("Sample")));
+
+   /* Get the drawing context from the window */
+   vdrawcontext *context = vwindowCreateDrawcontext(window);
+
+   /*
+    * Draw all of the image into the window,
+    * scaling if necessary
+    */
+   vdrawcontextDrawImageRectangle (context, image,
+                                   vwindowGetRect(window));
+
+} /* DrawImageOnWindow */
+
+</UL></PRE><A NAME="4165"><H3> Manipulating a Drawing</H3></A>
+The drawing context class provides several functions that allow you to manipulate drawn images and objects. Two of the most common are <TT>Scale</TT> and <TT>Rotate</TT>, which scales and rotates the current drawing object. Refer to the end of this chapter for an example showing rotation of a drawn image.<P>
+<A NAME="3392"><H2> Avoiding Pitfalls</H2></A>
+Note that all drawing operations act upon the origin being defined as the lower left-hand corner of a page. This is convenient since each point on the page can be described by a positive x and y pair. This coordinate system, however, is different from those used by many other graphics system where the origin is usually defined as the upper left-hand corner of the display device.<P>
+Whenever portions of the window need to be redrawn, the window class sets the view clipping path. For this reason, you should not modify the view clipping path while updating is taking place, such as in an overridden method that controls the drawing of updated regions.<P>
+Do not depend on the view clipping path, since some devices ignore the view clipping path.<P>
+<PRE><UL>#include &lt;vport.h&gt;
+#ifndef vstdlibINCLUDED
+# include vstdlibHEADER
+#endif
+
+#ifndef vdrawcontextINCLUDED
+# include vdrawcontextHEADER
+#endif
+
+#ifndef vdialogINCLUDED
+# include vdialogHEADER
+#endif
+
+#ifndef vwindowINCLUDED
+# include vwindowHEADER
+#endif
+
+#ifndef vrectINCLUDED
+# include vrectHEADER
+#endif
+
+#ifndef vimageINCLUDED
+# include vimageHEADER
+#endif
+
+/*
+ * spinmatrix - this sample draws some number of spinning peace
+ * signs in a matrix centered in the middle of the windows's
+ * visible area.
+ * The dimension of the peace matrix will be whatever the user
+ * enters through the keyboard.
+ */
+
+#define ALPHA 60    /* angle of bottom portion of peace sign */
+#define ANGLE 10    /* rotation increment angle */
+
+int counter = 0;
+int arc = 0, i, j, destX, destY, destW, destH;
+int matrixDim = 1;   /* Dimension of peace matrix */
+vwindowClass *myWindowClass;
+
+void DrawSection (vdrawcontext *context, double radius,
+                  double angle1, double angle2,
+                  vcolor *color, int operation)
+{
+   vdrawpath *path = vdrawpathCreate();
+   vdrawpen *pen = vdrawcontextGetPen(context);
+
+   vdrawpathMoveTo (path, 0, 0);
+   vdrawpathAppendArcCounterClockwise(path, 0, 0, radius,
+                                      angle1, angle2);
+
+   vdrawpenSetColor(pen, color);
+   vdrawpenSetLineWidth(pen, 2);
+
+   if (operation == 0)
+     vdrawcontextDrawPath(context, path);
+   else
+     vdrawcontextFillPath(context, path);
+} /* DrawSection */
+
+/*
+ * Draw peace sign with the specified radius.
+ */
+void DrawPeace (vdrawcontext *context, double radius)
+{
+   double theta = 180 - ALPHA/2;
+   vcolor *color = vcolorCreate();
+
+   /* Fill left side in white */
+   DrawSection (context, radius, 90 + theta, (double)90,
+                vcolorGetWhite(), 1);
+   /* Stroke left side in black */
+   DrawSection (context, radius, 90 + theta, (double)90,
+                vcolorGetBlack(), 0);
+   /* Fill right side in white */
+   DrawSection (context, radius, (double)90, 90 + theta,
+                vcolorGetWhite(), 1);
+   /* Stroke right side in black */
+   DrawSection (context, radius, (double)90, 90 + theta,
+                vcolorGetBlack(), 0);
+   /* Fill bottom side in white */
+   DrawSection (context, radius, 270 + ALPHA / 2, 270 - ALPHA / 2,
+                vcolorGetWhite(), 1);
+   /* Stroke bottom side in black */
+   DrawSection (context, radius, 270 + ALPHA / 2, 270 - ALPHA / 2,
+                vcolorGetBlack(), 1);
+} /* DrawPeace */
+
+void DrawPeaceOnWindowWith (vwindow *window,
+                            vdrawcontext* theContext)
+{
+   /* Get rectangle of window */
+   const vrect  *rect = vwindowGetRect(window);
+   vrect        *dst = (vrect *) vmemAlloc(sizeof(vrect));
+   int           radius;
+   vdrawcontext *context = vdrawcontextClone( theContext );
+
+   /* Calculate rotation arc; counter * ANGLE */
+   if (arc &gt;= 360) {
+      counter = 1;
+   }
+   arc = (counter++ * ANGLE);
+
+   /* Make dst a square centered in the window's rect */
+   if (rect-&gt;h &lt; rect-&gt;w)
+     dst-&gt;w = dst-&gt;h = rect-&gt;h;
+   else
+     dst-&gt;w = dst-&gt;h = rect-&gt;w;
+
+   dst-&gt;x = rect-&gt;w / 2;
+   dst-&gt;y = rect-&gt;h / 2;
+
+   /* Calculate matrix element sizes */
+   destH = destW = dst-&gt;w/matrixDim;
+
+   /* Calculate radius of peace sign element */
+   radius = destH/2;
+
+   destX = dst-&gt;x;
+   destY = dst-&gt;y;
+
+   for (i = 0; i &lt; matrixDim; i++) {
+      for (j = 0; j &lt; matrixDim; j++) {
+         /* Translate origin to center of matrix element */
+         vdrawcontextSetCurrentPoint(context,
+                                     destX + radius,
+                                     destY + radius);
+
+         /*
+          * Rotate arc degrees counterclockwise
+          * around current point
+          */
+         vdrawcontextRotate (context, arc);
+
+         /* Draw peace sign with origin at current point
+          * and radius */
+         DrawPeace (context, radius);
+
+         destX += destW;
+      }
+
+      destY += destH;
+      destX = dst-&gt;x;
+   }
+   vdrawcontextDestroy( context );
+
+} /* DrawPeaceOnWindowWith */
+
+
+int myHandleKeyDown (vwindow *window, vevent *event)
+{
+   vchar     keyChar = veventGetKeyChar(event);
+
+   if (vcharIsDigit(keyChar)) {
+      matrixDim = vnumParseInt(&amp;keyChar, NULL);
+      if (matrixDim == 0) matrixDim = 1;
+      vwindowInval (window, vwindowINVAL_IMMEDIATE |
+                    vwindowINVAL_OPAQUE);
+   }
+   return (TRUE);
+} /* handleKeyDown */
+
+int main (int argc, char **argv)
+{
+   vwindow *window;
+
+   vstartup(argc, argv);
+
+   myWindowClass = vclassReproduce(vwindowGetDefaultClass());
+   vclassSet(myWindowClass, vwindowHANDLE_KEY_DOWN,
+             myHandleKeyDown);
+   vclassSet(myWindowClass, vwindowDRAW_WITH,
+             DrawPeaceOnWindowWith );
+
+   window = vwindowCreateOfClass(myWindowClass);
+
+   vwindowOpen(window);
+
+   veventProcess();
+
+   vwindowDestroy (window);
+
+   exit (EXIT_SUCCESS);
+   return EXIT_FAILURE;
+}
+
+</UL></PRE><P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Drag.html">Previous Chapter</A> | 
+		<A HREF="Event.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

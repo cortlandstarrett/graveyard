@@ -1,0 +1,625 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vobservable prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vobservable prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vobservable-x.html#section_DataType">Types</A> [4]</TD>
+<TD><A HREF="vobservable-x.html#section_Function">Functions</A> [31]</TD>
+<TD><A HREF="vobservable-x.html#section_Message">Messages</A> [7]</TD>
+<TD><A HREF="vobservable-x.html#section_Constant">Constants</A> [2]</TD>
+<TD><A HREF="vobservable-x.html#section_Macro">Macros</A> [2]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vobservable"><HR><H4>vobservable</H4></A>
+<PRE>
+        typedef ... <B>vobservable</B>;
+</PRE>
+
+<DL><DD>
+Observable objects can announce occurrences to all objects installed
+as observers and can be installed to function as such an observer.
+Objects of this class can announce to all of its observers by calling
+<code><A HREF="vobservable-x.html#vobservableAnnounce"><CODE>vobservableAnnounce</CODE></A></code> with an appropriate 
+<code><A HREF="voccurrence-x.html#voccurrence"><CODE>voccurrence</CODE></A></code> object. All of the observers must also be of the 
+<code>vobservable</code> class and will have their 
+<code><A HREF="vobservable-x.html#vobservableOBSERVE"><CODE>vobservableOBSERVE</CODE></A></code> methods called with that 
+<code><A HREF="voccurrence-x.html#voccurrence"><CODE>voccurrence</CODE></A></code> object.
+<P>
+Observers which are only interested in specific occurrences can
+override the <code><A HREF="vobservable-x.html#vobservableWILL_OBSERVE"><CODE>vobservableWILL_OBSERVE</CODE></A></code> method to reflect their
+interest. However, the <code><A HREF="vobservable-x.html#vobservableOBSERVE"><CODE>vobservableOBSERVE</CODE></A></code> 
+method may be called with occurrences of any class, so objects cannot rely on the
+<code><A HREF="vobservable-x.html#vobservableWILL_OBSERVE"><CODE>vobservableWILL_OBSERVE</CODE></A></code> method to completely filter out 
+classes. Essentially, it is only a hint.
+</DD></DL>
+<P>
+<A NAME="vobservableClass"><HR><H4>vobservableClass</H4></A>
+<PRE>
+        typedef ... <B>vobservableClass</B>;
+</PRE>
+
+<DL><DD>
+Describes the behavior of a class of observable objects.
+</DD></DL>
+<P>
+<A NAME="vobservableObserverIterator"><HR><H4>vobservableObserverIterator</H4></A>
+<PRE>
+        typedef ... <B>vobservableObserverIterator</B>;
+</PRE>
+
+<DL><DD>
+Provides a way of iterating over the observers of an observable object.
+The starter object for this iterator must be an instance of an
+<code>vobservable</code> subclass and may not be <SAMP>NULL</SAMP>. 
+The elements of an iteration are the observers of the starter object. 
+Since installed observers are not ordered, neither are the elements. If an
+object was installed more than once on the starter object, then it
+will occur an equal number of times as an element in a full iteration.
+</DD></DL>
+<P>
+<A NAME="vobservableObserverIteratorClass"><HR><H4>vobservableObserverIteratorClass</H4></A>
+<PRE>
+        typedef ... <B>vobservableObserverIteratorClass</B>;
+</PRE>
+
+<DL><DD>
+Describes the behavior of a class of observable observer iterators.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vobservableAnnounce"><HR><H4>vobservableAnnounce</H4></A>
+<PRE>
+        void <B>vobservableAnnounce</B>(
+                vobservable * object,
+                voccurrence * occurrence);
+</PRE>
+
+<DL><DD>
+Broadcasts an occurrence object to all of the invoking object's observers.
+This method calls the <code><A HREF="vobservable-x.html#vobservableOBSERVE"><CODE>vobservableOBSERVE</CODE></A></code> method on each
+of its observer, passing the occurrence. If the occurrence initially
+has a <SAMP>NULL</SAMP> announcer (returned by
+<code><A HREF="voccurrence-x.html#voccurrenceGetAnnouncer"><CODE>voccurrenceGetAnnouncer</CODE></A></code>), 
+then the invoking object is temporarily registered as its announcer 
+<code><A HREF="voccurrence-x.html#voccurrenceSetAnnouncer"><CODE>voccurrenceSetAnnouncer</CODE></A></code>.
+</DD></DL>
+<P>
+<A NAME="vobservableClone"><HR><H4>vobservableClone</H4></A>
+<PRE>
+        vobservable * <B>vobservableClone</B>(
+                vobservable * object);
+</PRE>
+
+<DL><DD>
+Creates a new copy of an observable object.
+</DD></DL>
+<P>
+<A NAME="vobservableCopy"><HR><H4>vobservableCopy</H4></A>
+<PRE>
+        void <B>vobservableCopy</B>(
+                vobservable * object,
+                vobservable * target);
+</PRE>
+
+<DL><DD>
+Copies the attributes from one existing observable object to another.
+</DD></DL>
+<P>
+<A NAME="vobservableCopyInit"><HR><H4>vobservableCopyInit</H4></A>
+<PRE>
+        void <B>vobservableCopyInit</B>(
+                vobservable * object,
+                vobservable * target);
+</PRE>
+
+<DL><DD>
+Initializes an observable object by copying the attributes from an
+existing observable object.
+</DD></DL>
+<P>
+<A NAME="vobservableCreateOfClass"><HR><H4>vobservableCreateOfClass</H4></A>
+<PRE>
+        vobservable * <B>vobservableCreateOfClass</B>(
+                vobservableClass * observableClass);
+</PRE>
+
+<DL><DD>
+Creates an observable object of the specified class.
+</DD></DL>
+<P>
+<A NAME="vobservableDestroy"><HR><H4>vobservableDestroy</H4></A>
+<PRE>
+        void <B>vobservableDestroy</B>(
+                vobservable * object);
+</PRE>
+
+<DL><DD>
+Destroys an observable object.
+</DD></DL>
+<P>
+<A NAME="vobservableDestroyObserverIterator"><HR><H4>vobservableDestroyObserverIterator</H4></A>
+<PRE>
+        void <B>vobservableDestroyObserverIterator</B>(
+                vobservableObserverIterator * iterator);
+</PRE>
+
+<DL><DD>
+Destroys an observable observer iterator.
+</DD></DL>
+<P>
+<A NAME="vobservableDump"><HR><H4>vobservableDump</H4></A>
+<PRE>
+        void <B>vobservableDump</B>(
+                vobservable * object,
+                FILE * stream);
+</PRE>
+
+<DL><DD>
+Prints information about an observable object.
+</DD></DL>
+<P>
+<A NAME="vobservableGetClass"><HR><H4>vobservableGetClass</H4></A>
+<PRE>
+        vobservableClass * <B>vobservableGetClass</B>(
+                vobservable * object);
+</PRE>
+
+<DL><DD>
+Returns the class of an observable object.
+</DD></DL>
+<P>
+<A NAME="vobservableGetDefaultClass"><HR><H4>vobservableGetDefaultClass</H4></A>
+<PRE>
+        vobservableClass * <B>vobservableGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default class of observable objects.
+</DD></DL>
+<P>
+<A NAME="vobservableGetDefaultObserverIteratorClass"><HR><H4>vobservableGetDefaultObserverIteratorClass</H4></A>
+<PRE>
+        vobservableObserverIteratorClass * <B>vobservableGetDefaultObserverIteratorClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default class of observable observer iterators.
+</DD></DL>
+<P>
+<A NAME="vobservableGetInstance"><HR><H4>vobservableGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vobservableGetInstance</B>(
+                vobservable * object);
+</PRE>
+
+<DL><DD>
+Returns an observable object references as a <A HREF="vinstance-x.html#vinstance"><CODE>vinstance</CODE></A> reference.
+</DD></DL>
+<P>
+<A NAME="vobservableGetLoadable"><HR><H4>vobservableGetLoadable</H4></A>
+<PRE>
+        vloadable * <B>vobservableGetLoadable</B>(
+                vobservable * object);
+</PRE>
+
+<DL><DD>
+Returns an observable object references as a <A HREF="vloadable-x.html#vloadable"><CODE>vloadable</CODE></A> reference.
+</DD></DL>
+<P>
+<A NAME="vobservableGetObserverIteratorClass"><HR><H4>vobservableGetObserverIteratorClass</H4></A>
+<PRE>
+        vobservableObserverIteratorClass * <B>vobservableGetObserverIteratorClass</B>(
+                vobservableObserverIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the class of an observable observer iterator.
+</DD></DL>
+<P>
+<A NAME="vobservableGetObserverIteratorIterator"><HR><H4>vobservableGetObserverIteratorIterator</H4></A>
+<PRE>
+        viterator * <B>vobservableGetObserverIteratorIterator</B>(
+                vobservableObserverIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns an observable observer iterator references as a <A HREF="viterator-x.html#viterator"><CODE>viterator</CODE></A> reference.
+</DD></DL>
+<P>
+<A NAME="vobservableGetObserverIteratorObserver"><HR><H4>vobservableGetObserverIteratorObserver</H4></A>
+<PRE>
+        vobservable * <B>vobservableGetObserverIteratorObserver</B>(
+                vobservableObserverIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the current observer of the observer iterator. This method 
+returns the same object as <code><A HREF="viterator-x.html#viteratorGetElement"><CODE>viteratorGetElement</CODE></A></code>, except
+that it is already cast to the <code>vobservable</code> class.
+</DD></DL>
+<P>
+<A NAME="vobservableGetTag"><HR><H4>vobservableGetTag</H4></A>
+<PRE>
+        const vname * <B>vobservableGetTag</B>(
+                vobservable * object);
+</PRE>
+
+<DL><DD>
+Returns the tag attribute of an observable object.
+</DD></DL>
+<P>
+<A NAME="vobservableInitObserverIterator"><HR><H4>vobservableInitObserverIterator</H4></A>
+<PRE>
+        void <B>vobservableInitObserverIterator</B>(
+                vobservableObserverIterator * iterator,
+                vobservable * object);
+</PRE>
+
+<DL><DD>
+Initializes an observable observer iterator given an observable object.
+</DD></DL>
+<P>
+<A NAME="vobservableInitOfClass"><HR><H4>vobservableInitOfClass</H4></A>
+<PRE>
+        vobservable * <B>vobservableInitOfClass</B>(
+                vobservable * object,
+                vobservableClass * observableClass);
+</PRE>
+
+<DL><DD>
+Initializes a new observable object of the specified class.
+</DD></DL>
+<P>
+<A NAME="vobservableInstallObserver"><HR><H4>vobservableInstallObserver</H4></A>
+<PRE>
+        void <B>vobservableInstallObserver</B>(
+                vobservable * object,
+                vobservable * observer);
+</PRE>
+
+<DL><DD>
+Adds the given object to the list of observers on the invoking object.
+The order of observers is not specified and may change from
+announcement to announcement. Also, if the same object is installed
+two or more times, then it will get that many notices of every
+occurrence.
+</DD></DL>
+<P>
+<A NAME="vobservableInstallObserverOwned"><HR><H4>vobservableInstallObserverOwned</H4></A>
+<PRE>
+        void <B>vobservableInstallObserverOwned</B>(
+                vobservable * object,
+                vobservable * observer);
+</PRE>
+
+<DL><DD>
+Adds the given object to the list of observers on the invoking object 
+and passes ownership of the observer. The order of observers is not specified 
+and may change from announcement to announcement.
+</DD></DL>
+<P>
+<A NAME="vobservableLoad"><HR><H4>vobservableLoad</H4></A>
+<PRE>
+        vobservable * <B>vobservableLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Loads and returns a new observable object given a resource.
+</DD></DL>
+<P>
+<A NAME="vobservableLoadInit"><HR><H4>vobservableLoadInit</H4></A>
+<PRE>
+        void <B>vobservableLoadInit</B>(
+                vobservable * object,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Initializes a new observable object given a resource.
+</DD></DL>
+<P>
+<A NAME="vobservableNextObserverIterator"><HR><H4>vobservableNextObserverIterator</H4></A>
+<PRE>
+        vbool <B>vobservableNextObserverIterator</B>(
+                vobservableObserverIterator * iterator);
+</PRE>
+
+<DL><DD>
+Advances an observable observer iterator.
+</DD></DL>
+<P>
+<A NAME="vobservableObserve"><HR><H4>vobservableObserve</H4></A>
+<PRE>
+        void <B>vobservableObserve</B>(
+                vobservable * object,
+                voccurrence * occurrence);
+</PRE>
+
+<DL><DD>
+Executes the response to an observed occurrence.
+</DD></DL>
+<P>
+<A NAME="vobservableSetTag"><HR><H4>vobservableSetTag</H4></A>
+<PRE>
+        void <B>vobservableSetTag</B>(
+                vobservable * object,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Sets the tag attribute of an observable object.
+</DD></DL>
+<P>
+<A NAME="vobservableShouldAnnounce"><HR><H4>vobservableShouldAnnounce</H4></A>
+<PRE>
+        vbool <B>vobservableShouldAnnounce</B>(
+                vobservable * object,
+                vclass * occurrenceClass);
+</PRE>
+
+<DL><DD>
+Returns whether any of the installed observers claim interest in the
+given class of occurrences.
+</DD></DL>
+<P>
+<A NAME="vobservableStartup"><HR><H4>vobservableStartup</H4></A>
+<PRE>
+        void <B>vobservableStartup</B>();
+</PRE>
+
+<DL><DD>
+Starts up all of the classes and global information in the vobservable module.
+</DD></DL>
+<P>
+<A NAME="vobservableStore"><HR><H4>vobservableStore</H4></A>
+<PRE>
+        void <B>vobservableStore</B>(
+                vobservable * object,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Stores the attributes of an observable object into a resource.
+</DD></DL>
+<P>
+<A NAME="vobservableUninstallObserver"><HR><H4>vobservableUninstallObserver</H4></A>
+<PRE>
+        void <B>vobservableUninstallObserver</B>(
+                vobservable * object,
+                vobservable * observer);
+</PRE>
+
+<DL><DD>
+Removes the given object from the list of observers on the invoking object.
+The passed object must already have been installed as an observer, 
+or Galaxy throws an exception. If the object was installed more than
+once, only one of its entries is removed.
+</DD></DL>
+<P>
+<A NAME="vobservableWillObserve"><HR><H4>vobservableWillObserve</H4></A>
+<PRE>
+        vbool <B>vobservableWillObserve</B>(
+                vobservable * object,
+                vclass * occurrenceClass);
+</PRE>
+
+<DL><DD>
+Returns whether the invoking object is interested in occurrences of
+the given class.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vobservableANNOUNCE"><HR><H4>vobservableANNOUNCE</H4></A>
+<PRE>
+        &lt;<B>vobservableANNOUNCE</B>&gt;
+</PRE>
+
+<DL><DD>
+Broadcasts an occurrence object to all of the invoking object's observers.
+This method calls the <code><A HREF="vobservable-x.html#vobservableOBSERVE"><CODE>vobservableOBSERVE</CODE></A></code> method on each
+of its observer, passing the occurrence. If the occurrence initially
+has a <SAMP>NULL</SAMP> announcer (returned by <code><A HREF="voccurrence-x.html#voccurrenceGetAnnouncer"><CODE>voccurrenceGetAnnouncer</CODE></A></code>), 
+then the invoking object is registered as its announcer 
+(<code><A HREF="voccurrence-x.html#voccurrenceSetAnnouncer"><CODE>voccurrenceSetAnnouncer</CODE></A></code>) temporarily.
+</DD></DL>
+<P>
+<A NAME="vobservableINSTALL_OBSERVER"><HR><H4>vobservableINSTALL_OBSERVER</H4></A>
+<PRE>
+        &lt;<B>vobservableINSTALL_OBSERVER</B>&gt;
+</PRE>
+
+<DL><DD>
+Adds the given object to the list of observers on the invoking object.
+The order of observers is not specified and may change from
+announcement to announcement. Also, if the same object is installed
+two or more times, then it will get that many notices of every
+occurrence.
+</DD></DL>
+<P>
+<A NAME="vobservableINSTALL_OBSERVER_OWNED"><HR><H4>vobservableINSTALL_OBSERVER_OWNED</H4></A>
+<PRE>
+        &lt;<B>vobservableINSTALL_OBSERVER_OWNED</B>&gt;
+</PRE>
+
+<DL><DD>
+Adds the given object to the list of observers on the invoking object 
+and passes ownership of the observer.The order of observers is not specified 
+and may change from announcement to announcement.
+</DD></DL>
+<P>
+<A NAME="vobservableOBSERVE"><HR><H4>vobservableOBSERVE</H4></A>
+<PRE>
+        &lt;<B>vobservableOBSERVE</B>&gt;
+</PRE>
+
+<DL><DD>
+Implements the response to an observed occurrence.
+The default implementation does nothing; overrides do not 
+need to call the base implementation.
+</DD></DL>
+<P>
+<A NAME="vobservableSHOULD_ANNOUNCE"><HR><H4>vobservableSHOULD_ANNOUNCE</H4></A>
+<PRE>
+        &lt;<B>vobservableSHOULD_ANNOUNCE</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns whether any of the installed observers claim interest in the
+given class of occurrences.
+</DD></DL>
+<P>
+<A NAME="vobservableUNINSTALL_OBSERVER"><HR><H4>vobservableUNINSTALL_OBSERVER</H4></A>
+<PRE>
+        &lt;<B>vobservableUNINSTALL_OBSERVER</B>&gt;
+</PRE>
+
+<DL><DD>
+Removes the given object from the list of observers on the invoking object.
+The passed object must already have been installed as an observer, 
+or Galaxy throws an exception. If the object was installed more than
+once, only one of its entries is removed.
+</DD></DL>
+<P>
+<A NAME="vobservableWILL_OBSERVE"><HR><H4>vobservableWILL_OBSERVE</H4></A>
+<PRE>
+        &lt;<B>vobservableWILL_OBSERVE</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns whether the invoking object is interested in occurrences of
+the given class.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vobservableHEADER"><HR><H4>vobservableHEADER</H4></A>
+<PRE>
+        <B>vobservableHEADER</B>
+</PRE>
+
+<DL><DD>
+The name of the header file for the vobservable module.
+</DD></DL>
+<P>
+<A NAME="vobservableINCLUDED"><HR><H4>vobservableINCLUDED</H4></A>
+<PRE>
+        <B>vobservableINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file vobservableHEADER is included.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vobservableCLASS"><HR><H4>vobservableCLASS</H4></A>
+<PRE>
+        #define <B>vobservableCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for the base observable class.
+</DD></DL>
+<P>
+<A NAME="vobservableOBSERVER_ITERATOR_CLASS"><HR><H4>vobservableOBSERVER_ITERATOR_CLASS</H4></A>
+<PRE>
+        #define <B>vobservableOBSERVER_ITERATOR_CLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for the base observable
+observer iterator class.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

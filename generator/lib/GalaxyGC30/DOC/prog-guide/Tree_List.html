@@ -1,0 +1,163 @@
+<HTML>
+<HEAD>
+<TITLE>Tree List</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Tree List</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Tree.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Undo.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The <EM><B>Tree List</B></EM> class (<TT>vtreelist</TT>) was created in order to display hierarchical tree data. It allows the end-user to navigate the hierarchical data in a list-like format; the end-user can expand and collapse individual elements in the tree, and scroll through the list using vertical and horizontal scrollbars. Individual nodes can be programmatically added and removed from the tree list tree, with the display automatically updating to reflect the changes in the data.<P>
+A tree list tree uses the capabilities of the tree data class (<TT>vtree</TT>) to carry out many of its data manipulation tasks. See the Tree chapter for more information on trees.<P>
+The tree list employs many of the list view (<TT>vlistview</TT>) features to control the display of the tree list. See the List chapter for more information on using list views. <P>
+In essence, a tree list works as a combination of two parts:<P>
+<OL>
+<LI>A tree data (<TT>vtree</TT>) subclass known as a tree list tree (<TT>vtreelistTree</TT>) class.
+<BR>
+<LI>A list view subclass known as the tree list (<TT>vtreelist</TT>).
+<BR>
+</OL>
+In terms of the Galaxy Data/Observer/View paradigm the tree list tree acts as the data manipulator, while the tree list acts as the viewing mechanism seen by the end-user. When these two components are connected then changes that are made to the tree list tree are observed and handed off to the tree list for handling.<P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+<A NAME="3618"><H3> Tree lists</H3></A>
+A tree list (<TT>vtreelist</TT>), a list view subclass (which in turn is a dialog item subclass), displays the data held in a collection of tree list tree objects. The tree list's dimensions may be smaller than the area needed to display the whole list, so vertical and horizontal scroll bars are available for the end-user to scroll and pan through the list.<P>
+By itself a tree list is strictly a graphical component. It does not contain data or information about the tree list tree (<TT>vtreelistTree</TT>) organization it displays. The tree list, however, acts as an observer of the the tree list tree organization. When changes are made to the underlying tree list tree organization the tree list is notified, and the changes are displayed. This separation allows multiple tree lists to view the same tree list tree organization.<P>
+<A NAME="3621"><H3> Tree List Data</H3></A>
+A collection of tree list trees (<TT>vtreelistTree</TT>) are used to represent the hierarchical data arranged in a traditional tree organization. Each node of the tree is made up of a single vtreelistTree instance. At the top of the tree structure is the <EM><B>root</B></EM> tree, or node. The root tree can have any number of <EM><B>child</B></EM> trees, each represented by a vtreelistTree instance. These in turn can have any number of their own children. The entire tree organization is therefore constructed by each individual tree list tree knowing its parent and all of its children. If drawn graphically, the resulting organization resembles a tree:<P>
+<PRE><UL>             ----vtreelistTree-------------
+             |                            |
+    vtreelistTree                ----vtreelistTree----------------
+       |       |                 |               |               |
+ vtreelistTree vtreelistTree   vtreelistTree vtreelistTree vtreelistTree
+
+</UL></PRE>Each of the tree list trees can be accessed by traversing the tree organization. Because all children can be accessed through the root tree list tree, you only need to keep a reference to it.<P>
+<A NAME="3631"><H3> Constructing the Tree Data</H3></A>
+A tree organization for a displayed tree list is constructed the same as a data tree: by creating the individual nodes and assigning to them the desired data. The nodes are then placed in the tree organization by using the <TT>AppendTreeChild</TT> and <TT>InsertTreeChild</TT> methods.<P>
+See the Tree chapter for more information on constructing data trees. A tree list tree differs from a standard tree only in that the nodes are made up of <TT>vtreelistTree</TT> instances rather than <TT>vtree</TT> instances. Since <TT>vtreelistTree</TT> is a subclass of <TT>vtree</TT>, the tree can be treated essentially like a standard tree.<P>
+<A NAME="3634"><H3> Connecting the Tree List with the Tree Data</H3></A>
+After the tree organization of vtreelistTrees is created, and the tree list itself has been created or loaded from a resource, you can connect the two by using the <TT>SetTree</TT> or <TT>SetTreeOwned</TT> methods, passing in the root tree list tree. <TT>SetTreeOwned</TT> takes ownership of the tree list tree and destroys the entire tree organization automatically when the tree list is destroyed.<P>
+<A NAME="3636"><H3> Iterators</H3></A>
+The tree list depth first iterator (<TT>vtreelistTreeDepthFirstIterator</TT>) is used to iterate <EM><B>depth first</B></EM> over expanded nodes in a tree list. The tree list breadth first iterator (<TT>vtreelistTreeBreadthFirstIterator</TT>) is used to iterate <EM><B>breadth first</B></EM> over the expanded nodes in a tree list.<P>
+A breadth first iterator traverses over all the children on the same level of the tree organization before moving to the next level. You can think of the breadth first iterator as traversing the tree organization in a horizontal manner. A depth first iterator traverses to the deepest level of all children before moving to the next child. Think of the depth first iterator traversing the tree organization in a vertical manner.<P>
+<UL><B><I>NOTE:</I></B> The tree list iterators will <B>not</B> iterate over children that have not been 
+expanded by the end-user (that is, it will only iterate over those nodes that 
+are visible in the tree list). To iterate over all the nodes in the tree list tree, 
+use the <TT>vtree</TT> iterators (see the Tree chapter for more information).
+<P>
+</UL><A NAME="3640"><I>Example 166.  Iterating in a tree list
+</I><P>
+<PRE><UL>{
+   vtreelistTree                     *tltree;
+   vtreelistTreeBreadthFirstIterator  iterator;
+
+   tltree = vtreelistGetTree(_master-&gt;treelist);
+
+   /* initial the iterator */
+   vtreelistInitTreeBreadthFirstIterator(&amp;iterator,
+                                         tltree);
+
+   /* before getting the first tree, call Next */
+   while (vtreeNextIterator(&amp;iterator))
+   {
+      tltree = (vtreelistTree *)vtreeGetIteratorTree(&amp;iterator);
+      printf("Title: %s n", vtreelistGetTreeTitle(tltree));
+   }
+
+   /* remember to destroy the iterator when done. */
+   vtreeDestroyIterator(&amp;iterator);
+}
+
+</UL></PRE><A NAME="3683"><H3> Displaying a Tree in a Tree List</H3></A>
+Each node in a tree list tree can be either expanded or collapsed. When expanded, all of the node's children are displayed. When collapsed, none of the children are shown. There are several ways to expanded a row: an end-user could click on the toggle (by default a plus sign furthest to the left), or an end-user could select the row and use the Right Arrow key to expand it (or the Left Arrow key to collapse it). A row can also be expanded or collapsed programmatically using <TT>Expand</TT> and <TT>Collapse</TT> on the desired tree list tree node.<P>
+You can also use <TT>SetRootDisplay</TT> to specify whether the root node is displayed.<P>
+By default, a tree list draws lines called <EM><B>edges</B></EM> connecting each node. Edges can be turned on or off using the <TT>SetEdgeDisplay</TT> method.<P>
+Use <TT>SetHorzBar</TT> to turn on horizontal scroll bars, and <TT>SetVertBar</TT> to turn on vertical scroll bars.<P>
+<A NAME="3365"><H2> Additional Functionality</H2></A>
+<A NAME="3703"><H3> Tree List Messages</H3></A>
+The <TT>vtreelistTree</TT> class is a subclass of <TT>vobservable</TT> and introduces some new occurrence messages:<P>
+<UL><LI><TT>vtreelistTreeOccurrenceBEHAVIOR_CHANGE_EXPANDABLE<br></TT>The expandable state of a node has changed.
+<LI><TT>vtreelistTreeOccurrenceBEHAVIOR_CHANGE_ICON<br></TT>The icon for a node has changed.
+<LI><TT>vtreelistTreeOccurrenceBEHAVIOR_COLLAPSE<br></TT>A node has been collapsed.
+<LI><TT>vtreelistTreeOccurrenceBEHAVIOR_EXPAND<br></TT>A node has been expanded.
+</UL><A NAME="3392"><H2> Avoiding Pitfalls</H2></A>
+While using any of the iterators, and traversing through the tree organization, do not remove or add any trees. If you need to remove any trees, maintain a list of them and then remove them after you are done iterating.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Tree.html">Previous Chapter</A> | 
+		<A HREF="Undo.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

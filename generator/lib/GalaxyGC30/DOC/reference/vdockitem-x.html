@@ -1,0 +1,1527 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vdockitem prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vdockitem prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vdockitem-x.html#section_DataType">Types</A> [4]</TD>
+<TD><A HREF="vdockitem-x.html#section_Function">Functions</A> [50]</TD>
+<TD><A HREF="vdockitem-x.html#section_Message">Messages</A> [15]</TD>
+<TD><A HREF="vdockitem-x.html#section_Constant">Constants</A> [4]</TD>
+<TD><A HREF="vdockitem-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vdockitem"><HR><H4>vdockitem</H4></A>
+<PRE>
+        typedef ... <B>vdockitem</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to represent a single dock item.
+Objects of this type have classes derived from
+<CODE><A HREF="vdockitem-x.html#vdockitemClass"><CODE>vdockitemClass</CODE></A></CODE>. 
+A dock item is a dialog item that holds and arranges dockers. Every
+dock item is associated with exactly one <CODE>vdock</CODE> that
+serves as a kind of interface to the dock item.
+Generally, when dealing with dockers, a programmer deals only with
+docks and not dock items.
+<P>
+Most of the functionality of a dock item is exposed by methods on its
+dock. For instance the method <CODE><A HREF="vdock-x.html#vdockAddDocker"><CODE>vdockAddDocker</CODE></A></CODE> simply
+calls <CODE><A HREF="vdockitem-x.html#vdockitemAddDocker"><CODE>vdockitemAddDocker</CODE></A></CODE>. This organization is useful
+because it provides some degree of separation between the
+docking implementation and its interface. 
+<P>
+It is possible to imagine other items that can hold dockers 
+that would also use a dock (or rather a dock subclass) as their interface. 
+Separating implementation from interface in this way allows
+dockers to always deal exclusively with docks without having to worry
+about the architecture of the objects that actually hold them. 
+<P>
+A dock item arranges all the dockers it holds into rows or columns
+(depending on the orientation of the dock item) based on the size
+and other layout-related attributes of the dockers. In particular, the
+span style of a docker, and its span fill modifiers play a large part in how
+rows are arranged. Refer to sections <CODE><A HREF="vdocker-x.html#vdockerSetSpanStyle"><CODE>vdockerSetSpanStyle</CODE></A></CODE> and 
+<CODE><A HREF="vdocker-x.html#vdockerSetSpanFillModifiers"><CODE>vdockerSetSpanFillModifiers</CODE></A></CODE> for more information.
+<P>
+Certain attributes of the dock item itself also play a role, for example, 
+<CODE>SetWrap</CODE> and <CODE>SetVertical</CODE>.
+</DD></DL>
+<P>
+<A NAME="vdockitemClass"><HR><H4>vdockitemClass</H4></A>
+<PRE>
+        typedef ... <B>vdockitemClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variable bindings for objects of type
+<CODE>vdockitem</CODE>. Classes declared with this type contain the
+same set of methods and variables as the default dock item class, but
+the behavior of methods and the contents of variable may vary. This
+class type is derived from <CODE><A HREF="vdialog-x.html#vdialogItemClass"><CODE>vdialogItemClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdockitemDockerIterator"><HR><H4>vdockitemDockerIterator</H4></A>
+<PRE>
+        typedef ... <B>vdockitemDockerIterator</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to represent a single docker iterator.
+A dock item docker iterator is an iterator that iterates over all the
+dockers in the dock item for which it was created.
+</DD></DL>
+<P>
+<A NAME="vdockitemNoteProc"><HR><H4>vdockitemNoteProc</H4></A>
+<PRE>
+        typedef ... <B>vdockitemNoteProc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a notification function that is called when a
+dock item handles an event of some importance.
+<SAMP>dock</SAMP> is the dock item handling the event,
+and <SAMP>event</SAMP> is the event being handled.
+Importance is determined by the event handlers in the
+dock item's class; the default dock item class gives no
+notification. If additional
+notification is required, you should override the
+appropriate handler.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vdockitemAddDocker"><HR><H4>vdockitemAddDocker</H4></A>
+<PRE>
+        void <B>vdockitemAddDocker</B>(
+                vdockitem * dock,
+                vdocker * docker,
+                const vrect * rect);
+</PRE>
+
+<DL><DD>
+Adds the docker to the dockitem, positioning it according to the
+rectangle. If <SAMP>rect</SAMP> is <SAMP>NULL</SAMP> then the docker
+will remain floating and will be assigned to a row of its own. If the
+rectangle is not <SAMP>NULL</SAMP>, it will be used to determine the
+optimal docked placement for the docker. The rectangle should be in
+terms of the dock item's coordinates.
+<P>
+If the docker already belongs to a dock other than the one owned by
+this dock item, then a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> will be generated.
+The docker must first be removed from its previous owner with code shown below.
+
+<PRE>
+  void liberateDocker(<A HREF="vdocker-x.html#vdocker"><CODE>vdocker</CODE></A> *docker) {
+     <A HREF="vdock-x.html#vdockRemoveDocker"><CODE>vdockRemoveDocker</CODE></A>(<A HREF="vdocker-x.html#vdockerGetDock"><CODE>vdockerGetDock</CODE></A>(docker), docker);
+  }
+</PRE>
+<P>
+This function is implemented by sending the message
+<CODE><A HREF="vdockitem-x.html#vdockitemADD_DOCKER"><CODE>vdockitemADD_DOCKER</CODE></A></CODE> to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemArrange"><HR><H4>vdockitemArrange</H4></A>
+<PRE>
+        void <B>vdockitemArrange</B>(
+                vdockitem * dock,
+                const vrect * rect);
+</PRE>
+
+<DL><DD>
+Arranges all the dockers in the dock item, using the rectangle passed
+in as a coordinate system for the items. All the dockers are arranged
+to fit as much within the rectangle as possible. Floating and/or
+hidden dockers belonging  to the dock item do not figure into the
+layout calculations. 
+<P>
+Dockers are arranged into rows (or columns,
+depending on the dock item's  orientation) using a fairly complex
+set of heuristics using attributes of the dock item, as well as the
+dockers themselves. Refer to the following entry point sections for further
+information on how they affect docker layout:
+
+<UL>
+<LI> <CODE><A HREF="vdockitem-x.html#vdockitemSetVertical"><CODE>vdockitemSetVertical</CODE></A></CODE>
+<LI> <CODE><A HREF="vdockitem-x.html#vdockitemSetWrap"><CODE>vdockitemSetWrap</CODE></A></CODE>
+<LI> <CODE><A HREF="vdocker-x.html#vdockerSetSpanStyle"><CODE>vdockerSetSpanStyle</CODE></A></CODE>
+<LI> <CODE><A HREF="vdocker-x.html#vdockerSetSpanFillModifiers"><CODE>vdockerSetSpanFillModifiers</CODE></A></CODE>
+</UL>
+
+<P>
+This function is implemented by sending the message
+<CODE><A HREF="vdockitem-x.html#vdockitemARRANGE"><CODE>vdockitemARRANGE</CODE></A></CODE> to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemCalcContent"><HR><H4>vdockitemCalcContent</H4></A>
+<PRE>
+        void <B>vdockitemCalcContent</B>(
+                vdockitem * dock,
+                vrect * rect);
+</PRE>
+
+<DL><DD>
+Calculates the rectangle of the the dock item's contents, given the
+rectangle of the dock item passed in as <SAMP>rect</SAMP>. The
+calculated content rectangle is returned through the <SAMP>rect</SAMP>
+parameter. In essence, this method simply subtracts the decoration
+sizes off of the rectangle passed in to give the size of the contents. Refer to 
+the section <CODE>GetDecorationSizes</CODE> for more information.
+</DD></DL>
+<P>
+<A NAME="vdockitemCalcMinSize"><HR><H4>vdockitemCalcMinSize</H4></A>
+<PRE>
+        void <B>vdockitemCalcMinSize</B>(
+                vdockitem * dock,
+                int * w,
+                int * h);
+</PRE>
+
+<DL><DD>
+Calculates the minimum size of the dock item based on the dockers
+docked within it and stores the result in the variables
+addressed by <SAMP>w</SAMP> and <SAMP>h</SAMP>. Since dock items are
+always resizable along one dimension, the value returned for that
+dimension is always zero. For a horizontal dock item, the resizable 
+dimension is the width; for vertical ones it is the height.
+<P>
+This function is implemented by sending the message
+<CODE>vdockitem</CODE> to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemClone"><HR><H4>vdockitemClone</H4></A>
+<PRE>
+        vdockitem * <B>vdockitemClone</B>(
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Creates a copy of the dock item <SAMP>dockitem</SAMP> and
+returns a pointer to its contents. Storage for the dock item
+object is allocated by the Docker class. The Docker class
+reclaims the storage occupied by the dock item when it
+is destroyed with <CODE><A HREF="vdockitem-x.html#vdockitemDestroy"><CODE>vdockitemDestroy</CODE></A></CODE>. This
+function copies all the copyable attributes of the dock item and
+clones any attribute objects that are owned by the dock item. 
+The dock item to be cloned can 
+be dynamic or static. This function essentially allocates
+space for a new dock item and calls
+<CODE><A HREF="vdockitem-x.html#vdockitemCopyInit"><CODE>vdockitemCopyInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vdockitemCopy"><HR><H4>vdockitemCopy</H4></A>
+<PRE>
+        void <B>vdockitemCopy</B>(
+                vdockitem * dock,
+                vdockitem * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>dockitem</SAMP> into
+<SAMP>target</SAMP> so that the two dock items represent
+equivalent objects. <SAMP>target</SAMP> must have been
+created or initialized by a Docker class function.
+<SAMP>dockitem</SAMP> and <SAMP>target</SAMP> must have
+compatible classes for this to work correctly. This
+function copies all the copyable attributes of the dock item
+and clones any attribute objects that are owned by the dock item. 
+This function destroys any objects allocated internally by
+<SAMP>target</SAMP> (including its owned attributes), but
+does <I>not</I> destroy <SAMP>target</SAMP> itself. The
+dock items to be copied can be dynamic or static. This
+function is implemented by sending the message
+<CODE>vobjectCOPY</CODE> to <SAMP>dockitem</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdockitemCopyInit"><HR><H4>vdockitemCopyInit</H4></A>
+<PRE>
+        void <B>vdockitemCopyInit</B>(
+                vdockitem * dock,
+                vdockitem * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>dockitem</SAMP> into
+<SAMP>target</SAMP> so that the two dock items represent
+equivalent objects. <SAMP>target</SAMP> should be a pointer to 
+uninitialized memory; the Docker class initializes it as part
+of the copy.
+This function copies all the copyable attributes of the dock item
+and clones any attribute objects that are owned by the dock item. 
+This function destroys any objects allocated internally by
+<SAMP>target</SAMP> (including its owned attributes), but
+does <I>not</I> destroy <SAMP>target</SAMP> itself. The
+dock items to be copied can be dynamic or static. 
+This
+function simply stores the class of <SAMP>dockitem</SAMP> in
+<SAMP>target</SAMP> and sends the message
+<CODE>vobjectCOPY_INIT</CODE> to <SAMP>dockitem</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdockitemCreate"><HR><H4>vdockitemCreate</H4></A>
+<PRE>
+        vdockitem * <B>vdockitemCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new dock item of the default dock item class and
+returns a pointer to its contents. Storage for the dock item
+object is allocated by the Docker class. The Docker class
+reclaims the storage occupied by the dock item when it
+is destroyed with <CODE><A HREF="vdockitem-x.html#vdockitemDestroy"><CODE>vdockitemDestroy</CODE></A></CODE>. The new
+dock item is created with a set of default attributes, as
+determined by the default dock item class. The default
+attributes of the default dock item class are documented in
+the Docker chapter of the <I>Galaxy
+Programmer's Guide</I>. This function
+essentially allocates space for a new dock item and calls
+<CODE><A HREF="vdockitem-x.html#vdockitemInit"><CODE>vdockitemInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vdockitemCreateOfClass"><HR><H4>vdockitemCreateOfClass</H4></A>
+<PRE>
+        vdockitem * <B>vdockitemCreateOfClass</B>(
+                vdockitemClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new dock item of class <SAMP>clas</SAMP> and returns
+a pointer to its contents. Storage for the dock item object is
+allocated by the Docker class. The Docker class
+reclaims the storage occupied by the dock item when it is
+destroyed with <CODE><A HREF="vdockitem-x.html#vdockitemDestroy"><CODE>vdockitemDestroy</CODE></A></CODE>. 
+The new dock item 
+is created with a set of default attributes, determined by
+the class. The default attributes of the default dock item
+class are documented in the Docker chapter of
+the <I>Galaxy Programmer's
+Guide</I>. This function essentially allocates space for a
+new dock item and calls <CODE><A HREF="vdockitem-x.html#vdockitemInitOfClass"><CODE>vdockitemInitOfClass</CODE></A></CODE> 
+on it.
+</DD></DL>
+<P>
+<A NAME="vdockitemDestroy"><HR><H4>vdockitemDestroy</H4></A>
+<PRE>
+        void <B>vdockitemDestroy</B>(
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Destroys the dock item represented by <SAMP>dockitem</SAMP>,
+which must have been created or initialized by a 
+Docker class function. Use this function to reclaim the storage
+occupied by a dock item. The dock item should not be referenced
+by any other object when it is destroyed. This function
+only attempts to free the storage occupied by the
+dock item if it was allocated by <CODE><A HREF="vdockitem-x.html#vdockitemCreate"><CODE>vdockitemCreate</CODE></A></CODE>,
+<CODE><A HREF="vdockitem-x.html#vdockitemCreateOfClass"><CODE>vdockitemCreateOfClass</CODE></A></CODE>,
+<CODE><A HREF="vdockitem-x.html#vdockitemClone"><CODE>vdockitemClone</CODE></A></CODE>, or
+<CODE><A HREF="vdockitem-x.html#vdockitemLoad"><CODE>vdockitemLoad</CODE></A></CODE>.
+This function will also destroy any attribute objects that
+are owned by the dock item. This function is implemented by
+sending the message <CODE>vobjectDESTROY</CODE> to
+the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemDestroyDockerIterator"><HR><H4>vdockitemDestroyDockerIterator</H4></A>
+<PRE>
+        void <B>vdockitemDestroyDockerIterator</B>(
+                vdockitemDockerIterator * iterator);
+</PRE>
+
+<DL><DD>
+Destroys the docker iterator represented by <SAMP>iterator</SAMP>,
+which must have been created or initialized by a 
+Docker class function. Use this function to reclaim the storage
+occupied by a docker iterator. The docker iterator should not be referenced
+by any other object when it is destroyed.
+<P>
+
+</DD></DL>
+<P>
+<A NAME="vdockitemFindDocker"><HR><H4>vdockitemFindDocker</H4></A>
+<PRE>
+        vdocker * <B>vdockitemFindDocker</B>(
+                vdockitem * dock,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Returns the docker with the given tag in the dock item or
+<SAMP>NULL</SAMP> if no such docker belongs to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemGetClass"><HR><H4>vdockitemGetClass</H4></A>
+<PRE>
+        vdockitemClass * <B>vdockitemGetClass</B>(
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Returns the class of the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemGetContent"><HR><H4>vdockitemGetContent</H4></A>
+<PRE>
+        const vrect * <B>vdockitemGetContent</B>(
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Returns the rectangle of the dock item's contents. The content
+rectangle is the rectangle of the item minus all of its border
+decorations. This value is a cached return value from calling
+<CODE>CalcContent</CODE> on the dock item's item rectangle. Dock
+items use this method to avoid repeatedly re-calculating their content
+rectangle when it has not changed.
+</DD></DL>
+<P>
+<A NAME="vdockitemGetData"><HR><H4>vdockitemGetData</H4></A>
+<PRE>
+        const void * <B>vdockitemGetData</B>(
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Returns the generic data pointer attached to the dock item
+<SAMP>dock</SAMP>, which may be <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdockitemGetDefaultClass"><HR><H4>vdockitemGetDefaultClass</H4></A>
+<PRE>
+        vdockitemClass * <B>vdockitemGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the class used to create dock items by the
+<CODE><A HREF="vdockitem-x.html#vdockitemCreate"><CODE>vdockitemCreate</CODE></A></CODE> and <CODE><A HREF="vdockitem-x.html#vdockitemInit"><CODE>vdockitemInit</CODE></A></CODE> functions.
+</DD></DL>
+<P>
+<A NAME="vdockitemGetDock"><HR><H4>vdockitemGetDock</H4></A>
+<PRE>
+        vdock * <B>vdockitemGetDock</B>(
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Returns the dock that belongs to this dock item.
+The dock item keeps this dock's rectangle synchronized with its own and
+uses it to get notification of dockers dropped over it.
+</DD></DL>
+<P>
+<A NAME="vdockitemGetDockerCount"><HR><H4>vdockitemGetDockerCount</H4></A>
+<PRE>
+        int <B>vdockitemGetDockerCount</B>(
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Returns the number of dockers held by the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemGetDockerIteratorDocker"><HR><H4>vdockitemGetDockerIteratorDocker</H4></A>
+<PRE>
+        vdocker * <B>vdockitemGetDockerIteratorDocker</B>(
+                vdockitemDockerIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the docker to which the iterator currently refers.
+</DD></DL>
+<P>
+<A NAME="vdockitemGetEmptyPadding"><HR><H4>vdockitemGetEmptyPadding</H4></A>
+<PRE>
+        short <B>vdockitemGetEmptyPadding</B>(
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Returns the amount of empty padding used by this dock item.
+Empty padding refers to the width of the dock item's dock when the
+dock item is empty. A non-zero value is necessary for dockers to be
+able to dock in the dock item when it is empty.
+</DD></DL>
+<P>
+<A NAME="vdockitemGetItem"><HR><H4>vdockitemGetItem</H4></A>
+<PRE>
+        vdialogItem * <B>vdockitemGetItem</B>(
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Returns the dialog item on which the dock item is constructed.
+</DD></DL>
+<P>
+<A NAME="vdockitemGetItemList"><HR><H4>vdockitemGetItemList</H4></A>
+<PRE>
+        vdialogItemList * <B>vdockitemGetItemList</B>(
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Returns the item list in which the dock item holds its dockers.
+</DD></DL>
+<P>
+<A NAME="vdockitemGetNotify"><HR><H4>vdockitemGetNotify</H4></A>
+<PRE>
+        vdockitemNoteProc <B>vdockitemGetNotify</B>(
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Returns the notification procedure attached the the dock item, or
+<SAMP>NULL</SAMP> if there is no notification procedure.
+</DD></DL>
+<P>
+<A NAME="vdockitemGetObject"><HR><H4>vdockitemGetObject</H4></A>
+<PRE>
+        vobject * <B>vdockitemGetObject</B>(
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Returns the object on which the dock item is constructed.
+</DD></DL>
+<P>
+<A NAME="vdockitemGetObservable"><HR><H4>vdockitemGetObservable</H4></A>
+<PRE>
+        vobservable * <B>vdockitemGetObservable</B>(
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Returns the observable on which the dock item is constructed.
+</DD></DL>
+<P>
+<A NAME="vdockitemHasWrap"><HR><H4>vdockitemHasWrap</H4></A>
+<PRE>
+        vbool <B>vdockitemHasWrap</B>(
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Tests whether the dock item wraps dockers to a new row when they
+become hidden by the dock item's clipping rectangle.
+Returns <SAMP>TRUE</SAMP> if wrapping is on <SAMP>FALSE</SAMP> and
+if not. The wrapping only occurs when a particular docker
+becomes completely clipped by the dock item's rectangle. A  partially
+visible docker will not be wrapped.
+</DD></DL>
+<P>
+<A NAME="vdockitemInit"><HR><H4>vdockitemInit</H4></A>
+<PRE>
+        void <B>vdockitemInit</B>(
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Initializes a dock item of the default dock item class in the
+memory addressed by <SAMP>dockitem</SAMP>. The attributes of
+the dock item are set to their default values, according to
+the default dock item class. The default attributes of the
+default dock item class are documented in the Docker 
+chapter of the <I>Galaxy
+Programmer's Guide</I>. The address can be used in other
+calls to the Docker class as if it were created with
+<CODE><A HREF="vdockitem-x.html#vdockitemCreate"><CODE>vdockitemCreate</CODE></A></CODE>. A call to
+<CODE><A HREF="vdockitem-x.html#vdockitemDestroy"><CODE>vdockitemDestroy</CODE></A></CODE> frees any internal
+objects allocated by the Docker class but does <I>not</I> free
+the structure itself. This function simply stores the
+default class in the class field of the dock item and sends it
+the message <CODE>vobjectINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vdockitemInitDockerIterator"><HR><H4>vdockitemInitDockerIterator</H4></A>
+<PRE>
+        void <B>vdockitemInitDockerIterator</B>(
+                vdockitemDockerIterator * iterator,
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Initializes the iterator to point to the first docker in the sequence.
+</DD></DL>
+<P>
+<A NAME="vdockitemInitOfClass"><HR><H4>vdockitemInitOfClass</H4></A>
+<PRE>
+        void <B>vdockitemInitOfClass</B>(
+                vdockitem * dock,
+                vdockitemClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a dock item of class <SAMP>clas</SAMP> in the memory
+addressed by <SAMP>dockitem</SAMP>. The attributes of
+the dock item are set to their default values, according to
+the class. The default attributes of the
+default dock item class are documented in the Docker 
+chapter of the <I>Galaxy
+Programmer's Guide</I>. The address can be used in other
+calls to the Docker class as if it were created with
+<CODE><A HREF="vdockitem-x.html#vdockitemCreateOfClass"><CODE>vdockitemCreateOfClass</CODE></A></CODE>. A call to
+<CODE><A HREF="vdockitem-x.html#vdockitemDestroy"><CODE>vdockitemDestroy</CODE></A></CODE> frees any internal
+objects allocated by the Docker class but does <I>not</I> free
+the structure itself. This function simply stores the
+class in the class field of the dock item and sends it
+the message <CODE>vobjectINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vdockitemIsDockingEnabled"><HR><H4>vdockitemIsDockingEnabled</H4></A>
+<PRE>
+        vbool <B>vdockitemIsDockingEnabled</B>(
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Tests whether docking is enabled for the dock item.
+Returns <SAMP>TRUE</SAMP> if docking is enabled and <SAMP>FALSE</SAMP>
+if not. A dock item for which docking is disabled will not be able to
+receive dockers dragged over it by a user. Other operations remain
+unchanged: <CODE>AddDocker</CODE> and <CODE>RemoveDocker</CODE> still
+act as usual, and the user can still drag a docker out of a dock item
+or double click on a docker to change its docked state. Disabling
+docking merely prevents this dock item from appearing as a valid drop
+site for dockers.
+</DD></DL>
+<P>
+<A NAME="vdockitemIsFlush"><HR><H4>vdockitemIsFlush</H4></A>
+<PRE>
+        vbool <B>vdockitemIsFlush</B>(
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the dock item has a side with flush
+natural separation, <SAMP>FALSE</SAMP> if not.
+<P>
+A dock item with flush natural separation will return a negative
+natural separation from <CODE>GetNaturalSeparation</CODE> for its 
+side that is flush. This serves to hide any border that would
+normally be drawn, making it appear to lie flush against any adjacent
+items on that side. What single direction is the flush direction has
+to do with the typical positioning of dock items at the edges of a
+dock container. For instance, the left edge of a dock item on the left
+of a dock container will be flush. The actual determination of the
+flush edge is based on examination of the dock item's vertical state 
+and the dock item's grow direction according to the following chart below.
+Refer to the sections <CODE>IsVertical</CODE> and 
+<CODE>IsGrowDirectionPositive</CODE> for more information.
+<P>
+<CENTER>
+<TABLE BORDER>
+<TR>
+   <TD ROWSPAN=2><NBSP></TD> <TD COLSPAN=2> Grows Positive </TD>
+</TR>
+<TR>
+                             <TD> TRUE </TD>   <TD> FALSE </TD>
+</TR>
+<TR>
+    <TD> Vertical </TD>      <TD> left </TD>   <TD> right </TD> 
+</TR>
+<TR>
+    <TD> Horizontal </TD>    <TD> bottom </TD> <TD> top </TD> 
+</TR>
+</TABLE>
+</CENTER>
+</DD></DL>
+<P>
+<A NAME="vdockitemIsGrowDirectionPositive"><HR><H4>vdockitemIsGrowDirectionPositive</H4></A>
+<PRE>
+        vbool <B>vdockitemIsGrowDirectionPositive</B>(
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Tests whether the dock item grows in the direction of increasing
+coordinate values and returns <SAMP>TRUE</SAMP> if so,
+<SAMP>FALSE</SAMP> if not.
+<P>
+In typical usage of dock items (for example, as part of a dock container),
+a dock item lies flush against one side of its container and 
+is only free to add new rows of dockers in
+the opposite direction. For a dock item on the left or bottom, that
+direction of possible growth is along the positive <SAMP>x</SAMP> or 
+<SAMP>y</SAMP> axis, respectively. For those on the right or top, it
+is the negative <SAMP>x</SAMP> or <SAMP>y</SAMP> axis.
+In short, under normal circumstances this method returns
+<SAMP>TRUE</SAMP> for dock items on the left or bottom of a dock
+container, and <SAMP>FALSE</SAMP> for dock items on the top or right.
+</DD></DL>
+<P>
+<A NAME="vdockitemIsVertical"><HR><H4>vdockitemIsVertical</H4></A>
+<PRE>
+        vbool <B>vdockitemIsVertical</B>(
+                vdockitem * dock);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the dock item is oriented vertically, or
+<SAMP>FALSE</SAMP> if it is oriented horizontally. A horizontal dock 
+item arranges its dockers into rows, while a vertical one arranges
+them in columns.
+</DD></DL>
+<P>
+<A NAME="vdockitemLoad"><HR><H4>vdockitemLoad</H4></A>
+<PRE>
+        vdockitem * <B>vdockitemLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a dock item from the resource <SAMP>resource</SAMP> and
+returns a pointer to its contents. Storage for the dock item
+object is allocated by the Docker class. The dock item's
+class is determined by the value of the "Class" tag. It
+generates <CODE><A HREF="vobject-x.html#vobjectUndefinedClassException"><CODE>vobjectUndefinedClassException</CODE></A></CODE> if
+the name does not denote a class in the Class Manager
+registry. Note that this function creates an object based
+on the class of the resource, even if this class is not a
+dock item class. The object pointer is cast to a dock item
+pointer, even if the object represents a different data
+type. Attributes may be initialized based on the contents
+of the resource, or they may be set to default values,
+depending on the class. The attributes of the default
+dock item class that are stored in resources are documented
+in the Docker chapter of the <I>Galaxy
+Programmer's Guide</I>. This
+function essentially allocates space for a new instance and
+calls <CODE><A HREF="vdockitem-x.html#vdockitemLoadInit"><CODE>vdockitemLoadInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vdockitemLoadInit"><HR><H4>vdockitemLoadInit</H4></A>
+<PRE>
+        void <B>vdockitemLoadInit</B>(
+                vdockitem * dock,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a dock item from the resource <SAMP>resource</SAMP> and
+stores it in the uninitialized memory addressed by
+<SAMP>dockitem</SAMP>. The dock item's class is determined by
+the value of the "Class" tag. It generates
+<CODE><A HREF="vobject-x.html#vobjectUndefinedClassException"><CODE>vobjectUndefinedClassException</CODE></A></CODE> if the name
+does not denote a class in the Class Manager registry. Note
+that this function initializes an object based on the class
+of the resource, even if this class is not a dock item class.
+The object attempts to initialize itself in the dock item
+structure provided, even if it is not of the correct size.
+Attributes may be initialized based on the contents of the
+resource, or they may be set to default values, depending
+on the class. The attribute table in the Docker
+chapter of the <I>Galaxy
+Programmer's Guide</I> documents the attributes of the
+default dock item class that are stored in resources. This
+function stores the class specified by the resource in the
+class field of the dock item structure and sends it the
+message <CODE>vobjectLOAD_INIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vdockitemLoadLayout"><HR><H4>vdockitemLoadLayout</H4></A>
+<PRE>
+        void <B>vdockitemLoadLayout</B>(
+                vdockitem * dock,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Loads a stored layout and attempts to apply it to the dock item. The
+operation will fail if the number of dockers in the dock item does not
+match the number of placement entries in the stored layout. Layouts
+can be stored with <CODE>StoreLayout</CODE>.
+<P>
+This function is implemented by sending the message
+<CODE><A HREF="vdockitem-x.html#vdockitemLOAD_LAYOUT"><CODE>vdockitemLOAD_LAYOUT</CODE></A></CODE> to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemNextDockerIterator"><HR><H4>vdockitemNextDockerIterator</H4></A>
+<PRE>
+        int <B>vdockitemNextDockerIterator</B>(
+                vdockitemDockerIterator * iterator);
+</PRE>
+
+<DL><DD>
+Advances the iterator to the next docker if there is one. Returns
+<SAMP>TRUE</SAMP> if the operation was successful or
+<SAMP>FALSE</SAMP> if the iterator has iterated through all its dock
+item's dockers already.
+</DD></DL>
+<P>
+<A NAME="vdockitemQueryAcceptDocker"><HR><H4>vdockitemQueryAcceptDocker</H4></A>
+<PRE>
+        vbool <B>vdockitemQueryAcceptDocker</B>(
+                vdockitem * dock,
+                vdocker * docker);
+</PRE>
+
+<DL><DD>
+Tests whether a particular docker should be allowed to dock in the
+dock item.
+The default implementation only returns <SAMP>TRUE</SAMP> if the item
+list of the docker's dock's owner and that of this dock item are the
+same. This method is called when a user is rearranging dockers with
+drag and drop.
+<P>
+This function is implemented by sending the message
+<CODE><A HREF="vdockitem-x.html#vdockitemQUERY_ACCEPT_DOCKER"><CODE>vdockitemQUERY_ACCEPT_DOCKER</CODE></A></CODE> to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemRemoveDocker"><HR><H4>vdockitemRemoveDocker</H4></A>
+<PRE>
+        void <B>vdockitemRemoveDocker</B>(
+                vdockitem * dock,
+                vdocker * docker);
+</PRE>
+
+<DL><DD>
+Removes the docker from the dock item.
+A <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> is generated if the docker's dock is
+not the one that belongs to this dock item.
+<P>
+This function is implemented by sending the message
+<CODE><A HREF="vdockitem-x.html#vdockitemREMOVE_DOCKER"><CODE>vdockitemREMOVE_DOCKER</CODE></A></CODE> to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemSetData"><HR><H4>vdockitemSetData</H4></A>
+<PRE>
+        void <B>vdockitemSetData</B>(
+                vdockitem * dock,
+                const void * data);
+</PRE>
+
+<DL><DD>
+Sets an dock item's generic data pointer to
+<SAMP>data</SAMP>. This may be a pointer to whatever
+information the you want to attach to the dock item; it
+is not used by the Docker class. <SAMP>data</SAMP>
+may be <SAMP>NULL</SAMP>. <SAMP>data</SAMP> is declared
+<SAMP>const</SAMP> to indicate that the Docker class
+will not modify its contents.
+</DD></DL>
+<P>
+<A NAME="vdockitemSetDockingEnabled"><HR><H4>vdockitemSetDockingEnabled</H4></A>
+<PRE>
+        void <B>vdockitemSetDockingEnabled</B>(
+                vdockitem * dock,
+                vbool enabled);
+</PRE>
+
+<DL><DD>
+Enables or disables docking for the dock item.
+If <SAMP>enabled</SAMP> is <SAMP>TRUE</SAMP> then docking will be
+enabled; if <SAMP>FALSE</SAMP>, disabled.
+A dock item for which docking is not enabled will be able to
+receive dockers dragged over it by a user. Other operations remain
+unchanged: <CODE>AddDocker</CODE> and <CODE>RemoveDocker</CODE> still
+act as usual, and the user can still drag a docker out of a dock item
+or double click on a docker to change its docked state.
+<P>
+This function is implemented by sending the message
+<CODE><A HREF="vdockitem-x.html#vdockitemSET_DOCKING_ENABLED"><CODE>vdockitemSET_DOCKING_ENABLED</CODE></A></CODE> to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemSetEmptyPadding"><HR><H4>vdockitemSetEmptyPadding</H4></A>
+<PRE>
+        void <B>vdockitemSetEmptyPadding</B>(
+                vdockitem * dock,
+                short padding);
+</PRE>
+
+<DL><DD>
+Sets the amount of empty padding used by this dock item.
+Empty padding refers to the width of the dock item's dock when the
+dock item is empty. A non-zero value is necessary for dockers to be
+able to dock in the dock item when it is empty.
+<P>
+This function is implemented by sending the message
+<CODE><A HREF="vdockitem-x.html#vdockitemSET_EMPTY_PADDING"><CODE>vdockitemSET_EMPTY_PADDING</CODE></A></CODE> to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemSetFlush"><HR><H4>vdockitemSetFlush</H4></A>
+<PRE>
+        void <B>vdockitemSetFlush</B>(
+                vdockitem * dock,
+                vbool flush);
+</PRE>
+
+<DL><DD>
+If <SAMP>flush</SAMP> is <SAMP>TRUE</SAMP> one side of the dock item
+will have flush natural separation, if <SAMP>FALSE</SAMP> no side will
+have flush natural separation.
+A dock item with flush natural separation will return a negative
+natural separation from <CODE>GetNaturalSeparation</CODE> for its 
+flush side.  This serves to hide any border that would
+normally be drawn, making the dock item appear to lie flush against
+any adjacent items on that side. What single direction is flush
+has to do with the typical positioning of dock items at the edges of a
+dock container. For instance, the left edge of a dock item on the left
+of a dock container will be flush.  
+<P>
+The actual determination of the flush edge is based on examination 
+of the dock item's vertical state and the dock item's grow direction 
+according to the following chart. Refer to the sections 
+<CODE>IsVertical</CODE> and <CODE>IsGrowDirectionPositive</CODE> 
+for more information.
+<P>
+<CENTER>
+<TABLE BORDER>
+<TR>
+   <TD ROWSPAN=2><NBSP></TD> <TD COLSPAN=2> Grows Positive </TD>
+</TR>
+<TR>
+                             <TD> TRUE </TD>   <TD> FALSE </TD>
+</TR>
+<TR>
+    <TD> Vertical </TD>      <TD> left </TD>   <TD> right </TD> 
+</TR>
+<TR>
+    <TD> Horizontal </TD>    <TD> bottom </TD> <TD> top </TD> 
+</TR>
+</TABLE>
+</CENTER>
+<P>
+This function is implemented by sending the message
+<CODE><A HREF="vdockitem-x.html#vdockitemSET_FLUSH"><CODE>vdockitemSET_FLUSH</CODE></A></CODE> to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemSetGrowDirectionPositive"><HR><H4>vdockitemSetGrowDirectionPositive</H4></A>
+<PRE>
+        void <B>vdockitemSetGrowDirectionPositive</B>(
+                vdockitem * dock,
+                vbool positive);
+</PRE>
+
+<DL><DD>
+Sets the direction of growth for the dock item. If
+<SAMP>positive</SAMP> is <SAMP>TRUE</SAMP> the grow direction will be
+positive, if <SAMP>FALSE</SAMP> it will be negative.
+In typical usage of dock items (for example, as part of a dock container), a
+dock item lies flush against one side of its container and is only
+free to add new rows of dockers in the opposite direction. For a dock
+item on the left or bottom, that direction of possible growth is
+usually along the positive <SAMP>x</SAMP> or <SAMP>y</SAMP> axis,
+respectively. For those on the right or top, it is usually along the
+negative <SAMP>x</SAMP> or <SAMP>y</SAMP> axis.  
+<P>
+This function is implemented by sending the message
+<CODE><A HREF="vdockitem-x.html#vdockitemSET_GROW_DIRECTION_POSITIVE"><CODE>vdockitemSET_GROW_DIRECTION_POSITIVE</CODE></A></CODE> to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemSetNotify"><HR><H4>vdockitemSetNotify</H4></A>
+<PRE>
+        void <B>vdockitemSetNotify</B>(
+                vdockitem * dock,
+                vdockitemNoteProc noteProc);
+</PRE>
+
+<DL><DD>
+Changes the instance notification procedure for the
+dock item to <SAMP>noteProc</SAMP>.
+The new notification function will be called when the dock item
+handles an event of some importance. Notification is <I>not</I> given
+for every event that is handled by the dock item. Normal
+dock items do not give notification.
+If additional notification is required, you should override
+the appropriate event handler. <SAMP>noteProc</SAMP> may be
+<SAMP>NULL</SAMP>, in which case no instance notification
+is given. 
+<P>
+This function is implemented by sending the
+message <CODE><A HREF="vdialog-x.html#vdialogSET_ITEM_NOTIFY"><CODE>vdialogSET_ITEM_NOTIFY</CODE></A></CODE> to 
+<SAMP>dock</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdockitemSetVertical"><HR><H4>vdockitemSetVertical</H4></A>
+<PRE>
+        void <B>vdockitemSetVertical</B>(
+                vdockitem * dock,
+                vbool vertical);
+</PRE>
+
+<DL><DD>
+Sets the orientation of the dock item to vertical if
+<SAMP>vertical</SAMP> is <SAMP>TRUE</SAMP>, horizontal if it is
+<SAMP>FALSE</SAMP>. A horizontal dock item arranges its dockers 
+into rows, while a vertical one arranges them in columns.
+<P>
+This function is implemented by sending the message
+<CODE><A HREF="vdockitem-x.html#vdockitemSET_VERTICAL"><CODE>vdockitemSET_VERTICAL</CODE></A></CODE> to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemSetWrap"><HR><H4>vdockitemSetWrap</H4></A>
+<PRE>
+        void <B>vdockitemSetWrap</B>(
+                vdockitem * dock,
+                vbool wrap);
+</PRE>
+
+<DL><DD>
+If <SAMP>wrap</SAMP> is <SAMP>TRUE</SAMP> the dock item will wrap
+dockers completely concealed by the dock item's edge to a new row. 
+The wrapping only occurs when a particular docker
+becomes completely clipped by the dock item's rectangle. A partially
+visible docker will not be wrapped. 
+<P>
+This function is implemented by sending the message
+<CODE><A HREF="vdockitem-x.html#vdockitemSET_WRAP"><CODE>vdockitemSET_WRAP</CODE></A></CODE> to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemStartup"><HR><H4>vdockitemStartup</H4></A>
+<PRE>
+        void <B>vdockitemStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the dock item module.
+Has no effect if the dock item module is already initialized.
+</DD></DL>
+<P>
+<A NAME="vdockitemStore"><HR><H4>vdockitemStore</H4></A>
+<PRE>
+        void <B>vdockitemStore</B>(
+                vdockitem * dock,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Writes the contents of the dock item into
+the resource. The dock item can be
+recovered from the resource at a later time (perhaps by
+another program) with <CODE><A HREF="vdockitem-x.html#vdockitemLoad"><CODE>vdockitemLoad</CODE></A></CODE> or
+<CODE>_typeprefixLoadInit</CODE>. Note that not all of the
+dock item's attributes are stored in the resource; the
+attributes of the default dock item class that are stored in
+resources are documented in the Docker chapter
+of the <I>Galaxy Programmer's
+Guide</I>. It generates
+<CODE><A HREF="vobject-x.html#vobjectUnnamedClassException"><CODE>vobjectUnnamedClassException</CODE></A></CODE> if the dock item's
+class is not named. This function is implemented by sending
+the message <CODE>vobjectSTORE</CODE> to the dock item.
+<P>
+To store a dock item in a resource, first call
+<CODE><A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A></CODE> to create an untyped resource in
+the desired location, then call <CODE>vdockitemStore</CODE>
+to write the dock item into the resource. For example:
+<P>
+<BLOCKQUOTE>
+<PRE>
+vdockitem  *dockitem;    /* contains a dock item */
+<A HREF="vresource-x.html#vresource"><CODE>vresource</CODE></A> fileResource, dockitemResource;
+
+fileResource   = <A HREF="vresource-x.html#vresourceOpenFile"><CODE>vresourceOpenFile</CODE></A>( ... );
+dockitemResource = <A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A>(fileResource,
+                                 <A HREF="vname-x.html#vnameInternGlobalLiteral"><CODE>vnameInternGlobalLiteral</CODE></A>("Mydockitem"));
+
+vdockitemStore(dockitem, dockitemResource);
+<A HREF="vresource-x.html#vresourceCloseFile"><CODE>vresourceCloseFile</CODE></A>(fileResource);
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vdockitemStoreLayout"><HR><H4>vdockitemStoreLayout</H4></A>
+<PRE>
+        void <B>vdockitemStoreLayout</B>(
+                vdockitem * dock,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Stores the layout of the dock item into the resource. Layouts so
+stored can be reloaded and re-applied to this dock item later with
+<CODE>LoadLayout</CODE>.
+<P>
+This function is implemented by sending the message
+<CODE><A HREF="vdockitem-x.html#vdockitemSTORE_LAYOUT"><CODE>vdockitemSTORE_LAYOUT</CODE></A></CODE> to the dock item.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vdockitemADD_DOCKER"><HR><H4>vdockitemADD_DOCKER</H4></A>
+<PRE>
+        &lt;<B>vdockitemADD_DOCKER</B>&gt;
+</PRE>
+
+<DL><DD>
+Adds the docker to the dockitem, positioning it according to the
+rectangle. If <SAMP>rect</SAMP> is <SAMP>NULL</SAMP>, then the docker
+will remain floating and will be assigned to a row of its own. If the
+rectangle is not <SAMP>NULL</SAMP>, it will be used to determine the
+optimal docked placement for the docker. The rectangle should be in
+terms of the dock item's coordinates.
+<P>
+If the docker already belongs to a dock other than the one owned by
+this dock item, then a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> will be generated.
+The docker must first be removed from its previous owner with code shown below.
+
+<PRE>
+  void liberateDocker(<A HREF="vdocker-x.html#vdocker"><CODE>vdocker</CODE></A> *docker) {
+     <A HREF="vdock-x.html#vdockRemoveDocker"><CODE>vdockRemoveDocker</CODE></A>(<A HREF="vdocker-x.html#vdockerGetDock"><CODE>vdockerGetDock</CODE></A>(docker), docker);
+  }
+</PRE>
+<P>
+
+The function <CODE><A HREF="vdockitem-x.html#vdockitemAddDocker"><CODE>vdockitemAddDocker</CODE></A></CODE> is implemented by sending
+this message to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemARRANGE"><HR><H4>vdockitemARRANGE</H4></A>
+<PRE>
+        &lt;<B>vdockitemARRANGE</B>&gt;
+</PRE>
+
+<DL><DD>
+Arranges all the dockers in the dock item, using the rectangle passed
+in as a coordinate system for the items. All the dockers are arranged
+to fit as much within the rectangle as possible. Floating and/or
+hidden dockers belonging  to the dock item do not figure into the
+layout calculations.
+<P>
+Dockers are arranged into rows (or columns,
+depending on the dock item's orientation) using a fairly complex
+set of heuristics using  attributes of the dock item, as well as the
+dockers themselves. Refer to the following entry point sections for further
+information on how they affect docker layout:
+
+<UL>
+<LI> <CODE><A HREF="vdockitem-x.html#vdockitemSetVertical"><CODE>vdockitemSetVertical</CODE></A></CODE>
+<LI> <CODE><A HREF="vdockitem-x.html#vdockitemSetWrap"><CODE>vdockitemSetWrap</CODE></A></CODE>
+<LI> <CODE><A HREF="vdocker-x.html#vdockerSetSpanStyle"><CODE>vdockerSetSpanStyle</CODE></A></CODE>
+<LI> <CODE><A HREF="vdocker-x.html#vdockerSetSpanFillModifiers"><CODE>vdockerSetSpanFillModifiers</CODE></A></CODE>
+</UL>
+<P>
+
+The function <CODE><A HREF="vdockitem-x.html#vdockitemArrange"><CODE>vdockitemArrange</CODE></A></CODE> is implemented by sending
+this message to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemCALC_MIN_SIZE"><HR><H4>vdockitemCALC_MIN_SIZE</H4></A>
+<PRE>
+        &lt;<B>vdockitemCALC_MIN_SIZE</B>&gt;
+</PRE>
+
+<DL><DD>
+Calculates the minimum size of the dock item based on the dockers
+docked within it and stores the result in the variables
+addressed by <SAMP>w</SAMP> and <SAMP>h</SAMP>. Since dock items are
+always resizable along one dimension, the value returned for that
+dimension is always zero. For a horizontal dock item, the resizable 
+dimension is the width; for vertical ones it is the height.
+<P>
+The function <CODE><A HREF="vdockitem-x.html#vdockitemCalcMinSize"><CODE>vdockitemCalcMinSize</CODE></A></CODE> is implemented by sending
+this message to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemCREATE_ITEM_LIST"><HR><H4>vdockitemCREATE_ITEM_LIST</H4></A>
+<PRE>
+        &lt;<B>vdockitemCREATE_ITEM_LIST</B>&gt;
+</PRE>
+
+<DL><DD>
+Creates an item list to be used by the dock item. This method is
+called during creation and copying of a dock item to create an item
+list for the new object. This method can be overridden to return a
+subclass of <CODE><A HREF="vdialog-x.html#vdialogItemList"><CODE>vdialogItemList</CODE></A></CODE> if that is desired.
+</DD></DL>
+<P>
+<A NAME="vdockitemEMPTY_PADDING"><HR><H4>vdockitemEMPTY_PADDING</H4></A>
+<PRE>
+        &lt;<B>vdockitemEMPTY_PADDING</B>&gt;
+</PRE>
+
+<DL><DD>
+The default width of a dock item's dock when it contains no dockers.
+A dock with zero interior area is not a valid target for a docker, so
+the empty padding is used to ensure that a docker can still dock in an
+empty dock item. When the dock item is empty it will set the width of
+its <CODE>vdock</CODE> to its empty padding value.
+<P>
+The value of this class variable is used only in initialization of
+the empty padding value for newly initialized dock items. Since this
+is a class variable, its value is shared by all instances of the
+<CODE>vdockitem</CODE> class. The amount of empty padding in a
+particular instance can changed by calling
+<CODE>SetEmptyPadding</CODE>. The default value for all items of
+class <CODE>vdockitem</CODE> can be changed by calling
+</CODE><A HREF="vclass-x.html#vclassSet"><CODE>vclassSet</CODE></A></CODE> with <CODE>vdockitemEMPTY_PADDING</CODE> as
+the class variable/method parameter.
+</DD></DL>
+<P>
+<A NAME="vdockitemLOAD_LAYOUT"><HR><H4>vdockitemLOAD_LAYOUT</H4></A>
+<PRE>
+        &lt;<B>vdockitemLOAD_LAYOUT</B>&gt;
+</PRE>
+
+<DL><DD>
+Loads a stored layout and attempts to apply it to the dock item. The
+operation will fail if the number of dockers in the dock item does not
+match the number of placement entries in the stored layout. Layouts
+can be stored with <CODE>StoreLayout</CODE>.
+<P>
+The function <CODE><A HREF="vdockitem-x.html#vdockitemLoadLayout"><CODE>vdockitemLoadLayout</CODE></A></CODE> is implemented by sending
+this message to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemQUERY_ACCEPT_DOCKER"><HR><H4>vdockitemQUERY_ACCEPT_DOCKER</H4></A>
+<PRE>
+        &lt;<B>vdockitemQUERY_ACCEPT_DOCKER</B>&gt;
+</PRE>
+
+<DL><DD>
+Tests whether a particular docker should be allowed to dock in the
+dock item.
+The default implementation only returns <SAMP>TRUE</SAMP> if the item
+list of the docker's dock's owner and that of this dock item are the
+same. This method is called when a user is rearranging dockers with
+drag and drop.
+<P>
+The function <CODE><A HREF="vdockitem-x.html#vdockitemQueryAcceptDocker"><CODE>vdockitemQueryAcceptDocker</CODE></A></CODE> is implemented by sending
+this message to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemREMOVE_DOCKER"><HR><H4>vdockitemREMOVE_DOCKER</H4></A>
+<PRE>
+        &lt;<B>vdockitemREMOVE_DOCKER</B>&gt;
+</PRE>
+
+<DL><DD>
+Removes the docker from the dock item.
+A <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> is generated if the docker's dock is
+not the one that belongs to this dock item.
+<P>
+The function <CODE><A HREF="vdockitem-x.html#vdockitemRemoveDocker"><CODE>vdockitemRemoveDocker</CODE></A></CODE> is implemented by sending
+this message to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemSET_DOCKING_ENABLED"><HR><H4>vdockitemSET_DOCKING_ENABLED</H4></A>
+<PRE>
+        &lt;<B>vdockitemSET_DOCKING_ENABLED</B>&gt;
+</PRE>
+
+<DL><DD>
+Enables or disables docking for the dock item.
+If <SAMP>enabled</SAMP> is <SAMP>TRUE</SAMP> then docking will be
+enabled; if <SAMP>FALSE</SAMP>, disabled.
+A dock item for which docking is not enabled will be able to
+receive dockers dragged over it by a user. Other operations remain
+unchanged: <CODE>AddDocker</CODE> and <CODE>RemoveDocker</CODE> still
+act as usual, and the user can still drag a docker out of a dock item
+or double click on a docker to change its docked state.
+<P>
+The function <CODE><A HREF="vdockitem-x.html#vdockitemSetDockingEnabled"><CODE>vdockitemSetDockingEnabled</CODE></A></CODE> is implemented by sending
+this message to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemSET_EMPTY_PADDING"><HR><H4>vdockitemSET_EMPTY_PADDING</H4></A>
+<PRE>
+        &lt;<B>vdockitemSET_EMPTY_PADDING</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the amount of empty padding used by this dock item.
+Empty padding refers to the width of the dock item's dock when the
+dock item is empty. A non-zero value is necessary for dockers to be
+able to dock in the dock item when it is empty.
+<P>
+The function <CODE><A HREF="vdockitem-x.html#vdockitemSetEmptyPadding"><CODE>vdockitemSetEmptyPadding</CODE></A></CODE> is implemented by sending
+this message to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemSET_FLUSH"><HR><H4>vdockitemSET_FLUSH</H4></A>
+<PRE>
+        &lt;<B>vdockitemSET_FLUSH</B>&gt;
+</PRE>
+
+<DL><DD>
+If <SAMP>flush</SAMP> is <SAMP>TRUE</SAMP> one side of the dock item
+will have flush natural separation, if <SAMP>FALSE</SAMP> no side will
+have flush natural separation.
+<P>
+A dock item with flush natural separation will return a negative
+natural separation from <CODE>GetNaturalSeparation</CODE> for its 
+flush side. This serves to hide any border that would
+normally be drawn, making the dock item appear to lie flush against
+any adjacent items on that side. What single direction is flush
+has to do with the typical positioning of dock items at the edges of a
+dock container. For instance, the left edge of a dock item on the left
+of a dock container will be flush. 
+<P>
+The actual determination of the flush edge is based on examination 
+of the dock item's vertical state and the dock item's grow direction 
+according to the following chart. Refer to the sections 
+<CODE>IsVertical</CODE> and <CODE>IsGrowDirectionPositive</CODE> 
+for more information.
+<P>
+<CENTER>
+<TABLE BORDER>
+<TR>
+   <TD ROWSPAN=2><NBSP></TD> <TD COLSPAN=2> Grows Positive </TD>
+</TR>
+<TR>
+                             <TD> TRUE </TD>   <TD> FALSE </TD>
+</TR>
+<TR>
+    <TD> Vertical </TD>      <TD> left </TD>   <TD> right </TD> 
+</TR>
+<TR>
+    <TD> Horizontal </TD>    <TD> bottom </TD> <TD> top </TD> 
+</TR>
+</TABLE>
+</CENTER>
+<P>
+The function <CODE><A HREF="vdockitem-x.html#vdockitemSetFlush"><CODE>vdockitemSetFlush</CODE></A></CODE> is implemented by sending
+this message to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemSET_GROW_DIRECTION_POSITIVE"><HR><H4>vdockitemSET_GROW_DIRECTION_POSITIVE</H4></A>
+<PRE>
+        &lt;<B>vdockitemSET_GROW_DIRECTION_POSITIVE</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the direction of growth for the dock item.  If
+<SAMP>positive</SAMP> is <SAMP>TRUE</SAMP> the grow direction will be
+positive, if <SAMP>FALSE</SAMP> it will be negative.
+In typical usage of dock items (for example, as part of a dock container), a
+dock item lies flush against one side of its container and is only
+free to add new rows of dockers in the opposite direction. For a dock
+item on the left or bottom, that direction of possible growth is
+usually along the positive <SAMP>x</SAMP> or <SAMP>y</SAMP> axis,
+respectively.  For those on the right or top, it is usually along the
+negative <SAMP>x</SAMP> or <SAMP>y</SAMP> axis.
+<P>
+The function <CODE><A HREF="vdockitem-x.html#vdockitemSetGrowDirectionPositive"><CODE>vdockitemSetGrowDirectionPositive</CODE></A></CODE> is
+implemented by sending this message to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemSET_VERTICAL"><HR><H4>vdockitemSET_VERTICAL</H4></A>
+<PRE>
+        &lt;<B>vdockitemSET_VERTICAL</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the orientation of the dock item to vertical if
+<SAMP>vertical</SAMP> is <SAMP>TRUE</SAMP>, horizontal if it is
+<SAMP>FALSE</SAMP>. A horizontal dock item arranges its dockers 
+into rows, while a vertical one arranges them in columns.
+<P>
+The function <CODE><A HREF="vdockitem-x.html#vdockitemSetVertical"><CODE>vdockitemSetVertical</CODE></A></CODE> is implemented by sending
+this message to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemSET_WRAP"><HR><H4>vdockitemSET_WRAP</H4></A>
+<PRE>
+        &lt;<B>vdockitemSET_WRAP</B>&gt;
+</PRE>
+
+<DL><DD>
+If <SAMP>wrap</SAMP> is <SAMP>TRUE</SAMP> the dock item will wrap
+dockers completely concealed by the dock item's edge to a new row. 
+The wrapping only occurs when a particular docker
+becomes completely clipped by the dock item's rectangle. A partially
+visible docker will not be wrapped.
+<P>
+The function <CODE><A HREF="vdockitem-x.html#vdockitemSetWrap"><CODE>vdockitemSetWrap</CODE></A></CODE> is implemented by sending
+this message to the dock item.
+</DD></DL>
+<P>
+<A NAME="vdockitemSTORE_LAYOUT"><HR><H4>vdockitemSTORE_LAYOUT</H4></A>
+<PRE>
+        &lt;<B>vdockitemSTORE_LAYOUT</B>&gt;
+</PRE>
+
+<DL><DD>
+Stores the layout of the dock item into the resource. Layouts so
+stored can be reloaded and re-applied to this dock item later with
+<CODE>LoadLayout</CODE>.
+<P>
+The function <CODE><A HREF="vdockitem-x.html#vdockitemStoreLayout"><CODE>vdockitemStoreLayout</CODE></A></CODE> is implemented by sending
+this message to the dock item.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vdockitemID_ATTRIBUTE_CONTENT"><HR><H4>vdockitemID_ATTRIBUTE_CONTENT</H4></A>
+<PRE>
+        <B>vdockitemID_ATTRIBUTE_CONTENT</B>
+</PRE>
+<A NAME="vdockitemID_ATTRIBUTE_SOLUTION"><PRE>
+        <B>vdockitemID_ATTRIBUTE_SOLUTION</B>
+</PRE>
+</A>
+<A NAME="vdockitemID_ATTRIBUTE_VERTICAL"><PRE>
+        <B>vdockitemID_ATTRIBUTE_VERTICAL</B>
+</PRE>
+</A>
+<A NAME="vdockitemID_ATTRIBUTE_DOCKING_ENABLED"><PRE>
+        <B>vdockitemID_ATTRIBUTE_DOCKING_ENABLED</B>
+</PRE>
+</A>
+<A NAME="vdockitemID_ATTRIBUTE_GROW_DIRECTION_POSITIVE"><PRE>
+        <B>vdockitemID_ATTRIBUTE_GROW_DIRECTION_POSITIVE</B>
+</PRE>
+</A>
+<A NAME="vdockitemID_ATTRIBUTE_EMPTY_PADDING"><PRE>
+        <B>vdockitemID_ATTRIBUTE_EMPTY_PADDING</B>
+</PRE>
+</A>
+<A NAME="vdockitemID_ATTRIBUTE_WRAP"><PRE>
+        <B>vdockitemID_ATTRIBUTE_WRAP</B>
+</PRE>
+</A>
+
+<DL><DD>
+Denote attribute IDs for named dock item attributes.
+</DD></DL>
+<P>
+<A NAME="vdockitemINCLUDED"><HR><H4>vdockitemINCLUDED</H4></A>
+<PRE>
+        <B>vdockitemINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vdockitem.h</SAMP> is included.
+</DD></DL>
+<P>
+<A NAME="vdockitemNEXT_ID_ATTRIBUTE"><HR><H4>vdockitemNEXT_ID_ATTRIBUTE</H4></A>
+<PRE>
+        <B>vdockitemNEXT_ID_ATTRIBUTE</B>
+</PRE>
+
+<DL><DD>
+The next value available for the attribute IDs of subclasses.
+Subclasses that add attributes to those provided should start
+numbering their new attribute ID values with this constant.
+</DD></DL>
+<P>
+<A NAME="vdockitemNEXT_SELECT"><HR><H4>vdockitemNEXT_SELECT</H4></A>
+<PRE>
+        <B>vdockitemNEXT_SELECT</B>
+</PRE>
+
+<DL><DD>
+Denotes the first command selector available to subclasses
+of the default dock item class. This constant is provided so
+that selector values defined by subclasses do not conflict
+with those defined by the <CODE>vdockitem</CODE>. Only commands
+defined by overriding the methods <CODE>vobjectISSUE</CODE>
+and <CODE>vobjectQUERY</CODE> need be concerned with the
+selector values of their superclasses. Subclasses of
+<CODE><A HREF="vdockitem-x.html#vdockitemClass"><CODE>vdockitemClass</CODE></A></CODE> should begin their command
+selectors with this constant and increment by one for each
+command. Subclasses should also provide their own
+<CODE>NEXT_SELECT</CODE> constant for use by their
+subclasses. This constant has integral type.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vdockitemCLASS"><HR><H4>vdockitemCLASS</H4></A>
+<PRE>
+        #define <B>vdockitemCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for dock item
+classes. This macro expands to the contents of
+<CODE><A HREF="vdockitem-x.html#vdockitemClass"><CODE>vdockitemClass</CODE></A></CODE>. <SAMP>SUPER</SAMP> is the type
+identifier of the class being declared (for example,
+<CODE><A HREF="vdockitem-x.html#vdockitemClass"><CODE>vdockitemClass</CODE></A></CODE>). This type is used by the class's 
+subclasses to refer to it. 
+<SAMP>DOCK</SAMP> is the type identifier of instances of the class
+being declared (for example, <CODE>vdockitem</CODE>). 
+<SAMP>NOTIFY</SAMP> is the type identifier of the instance notification
+function (for example, <CODE><A HREF="vdockitem-x.html#vdockitemNoteProc"><CODE>vdockitemNoteProc</CODE></A></CODE>).
+This macro should be used by dock item subclasses to
+declare the contents of the dock item class. This macro should come
+first in the subclass structure declaration.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

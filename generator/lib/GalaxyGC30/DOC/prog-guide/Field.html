@@ -1,0 +1,339 @@
+<HTML>
+<HEAD>
+<TITLE>Field</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Field</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Exception.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="File_Chooser.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="4805"></A>
+The <EM><B>field</B></EM> class was created to act as a go-between for databases and dialog items. Fields solve the problem of database code needing to understand how to set and get data into unknown and arbitrary dialog items. Fields also solve the reverse problem of dialog items needing to set or get data in the database without knowing the underlying data types.<P>
+To facilitate this cross-communication, the field implements a data type called <TT>vfield</TT>. The Field type is essentially a strongly typed piece of data (along with a few additional attributes). The data is observable and can be accessed by one or more various interfaces.<P>
+You can use the field classes anywhere strongly typed observable data is needed. The typical use will be to have dialog items and forms observe fields. In this scenario, the application seldom manipulates the field directly, but sets up an observer chain that uses fields to link parts of Galaxy which do not communicate directly.<P>
+<A NAME="5306"><H2> Relationship to Other Classes</H2></A>
+The Field type is a direct subclass of Attributed object. This chapter assumes that you are familiar with Attributed objects and its parent classes, particularly Observable and Loadable. For more information, refer to the Observer and Loadable chapters for detailed discussion of these classes.<P>
+Many dialog items have support for fields built in. See the following section for more details about this support.<P>
+The Form class provides a way to collect fields together. The database-aware form extends the form to link fields to particular columns in a database query. The Field class relies heavily on being "observable". For more information about the Observable classes, refer to the Observer chapter. The Field class also relies heavily on the use of interface classes. These interfaces, also known as "mix-ins" provide the mechanism by which data gets into and out of a field.<P>
+<A NAME="5320"><H3> Fields and Dialog Items</H3></A>
+Many of Galaxy's dialog items have built-in support for fields. If you install the dialog item as an observer of the field, it will automatically make use of the field's announcements. The dialog items will also set the field based on changes made directly to the dialog item.<P>
+As an example, if a slider is installed as an observer of a field, then the slider observes changes to the field's value and update itself. Similarly, text items also have built in code to observe fields and will update their text when the field changes. Label items will observe title attribute changes in fields and will change their title's based on the field's title.<P>
+The following table shows which dialog item classes will pay attention to announcements and which attributes they attend.
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="7188"><I>Table 17.  Class and attribute responsiveness
+</I><P>
+</CAPTION>
+
+<tr><th><B>Class 
+</B></th><th><B>Attribute
+</B></th>
+<tr><td><TT><B>vboolitem 
+</B></TT></td><td><TT>Null, Value
+</TT></td></tr>
+<tr><td><TT><B>vcombobox
+</B></TT></td><td><TT>Value
+</TT></td></tr>
+<tr><td><TT><B>vcontrol
+</B></TT></td><td><TT>Max, Min, Value
+</TT></td></tr>
+<tr><td><TT><B>vdateitem
+</B></TT></td><td><TT>Null, Value
+</TT></td></tr>
+<tr><td><TT><B>vdoubleitem 
+</B></TT></td><td><TT>Null, Value
+</TT></td></tr>
+<tr><td><TT><B>vform
+</B></TT></td><td><TT>all
+</TT></td></tr>
+<tr><td><TT><B>vlabel
+</B></TT></td><td><TT>Title
+</TT></td></tr>
+<tr><td><TT><B>vlongitem 
+</B></TT></td><td><TT>Null, Value
+</TT></td></tr>
+<tr><td><TT><B>vstritem
+</B></TT></td><td><TT>Null, Value
+</TT></td></tr>
+<tr><td><TT><B>vtextitem
+</B></TT></td><td><TT>Value
+</TT></td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+<A NAME="5848"><H2> Using Fields in the IDE</H2></A>
+Fields, being descendants of the Loadable object, can be stored in resource files. Using the Visual Resource Builder, you can set up fields that can be loaded by your application at run time. Refer to the Resource chapter for more information on locating items with resolvers.<P>
+<A NAME="5323"><H2> Key Functionality</H2></A>
+Fields are subclasses of <TT>vobject</TT>. This means that, when using fields, you can create, destroy, copy, load from and store to resource files, set up observers, and name attributes. To use a field, follow these steps:<P>
+<UL><LI>create the field
+<LI>install any observers for the field
+<LI>set it's value and other attributes
+</UL>The following example installs an observer using the steps above:<P>
+<A NAME="5335"><I>Example 67.  Installing an observer
+</I><P>
+<PRE><UL>vfieldLong *field = vfieldCreateLong();
+vfieldInstallObserver (field, observer);
+vfieldSetLong (field, 325);
+vfieldSetLongMin (field, 17);
+vfieldSetLongMax (field, 582);
+
+</UL></PRE>Once an observer has been installed, every change to the field's value or other attributes will be sent to the observer. To make the observer function, you must subclass the observer, and override the <TT>Observe</TT> method. The following example presents an <TT>Observe</TT> method. <P>
+<A NAME="5342"><I>Example 68.  Observe method
+</I><P>
+<PRE><UL>void _myObserve (voccurrence *occurrence) {
+
+   vfield                  *field;
+   vfieldAttributesChanged *focc;
+   long                     i;
+
+   field = (vfield *) voccurrenceGetAnnouncer(occurrence);
+
+   if (vclassIsKindOf(occurrence,
+                      vfieldAttributesChangedClass) {
+
+      focc = vfieldGetAttributesChangedOccurrence(occurrence);
+
+      if (vfieldHasAttributesChanged(focc,
+                     vnameInternGlobalLiteral("Value")) {
+         i = vfieldGetLong(field);
+         /* do stuff with l here */
+      }
+
+      if (vfieldHasAttributesChanged(focc,
+                     vnameInternGlobalLiteral("Minimum")) {
+         i = vfieldGetLongMin(field);
+         /* do different stuff here */
+      }
+   }
+}
+
+</UL></PRE>This example presents a search for an attribute's changed occurrence. When you receive an attributes changed occurrence, determine what attribute changed, and then take appropriate action.<P>
+<UL><B><I>NOTE:</I></B> You do not need to look for all possible occurrences the field can announce. 
+Since the attributes changed occurrence can contain announcements for 
+several attributes, you do not need to process all of those attributes. Only 
+those attributes you are interested in need be examined.
+<P>
+</UL><A NAME="5565"><H3> Field Change Announcements</H3></A>
+Normally, each time a field is changed, the change is immediately announced. In <A HREF="Field.html#5335">Example 67</A> above, three separate announcements would have been made, one for every <TT>Set*</TT>.<P>
+Fields are capable of making announcements of attributes in batches, however. If you do not want the field to make an announcement for every action that you take on it, you can <TT>Lock</TT> it. When you <TT>Unlock</TT> it, the announcement is sent as a batch. For example, you could change <A HREF="Field.html#5342">Example 68</A> to the following: <P>
+<PRE><UL>vfieldLock(field);
+vfieldSetLong (field, 325);
+vfieldSetLongMin (field, 17);
+vfieldSetLongMax (field, 582);
+vfieldUnlock(field);
+
+</UL></PRE>In the above example, the field no longer announces attribute changes because it is locked. The announcements are merged into one single announcement that is made when the field is unlocked. This can be more efficient if many changes are being made to the field at the same time.<P>
+<A NAME="6207"><H3> Field Interfaces</H3></A>
+In the examples above, both the field setter and the field observer manipulated the field as a long. This, however, is not required. Fields can implement one or more interfaces that allow them to masquerade as different data types.<P>
+In the case of the long field, it implements the long interface and the string interface. This allows the field to be set and retrieved either as a long or as a string. Typically, the setter will use one interface and the getter will use another, but either side is free to use whatever interface it wants to access the data in the field. Therefore, the following two calls are functionally identical:<P>
+<PRE><UL>vfieldSetLong (field, 37);
+vfieldSetString (field, "37");
+</UL></PRE>Of course, since each field class does not implement <EM>all</EM> possible interfaces, an attempt to access the field using an interface could potentially fail. If the field class does not implement the interface, a /Class/NotUnderstood exception will be generated. It is also possible that a conversion cannot be implemented. For example:<P>
+<PRE><UL>vfieldSetString (field, "uh oh");
+
+</UL></PRE>This attempt would fail if field were a long field because the string "uh oh" cannot be converted to a long. The table below summarizes what fields implement what interfaces:<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="6858"><I>Table 18.  Fields and the interfaces they implement
+</I><P>
+</CAPTION>
+
+<tr><th><B>Field Type 
+</B></th><th><B>Interface Type
+</B></th>
+<tr><td><TT><B>Boolean
+</B></TT></td><td><TT>Boolean
+</TT><TT>Integer
+</TT><TT>String
+</TT></td></tr>
+<tr><td><TT><B>Date
+</B></TT></td><td><TT>Date
+</TT><TT>Integer
+</TT><TT>String
+</TT></td></tr>
+<tr><td><TT><B>Double
+</B></TT></td><td><TT>Double
+</TT><TT>String
+</TT></td></tr>
+<tr><td><TT><B>Integer
+</B></TT></td><td><TT>Integer
+</TT><TT>String
+</TT></td></tr>
+<tr><td><TT><B>String
+</B></TT></td><td><TT>String
+</TT></td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+<A NAME="6302"><H3> Null Fields</H3></A>
+All fields, even fields for scalar types, can potentially be null. You can check if a field is null by calling <TT>IsNull</TT>. For non-scalar fields like strings and dates you can also check the returned value to see if it is null. You can prevent fields from accepting null values by calling <TT>SetNullAllowed</TT>, passing in a <TT>FALSE</TT> value.<P>
+<A NAME="5428"><H3> Field Validation</H3></A>
+Fields also have the ability to validate themselves using the <TT>IsValid</TT> method. However, applications can override the <TT>IsValid</TT> method to perform application-specific validation.<P>
+<A NAME="8253"><H3> Error Messages</H3></A>
+Sometimes, an error occurs when setting a field. This can be for a number of reasons: the data conversion might fail, or the minimum or maximum values might be exceeded. In these cases, the field first announces an "ErrorMessage" attribute change. This attribute is a text string which describes the reason why the field was not set. Once this announcement has been made, the field then generates an exception which tells the particular error. The value of the field does not change.<P>
+The following table summarizes field attributes.<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="8044"><I>Table 19.  Field Attributes
+</I><P>
+</CAPTION>
+
+<tr><th><B>Attribute 
+</B></th><th><B>Type 
+</B></th><th><B>Named? 
+</B></th><th><B>Stored? 
+</B></th><th><B>Copied?
+</B></th>
+<tr><td><TT><B>ErrorMessage
+</B></TT></td><td><TT>vchar *
+</TT></td><td><TT>Yes
+</TT></td><td>No
+</td><td>No
+</td></tr>
+<tr><td><TT><B>Format
+</B></TT></td><td><TT>vformat
+</TT></td><td><TT>Yes
+</TT></td><td>Yes
+</td><td>Yes
+</td></tr>
+<tr><td><TT><B>Max
+</B></TT></td><td><TT>varies
+</TT></td><td><TT>Yes
+</TT></td><td>Yes
+</td><td>Yes
+</td></tr>
+<tr><td><TT><B>Min
+</B></TT></td><td><TT>varies
+</TT></td><td><TT>Yes
+</TT></td><td>Yes
+</td><td>Yes
+</td></tr>
+<tr><td><TT><B>Null
+</B></TT></td><td><TT>vboolean
+</TT></td><td><TT>Yes
+</TT></td><td>Yes
+</td><td>Yes
+</td></tr>
+<tr><td><TT><B>NullAllowed
+</B></TT></td><td><TT>vboolean
+</TT></td><td><TT>Yes
+</TT></td><td>Yes
+</td><td>Yes
+</td></tr>
+<tr><td><TT><B>Title
+</B></TT></td><td><TT>vchar *
+</TT></td><td><TT>Yes
+</TT></td><td>Yes
+</td><td>Yes
+</td></tr>
+<tr><td><TT><B>Value
+</B></TT></td><td><TT>varies
+</TT></td><td><TT>Yes
+</TT></td><td>Yes
+</td><td>Yes
+</td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Exception.html">Previous Chapter</A> | 
+		<A HREF="File_Chooser.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

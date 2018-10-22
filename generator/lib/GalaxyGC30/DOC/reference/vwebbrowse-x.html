@@ -1,0 +1,1957 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vwebbrowse prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vwebbrowse prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vwebbrowse-x.html#section_DataType">Types</A> [18]</TD>
+<TD><A HREF="vwebbrowse-x.html#section_Function">Functions</A> [84]</TD>
+<TD><A HREF="vwebbrowse-x.html#section_Message">Messages</A> [12]</TD>
+<TD><A HREF="vwebbrowse-x.html#section_Constant">Constants</A> [9]</TD>
+<TD><A HREF="vwebbrowse-x.html#section_Macro">Macros</A> [7]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vwebbrowse"><HR><H4>vwebbrowse</H4></A>
+<PRE>
+        typedef ... <B>vwebbrowse</B>;
+</PRE>
+
+<DL><DD>
+This abstract base class provides a consistent interface for
+controlling HTML browsers.  Usually, HTML browsers exist as processes
+external to the application, but this need not be the case. Managing
+external browser processes is done through an instance of a subclass of
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseProcess"><CODE>vwebbrowseProcess</CODE></A></CODE>.
+
+<P>
+
+Existing subclasses of <CODE>vwebbrowse</CODE> include 
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseNetscape"><CODE>vwebbrowseNetscape</CODE></A></CODE> for controlling the Netscape Navigator
+browser,<CODE><A HREF="vwebbrowse-x.html#vwebbrowseExplorer"><CODE>vwebbrowseExplorer</CODE></A></CODE> for controlling the Microsoft
+Internet Explorer</CODE>, and <CODE><A HREF="vwebbrowse-x.html#vwebbrowseDefault"><CODE>vwebbrowseDefault</CODE></A></CODE> for
+controlling the system default browser. Note that the default browser 
+is always Netscape Navigator on UNIX platforms.
+
+<P>
+
+Using <CODE>vwebbrowse</CODE> is typically easy because the API
+is very small.  <CODE><A HREF="vwebbrowse-x.html#vwebbrowseGotoURL"><CODE>vwebbrowseGotoURL</CODE></A></CODE> is the primary entry
+point.  This call attempts to contact a running browser and request
+that it switch to the given URL or, if the browser is not currently
+running, start a new browser open to that URL.
+
+<P>
+
+When the application calls <CODE><A HREF="vwebbrowse-x.html#vwebbrowseGotoURL"><CODE>vwebbrowseGotoURL</CODE></A></CODE>, the
+webbrowse typically calls <CODE>vwebbrowseProcessGetState</CODE> to
+determine whether or not it is necessary to start the browser process.
+If it is, the webbrowse will call <CODE><A HREF="vwebbrowse-x.html#vwebbrowseStart"><CODE>vwebbrowseStart</CODE></A></CODE>. If
+unnecessary, the webbrowse will proceed to contact the browser 
+in a browser-specific manner.
+
+<P>
+
+When the webbrowse requests that the browser switch to the given URL,
+it also determines if the browser should also attempt to raise
+its window when it switches URLs. (See <CODE><A HREF="vwebbrowse-x.html#vwebbrowseSetAutoRaise"><CODE>vwebbrowseSetAutoRaise</CODE></A></CODE>).
+If possible, the message to raise the window will be 
+encoded as part of the command to change URLs.  
+If this cannot be done, the webbrowse calls
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseRaise"><CODE>vwebbrowseRaise</CODE></A></CODE>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseClass"><HR><H4>vwebbrowseClass</H4></A>
+<PRE>
+        typedef ... <B>vwebbrowseClass</B>;
+</PRE>
+
+<DL><DD>
+Contains message and variable bindings for objects of type
+<CODE>vwebbrowse</CODE>. Classes declared with this type contain
+the same set of messages and variables as the status help 
+display class, but the behavior of messages and the contents of
+variables may vary. This class type is derived from
+<CODE><A HREF="vinstance-x.html#vinstance"><CODE>vinstance</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseDefault"><HR><H4>vwebbrowseDefault</H4></A>
+<PRE>
+        typedef ... <B>vwebbrowseDefault</B>;
+</PRE>
+
+<DL><DD>
+On UNIX platforms, Netscape Navigator is the only default. On Windows
+platforms, the default browser can be determined from the Registry.
+Currently, only either Netscape Navigator or Internet Explorer are
+recognized defaults.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseDefaultClass"><HR><H4>vwebbrowseDefaultClass</H4></A>
+<PRE>
+        typedef ... <B>vwebbrowseDefaultClass</B>;
+</PRE>
+
+<DL><DD>
+Contains message and variable bindings for objects of type
+<CODE>vwebbrowseDefault</CODE>. Classes declared with this type contain
+the same set of messages and variables as the status help 
+display class, but the behavior of messages and the contents of
+variables may vary. This class type is derived from
+<CODE>vwebbrowse</CODE>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseEvent"><HR><H4>vwebbrowseEvent</H4></A>
+<PRE>
+        typedef ... <B>vwebbrowseEvent</B>;
+</PRE>
+
+<DL><DD>
+Values of this type include those listed below.
+
+<UL>
+<CODE>
+<LI> vwebbrowseEventCANNOT_LAUNCH
+<LI> vwebbrowseEventGOTO_URL_SUCCESS
+<LI> vwebbrowseEventGOTO_URL_FAILURE
+<LI> vwebbrowseEventCANNOT_CONTACT
+</CODE>
+</UL>
+
+Subclasses can extend the values for this type by creating a new
+enumerated type but setting its initial value to
+<CODE>vwebbrowseNEXT_EVENT</CODE>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseExplorer"><HR><H4>vwebbrowseExplorer</H4></A>
+<PRE>
+        typedef ... <B>vwebbrowseExplorer</B>;
+</PRE>
+
+<DL><DD>
+This subclass only operates properly on Windows platforms.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseExplorerClass"><HR><H4>vwebbrowseExplorerClass</H4></A>
+<PRE>
+        typedef ... <B>vwebbrowseExplorerClass</B>;
+</PRE>
+
+<DL><DD>
+Contains message and variable bindings for objects of type
+<CODE>vwebbrowseExplorer</CODE>. Classes declared with this type contain
+the same set of messages and variables as the status help 
+display class, but the behavior of messages and the contents of
+variables may vary. This class type is derived from
+<CODE>vwebbrowse</CODE>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseExplorerProcess"><HR><H4>vwebbrowseExplorerProcess</H4></A>
+<PRE>
+        typedef ... <B>vwebbrowseExplorerProcess</B>;
+</PRE>
+
+<DL><DD>
+This subclass is used by <CODE>vwebbrowseExplorer</CODE>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseExplorerProcessClass"><HR><H4>vwebbrowseExplorerProcessClass</H4></A>
+<PRE>
+        typedef ... <B>vwebbrowseExplorerProcessClass</B>;
+</PRE>
+
+<DL><DD>
+Contains message and variable bindings for objects of type
+<CODE>vwebbrowseExplorerProcess</CODE>. Classes declared with this
+type contain the same set of messages and variables as the status help
+display class, but the behavior of messages and the contents of
+variables may vary. This class type is derived from
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseProcess"><CODE>vwebbrowseProcess</CODE></A></CODE>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseNetscape"><HR><H4>vwebbrowseNetscape</H4></A>
+<PRE>
+        typedef ... <B>vwebbrowseNetscape</B>;
+</PRE>
+
+<DL><DD>
+This subclass of <CODE>vwebbrowse</CODE> starts and controls
+instances of Netscape Navigator.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseNetscapeClass"><HR><H4>vwebbrowseNetscapeClass</H4></A>
+<PRE>
+        typedef ... <B>vwebbrowseNetscapeClass</B>;
+</PRE>
+
+<DL><DD>
+
+Contains message and variable bindings for objects of type
+<CODE>vwebbrowseNetscape</CODE>. Classes declared with this type contain
+the same set of messages and variables as the status help 
+display class, but the behavior of messages and the contents of
+variables may vary. This class type is derived from
+<CODE>vwebbrowse</CODE>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseNetscapeProcess"><HR><H4>vwebbrowseNetscapeProcess</H4></A>
+<PRE>
+        typedef ... <B>vwebbrowseNetscapeProcess</B>;
+</PRE>
+
+<DL><DD>
+This subclass is used by <CODE>vwebbrowseNetscape</CODE>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseNetscapeProcessClass"><HR><H4>vwebbrowseNetscapeProcessClass</H4></A>
+<PRE>
+        typedef ... <B>vwebbrowseNetscapeProcessClass</B>;
+</PRE>
+
+<DL><DD>
+Contains message and variable bindings for objects of type
+<CODE>vwebbrowseNetscapeProcess</CODE>. Classes declared with this
+type contain the same set of messages and variables as the status help
+display class, but the behavior of messages and the contents of
+variables may vary. This class type is derived from
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseProcess"><CODE>vwebbrowseProcess</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseNoteProc"><HR><H4>vwebbrowseNoteProc</H4></A>
+<PRE>
+        typedef ... <B>vwebbrowseNoteProc</B>;
+</PRE>
+
+<DL><DD>
+This function is called when events of interest happen while the
+webbrowse is attempting to start or contact the browser.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseProcess"><HR><H4>vwebbrowseProcess</H4></A>
+<PRE>
+        typedef ... <B>vwebbrowseProcess</B>;
+</PRE>
+
+<DL><DD>
+
+This abstract base subclass of <CODE><A HREF="vprocess-x.html#vprocess"><CODE>vprocess</CODE></A></CODE> adds the
+functionality listed below to the base class.
+
+<UL>
+<LI> A way to associate the webbrowse with the webbrowse process.
+<LI> A way to associate a startup URL with the webbrowse process.
+<LI> An notification procedure.
+</UL>
+
+Subclasses of <CODE>vwebbrowseProcess</CODE> must override
+<CODE><A HREF="vprocess-x.html#vprocessGET_STATE"><CODE>vprocessGET_STATE</CODE></A></CODE> to determine whether or not an existing
+browser process is running.
+
+<P>
+
+When a <CODE>vwebbrowseProcess</CODE> instance is destroyed, it
+<B>does not</B> kill the browser process. The user may be using the
+browser to view other resources so it is not appropriate for the
+application to shut down the browser.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseProcessClass"><HR><H4>vwebbrowseProcessClass</H4></A>
+<PRE>
+        typedef ... <B>vwebbrowseProcessClass</B>;
+</PRE>
+
+<DL><DD>
+Contains message and variable bindings for objects of type
+<CODE>vwebbrowseProcess</CODE>. Classes declared with this
+type contain the same set of messages and variables as the status help
+display class, but the behavior of messages and the contents of
+variables may vary. This class type is derived from
+<CODE><A HREF="vprocess-x.html#vprocess"><CODE>vprocess</CODE></A></CODE>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseProcessEvent"><HR><H4>vwebbrowseProcessEvent</H4></A>
+<PRE>
+        typedef ... <B>vwebbrowseProcessEvent</B>;
+</PRE>
+
+<DL><DD>
+Values of this type include those listed below.
+
+<UL>
+<CODE>
+<LI> vwebbrowseProcessEventSTARTED
+<LI> vwebbrowseProcessEventCANNOT_START
+</CODE>
+</UL>
+
+Subclasses can extend the values for this type by creating a new
+enumerated type but setting its initial value to
+<CODE>vwebbrowseProcessEventNEXT_EVENT</CODE>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseProcessNoteProc"><HR><H4>vwebbrowseProcessNoteProc</H4></A>
+<PRE>
+        typedef ... <B>vwebbrowseProcessNoteProc</B>;
+</PRE>
+
+<DL><DD>
+This function is called when events of interest happen while the
+webbrowse is attempting to start the browser process.
+
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vwebbrowseCreate"><HR><H4>vwebbrowseCreate</H4></A>
+<PRE>
+        vwebbrowse * <B>vwebbrowseCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new webbrowse object of the default webbrowse class and
+returns a pointer to the new webbrowse object, which the Webbrowse
+class allocated. This is the same as calling
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateOfClass"><CODE>vwebbrowseCreateOfClass</CODE></A></CODE> and 
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseGetDefaultClass"><CODE>vwebbrowseGetDefaultClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseCreateDefault"><HR><H4>vwebbrowseCreateDefault</H4></A>
+<PRE>
+        vwebbrowseDefault * <B>vwebbrowseCreateDefault</B>();
+</PRE>
+
+<DL><DD>
+Creates a new webbrowseDefault object of the default webbrowseDefault class and
+returns a pointer to the new webbrowseDefault object, which the WebbrowseDefault
+class allocated. This is the same as calling
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateDefaultOfClass"><CODE>vwebbrowseCreateDefaultOfClass</CODE></A></CODE> and 
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseGetDefaultWebbrowseClass"><CODE>vwebbrowseGetDefaultWebbrowseClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseCreateDefaultOfClass"><HR><H4>vwebbrowseCreateDefaultOfClass</H4></A>
+<PRE>
+        vwebbrowseDefault * <B>vwebbrowseCreateDefaultOfClass</B>(
+                vwebbrowseDefaultClass * browserClass);
+</PRE>
+
+<DL><DD>
+Creates a new <code>webbrowseDefault</code> object of class
+<SAMP>browserClass</SAMP> and returns a pointer to it. The memory for the new
+object is allocated by the webbrowseDefault class. The new
+webbrowseDefault is created with a set of default attributes
+determined by the class.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseCreateExplorer"><HR><H4>vwebbrowseCreateExplorer</H4></A>
+<PRE>
+        vwebbrowseExplorer * <B>vwebbrowseCreateExplorer</B>();
+</PRE>
+
+<DL><DD>
+Creates a new webbrowseExplorer object of the default
+webbrowseExplorer class and returns a pointer to the new
+webbrowseExplorer object, which the WebbrowseExplorer class
+allocated. This is the same as calling
+<CODE>vwebbrowseExplorerCreateOfClass</CODE> and
+<CODE>vwebbrowseExplorerGetDefaultClass</CODE>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseCreateExplorerOfClass"><HR><H4>vwebbrowseCreateExplorerOfClass</H4></A>
+<PRE>
+        vwebbrowseExplorer * <B>vwebbrowseCreateExplorerOfClass</B>(
+                vwebbrowseExplorerClass * browserClass);
+</PRE>
+
+<DL><DD>
+Creates a new <code>webbrowseExplorer</code> object of class
+<SAMP>browserClass</SAMP> and returns a pointer to it. The memory for the new
+object is allocated by the webbrowseExplorer class. The new
+webbrowseExplorer is created with a set of default attributes
+determined by the class.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseCreateExplorerProcess"><HR><H4>vwebbrowseCreateExplorerProcess</H4></A>
+<PRE>
+        vwebbrowseExplorerProcess * <B>vwebbrowseCreateExplorerProcess</B>();
+</PRE>
+
+<DL><DD>
+Creates a new webbrowseExplorerProcess object of the default
+webbrowseExplorerProcess class and returns a pointer to the new
+webbrowseExplorerProcess object, which the WebbrowseExplorerProcess
+class allocated. This is the same as calling
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateExplorerProcessOfClass"><CODE>vwebbrowseCreateExplorerProcessOfClass</CODE></A></CODE> and
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseGetDefaultExplorerProcessClass"><CODE>vwebbrowseGetDefaultExplorerProcessClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseCreateExplorerProcessOfClass"><HR><H4>vwebbrowseCreateExplorerProcessOfClass</H4></A>
+<PRE>
+        vwebbrowseExplorerProcess * <B>vwebbrowseCreateExplorerProcessOfClass</B>(
+                vwebbrowseExplorerProcessClass * browserProcessClass);
+</PRE>
+
+<DL><DD>
+Creates a new <code>webbrowseExplorerProcess</code> object of class
+<SAMP>browserClass</SAMP> and returns a pointer to it. The memory for the new
+object is allocated by the webbrowseExplorerProcess class. The new
+webbrowseExplorerProcess is created with a set of default attributes
+determined by the class.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseCreateNetscape"><HR><H4>vwebbrowseCreateNetscape</H4></A>
+<PRE>
+        vwebbrowseNetscape * <B>vwebbrowseCreateNetscape</B>();
+</PRE>
+
+<DL><DD>
+Creates a new webbrowseNetscape object of the default
+webbrowseNetscape class and returns a pointer to the new
+webbrowseNetscape object, which the WebbrowseNetscape class
+allocated. This is the same as calling
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateNetscapeOfClass"><CODE>vwebbrowseCreateNetscapeOfClass</CODE></A></CODE> and
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseGetDefaultNetscapeClass"><CODE>vwebbrowseGetDefaultNetscapeClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseCreateNetscapeOfClass"><HR><H4>vwebbrowseCreateNetscapeOfClass</H4></A>
+<PRE>
+        vwebbrowseNetscape * <B>vwebbrowseCreateNetscapeOfClass</B>(
+                vwebbrowseNetscapeClass * browserClass);
+</PRE>
+
+<DL><DD>
+Creates a new <code>webbrowseNetscape</code> object of class
+<SAMP>browserClass</SAMP> and returns a pointer to it. The memory for
+the new object is allocated by the webbrowseNetscape class. The new
+webbrowseNetscape is created with a set of default attributes
+determined by the class.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseCreateNetscapeProcess"><HR><H4>vwebbrowseCreateNetscapeProcess</H4></A>
+<PRE>
+        vwebbrowseNetscapeProcess * <B>vwebbrowseCreateNetscapeProcess</B>();
+</PRE>
+
+<DL><DD>
+Creates a new webbrowseNetscapeProcess object of the default
+webbrowseNetscapeProcess class and returns a pointer to the new
+webbrowseNetscapeProcess object, which the WebbrowseNetscapeProcess
+class allocated. This is the same as calling
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateNetscapeProcessOfClass"><CODE>vwebbrowseCreateNetscapeProcessOfClass</CODE></A></CODE> and
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseGetDefaultNetscapeProcessClass"><CODE>vwebbrowseGetDefaultNetscapeProcessClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseCreateNetscapeProcessOfClass"><HR><H4>vwebbrowseCreateNetscapeProcessOfClass</H4></A>
+<PRE>
+        vwebbrowseNetscapeProcess * <B>vwebbrowseCreateNetscapeProcessOfClass</B>(
+                vwebbrowseNetscapeProcessClass * browserProcessClass);
+</PRE>
+
+<DL><DD>
+Creates a new <code>webbrowseNetscapeProcess</code> object of class
+<SAMP>browserClass</SAMP> and returns a pointer to it. The memory for
+the new object is allocated by the webbrowseNetscapeProcess class. The
+new webbrowseNetscapeProcess is created with a set of default
+attributes determined by the class.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseCreateOfClass"><HR><H4>vwebbrowseCreateOfClass</H4></A>
+<PRE>
+        vwebbrowse * <B>vwebbrowseCreateOfClass</B>(
+                vwebbrowseClass * browserClass);
+</PRE>
+
+<DL><DD>
+Creates a new <code>webbrowse</code> object of class
+<SAMP>browserClass</SAMP> and returns a pointer to it. The memory for
+the new object is allocated by the webbrowse class. The new webbrowse
+is created with a set of default attributes determined by the class.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseCreateProcess"><HR><H4>vwebbrowseCreateProcess</H4></A>
+<PRE>
+        vwebbrowseProcess * <B>vwebbrowseCreateProcess</B>();
+</PRE>
+
+<DL><DD>
+Creates a new webbrowseProcess object of the default webbrowseProcess
+class and returns a pointer to the new webbrowseProcess object, which
+the WebbrowseProcess class allocated. This is the same as calling
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateProcessOfClass"><CODE>vwebbrowseCreateProcessOfClass</CODE></A></CODE> and
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseGetDefaultProcessClass"><CODE>vwebbrowseGetDefaultProcessClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseCreateProcessOfClass"><HR><H4>vwebbrowseCreateProcessOfClass</H4></A>
+<PRE>
+        vwebbrowseProcess * <B>vwebbrowseCreateProcessOfClass</B>(
+                vwebbrowseProcessClass * browserProcessClass);
+</PRE>
+
+<DL><DD>
+Creates a new <code>webbrowseProcess</code> object of class
+<SAMP>browserProcessClass</SAMP> and returns a pointer to it. The
+memory for the new object is allocated by the webbrowseProcess
+class. The new webbrowseProcess is created with a set of default
+attributes determined by the class.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseDestroy"><HR><H4>vwebbrowseDestroy</H4></A>
+<PRE>
+        vwebbrowse * <B>vwebbrowseDestroy</B>(
+                vwebbrowse * browser);
+</PRE>
+
+<DL><DD>
+Destroys the webbrowse object pointed to by <SAMP>browse</SAMP> and
+all of it sub-objects. This function is implemented by sending the
+message <CODE><A HREF="vinstance-x.html#vinstanceDESTROY"><CODE>vinstanceDESTROY</CODE></A></CODE> to <SAMP>browser</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseDestroyDefault"><HR><H4>vwebbrowseDestroyDefault</H4></A>
+<PRE>
+        vwebbrowseDefault * <B>vwebbrowseDestroyDefault</B>(
+                vwebbrowseDefault * browser);
+</PRE>
+
+<DL><DD>
+Destroys the webbrowseDefault object pointed to by
+<SAMP>browser</SAMP> and all of it sub-objects. This function is
+implemented by sending the message <CODE><A HREF="vinstance-x.html#vinstanceDESTROY"><CODE>vinstanceDESTROY</CODE></A></CODE> to
+<SAMP>browser</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseDestroyExplorer"><HR><H4>vwebbrowseDestroyExplorer</H4></A>
+<PRE>
+        vwebbrowseExplorer * <B>vwebbrowseDestroyExplorer</B>(
+                vwebbrowseExplorer * browser);
+</PRE>
+
+<DL><DD>
+Destroys the webbrowseExplorer object pointed to by <SAMP>browser</SAMP>
+and all of it sub-objects. This function is implemented by sending the
+message <CODE><A HREF="vinstance-x.html#vinstanceDESTROY"><CODE>vinstanceDESTROY</CODE></A></CODE> to <SAMP>browser</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseDestroyExplorerProcess"><HR><H4>vwebbrowseDestroyExplorerProcess</H4></A>
+<PRE>
+        void <B>vwebbrowseDestroyExplorerProcess</B>(
+                vwebbrowseExplorerProcess * browserProcess);
+</PRE>
+
+<DL><DD>
+Destroys the webbrowseExplorerProcess object pointed to by
+<SAMP>browserProcess</SAMP> and all of it sub-objects. This function
+is implemented by sending the message <CODE><A HREF="vinstance-x.html#vinstanceDESTROY"><CODE>vinstanceDESTROY</CODE></A></CODE> to
+<SAMP>browserProcess</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseDestroyNetscape"><HR><H4>vwebbrowseDestroyNetscape</H4></A>
+<PRE>
+        vwebbrowseNetscape * <B>vwebbrowseDestroyNetscape</B>(
+                vwebbrowseNetscape * browser);
+</PRE>
+
+<DL><DD>
+Destroys the webbrowseNetscape object pointed to by
+<SAMP>browser</SAMP> and all of it sub-objects. This function is
+implemented by sending the message <CODE><A HREF="vinstance-x.html#vinstanceDESTROY"><CODE>vinstanceDESTROY</CODE></A></CODE> to
+<SAMP>browser</SAMP>. 
+</DD></DL>
+<P>
+<A NAME="vwebbrowseDestroyNetscapeProcess"><HR><H4>vwebbrowseDestroyNetscapeProcess</H4></A>
+<PRE>
+        void <B>vwebbrowseDestroyNetscapeProcess</B>(
+                vwebbrowseNetscapeProcess * browserProcess);
+</PRE>
+
+<DL><DD>
+Destroys the webbrowseNetscapeProcess object pointed to by
+<SAMP>browserProcess</SAMP> and all of it sub-objects. This function
+is implemented by sending the message <CODE><A HREF="vinstance-x.html#vinstanceDESTROY"><CODE>vinstanceDESTROY</CODE></A></CODE> to
+<SAMP>browserProcess</SAMP>. 
+</DD></DL>
+<P>
+<A NAME="vwebbrowseDestroyProcess"><HR><H4>vwebbrowseDestroyProcess</H4></A>
+<PRE>
+        void <B>vwebbrowseDestroyProcess</B>(
+                vwebbrowseProcess * browserProcess);
+</PRE>
+
+<DL><DD>
+Destroys the webbrowseProcess object pointed to by
+<SAMP>browserProcess</SAMP> and all of it sub-objects. This function
+is implemented by sending the message <CODE><A HREF="vinstance-x.html#vinstanceDESTROY"><CODE>vinstanceDESTROY</CODE></A></CODE> to
+<SAMP>browserProcess</SAMP>. 
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetClass"><HR><H4>vwebbrowseGetClass</H4></A>
+<PRE>
+        vwebbrowseClass * <B>vwebbrowseGetClass</B>(
+                vwebbrowse * browser);
+</PRE>
+
+<DL><DD>
+Gets the class of the webbrowse object.
+--end-- 
+--begin--
+Gets the class of the webbrowse object <SAMP>browser</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetDefaultClass"><HR><H4>vwebbrowseGetDefaultClass</H4></A>
+<PRE>
+        vwebbrowseClass * <B>vwebbrowseGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Gets the default webbrowse class. This class is used by
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreate"><CODE>vwebbrowseCreate</CODE></A></CODE> to create webbrowse objects. If the
+default class is modified, any subsequent classes created by
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreate"><CODE>vwebbrowseCreate</CODE></A></CODE> will reflect this modification.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetDefaultDefaultClass"><HR><H4>vwebbrowseGetDefaultDefaultClass</H4></A>
+<PRE>
+        vwebbrowseDefaultClass * <B>vwebbrowseGetDefaultDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Gets the default webbrowseDefault class. This class is used by
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateDefault"><CODE>vwebbrowseCreateDefault</CODE></A></CODE> to create webbrowse objects. If
+the default class is modified, any subsequent classes created by
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateDefault"><CODE>vwebbrowseCreateDefault</CODE></A></CODE> will reflect this modification.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetDefaultExplorerClass"><HR><H4>vwebbrowseGetDefaultExplorerClass</H4></A>
+<PRE>
+        vwebbrowseExplorerClass * <B>vwebbrowseGetDefaultExplorerClass</B>();
+</PRE>
+
+<DL><DD>
+Gets the default webbrowseExplorer class. This class is used by
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateExplorer"><CODE>vwebbrowseCreateExplorer</CODE></A></CODE> to create webbrowseExplorer
+objects. If the default class is modified, any subsequent classes
+created by <CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateExplorer"><CODE>vwebbrowseCreateExplorer</CODE></A></CODE> will reflect this
+modification.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetDefaultExplorerProcessClass"><HR><H4>vwebbrowseGetDefaultExplorerProcessClass</H4></A>
+<PRE>
+        vwebbrowseExplorerProcessClass * <B>vwebbrowseGetDefaultExplorerProcessClass</B>();
+</PRE>
+
+<DL><DD>
+Gets the default webbrowseExplorerProcess class. This class is used by
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateExplorerProcess"><CODE>vwebbrowseCreateExplorerProcess</CODE></A></CODE> to create
+webbrowseExplorerProcess objects. If the default class is modified,
+any subsequent classes created by
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateExplorerProcess"><CODE>vwebbrowseCreateExplorerProcess</CODE></A></CODE> will reflect this
+modification.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetDefaultNetscapeClass"><HR><H4>vwebbrowseGetDefaultNetscapeClass</H4></A>
+<PRE>
+        vwebbrowseNetscapeClass * <B>vwebbrowseGetDefaultNetscapeClass</B>();
+</PRE>
+
+<DL><DD>
+Gets the default webbrowseNetscape class. This class is used by
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateNetscape"><CODE>vwebbrowseCreateNetscape</CODE></A></CODE> to create
+webbrowseNetscape objects. If the default class is modified,
+any subsequent classes created by
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateNetscape"><CODE>vwebbrowseCreateNetscape</CODE></A></CODE> will reflect this
+modification.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetDefaultNetscapeProcessClass"><HR><H4>vwebbrowseGetDefaultNetscapeProcessClass</H4></A>
+<PRE>
+        vwebbrowseNetscapeProcessClass * <B>vwebbrowseGetDefaultNetscapeProcessClass</B>();
+</PRE>
+
+<DL><DD>
+Gets the default webbrowseNetscapeProcess class. This class is used by
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateNetscapeProcess"><CODE>vwebbrowseCreateNetscapeProcess</CODE></A></CODE> to create
+webbrowseNetscapeProcess objects. If the default class is modified,
+any subsequent classes created by
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateNetscapeProcess"><CODE>vwebbrowseCreateNetscapeProcess</CODE></A></CODE> will reflect this
+modification.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetDefaultProcessClass"><HR><H4>vwebbrowseGetDefaultProcessClass</H4></A>
+<PRE>
+        vwebbrowseProcessClass * <B>vwebbrowseGetDefaultProcessClass</B>();
+</PRE>
+
+<DL><DD>
+Gets the default webbrowseProcess class. This class is used by
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateProcess"><CODE>vwebbrowseCreateProcess</CODE></A></CODE> to create
+webbrowseProcess objects. If the default class is modified,
+any subsequent classes created by
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateProcess"><CODE>vwebbrowseCreateProcess</CODE></A></CODE> will reflect this
+modification.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetDefaultWebbrowse"><HR><H4>vwebbrowseGetDefaultWebbrowse</H4></A>
+<PRE>
+        vwebbrowse * <B>vwebbrowseGetDefaultWebbrowse</B>(
+                vwebbrowseDefault * browser);
+</PRE>
+
+<DL><DD>
+Gets the webbrowse object on which the given browser object is based.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetDefaultWebbrowseClass"><HR><H4>vwebbrowseGetDefaultWebbrowseClass</H4></A>
+<PRE>
+        vwebbrowseDefaultClass * <B>vwebbrowseGetDefaultWebbrowseClass</B>(
+                vwebbrowseDefault * browser);
+</PRE>
+
+<DL><DD>
+Gets the class of the webbrowseDefault object <SAMP>browser</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetExplorerClass"><HR><H4>vwebbrowseGetExplorerClass</H4></A>
+<PRE>
+        vwebbrowseExplorerClass * <B>vwebbrowseGetExplorerClass</B>(
+                vwebbrowseExplorer * browser);
+</PRE>
+
+<DL><DD>
+Gets the class of the webbrowseExplorer object <SAMP>browser</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetExplorerProcessClass"><HR><H4>vwebbrowseGetExplorerProcessClass</H4></A>
+<PRE>
+        vwebbrowseExplorerProcessClass * <B>vwebbrowseGetExplorerProcessClass</B>(
+                vwebbrowseExplorerProcess * browserProcess);
+</PRE>
+
+<DL><DD>
+Gets the class of the webbrowseExplorerProcess object
+<SAMP>browser</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetExplorerProcessProcess"><HR><H4>vwebbrowseGetExplorerProcessProcess</H4></A>
+<PRE>
+        vwebbrowseProcess * <B>vwebbrowseGetExplorerProcessProcess</B>(
+                vwebbrowseExplorerProcess * browserProcess);
+</PRE>
+
+<DL><DD>
+Gets the webbrowseProcess object on which the given browserProcess
+object is based.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetExplorerWebbrowse"><HR><H4>vwebbrowseGetExplorerWebbrowse</H4></A>
+<PRE>
+        vwebbrowse * <B>vwebbrowseGetExplorerWebbrowse</B>(
+                vwebbrowseExplorer * browser);
+</PRE>
+
+<DL><DD>
+gets the webbrowse object on which the given browser object is based.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetInstance"><HR><H4>vwebbrowseGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vwebbrowseGetInstance</B>(
+                vwebbrowse * browser);
+</PRE>
+
+<DL><DD>
+Gets the instance object on whoch the given browser object is based.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetName"><HR><H4>vwebbrowseGetName</H4></A>
+<PRE>
+        const vchar * <B>vwebbrowseGetName</B>(
+                vwebbrowse * browser);
+</PRE>
+
+<DL><DD>
+This name is used when searching for running processes or when
+starting new browsers. For example, on the Windows platforms, the
+Netscape browser name is "netscape.exe".
+	
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetNetscapeClass"><HR><H4>vwebbrowseGetNetscapeClass</H4></A>
+<PRE>
+        vwebbrowseNetscapeClass * <B>vwebbrowseGetNetscapeClass</B>(
+                vwebbrowseNetscape * browser);
+</PRE>
+
+<DL><DD>
+Gets the default webbrowseNetscape class. This class is used by
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateNetscape"><CODE>vwebbrowseCreateNetscape</CODE></A></CODE> to create
+webbrowseNetscape objects. If the default class is modified,
+any subsequent classes created by
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateNetscape"><CODE>vwebbrowseCreateNetscape</CODE></A></CODE> will reflect this
+modification.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetNetscapeProcessClass"><HR><H4>vwebbrowseGetNetscapeProcessClass</H4></A>
+<PRE>
+        vwebbrowseNetscapeProcessClass * <B>vwebbrowseGetNetscapeProcessClass</B>(
+                vwebbrowseNetscapeProcess * browserProcess);
+</PRE>
+
+<DL><DD>
+Gets the default webbrowseNetscapeProcess class. This class is used by
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateNetscapeProcess"><CODE>vwebbrowseCreateNetscapeProcess</CODE></A></CODE> to create
+webbrowseNetscapeProcess objects. If the default class is modified,
+any subsequent classes created by <CODE><A HREF="vwebbrowse-x.html#vwebbrowseCreateProcess"><CODE>vwebbrowseCreateProcess</CODE></A></CODE>
+will reflect this modification.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetNetscapeProcessProcess"><HR><H4>vwebbrowseGetNetscapeProcessProcess</H4></A>
+<PRE>
+        vwebbrowseProcess * <B>vwebbrowseGetNetscapeProcessProcess</B>(
+                vwebbrowseNetscapeProcess * browserProcess);
+</PRE>
+
+<DL><DD>
+Gets the webbrowseProcess object on which the given browserProcess
+object is based.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetNetscapeWebbrowse"><HR><H4>vwebbrowseGetNetscapeWebbrowse</H4></A>
+<PRE>
+        vwebbrowse * <B>vwebbrowseGetNetscapeWebbrowse</B>(
+                vwebbrowseNetscape * browser);
+</PRE>
+
+<DL><DD>
+Gets the webbrowse object on which the given browser object is based.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetNotify"><HR><H4>vwebbrowseGetNotify</H4></A>
+<PRE>
+        vwebbrowseNoteProc <B>vwebbrowseGetNotify</B>(
+                vwebbrowse * browser);
+</PRE>
+
+<DL><DD>
+The observation procedure is called when events of interest occur
+while webbrowse is attempting to start or contact the browser.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetProcess"><HR><H4>vwebbrowseGetProcess</H4></A>
+<PRE>
+        vwebbrowseProcess * <B>vwebbrowseGetProcess</B>(
+                vwebbrowse * browser);
+</PRE>
+
+<DL><DD>
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseProcess"><CODE>vwebbrowseProcess</CODE></A></CODE> subclasses handle browser-specific
+process issues, such as detecting for running browser or starting new
+ones.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetProcessClass"><HR><H4>vwebbrowseGetProcessClass</H4></A>
+<PRE>
+        vwebbrowseProcessClass * <B>vwebbrowseGetProcessClass</B>(
+                vwebbrowseProcess * browserProcess);
+</PRE>
+
+<DL><DD>
+Gets the class of the webbrowse object <SAMP>browserProcess</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetProcessNotify"><HR><H4>vwebbrowseGetProcessNotify</H4></A>
+<PRE>
+        vwebbrowseProcessNoteProc <B>vwebbrowseGetProcessNotify</B>(
+                vwebbrowseProcess * browserProcess);
+</PRE>
+
+<DL><DD>
+The notification procedure is called when events of interest occur
+while the webbrowse process is attempting to start or contact the browser.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetProcessProcess"><HR><H4>vwebbrowseGetProcessProcess</H4></A>
+<PRE>
+        vprocess * <B>vwebbrowseGetProcessProcess</B>(
+                vwebbrowseProcess * browserProcess);
+</PRE>
+
+<DL><DD>
+Gets the process object on which the given browserProcess object is based.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetProcessStartupURL"><HR><H4>vwebbrowseGetProcessStartupURL</H4></A>
+<PRE>
+        vurl * <B>vwebbrowseGetProcessStartupURL</B>(
+                vwebbrowseProcess * browserProcess);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGetProcessWebbrowse"><HR><H4>vwebbrowseGetProcessWebbrowse</H4></A>
+<PRE>
+        vwebbrowse * <B>vwebbrowseGetProcessWebbrowse</B>(
+                vwebbrowseProcess * browserProcess);
+</PRE>
+
+<DL><DD>
+Returns the <CODE>vwebbrowse</CODE> instance using this
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseProcess"><CODE>vwebbrowseProcess</CODE></A></CODE> instance.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseGotoURL"><HR><H4>vwebbrowseGotoURL</H4></A>
+<PRE>
+        vbool <B>vwebbrowseGotoURL</B>(
+                vwebbrowse * browser,
+                vurl * url);
+</PRE>
+
+<DL><DD>
+This function is not implemented in this abstract base class.
+Subclasses of <CODE>vwebbrowse</CODE> must override this function to
+contact the browser in a browser-specific 
+(and sometimes platform-specific) manner.
+
+<P>
+
+This call will normally result in a call to
+<CODE>vwebbrowseProcessGetState</CODE> to determine if a browser
+process is running.  If one is not running, this function will call
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseStart"><CODE>vwebbrowseStart</CODE></A></CODE>; otherwise, it will attempt to
+communicate the command to load the given URL to the browser.  
+If this communication is successful, this call returns <CODE>vTRUE</CODE>
+regardless of whether or not the browser can successfully load the
+URL. 
+
+<P> 
+
+These semantics are more consistent because it is not always
+possible or desirable to determine the success of loading the URL
+if, for instance. it takes a long time.
+In future releases, unsuccessful loads may be reported asynchronously 
+via the observation procedure.
+
+<P>
+
+Users may prefer that the browser be raised to the top of the window
+when it switches URLs. This feature is controlled through the
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseSetAutoRaise"><CODE>vwebbrowseSetAutoRaise</CODE></A></CODE> function. If the webbrowse is set
+to automatically raise the browser, the raise command may either be
+encoded into the command to load the URL, or may be sent as a separate
+command. When sent as a separate command, this function should call
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseRaise"><CODE>vwebbrowseRaise</CODE></A></CODE>.
+
+<P>
+
+This function is implemented by sending the message
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseGOTO_URL"><CODE>vwebbrowseGOTO_URL</CODE></A></CODE> to <SAMP>browser</SAMP>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseInit"><HR><H4>vwebbrowseInit</H4></A>
+<PRE>
+        void <B>vwebbrowseInit</B>(
+                vwebbrowse * browser);
+</PRE>
+
+<DL><DD>
+Initializes the webbrowse object pointed to by <SAMP>browser</SAMP>
+into a valid webbrowse object of the default webbrowse class in the
+same manner as <CODE><A HREF="vwebbrowse-x.html#vwebbrowseInitOfClass"><CODE>vwebbrowseInitOfClass</CODE></A></CODE> and
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseGetDefaultClass"><CODE>vwebbrowseGetDefaultClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseInitDefault"><HR><H4>vwebbrowseInitDefault</H4></A>
+<PRE>
+        void <B>vwebbrowseInitDefault</B>(
+                vwebbrowseDefault * browser);
+</PRE>
+
+<DL><DD>
+Initializes the webbrowseDefault object pointed to by
+<SAMP>browser</SAMP> into a valid webbrowseDefault object of the
+default webbrowseDefault class in the same manner as
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseInitDefaultOfClass"><CODE>vwebbrowseInitDefaultOfClass</CODE></A></CODE> and
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseGetDefaultDefaultClass"><CODE>vwebbrowseGetDefaultDefaultClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseInitDefaultOfClass"><HR><H4>vwebbrowseInitDefaultOfClass</H4></A>
+<PRE>
+        void <B>vwebbrowseInitDefaultOfClass</B>(
+                vwebbrowseDefault * browser,
+                vwebbrowseDefaultClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a webbrowseDefault object into a valid webbrowseDefault
+object of the specified class <SAMP>clas</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseInitExplorer"><HR><H4>vwebbrowseInitExplorer</H4></A>
+<PRE>
+        void <B>vwebbrowseInitExplorer</B>(
+                vwebbrowseExplorer * browser);
+</PRE>
+
+<DL><DD>
+Initializes the webbrowseExplorer object pointed to by
+<SAMP>webbrowseExplorer</SAMP> into a valid webbrowseExplorer object
+of the default webbrowseExplorer class in the same manner as
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseInitExplorerOfClass"><CODE>vwebbrowseInitExplorerOfClass</CODE></A></CODE> and
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseGetDefaultExplorerClass"><CODE>vwebbrowseGetDefaultExplorerClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseInitExplorerOfClass"><HR><H4>vwebbrowseInitExplorerOfClass</H4></A>
+<PRE>
+        void <B>vwebbrowseInitExplorerOfClass</B>(
+                vwebbrowseExplorer * browser,
+                vwebbrowseExplorerClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new <code>webbrowseExplorer</code> object of class
+<SAMP>clas</SAMP> and returns a pointer to it. The memory for the new
+object is allocated by the webbrowseExplorer class. The new
+webbrowseExplorer is created with a set of default attributes
+determined by the class.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseInitExplorerProcess"><HR><H4>vwebbrowseInitExplorerProcess</H4></A>
+<PRE>
+        void <B>vwebbrowseInitExplorerProcess</B>(
+                vwebbrowseExplorerProcess * browserProcess);
+</PRE>
+
+<DL><DD>
+Initializes the webbrowseExplorerProcess object pointed to by
+<SAMP>webbrowseExplorerProcess</SAMP> into a valid
+webbrowseExplorerProcess object of the default
+webbrowseExplorerProcess class in the same manner as
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseInitExplorerProcessOfClass"><CODE>vwebbrowseInitExplorerProcessOfClass</CODE></A></CODE> and
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseGetDefaultExplorerProcessClass"><CODE>vwebbrowseGetDefaultExplorerProcessClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseInitExplorerProcessOfClass"><HR><H4>vwebbrowseInitExplorerProcessOfClass</H4></A>
+<PRE>
+        void <B>vwebbrowseInitExplorerProcessOfClass</B>(
+                vwebbrowseExplorerProcess * browserProcess,
+                vwebbrowseExplorerProcessClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a webbrowseExplorerProcess object into a valid
+webbrowseExplorerProcess object of the specified class
+<SAMP>clas</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseInitNetscape"><HR><H4>vwebbrowseInitNetscape</H4></A>
+<PRE>
+        void <B>vwebbrowseInitNetscape</B>(
+                vwebbrowseNetscape * browser);
+</PRE>
+
+<DL><DD>
+Initializes the webbrowseNetscape object pointed to by
+<SAMP>webbrowseNetscape</SAMP> into a valid webbrowseNetscape object
+of the default webbrowseNetscape class in the same manner as
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseInitNetscapeOfClass"><CODE>vwebbrowseInitNetscapeOfClass</CODE></A></CODE> and
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseGetDefaultNetscapeClass"><CODE>vwebbrowseGetDefaultNetscapeClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseInitNetscapeOfClass"><HR><H4>vwebbrowseInitNetscapeOfClass</H4></A>
+<PRE>
+        void <B>vwebbrowseInitNetscapeOfClass</B>(
+                vwebbrowseNetscape * browser,
+                vwebbrowseNetscapeClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a webbrowseNetscape object into a valid webbrowseNetscape
+object of the specified class <SAMP>clas</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseInitNetscapeProcess"><HR><H4>vwebbrowseInitNetscapeProcess</H4></A>
+<PRE>
+        void <B>vwebbrowseInitNetscapeProcess</B>(
+                vwebbrowseNetscapeProcess * browserProcess);
+</PRE>
+
+<DL><DD>
+Initializes the webbrowseNetscapeProcess object pointed to by
+<SAMP>webbrowseNetscapeProcess</SAMP> into a valid
+webbrowseNetscapeProcess object of the default
+webbrowseNetscapeProcess class in the same manner as
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseInitNetscapeProcessOfClass"><CODE>vwebbrowseInitNetscapeProcessOfClass</CODE></A></CODE> and
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseGetDefaultNetscapeProcessClass"><CODE>vwebbrowseGetDefaultNetscapeProcessClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseInitNetscapeProcessOfClass"><HR><H4>vwebbrowseInitNetscapeProcessOfClass</H4></A>
+<PRE>
+        void <B>vwebbrowseInitNetscapeProcessOfClass</B>(
+                vwebbrowseNetscapeProcess * browserProcess,
+                vwebbrowseNetscapeProcessClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a webbrowseNetscapeProcess object into a valid
+webbrowseNetscapeProcess object of the specified class
+<SAMP>clas</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseInitOfClass"><HR><H4>vwebbrowseInitOfClass</H4></A>
+<PRE>
+        void <B>vwebbrowseInitOfClass</B>(
+                vwebbrowse * browser,
+                vwebbrowseClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a webbrowse object into a valid webbrowse object of the
+specified class <SAMP>clas</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseInitProcess"><HR><H4>vwebbrowseInitProcess</H4></A>
+<PRE>
+        void <B>vwebbrowseInitProcess</B>(
+                vwebbrowseProcess * browserProcess);
+</PRE>
+
+<DL><DD>
+Initializes the webbrowseProcess object pointed to by
+<SAMP>webbrowseProcess</SAMP> into a valid webbrowseProcess object of
+the default webbrowseProcess class in the same manner as
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseInitProcessOfClass"><CODE>vwebbrowseInitProcessOfClass</CODE></A></CODE> and
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseGetDefaultProcessClass"><CODE>vwebbrowseGetDefaultProcessClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseInitProcessOfClass"><HR><H4>vwebbrowseInitProcessOfClass</H4></A>
+<PRE>
+        void <B>vwebbrowseInitProcessOfClass</B>(
+                vwebbrowseProcess * browserProcess,
+                vwebbrowseProcessClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a webbrowseProcess object into a valid webbrowseProcess
+object of the specified class <SAMP>clas</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseIsAutoRaise"><HR><H4>vwebbrowseIsAutoRaise</H4></A>
+<PRE>
+        vbool <B>vwebbrowseIsAutoRaise</B>(
+                vwebbrowse * browser);
+</PRE>
+
+<DL><DD>
+See also <CODE><A HREF="vwebbrowse-x.html#vwebbrowseSetAutoRaise"><CODE>vwebbrowseSetAutoRaise</CODE></A></CODE>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseNotify"><HR><H4>vwebbrowseNotify</H4></A>
+<PRE>
+        void <B>vwebbrowseNotify</B>(
+                vwebbrowse * browser,
+                vwebbrowseEvent event);
+</PRE>
+
+<DL><DD>
+Calling this function results in the the notification procedure being
+called with the supplied event.
+
+<P>
+
+Implemented by sending the message <CODE><A HREF="vwebbrowse-x.html#vwebbrowseNOTIFY"><CODE>vwebbrowseNOTIFY</CODE></A></CODE> 
+to <SAMP>browser</SAMP>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseNotifyProcess"><HR><H4>vwebbrowseNotifyProcess</H4></A>
+<PRE>
+        void <B>vwebbrowseNotifyProcess</B>(
+                vwebbrowseProcess * browserProcess,
+                vwebbrowseProcessEvent event);
+</PRE>
+
+<DL><DD>
+
+Results in the the notification procedure being called with the supplied event.
+
+<P>
+
+This function is implemented by sending the message
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseNOTIFY_PROCESS"><CODE>vwebbrowseNOTIFY_PROCESS</CODE></A></CODE> to <SAMP>browserProcess</SAMP>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseRaise"><HR><H4>vwebbrowseRaise</H4></A>
+<PRE>
+        void <B>vwebbrowseRaise</B>(
+                vwebbrowse * browser);
+</PRE>
+
+<DL><DD>
+This is usually accomplished by a command transmitted to the
+browser. This function is implemented by sending the message
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseRAISE"><CODE>vwebbrowseRAISE</CODE></A></CODE> to <SAMP>browser</SAMP>. 
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseSetAutoRaise"><HR><H4>vwebbrowseSetAutoRaise</H4></A>
+<PRE>
+        void <B>vwebbrowseSetAutoRaise</B>(
+                vwebbrowse * browser,
+                vbool yesNo);
+</PRE>
+
+<DL><DD>
+Calling this function with <CODE>vTRUE</CODE> will cause the webbrowse
+to attempt to raise the browser window as part of calls to
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseGotoURL"><CODE>vwebbrowseGotoURL</CODE></A><CODE>. Calling this function with
+<CODE>vFALSE</CODE> disables this feature.
+
+<P>
+
+This function is implemented by sending the message
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseSET_AUTO_RAISE"><CODE>vwebbrowseSET_AUTO_RAISE</CODE></A></CODE> to <SAMP>browser</SAMP>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseSetName"><HR><H4>vwebbrowseSetName</H4></A>
+<PRE>
+        void <B>vwebbrowseSetName</B>(
+                vwebbrowse * browser,
+                const vchar * name);
+</PRE>
+
+<DL><DD>
+This name is used when searching for running processes or when
+starting new browsers. For example, on the Windows platforms, the
+Netscape browser name is "netscape.exe".
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseSetNameScribed"><HR><H4>vwebbrowseSetNameScribed</H4></A>
+<PRE>
+        void <B>vwebbrowseSetNameScribed</B>(
+                vwebbrowse * browser,
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+This name is used when searching for running processes or when
+starting new browsers. For example, on the Windows platforms, the
+Netscape browser name is "netscape.exe".
+
+<P>
+
+This function is implemented by sending the message
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseSET_NAME_SCRIBED"><CODE>vwebbrowseSET_NAME_SCRIBED</CODE></A></CODE> to <SAMP>browser</SAMP>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseSetNotify"><HR><H4>vwebbrowseSetNotify</H4></A>
+<PRE>
+        void <B>vwebbrowseSetNotify</B>(
+                vwebbrowse * browser,
+                vwebbrowseNoteProc noteProc);
+</PRE>
+
+<DL><DD>
+The notify procedure is called when events of interest occur
+while the webbrowse is attempting to start or contact the browser.
+
+<P>
+
+This function is implemented by sending the message
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseSET_NOTIFY"><CODE>vwebbrowseSET_NOTIFY</CODE></A></CODE> to <SAMP>browser</SAMP>
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseSetProcessNotify"><HR><H4>vwebbrowseSetProcessNotify</H4></A>
+<PRE>
+        void <B>vwebbrowseSetProcessNotify</B>(
+                vwebbrowseProcess * browserProcess,
+                vwebbrowseProcessNoteProc noteProc);
+</PRE>
+
+<DL><DD>
+Called when events of interest occur
+while the webbrowse process is attempting to start or contact the browser.
+This function is implemented by sending
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseSET_PROCESS_NOTIFY"><CODE>vwebbrowseSET_PROCESS_NOTIFY</CODE></A></CODE> to
+<SAMP>browserProcess</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseSetProcessOwned"><HR><H4>vwebbrowseSetProcessOwned</H4></A>
+<PRE>
+        void <B>vwebbrowseSetProcessOwned</B>(
+                vwebbrowse * browser,
+                vwebbrowseProcess * process);
+</PRE>
+
+<DL><DD>
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseProcess"><CODE>vwebbrowseProcess</CODE></A></CODE> subclasses handle browser specific
+process issues, such as detecting for running browsers, or starting new
+ones.
+
+<P>
+
+This function is implemented by sending the message
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseSET_PROCESS_OWNED"><CODE>vwebbrowseSET_PROCESS_OWNED</CODE></A></CODE> to <SAMP>browser</SAMP>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseSetProcessStartupURL"><HR><H4>vwebbrowseSetProcessStartupURL</H4></A>
+<PRE>
+        void <B>vwebbrowseSetProcessStartupURL</B>(
+                vwebbrowseProcess * browserProcess,
+                vurl * url);
+</PRE>
+
+<DL><DD>
+This is the initial URL to be loaded by the browser when
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseStartProcess"><CODE>vwebbrowseStartProcess</CODE></A></CODE> is called. For browsers and
+platforms where program arguments are supported, this URL usually
+becomes part of the arguments passed at startup. 
+This function is implemented by sending the message
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseSET_PROCESS_STARTUP_URL"><CODE>vwebbrowseSET_PROCESS_STARTUP_URL</CODE></A></CODE> to <SAMP>browserProcess</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseSetProcessWebbrowse"><HR><H4>vwebbrowseSetProcessWebbrowse</H4></A>
+<PRE>
+        void <B>vwebbrowseSetProcessWebbrowse</B>(
+                vwebbrowseProcess * browserProcess,
+                vwebbrowse * browser);
+</PRE>
+
+<DL><DD>
+Sets the <CODE>vwebbrowse</CODE> instance using this
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseProcess"><CODE>vwebbrowseProcess</CODE></A></CODE> instance.
+
+<P>
+
+This function is implemented by sending the message
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseSET_PROCESS_WEBBROWSE"><CODE>vwebbrowseSET_PROCESS_WEBBROWSE</CODE></A></CODE> to
+<SAMP>browserProcess</SAMP>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseStart"><HR><H4>vwebbrowseStart</H4></A>
+<PRE>
+        vbool <B>vwebbrowseStart</B>(
+                vwebbrowse * browser,
+                vurl * url);
+</PRE>
+
+<DL><DD>
+This function first sets the startup URL of the webbrowse process with
+a call to <CODE>vwebbrowseProcesss::SetStartupURL</CODE>. It then
+calls <CODE><A HREF="vwebbrowse-x.html#vwebbrowseProcess"><CODE>vwebbrowseProcess</CODE></A></CODE> to start the process.
+
+<P>
+
+This function searches the file system for the browser executable
+using platform-specific means such as the PATH environment variable
+or the Registry. If it cannot find the executable, it will query the
+user as to its location.
+
+<P>
+
+This function is implemented by sending the message
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseSTART"><CODE>vwebbrowseSTART</CODE></A></CODE> to <SAMP>browser</SAMP>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseStartExplorerProcess"><HR><H4>vwebbrowseStartExplorerProcess</H4></A>
+<PRE>
+        vbool <B>vwebbrowseStartExplorerProcess</B>(
+                vwebbrowseExplorerProcess * browserProcess);
+</PRE>
+
+<DL><DD>
+If the webbrowse process cannot located the executable it will query
+the user for one.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseStartNetscapeProcess"><HR><H4>vwebbrowseStartNetscapeProcess</H4></A>
+<PRE>
+        vbool <B>vwebbrowseStartNetscapeProcess</B>(
+                vwebbrowseNetscapeProcess * browserProcess);
+</PRE>
+
+<DL><DD>
+
+If the webbrowse process cannot located the executable it will query
+the user for one.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseStartProcess"><HR><H4>vwebbrowseStartProcess</H4></A>
+<PRE>
+        vbool <B>vwebbrowseStartProcess</B>(
+                vwebbrowseProcess * browserProcess);
+</PRE>
+
+<DL><DD>
+
+Sets the startup URL to be the first argument to the process and calls
+the superclass implementation of <CODE><A HREF="vprocess-x.html#vprocessSTART"><CODE>vprocessSTART</CODE></A></CODE>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseStartup"><HR><H4>vwebbrowseStartup</H4></A>
+<PRE>
+        void <B>vwebbrowseStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the webbrowse class.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseStartupDefault"><HR><H4>vwebbrowseStartupDefault</H4></A>
+<PRE>
+        void <B>vwebbrowseStartupDefault</B>();
+</PRE>
+
+<DL><DD>
+Initializes the webbrowseDefault class.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseStartupExplorer"><HR><H4>vwebbrowseStartupExplorer</H4></A>
+<PRE>
+        void <B>vwebbrowseStartupExplorer</B>();
+</PRE>
+
+<DL><DD>
+Initializes the webbrowseExplorer class.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseStartupNetscape"><HR><H4>vwebbrowseStartupNetscape</H4></A>
+<PRE>
+        void <B>vwebbrowseStartupNetscape</B>();
+</PRE>
+
+<DL><DD>
+Initializes the webbrowseNetscape class.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseStartupProcess"><HR><H4>vwebbrowseStartupProcess</H4></A>
+<PRE>
+        void <B>vwebbrowseStartupProcess</B>();
+</PRE>
+
+<DL><DD>
+Initializes the webbrowseProcess class.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vwebbrowseGOTO_URL"><HR><H4>vwebbrowseGOTO_URL</H4></A>
+<PRE>
+        &lt;<B>vwebbrowseGOTO_URL</B>&gt;
+</PRE>
+
+<DL><DD>
+This message is not implemented in this abstract base class.
+Subclasses of <CODE>vwebbrowse</CODE> must override this message to
+contact the browser in a browser-specific 
+(and sometimes platform-specific) manner.
+
+<P>
+
+This call will normally result in a call to
+<CODE>vwebbrowseProcessGetState</CODE> to determine if a browser
+process is running. If one is not running, this message will call
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseStart"><CODE>vwebbrowseStart</CODE></A></CODE>; otherwise, it will attempt to
+communicate the command to load the given URL to the browser. If
+this communication is successful, this call returns <CODE>vTRUE</CODE>
+regardless of whether or not the browser can successfully load the
+URL.
+
+<P>
+
+These semantics are more consistent because it is not always
+possible or desirable to determine the success of loading the URL
+if, for instance, it takes a long time. Unsuccessful loads may be
+reported asynchronously through the observation procedure.
+
+<P>
+
+Users may prefer that the browser to raise to the top of the window
+when it switches URLs. This feature is controlled through the
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseSetAutoRaise"><CODE>vwebbrowseSetAutoRaise</CODE></A></CODE> message. If the webbrowse is set
+to automatically raise the browser, the raise command may either be
+encoded into the command to load the URL, or may be sent as a separate
+command.  When sent as a separate command, this message should call
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseRaise"><CODE>vwebbrowseRaise</CODE></A></CODE>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseNOTIFY"><HR><H4>vwebbrowseNOTIFY</H4></A>
+<PRE>
+        &lt;<B>vwebbrowseNOTIFY</B>&gt;
+</PRE>
+
+<DL><DD>
+Calling this message results in the the notification procedure being
+called with the supplied event.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseNOTIFY_PROCESS"><HR><H4>vwebbrowseNOTIFY_PROCESS</H4></A>
+<PRE>
+        &lt;<B>vwebbrowseNOTIFY_PROCESS</B>&gt;
+</PRE>
+
+<DL><DD>
+Results in the the notification procedure being called with the supplied event.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseRAISE"><HR><H4>vwebbrowseRAISE</H4></A>
+<PRE>
+        &lt;<B>vwebbrowseRAISE</B>&gt;
+</PRE>
+
+<DL><DD>
+This is usually accomplished by a command transmitted to the
+browser.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseSET_AUTO_RAISE"><HR><H4>vwebbrowseSET_AUTO_RAISE</H4></A>
+<PRE>
+        &lt;<B>vwebbrowseSET_AUTO_RAISE</B>&gt;
+</PRE>
+
+<DL><DD>
+Calling this message with <CODE>vTRUE</CODE> will cause the webbrowse
+to attempt to raise the browser window as part of calls to
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseGotoURL"><CODE>vwebbrowseGotoURL</CODE></A><CODE>. Calling this message with
+<CODE>vFALSE</CODE> disables this feature.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseSET_NAME_SCRIBED"><HR><H4>vwebbrowseSET_NAME_SCRIBED</H4></A>
+<PRE>
+        &lt;<B>vwebbrowseSET_NAME_SCRIBED</B>&gt;
+</PRE>
+
+<DL><DD>
+This name is used when searching for running processes or when
+starting new browsers. For example, on the Windows platforms, the
+Netscape browser name is "netscape.exe".
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseSET_NOTIFY"><HR><H4>vwebbrowseSET_NOTIFY</H4></A>
+<PRE>
+        &lt;<B>vwebbrowseSET_NOTIFY</B>&gt;
+</PRE>
+
+<DL><DD>
+The notify procedure is called when events of interest occur
+while the webbrowse is attempting to start or contact the browser.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseSET_PROCESS_NOTIFY"><HR><H4>vwebbrowseSET_PROCESS_NOTIFY</H4></A>
+<PRE>
+        &lt;<B>vwebbrowseSET_PROCESS_NOTIFY</B>&gt;
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseSET_PROCESS_OWNED"><HR><H4>vwebbrowseSET_PROCESS_OWNED</H4></A>
+<PRE>
+        &lt;<B>vwebbrowseSET_PROCESS_OWNED</B>&gt;
+</PRE>
+
+<DL><DD>
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseProcess"><CODE>vwebbrowseProcess</CODE></A></CODE> subclasses handle browser-specific
+process issues, such as detecting running browsers, or starting new
+ones.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseSET_PROCESS_STARTUP_URL"><HR><H4>vwebbrowseSET_PROCESS_STARTUP_URL</H4></A>
+<PRE>
+        &lt;<B>vwebbrowseSET_PROCESS_STARTUP_URL</B>&gt;
+</PRE>
+
+<DL><DD>
+This is the initial URL to be loaded by the browser when
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseStartProcess"><CODE>vwebbrowseStartProcess</CODE></A></CODE> is called. For browsers and
+platforms where program arguments are supported, this URL usually
+becomes part of the arguments passed at startup.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseSET_PROCESS_WEBBROWSE"><HR><H4>vwebbrowseSET_PROCESS_WEBBROWSE</H4></A>
+<PRE>
+        &lt;<B>vwebbrowseSET_PROCESS_WEBBROWSE</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the <CODE>vwebbrowse</CODE> instance using this
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseProcess"><CODE>vwebbrowseProcess</CODE></A></CODE> instance.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseSTART"><HR><H4>vwebbrowseSTART</H4></A>
+<PRE>
+        &lt;<B>vwebbrowseSTART</B>&gt;
+</PRE>
+
+<DL><DD>
+This message first sets the startup URL of the webbrowse process with
+a call to <CODE>vwebbrowseProcesss::SetStartupURL</CODE>. It then
+calls <CODE><A HREF="vwebbrowse-x.html#vwebbrowseProcess"><CODE>vwebbrowseProcess</CODE></A></CODE> to start the process.
+<P>
+
+This message searches the file system for the browser executable
+using platform specific means such as the PATH environment variable
+or the Registry. If it cannot find the executable, it will query the
+user as to its location.
+
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vwebbrowseEventCANNOT_CONTACT"><HR><H4>vwebbrowseEventCANNOT_CONTACT</H4></A>
+<PRE>
+        <B>vwebbrowseEventCANNOT_CONTACT</B>
+</PRE>
+
+<DL><DD>
+This message is not generated currently by any of the supplied classes.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseEventCANNOT_LAUNCH"><HR><H4>vwebbrowseEventCANNOT_LAUNCH</H4></A>
+<PRE>
+        <B>vwebbrowseEventCANNOT_LAUNCH</B>
+</PRE>
+
+<DL><DD>
+This message is passed to the webbrowse notify procedure if the
+browser cannot be launched for some reason.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseEventGOTO_URL_FAILURE"><HR><H4>vwebbrowseEventGOTO_URL_FAILURE</H4></A>
+<PRE>
+        <B>vwebbrowseEventGOTO_URL_FAILURE</B>
+</PRE>
+
+<DL><DD>
+This message is passed to the webbrowse notify procedure if the
+browser failed to change to the URL passed in the most recent call
+to <CODE>vbrowserGotoURL</CODE>.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseEventGOTO_URL_SUCCESS"><HR><H4>vwebbrowseEventGOTO_URL_SUCCESS</H4></A>
+<PRE>
+        <B>vwebbrowseEventGOTO_URL_SUCCESS</B>
+</PRE>
+
+<DL><DD>
+
+This message does not guarantee that the URL will load properly.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseEventNEXT_EVENT"><HR><H4>vwebbrowseEventNEXT_EVENT</H4></A>
+<PRE>
+        <B>vwebbrowseEventNEXT_EVENT</B>
+</PRE>
+
+<DL><DD>
+Custom subclasses which add additional <CODE>vwebbrowseEvent</CODE>s
+should create a new enumerated type and use this constant as the
+intial value of the new type.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseINCLUDED"><HR><H4>vwebbrowseINCLUDED</H4></A>
+<PRE>
+        <B>vwebbrowseINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vwebbrowse.h</SAMP> is
+included.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseProcessEventCANNOT_START"><HR><H4>vwebbrowseProcessEventCANNOT_START</H4></A>
+<PRE>
+        <B>vwebbrowseProcessEventCANNOT_START</B>
+</PRE>
+
+<DL><DD>
+This message is passed to the webbrowse process notify procedure if
+the browser process could not be successfully started.
+</DD></DL>
+<P>
+<A NAME="vwebbrowseProcessEventNEXT_EVENT"><HR><H4>vwebbrowseProcessEventNEXT_EVENT</H4></A>
+<PRE>
+        <B>vwebbrowseProcessEventNEXT_EVENT</B>
+</PRE>
+
+<DL><DD>
+Custom subclasses which add additional <CODE>vwebbrowseProcessEvent</CODE>s
+should create a new enumerated type and use this constant as the
+intial value of the new type.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseProcessEventSTARTED"><HR><H4>vwebbrowseProcessEventSTARTED</H4></A>
+<PRE>
+        <B>vwebbrowseProcessEventSTARTED</B>
+</PRE>
+
+<DL><DD>
+This message is passed to the webbrowse process notify procedure if
+the webbrowse process is successfully started.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vwebbrowseCLASS"><HR><H4>vwebbrowseCLASS</H4></A>
+<PRE>
+        #define <B>vwebbrowseCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+
+This macro contains the method declarations for the webbrowse
+class, this macro expands to the contexts of <CODE><A HREF="vtree-x.html#vtreeClass"><CODE>vtreeClass</CODE></A></CODE>.
+<SAMP>SUPER<\SAMP> is the type identifier of the class being
+declared. This type is used by the class subclasses to refer to
+it. <SAMP>ITERATOR</SAMP> is the type identifier of the instances of
+the class being declared. This macro should be used by webbrowse
+subclasses to declare the contents of the webbrowse class. This
+macro should come first in the subclass structure declaration.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseDefaultCLASS"><HR><H4>vwebbrowseDefaultCLASS</H4></A>
+<PRE>
+        #define <B>vwebbrowseDefaultCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+
+This macro contains the method declarations for the webbrowseDefault
+class, this macro expands to the contexts of
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseDefaultClass"><CODE>vwebbrowseDefaultClass</CODE></A></CODE>.  <SAMP>SUPER<\SAMP> is the type
+identifier of the class being declared. This type is used by the class
+subclasses to refer to it. <SAMP>BROWSER</SAMP> is the type identifier
+of the instances of the class being declared. This macro should be
+used by webbrowseDefault subclasses to declare the contents of the
+webbrowseDefault class. This macro should come first in the subclass
+structure declaration.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseExplorerCLASS"><HR><H4>vwebbrowseExplorerCLASS</H4></A>
+<PRE>
+        #define <B>vwebbrowseExplorerCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+
+This macro contains the method declarations for the webbrowseExplorer
+class, this macro expands to the contexts of
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseExplorerClass"><CODE>vwebbrowseExplorerClass</CODE></A></CODE>.  <SAMP>SUPER<\SAMP> is the type
+identifier of the class being declared. This type is used by the class
+subclasses to refer to it. <SAMP>BROWSER</SAMP> is the type identifier
+of the instances of the class being declared. This macro should be
+used by webbrowseExplorer subclasses to declare the contents of the
+webbrowseExplorer class. This macro should come first in the subclass
+structure declaration.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseExplorerProcessCLASS"><HR><H4>vwebbrowseExplorerProcessCLASS</H4></A>
+<PRE>
+        #define <B>vwebbrowseExplorerProcessCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+
+This macro contains the method declarations for the
+webbrowseExplorerProcess class, this macro expands to the contexts of
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseExplorerProcessClass"><CODE>vwebbrowseExplorerProcessClass</CODE></A></CODE>.  <SAMP>SUPER<\SAMP> is
+the type identifier of the class being declared. This type is used by
+the class subclasses to refer to it. <SAMP>PROCESS</SAMP> is the type
+identifier of the instances of the class being declared. This macro
+should be used by webbrowseExplorerProcess subclasses to declare the
+contents of the webbrowseExplorerProcess class. This macro should come
+first in the subclass structure declaration.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseNetscapeCLASS"><HR><H4>vwebbrowseNetscapeCLASS</H4></A>
+<PRE>
+        #define <B>vwebbrowseNetscapeCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+
+This macro contains the method declarations for the webbrowseNetscape
+class, this macro expands to the contexts of
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseNetscapeClass"><CODE>vwebbrowseNetscapeClass</CODE></A></CODE>.  <SAMP>SUPER<\SAMP> is the type
+identifier of the class being declared. This type is used by the class
+subclasses to refer to it. <SAMP>WEBBROWSENETSCAPE</SAMP> is the type
+identifier of the instances of the class being declared. This macro
+should be used by webbrowseNetscape subclasses to declare the contents
+of the webbrowseNetscape class. This macro should come first in the
+subclass structure declaration.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseNetscapeProcessCLASS"><HR><H4>vwebbrowseNetscapeProcessCLASS</H4></A>
+<PRE>
+        #define <B>vwebbrowseNetscapeProcessCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+
+This macro contains the method declarations for the
+webbrowseNetscapeProcess class, this macro expands to the contexts of
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseNetscapeProcessClass"><CODE>vwebbrowseNetscapeProcessClass</CODE></A></CODE>.  <SAMP>SUPER<\SAMP> is
+the type identifier of the class being declared. This type is used by
+the class subclasses to refer to it. <SAMP>PROCESS</SAMP> is the type
+identifier of the instances of the class being declared. This macro
+should be used by webbrowseNetscapeProcess subclasses to declare the
+contents of the webbrowseNetscapeProcess class. This macro should come
+first in the subclass structure declaration.
+
+</DD></DL>
+<P>
+<A NAME="vwebbrowseProcessCLASS"><HR><H4>vwebbrowseProcessCLASS</H4></A>
+<PRE>
+        #define <B>vwebbrowseProcessCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+
+This macro contains the method declarations for the webbrowseProcess
+class, this macro expands to the contexts of
+<CODE><A HREF="vwebbrowse-x.html#vwebbrowseProcessClass"><CODE>vwebbrowseProcessClass</CODE></A></CODE>.  <SAMP>SUPER<\SAMP> is the type
+identifier of the class being declared. This type is used by the class
+subclasses to refer to it. <SAMP>BROWSER</SAMP> is the type identifier
+of the instances of the class being declared. This macro should be
+used by webbrowseProcess subclasses to declare the contents of the
+webbrowseProcess class. This macro should come first in the subclass
+structure declaration.
+
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

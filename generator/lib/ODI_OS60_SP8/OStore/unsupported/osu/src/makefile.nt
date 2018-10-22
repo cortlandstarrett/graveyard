@@ -1,0 +1,67 @@
+#
+# Other variables.
+#
+SRC = osu_date.cc osu_datetime.cc  \
+      osu_monitor.cc osu_mutex.cc osu_page_observer.cc \
+      osu_sessmgt.cc osu_timer.cc osu_txn_observer.cc  \
+      osu_vector.cc osu_stream.cc 
+
+OBJS = $(SRC:.cc=.obj) OSUMonitor.obj
+
+CCC=cl
+DEBUG= /D_ODI_FORCE_OSTORE_LIB=1 /MD
+CPPFLAGS   = -nologo -ZI -DWIN32 -GX  /TP -I. -I../include $(DEBUG)
+#CPPFLAGS=/nologo /DWIN32 /W3 /Gm /GX /ZI /Od /YX /FD /TP /GZ /I /I..\include
+RELEASE=6
+
+.SUFFIXES: .cc .obj
+
+#
+# Targets
+#
+all: release install
+
+release:  osu$(RELEASE)mon.dll
+
+install:
+        del ..\\bin\\osu$(RELEASE)mon.dll
+	move osu$(RELEASE)mon.dll ..\\bin
+        del ..\\lib\\osu$(RELEASE)mon.lib
+	move osu$(RELEASE)mon.lib ..\\lib
+	
+debug: clean
+	nmake -f Makefile.nt dsu$(RELEASE)mon.dll DEBUG="/D_DEBUG /MDd"
+        del ..\\bin\\dsu$(RELEASE)mon.dll
+	move dsu$(RELEASE)mon.dll ..\\bin
+        del ..\\lib\\dsu$(RELEASE)mon.lib
+	move dsu$(RELEASE)mon.lib ..\\lib
+	
+#
+# Build .c files.
+#
+osu$(RELEASE)mon.dll: $(OBJS)
+#	link -nologo -dll /debug /machine:I386 /pdbtype:sept /out:$@ $(OBJS) wsock32.lib
+	link -nologo -dll -out:$@ $(OBJS) wsock32.lib
+
+
+dsu$(RELEASE)mon.dll: $(OBJS)
+	link -debug -nologo -dll -out:$@ $(OBJS) wsock32.lib
+
+
+.cc.obj:
+	$(CCC) $(CPPFLAGS) $(TFLAGS) -c $<
+
+OSUMonitor.obj: OSUMonitor.cpp
+	$(CCC) $(CPPFLAGS) $(TFlAGS) -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/win32 -c OSUMonitor.cpp
+
+#
+# Help deal with phony targets.
+#
+FORCE: ;
+
+#
+# Cleanliness.
+#
+clean:
+	-del *.obj *.pdb *.exp *.ilk
+

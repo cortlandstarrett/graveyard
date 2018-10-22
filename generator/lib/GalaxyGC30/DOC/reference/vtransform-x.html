@@ -1,0 +1,328 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vtransform prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vtransform prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vtransform-x.html#section_DataType">Types</A> [1]</TD>
+<TD><A HREF="vtransform-x.html#section_Function">Functions</A> [5]</TD>
+<TD></TD>
+<TD><A HREF="vtransform-x.html#section_Constant">Constants</A> [11]</TD>
+<TD></TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vtransform"><HR><H4>vtransform</H4></A>
+<PRE>
+        typedef ... <B>vtransform</B>;
+</PRE>
+
+<DL><DD>
+Represents a transformation matrix in fixed-point form,
+plus a set of flags that summarize the complexity of the
+transformation. The fixed-point elements correspond to
+matrix elements with the same name (refer to
+<CODE><A HREF="vmatrix-x.html#vmatrix"><CODE>vmatrix</CODE></A></CODE>). The structure members of a matrix
+are visible to clients of the Matrix Library but their
+particular representation is not. <SAMP>flags</SAMP>
+summarizes the complexity of the transformation and is the
+bitwise OR (<SAMP>|</SAMP>) of zero or more of the
+following constants:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><CODE>vtransformTRANSLATE_X</CODE>
+<DD><SAMP>tx!=0</SAMP>
+<DT><CODE>vtransformTRANSLATE_Y</CODE>
+<DD><SAMP>ty!=0</SAMP>
+<DT><CODE>vtransformTRANSLATE</CODE>
+<DD><SAMP>tx!=0 || ty!=0</SAMP>
+<DT><CODE>vtransformINVERT_X</CODE>
+<DD><SAMP>a<0</SAMP>
+<DT><CODE>vtransformINVERT_Y</CODE>
+<DD><SAMP>d<0</SAMP>
+<DT><CODE>vtransformINVERT</CODE>
+<DD><SAMP>a<0 || d<0</SAMP>
+<DT><CODE>vtransformSCALE_X</CODE>
+<DD><SAMP>abs(a)!=1</SAMP>
+<DT><CODE>vtransformSCALE_Y</CODE>
+<DD><SAMP>abs(d)!=1</SAMP>
+<DT><CODE>vtransformSCALE</CODE>
+<DD><SAMP>abs(a)!=1 || abs(d)!=1</SAMP>
+<DT><CODE>vtransformROTATE</CODE>
+<DD><SAMP>b!=0 || c!=0</SAMP>
+</DL>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vtransformFromMatrix"><HR><H4>vtransformFromMatrix</H4></A>
+<PRE>
+        void <B>vtransformFromMatrix</B>(
+                const vmatrix * mtx,
+                vtransform * transform);
+</PRE>
+
+<DL><DD>
+Converts the matrix <SAMP>mtx</SAMP> to fixed-point form
+and stores the result in the transformation
+<SAMP>transform</SAMP>. This function also sets the flags
+of the transformation <SAMP>transform</SAMP> according to
+the complexity of the transformation.
+</DD></DL>
+<P>
+<A NAME="vtransformIdent"><HR><H4>vtransformIdent</H4></A>
+<PRE>
+        const vtransform * <B>vtransformIdent</B>();
+</PRE>
+
+<DL><DD>
+Returns a pointer to the identity transformation. This
+pointer is valid throughout the lifetime of the process.
+The contents of this transformation should not be modified.
+</DD></DL>
+<P>
+<A NAME="vtransformInvert"><HR><H4>vtransformInvert</H4></A>
+<PRE>
+        void <B>vtransformInvert</B>(
+                const vtransform * transform,
+                vtransform * rtransform);
+</PRE>
+
+<DL><DD>
+Computes the inverse of the transformation
+<SAMP>transform</SAMP>. Returns the inverted transformation
+in <SAMP>rtransform</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vtransformRound"><HR><H4>vtransformRound</H4></A>
+<PRE>
+        void <B>vtransformRound</B>(
+                const vtransform * transform,
+                vtransform * rtransform);
+</PRE>
+
+<DL><DD>
+Removes any scaling from the transformation
+<SAMP>transform</SAMP>. Returns the rounded transformation
+in <SAMP>rtransform</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vtransformToMatrix"><HR><H4>vtransformToMatrix</H4></A>
+<PRE>
+        void <B>vtransformToMatrix</B>(
+                const vtransform * transform,
+                vmatrix * mtx);
+</PRE>
+
+<DL><DD>
+Converts the transformation <SAMP>transform</SAMP> to
+floating-point form and stores the result in
+<SAMP>mtx</SAMP>.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vtransformINCLUDED"><HR><H4>vtransformINCLUDED</H4></A>
+<PRE>
+        <B>vtransformINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vtransform.h</SAMP> is
+included.
+</DD></DL>
+<P>
+<A NAME="vtransformINVERT"><HR><H4>vtransformINVERT</H4></A>
+<PRE>
+        <B>vtransformINVERT</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vtransformINVERT_X"><HR><H4>vtransformINVERT_X</H4></A>
+<PRE>
+        <B>vtransformINVERT_X</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vtransformINVERT_Y"><HR><H4>vtransformINVERT_Y</H4></A>
+<PRE>
+        <B>vtransformINVERT_Y</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vtransformROTATE"><HR><H4>vtransformROTATE</H4></A>
+<PRE>
+        <B>vtransformROTATE</B>
+</PRE>
+
+<DL><DD>
+These constants are stored in the <SAMP>flags</SAMP> member
+of a <CODE>vtransform</CODE> structure and summarize the
+complexity of the transformation contained in the other
+members of the <CODE>vtransform</CODE> structure. Zero of
+more of these constants are bitwise ORed (<SAMP>|</SAMP>)
+together to represent a transformation complexity summary.
+These constants have integral type (refer to
+<CODE>vtransform</CODE> for more information).
+</DD></DL>
+<P>
+<A NAME="vtransformSCALE"><HR><H4>vtransformSCALE</H4></A>
+<PRE>
+        <B>vtransformSCALE</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vtransformSCALE_X"><HR><H4>vtransformSCALE_X</H4></A>
+<PRE>
+        <B>vtransformSCALE_X</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vtransformSCALE_Y"><HR><H4>vtransformSCALE_Y</H4></A>
+<PRE>
+        <B>vtransformSCALE_Y</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vtransformTRANSLATE"><HR><H4>vtransformTRANSLATE</H4></A>
+<PRE>
+        <B>vtransformTRANSLATE</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vtransformTRANSLATE_X"><HR><H4>vtransformTRANSLATE_X</H4></A>
+<PRE>
+        <B>vtransformTRANSLATE_X</B>
+</PRE>
+
+<DL><DD>
+These constants are stored in the <SAMP>flags</SAMP> member
+of a <CODE>vtransform</CODE> structure and summarize the
+complexity of the transformation contained in the other
+members of the <CODE>vtransform</CODE> structure. Zero of
+more of these constants are bitwise ORed (<SAMP>|</SAMP>)
+together to represent a transformation complexity summary.
+These constants have integral type (refer to
+<CODE>vtransform</CODE> for more information).
+</DD></DL>
+<P>
+<A NAME="vtransformTRANSLATE_Y"><HR><H4>vtransformTRANSLATE_Y</H4></A>
+<PRE>
+        <B>vtransformTRANSLATE_Y</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

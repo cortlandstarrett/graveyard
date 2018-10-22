@@ -1,0 +1,742 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vsignature prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vsignature prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vsignature-x.html#section_DataType">Types</A> [3]</TD>
+<TD><A HREF="vsignature-x.html#section_Function">Functions</A> [41]</TD>
+<TD></TD>
+<TD><A HREF="vsignature-x.html#section_Constant">Constants</A> [2]</TD>
+<TD></TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vsignature"><HR><H4>vsignature</H4></A>
+<PRE>
+        typedef ... <B>vsignature</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to represent a DAS
+signature. A signature is an object that contains the
+information needed to invoke a DAS primitive on a service.
+A <CODE>vsignature</CODE> contains the name of the
+primitive, a datatag object that describes the primitive
+return value, and a list of datatag objects which describe
+the arguments to the primitive. Signatures can be created
+dynamically with <CODE><A HREF="vsignature-x.html#vsignatureCreate"><CODE>vsignatureCreate</CODE></A></CODE>, or
+initialized statically with <CODE><A HREF="vsignature-x.html#vsignatureInit"><CODE>vsignatureInit</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsignatureGroup"><HR><H4>vsignatureGroup</H4></A>
+<PRE>
+        typedef ... <B>vsignatureGroup</B>;
+</PRE>
+
+<DL><DD>
+Represents a named collection of DAS signatures.
+A signature group is an object that contains an unordered
+collection of signature objects. A <CODE>vsignatureGroup</CODE>
+contains the name of the signature group and a collection of
+signature objects. Signature groups can be created dynamically
+with <CODE><A HREF="vsignature-x.html#vsignatureCreateGroup"><CODE>vsignatureCreateGroup</CODE></A></CODE>, or initialized statically
+with <CODE><A HREF="vsignature-x.html#vsignatureInitGroup"><CODE>vsignatureInitGroup</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsignatureGroupIterator"><HR><H4>vsignatureGroupIterator</H4></A>
+<PRE>
+        typedef ... <B>vsignatureGroupIterator</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to represent the state of
+iteration over a signature group. Signature group iterators
+can be statically initialized using
+<CODE><A HREF="vsignature-x.html#vsignatureInitGroupIterator"><CODE>vsignatureInitGroupIterator</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vsignatureAddToGroup"><HR><H4>vsignatureAddToGroup</H4></A>
+<PRE>
+        void <B>vsignatureAddToGroup</B>(
+                vsignatureGroup * group,
+                vsignature * sig);
+</PRE>
+
+<DL><DD>
+Adds the signature <CODE>sig</CODE> to the signature group
+<CODE>group</CODE>, transferring ownership of the signature
+to the group.
+</DD></DL>
+<P>
+<A NAME="vsignatureAppendDatatag"><HR><H4>vsignatureAppendDatatag</H4></A>
+<PRE>
+        void <B>vsignatureAppendDatatag</B>(
+                vsignature * signature,
+                vdatatag * datatag);
+</PRE>
+
+<DL><DD>
+Appends the datatag <SAMP>datatag</SAMP> to the end of the
+argument list of the signature <SAMP>signature</SAMP>.
+Datatags are shared, so <SAMP>datatag</SAMP> is not
+destroyed when <SAMP>signature</SAMP> is destroyed.
+</DD></DL>
+<P>
+<A NAME="vsignatureClone"><HR><H4>vsignatureClone</H4></A>
+<PRE>
+        vsignature * <B>vsignatureClone</B>(
+                vsignature * signature);
+</PRE>
+
+<DL><DD>
+Creates a copy of the signature <SAMP>signature</SAMP> and
+returns a pointer to its contents. Space for the signature
+is allocated dynamically based on the object size of the
+signature. The signature to be cloned can be dynamic or
+static. This function essentially allocates space for a new
+instance and calls <CODE><A HREF="vsignature-x.html#vsignatureCopyInit"><CODE>vsignatureCopyInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vsignatureConstructArgs"><HR><H4>vsignatureConstructArgs</H4></A>
+<PRE>
+        void <B>vsignatureConstructArgs</B>(
+                vsignature * signature,
+                ... arg2);
+</PRE>
+
+<DL><DD>
+Stores a list of datatags in the argument list of the
+signature <SAMP>signature</SAMP>. The parameters after
+signature are all <SAMP>vdatatag *</SAMP> variables,
+terminated with a <SAMP>NULL</SAMP>. This function is
+equivalent to calling <CODE><A HREF="vsignature-x.html#vsignatureAppendDatatag"><CODE>vsignatureAppendDatatag</CODE></A></CODE>
+for each datatag in the argument list.
+</DD></DL>
+<P>
+<A NAME="vsignatureCopy"><HR><H4>vsignatureCopy</H4></A>
+<PRE>
+        void <B>vsignatureCopy</B>(
+                vsignature * src,
+                vsignature * dst);
+</PRE>
+
+<DL><DD>
+Copies the contents of the signature <SAMP>src</SAMP> into
+the signature <SAMP>dst</SAMP>. Since datatags are shared,
+references to datatags are copied from <SAMP>src</SAMP> to
+<SAMP>dst</SAMP> rather than from the datatags themselves.
+</DD></DL>
+<P>
+<A NAME="vsignatureCopyInit"><HR><H4>vsignatureCopyInit</H4></A>
+<PRE>
+        void <B>vsignatureCopyInit</B>(
+                vsignature * src,
+                vsignature * dst);
+</PRE>
+
+<DL><DD>
+Copies the contents of the signature <SAMP>src</SAMP> into
+the uninitialized memory addressed by <SAMP>dst</SAMP>.
+Since datatags are shared, references to datatags are
+copied from <SAMP>src</SAMP> to <SAMP>dst</SAMP> rather
+than from the datatags themselves.
+</DD></DL>
+<P>
+<A NAME="vsignatureCreate"><HR><H4>vsignatureCreate</H4></A>
+<PRE>
+        vsignature * <B>vsignatureCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates an instance of a signature and returns a pointer to
+its contents. Any storage occupied by the signature is
+reclaimed when it is destroyed with
+<CODE><A HREF="vsignature-x.html#vsignatureDestroy"><CODE>vsignatureDestroy</CODE></A></CODE>. This function essentially
+allocates space for a new signature and calls
+<CODE><A HREF="vsignature-x.html#vsignatureInit"><CODE>vsignatureInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vsignatureCreateGroup"><HR><H4>vsignatureCreateGroup</H4></A>
+<PRE>
+        vsignatureGroup * <B>vsignatureCreateGroup</B>();
+</PRE>
+
+<DL><DD>
+Creates an instance of a signature group and returns a pointer
+to its contents. Any storage occupied by the signature group
+is reclaimed when it is destroyed with
+<CODE><A HREF="vsignature-x.html#vsignatureDestroyGroup"><CODE>vsignatureDestroyGroup</CODE></A></CODE>. This function essentially
+allocates space for a new signature group and calls
+<CODE><A HREF="vsignature-x.html#vsignatureInitGroup"><CODE>vsignatureInitGroup</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vsignatureDeleteDatatagAt"><HR><H4>vsignatureDeleteDatatagAt</H4></A>
+<PRE>
+        void <B>vsignatureDeleteDatatagAt</B>(
+                vsignature * signature,
+                unsigned int index);
+</PRE>
+
+<DL><DD>
+Removes the datatag at position <SAMP>index</SAMP> in the
+argument datatag list of the signature
+<SAMP>signature</SAMP>. Datatags in the argument list are
+numbered from <SAMP>zero</SAMP> to the number of datatags
+in the argument list minus one. This function may change
+the indices for other datatags in the list.
+</DD></DL>
+<P>
+<A NAME="vsignatureDestroy"><HR><H4>vsignatureDestroy</H4></A>
+<PRE>
+        void <B>vsignatureDestroy</B>(
+                vsignature * signature);
+</PRE>
+
+<DL><DD>
+Destroys the signature <SAMP>signature</SAMP>, which must
+have been created or initialized by a signature function.
+Since datatags are shared, any datatags referenced by
+<SAMP>signature</SAMP> are not destroyed.
+</DD></DL>
+<P>
+<A NAME="vsignatureDestroyGroup"><HR><H4>vsignatureDestroyGroup</H4></A>
+<PRE>
+        void <B>vsignatureDestroyGroup</B>(
+                vsignatureGroup * group);
+</PRE>
+
+<DL><DD>
+Destroys the signature group <SAMP>group</SAMP>, which must
+have been created or initialized by a signature group
+function. Any signatures referenced by <SAMP>group</SAMP>
+are destroyed.
+</DD></DL>
+<P>
+<A NAME="vsignatureDestroyGroupIterator"><HR><H4>vsignatureDestroyGroupIterator</H4></A>
+<PRE>
+        void <B>vsignatureDestroyGroupIterator</B>(
+                vsignatureGroupIterator * iter);
+</PRE>
+
+<DL><DD>
+Terminates the iteration represented by a signature group
+iterator, even if it is not yet exhausted. This function is
+necessary to reclaim any internal iteration objects allocated
+by the Signature class.
+</DD></DL>
+<P>
+<A NAME="vsignatureDump"><HR><H4>vsignatureDump</H4></A>
+<PRE>
+        void <B>vsignatureDump</B>(
+                vsignature * signature,
+                FILE * stream);
+</PRE>
+
+<DL><DD>
+Prints the contents of the signature <SAMP>signature</SAMP>
+to the file <SAMP>stream</SAMP> in user-readable form. This
+function is intended for debugging and should not be used
+to store the contents of the signature in recoverable form.
+It is implemented by calling <CODE>vdatatagDump</CODE> on
+each datatag referenced by the signature.
+</DD></DL>
+<P>
+<A NAME="vsignatureDumpGroup"><HR><H4>vsignatureDumpGroup</H4></A>
+<PRE>
+        void <B>vsignatureDumpGroup</B>(
+                vsignatureGroup * group,
+                FILE * file);
+</PRE>
+
+<DL><DD>
+Prints the contents of the signature group <SAMP>group</SAMP>
+to the file <SAMP>file</SAMP> in user-readable form. This
+function is intended for debugging and should not be used
+to store the contents of the signature group in recoverable form.
+It is implemented by calling <CODE>vsignatureDump</CODE> on
+each signature referenced by the group.
+</DD></DL>
+<P>
+<A NAME="vsignatureFindGroup"><HR><H4>vsignatureFindGroup</H4></A>
+<PRE>
+        vsignatureGroup * <B>vsignatureFindGroup</B>(
+                const vname * name);
+</PRE>
+
+<DL><DD>
+Looks up a signature group according to the name <CODE>name</CODE>.
+If no signature group exists with that name the function returns
+<CODE>NULL</CODE>.
+</DD></DL>
+<P>
+<A NAME="vsignatureGetDatatagAt"><HR><H4>vsignatureGetDatatagAt</H4></A>
+<PRE>
+        vdatatag * <B>vsignatureGetDatatagAt</B>(
+                vsignature * signature,
+                unsigned int index);
+</PRE>
+
+<DL><DD>
+Returns the datatag at position <SAMP>index</SAMP> in the
+argument list of the signature <SAMP>signature</SAMP>.
+Datatags in the argument list are numbered from
+<SAMP>zero</SAMP> to the number of datatags in the argument
+list minus one.
+</DD></DL>
+<P>
+<A NAME="vsignatureGetDatatagCount"><HR><H4>vsignatureGetDatatagCount</H4></A>
+<PRE>
+        unsigned int <B>vsignatureGetDatatagCount</B>(
+                vsignature * signature);
+</PRE>
+
+<DL><DD>
+Returns the number of datatags in the argument list of the
+signature <SAMP>signature</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsignatureGetDatatagList"><HR><H4>vsignatureGetDatatagList</H4></A>
+<PRE>
+        vdatatagList * <B>vsignatureGetDatatagList</B>(
+                vsignature * signature);
+</PRE>
+
+<DL><DD>
+Returns a pointer to the datatag list used to store the
+arguments to the signature <SAMP>signature</SAMP>. Datatag
+list functions can be called with this pointer as an
+argument. The list is owned by <SAMP>signature</SAMP> and
+therefore, should not be destroyed externally.
+</DD></DL>
+<P>
+<A NAME="vsignatureGetGroupIteratorName"><HR><H4>vsignatureGetGroupIteratorName</H4></A>
+<PRE>
+        const vname * <B>vsignatureGetGroupIteratorName</B>(
+                vsignatureGroupIterator * iter);
+</PRE>
+
+<DL><DD>
+Returns the name of the signature at the current state of iteration
+represented by <CODE>iter</CODE>.
+</DD></DL>
+<P>
+<A NAME="vsignatureGetGroupIteratorSignature"><HR><H4>vsignatureGetGroupIteratorSignature</H4></A>
+<PRE>
+        vsignature * <B>vsignatureGetGroupIteratorSignature</B>(
+                vsignatureGroupIterator * iter);
+</PRE>
+
+<DL><DD>
+Returns the signature at the current state of iteration
+represented by <CODE>iter</CODE>.
+</DD></DL>
+<P>
+<A NAME="vsignatureGetGroupName"><HR><H4>vsignatureGetGroupName</H4></A>
+<PRE>
+        const vname * <B>vsignatureGetGroupName</B>(
+                vsignatureGroup * group);
+</PRE>
+
+<DL><DD>
+Returns the name of the signature group <CODE>group</CODE>, or
+<CODE>NULL</CODE> if the signature group name has not been set.
+</DD></DL>
+<P>
+<A NAME="vsignatureGetReturnDatatag"><HR><H4>vsignatureGetReturnDatatag</H4></A>
+<PRE>
+        vdatatag * <B>vsignatureGetReturnDatatag</B>(
+                vsignature * signature);
+</PRE>
+
+<DL><DD>
+Returns the datatag for the return value of the signature
+<SAMP>signature</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsignatureGetTag"><HR><H4>vsignatureGetTag</H4></A>
+<PRE>
+        const vname * <B>vsignatureGetTag</B>(
+                vsignature * signature);
+</PRE>
+
+<DL><DD>
+Returns the global name tag for signature
+<SAMP>signature</SAMP>. This tag name is the conceptual
+name of the primitive to which this signature refers.
+</DD></DL>
+<P>
+<A NAME="vsignatureInit"><HR><H4>vsignatureInit</H4></A>
+<PRE>
+        void <B>vsignatureInit</B>(
+                vsignature * signature);
+</PRE>
+
+<DL><DD>
+Initializes an instance of a signature in the memory
+referenced by <SAMP>signature</SAMP>. Any objects added
+internally are reclaimed when it is destroyed with
+<CODE><A HREF="vsignature-x.html#vsignatureDestroy"><CODE>vsignatureDestroy</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsignatureInitGroup"><HR><H4>vsignatureInitGroup</H4></A>
+<PRE>
+        void <B>vsignatureInitGroup</B>(
+                vsignatureGroup * group);
+</PRE>
+
+<DL><DD>
+Initializes an instance of a signature group in the memory
+referenced by <SAMP>group</SAMP>. Any objects added
+internally are reclaimed when it is destroyed with
+<CODE><A HREF="vsignature-x.html#vsignatureDestroyGroup"><CODE>vsignatureDestroyGroup</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsignatureInitGroupIterator"><HR><H4>vsignatureInitGroupIterator</H4></A>
+<PRE>
+        void <B>vsignatureInitGroupIterator</B>(
+                vsignatureGroupIterator * iter,
+                vsignatureGroup * group);
+</PRE>
+
+<DL><DD>
+Begins an iteration of all the elements of
+<SAMP>group</SAMP> by initializing the iterator object
+<SAMP>iter</SAMP>. The iterator initially contains no
+elements. <CODE><A HREF="vsignature-x.html#vsignatureNextGroupIterator"><CODE>vsignatureNextGroupIterator</CODE></A></CODE> must be
+called to obtain the first element signature, if any.
+</DD></DL>
+<P>
+<A NAME="vsignatureInsertDatatagAt"><HR><H4>vsignatureInsertDatatagAt</H4></A>
+<PRE>
+        void <B>vsignatureInsertDatatagAt</B>(
+                vsignature * signature,
+                vdatatag * datatag,
+                unsigned int index);
+</PRE>
+
+<DL><DD>
+Inserts the datatag <SAMP>datatag</SAMP> at position
+<SAMP>index</SAMP> in the argument list of the signature
+<SAMP>signature</SAMP>. Datatags in the argument list are
+numbered from <SAMP>zero</SAMP> to the number of datatags
+in the argument list minus one. This function may change
+the indices for other datatags in the list.
+</DD></DL>
+<P>
+<A NAME="vsignatureLoad"><HR><H4>vsignatureLoad</H4></A>
+<PRE>
+        vsignature * <B>vsignatureLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a signature from the resource <SAMP>resource</SAMP>
+and returns a pointer to its contents. Space for the
+signature is allocated dynamically based on the object size
+of the signature. This function essentially allocates space
+for a new instance and calls
+<CODE><A HREF="vsignature-x.html#vsignatureLoadInit"><CODE>vsignatureLoadInit</CODE></A></CODE> on it. Since datatags are
+shared, any datatags referenced by this signature must have
+been created or loaded prior to calling this function.
+</DD></DL>
+<P>
+<A NAME="vsignatureLoadGroup"><HR><H4>vsignatureLoadGroup</H4></A>
+<PRE>
+        vsignatureGroup * <B>vsignatureLoadGroup</B>(
+                vresource res);
+</PRE>
+
+<DL><DD>
+Reads a signature group from the resource <SAMP>res</SAMP>
+and returns a pointer to its contents. Space for the
+signature group is allocated dynamically, the group name is
+set to the name stored in the resource, and the group is
+populated with signatures loaded from the resource.
+</DD></DL>
+<P>
+<A NAME="vsignatureLoadInit"><HR><H4>vsignatureLoadInit</H4></A>
+<PRE>
+        void <B>vsignatureLoadInit</B>(
+                vsignature * signature,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a signature from the resource <SAMP>resource</SAMP>
+and initializes the signature in the memory referenced by
+<SAMP>signature</SAMP>. Since datatags are shared, any
+datatags referenced by this signature must have been
+created or loaded prior to calling this function.
+</DD></DL>
+<P>
+<A NAME="vsignatureLookupInGroup"><HR><H4>vsignatureLookupInGroup</H4></A>
+<PRE>
+        vsignature * <B>vsignatureLookupInGroup</B>(
+                vsignatureGroup * group,
+                const vname * name);
+</PRE>
+
+<DL><DD>
+Looks for a signature with name <CODE>name</CODE> in the signature
+group <CODE>group</CODE>. If there is no signature of the given
+name in the signature group the function returns <CODE>NULL</CODE>.
+</DD></DL>
+<P>
+<A NAME="vsignatureNextGroupIterator"><HR><H4>vsignatureNextGroupIterator</H4></A>
+<PRE>
+        int <B>vsignatureNextGroupIterator</B>(
+                vsignatureGroupIterator * iter);
+</PRE>
+
+<DL><DD>
+Performs the next step in the iteration represented by
+<SAMP>iter</SAMP> and returns <SAMP>TRUE</SAMP> if a
+signature is available, <SAMP>FALSE</SAMP> if not. The
+signature can be obtained from the iterator using
+<CODE><A HREF="vsignature-x.html#vsignatureGetGroupIteratorSignature"><CODE>vsignatureGetGroupIteratorSignature</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsignatureRemoveFromGroup"><HR><H4>vsignatureRemoveFromGroup</H4></A>
+<PRE>
+        vsignature * <B>vsignatureRemoveFromGroup</B>(
+                vsignatureGroup * group,
+                const vname * name);
+</PRE>
+
+<DL><DD>
+Removes the signature with name <CODE>name</CODE> from the signature
+group <CODE>group</CODE> and returns ownership of the signature to
+the user. If there is no signature of the given name in the group
+the function returns <CODE>NULL</CODE>.
+</DD></DL>
+<P>
+<A NAME="vsignatureSetDatatagAt"><HR><H4>vsignatureSetDatatagAt</H4></A>
+<PRE>
+        void <B>vsignatureSetDatatagAt</B>(
+                vsignature * signature,
+                unsigned int index,
+                vdatatag * datatag);
+</PRE>
+
+<DL><DD>
+Sets the datatag at position <SAMP>index</SAMP> in the
+argument list of the signature <SAMP>signature</SAMP> to
+the datatag <SAMP>datatag</SAMP>. Datatags in the argument
+list are numbered from <SAMP>zero</SAMP> to the number of
+datatags in the argument list minus one.
+</DD></DL>
+<P>
+<A NAME="vsignatureSetDatatagCount"><HR><H4>vsignatureSetDatatagCount</H4></A>
+<PRE>
+        void <B>vsignatureSetDatatagCount</B>(
+                vsignature * signature,
+                unsigned int count);
+</PRE>
+
+<DL><DD>
+Sets the number of datatags in the argument list of the
+signature <SAMP>signature</SAMP> to <SAMP>count</SAMP>.
+This function can be used to preallocate a range of
+datatags in the argument list of <SAMP>signature</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsignatureSetGroupName"><HR><H4>vsignatureSetGroupName</H4></A>
+<PRE>
+        void <B>vsignatureSetGroupName</B>(
+                vsignatureGroup * group,
+                const vname * name);
+</PRE>
+
+<DL><DD>
+Sets the name of the signature group <CODE>group</CODE> to the
+name <CODE>name</CODE>.
+</DD></DL>
+<P>
+<A NAME="vsignatureSetReturnDatatag"><HR><H4>vsignatureSetReturnDatatag</H4></A>
+<PRE>
+        void <B>vsignatureSetReturnDatatag</B>(
+                vsignature * signature,
+                vdatatag * datatag);
+</PRE>
+
+<DL><DD>
+Sets the return value datatag of the signature
+<SAMP>signature</SAMP> to <SAMP>datatag</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsignatureSetTag"><HR><H4>vsignatureSetTag</H4></A>
+<PRE>
+        void <B>vsignatureSetTag</B>(
+                vsignature * signature,
+                const vname * name);
+</PRE>
+
+<DL><DD>
+Sets the global name tag for the signature
+<SAMP>signature</SAMP> to the name <SAMP>name</SAMP>. This
+name is the conceptual name of the primitive to which this
+signature refers.
+</DD></DL>
+<P>
+<A NAME="vsignatureStartup"><HR><H4>vsignatureStartup</H4></A>
+<PRE>
+        void <B>vsignatureStartup</B>();
+</PRE>
+
+<DL><DD>
+This function explicitly initializes the entire Signature
+class. Most applications need not call this function, as
+the Signature class is self-initializing. Only those
+applications with strict concerns about module startup
+ordering and resource usage need be concerned with this
+function.
+</DD></DL>
+<P>
+<A NAME="vsignatureStore"><HR><H4>vsignatureStore</H4></A>
+<PRE>
+        void <B>vsignatureStore</B>(
+                vsignature * signature,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Stores the contents of the signature <SAMP>signature</SAMP>
+into the resource <SAMP>resource</SAMP>. Since datatags are
+shared, any datatags referenced by <SAMP>signature</SAMP>
+must have been registered with a datatag group prior to
+calling this function.
+</DD></DL>
+<P>
+<A NAME="vsignatureStoreGroup"><HR><H4>vsignatureStoreGroup</H4></A>
+<PRE>
+        void <B>vsignatureStoreGroup</B>(
+                vsignatureGroup * group,
+                vresource res);
+</PRE>
+
+<DL><DD>
+Stores the contents of the signature group <SAMP>group</SAMP>
+into the resource <SAMP>res</SAMP>. All signatures in the
+group are stored with the group along with the name of the group.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vsignatureGroupINCLUDED"><HR><H4>vsignatureGroupINCLUDED</H4></A>
+<PRE>
+        <B>vsignatureGroupINCLUDED</B>
+</PRE>
+
+<DL><DD>
+The header file <SAMP>vsiggrp.h</SAMP> has been included
+if this symbol is defined. It is used to prevent multiple
+inclusion of the signature group header file, and can be used
+from an application program to skip over an explicit
+inclusion if the header file has already been included by
+another header file.
+</DD></DL>
+<P>
+<A NAME="vsignatureINCLUDED"><HR><H4>vsignatureINCLUDED</H4></A>
+<PRE>
+        <B>vsignatureINCLUDED</B>
+</PRE>
+
+<DL><DD>
+The header file <SAMP>vsignature.h</SAMP> has been included
+if this symbol is defined. It is used to prevent multiple
+inclusion of the signature header file, and can be used
+from an application program to skip over an explicit
+inclusion if the header file has already been included by
+another header file.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

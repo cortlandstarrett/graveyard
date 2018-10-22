@@ -1,0 +1,1168 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vlistsize prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vlistsize prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vlistsize-x.html#section_DataType">Types</A> [2]</TD>
+<TD><A HREF="vlistsize-x.html#section_Function">Functions</A> [41]</TD>
+<TD><A HREF="vlistsize-x.html#section_Message">Messages</A> [17]</TD>
+<TD><A HREF="vlistsize-x.html#section_Constant">Constants</A> [3]</TD>
+<TD><A HREF="vlistsize-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vlistsize"><HR><H4>vlistsize</H4></A>
+<PRE>
+        typedef ... <B>vlistsize</B>;
+</PRE>
+
+<DL><DD>
+Denotes an instance of the class derived from
+<CODE><A HREF="vlistsize-x.html#vlistsizeClass"><CODE>vlistsizeClass</CODE></A></CODE>. This is a subclass of the
+<CODE><A HREF="vobject-x.html#vobject"><CODE>vobject</CODE></A></CODE> type, and is used to maintain the row
+heights and column width for a list view and list item.
+This can be used to create further subclasses for custom
+needs.
+</DD></DL>
+<P>
+<A NAME="vlistsizeClass"><HR><H4>vlistsizeClass</H4></A>
+<PRE>
+        typedef ... <B>vlistsizeClass</B>;
+</PRE>
+
+<DL><DD>
+The class definition for the list size object, it is
+derived from <CODE><A HREF="vobject-x.html#vobjectClass"><CODE>vobjectClass</CODE></A></CODE>. This class is used
+in conjunction to a list view or list item to hold the row
+heights and column width. It can be subclassed to provide
+functionality past that provided by the default list size
+object in the List Manager.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vlistsizeCalcCellRange"><HR><H4>vlistsizeCalcCellRange</H4></A>
+<PRE>
+        void <B>vlistsizeCalcCellRange</B>(
+                vlistsize * size,
+                int startRow,
+                int startColumn,
+                int width,
+                int height,
+                int * endRow,
+                int * endColumn);
+</PRE>
+
+<DL><DD>
+Calculates the range of cells that would be visible in an
+area with a given cell at the upper left. The range is
+calculated by determining the rectangle for cell
+(<SAMP>startRow</SAMP>, <SAMP>startColumn</SAMP>). The
+heights of rows beyond <SAMP>startRow</SAMP> added until
+the sum equals or exceeds <SAMP>height</SAMP>, or until the
+number of rows in the list size size are exhausted. An
+identical procedure is followed for column widths. The
+ending row and column are returned in <SAMP>endRow</SAMP>
+and <SAMP>endColumn</SAMP>. This function is implemented by
+sending the message <CODE><A HREF="vlistsize-x.html#vlistsizeCALC_CELL_RANGE"><CODE>vlistsizeCALC_CELL_RANGE</CODE></A></CODE>
+to <SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeClone"><HR><H4>vlistsizeClone</H4></A>
+<PRE>
+        vlistsize * <B>vlistsizeClone</B>(
+                vlistsize * size);
+</PRE>
+
+<DL><DD>
+Returns a pointer to a newly allocated list size object,
+and makes it a copy of the list size object
+<SAMP>size</SAMP>. This function is essentially a
+combination of <CODE><A HREF="vlistsize-x.html#vlistsizeCreate"><CODE>vlistsizeCreate</CODE></A></CODE> and
+<CODE><A HREF="vlistsize-x.html#vlistsizeCopy"><CODE>vlistsizeCopy</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeCopy"><HR><H4>vlistsizeCopy</H4></A>
+<PRE>
+        void <B>vlistsizeCopy</B>(
+                vlistsize * size,
+                vlistsize * target);
+</PRE>
+
+<DL><DD>
+Copies the information from <SAMP>size</SAMP> into
+<SAMP>target</SAMP>, so that the two list size objects
+represent equivalent objects but separate storage. The
+pointer in the object's data pointer field is copied, but
+the memory it points to is <I>not</I> duplicated.
+</DD></DL>
+<P>
+<A NAME="vlistsizeCopyInit"><HR><H4>vlistsizeCopyInit</H4></A>
+<PRE>
+        void <B>vlistsizeCopyInit</B>(
+                vlistsize * size,
+                vlistsize * target);
+</PRE>
+
+<DL><DD>
+Copies the information in size into <SAMP>target</SAMP> so
+the memory addressed by <SAMP>target</SAMP> is a list size
+equivalent to size. <SAMP>target</SAMP> should be a pointer
+to uninitialized memory---the List Manager will initialize
+it as part of the copy. This function copies all of the
+stored size. This function is implemented by sending the
+message <CODE>vobjectCOPY_INIT</CODE> to size.
+</DD></DL>
+<P>
+<A NAME="vlistsizeCreate"><HR><H4>vlistsizeCreate</H4></A>
+<PRE>
+        vlistsize * <B>vlistsizeCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new list size object of the default list class
+and returns a pointer to the new list object, which the
+List Manager allocated (same as calling
+<CODE><A HREF="vlistsize-x.html#vlistsizeCreateOfClass"><CODE>vlistsizeCreateOfClass</CODE></A></CODE><SAMP>(<CODE><A HREF="vlistsize-x.html#vlistsizeGetDefaultClass"><CODE>vlistsizeGetDefaultClass</CODE></A></CODE>())</SAMP>).
+</DD></DL>
+<P>
+<A NAME="vlistsizeCreateOfClass"><HR><H4>vlistsizeCreateOfClass</H4></A>
+<PRE>
+        vlistsize * <B>vlistsizeCreateOfClass</B>(
+                vlistsizeClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new list size object of class <SAMP>clas</SAMP>
+and returns a pointer to the new object, the memory for the
+new object is allocated by the List Manager. The new list
+object is created with a set of default attributes
+determined by the class.
+</DD></DL>
+<P>
+<A NAME="vlistsizeDestroy"><HR><H4>vlistsizeDestroy</H4></A>
+<PRE>
+        void <B>vlistsizeDestroy</B>(
+                vlistsize * size);
+</PRE>
+
+<DL><DD>
+Destroys the list size object pointed to by
+<SAMP>size</SAMP>. This function attempts to free the
+storage directly occupied by the list object <I>only</I> if
+it was allocated by the List Manager
+(<CODE><A HREF="vlistsize-x.html#vlistsizeCreate"><CODE>vlistsizeCreate</CODE></A></CODE> or
+<CODE><A HREF="vlistsize-x.html#vlistsizeCreateOfClass"><CODE>vlistsizeCreateOfClass</CODE></A></CODE>).
+</DD></DL>
+<P>
+<A NAME="vlistsizeDump"><HR><H4>vlistsizeDump</H4></A>
+<PRE>
+        void <B>vlistsizeDump</B>(
+                vlistsize * size,
+                FILE * stream);
+</PRE>
+
+<DL><DD>
+Prints the contents of size on the file <SAMP>stream</SAMP>
+in user-readable form. This function is intended for
+debugging and should not be used to store the content of
+the list sizes in recoverable form. This function has
+effect only if debugging is enabled. If stream is
+<SAMP>NULL</SAMP>, the contents will be written to the
+stream returned by <CODE><A HREF="vdebug-x.html#vdebugGetInfoStream"><CODE>vdebugGetInfoStream</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeGetCellRect"><HR><H4>vlistsizeGetCellRect</H4></A>
+<PRE>
+        void <B>vlistsizeGetCellRect</B>(
+                vlistsize * size,
+                int row,
+                int column,
+                vrectLong * rect);
+</PRE>
+
+<DL><DD>
+Retrieves the rectangle that encloses the specified cell
+into the rectangle <SAMP>rect</SAMP>. This function is
+implemented by sending the message
+<CODE><A HREF="vlistsize-x.html#vlistsizeGET_CELL_RECT"><CODE>vlistsizeGET_CELL_RECT</CODE></A></CODE> to <SAMP>size.</SAMP>
+</DD></DL>
+<P>
+<A NAME="vlistsizeGetClass"><HR><H4>vlistsizeGetClass</H4></A>
+<PRE>
+        vlistsizeClass * <B>vlistsizeGetClass</B>(
+                vlistsize * size);
+</PRE>
+
+<DL><DD>
+Returns the class of the list size object
+<SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeGetColumnCount"><HR><H4>vlistsizeGetColumnCount</H4></A>
+<PRE>
+        int <B>vlistsizeGetColumnCount</B>(
+                vlistsize * size);
+</PRE>
+
+<DL><DD>
+Returns the number of columns that currently have sizes
+associated with them in the list size object
+<SAMP>size</SAMP>. The size object can contain more columns
+than are in the list associated with a list view.
+</DD></DL>
+<P>
+<A NAME="vlistsizeGetColumnWidth"><HR><H4>vlistsizeGetColumnWidth</H4></A>
+<PRE>
+        int <B>vlistsizeGetColumnWidth</B>(
+                vlistsize * size,
+                int column);
+</PRE>
+
+<DL><DD>
+Returns the width of the column <SAMP>column</SAMP>. The
+value returned is the <I>absolute</I> width of the column
+--- it has not been modified by the size object on its way
+in or its way out. This function is implemented by sending
+the message <CODE><A HREF="vlistsize-x.html#vlistsizeGET_COLUMN_WIDTH"><CODE>vlistsizeGET_COLUMN_WIDTH</CODE></A></CODE> to
+<SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeGetData"><HR><H4>vlistsizeGetData</H4></A>
+<PRE>
+        const void * <B>vlistsizeGetData</B>(
+                vlistsize * size);
+</PRE>
+
+<DL><DD>
+Returns the data field of a list size object.
+</DD></DL>
+<P>
+<A NAME="vlistsizeGetDefaultClass"><HR><H4>vlistsizeGetDefaultClass</H4></A>
+<PRE>
+        vlistsizeClass * <B>vlistsizeGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the class used to create list size objects by the
+<CODE><A HREF="vlistsize-x.html#vlistsizeCreate"><CODE>vlistsizeCreate</CODE></A></CODE> and <CODE><A HREF="vlistsize-x.html#vlistsizeInit"><CODE>vlistsizeInit</CODE></A></CODE>
+functions. This class can be modified to alter the behavior
+of all list objects subsequently created by these
+functions. This is normally called to <I>spawn</I> or
+<I>reproduce</I> a class to make a new subclass.
+</DD></DL>
+<P>
+<A NAME="vlistsizeGetDefaultHeight"><HR><H4>vlistsizeGetDefaultHeight</H4></A>
+<PRE>
+        int <B>vlistsizeGetDefaultHeight</B>(
+                vlistsize * size);
+</PRE>
+
+<DL><DD>
+Returns the default row height used by a list size object.
+</DD></DL>
+<P>
+<A NAME="vlistsizeGetDefaultWidth"><HR><H4>vlistsizeGetDefaultWidth</H4></A>
+<PRE>
+        int <B>vlistsizeGetDefaultWidth</B>(
+                vlistsize * size);
+</PRE>
+
+<DL><DD>
+Returns the default column width used by a list size
+object.
+</DD></DL>
+<P>
+<A NAME="vlistsizeGetMaxArea"><HR><H4>vlistsizeGetMaxArea</H4></A>
+<PRE>
+        void <B>vlistsizeGetMaxArea</B>(
+                vlistsize * size,
+                vrectLong * rect);
+</PRE>
+
+<DL><DD>
+Calculates the total area that the size area covers.
+<SAMP>rect->w</SAMP> has the total width of the size set
+and <SAMP>rect->h</SAMP> has the total height. This
+function is implemented by sending the message
+<CODE><A HREF="vlistsize-x.html#vlistsizeGET_MAX_AREA"><CODE>vlistsizeGET_MAX_AREA</CODE></A></CODE> to <SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeGetRowCount"><HR><H4>vlistsizeGetRowCount</H4></A>
+<PRE>
+        int <B>vlistsizeGetRowCount</B>(
+                vlistsize * size);
+</PRE>
+
+<DL><DD>
+Returns the number of rows that the list size object has
+row height information for. The returned row count can be
+greater than the number of rows in the list being displayed
+in the list associated with the list size object.
+</DD></DL>
+<P>
+<A NAME="vlistsizeGetRowHeight"><HR><H4>vlistsizeGetRowHeight</H4></A>
+<PRE>
+        int <B>vlistsizeGetRowHeight</B>(
+                vlistsize * size,
+                int row);
+</PRE>
+
+<DL><DD>
+Returns the height of the given row. The value returned is
+the <I>absolute</I> height of the row---it has not been
+modified by the size object on its way in or its way out.
+This function is implemented by sending the message
+<CODE><A HREF="vlistsize-x.html#vlistsizeGET_ROW_HEIGHT"><CODE>vlistsizeGET_ROW_HEIGHT</CODE></A></CODE> to <SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeInit"><HR><H4>vlistsizeInit</H4></A>
+<PRE>
+        void <B>vlistsizeInit</B>(
+                vlistsize * size);
+</PRE>
+
+<DL><DD>
+Initializes the list size object addressed by
+<SAMP>size</SAMP> into a valid list object of the default
+list size class.
+</DD></DL>
+<P>
+<A NAME="vlistsizeInsertColumn"><HR><H4>vlistsizeInsertColumn</H4></A>
+<PRE>
+        void <B>vlistsizeInsertColumn</B>(
+                vlistsize * size,
+                int beforeColumn);
+</PRE>
+
+<DL><DD>
+Inserts a new empty column before
+<SAMP>beforeColumn</SAMP>, pushing the sizes for all
+subsequent columns, starting with
+<SAMP>beforeColumn</SAMP>, over by one position. The width
+of the new column is the default size set by
+<CODE><A HREF="vlistsize-x.html#vlistsizeSetDefaultWidth"><CODE>vlistsizeSetDefaultWidth</CODE></A></CODE>. This function is
+implemented by sending the message
+<CODE><A HREF="vlistsize-x.html#vlistsizeINSERT_ROW_COLUMN"><CODE>vlistsizeINSERT_ROW_COLUMN</CODE></A></CODE> to
+<SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeInsertRange"><HR><H4>vlistsizeInsertRange</H4></A>
+<PRE>
+        void <B>vlistsizeInsertRange</B>(
+                vlistsize * size,
+                int before,
+                int count,
+                int type);
+</PRE>
+
+<DL><DD>
+Inserts a range of empty rows or columns into
+<SAMP>size</SAMP>. <SAMP>before</SAMP> indicates the row or
+column to insert before. <SAMP>count</SAMP> is the number
+of rows or columns to insert, and type is
+<CODE>vlistROW</CODE> or <CODE>vlistCOLUMN</CODE> to denote
+if this is a row or column operation. Insertion pushes the
+sizes for subsequent rows or columns, starting with
+<SAMP>before</SAMP>, over by <SAMP>count</SAMP> positions.
+The width of the new rows or columns will be the default
+sizes set by <CODE><A HREF="vlistsize-x.html#vlistsizeSetDefaultWidth"><CODE>vlistsizeSetDefaultWidth</CODE></A></CODE> or
+<CODE><A HREF="vlistsize-x.html#vlistsizeSetDefaultHeight"><CODE>vlistsizeSetDefaultHeight</CODE></A></CODE>. This function is
+implemented by sending the message
+<CODE><A HREF="vlistsize-x.html#vlistsizeINSERT_RANGE"><CODE>vlistsizeINSERT_RANGE</CODE></A></CODE> to <SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeInsertRow"><HR><H4>vlistsizeInsertRow</H4></A>
+<PRE>
+        void <B>vlistsizeInsertRow</B>(
+                vlistsize * size,
+                int beforeRow);
+</PRE>
+
+<DL><DD>
+Inserts a new empty row before <SAMP>beforeRow</SAMP>,
+pushing the sizes for all subsequent rows, starting with
+<SAMP>beforeRow</SAMP>, down by one position. The height of
+the new row is the default size set by
+<CODE><A HREF="vlistsize-x.html#vlistsizeSetDefaultHeight"><CODE>vlistsizeSetDefaultHeight</CODE></A></CODE>. This function is
+implemented by sending the message
+<CODE><A HREF="vlistsize-x.html#vlistsizeINSERT_ROW_COLUMN"><CODE>vlistsizeINSERT_ROW_COLUMN</CODE></A></CODE> to
+<SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeLoad"><HR><H4>vlistsizeLoad</H4></A>
+<PRE>
+        vlistsize * <B>vlistsizeLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a list size object from the resource
+<SAMP>resource</SAMP> and returns a poitner to the newly
+created object, space for the list size object is allocated
+by the List maanger. An exception is generated if the
+resource has not been constructed properly, or if the class
+in the resource is not defined.
+</DD></DL>
+<P>
+<A NAME="vlistsizeLoadInit"><HR><H4>vlistsizeLoadInit</H4></A>
+<PRE>
+        void <B>vlistsizeLoadInit</B>(
+                vlistsize * size,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a list size object from the resource
+<SAMP>resource</SAMP> and stores it in the structure
+addressed by <SAMP>size</SAMP>. <SAMP>size</SAMP> should be
+an area of uninitialized memory. An exception is generated
+if the resource has not been constructed properly, or if
+the class in the resource is not defined.
+</DD></DL>
+<P>
+<A NAME="vlistsizeMoveColumn"><HR><H4>vlistsizeMoveColumn</H4></A>
+<PRE>
+        void <B>vlistsizeMoveColumn</B>(
+                vlistsize * size,
+                int from,
+                int to);
+</PRE>
+
+<DL><DD>
+Moves the width for column <SAMP>from</SAMP> and places it
+before column <SAMP>to</SAMP>. The columns between
+<SAMP>from</SAMP> and <SAMP>to</SAMP> are shifted to
+accomplish the move. If column <SAMP>from</SAMP> or
+<SAMP>to</SAMP> does not exist, an exception is raised.
+This function is implemented by sending the message
+<CODE><A HREF="vlistsize-x.html#vlistsizeMOVE_ROW_COLUMN"><CODE>vlistsizeMOVE_ROW_COLUMN</CODE></A></CODE> to <SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeMoveRange"><HR><H4>vlistsizeMoveRange</H4></A>
+<PRE>
+        void <B>vlistsizeMoveRange</B>(
+                vlistsize * size,
+                int from,
+                int to,
+                int count,
+                int type);
+</PRE>
+
+<DL><DD>
+Moves a range of row or column sizes from location
+<SAMP>from</SAMP> and places it before location
+<SAMP>to</SAMP>. <SAMP>count</SAMP> rows are moved. The
+rows between <SAMP>from</SAMP> and <SAMP>to</SAMP> are
+shifted to accomplish the move. If <SAMP>from</SAMP> or
+<SAMP>to</SAMP> do not exist, an exception is raised.
+<SAMP>type</SAMP> is <CODE>vlistROW</CODE> or
+<CODE>vlistCOLUMN</CODE> to indicate if this is a row or
+column operation. This function is implemented by sending
+the message <CODE><A HREF="vlistsize-x.html#vlistsizeMOVE_RANGE"><CODE>vlistsizeMOVE_RANGE</CODE></A></CODE> to
+<SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeMoveRow"><HR><H4>vlistsizeMoveRow</H4></A>
+<PRE>
+        void <B>vlistsizeMoveRow</B>(
+                vlistsize * size,
+                int from,
+                int to);
+</PRE>
+
+<DL><DD>
+Moves the height for row <SAMP>from</SAMP> and places it
+before row <SAMP>to</SAMP>. The rows between
+<SAMP>from</SAMP> and <SAMP>to</SAMP> are shifted to
+accomplish the move. If row <SAMP>from</SAMP> or
+<SAMP>to</SAMP> does not exist, an exception is raised.
+This function is implemented by sending the message
+<CODE><A HREF="vlistsize-x.html#vlistsizeMOVE_ROW_COLUMN"><CODE>vlistsizeMOVE_ROW_COLUMN</CODE></A></CODE> to <SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeRemoveColumn"><HR><H4>vlistsizeRemoveColumn</H4></A>
+<PRE>
+        void <B>vlistsizeRemoveColumn</B>(
+                vlistsize * size,
+                int victim);
+</PRE>
+
+<DL><DD>
+Removes the specified column from the size object
+<SAMP>size</SAMP>. All columns after the
+<SAMP>victim</SAMP> are moved over one position to close up
+the empty space. If the target column does not exist, an
+exception is raised. This function is implemented by
+sending the message <CODE><A HREF="vlistsize-x.html#vlistsizeREMOVE_ROW_COLUMN"><CODE>vlistsizeREMOVE_ROW_COLUMN</CODE></A></CODE>
+to <SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeRemoveRange"><HR><H4>vlistsizeRemoveRange</H4></A>
+<PRE>
+        void <B>vlistsizeRemoveRange</B>(
+                vlistsize * size,
+                int victim,
+                int count,
+                int type);
+</PRE>
+
+<DL><DD>
+Removes a range of rows or columns from size. All rows
+after the removed range are moved up to close up the empty
+space. If the target row does not exist, or if insufficient
+rows exist to be removed, an exception is raised.
+<SAMP>victim</SAMP> is the row or column to start the
+removal from, and <SAMP>count</SAMP> is the number of rows
+or columns to remove. <SAMP>type</SAMP> is
+<CODE>vlistROW</CODE> or <CODE>vlistCOLUMN</CODE> to
+indicate if this is a row or column operation. This
+function is implemented by sending the message
+<CODE><A HREF="vlistsize-x.html#vlistsizeREMOVE_RANGE"><CODE>vlistsizeREMOVE_RANGE</CODE></A></CODE> to <SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeRemoveRow"><HR><H4>vlistsizeRemoveRow</H4></A>
+<PRE>
+        void <B>vlistsizeRemoveRow</B>(
+                vlistsize * size,
+                int victim);
+</PRE>
+
+<DL><DD>
+Removes the specified row from the size object
+<SAMP>size</SAMP>. All rows after the <SAMP>victim</SAMP>
+are moved up one position to close up the empty space. If
+the target row does not exist, an exception is raised. This
+function is implemented by sending the message
+<CODE><A HREF="vlistsize-x.html#vlistsizeREMOVE_ROW_COLUMN"><CODE>vlistsizeREMOVE_ROW_COLUMN</CODE></A></CODE> to
+<SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeSetColumnWidth"><HR><H4>vlistsizeSetColumnWidth</H4></A>
+<PRE>
+        void <B>vlistsizeSetColumnWidth</B>(
+                vlistsize * size,
+                int column,
+                int width);
+</PRE>
+
+<DL><DD>
+Sets the width of <SAMP>column</SAMP> to be
+<SAMP>width</SAMP>. The width of all columns can be set to
+the same value by passing <CODE>vlistviewALL_COLUMNS</CODE>
+in the <SAMP>column</SAMP> parameter. This sets the
+<I>absolute</I> width. Extra space is not added to
+<SAMP>width</SAMP> as it is with the
+<CODE><A HREF="vlistview-x.html#vlistviewSetColumnWidth"><CODE>vlistviewSetColumnWidth</CODE></A></CODE> function. If the
+client never sets the column width, it is undefined until
+the client defines a default column width. If the column
+width is changed directly in the size structure with this
+call, the change does not propagate to the listview. It is
+the caller's responsibility to ensure that the visible
+display matches what is stored in the size structure.
+    <P>
+If <SAMP>column</SAMP> is beyond the end of the list of
+stored sizes (the widths of columns 0 through 10 are set,
+and now you are setting the width of column 15), the
+default width is used for the width of the intervening
+columns. If this width has not been set by
+<CODE><A HREF="vlistsize-x.html#vlistsizeSetDefaultWidth"><CODE>vlistsizeSetDefaultWidth</CODE></A></CODE>, a
+<SAMP>/Module</SAMP> exception is generated. This function
+is implemented by sending the message
+<CODE><A HREF="vlistsize-x.html#vlistsizeSET_COLUMN_WIDTH"><CODE>vlistsizeSET_COLUMN_WIDTH</CODE></A></CODE> to
+<SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeSetData"><HR><H4>vlistsizeSetData</H4></A>
+<PRE>
+        void <B>vlistsizeSetData</B>(
+                vlistsize * size,
+                void * data);
+</PRE>
+
+<DL><DD>
+Sets the data field of the list size object. The List
+Manager does not use this field, and the value can be
+<SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeSetDefaultHeight"><HR><H4>vlistsizeSetDefaultHeight</H4></A>
+<PRE>
+        void <B>vlistsizeSetDefaultHeight</B>(
+                vlistsize * size,
+                int height);
+</PRE>
+
+<DL><DD>
+Sets the default height to be used when an undefined size
+value is needed. The default height is used when no
+explicit height has ever been given for rows in the size
+set, and when a new row is added beyond the end of a size
+set. In the first case, the default height is used for all
+row heights, in the second case, the default height is used
+for the intervening rows between the end of the size list
+and the new row height being set. This function is
+implemented by sending the message
+<CODE><A HREF="vlistsize-x.html#vlistsizeSET_DEFAULT_HEIGHT"><CODE>vlistsizeSET_DEFAULT_HEIGHT</CODE></A></CODE> to
+<SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeSetDefaultWidth"><HR><H4>vlistsizeSetDefaultWidth</H4></A>
+<PRE>
+        void <B>vlistsizeSetDefaultWidth</B>(
+                vlistsize * size,
+                int width);
+</PRE>
+
+<DL><DD>
+Sets the default width to be used when an undefined size
+value is needed. The default width is used when no explicit
+width has ever been given for columns in the size set, and
+when a new column is added beyond the end of a size set. In
+the first case, the default width is used for all column
+widths, in the second case, the default width is used for
+the intervening columns between the end of the size list
+and the new column width being set. This function is
+implemented by sending the message
+<CODE><A HREF="vlistsize-x.html#vlistsizeSET_DEFAULT_WIDTH"><CODE>vlistsizeSET_DEFAULT_WIDTH</CODE></A></CODE> to
+<SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeSetRowHeight"><HR><H4>vlistsizeSetRowHeight</H4></A>
+<PRE>
+        void <B>vlistsizeSetRowHeight</B>(
+                vlistsize * size,
+                int row,
+                int height);
+</PRE>
+
+<DL><DD>
+Sets the height of <SAMP>row</SAMP> to be
+<SAMP>height</SAMP>. The height of all rows can be set to
+the same value by passing <SAMP>vlistviewALL_ROWS</SAMP> in
+the <SAMP>row</SAMP> parameter. This sets the
+<I>absolute</I> height. Extra space is not added to
+<SAMP>height</SAMP> as it is with the
+<CODE><A HREF="vlistview-x.html#vlistviewSetRowHeight"><CODE>vlistviewSetRowHeight</CODE></A></CODE> function. If the client
+never sets the row height, it is undefined until the client
+defines a default row height. If the row height is changed
+directly in the size structure with this call, the change
+does not propagate to the listview. It is the caller's
+responsibility to ensure that the visible display matches
+what is stored in the size structure.
+    <P>
+If <SAMP>row</SAMP> is beyond the end of the list of stored
+sizes (the heights of rows 0 through 10 are set, and now
+you are setting the height of column 15), the default
+height is used for the height of the intervening rows. If
+this width has not been set by
+<CODE><A HREF="vlistsize-x.html#vlistsizeSetDefaultHeight"><CODE>vlistsizeSetDefaultHeight</CODE></A></CODE>, a
+<SAMP>/Module</SAMP> exception is generated. This function
+is implemented by sending the message
+<CODE><A HREF="vlistsize-x.html#vlistsizeSET_ROW_HEIGHT"><CODE>vlistsizeSET_ROW_HEIGHT</CODE></A></CODE> to <SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeStartup"><HR><H4>vlistsizeStartup</H4></A>
+<PRE>
+        void <B>vlistsizeStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the <CODE>vlistsize</CODE> class of the List
+Manager.
+</DD></DL>
+<P>
+<A NAME="vlistsizeStore"><HR><H4>vlistsizeStore</H4></A>
+<PRE>
+        void <B>vlistsizeStore</B>(
+                vlistsize * size,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Writes the contents of the list size object
+<SAMP>size</SAMP> into the resource <SAMP>resource</SAMP>.
+The resource <SAMP>resource</SAMP> should be an untyped
+resource created with <CODE><A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A></CODE>. The list
+object can be recovered from the resource at a later time
+with <CODE><A HREF="vlistsize-x.html#vlistsizeLoad"><CODE>vlistsizeLoad</CODE></A></CODE> or
+<CODE><A HREF="vlistsize-x.html#vlistsizeLoadInit"><CODE>vlistsizeLoadInit</CODE></A></CODE>.
+    <P>
+<BLOCKQUOTE>
+NOTE:
+    <P>
+This function is currently unimplemented.</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vlistsizeSwapColumns"><HR><H4>vlistsizeSwapColumns</H4></A>
+<PRE>
+        void <B>vlistsizeSwapColumns</B>(
+                vlistsize * size,
+                int from,
+                int to);
+</PRE>
+
+<DL><DD>
+Exchanges the widths of <SAMP>from</SAMP> and
+<SAMP>to</SAMP>. If either of the columns do not exist, an
+exception is raised. This function is implemented by
+sending the message <CODE><A HREF="vlistsize-x.html#vlistsizeSWAP_ROW_COLUMN"><CODE>vlistsizeSWAP_ROW_COLUMN</CODE></A></CODE>
+to <SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeSwapRange"><HR><H4>vlistsizeSwapRange</H4></A>
+<PRE>
+        void <B>vlistsizeSwapRange</B>(
+                vlistsize * size,
+                int swap1,
+                int swap2,
+                int count,
+                int type);
+</PRE>
+
+<DL><DD>
+Exchanges the row heights or column widths of two ranges of
+rows or columns. One range starts with row/column
+<SAMP>swap1</SAMP>, and the second range starts with
+row/column <SAMP>swap2</SAMP>. <SAMP>count</SAMP> indicates
+the number of rows or columns in each range, and
+<SAMP>type</SAMP> is <CODE>vlistROW</CODE> or
+<CODE>vlistCOLUMN</CODE> to indicate a row or column
+operation. This function is implemented by sending the
+message <CODE><A HREF="vlistsize-x.html#vlistsizeSWAP_RANGE"><CODE>vlistsizeSWAP_RANGE</CODE></A></CODE> to
+<SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeSwapRows"><HR><H4>vlistsizeSwapRows</H4></A>
+<PRE>
+        void <B>vlistsizeSwapRows</B>(
+                vlistsize * size,
+                int from,
+                int to);
+</PRE>
+
+<DL><DD>
+Exchanges the heights of <SAMP>from</SAMP> and
+<SAMP>to</SAMP>. If either of the rows do not exist, an
+exception is raised. This function is implemented by
+sending the message <CODE><A HREF="vlistsize-x.html#vlistsizeSWAP_ROW_COLUMN"><CODE>vlistsizeSWAP_ROW_COLUMN</CODE></A></CODE>
+to <SAMP>size</SAMP>.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vlistsizeCALC_CELL_RANGE"><HR><H4>vlistsizeCALC_CELL_RANGE</H4></A>
+<PRE>
+        &lt;<B>vlistsizeCALC_CELL_RANGE</B>&gt;
+</PRE>
+
+<DL><DD>
+Calculates the range of cells that would be visible in an
+area with a given cell at the upper left. The range is
+calculated by determining the rectangle for cell
+(<SAMP>startRow</SAMP>, <SAMP>startColumn</SAMP>). The
+heights of rows beyond <SAMP>startRow</SAMP> added until
+the sum equals or exceeds height, or until the number of
+rows in <SAMP>size</SAMP> are exhausted. An identical
+procedure is followed for column widths. The ending row and
+column are returned in <SAMP>endRow</SAMP> and
+<SAMP>endColumn</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeGET_CELL_RECT"><HR><H4>vlistsizeGET_CELL_RECT</H4></A>
+<PRE>
+        &lt;<B>vlistsizeGET_CELL_RECT</B>&gt;
+</PRE>
+
+<DL><DD>
+Retrieves the rectangle that encloses the specified cell
+into the rectangle <SAMP>rect</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeGET_COLUMN_WIDTH"><HR><H4>vlistsizeGET_COLUMN_WIDTH</H4></A>
+<PRE>
+        &lt;<B>vlistsizeGET_COLUMN_WIDTH</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns the width of the given column. The value returned
+is the <I>absolute</I> width of the column---it has not
+been modified by the size object on its way in or out.
+</DD></DL>
+<P>
+<A NAME="vlistsizeGET_MAX_AREA"><HR><H4>vlistsizeGET_MAX_AREA</H4></A>
+<PRE>
+        &lt;<B>vlistsizeGET_MAX_AREA</B>&gt;
+</PRE>
+
+<DL><DD>
+Calculates the total area that the size area covers.
+<SAMP>area->w</SAMP> has the total width of the size set
+and <SAMP>area->h</SAMP> has the total height.
+</DD></DL>
+<P>
+<A NAME="vlistsizeGET_ROW_HEIGHT"><HR><H4>vlistsizeGET_ROW_HEIGHT</H4></A>
+<PRE>
+        &lt;<B>vlistsizeGET_ROW_HEIGHT</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns the height of the given row. The value returned is
+the <I>absolute</I> height of the row---it has not been
+modified by the size object on its way in or its way out.
+</DD></DL>
+<P>
+<A NAME="vlistsizeINSERT_RANGE"><HR><H4>vlistsizeINSERT_RANGE</H4></A>
+<PRE>
+        &lt;<B>vlistsizeINSERT_RANGE</B>&gt;
+</PRE>
+
+<DL><DD>
+Inserts a range of rows or columns into <SAMP>size</SAMP>.
+<SAMP>before</SAMP> indicates the row or column to insert
+before. <SAMP>count</SAMP> is the number of rows or columns
+to insert, and <SAMP>type</SAMP> is <CODE>vlistROW</CODE>
+or <CODE>vlistCOLUMN</CODE> to denote if this is a row or
+column operation. Insertion pushes the sizes for subsequent
+rows or columns, starting with <SAMP>before</SAMP>, over by
+<SAMP>count</SAMP> positions. The size of the new rows or
+columns will be the default sizes set by
+<CODE><A HREF="vlistsize-x.html#vlistsizeSetDefaultWidth"><CODE>vlistsizeSetDefaultWidth</CODE></A></CODE> or
+<CODE><A HREF="vlistsize-x.html#vlistsizeSetDefaultHeight"><CODE>vlistsizeSetDefaultHeight</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeINSERT_ROW_COLUMN"><HR><H4>vlistsizeINSERT_ROW_COLUMN</H4></A>
+<PRE>
+        &lt;<B>vlistsizeINSERT_ROW_COLUMN</B>&gt;
+</PRE>
+
+<DL><DD>
+Inserts a new empty row or column before
+<SAMP>beforeRowCol</SAMP>, pushing the sizes for all
+subsequent rows or columns, starting with
+<SAMP>beforeRowCol</SAMP>, down by one position.
+<SAMP>type</SAMP> is <SAMP>vlistROW</SAMP> or
+<SAMP>vlistCOLUMN</SAMP> to indicate whether rows or
+columns should be inserted. The height of a new row will be
+the default size set by
+<CODE><A HREF="vlistsize-x.html#vlistsizeSetDefaultHeight"><CODE>vlistsizeSetDefaultHeight</CODE></A></CODE>. The width of a new
+column will be the default size set by
+<CODE><A HREF="vlistsize-x.html#vlistsizeSetDefaultWidth"><CODE>vlistsizeSetDefaultWidth</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vlistsizeMOVE_RANGE"><HR><H4>vlistsizeMOVE_RANGE</H4></A>
+<PRE>
+        &lt;<B>vlistsizeMOVE_RANGE</B>&gt;
+</PRE>
+
+<DL><DD>
+Moves a range of row or column sizes from location
+<SAMP>from</SAMP> and places it before location
+<SAMP>to</SAMP>. <SAMP>count</SAMP> rows are moved. The
+rows between <SAMP>from</SAMP> and <SAMP>to</SAMP> are
+shifted to accomplish the move. If <SAMP>from</SAMP> or
+<SAMP>to</SAMP> do not exist, an exception is raised.
+<SAMP>type</SAMP> is <CODE>vlistROW</CODE> or
+<CODE>vlistCOLUMN</CODE> to indicate if this is a row or
+column operation.
+</DD></DL>
+<P>
+<A NAME="vlistsizeMOVE_ROW_COLUMN"><HR><H4>vlistsizeMOVE_ROW_COLUMN</H4></A>
+<PRE>
+        &lt;<B>vlistsizeMOVE_ROW_COLUMN</B>&gt;
+</PRE>
+
+<DL><DD>
+Moves the height or width for row or column
+<SAMP>from</SAMP> and places it before <SAMP>to</SAMP>. The
+rows or columns between <SAMP>from</SAMP> and
+<SAMP>to</SAMP> are shifted to accomplish the move. If
+<SAMP>from</SAMP> or <SAMP>to</SAMP> does not exist, an
+exception is raised. <SAMP>type</SAMP> is
+<SAMP>vlistROW</SAMP> or <SAMP>vlistCOLUMN</SAMP> to
+indicate whether rows or columns should be moved.
+</DD></DL>
+<P>
+<A NAME="vlistsizeREMOVE_RANGE"><HR><H4>vlistsizeREMOVE_RANGE</H4></A>
+<PRE>
+        &lt;<B>vlistsizeREMOVE_RANGE</B>&gt;
+</PRE>
+
+<DL><DD>
+Removes a range of rows or columns from <SAMP>size</SAMP>.
+All rows after the removed range are moved up to close up
+the empty space. If the target row does not exist, or if
+insufficient rows exist to be removed, an exception is
+raised. <SAMP>victim</SAMP> is the row or column to start
+the removal from, and <SAMP>count</SAMP> is the number of
+rows or columns to remove. <SAMP>type</SAMP> is
+<CODE>vlistROW</CODE> or <CODE>vlistCOLUMN</CODE> to
+indicate if this is a row or column operation.
+</DD></DL>
+<P>
+<A NAME="vlistsizeREMOVE_ROW_COLUMN"><HR><H4>vlistsizeREMOVE_ROW_COLUMN</H4></A>
+<PRE>
+        &lt;<B>vlistsizeREMOVE_ROW_COLUMN</B>&gt;
+</PRE>
+
+<DL><DD>
+Removes the specified row or column from the size object
+<SAMP>size</SAMP>. All rows or columns after the target
+<SAMP>victim</SAMP> are moved up one position to close up
+the empty space. <SAMP>type</SAMP> is <SAMP>vlistROW</SAMP>
+or <SAMP>vlistCOLUMN</SAMP> to indicate a row or column
+operation. If the target does not exist, an exception is
+raised.
+</DD></DL>
+<P>
+<A NAME="vlistsizeSET_COLUMN_WIDTH"><HR><H4>vlistsizeSET_COLUMN_WIDTH</H4></A>
+<PRE>
+        &lt;<B>vlistsizeSET_COLUMN_WIDTH</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the width of <SAMP>column</SAMP> to be
+<SAMP>width</SAMP>. The width of all columns can be set to
+the same value by passing <CODE>vlistviewALL_COLUMNS</CODE>
+in the <SAMP>column</SAMP> parameter. This sets the
+<I>absolute</I> width. Extra space is not added to
+<SAMP>width</SAMP> as it is with the
+<CODE><A HREF="vlistview-x.html#vlistviewSetColumnWidth"><CODE>vlistviewSetColumnWidth</CODE></A></CODE> function. If the
+client never sets the column width, it is undefined until
+the client defines a default column width. If the column
+width is changed directly in the size structure with this
+call, the change does not propagate to the listview. It is
+the caller's responsibility to ensure that the visible
+display matches what is stored in the size structure.
+    <P>
+If column is beyond the end of the list of stored sizes
+(the widths of columns 0 through 10 are set, and now you
+are setting the width of column 15), the default width is
+used for the width of the intervening columns. If this
+width has not been set by
+<CODE><A HREF="vlistsize-x.html#vlistsizeSetDefaultWidth"><CODE>vlistsizeSetDefaultWidth</CODE></A></CODE>, a
+<SAMP>/Module</SAMP> exception will be generated.
+</DD></DL>
+<P>
+<A NAME="vlistsizeSET_DEFAULT_HEIGHT"><HR><H4>vlistsizeSET_DEFAULT_HEIGHT</H4></A>
+<PRE>
+        &lt;<B>vlistsizeSET_DEFAULT_HEIGHT</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the default height to be used when an undefined size
+value is needed. Times when the default height are used are
+when no explicit height has ever been given for rows in the
+size set, and when a new row is added beyond the end of a
+size set. In the first case, the default height is used for
+all row heights, in the second case, the default height
+will be used for the intervening rows between the end of
+the size list and the new row height being set.
+</DD></DL>
+<P>
+<A NAME="vlistsizeSET_DEFAULT_WIDTH"><HR><H4>vlistsizeSET_DEFAULT_WIDTH</H4></A>
+<PRE>
+        &lt;<B>vlistsizeSET_DEFAULT_WIDTH</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the default width to be used when an undefined size
+value is needed. Times when the default width are used are
+when no explicit width has ever been given for columns in
+the size set, and when a new column is added beyond the end
+of a size set. In the first case, the default width is used
+for all column widths, in the second case, the default
+width will be used for the intervening columns between the
+end of the size list and the new column width being set.
+</DD></DL>
+<P>
+<A NAME="vlistsizeSET_ROW_HEIGHT"><HR><H4>vlistsizeSET_ROW_HEIGHT</H4></A>
+<PRE>
+        &lt;<B>vlistsizeSET_ROW_HEIGHT</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the height of <SAMP>row</SAMP> to be
+<SAMP>height</SAMP>. The height of all rows can be set to
+the same value by passing <SAMP>vlistviewALL_ROWS</SAMP> in
+the <SAMP>row</SAMP> parameter. This sets the
+<I>absolute</I> height. Extra space is not added to
+<SAMP>height</SAMP> as it is with the
+<CODE><A HREF="vlistview-x.html#vlistviewSetRowHeight"><CODE>vlistviewSetRowHeight</CODE></A></CODE> function. If the client
+never sets the row height, it is undefined until the client
+defines a default row height. If the row height is changed
+directly in the size structure with this call, the change
+does not propagate to the listview. It is the caller's
+responsibility to ensure that the visible display matches
+what is stored in the size structure.
+    <P>
+If <SAMP>row</SAMP> is beyond the end of the list of stored
+sizes (the heights of rows 0 through 10 are set, and now
+you are setting the height of column 15), the default
+height is used for the height of the intervening rows. If
+this width has not been set by
+<CODE><A HREF="vlistsize-x.html#vlistsizeSetDefaultHeight"><CODE>vlistsizeSetDefaultHeight</CODE></A></CODE>, a
+<SAMP>/Module</SAMP> exception will be generated.
+</DD></DL>
+<P>
+<A NAME="vlistsizeSWAP_RANGE"><HR><H4>vlistsizeSWAP_RANGE</H4></A>
+<PRE>
+        &lt;<B>vlistsizeSWAP_RANGE</B>&gt;
+</PRE>
+
+<DL><DD>
+Exchanges the row heights or column widths of two ranges of
+rows or columns. One range startswith row/column
+<SAMP>swap1</SAMP>, and the second range starts with
+row/column <SAMP>swap2</SAMP>. <SAMP>count</SAMP> indicates
+the number of rows or columns in each range, and
+<SAMP>type</SAMP> is <CODE>vlistROW</CODE> or
+<CODE>vlistCOLUMN</CODE> to indicate a row or column
+operation.
+</DD></DL>
+<P>
+<A NAME="vlistsizeSWAP_ROW_COLUMN"><HR><H4>vlistsizeSWAP_ROW_COLUMN</H4></A>
+<PRE>
+        &lt;<B>vlistsizeSWAP_ROW_COLUMN</B>&gt;
+</PRE>
+
+<DL><DD>
+Exchanges the row heights or column widths of
+<SAMP>from</SAMP> and <SAMP>to</SAMP>. <SAMP>type</SAMP> is
+<SAMP>vlistROW</SAMP> or <SAMP>vlistCOLUMN</SAMP> to
+indicate a row or column operation. If either of the rows
+or columns does not exist, an exception is raised.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vlistsizeALL_COLUMNS"><HR><H4>vlistsizeALL_COLUMNS</H4></A>
+<PRE>
+        <B>vlistsizeALL_COLUMNS</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vlistsizeALL_ROWS"><HR><H4>vlistsizeALL_ROWS</H4></A>
+<PRE>
+        <B>vlistsizeALL_ROWS</B>
+</PRE>
+
+<DL><DD>
+Used with <CODE><A HREF="vlistsize-x.html#vlistsizeSetRowHeight"><CODE>vlistsizeSetRowHeight</CODE></A></CODE> and
+<CODE><A HREF="vlistsize-x.html#vlistsizeSetColumnWidth"><CODE>vlistsizeSetColumnWidth</CODE></A></CODE> respectively. When
+these are passed in place of the row or column number, the
+width or height of all rows or columns is set.
+</DD></DL>
+<P>
+<A NAME="vlistsizeINCLUDED"><HR><H4>vlistsizeINCLUDED</H4></A>
+<PRE>
+        <B>vlistsizeINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vlistsize.h</SAMP> is
+included.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vlistsizeCLASS"><HR><H4>vlistsizeCLASS</H4></A>
+<PRE>
+        #define <B>vlistsizeCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

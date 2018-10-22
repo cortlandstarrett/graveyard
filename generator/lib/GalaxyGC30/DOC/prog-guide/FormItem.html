@@ -1,0 +1,124 @@
+<HTML>
+<HEAD>
+<TITLE>Form</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Form</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Format.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Help.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="4805"></A>
+The Form class (vform) is as a container subclass that not only groups together dialog items, but also associates the dialog items with fields that are also stored in the form. The form keeps track of field-item linkages and automatically creates the links when the form is loaded from a resource file.<P>
+Similar to the data/observer/view paradigm used in other Galaxy classes, in a form the fields serve as the data, while the dialog items serve as observers of the graphical interface, as well as views of the data.<P>
+<A NAME="5243"><H2> Relationship to Other Classes</H2></A>
+Since forms are modified containers, which in turn inherit much of the functionality of a dialog, familiarity with containers and dialogs is assumed in this chapter. If you need more information on these topics, refer to the Container and Dialog chapters. Forms also rely heavily on Fields. Understanding field concepts will be beneficial while implementing forms. You can find more information on fields in the Field chapter.<P>
+Galaxy's database manager provides a subclass of the Form class so that it can read from and write information to other databases.<P>
+<A NAME="5249"><H2> Basic Use of the FormItem</H2></A>
+Most applications do not build forms programmatically, but instead load a form from a resource file that was created using the Visual Resource Builder. Using forms you can load, with a single call, a form with all of its fields in from the resource file. The discussion in this chapter assumes that you have already loaded, or created, a suitable form and are ready to perform operations. For more information on working with resources, refer to the Resource chapter.<P>
+<A NAME="5334"><H3> Convenient Features of Forms</H3></A>
+Galaxy's Form class provides you with some container-related conveniences. By default, you have the ability to automatically turn on scroll bars when needed. For example, when a container has an internal fixed-width struts, it cannot change size because the contents of the container determine its dimensions. In this case, the Form can automatically turn on scroll bars if the entire content-area of the container is not visible. You can disable this feature by calling <TT>SetAutoScrollbarX</TT>, or <TT>SetAutoScrollbarY</TT>, with a <TT>FALSE</TT> value.<P>
+A second default convenience feature is auto scrolling to follow keyboard focus. This is useful when the container content does not fit within the display and the user tabs to an item that is not visible. The auto scroll feature will cause the container to scroll the focused item into view. You can disable this feature by calling <TT>SetAutoScrollFocus</TT>, passing in a <TT>FALSE</TT> value.<P>
+Lastly, you can find items recursively in a form. Use the <TT>FindItemRecursively</TT> call to find an item, no matter how deeply nested it might be in sub-containers. Note, however, that the search order is undefined so that, if multiple items have the same tag, there is no way to predict which one will be found and returned. This behavior is identical to <TT>FindItem</TT> except that <TT>FindItem</TT> does not find items nested in sub-containers. If you want to located all items in the form that have the same tag, use <TT>FindAllItems</TT>. It returns a sequence (<TT>vsequence</TT>) that contains all of the dialog items in the form with the given tag. Note that the <TT>FindAllItems</TT> call is recursive and searches all nested containers in a form.<P>
+<A NAME="5260"><H3> Adding, Removing, Associating and Finding Form Fields</H3></A>
+To add a field to a form, use <TT>AddField</TT>. Forms do the actual disk storage of the fields that you have added when the form itself is stored in a resource file, although the fields are still available in memory. This has implications when multiple processes might be attempting to access the same resource file. Use <TT>RemoveField</TT> to remove a field from a form.<P>
+To make a permanent association between a field and a dialog item in the form, call <TT>LinkField</TT>. The <TT>LinkField</TT> method records the association in the form, and also installs the item as an observer of the field. Links made in this way are persistent&#175;the form stores these associations when it is stored in a resource file, and restores them when the form is loaded from a resource file. <P>
+The following sample shows you how to create a field and add it to a form:<P>
+<A NAME="5265"><I>Example 75.  Creating a field and adding it to a form
+</I><P>
+<PRE><UL>vform      *form = vformCreateForm()
+vfieldLong *field = vfieldCreateLongField();
+
+vformAddField(form, field);
+vformLinkField (form,
+                vnameInternGlobalLiteral("itemTag"),
+                field);
+vformLinkField (form,
+                vnameInternGlobalLiteral("otherItemTag"),
+                field);
+
+</UL></PRE>The <TT>UnlinkField</TT> method breaks the linkage between the field and the items. For example:<P>
+<PRE><UL>vformUnlinkField (form,
+                  vnameInternGlobalLiteral("itemTag"),
+                  field);
+
+</UL></PRE>The above call would break the linkage between the field and the items with the tag "itemTag". The linkage between the field and the "otherItemTag" items remain unaffected. <P>
+A field can be found in a form by name. The <TT>GetField</TT> method returns the field with the given name in the form. The name must have been previously set using <TT>SetTag</TT>.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Format.html">Previous Chapter</A> | 
+		<A HREF="Help.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

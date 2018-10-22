@@ -1,0 +1,74 @@
+#!/bin/sh
+#==========================================================================
+#
+# File:      $RCSfile: diff_trees,v $
+# Version:   $Revision: 1.9 $
+# Modified:  $Date: 2013/01/10 23:42:20 $
+#
+# (c) Copyright 1992-2013 by Mentor Graphics Corp. All rights reserved.
+#
+#==========================================================================
+# This document contains information proprietary and confidential to
+# Mentor Graphics Corp., and is not for external distribution.
+#==========================================================================
+#
+# This script compare two source trees and finds files that are different
+#
+# Parameters:
+#   $1 - Directory of tree 1
+#   $2 - Directory of tree 2
+
+set -e
+set -u
+
+if [ $# -lt 2 ]; then
+  echo "Usage:
+   `basename $0` <tree1_dir> <tree2_dir>
+"
+  exit 2
+fi
+
+t1_dir=$1
+t2_dir=$2
+shift
+shift
+
+diff_cmd="/usr/bin/diff -bwr"
+
+$diff_cmd $t1_dir $t2_dir |
+sed '/^Common subdirectories: /d
+/\.depend_sol2/d
+/\.depend_win32/d
+/\.depend_hpux/d
+/makefile\.new/d
+/makefile\.orig/d
+/\.mk\.new/d
+/\.mk\.orig/d
+/\.mk\.ossg_E/d
+/^< \/\/  *File:/d
+/^> \/\/  *File:/d
+/^< \/\/  *Modified:/d
+/^> \/\/  *Modified:/d
+/^< \/\/ .*Copyright/d
+/^> \/\/ .*Copyright/d
+/^< \#  *File:/d
+/^> \#  *File:/d
+/^< \#  *Modified:/d
+/^> \#  *Modified:/d
+/^< \# .*Copyright/d
+/^> \# .*Copyright/d
+/^<  *$/d
+/^>  *$/d
+' |
+sed '/^[0-9][0-9]*..*$/{
+  N
+  /^[0-9][0-9]*..*\n---$/d
+}' |
+sed '/^diff ..*$/{
+  N
+  /^diff ..*\ndiff ..*$/D
+  /^diff ..*\nOnly ..*$/D
+  P
+  D
+}'
+

@@ -1,0 +1,597 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vbuffer prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vbuffer prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vbuffer-x.html#section_DataType">Types</A> [2]</TD>
+<TD><A HREF="vbuffer-x.html#section_Function">Functions</A> [27]</TD>
+<TD></TD>
+<TD><A HREF="vbuffer-x.html#section_Constant">Constants</A> [1]</TD>
+<TD></TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vbuffer"><HR><H4>vbuffer</H4></A>
+<PRE>
+        typedef ... <B>vbuffer</B>;
+</PRE>
+
+<DL><DD>
+Denotes a particular representation of a unit of
+information. Each buffer belongs to a group that is
+composed of buffers that represent the same information.
+Each buffer also has a device that determines its
+representation, and an owner that determines the source of
+its information. Buffers are used by the Image Manager and
+the Color Manager to map images and colors to different
+devices simultaneously. Most Galaxy users never need to use
+this type directly.
+</DD></DL>
+<P>
+<A NAME="vbufferDevice"><HR><H4>vbufferDevice</H4></A>
+<PRE>
+        typedef ... <B>vbufferDevice</B>;
+</PRE>
+
+<DL><DD>
+Denotes the particular representation that information in
+a buffer can be translated to. Each buffer object contains
+a reference to a particular device that determines how its
+information is represented. The window system drivers use
+buffer devices to specify the representation of window
+system resources.
+<P>
+Note that a buffer device need not correspond 
+to a physical device in any sense. The Pixmap
+Library, for example, defines a buffer device for the
+source representation of pixmaps. You can create your own
+buffer devices using this structure to define new pixmap
+and color representations. Buffer devices are usually
+declared as static variables and referenced by a pointer to
+this type.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vbufferCreate"><HR><H4>vbufferCreate</H4></A>
+<PRE>
+        vbuffer * <B>vbufferCreate</B>(
+                vbuffer * group,
+                const vbufferDevice * device,
+                const void * owner);
+</PRE>
+
+<DL><DD>
+Creates a new buffer in the buffer group <SAMP>group</SAMP>
+on the device <SAMP>device</SAMP> with the owner
+<SAMP>owner</SAMP> and returns a pointer to the new buffer.
+If <SAMP>group</SAMP> is <SAMP>NULL</SAMP>, the buffer is
+created in its own group. <SAMP>owner</SAMP> can be
+<SAMP>NULL</SAMP> at the callers option; it is not used by
+the buffer library. Storage for the buffer is allocated by
+the buffer library. The buffer library reclaims the storage
+occupied by the buffer when it is destroyed with
+<CODE><A HREF="vbuffer-x.html#vbufferDestroy"><CODE>vbufferDestroy</CODE></A></CODE>. 
+<P>
+The new buffer is created with a set of default attributes, 
+as documented in the ``Image Manager'' chapter of the 
+<I>Galaxy Application Environment Programmer's Guide</I>. 
+The buffer must be validated or marked before its contents can be used. 
+Note that this function does not check the buffer group for an existing
+buffer on the device <SAMP>device</SAMP>. Call <CODE><A HREF="vbuffer-x.html#vbufferFind"><CODE>vbufferFind</CODE></A></CODE> to 
+ensure that a new buffer is necessary. This function calls the
+<SAMP>Init</SAMP> function of the device once the buffer is
+initialized to perform any device-specific initialization.
+</DD></DL>
+<P>
+<A NAME="vbufferDestroy"><HR><H4>vbufferDestroy</H4></A>
+<PRE>
+        void <B>vbufferDestroy</B>(
+                vbuffer * buffer);
+</PRE>
+
+<DL><DD>
+Destroys a given buffer <SAMP>buffer</SAMP>, which must have
+been created by the buffer library. Use this function to
+reclaim the storage occupied by a buffer. The buffer should
+not be referenced by any other object when it is destroyed.
+<P>
+This function reclaims the storage occupied by
+<SAMP>buffer</SAMP> and calls the <SAMP>Destroy</SAMP>
+function in the buffers device to reclaim any
+device-specific contents. This function automatically
+unlinks the buffer from its group, if any. A warning is
+printed by debugging libraries if the buffer is locked when
+it is destroyed.
+</DD></DL>
+<P>
+<A NAME="vbufferDestroyGroup"><HR><H4>vbufferDestroyGroup</H4></A>
+<PRE>
+        void <B>vbufferDestroyGroup</B>(
+                vbuffer * group);
+</PRE>
+
+<DL><DD>
+Destroys every buffer in the buffer group
+<SAMP>group</SAMP>, which must have been created by the
+buffer library. Use this function to reclaim the storage
+occupied by an entire buffer group when the group's owner is
+destroyed. The group should not be referenced by any other
+object when it is destroyed. 
+<P>
+This function reclaims the storage occupied 
+by each buffer in the group and calls the
+<SAMP>Destroy</SAMP> function in each buffer's device to
+reclaim any device-specific contents. This function has the
+same effect as <CODE>vbufferDestroy</CODE> on a singleton
+group.
+</DD></DL>
+<P>
+<A NAME="vbufferFind"><HR><H4>vbufferFind</H4></A>
+<PRE>
+        vbuffer * <B>vbufferFind</B>(
+                vbuffer * group,
+                const vbufferDevice * device);
+</PRE>
+
+<DL><DD>
+Searches for a buffer in the buffer group
+<SAMP>group</SAMP> on the device <SAMP>device</SAMP> and
+returns its pointer. This function returns
+<SAMP>NULL</SAMP> if a buffer was not found in the group
+for the given device. If group is <SAMP>NULL</SAMP>, this
+function returns <SAMP>NULL</SAMP>. A buffer returned by
+this function must be validated or marked before its
+contents can be used.
+</DD></DL>
+<P>
+<A NAME="vbufferGetClientFlag"><HR><H4>vbufferGetClientFlag</H4></A>
+<PRE>
+        int <B>vbufferGetClientFlag</B>(
+                vbuffer * buffer);
+</PRE>
+
+<DL><DD>
+Returns the <CODE>ClientFlag</CODE> attribute of the
+buffer<SAMP> buffer</SAMP>. This flag is provided for use
+by the device that manages the buffer. Refer to the device
+documentation for its particular meaning, if any.
+</DD></DL>
+<P>
+<A NAME="vbufferGetClientFlagCount"><HR><H4>vbufferGetClientFlagCount</H4></A>
+<PRE>
+        int <B>vbufferGetClientFlagCount</B>();
+</PRE>
+
+<DL><DD>
+Returns the maximum number of client flags usable by an
+implementor of a buffer device. This is only useful to
+implementors of buffer devices. Refer to the device
+documentation for its particular meaning, if any.
+</DD></DL>
+<P>
+<A NAME="vbufferGetDevice"><HR><H4>vbufferGetDevice</H4></A>
+<PRE>
+        const vbufferDevice * <B>vbufferGetDevice</B>(
+                vbuffer * buffer);
+</PRE>
+
+<DL><DD>
+Returns the device that buffer <SAMP>buffer</SAMP> uses to
+determine its representation.
+</DD></DL>
+<P>
+<A NAME="vbufferGetNext"><HR><H4>vbufferGetNext</H4></A>
+<PRE>
+        vbuffer * <B>vbufferGetNext</B>(
+                vbuffer * buffer);
+</PRE>
+
+<DL><DD>
+Returns the next buffer in the buffer group of which
+<SAMP>buffer</SAMP> is a part. It returns
+<SAMP>buffer</SAMP> if the buffer is a singleton group.
+This function can be used to iterate over all the buffers
+in a given group. A buffer group is a circular list of
+buffers linked by their <CODE>Next</CODE> attributes.
+</DD></DL>
+<P>
+<A NAME="vbufferGetNthClientFlag"><HR><H4>vbufferGetNthClientFlag</H4></A>
+<PRE>
+        int <B>vbufferGetNthClientFlag</B>(
+                vbuffer * buffer,
+                int n);
+</PRE>
+
+<DL><DD>
+Returns the <SAMP>Nth</SAMP>ClientFlag
+attribute of the buffer<SAMP> buffer</SAMP>. These flags
+are provided for use by the device that manages the buffer.
+Refer to the device documentation for its particular
+meaning, if any.
+</DD></DL>
+<P>
+<A NAME="vbufferGetOwner"><HR><H4>vbufferGetOwner</H4></A>
+<PRE>
+        const void * <B>vbufferGetOwner</B>(
+                vbuffer * buffer);
+</PRE>
+
+<DL><DD>
+Returns the owner of the buffer <SAMP>buffer</SAMP>, or
+<SAMP>NULL</SAMP> if the buffer has no owner.
+</DD></DL>
+<P>
+<A NAME="vbufferGetPointer"><HR><H4>vbufferGetPointer</H4></A>
+<PRE>
+        const void * <B>vbufferGetPointer</B>(
+                vbuffer * buffer);
+</PRE>
+
+<DL><DD>
+Returns the pointer contents of a buffer
+<SAMP>buffer</SAMP>. This attribute is provided for use by
+the device that manages the buffer. Refer to the device
+documentation for its particular meaning, if any.
+</DD></DL>
+<P>
+<A NAME="vbufferGetScalar"><HR><H4>vbufferGetScalar</H4></A>
+<PRE>
+        unsigned long <B>vbufferGetScalar</B>(
+                vbuffer * buffer);
+</PRE>
+
+<DL><DD>
+Returns the scalar contents of the buffer
+<SAMP>buffer</SAMP>. This attribute is provided for use by
+the device that manages the buffer. Refer to the device
+documentation for its particular meaning, if any.
+</DD></DL>
+<P>
+<A NAME="vbufferInvalidate"><HR><H4>vbufferInvalidate</H4></A>
+<PRE>
+        void <B>vbufferInvalidate</B>(
+                vbuffer * buffer);
+</PRE>
+
+<DL><DD>
+Sets the <CODE>Valid</CODE> attribute of the buffer
+<SAMP>buffer</SAMP> to <SAMP>FALSE</SAMP>. The buffer is no
+longer used to validate invalid buffers, and the buffer is
+validated the next time its contents are requested.
+</DD></DL>
+<P>
+<A NAME="vbufferIsLocked"><HR><H4>vbufferIsLocked</H4></A>
+<PRE>
+        int <B>vbufferIsLocked</B>(
+                vbuffer * buffer);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the buffer <SAMP>buffer</SAMP>
+has been locked more times than it has been unlocked,
+<SAMP>FALSE</SAMP> if not. A locked buffer is not
+garbage-collected by its device.
+</DD></DL>
+<P>
+<A NAME="vbufferIsShared"><HR><H4>vbufferIsShared</H4></A>
+<PRE>
+        int <B>vbufferIsShared</B>(
+                vbuffer * buffer);
+</PRE>
+
+<DL><DD>
+Returns the <CODE>Shared</CODE> attribute of the buffer
+<SAMP>buffer</SAMP>. This flag is provided for use by the
+device that manages the buffer. It normally indicates that
+the contents of the buffer should not be destroyed when the
+buffer is destroyed, because they are being shared with
+another object. Refer to the device documentation for its
+particular meaning, if any.
+</DD></DL>
+<P>
+<A NAME="vbufferIsValid"><HR><H4>vbufferIsValid</H4></A>
+<PRE>
+        int <B>vbufferIsValid</B>(
+                vbuffer * buffer);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the buffer <SAMP>buffer</SAMP>
+is valid, <SAMP>FALSE</SAMP> if not. A buffer must be
+validated before its contents can be used.
+</DD></DL>
+<P>
+<A NAME="vbufferLock"><HR><H4>vbufferLock</H4></A>
+<PRE>
+        void <B>vbufferLock</B>(
+                vbuffer * buffer);
+</PRE>
+
+<DL><DD>
+Locks the buffer <SAMP>buffer</SAMP> so that it is not
+garbage-collected by its device. Call this function when
+you are about to use the contents of a buffer, and call
+<CODE><A HREF="vbuffer-x.html#vbufferUnlock"><CODE>vbufferUnlock</CODE></A></CODE> when you are done. 
+<P>
+Note that a buffer can be locked 
+any number of times, and that a buffer
+is not considered unlocked until it has been unlocked as
+many times as it has been locked. Permanently
+locking a buffer may cause the buffers device to run out of
+resources.
+</DD></DL>
+<P>
+<A NAME="vbufferMark"><HR><H4>vbufferMark</H4></A>
+<PRE>
+        void <B>vbufferMark</B>(
+                vbuffer * buffer);
+</PRE>
+
+<DL><DD>
+Indicates to the buffer library that the contents of the
+buffer <SAMP>buffer</SAMP> have been changed and that every
+other buffer in the same group is now invalid. This
+function sets the <CODE>Valid</CODE> attribute of the
+buffer <SAMP>buffer</SAMP> to <SAMP>TRUE</SAMP> without
+validating it, and invalidates every other buffer in the
+same group. Call this function each time you 
+change the contents of a buffer.
+</DD></DL>
+<P>
+<A NAME="vbufferSetClientFlag"><HR><H4>vbufferSetClientFlag</H4></A>
+<PRE>
+        void <B>vbufferSetClientFlag</B>(
+                vbuffer * buffer,
+                int flag);
+</PRE>
+
+<DL><DD>
+Changes the <CODE>ClientFlag</CODE> attribute of the buffer
+<SAMP>buffer</SAMP> to <SAMP>flag</SAMP>. This flag is
+provided for use by the device that manages the buffer.
+Refer to the device documentation for its particular
+meaning, if any.
+</DD></DL>
+<P>
+<A NAME="vbufferSetNthClientFlag"><HR><H4>vbufferSetNthClientFlag</H4></A>
+<PRE>
+        void <B>vbufferSetNthClientFlag</B>(
+                vbuffer * buffer,
+                int n,
+                int flag);
+</PRE>
+
+<DL><DD>
+Changes the<SAMP>Nth</SAMP> <CODE>ClientFlag</CODE>
+attribute of the buffer to <SAMP>flag</SAMP>. 
+These flags are provided for use by the
+device that manages the buffer. Refer to the device
+documentation for its particular meaning, if any.
+</DD></DL>
+<P>
+<A NAME="vbufferSetOwner"><HR><H4>vbufferSetOwner</H4></A>
+<PRE>
+        void <B>vbufferSetOwner</B>(
+                vbuffer * buffer,
+                const void * owner);
+</PRE>
+
+<DL><DD>
+Changes the owning object of the buffer <SAMP>buffer</SAMP>
+to <SAMP>owner</SAMP>. This function can be used to
+transfer ownership of a buffer to another object. Note that
+if the buffer belongs to a group, every object in the group
+must also be transferred.
+</DD></DL>
+<P>
+<A NAME="vbufferSetPointer"><HR><H4>vbufferSetPointer</H4></A>
+<PRE>
+        void <B>vbufferSetPointer</B>(
+                vbuffer * buffer,
+                const void * pointer);
+</PRE>
+
+<DL><DD>
+Changes the <CODE>pointer</CODE> attribute of the buffer
+<SAMP>buffer</SAMP> to <SAMP>pointer</SAMP>. This attribute
+is provided for use by the device that manages the buffer.
+Refer to the device documentation for its particular
+meaning, if any. 
+<P>
+Note that the attributes
+<CODE>Scalar</CODE> and <CODE>Pointer</CODE> cannot be set
+at the same time.
+</DD></DL>
+<P>
+<A NAME="vbufferSetScalar"><HR><H4>vbufferSetScalar</H4></A>
+<PRE>
+        void <B>vbufferSetScalar</B>(
+                vbuffer * buffer,
+                unsigned long scalar);
+</PRE>
+
+<DL><DD>
+Changes the <CODE>scalar</CODE> attribute of the buffer
+<SAMP>buffer</SAMP> to <SAMP>scalar</SAMP>. This attribute
+is provided for use by the device that manages the buffer.
+Refer to the device documentation for its particular
+meaning, if any. 
+<P>
+Note that the attributes
+<CODE>Scalar</CODE> and <CODE>Pointer</CODE> cannot be set
+at the same time.
+</DD></DL>
+<P>
+<A NAME="vbufferSetShared"><HR><H4>vbufferSetShared</H4></A>
+<PRE>
+        void <B>vbufferSetShared</B>(
+                vbuffer * buffer,
+                int flag);
+</PRE>
+
+<DL><DD>
+Changes the <CODE>Shared</CODE> attribute of the buffer
+<SAMP>buffer</SAMP> to <SAMP>flag</SAMP>. This flag is
+provided for use by the device that manages the buffer. It
+normally indicates that the contents of the buffer should
+not be destroyed when the buffer is destroyed, because the 
+contents are being shared with another object. Refer to the device
+documentation for its particular meaning, if any.
+</DD></DL>
+<P>
+<A NAME="vbufferStartup"><HR><H4>vbufferStartup</H4></A>
+<PRE>
+        void <B>vbufferStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the buffer library. You should not call this
+function; it is provided solely for use by the color
+manager startup code.
+</DD></DL>
+<P>
+<A NAME="vbufferUnlock"><HR><H4>vbufferUnlock</H4></A>
+<PRE>
+        void <B>vbufferUnlock</B>(
+                vbuffer * buffer);
+</PRE>
+
+<DL><DD>
+Unlocks the buffer <SAMP>buffer</SAMP> so that it can be
+garbage-collected by its device. Call this function when
+you no longer need the contents of a locked buffer. Note
+that a buffer can be locked any number of times, and that a
+buffer is not considered unlocked until it has been
+unlocked as many times as it has been locked.
+</DD></DL>
+<P>
+<A NAME="vbufferValidate"><HR><H4>vbufferValidate</H4></A>
+<PRE>
+        void <B>vbufferValidate</B>(
+                vbuffer * buffer);
+</PRE>
+
+<DL><DD>
+Validates the buffer <SAMP>buffer</SAMP> so that the
+buffer's contents are derived from any valid buffer in the
+buffer's group. This function has no effect if the buffer is
+already valid. 
+<P>
+When a buffer is validated, the buffer
+library searches through the buffers group for any buffer
+with valid contents. If a valid buffer is found, the
+<SAMP>import</SAMP> function of the invalid buffer's device
+is called with the invalid buffer and the valid buffer as
+arguments (respectively). If the import function returns
+<SAMP>FALSE</SAMP>, the <SAMP>export</SAMP> function of the
+valid buffers device is called with the valid buffer and
+the invalid buffer as respective arguments. 
+<P>
+This process continues for all valid buffers until an import or
+export function returns <SAMP>TRUE,</SAMP> or no valid
+buffers are left in the buffer's group. This function then
+sets the buffer's <CODE>valid</CODE> attribute to
+<SAMP>TRUE</SAMP> and returns.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vbufferINCLUDED"><HR><H4>vbufferINCLUDED</H4></A>
+<PRE>
+        <B>vbufferINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vbuffer.h</SAMP> is
+included.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

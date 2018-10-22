@@ -1,0 +1,132 @@
+<HTML>
+<HEAD>
+<TITLE>Iterator</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Iterator</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Installation.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Key_Item.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The primary class in the <EM><B>Iterator</B></EM> module is the iterator (<TT>viterator</TT>) base class. It does not iterate over anything itself, but does provide the basic form for concrete subclasses to follow. The second class in this module is the iterator group (<TT>viteratorGroup</TT>) class, itself derived from <TT>viterator</TT>. Instances of this class can add other iterator instances as parts where the full iteration of the iterator group is the successive iteration over each of the parts in order.<P>
+The elements retrievable from an iterator at each step through its loop are generally <TT>vkindTyped</TT> objects, but an iterator may be designed to return untyped 'void *' pointers as well. <TT>vkindTyped</TT> objects are also used to start iterators, although the <TT>NULL</TT> pointer may be passed to those iterators that enumerate over global elements.<P>
+The Attributed Manager uses iterators quite a bit.<P>
+ Applications, dialogs, dialog items, menus, and menu items are all attributed objects that are arranged into a user interface hierarchy. Changes to various attributes such as font, color, and whether enabled can automatically propagated down the hierarchy to children objects and so on. Since each of these classes have different types of children and manage them in different ways, there needs to be a way to iterate over the children generically. viterator subclasses provides this generality.<P>
+ A full child iterator is an iterator group built up with different partial iterators for each class of children. For example, a dialog may use one iterator to enumerate over follower windows and another to enumerate over dialog items, and a full iteration would visit each of these children in turn.<P>
+Not all iterators in Galaxy are <TT>viterator</TT> subclasses. For example, the low-level <TT>vdictIterator</TT> is not. However, even these non-polymorphic classes share the same basic structure outlined in this chapter.<P>
+Iterators are basically temporary objects which are created, started, looped until they are exhausted or no longer wanted, finished off, and then destroyed. The start and finish phases are distinct from the create and destroy phases so that the same iterator instance can be reused multiple times.<P>
+The start phase of an iterator is initiated by a starter object which may be a <TT>NULL</TT> pointer. The iterator keeps track of the starter object, but sometimes the iterator only uses that object once to set up temporary data references in the iterator instance.<P>
+Once it is started, the iterator may be looped zero or more times. Subclasses may present the elements in a specific order or not, depending on their specific nature. Also, they may repeat elements if that makes sense. However, they must be exhaustible at some point or else the iteration is ill-formed. Whether an iterator is exhausted or not is determined by a loop condition. If the iterator has no elements, then the loop condition returns <TT>FALSE</TT> the first time it is called. Otherwise, it returns <TT>TRUE</TT> for as long as there are more elements. Once a loop condition returns <TT>FALSE</TT>, it should continue to return <TT>FALSE</TT> on any and all subsequent tests.<P>
+If the loop condition was <TT>TRUE</TT>, then the iterator's user can retrieve the current element from the iterator. That element may be typed, that is derived from <TT>vkindTyped</TT>, or untyped, that is treated as '<TT>void *</TT>'s, based on the iterator's nature.<P>
+Whether an iterator is exhausted or simply aborted, it should be finished off right after use. This phases allows the iterator to free up any temporary data structures that may have been allocated. Generally speaking, iterators are fragile and should only be active for as long as they are immediately used.<P>
+One way that an iterator may be fragile is if it maintains pointer references into the starter object's data structures. If the starter object is modified directly, added to, or removed from, then those pointer references might be completely invalidated. In theory, it would be possible to maintain and update cross-references between the starter object and all active iterators, but iterators are intended to be light-weight and efficient.<P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+There are two idioms for using viterators. The standard idiom has the loop condition test being the active method that actually advances the loop, while the alternate idiom has the element retrieval being the active method.<P>
+<A NAME="3613"><H4> Standard idiom:</H4></A>
+<PRE><UL>   vobject *dialog, *child;
+   vobjectChildIterator iterator;
+
+   // ...
+   iterator-&gt;Start(dialog);
+   while (iterator-&gt;Next())
+   {
+      child = vobject::CastDown(iterator-&gt;GetElement());
+
+      // ...
+   }
+   iterator-&gt;Finish();
+
+</UL></PRE><A NAME="3627"><H4> Alternate idiom:</H4></A>
+<PRE><UL>   vobject *dialog, *child;
+   vobjectChildIterator iterator;
+
+   // ...
+   iterator-&gt;Start(dialog);
+   while (iterator-&gt;HasMoreElements())
+   {
+      child = vobject::CastDown(iterator-&gt;GetNextElement());
+
+      // ...
+   }
+   iterator-&gt;Finish();
+
+</UL></PRE>For most purposes, the two idioms are interchangeable, but the standard idiom has the advantage that inside of the loop the element can be retrieved any number of times without advancing the loop. Also, some iterator classes have additional methods to retrieve co-elements or attributes on the current element, so there would be problems if any of these methods were called before the loop is actually advanced. Regardless of which idiom is used, it is undefined to mix the two together.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Installation.html">Previous Chapter</A> | 
+		<A HREF="Key_Item.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

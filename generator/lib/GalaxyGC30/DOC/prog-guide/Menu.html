@@ -1,0 +1,427 @@
+<HTML>
+<HEAD>
+<TITLE>Menu</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Menu</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Memory.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Menubar.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="6688"></A>
+The<EM><B> Menu</B></EM> class allows you to create and manipulate <EM><B>menus</B></EM>, ordered collections of commands and settings. Menus are the principal method for manipulating application documents and issuing application commands. Each menu contains an array of <EM><B>menu items </B></EM>that represents individual commands. <A HREF="Menu.html#6483">Figure 54</A> illustrates a sample menu and typical menu items.<P>
+<A NAME="6483"><I>Figure 54.  Sample menu and menu items
+</I><P>
+<IMG SRC="Menu.anc.gif"><P>
+A menu is a window subclass. The Menu class adds methods to the window class to manage menu elements contained by a menu.<P>
+This chapter also discusses attribute bindings, context dictionaries, and the use of commands instead of notification functions. Refer to the Command chapter for information about using context dictionaries and commands, and to the Class Manager chapter for information about attribute bindings.<P>
+<A NAME="4642"><H2> Menu Types</H2></A>
+A <EM><B>menu</B></EM> is a single array (column) of menu items. The Menu class provides several different types of menus. The most basic type of menu is one associated with a menu bar, and located in a dialog. Refer to the Menu Bar chapter for more information on menu bars. Although a menu bar controls the style and location of its menus, it is the Menu Bar class that actually draws the menus, and the that implements notification of user-triggered actions.<P>
+A <EM><B>pinnable menu</B></EM> is a menu that can be removed from a dialog and placed in its own window. A dashed line or "push-pin" (depending on the look-and-feel) at the top of a menu denotes a pinnable menu.<P>
+Menus can also be associated with a dialog item. The dialog item's menu is activated by either clicking on the dialog item (such as a button), or by pressing on the pointer's menu activation button (usually the right mouse button).<P>
+A menu can be attached to another menu item, in which case the menu is referred to as a <EM><B>sub-menu</B></EM>. See <A HREF="Menu.html#6494">Figure 55</A> for a sample of different menus available through the Menu class.<P>
+<A NAME="6494"><I>Figure 55.  Different menus
+</I><P>
+<IMG SRC="Menu.anc1.gif"><P>
+Each menu has a class that determines its overall appearance and behavior. Each menu, as well, has a <EM><B>parent object</B></EM>, which is the object through which the application user opens the menu. <P>
+The parent object has two associated <EM><B>parent drag-off rectangles</B></EM> that define the areas of the screen where mouse dragging unselects the menu.<P>
+The Menu class draws the items of a standard menu within a rectangular window called the <EM><B>menu bounding box</B></EM>. <A HREF="Menu.html#6509">Figure 56</A> illustrates the menu bounding box.<P>
+<A NAME="6509"><I>Figure 56.  Menu structure
+</I><P>
+<IMG SRC="Menu.anc2.gif"><P>
+<A NAME="4893"><H4> Menu Items</H4></A>
+The Menu class provides several menu items:<P>
+<UL><LI>standard menu item
+<LI>sub-menu item
+<LI>toggle menu item
+<LI>separator menu item
+<LI>pushpin menu item
+</UL>The standard menu item contains the item's title, the mnemonic (if any), and the accelerator key (if any).<P>
+A sub-menu item references another menu. The sub-menu item contains a small triangle or arrow to indicate that a sub-menu will pop up when highlighted.<P>
+A toggle menu item allows the end-user to turn a menu item on or off. The application detects the state of the menu item, and takes the appropriate action. In addition to the title, mnemonic, and accelerator key, a toggle item contains a field indicating the current On or Off state.<P>
+A separator menu item can define groups of menu items by drawing a bar across the menu. Separator items can also be used to create exclusive groups of toggle items (groups of menu items that can only have one item selected at a time). See <A HREF="Menu.html#5120">Figure 57</A> for an illustration of different menu items.<P>
+<A NAME="5120"><I>Figure 57.  Menu items
+</I><P>
+<IMG SRC="Menu.anc3.gif"><P>
+Each menu item contains a content box, a right margin, and a left margin to display menu contents. <A HREF="Menu.html#6521">Figure 58</A> illustrates a menu item's metrics.<P>
+<A NAME="6521"><I>Figure 58.  Menu item metrics
+</I><P>
+<IMG SRC="Menu.anc4.gif"><P>
+<UL><B><I>NOTE:</I></B> When the item is drawn, the actual widths of the right and left margins are 
+calculated so that all items in the item list have the same width. The actual 
+width of the item list is the largest of the individual item widths.
+<P>
+</UL><A NAME="19560"><H4> Menu Item Lists</H4></A>
+A <EM><B>menu item list</B></EM> controls the structure and layout of the menu items. The menu item list also highlights menu items when the menu receives user events. Each menu item contains a content box, a right margin, and a left margin to display menu contents. Refer to <A HREF="Menu.html#6526">Figure 59</A> for an illustration of how menu item metrics are specified. Use a menu item list to control the location (index) of menu items, in addition to programmatically inserting and removing menu items.<P>
+Menu items are drawn from the top of the menu bounding box down. Each item has a content area that contains the visible contents of the item. The content areas are vertically spaced using explicit distances. However, their widths are dynamically justified when you draw the menu so as to visually align the information in different items. The width is set to the length of the longest menu item, while the left spacing is aligned with the text in other menu items (such as a toggle item). The metrics used to compute this information are stored in the menu item list. The calculation references the item's position in the menu item list, as well as the widths of the other menu items.<P>
+<A NAME="6526"><I>Figure 59.  Menu list structure
+</I><P>
+<IMG SRC="Menu.anc5.gif"><P>
+<UL><B><I>NOTE:</I></B> Item List Box, Item Boxes, and Item Content Boxes are typically not drawn.
+<P>
+</UL><A NAME="19567"><H3> Menu Inheritance</H3></A>
+Since menus are derived from windows they inherit attributes and bindings in the same way that windows do. A menu inherits attributes from its leader window, which in turn inherits attributes from its leader window. Inheritance continues in this manner until a window with no leader is reached (this could also be the original menu itself), at which point the window inherits from its application object. Note that objects inherit from their classes as well as their instances. <P>
+Note that a future release of Galaxy may allow a menu to inherit from its parent object (for instance, the menu bar or option menu) instead of its leader window. Refer to the Window chapter for more information about window inheritance.<P>
+Menu item element classes are derived from the default attributed object class. This means that menu items elements are part of the user interface inheritance hierarchy. Inherited menu item element attributes (for example, <TT>foreground</TT> <TT>color</TT>, and <TT>font</TT>) are first determined from the menu item's element's object attributes, if any, followed by the menu item's element's class attributes. The menu item element also inherits from its containing menu according to the algorithm described in the previous paragraph (using window leaders and applications). Inheritance can be diagrammed as follows, from highest precedence to lowest precedence. Italics indicate that zero or more objects can be present at that level. Note that if multiple leaders are present, then lookup passes from leader1 to class1 to leader2 to class2, not from leader1 to leader2 to class1 to class2.<P>
+<DL>
+<DT><DD> Menu Item<br>Menu Item Class
+<DT><DD> Menu<br>Menu Class
+<DT><DD> <EM>Menu Leader<br>Menu Leader Class</EM>
+<DT><DD> Application<br>Application Class
+</DL>
+<A NAME="4828"><H2> Creating and Using Menus</H2></A>
+You create most menus through the use of the Visual Resource Builder, although it is possible to construct menus programmatically with the Menu class. As a result, the Menu class provides creation and copy functions such as <TT><B>Create</B></TT>, <TT><B>Create*Item</B></TT>, and <TT><B>Copy</B></TT>.<P>
+A menu usually appears with a graphical component, often a menu bar. Remember that a menu bar only provides a stylistic representation of the menu, and does not contain the menus themselves. To manipulate and modify a menu, you need to get it from the parent object (in this case, a menu bar). <A HREF="Menu.html#5287">Example 101</A> demonstrates the association between a menu bar and its menus. Pinnable menus (menus that can be placed in a separate window) also can be accessed in a similar manner.<P>
+<A NAME="5287"><I>Example 101.  Menu bars and menus
+</I><P>
+<PRE><UL>   // ...
+   vmenubar *mbMain = (vmenubar *)
+     vdialogFindItem(dialog, vnameInternGlobalLiteral("mbMain"));
+
+   vmenu *mFile = vmenubarFindMenu(mbMain,
+                                   vnameInternGlobalLiteral("File"));
+   // ...
+
+</UL></PRE>Similarly, a generic dialog item can be associated with a menu. <A HREF="Menu.html#5297">Example 102</A> illustrates the association between a button (a dialog item) and a menu.<P>
+<A NAME="5297"><I>Example 102.  Dialog items and menus
+</I><P>
+<PRE><UL>   // ...
+
+   vbutton *bToDo = (vbutton *)
+     vdialogFindItem(dialog, vnameInternGlobalLiteral("bToDo"));
+
+   vmenu *ButtonMenu = vbuttonGetMenu(button);
+
+   // ...
+
+</UL></PRE><A NAME="5314"><H4> Locating Menu Items</H4></A>
+Once you have a reference to a menu, you can find an associated menu items in several different ways:<P>
+<UL><LI><TT><B>GetSelection<br></B></TT>To find the menu item that is currently selected.
+<LI><TT><B>GetItemAt<br></B></TT>If you know the location of a menu item.
+<LI><TT><B>GetDefault<br></B></TT>To locate the default menu item (the item that is selected when a menu pops up).
+<LI><TT><B>FindItem<br></B></TT>If you know the tag name assigned to a menu item.
+</UL>Note that menu items are numbered from zero to one less than the number of items in the menu.<P>
+The most common retrieval method is through using a menu item's tag with <TT><B>FindItem</B></TT>. For example, the following call locates the menu item with the tag (<EM>not</EM> the title) of "Exit":<P>
+<PRE><UL>   vmenuItem *miExit = vmenuFindItem(menu,
+                                     vnameInternGlobalLiteral("Exit"));
+
+</UL></PRE><A HREF="Menu.html#5458">Example 103</A> demonstrate a code sample that locates a menu item by its title.<P>
+<A NAME="5458"><I>Example 103.  Locating a menu item by its title
+</I><P>
+<PRE><UL>vmenuItem *FindItemByTitle (vmenu *menu, const vchar *title)
+{
+   vmenuItem *miTemp;
+   int        num;
+
+   /*
+    * Find the number of menu items, and loop through looking for an
+    * item that has the name.
+    */
+   for (num = 0; num &lt; vmenuGetItemCount(menu); num++) {
+      miTemp = vmenuGetItemAt(menu, num);
+      if (vcharCompare(vmenuGetItemTitle(miTemp), title) == 0) {
+         /* Found it! */
+         return (miTemp);
+      }
+   }
+
+   /* If we got here, we didn't find it so return NULL */
+   return NULL;
+}
+
+</UL></PRE><A NAME="5262"><H4> Triggering Actions</H4></A>
+For a menu item to trigger an action, you need to do one of the following:<P>
+<UL><LI>Assign a notification function to each of the menu items.
+<LI>Assign a predefined command as the menu items elements tag.
+<LI>Assign a command dictionary containing the menu item's element's tag to an appropriate command space.
+</UL>Using predefined commands and assigning command dictionaries allows the application to take advantage of the Command Manager. In complex applications, where several items can trigger an action (such as a button and a menu item), a single command can be assigned to handle both cases. Refer to the Command Manager for more information on commands.<P>
+You can, however, assign a notification function to each menu item in order to perform actions suitable to the menu item selected. <A HREF="Menu.html#5499">Example 104</A> illustrates this for a menu item (in this case "Exit").<P>
+<A NAME="5499"><I>Example 104.  Notification function for a menu item
+</I><P>
+<PRE><UL>{
+   // ...
+
+   /*
+    * Find the menu item with the Tag of "Exit"
+    */
+   miExit = vmenuFindItem(menu, vnameInternGlobalLiteral("Exit"));
+
+   /*
+    * Assign a notification function to the menu item
+    */
+   vmenuSetItemNotify (miExit, ExitNoteProc);
+
+   // ...
+}
+
+/*
+ * This is a menu item notification function that will optionally
+ * shutdown a program.
+ */
+void ExitNoteProc (vmenuItem *miExit, vevent *event)
+{
+   /*
+    * ConfirmExit is a user provided function to confirm exiting
+    */
+   if (ConfirmExit() )
+     veventStopProcessing();
+}
+
+</UL></PRE><A NAME="5263"><H4> Adding and Removing Menu Items</H4></A>
+Menu items can be dynamically added and removed from menus. Even if the menu has been created with the Visual Resource Builder, adding menu items to a menu might be useful (such as when adding previously accessed file names to the "File" menu). <A HREF="Menu.html#5277">Example 105</A> illustrate a code sample that appends a new menu item onto a menu.<P>
+<A NAME="5277"><I>Example 105.  Adding a menu item to a menu
+</I><P>
+<PRE><UL>void AddToMenu1 (vmenu *menu, const vchar *title)
+{
+   /* Create a new menu item, allocating memory, etc. */
+   vmenuItem *miNew = vmenuCreateItem();
+
+   /* Assign the name to the new menu item */
+   vmenuSetItemTitle(miNew, title);
+
+   /* Add the menu item onto the bottom of the menu */
+   vmenuAppendItem(menu, miNew);
+}
+
+</UL></PRE>A menu item can be removed from the menu by using <TT><B>DeleteItem</B></TT>.<P>
+A menu item can also be inserted into the middle of a menu, but this requires that you reference the menu item list, which you can get by using <TT><B>GetItemList</B></TT>. Insert the menu item with <TT><B>InsertItemListItem</B></TT>. This function requires the item list, the menu item to be inserted, and the index for insertion. Note that the item is inserted immediately after the given index. A more refined version of <A HREF="Menu.html#5277">Example 105</A> is shown in <A HREF="Menu.html#5336">Example 106</A>, which limits the number of new menu items to five and inserts the filename after the "Exit" menu item.<P>
+<A NAME="5336"><I>Example 106.  Inserting menu items
+</I><P>
+<PRE><UL>/*
+ * This function expects the last standard menu item to be called
+ * "Exit." It will place the last five names passed to it onto the
+ * menu.
+ */
+void AddToMenu2 (vmenu *menu, const vchar *title)
+{
+   vmenuItem     *miNew;
+   vmenuItem     *miExit;
+   vmenuItemList *itemList;
+   int            num;
+
+   miExit = vmenuFindItem(menu, vnameInternGlobalLiteral("Exit"));
+   /* Find the menu item called "Exit" */
+   if ( miExit == NULL ) {
+      /* Problem */
+      vdebugMWarn(("Could not find Exit in the menu."));
+      return;
+   }
+
+   /* Find how many filenames are already in the menu */
+   num = vmenuGetItemCount(menu) -
+     (vmenuGetItemIndex(menu, miExit) + 1);
+
+   /* Check if there are more than five and, if so remove one */
+   if (num == 5)
+     /* Delete the last one */
+     vmenuDeleteItem(menu,
+                     vmenuGetItemAt(menu, vmenuGetItemCount(menu) - 1));
+
+   /* Create and assign the title to the new menu item */
+   miNew = vmenuCreateItem();
+   vmenuSetItemTitle(miNew, title);
+
+   /* Get the menu list item (needed for insert function) */
+   itemList = vmenuGetItemList(menu);
+
+   /* Insert the menu to just after the "Exit" menu item */
+   vmenuInsertItemListItem(itemList, miNew,
+                           vmenuGetItemIndex(menu, miExit));
+
+}
+
+</UL></PRE><A NAME="5329"><H4> Pinnable menus</H4></A>
+A pinnable menu allows the end-user to place a menu in an individual window. The window is assigned to be follower to the dialog that originally contained the menu. As a result, any menu item selected in the pinnable menu is passed up the window inheritance hierarchy. This results in the original dialog handling the menu item's event as if it was generated in the dialog itself. Refer to the Window chapter for more information on inheritance.<P>
+<A NAME="5331"><H4> Menu Separator Items</H4></A>
+Use a menu separator item to visually group menu items together. A separator cannot be selected by the end-user, so most menu item attributes (such as notification and enable or disable state) are not applicable. You can create a menu separator item by using <TT><B>CreateSeparatorItem</B></TT>; place the separator on a menu by using <TT><B>AppendItem</B></TT> or <TT><B>InsertItemListItem</B></TT>, as illustrated in <A HREF="Menu.html#5277">Example 105</A>.<P>
+<A NAME="5564"><H4> Menu and Menu Item States</H4></A>
+There are times when it is desirable to prevent the user from selecting a particular menu item, or perhaps an entire menu. Change the enabled state of a menu by using <TT><B>Disable</B></TT> and <TT><B>Enable</B></TT>. Similarly, menu items can be enabled or disabled by using <TT><B>DisableItem</B></TT> and <TT><B>EnableItem</B></TT>.<P>
+<A NAME="5519"><I>Example 107.  Changing the state of a menu item
+</I><P>
+<PRE><UL>void ToggleSaveOption (vmenubar *menubar)
+{
+   vmenu     *mFile = vmenubarFindMenu(menubar,
+                                       vnameInternGlobalLiteral("File"));
+   vmenuItem *miSave = vmenuFindItem(mFile,
+                                     vnameInternGlobalLiteral("Save"));
+
+   /* If it is enabled, disable it. Otherwise, enable it */
+   if (vmenuItemIsEnabled(miSave))
+     vmenuDisableItem(miSave);
+   else
+     vmenuEnableItem(miSave);
+}
+
+</UL></PRE>Note that although the Menu class provides this functionality, in complex applications it is often better to use a context dictionary, which controls the attribute state of dialog items and menus. See the Command and Class Manager chapters for more information on changing attributes with a context dictionary.<P>
+<A NAME="5332"><H4> Toggle Menu Items</H4></A>
+The Menu class provides a menu item called a toggle item that allows the end-user to turn a menu item On or Off. You can determine whether the menu item is currently in an On or Off state by using <TT><B>ItemIsOn</B></TT>. You can change the On or Off state by using <TT><B>SetOn</B></TT> and passing it <TT>TRUE</TT> or <TT>FALSE</TT>. <A HREF="Menu.html#5538">Example 108</A> illustrates using a toggle item.<P>
+<A NAME="5538"><I>Example 108.  Using a toggle item
+</I><P>
+<PRE><UL>/*
+ * Note that by the time this notification function is called, the Menu
+ * class has already set the menu item to be On or Off depending on user
+ * action and its previous state. This determines what action should now
+ * be taken according to the current On or Off state.
+ */
+void ViewGridLines (vmenuItem *miGrid, vevent *event)
+{
+   /* Determine whether they turned the menu item on or off */
+   if (vmenuItemIsOn)   /* Menu item is on! */
+     /* User defined function */
+     DrawGridLines();
+   else                 /* Menu item is off... */
+     RemoveGridLines();
+
+}
+
+</UL></PRE><A NAME="5266"><H4> Exclusive Groups of Toggle Items</H4></A>
+The Menu class allows you to group menu items by using a menu item separator. You can create exclusive groups of toggle items, where only one toggle item in the group can be selected at any one time by using <TT>SetExclusive</TT>. You can determine whether an menu item is assigned to an exclusive group by using <TT><B>ItemIsExclusive</B></TT>.<P>
+<A NAME="5536"><H4> Sub-menus</H4></A>
+A sub-menu is a menu that is attached to a menu item. A sub-menu pops up when the end-user highlights a menu item that has an assigned sub-menu. In general, sub-menus function just like other menus. If you ever need to access a sub-menu, use GetItemSubMenu, passing in the menu item to which the sub-menu is attached.<P>
+<A NAME="4838"><H2> Preferences</H2></A>
+The only preference that the Menu class defines is menuflashcount, which controls the number of times a Macintosh menu blinks when selected. See the Preference chapter for more information on preferences.<P>
+<A NAME="4840"><H2> Subclassing</H2></A>
+The code in <A HREF="Menu.html#4988">Example 109</A> illustrates how you can subclass the default menu class.<P>
+<A NAME="4988"><I>Example 109.  Subclassing the default menu class
+</I><P>
+<PRE><UL>static vmenuClass *menuClass;
+
+static void menuEnableFunction(vmenu *menu)
+{
+   vclassSendSuper(menuClass, vmenuENABLE, (menu));
+   vdebugMInform(("Enable menu...n"));
+}
+
+
+static void menuDisableFunction(vmenu *menu)
+{
+   vclassSendSuper(menuClass, vmenuDISABLE, (menu));
+   vdebugMInform(("Disable menu...n"));
+}
+
+
+static void menuArrangeFunction(vmenu *menu, const vmenuMetrics *metrics)
+{
+   vclassSendSuper(menuClass, vmenuARRANGE, (menu, metrics));
+   vdebugMInform(("Arranges dimensions for menu...n"));
+}
+
+void ExampleFunction (void)
+{
+   // ...
+
+   vmenu       *menu;
+   vmenuMetrics metrics;
+
+   menuClass = vclassReproduce(vmenuGetDefaultClass());
+
+   vclassSet(menuClass, vmenuENABLE,  menuEnableFunction);
+   vclassSet(menuClass, vmenuDISABLE, menuDisableFunction);
+   vclassSet(menuClass, vmenuARRANGE, menuArrangeFunction);
+
+   menu = vmenuCreateOfClass(menuClass);
+
+   vmenuEnable(menu);
+   /* will call menuEnableFunction(...) */
+
+   metrics.flags = 0;
+   metrics.left = 3;
+   metrics.right = 3;
+   metrics.above = 3;
+   metrics.below = 3;
+   metrics.leftItem = 2;
+   metrics.rightItem = 2;
+   metrics.aboveItem = 2;
+   metrics.belowItem = 2;
+
+   vmenuArrange(menu, &amp;metrics);
+   /* will notify menuArrangeFunction(...) */
+
+   vmenuDisable(menu);
+   /* will notify menuDisableFunction(...) */
+
+
+   // ...
+}
+
+</UL></PRE><A NAME="4842"><H2> Avoiding Pitfalls</H2></A>
+Although it is possible to individually disable and enable menu items, for complex menus and dialog items, it is often easier to use an attribute dictionary. An attribute dictionary controls the state of dialog items, including menus. See the Class Manager chapter for more information on attribute dictionaries.<P>
+It is important to note that a pinned menu and the original menu in a dialog are both still functional. Hence, an end-user can use either menu to cause actions to take place. Note that the pinned menu and original menu do <EM>not</EM> communicate the state of their items to each other. In other words, if a user were to turn off a toggle menu item in the pinned menu, the toggle menu item in the original menu would not automatically change to an "off" position as well. Hence, if toggle menu items are to be used in a pinnable menu, you must provide appropriate functions to handle the proper toggling of items in both menus.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Memory.html">Previous Chapter</A> | 
+		<A HREF="Menubar.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

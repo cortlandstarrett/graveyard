@@ -1,0 +1,257 @@
+<HTML>
+<HEAD>
+<TITLE>Date</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Date</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Datatag.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Debugging.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="14111"></A>
+The <EM><B>Date</B></EM> class provides a way to manipulate dates and times. The Date class contains information on both dates and time, and has methods for getting and setting the time, performing arithmetic with dates, altering the time zone, and others. It defines an object, a <TT>vdate</TT>, which contains a date and time. A vdate can be manipulated in various ways, such as setting it to the current time, performing arithmetic with dates, and altering the time zone.<P>
+The Date class also provides access to locale-specific information such as the names of days of the week, months, and time zones. It includes methods to print and parse dates in a variety of internationalized representations, which can be further customized as needed.<P>
+<A NAME="218"><H2> Manipulating Dates and Times</H2></A>
+To get the current date and time, you must first create a vdate object. This can be done with <TT><B>Create</B></TT> to make a dynamic vdate, or with <TT><B>Init</B></TT> to set up already allocated memory as a vdate object. For example:<P>
+<PRE><UL>   date = vdateCreate();
+
+</UL></PRE>The initial value of the field of a vdate is undefined. Once you have a date object, you can set it to contain the current date and time with <TT><B>SetCurrent</B></TT>:<P>
+<PRE><UL>   vdateSetCurrent(date);
+
+</UL></PRE>You can also set the individual fields manually with the <TT>Set&lt;Field&gt;</TT> calls. The following example sets the time portion of date to 2:30 PM, and leaves the date portion unchanged:<P>
+<PRE><UL>   vdateSetHour(date, 14);
+   vdateSetMinute(date, 30);
+   vdateSetSecond(date, 0);
+
+</UL></PRE>The values used to set the fields must be within the legal ranges of the respective parameter or an exception is generated.<P>
+Once <TT>date</TT> has been initialized, you can get the values of the various components of the date with <TT>GetField</TT>. In addition to the hour, minute, second, month, day, year, and time zone, you can also get the day of the week and the day of the year.<P>
+You can also modify a <TT>vdate</TT> by adding time intervals to it with the <TT>Add&lt;Field&gt;</TT> calls. These calls can take an arbitrary interval, either positive or negative, and modify the time by that amount. The next example uses the date that was set to 2:30 PM above, and leaves date set to 2:30 AM on the next day.<P>
+<PRE><UL>   vdateAddHours(date, 12);
+
+</UL></PRE><A NAME="237"><H2> Creating Strings from Dates</H2></A>
+To form the string representation of a date in the default format, a scribe is made from the date using a <TT><B>Scribe</B></TT> call, and then a string is created from the scribe. (Refer to the String chapter for more information about scribes.).<P>
+For example, to create a string from the date in the above example, you could call:<P>
+<PRE><UL>   dynamicString = vstrCloneScribed(vdateScribe(date));
+
+</UL></PRE>This results in <TT>dynamicString</TT> equaling "<TT>Mon Apr 20, 1992 2:30:00 AM EDT</TT>." Note that the actual format of the string depends on the current locale.<P>
+If you need more control over the format the date is printed with, you can call <TT><B>ScribeFormatted</B></TT>, which takes more parameters, but gives you more control over the representation used for the date.<P>
+For example, to just briefly show the time in the given date, you could call:<P>
+<PRE><UL>   dynamicString = vstrCloneScribed(vdateScribeFormatted(date,
+                            vdateGetTerseTimeFormat()));
+
+</UL></PRE>This results in <TT>dynamicString</TT> equaling "<TT>2:30 AM</TT>."<P>
+<A NAME="252"><H2> Creating Dates from Strings</H2></A>
+To read a date from a string when the string contains a date in the default format, use <TT><B>Parse</B></TT> , passing in an already existing date to be filled in. For example, to read a date from the string <TT>text</TT>, use:<P>
+<PRE><UL>   vdateParse(text, NULL, date).
+
+</UL></PRE>Any fields present in the string representation of the date are filled in, leaving other fields unchanged. An exception is generated if the contents of text do not represent a date.<P>
+The second parameter to <TT><B>Parse</B></TT> is the address of a pointer to set to the end of the text read to form the date, so parsing can continue if there is more than just one date in the text. For instance, to read a series of dates from a string text, use:<P>
+<PRE><UL>   while (*text) {
+      vdateParse(text, &amp;text, date);
+
+      /* do something with date here */
+
+      while (vcharIsWhiteSpace(*text))
+        text++;
+   }
+
+</UL></PRE>To parse times and dates in a format other than the default, you can use <TT><B>ParseFormatted</B></TT>. This method takes a date format parameter that can change the way the date can be represented.<P>
+There are also the calls <TT><B>SizedParse</B></TT> and <TT><B>SizedParseFormatted </B></TT>that take a string and an explicit size rather than a null terminated string.<P>
+<A NAME="269"><H2>  Customizing Date Representations</H2></A>
+The format of a date is specified by a <TT>vdateFormat</TT> . The format controls which fields to use to represent the date and in what manner and order they appear. It also allows the inclusion of decorative text such as punctuation that can appear in the representation.<P>
+The Date class provides predefined internationalized date formats for several types of date and/or time formats.<P>
+If the developer needs more control over the formats used to represent dates and times than these predefined formats give, the formats can be examined and modified or new ones created. A format consists of a list of components, each of which makes up a part of the representation of a date. The parts of the date are printed or parsed in the same order they appear in the format. The different types of components are summarized in <A HREF="Date.html#11211">Table 14</A>.<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="404"><I>Table 14.  Component types for date representation
+</I><P>
+</CAPTION>
+
+<tr><th><B>Component
+</B></th><th><B>Description
+</B></th>
+<tr><td><TT><B>Text
+</B></TT></td><td>Text to appear in date.
+</td></tr>
+<tr><td><TT><B>White Space
+</B></TT></td><td>Possibly optional white space to appear in date.
+</td></tr>
+<tr><td><TT><B>Number
+</B></TT></td><td>Number representing a field of the date to appear in the date.<br>
+The different types of numbers that can appear are described later.
+</td></tr>
+<tr><td><TT><B>Name
+</B></TT></td><td>Name representing a field of the date to appear in the date.<br>
+The different types of names that can appear are described later.
+</td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+The following example describes how to construct a time format that recognizes or prints a verbose representation of the date portion of a <TT>vdate</TT> object, in the form "Sunday April 19, 1992."<P>
+First, create an empty date format:<P>
+<PRE><UL>   format = vdateCreateFormat();
+
+</UL></PRE>Now add the weekday to the format:<P>
+<PRE><UL>   vdateAddFormatName(format, NULL, vdateWEEK_DAY_NAME,
+                      FALSE, FALSE, TRUE);
+
+</UL></PRE>The first <TT>FALSE</TT> says that the name is not printed in abbreviated form. (However, the name is still recognized when parsing in either abbreviated or non-abbreviated form.) The second <TT>FALSE</TT> states that the name is not required to be in the string when parsing a date. Note that the weekday does not give us any useful information when parsing a date and is simply ignored. The <TT>TRUE</TT> argument indicates that the name should be printed when the date is printed.<P>
+The weekday name is followed with white space, which is included next:<P>
+<PRE><UL>   vdateAddFormatWhiteSpace(format, NULL, FALSE, TRUE);
+
+</UL></PRE>The <TT>FALSE</TT> indicates that the white space is optional when parsing, while the <TT>TRUE</TT> indicates that it is shown when printing (as a single space).<P>
+Next include the month name:<P>
+<PRE><UL>   vdateAddFormatName(format, NULL, vdateMONTH_NAME, 
+                      FALSE, TRUE, TRUE);
+
+</UL></PRE>Note that for the month name, it is required that the name be present or a syntax error occurs.<P>
+Now more white space:<P>
+<PRE><UL>   vdateAddFormatWhiteSpace(format, NULL, TRUE, TRUE);
+
+</UL></PRE>Next comes the date number:<P>
+<PRE><UL>   vdateAddFormatNumber(format, NULL, vdateDATE_NUMBER,
+                        NULL, TRUE, TRUE);
+
+</UL></PRE>The null pointer indicates that the date should be represented with the default number format. Note, however, that this number format recognizes decimal places, scientific notation, and negative numbers, which should probably be considered syntax errors. So in a real situation it might be more desirable to create a new simplified number format to represent the date. The two <TT>TRUE</TT> arguments indicate that the number is both required when parsed and shown when printed, respectively.<P>
+The next component of the time format is the comma:<P>
+<PRE><UL>vdateAddFormatTextScribed(format, NULL, vcharScribeLiteral(","),
+                vregexpCreateScribed(vcharScribeLiteral(",?")));
+
+</UL></PRE>The string that is passed specifies the text that appears when the date is printed, while the regular expression specifies the text that can appear when the date is parsed. Note how the regular expression is used to make the comma optional.<P>
+Next comes more white space, this time optional:<P>
+<PRE><UL>   vdateAddFormatWhiteSpace(format, NULL, FALSE, TRUE);
+
+</UL></PRE>And finally, the year:<P>
+<PRE><UL>   vdateAddFormatNumber(format, NULL, vdateYEAR_FULL_NUMBER,
+                        NULL, FALSE, TRUE);
+
+</UL></PRE>Again <TT>null</TT> is passed for the number format for simplicity, even though a custom, simpler number format might be better for parsing. The year is made optional, so if the year does not appear in a parsed date it remains unchanged.<P>
+Often it is easier to modify one of the provided date formats than to create a new one. This method also insures that internationalization information remains intact. The following example shows how to change the predefined "verbose" format to use a 24-hour clock instead of a 12-hour clock.<P>
+<UL><B><I>NOTE:</I></B> The verbose format might not use a 12-hour clock, as the format may be 
+different in different locales. The code must take this into account.
+<P>
+</UL>First, make a copy of the verbose format so you can modify it:<P>
+<PRE><UL>   format = vdateCloneFormat(vdateGetVerboseFormat());
+
+</UL></PRE>Now, simply iterate through the format doing two things: change any 12-hour numbers to 24-hour numbers, and remove any meridian names ("AM" or "PM"):<P>
+<A NAME="332"><I>Example 34.  Changing twelve-hour numbers to twenty-four hour numbers
+</I><P>
+<PRE><UL>   vdateFormatIterator formatIterator;
+   vbool alreadyAdvanced;
+
+   vdateInitFormatIterator(&amp;formatIterator, format);
+   alreadyAdvanced = FALSE;
+
+   while (alreadyAdvanced ||
+          vdateNextFormatIterator(&amp;formatIterator)) {
+      alreadyAdvanced = FALSE;
+
+      if (vdateGetFormatIteratorType(&amp;formatIterator) ==
+          vdateFORMAT_NUMBER &amp;&amp;
+          vdateGetFormatIteratorNumber(&amp;formatIterator) ==
+          vdateHOUR_12_NUMBER) {
+         vdateAddFormatNumber(format, &amp;formatIterator,
+                              vdateHOUR_24_NUMBER, NULL,
+                              TRUE, TRUE);
+         vdateRemoveFormatComponent(format, &amp;formatIterator);
+         alreadyAdvanced = TRUE;
+      } else if (vdateGetFormatIteratorType(&amp;formatIterator) ==
+                 vdateFORMAT_NAME &amp;&amp;
+                 vdateGetFormatIteratorName(&amp;formatIterator) ==
+                 vdateMERIDIAN_NAME) {
+         vdateRemoveFormatComponent(format, &amp;formatIterator);
+         if (vdateGetFormatIteratorType(&amp;formatIterator) ==
+             vdateFORMAT_WHITE_SPACE)
+           vdateRemoveFormatComponent(format, &amp;formatIterator);
+         alreadyAdvanced = TRUE;
+      }
+   }
+
+   vdateDestroyFormatIterator(&amp;formatIterator);
+
+</UL></PRE><P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Datatag.html">Previous Chapter</A> | 
+		<A HREF="Debugging.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

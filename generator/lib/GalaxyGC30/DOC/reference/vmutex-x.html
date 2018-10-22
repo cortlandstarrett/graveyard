@@ -1,0 +1,585 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vmutex prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vmutex prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vmutex-x.html#section_DataType">Types</A> [1]</TD>
+<TD><A HREF="vmutex-x.html#section_Function">Functions</A> [29]</TD>
+<TD></TD>
+<TD><A HREF="vmutex-x.html#section_Constant">Constants</A> [4]</TD>
+<TD></TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vmutex"><HR><H4>vmutex</H4></A>
+<PRE>
+        typedef ... <B>vmutex</B>;
+</PRE>
+
+<DL><DD>
+A synchronization object used to provide mutual exclusion between
+multiple threads.
+<p>
+A thread may lock a mutex if no other thread already has the mutex
+locked. Once locked, the thread will hold the mutex until it unlocks
+it, preventing other threads from locking the mutex. If a
+thread attempts to lock a mutex already held by another thread, then
+that thread will wait until the mutex is unlocked.
+<p>
+There are two types of mutexes: recursive and non-recursive. A
+recursive mutex can be locked multiple times by a single thread while
+a non-recursive mutex can only be locked once by a thread. A
+non-recursive mutex is typically much faster than a recursive mutex.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vmutexAssertLocked"><HR><H4>vmutexAssertLocked</H4></A>
+<PRE>
+        void <B>vmutexAssertLocked</B>(
+                vmutex * mutex);
+</PRE>
+
+<DL><DD>
+Asserts that <samp>mutex</samp> is locked by the calling thread.
+This function is defined only if debugging is enabled, and is intended
+as a debugging aid. You might want to assert that a particular mutex
+is locked in a function that should only be called when that mutex is
+locked. <code>vmutexAssertLocked</code> will cause the program to
+abort with a useful message if the mutex is not locked by the calling
+thread.
+</DD></DL>
+<P>
+<A NAME="vmutexAssertLockedGlobal"><HR><H4>vmutexAssertLockedGlobal</H4></A>
+<PRE>
+        void <B>vmutexAssertLockedGlobal</B>();
+</PRE>
+
+<DL><DD>
+Asserts that the Galaxy global mutex is locked by the calling thread.
+This function is defined only if debugging is enabled and is intended
+as a debugging aid. You might want to assert that the global mutex
+is locked in a function that should only be called when the global mutex is
+locked. <code>vmutexAssertLockedGlobal</code> will cause the program to
+abort with a useful message if the global mutex is not locked by the calling
+thread.
+</DD></DL>
+<P>
+<A NAME="vmutexDestroy"><HR><H4>vmutexDestroy</H4></A>
+<PRE>
+        void <B>vmutexDestroy</B>(
+                vmutex * mutex);
+</PRE>
+
+<DL><DD>
+Destroys the mutex represented by <samp>mutex</samp>, which must have
+been initialized by <code><A HREF="vmutex-x.html#vmutexInit"><CODE>vmutexInit</CODE></A></code>. The mutex will no longer
+be valid and should not be used by any thread after this
+call. <code>vmutexDestroy</code> will only work on a mutex that is not
+locked by any thread. Attempting to call this function on a locked
+mutex will cause the program to abort with a helpful error message.
+</DD></DL>
+<P>
+<A NAME="vmutexDetermineType"><HR><H4>vmutexDetermineType</H4></A>
+<PRE>
+        int <B>vmutexDetermineType</B>(
+                vmutex * mutex);
+</PRE>
+
+<DL><DD>
+Returns the type of <samp>mutex</samp>. The value returned will either be
+<samp>vmutexTYPE_NON_RECURSIVE</samp> or <samp>vmutexTYPE_RECURSIVE</samp>.
+</DD></DL>
+<P>
+<A NAME="vmutexDump"><HR><H4>vmutexDump</H4></A>
+<PRE>
+        void <B>vmutexDump</B>(
+                vmutex * mutex,
+                FILE * fp);
+</PRE>
+
+<DL><DD>
+Prints the contents of the mutex <samp>mutex</samp> on the file
+<samp>fp</samp> in user-readable form. This function is intended for
+debugging and should not be used to store the contents of the mutex in
+recoverable form. This function has effect only if debugging is
+enabled.
+</DD></DL>
+<P>
+<A NAME="vmutexDumpAll"><HR><H4>vmutexDumpAll</H4></A>
+<PRE>
+        void <B>vmutexDumpAll</B>(
+                FILE * fp);
+</PRE>
+
+<DL><DD>
+Prints the contents of all mutexes created by a program on the file
+<samp>fp</samp> in user-readable form. This function is intended for
+debugging and should not be used to store the contents of any mutex in
+recoverable form. This function has effect only if debugging is
+enabled.
+</DD></DL>
+<P>
+<A NAME="vmutexDumpGlobal"><HR><H4>vmutexDumpGlobal</H4></A>
+<PRE>
+        void <B>vmutexDumpGlobal</B>(
+                FILE * fp);
+</PRE>
+
+<DL><DD>
+Prints the contents of the global mutex on the file
+<samp>fp</samp> in user-readable form. This function is intended for
+debugging and should not be used to store the contents of the global mutex in
+recoverable form. This function has effect only if debugging is
+enabled.
+</DD></DL>
+<P>
+<A NAME="vmutexGetName"><HR><H4>vmutexGetName</H4></A>
+<PRE>
+        const char * <B>vmutexGetName</B>(
+                vmutex * mutex);
+</PRE>
+
+<DL><DD>
+Retuns the name of <samp>mutex</samp>, or <samp>NULL</samp> if the
+mutex has no name.
+</DD></DL>
+<P>
+<A NAME="vmutexInit"><HR><H4>vmutexInit</H4></A>
+<PRE>
+        void <B>vmutexInit</B>(
+                vmutex * mutex);
+</PRE>
+
+<DL><DD>
+Initializes the memory addressed by <samp>mutex</samp> as a recursive
+mutex. The new mutex is unlocked and has no name.
+A recursive mutex can be locked by a thread multiple times so long as
+it is unlocked as many times as it is locked. 
+</DD></DL>
+<P>
+<A NAME="vmutexInitNonrecursive"><HR><H4>vmutexInitNonrecursive</H4></A>
+<PRE>
+        void <B>vmutexInitNonrecursive</B>(
+                vmutex * mutex);
+</PRE>
+
+<DL><DD>
+Initializes the memory addressed by <samp>mutex</samp> as a non-recursive
+mutex. The new mutex is unlocked and has no name.
+A non-recursive mutex can be locked by a thread only once. 
+</DD></DL>
+<P>
+<A NAME="vmutexIsLocked"><HR><H4>vmutexIsLocked</H4></A>
+<PRE>
+        vbool <B>vmutexIsLocked</B>(
+                vmutex * mutex);
+</PRE>
+
+<DL><DD>
+Returns <samp>TRUE</samp> if the mutex is locked by the calling thread.
+</DD></DL>
+<P>
+<A NAME="vmutexIsLockedGlobal"><HR><H4>vmutexIsLockedGlobal</H4></A>
+<PRE>
+        vbool <B>vmutexIsLockedGlobal</B>();
+</PRE>
+
+<DL><DD>
+Returns <samp>TRUE</samp> if the global mutex is locked by the calling thread.
+</DD></DL>
+<P>
+<A NAME="vmutexLock"><HR><H4>vmutexLock</H4></A>
+<PRE>
+        void <B>vmutexLock</B>(
+                vmutex * mutex);
+</PRE>
+
+<DL><DD>
+Locks <samp>mutex</samp> and returns immediately if the mutex is not
+locked by any other thread. If the mutex is locked by another thread,
+this function will block until the mutex is released by the other
+thread. If the calling thread already has the specified mutex locked,
+and the mutex is a recursive mutex (created with <code><A HREF="vmutex-x.html#vmutexInit"><CODE>vmutexInit</CODE></A></code>) 
+then the lock depth of the mutex is incremented and the calling 
+thread continues to hold the mutex. 
+<P>
+If the mutex is non-recursive (created with
+<code>vmutexInitNonRecursive</code>) the the behavior of this function
+is undefined. <code><A HREF="vmutex-x.html#vmutexUnlock"><CODE>vmutexUnlock</CODE></A></code> should be called as many times
+as <code>vmutexLock</code> is called on a mutex to unlock it.
+Calls to lock and unlock a mutex should be balanced.
+</DD></DL>
+<P>
+<A NAME="vmutexLockGlobal"><HR><H4>vmutexLockGlobal</H4></A>
+<PRE>
+        void <B>vmutexLockGlobal</B>();
+</PRE>
+
+<DL><DD>
+Locks the Galaxy global mutex just like <code>vmutexLock</code>. The
+global mutex is a recursive mutex.
+</DD></DL>
+<P>
+<A NAME="vmutexLockGlobalWithHandling"><HR><H4>vmutexLockGlobalWithHandling</H4></A>
+<PRE>
+        void <B>vmutexLockGlobalWithHandling</B>();
+</PRE>
+
+<DL><DD>
+Locks the Galaxy global mutex just like <code><A HREF="vmutex-x.html#vmutexLockWithHandling"><CODE>vmutexLockWithHandling</CODE></A></code>. 
+The global mutex is a recursive mutex.
+</DD></DL>
+<P>
+<A NAME="vmutexLockWithHandling"><HR><H4>vmutexLockWithHandling</H4></A>
+<PRE>
+        void <B>vmutexLockWithHandling</B>(
+                vmutex * mutex);
+</PRE>
+
+<DL><DD>
+Locks the specified mutex, just like <code>vmutexLock</code> and
+ensures that if an exception is thrown before the corresponding
+<code><A HREF="vmutex-x.html#vmutexUnlockWithHandling"><CODE>vmutexUnlockWithHandling</CODE></A></code> that the mutex will be properly
+unlocked before the exception is propagated. 
+<code>vmutexLockWithHandling</code> must be matched with a
+corresponding <code><A HREF="vmutex-x.html#vmutexUnlockWithHandling"><CODE>vmutexUnlockWithHandling</CODE></A></code> in the same
+lexical scope.
+</DD></DL>
+<P>
+<A NAME="vmutexMLock"><HR><H4>vmutexMLock</H4></A>
+<PRE>
+        void <B>vmutexMLock</B>();
+</PRE>
+
+<DL><DD>
+Locks the specified recursive mutex just like <code><A HREF="vmutex-x.html#vmutexLock"><CODE>vmutexLock</CODE></A></code>
+except that <code>vmutexMLock</code> is a macro that expands to
+platform-specific code to lock the specified mutex. This macro is the
+fastest way provided by Galaxy to lock a recursive mutex. In a debug
+build, this macro expands to many lines of code, but in an optimized
+build this macro typically expands to a single line of
+platform-specific code.
+<p> 
+Note that use of this function requires including the
+<code>vmutexsysHEADER</code> header file. This header file and this
+macro use platform-specific code to lock a recursive mutex.
+</DD></DL>
+<P>
+<A NAME="vmutexMLockNR"><HR><H4>vmutexMLockNR</H4></A>
+<PRE>
+        void <B>vmutexMLockNR</B>();
+</PRE>
+
+<DL><DD>
+Locks the specified non-recursive mutex just like
+<code><A HREF="vmutex-x.html#vmutexLock"><CODE>vmutexLock</CODE></A></code> except that <code>vmutexMLockNR</code> is a
+macro that expands to platform-specific code to lock the specified
+non-recursive mutex. This macro is the fastest way provided by Galaxy
+to lock a non-recursive mutex. In a debug build, this macro expands to
+many lines of code, but in an optimized build this macro typically
+expands to a single line of platform-specific code.
+<p>
+Note that use of this function requires including the
+<code>vmutexsysHEADER</code> header file. This header file and this
+macro use platform-specific code to lock a non-recursive mutex.
+</DD></DL>
+<P>
+<A NAME="vmutexMUnlock"><HR><H4>vmutexMUnlock</H4></A>
+<PRE>
+        void <B>vmutexMUnlock</B>();
+</PRE>
+
+<DL><DD>
+Unlocks the specified recursive mutex just like <code><A HREF="vmutex-x.html#vmutexUnlock"><CODE>vmutexUnlock</CODE></A></code>
+except that <code>vmutexMUnlock</code> is a macro that expands to
+platform-specific code to unlock the specified mutex. This macro is the
+fastest way provided by Galaxy to unlock a recursive mutex. In a debug
+build, this macro expands to many lines of code, but in an optimized
+build this macro typically expands to a single line of platform-specific code.
+<p> 
+Note that use of this function requires including the
+<code>vmutexsysHEADER</code> header file. This header file and this
+macro use platform-specific code to unlock a recursive mutex.
+</DD></DL>
+<P>
+<A NAME="vmutexMUnlockNR"><HR><H4>vmutexMUnlockNR</H4></A>
+<PRE>
+        void <B>vmutexMUnlockNR</B>();
+</PRE>
+
+<DL><DD>
+Unlocks the specified non-recursive mutex just like <code><A HREF="vmutex-x.html#vmutexUnlock"><CODE>vmutexUnlock</CODE></A></code>
+except that <code>vmutexMUnlockNR</code> is a macro that expands to
+platform-specific code to unlock the specified mutex. This macro is the
+fastest way provided by Galaxy to unlock a non-recursive mutex. In a debug
+build, this macro expands to many lines of code, but in an optimized
+build this macro typically expands to a single line of platform-specific code.
+<p> 
+Note that use of this function requires including the
+<code>vmutexsysHEADER</code> header file. This header file and this
+macro use platform-specific code to unlock a non-recursive mutex.
+</DD></DL>
+<P>
+<A NAME="vmutexSetName"><HR><H4>vmutexSetName</H4></A>
+<PRE>
+        void <B>vmutexSetName</B>(
+                vmutex * mutex,
+                const char * name);
+</PRE>
+
+<DL><DD>
+Sets the name of <samp>mutex</samp> to <samp>name</samp>. It is often
+a good idea to give each mutex a unique name as many of the debugging
+errors and warnings produced by the Mutex class will include the
+offending mutex's name.
+</DD></DL>
+<P>
+<A NAME="vmutexSetNameFormatted"><HR><H4>vmutexSetNameFormatted</H4></A>
+<PRE>
+        void <B>vmutexSetNameFormatted</B>(
+                vmutex * mutex,
+                const char * fmt,
+                void * arg);
+</PRE>
+
+<DL><DD>
+Sets the name of <samp>mutex</samp> to <samp>fmt</samp> expanded with
+<samp>arg</samp>. This function is useful in naming mutexes that are
+associated with instances of other objects. Example:
+
+<BLOCKQUOTE>
+<PRE>
+vmutex m;
+<A HREF="vdialog-x.html#vdialog"><CODE>vdialog</CODE></A> *d;
+
+<A HREF="vmutex-x.html#vmutexInit"><CODE>vmutexInit</CODE></A>(&m);
+vmutexSetNameFormatted(&m, "Protects dialog 0x%p", d);
+</PRE>
+</BLOCKQUOTE>
+
+This would set the name of <samp>m</samp> to "Protects dialog
+0xDEADFRED" if the dialog is at address 0xDEADFRED.
+</DD></DL>
+<P>
+<A NAME="vmutexStartup"><HR><H4>vmutexStartup</H4></A>
+<PRE>
+        void <B>vmutexStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the Mutex class. Has no effect if the Mutex class is
+already initialized.
+</DD></DL>
+<P>
+<A NAME="vmutexTryLock"><HR><H4>vmutexTryLock</H4></A>
+<PRE>
+        vbool <B>vmutexTryLock</B>(
+                vmutex * mutex);
+</PRE>
+
+<DL><DD>
+Attempts to lock the specified mutex just like <code><A HREF="vmutex-x.html#vmutexLock"><CODE>vmutexLock</CODE></A></code>
+but does not block if the mutex is already locked by another thread.
+Returns <samp>TRUE</samp> if the mutex was successfully locked,
+<samp>FALSE</samp> if the mutex is currently held by another thread.
+</DD></DL>
+<P>
+<A NAME="vmutexTryLockGlobal"><HR><H4>vmutexTryLockGlobal</H4></A>
+<PRE>
+        vbool <B>vmutexTryLockGlobal</B>();
+</PRE>
+
+<DL><DD>
+Attempts to lock the Galaxy global mutex just like <code>vmutexTryLock</code>.
+</DD></DL>
+<P>
+<A NAME="vmutexUnlock"><HR><H4>vmutexUnlock</H4></A>
+<PRE>
+        void <B>vmutexUnlock</B>(
+                vmutex * mutex);
+</PRE>
+
+<DL><DD>
+Unlocks <samp>mutex</samp>. The mutex must be locked by the calling
+thread. The results of calling this function on a mutex that is not
+locked by the calling thread are undefined. If the mutex is a recursive
+mutex, the lock depth is decremented. If the lock depth is greater
+than zero, then the mutex remains locked by the calling
+thread. Calls to <code>vmutexUnlock</code> should be balanced with
+calls to <code><A HREF="vmutex-x.html#vmutexLock"><CODE>vmutexLock</CODE></A></code>.
+</DD></DL>
+<P>
+<A NAME="vmutexUnlockGlobal"><HR><H4>vmutexUnlockGlobal</H4></A>
+<PRE>
+        void <B>vmutexUnlockGlobal</B>();
+</PRE>
+
+<DL><DD>
+Unlocks the Galaxy global mutex just like <code>vmutexUnlock</code>.
+</DD></DL>
+<P>
+<A NAME="vmutexUnlockGlobalWithHandling"><HR><H4>vmutexUnlockGlobalWithHandling</H4></A>
+<PRE>
+        void <B>vmutexUnlockGlobalWithHandling</B>();
+</PRE>
+
+<DL><DD>
+Unlocks the Galaxy global mutex just like
+<code><A HREF="vmutex-x.html#vmutexUnlockWithHandling"><CODE>vmutexUnlockWithHandling</CODE></A></code>.
+</DD></DL>
+<P>
+<A NAME="vmutexUnlockWithHandling"><HR><H4>vmutexUnlockWithHandling</H4></A>
+<PRE>
+        void <B>vmutexUnlockWithHandling</B>(
+                vmutex * mutex);
+</PRE>
+
+<DL><DD>
+Unlocks the specified mutex. Similar to <code>vmutexUnlock</code>
+except that it is the matching operation to
+<code><A HREF="vmutex-x.html#vmutexLockWithHandling"><CODE>vmutexLockWithHandling</CODE></A></code>.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vmutexINCLUDED"><HR><H4>vmutexINCLUDED</H4></A>
+<PRE>
+        <B>vmutexINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vmutex.h</SAMP> is included.
+Use this constant to protect against multiple inclusion of the vmutex
+header file. This constant is intended to be used in this way when
+including header files:
+
+<BLOCKQUOTE>
+<PRE>
+#ifndef  vmutexINCLUDED
+#include vmutexHEADER
+#endif
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vmutexNULL"><HR><H4>vmutexNULL</H4></A>
+<PRE>
+        <B>vmutexNULL</B>
+</PRE>
+
+<DL><DD>
+Constant representing an uninitialized <CODE>vmutex</CODE>.
+Use this constant to initialize a <CODE>vmutex</CODE> to
+<SAMP>NULL</SAMP> or to determine if a <CODE>vmutex</CODE> is
+<SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmutexTYPE_NON_RECURSIVE"><HR><H4>vmutexTYPE_NON_RECURSIVE</H4></A>
+<PRE>
+        <B>vmutexTYPE_NON_RECURSIVE</B>
+</PRE>
+
+<DL><DD>
+Constant returned from <CODE><A HREF="vmutex-x.html#vmutexDetermineType"><CODE>vmutexDetermineType</CODE></A></CODE> for a
+non-recursive mutex.
+</DD></DL>
+<P>
+<A NAME="vmutexTYPE_RECURSIVE"><HR><H4>vmutexTYPE_RECURSIVE</H4></A>
+<PRE>
+        <B>vmutexTYPE_RECURSIVE</B>
+</PRE>
+
+<DL><DD>
+Constant returned from <CODE><A HREF="vmutex-x.html#vmutexDetermineType"><CODE>vmutexDetermineType</CODE></A></CODE> for a
+recursive mutex.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

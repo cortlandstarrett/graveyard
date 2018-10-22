@@ -1,0 +1,319 @@
+<HTML>
+<HEAD>
+<TITLE>Resource</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Resource</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Representation.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Service_Broker.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The <EM><B>Resource</B></EM> class provides a way for applications to efficiently store and retrieve structured data, either in disk files or in memory. Many Galaxy classes use the Resource class to store and retrieve such information as parts of the user interface, strings, graphics, and so on. Applications can likewise use the Resource class to store and retrieve their own data.<P>
+Resource files can be created by application programs or by the Visual Resource Builder. (Refer to the Visual Resource Builder User's Guide for more information.) Typically, an application will store its entire user interface (dialogs, associated controls, strings, and error messages) in one or more resource files. Keeping the user interface separate from the program makes it straightforward to translate the application into another language. Burying strings and error messages haphazardly through the code will make your application error prone and very difficult to translate.<P>
+The Application class searches for an application-specific resource file in a series of standard locations. This file is opened read-only if it is found; the application can access it using the <TT><B>vapplicationGetResources</B></TT> function. (Refer to the Application class for details.)<P>
+The Resource class can also embed read-only resource files within an executable file. Embedded resource files allow applications to be delivered as a single executable file that contains the application's code and its resource files.<P>
+The basic unit of storage provided by the Resource class is the <EM><B>resource</B></EM>. <A HREF="Resource.html#3969">Table 35</A> lists the fundamental types of resources with corresponding standard C or Galaxy data types.<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="3918"><I>Table 35.  Resource types and corresponding C or Galaxy Data Types
+</I><P>
+</CAPTION>
+
+<tr><th><B>Resource Type
+</B></th><th><B>Corresponding C or Galaxy Data Type
+</B></th>
+<tr><td>Array
+</td><td><TT>[]</TT> (one-dimensional array of one of the types listed below )
+</td></tr>
+<tr><td>Boolean
+</td><td><TT>vbool</TT> (<TT>TRUE</TT> or <TT>FALSE</TT>)
+</td></tr>
+<tr><td>Character
+</td><td><TT>vchar
+</TT></td></tr>
+<tr><td>Character String
+</td><td><TT>vchar []</TT> (sequence of <TT>vchar</TT>)
+</td></tr>
+<tr><td>Dictionary
+</td><td>vdict or C struct
+</td></tr>
+<tr><td>Fixed point
+</td><td><TT>vfixed
+</TT></td></tr>
+<tr><td>Floating point
+</td><td><TT>float
+</TT></td></tr>
+<tr><td>Integer
+</td><td><TT>int
+</TT></td></tr>
+<tr><td>Opaque
+</td><td><TT>vbyte []</TT> (arbitrary sequence of bytes)
+</td></tr>
+<tr><td>Symbolic Tag
+</td><td><TT>const vname *</TT> (global name&#175;refer to the Name class)
+</td></tr>
+<tr><td>Untyped
+</td><td>none (placeholder value)
+</td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+The elements of an array or the components of a dictionary can in turn be arrays or dictionaries. This allows for arbitrarily nested data structures, in a form identical to the directory tree of a hierarchical file system. A <EM><B>resource file</B></EM> is simply a dictionary resource, which is stored in a file along with all of its components.<P>
+Opening or creating a resource file returns an identifier for the root dictionary of the resource file. Starting from this base identifier, it is possible to locate all of the resources in the resource file. An empty resource file consists of a single empty dictionary.<P>
+Arrays and dictionaries are the basic means for forming composite resources out of simpler components. An <EM><B>array resource</B></EM> allows its components to be retrieved via a numerical index, ranging from 0 to one less than the total size of the array. A <EM><B>dictionary</B></EM> is a set of tag/value pairs, where the tag is a name from the global name table and the value is another resource. (Refer to the Name class for more information about global names.) <A HREF="Resource.html#5823">Figure 69</A> is an example dictionary resource and its components.<P>
+<A NAME="5823"><I>Figure 69.  Example resource file organization
+</I><P>
+<IMG SRC="Resource.anc.gif"><P>
+There are three ways to specify a particular resource within a resource file:<P>
+<OL>
+<LI>Each resource in a resource file has a unique identifier of type vresource. This 
+identifier is returned by any of the forms of the <TT><B>Create</B></TT> operation. Use of 
+vresources is the most efficient way to specify a resource.
+<BR>
+<LI>Each resource in a resource file can be specified by a pair consisting of the 
+vresource of the dictionary that contains the resource and the vname tag that 
+identifies the item within the dictionary. Resource tags are always unique within a 
+dictionary.
+<BR>
+<LI>Each vresource has an associated vresourceID. vresourceIDs serve as persistent 
+identifiers for resources within a resource file.
+<BR>
+</OL>
+Many Resource class calls allow you to denote a resource using either method (1) or method (2). In situations where the vresource is already known, you simply pass a tag value of <TT>vresourceTAG_NULL</TT>.<P>
+Disk-based resource files are portable across machine architectures. All multi-byte values are stored in big-endian form and translated as needed for little-endian systems. The application must explicitly store opaque resources in a portable fashion, because the Resource class treats opaque resources as an arbitrary sequence of bytes.<P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+This section contains sample code to help you get started using the Resource class. The code fragments in the examples that follow are intended to be executed in order. Each fragment depends on values established in the preceding examples.<P>
+<A NAME="4005"><H3> Creating a Memory Resource File</H3></A>
+All resource manipulation takes place within the context of a resource file. The Resource class allows you to create new files or to open existing ones. The function <TT><B>CreateMem</B></TT> is used to create a new, memory-based resource file:<P>
+<PRE><UL>   vresource memRes;
+   memRes = vresourceCreateMem();
+
+</UL></PRE>memRes identifies the root of the resource file. Since it was just created, it is empty. Items can be added to the resource file using various forms of <TT><B>Set</B></TT>.<P>
+<A NAME="4015"><H3> Creating a Dictionary</H3></A>
+Within the memory resource file we can now create a dictionary resource named "User" as a container:<P>
+<PRE><UL>   vresource dictRes;
+   dictRes = vresourceCreate(memRes, vnameInternGlobalLiteral("User"),
+                             vresourceDICT);
+
+</UL></PRE><TT><B>Create</B></TT> creates the dictionary resource using the supplied tag ("User") within the root dictionary of the memory resource file (memRes). Note that <TT><B>Create</B></TT> returns a unique identifier for the dictionary, and that the identifier is stored in dictRes for later use.<P>
+<A NAME="4025"><H3> Creating Resource Tags</H3></A>
+The <TT><B>vnameInternGlobalLiteral</B></TT> function is used to create a tag which identifies each component of a dictionary. If a set of tags will be used frequently, the string literals can be interned once and then reused. This is more efficient and safer because the tag name is only represented once in the source code.<P>
+<PRE><UL>   const vname *HeightTag, *WeightTag, *NameTag;
+
+   HeightTag = vnameInternGlobalLiteral("Height");
+   WeightTag = vnameInternGlobalLiteral("Weight");
+   NameTag = vnameInternGlobalLiteral("Name");
+
+</UL></PRE><A NAME="4034"><H3> Creating Integer Resources</H3></A>
+Within the "<TT>User</TT>" dictionary, we can then create two integer resources named "<TT>Height</TT>" and "<TT>Weight</TT>" using the vname pointers generated in the preceding example:<P>
+<PRE><UL>   vresourceSetInteger(dictRes, HeightTag, 72);
+   vresourceSetInteger(dictRes, WeightTag, 210);
+
+</UL></PRE><A NAME="4041"><H3> Creating a String Resource</H3></A>
+We can also create a string resource in the "<TT>User</TT>" dictionary using the <TT>vname</TT> pointer generated for "<TT>Name</TT>":<P>
+<PRE><UL>   vresourceSetStringScribed(dictRes, NameTag,
+                             vcharScribeLiteral("John Doe"));
+
+</UL></PRE>The resource file now contains a top level dictionary, which in turn contains a single dictionary named "<TT>User</TT>." "<TT>User</TT>" contains three items: an integer resource named "<TT>Height</TT>" with a value of 72, another integer resource named "<TT>Weight</TT>" with a value of 210, and a string resource named "<TT>Name</TT>" with a value of "<TT>John Doe</TT>."<P>
+<A NAME="4047"><H3> Getting Information about Resources</H3></A>
+Resource class functions can be used to get information about items within the resource file:<P>
+<PRE><UL>   size_t numRootEntries, numUserEntries;
+   numRootEntries = vresourceCountComponents(memRes);
+   numUserEntries = vresourceCountComponents(dictRes);
+
+</UL></PRE>After this code is executed, numRootEntries will be <TT>1</TT> because the root dictionary contains a single resource ("<TT>User</TT>"), and numUserEntries will be <TT>3</TT> because the dictionary named "User" contains three resources ("<TT>Height</TT>," "<TT>Weight</TT>," and "<TT>Name</TT>").<P>
+<A NAME="4054"><H2> Processing Dictionary Components</H2></A>
+You can use Resource class functions to iterate over the components in a dictionary in order to process them one at a time. This is especially useful for functions that can receive an arbitrary dictionary resource and then take action based on the items in the dictionary. This example retrieves each component of the "User" dictionary and performs special processing for integer resources:<P>
+<PRE><UL>   size_t       i;
+   int          intVal;
+   vresource    tmpRes;
+   const vname *tmpTag;
+
+
+   for (i = 0; i &lt; numUserEntries; i++) {
+      tmpRes = vresourceGetNthComponent(dictRes, i, &amp;tmpTag);
+
+      if (vresourceType (tmpRes) == vresourceINTEGER) {
+         intVal = vresourceGetInteger(tmpRes,
+                                      vresourceTAG_NULL);
+      /* Process intVal here. tmpTag is its name */
+      }
+   }
+
+</UL></PRE>This code illustrates several different parts of the Resource class. The function <TT><B>GetNthComponent</B></TT> is used to retrieve each item stored within the "User" dictionary, one item at a time. <TT><B>GetNthComponent</B></TT> returns the resource value for the dictionary item along with the tag for the item. Next, the <TT><B>GetType</B></TT> function is used to test if the resource is an integer resource. If the resource is indeed an integer resource, <TT><B>GetInteger</B></TT> is used to get the value of the resource. The special value <TT>vresourceTAG_NULL</TT> is passed to <TT><B>GetInteger</B></TT> because tmpRes is the actual resource to be fetched, not a dictionary containing the resource. In this example, the following two lines are equivalent:<P>
+<PRE><UL>   intVal = vresourceGetInteger(tmpRes, vresourceTAG_NULL);
+   intVal = vresourceGetInteger(dictRes, tmpTag);
+
+</UL></PRE>It is important to note that <TT><B>GetNthComponent</B></TT> does not necessarily return dictionary items in any particular order. In this example, the items "<TT>Height</TT>", "<TT>Weight</TT>", and "<TT>Name</TT>" might be returned in alphabetical order, in creation order, or in any other sequence. The ordering will change unpredictably as items are added and removed from the dictionary.<P>
+It is also possible to create arrays of items using the Resource class. Each array is of a particular type, and the type is specified when the array is created:<P>
+<A NAME="4233"><I>Example 123.  Creating an array resource
+</I><P>
+<PRE><UL>   vresource arrayRes;
+   const vname *ArrayTag;
+
+   ArrayTag = vnameInternGlobalLiteral("Salary");
+   arrayRes = vresourceCreateArray(dictRes, ArrayTag, vresourceFLOAT, 4);
+
+</UL></PRE>This code creates an array of four floating-point values within the "<TT>User</TT>" dictionary. The unique resource identifier returned by <TT><B>CreateArray</B></TT> is stored in arrayRes for future reference.<P>
+<A NAME="4103"><H3> Setting Array Items</H3></A>
+After the array has been created, individual items can be set:<P>
+<PRE><UL>   vresourceSetFloatAt(arrayRes, 0, 35000.);
+   vresourceSetFloatAt(arrayRes, 1, 42000.);
+   vresourceSetFloatAt(arrayRes, 2, 50000.);
+   vresourceSetFloatAt(arrayRes, 3, 75000.);
+
+</UL></PRE><A NAME="4109"><H3> Processing Array Items</H3></A>
+Array items can be easily retrieved. The following loop computes a person's average salary. Note that it will work for any floating point arrays, because <TT><B>CountComponents</B></TT> is used to see how many items are in the array:<P>
+<PRE><UL>   size_t i, numArrayEntries;
+   double total, average;
+
+   total = 0.0;
+   numArrayEntries = vresourceCountComponents(arrayRes);
+
+   for (i = 0; i &lt; numArrayEntries; i++) {
+      total += vresourceGetFloatAt(arrayRes, i);
+   }
+
+   if (itemCount == 0)
+     average = 0.0;
+   else
+     average = total / numArrayEntries;
+
+</UL></PRE><A NAME="4127"><H2> Creating a Disk-based Resource File</H2></A>
+The memory resource file can be written to a permanent (disk-based) resource file ("<TT>acme.vr</TT>" in this example) for safekeeping:<P>
+<PRE><UL>   vresource  diskRes;
+   vfsPath   *pathName;
+
+   pathName = vfsCloneHomeDirPath();
+
+   vfsAppendPathScribed(pathName, vcharScribeLiteral ("acme.vr"), NULL);
+
+   diskRes = vresourceCreateFileFromMem(memRes, pathName,
+                                        vfsOWNER_READ | vfsOWNER_WRITE);
+
+</UL></PRE><A NAME="4142"><H2> Cleaning Up</H2></A>
+Finally, the disk resource file is closed, the memory resource file is destroyed, and temporary data is cleaned up:<P>
+<PRE><UL>   vresourceCloseFile(diskRes);
+   vresourceDestroyMem(memRes);
+   vfsDestroyPath(pathName);
+
+</UL></PRE><A NAME="3365"><H2> Additional Functionality</H2></A>
+<A NAME="4159"><H3> Using Embedded Resource Files</H3></A>
+With Galaxy, you can embed read-only resource files in executables so that auxiliary files are not needed to make the application work. A utility program (vrescopy) is used to turn a resource file into a C source file that defines the contents of the resource file. The C source will end up in the text segment of your program, because it is read-only and can be shared. The resource file is always stored in compact form by the vrescopy program.<P>
+To embed resource files:<P>
+<OL>
+<LI>Create your resource file using the Visual Resource Builder ("app.vr").
+<BR>
+</OL>
+<UL>Run the program <TT>vrescopy</TT> to generate a C source file from your resource file. Here is how to run <TT>vrescopy</TT>:<P>
+</UL><PRE><UL>vrescopy res_file c_file -c data_name
+
+</UL></PRE><UL>For "<TT>app.vr</TT>", the command line to generate <TT>appres.c</TT> with the resource data named "<TT>MyRes</TT>" is:<P>
+</UL><PRE><UL>vrescopy app.vr appres.c -c MyRes
+
+</UL></PRE><UL>Normally you will set up your makefile to do this automatically as part of a build. If you do not specify a structure name, the default name "<TT>foo</TT>" will be used.<br>Alter your makefile to compile <TT>appres.c</TT> and include the object file in the list of files that comprise the application.<P>
+Write your application ("<TT>app.c</TT>"). Instead of calling <TT><B>OpenFile</B></TT> to access an external resource file, call <TT><B>OpenInternal</B></TT> to open the compiled version:<P>
+</UL><PRE><UL>   vresource vresourceOpenInternal (const void *data);
+
+</UL></PRE><UL>Pass the address of the generated data to <TT><B>OpenInternal</B></TT>:<P>
+</UL><PRE><UL>   extern MyRes;
+   vresource ResRoot;
+
+   ResRoot = vresourceOpenInternal (&amp;MyRes);
+
+</UL></PRE><UL>Note that it is perfectly legal to pass the address of something whose type you do not know, which is what happens here.<P>
+</UL><OL>
+<LI>Within your application, use ResRoot as you would the root of a resource file 
+opened with <TT><B>OpenFile</B></TT>. Do not try to write to it (it is constant data), and be sure to 
+close it when you are through. Note that you can have several resource files 
+embedded in your application.
+<BR>
+</OL>
+<UL>For more information on the <TT>vrescopy</TT> utility, refer to Tools.<P>
+</UL><P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Representation.html">Previous Chapter</A> | 
+		<A HREF="Service_Broker.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

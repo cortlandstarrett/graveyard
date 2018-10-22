@@ -1,0 +1,526 @@
+<HTML>
+<HEAD>
+<TITLE>Chapter 8. Commands</TITLE>
+
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR BGCOLOR="#CCCC66">
+		<!-- Margin Banner -->
+		<TD><CENTER><BR><IMG SRC="../../graphics/logo.gif"><BR> <BR></CENTER>
+      </TD>
+
+      <!-- Title block: DOCUMENT TITLE GOES HERE -->
+      <TD VALIGN=TOP>
+          <BR>
+           <H1><A NAME="Top">Chapter 8. Commands</A></H1>
+           <BR>
+      </TD>
+      
+   </TR>
+   </TABLE>
+   <P>
+ 			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="2283"></A>
+In this chapter we will take our final look at the "Three Buttons" program that we have been using. We will modify this program to use the Command Manager. The Command Manager provides a mechanism that allows application programmers to deal with dialog item events without being unnecessarily concerned about the type of the dialog item. This means that you can write code to handle events from buttons or menu items without worrying which one was the source of the event.<P>
+<UL><LI>Concepts
+<LI>Class Manager
+<LI>Command Manager
+<LI>Dictionary Manager
+</UL><P>
+<A NAME="2288"><H1> Source Code</H1></A>
+Let's look at the program:<P>
+<PRE><UL>	/*
+	 * tu8a.c
+	 *
+	 * "Command Performance"
+	 *
+	 * This program demonstrates the use of the Command Manager.
+	 * We have implemented tut7a using commands.
+	 *
+	 */
+	
+	/* Galaxy headers */
+	#include &lt;vgalaxy.h&gt;
+	
+	/* Application headers */
+	#include "command.h"
+	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(1)	/* Command selectors */
+	enum {
+	  comGROW,
+	  comQUIT,
+	  comSHRINK
+	};
+</UL></PRE>
+</FONT><PRE><UL>	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(2)	static commandInitializer initialCommands [] = {
+	  { "grow",             comGROW,              vCOMMAND('g') },
+	  { "quit",             comQUIT,              vCOMMAND('q') },
+	  { "shrink",           comSHRINK,            vCOMMAND('s') },
+	  { NULL }
+	};
+</UL></PRE>
+</FONT><P>
+<PRE><UL>	/* forward references */
+	static void dialogNotify (vdialog *dialog, vevent *event);
+	static void shutdownMain (void);
+	static void myButtonDrawContent (vbutton *button);
+	static int issueFunc (vcommandSelector *command, vdict *context);
+
+	/* Constants */
+	#define GROW_AMOUNT          50
+	
+	/* Globals */
+	static vbuttonClass          *myButtonClass;
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(3)	static vcommandSelectorClass *selectorClass = NULL;
+	static vcommandSpace         *space         = NULL;
+</UL></PRE>
+</FONT><PRE><UL>	
+	
+	int main (int argc, char **argv)
+	
+	{
+	
+	  vdialog      *dialog;
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(4)	  vdict        *commandDict;
+	  vdict        *keyDict;
+</UL></PRE>
+</FONT><PRE><UL>	  vresource     resource;
+	
+	  /* Initialize Galaxy */
+	  vstartup (argc, argv);
+	
+	  /*
+	   *  Create our new button class
+	   *
+	   */
+	
+	  myButtonClass = vclassReproduce (vbuttonGetDefaultClass ());
+	  vclassSetNameScribed (myButtonClass,
+	                   vcharScribeLiteral ("boxButton"));
+	  vclassSet (myButtonClass, vbuttonDRAW_CONTENT,
+	                   myButtonDrawContent);
+	
+	  /*
+	   * Load the dialog from the application resource file.
+	   *
+	   */
+	
+	  resource = 
+	        vresourceGet (
+	              vapplicationGetResources (
+	              vapplicationGetCurrent()),
+	              vnameInternGlobalLiteral ("ButtonDialog"));
+	  dialog = vdialogLoad (resource);
+	  vdialogSetNotify (dialog, dialogNotify);
+	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(5)	  /* Create the command space */
+	  space = vcommandCreateSpace ();
+
+	  /* Attach the space to the dialog */
+	  vwindowSetSpaceOwned (vdialogGetWindow (dialog), space);
+</UL></PRE>
+</FONT><PRE><UL>	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(6)	  /* Create our selector class */
+	  selectorClass = vclassReproduce (vobjectGetCommandClass ());
+	  vclassSet (selectorClass, vcommandISSUE, issueFunc);
+</UL></PRE>
+</FONT><PRE><UL>
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(7)	  /* Use the command helper function to create our
+	        command dictionary */
+	  commandDict = commandCreateCommandDict (initialCommands, 
+	        selectorClass);
+	
+	  /* Add the command dictionary to the space */
+	  vcommandAddSpaceDictOwned (space, vname_Command,
+	        commandDict);
+</UL></PRE>
+</FONT><PRE><UL>
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(8)	  /* Use the command helper function to create our
+	        key dictionary */
+
+	  keyDict = commandCreateKeyDict (initialCommands);
+	  vcommandAddSpaceDictOwned (space, vname_Key, keyDict);
+</UL></PRE>
+</FONT><PRE><UL>	
+	  /* Open the dialog */
+	  vdialogOpen (dialog);
+	
+	  /* Enter the event loop */
+	  veventProcess ();
+	
+	  /* Return the dialog's resources to the system */
+	  vdialogDestroy (dialog);
+	
+	
+	
+	  exit (EXIT_SUCCESS);
+	  return EXIT_FAILURE;
+	
+	}
+	
+	/*
+	 *  shutdownMain
+	 *
+	 *  Stop things
+	 *
+	 */
+	
+	static void shutdownMain ()
+	
+	{
+	
+	  veventStopProcessing ();
+	
+	}
+
+	/*
+	 *  dialogNotify
+	 *
+	 *  This function handles dialog events
+	 *
+	 */
+	static void dialogNotify (vdialog *dialog, vevent *event)
+	
+	{
+	
+	  int et;
+	
+	  et = veventGetType (event);
+	  
+	  if (et == veventWINDOW_STATE &amp;&amp; veventIsClose (event))
+	    shutdownMain ();
+	
+	  return;
+	
+	}
+	
+	/*
+	 *  issueFunc
+	 *
+	 *  Handle the commands
+	 *
+	 */
+	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(9)	static int issueFunc (vcommandSelector *command, vdict *context)
+	
+	{
+	
+	  vdialog *dialog;
+	  vwindow *window;
+	  int      selector;
+	  vrect    rect;
+	
+	  selector = vcommandGetSelector (command);
+	
+	  dialog = (vdialog *) vdictLoad (context, vname_Dialog);
+	  window = vdialogGetWindow (dialog);
+	
+	  switch (selector) {
+	  case comQUIT:
+	    shutdownMain ();
+	    break;
+	  case comGROW:
+	    rect   = *vwindowGetRect (window);
+	    rect.w += GROW_AMOUNT;
+	    rect.h += GROW_AMOUNT;
+	    vwindowSetRect (window, &amp;rect);
+	    break;
+	  case comSHRINK:
+	    rect   = *vwindowGetRect (window);
+	    rect.w -= GROW_AMOUNT;
+	    rect.h -= GROW_AMOUNT;
+	    vwindowSetRect (window, &amp;rect);
+	    break;
+	  default:
+	    return FALSE;
+	  }
+	
+	  return TRUE;
+	
+	}
+</UL></PRE>
+</FONT><PRE><UL>	
+	/*
+	 *  myButtonDrawContent
+	 *
+	 *  
+	 *
+	 */
+	
+	static void myButtonDrawContent (vbutton *button)
+	
+	{
+	
+	  vdialogItem *item;
+	  vfont       *font;
+	  vrect        rect;
+	  vrect        rect2;
+	
+	  vclassSendSuper (myButtonClass, vbuttonDRAW_CONTENT, (button));
+	
+	  item = vbuttonGetItem (button);
+	
+	  font = vdialogDetermineItemFont (item);
+	  vfontStringBounds (font, vbuttonGetTitle (button), &amp;rect);
+	
+	  rect.w += 6;
+	  rect.h += 6;
+	
+	  vrectPlace (&amp;rect, vdialogGetItemRect (item), 
+	        vrectPLACE_CENTER, vrectPLACE_CENTER,
+	        &amp;rect2);
+	
+	  vdrawRectsHiliteStroke (&amp;rect2, 1,
+	      vdialogDetermineItemColor(item, vdrawCOLOR_SHADOW_BOTTOM),
+	      vdialogDetermineItemColor(item, vdrawCOLOR_SHADOW_TOP));
+	
+	}
+</UL></PRE>	<P>
+<A NAME="2528"><H1> Looking at the Program</H1></A>
+Compile this program with the command wmake tut8a. Run the program. You'll see that the program does not look any different from tut7a. The only differences are internal. Let's examine those changes now.<P>
+<UL><B><I>Note:</I></B> The file command.c will also be compiled and linked into tut8a. This is a support file which 
+we will discuss after examining tut8a.c.
+<P>
+</UL>The Command Manager makes extensive use of the Class Manager to provide its functionality. Several base classes are defined. The major ones are the <TT><B>vcommandSelectorClass</B></TT>, the <TT><B>vcommandFunctionClass</B></TT>, and the <TT><B>vcommandSynthetic</B></TT> class. This chapter is concerned only with the <TT><B>vcommandSelectorClass</B></TT>.<P>
+The <TT><B>vcommandSelectorClass</B></TT> is used to define selector commands. A selector command associates a tag name with an integer. Your code can then check for that integer to determine which command to execute.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(3)	static vcommandSelectorClass *selectorClass = NULL;
+	static vcommandSpace         *space         = NULL;
+</UL></PRE>
+</FONT><P>
+A <TT><B>vcommandSpace</B></TT> is a variable in which command, key, and state dictionaries can be stored. The command space can be associated with a <TT><B>vdialogItem</B></TT>, <TT><B>vwindow</B></TT>, <TT><B>vapplication</B></TT>, <TT><B>vdialogItem</B></TT><B> </B>class, <TT><B>vwindow</B></TT><B> </B>class, or <TT><B>vapplication</B></TT><B> </B>class. In our application we will be attaching the command space to a <TT><B>vwindow</B></TT>.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(4)	  vdict        *commandDict;
+	  vdict        *keyDict;
+</UL></PRE>
+</FONT><P>
+These dictionary variables are used with the commandSpace variable. We will create one command dictionary and one key dictionary and add them to the command space.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(5)	  /* Create the command space */
+	  space = vcommandCreateSpace ();
+	
+	  /* Attach the space to the dialog */
+	  vwindowSetSpaceOwned (vdialogGetWindow (dialog), space);
+</UL></PRE>
+</FONT><P>
+The <TT><B>vcommandCreateSpace</B></TT> function allocates a command space and returns it. We then use the <TT><B>vwindowSetSpaceOwned</B></TT> call to attach the space to our dialog. The "Owned" part of the function name means that we are turning ownership of the command space over to the window. This means that we will not have to worry about freeing the command space.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(6)	  /* Create our selector class */
+	  selectorClass = vclassReproduce (vobjectGetCommandClass ());
+	  vclassSet (selectorClass, vcommandISSUE, issueFunc);
+</UL></PRE>
+</FONT><P>
+The default selector class returned by <TT><B>vobjectGetCommandClass</B></TT> is not usable as is. We must subclass this class so that we can set the <TT><B>vcommandISSUE</B></TT> method pointing to our issue function. <P>
+<FONT COLOR="0000BB">
+<PRE><UL>(7)	  /* Use the command helper function to create our
+	        command dictionary */
+	  commandDict = commandCreateCommandDict (initialCommands,
+	        selectorClass);
+	  /* Add the command dictionary to the space */
+	  vcommandAddSpaceDictOwned (space, vname_Command, commandDict);
+</UL></PRE>
+</FONT><P>
+The  commandCreateCommandDict function is not part of Galaxy. It is a helper function that we are using to initialize our command dictionary. The source for the function is in command.c. We will look at what it does in detail later in the chapter. For the moment, we will just note that it takes the initialCommands structure defined at the beginning of the file and our newly defined selectorClass and returns a command dictionary. A command dictionary associates tags with selectors (a selector is an instance of the selectorClass).<P>
+Once we create commandDict, we add it to the command space with <TT><B>vcommandAddSpaceDictOwned</B></TT>. The <TT><B>vname_Command</B></TT> argument specifies that we are adding a command dictionary. We can also add state and key dictionaries. Again, note that the "Owned"  part of the function name means that we are turning ownership of the dictionary over to the command space.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(2)	static commandInitializer initialCommands [] = {
+	  { "grow",             comGROW,              vCOMMAND('g') },
+	  { "quit",             comQUIT,              vCOMMAND('q') },
+	  { "shrink",           comSHRINK,            vCOMMAND('s') },
+	  { NULL }
+	};
+</UL></PRE>
+</FONT><P>
+The initialCommands variable is of the type commandInitializer. This is not a Galaxy type, but a type we defined in command.h to help us initialize command spaces. The definition of the type is:<P>
+<PRE><UL>typedef struct {
+	const char *tag;
+	short       value;
+	vkeyStroke  key;
+} commandInitializer;
+</UL></PRE><P>
+The tag field is the same tag name we used in <TT>vre</TT> to name our dialog items. If you look at the structure initialization you will see that we used the same names as our menu items and buttons have in our dialog.<P>
+The value field is the integer value you want the selector for that tag to have. These values are usually defined in an enumeration. Each selector will have its own value which in turn is associated with a particular tag.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(1)	/* Command selectors */
+	enum {
+	  comCLOSE,
+	  comGROW,
+	  comQUIT,
+	  comSHRINK
+	};
+</UL></PRE>
+</FONT><P>
+The key field is the keystroke that should be associated with the command. A command with no key accelerator has a value 0. The <TT><B>vCOMMAND</B></TT> macro is also defined in <TT>command.h</TT> and it is a convenience macro to define Command keys (keys which are pressed when the Command key is also held down). On many keyboards, there is no Command key so the Command key is mapped to the Control key.<P>
+In our structure you will see that we associated the "grow" tag with comGROW. We also associated the keystroke ^G with the command.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(8)	  /* Use the command helper function to create our
+	   * key dictionary.
+	   *
+	   */
+</UL></PRE>
+</FONT><PRE><UL><TT>
+</TT></UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>	  keyDict = commandCreateKeyDict (initialCommands);
+	  vcommandAddSpaceDictOwned (space, vname_Key, keyDict);
+</UL></PRE>
+</FONT><P>
+This is the last of our new initialization code. This creates a key dictionary and adds it to the command space. A key dictionary associates tags with keystrokes. The helper function commandCreateKeyDict takes the initialCommands array and creates the <TT>vdict</TT> for us.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(9)	static int issueFunc (vcommandSelector *command,
+	        vdict *context)
+	
+	{
+	
+	  vdialog *dialog;
+	  vwindow *window;
+	  int      selector;
+	  vrect    rect;
+	
+	  selector = vcommandGetSelector (command);
+	
+	  dialog = (vdialog *) vdictLoad (context, vname_Dialog);
+	  window = vdialogGetWindow (dialog);
+	
+	  switch (selector) {
+	  case comQUIT:
+	    shutdownMain ();
+	    break;
+	  case comGROW:
+	    rect   = *vwindowGetRect (window);
+	    rect.w += GROW_AMOUNT;
+	    rect.h += GROW_AMOUNT;
+	    vwindowSetRect (window, &amp;rect);
+	    break;
+	  case comSHRINK:
+	    rect   = *vwindowGetRect (window);
+	    rect.w -= GROW_AMOUNT;
+	    rect.h -= GROW_AMOUNT;
+	    vwindowSetRect (window, &amp;rect);
+	    break;
+	  default:
+	    return FALSE;
+	  }
+	
+	  return TRUE;
+	
+	}
+</UL></PRE>
+</FONT><P>
+This piece of code is our issue function. Our selector class defined this function as its command handler. All of our command handling code is funneled through this function.<P>
+The function gets two arguments: the selector and a context dictionary. The selector is the selector from our command dictionary that corresponds to the tag of the dialog item which handled the event that caused the command. The context dictionary contains attributes of the dialog item itself.<P>
+The first thing we do is extract the integer selector value from command. This is the same integer that we defined in our initialization structure. We will use this value to determine what code needs to be executed.<P>
+The next thing we do is determine which <TT><B>vwindow</B></TT> the command came from. One of the attributes in the context dictionary is the dialog containing the item. We use the <TT><B>vname_Dialog</B></TT> key with <TT><B>vdictLoad</B></TT> to extract the dialog pointer. Once we have that, getting the <TT><B>vwindow</B></TT> pointer is simple.<P>
+The<TT> switch</TT> statement determines which command we are dealing with and routes us to the appropriate code. The Grow command, regardless of whether it originated from the menu item or button, will be handled by the comGROW case, the Shrink command will be handled by the comSHRINK case, and the Quit command will be handled by the comQUIT case. The details of the command handling are identical to using the notify function.<P>
+The issue function must return TRUE if it handled the command and FALSE if it did not handle the command.<P>
+If you don't want all of your commands to filter through one issue function you should use function commands instead of selector commands.<P>
+Now let's look at our helper functions:<P>
+<PRE><UL>vdict *commandCreateCommandDict (commandInitializer *commands,
+       vcommandSelectorClass *selectorClass)
+
+{
+
+  commandInitializer  *selectScan;
+  vcommandSelector    *selector;
+  vdict               *commandDict = vdictCreate (vnameHash);
+
+  for (selectScan = commands; selectScan-&gt;tag != NULL; selectScan++)
+
+{
+    selector = vcommandCreateSelectorOfClass (selectorClass);
+    vcommandSetSelector (selector, selectScan-&gt;value);
+    vdictStore (commandDict, 
+        vnameInternGlobalLiteral (selectScan-&gt;tag), 
+        selector);
+  }
+
+  return commandDict;
+
+}
+</UL></PRE><P>
+The first thing this function does is create a <TT><B>vdict</B></TT> to store our tag/selector associations. We then scan through the commandInitializer array. Each time through the loop we create a selector of the class we passed in as an argument. We set the selector to the value for the tag. We also store the selector in the dictionary using the tag as a key. Then we return a pointer to the dictionary.<P>
+The commandCreateKeyDict function is similar:<P>
+<PRE><UL>vdict *commandCreateKeyDict (commandInitializer *keys)
+
+{
+
+  vdict       *keyDict = vdictCreate (vnameHash);
+  vcommandKey *key;
+
+  while (keys-&gt;tag != NULL) {
+    if (keys-&gt;key != 0) {
+      key = vcommandCreateKey ();
+      vcommandAddKeyStroke (key, keys-&gt;key);
+      vdictStore (keyDict, vnameInternGlobalLiteral (keys-&gt;tag), key);
+    }
+    keys++;
+  }
+
+  return keyDict;
+
+}
+</UL></PRE><P>
+This function also starts with the creation of a dictionary. We scan the commandInitializer array looking for non-zero key values. When we find a non-zero key value, we create a key and add the keystroke from the key field into the key. We then add the key to the dictionary using the tag as the key.<P>
+<UL><B><I>Note:</I></B> The commandCreateKeyDict and commandCreateCommandDict helper functions are 
+only necessary until the command editor of the Visual Resource Builder is available. Most, 
+if not all, of this initialization will be  unnecessary due to <TT>vre</TT> creating command space 
+resources directly.
+<P>
+<P>
+</UL>
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+   <TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+   <TR BGCOLOR="#CCCC66">
+      <TD>
+      <CENTER>
+      <!-- These are the Navigation buttons -->
+      <A HREF="Chapter_7.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="../../graphics/left.gif"></A>
+      <A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="../../graphics/up.gif"></A>
+      <IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="../../graphics/trans.gif"></A>
+</CENTER>
+</TD>
+
+      <TD>
+      <BR>
+      <FONT SIZE=-1>
+      <A HREF="Chapter_7.html">Previous Chapter</A><BR>
+      <A HREF="index.html">Tutorial Contents</A><BR>
+      <A HREF="../index.html">Switch to Another Document</A><BR>
+      <BR>
+      </FONT>
+      </TD><TD>
+      <BR>
+      <FONT SIZE=-1>
+      Need help? <a href="../../contact-visix.html">Contact Visix</a>.
+      <BR> <BR>
+      <A HREF="../../copyright.html">Copyright 1996-97</A>, <A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+      <BR>
+      </FONT>
+      </TD>
+   </TR>
+</TABLE>
+
+</BODY>
+</HTML>

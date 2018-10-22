@@ -1,0 +1,1028 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vmainview prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vmainview prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vmainview-x.html#section_DataType">Types</A> [3]</TD>
+<TD><A HREF="vmainview-x.html#section_Function">Functions</A> [40]</TD>
+<TD><A HREF="vmainview-x.html#section_Message">Messages</A> [9]</TD>
+<TD><A HREF="vmainview-x.html#section_Constant">Constants</A> [3]</TD>
+<TD><A HREF="vmainview-x.html#section_Macro">Macros</A> [2]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vmainview"><HR><H4>vmainview</H4></A>
+<PRE>
+        typedef ... <B>vmainview</B>;
+</PRE>
+
+<DL><DD>
+A <CODE>vmainview</CODE> is a special subclass of
+<CODE><A HREF="viconview-x.html#viconview"><CODE>viconview</CODE></A></CODE> which is intended to implement the
+document interfaces peculiar to certain window systems.
+Under the Microsoft Windows look-and-feel, the document
+interface is the Multiple Document Interface (MDI). When
+running with Windows look-and-feel, a
+<CODE>vmainview</CODE> provides native Windows MDI
+functionality. Currently, this functionality is only
+supported when running the Windows look-and-feel under
+Windows itself. No other combination of platform and look
+and feel currently supports native <CODE>vmainview</CODE>
+functionality. An application would use this subclass if it
+wanted normal <SAMP><A HREF="viconview-x.html#viconview"><CODE>viconview</CODE></A></SAMP> functionality under X,
+OS2/PM, and Macintosh, and native functionality under
+Windows. The preference ``mdi'' is turned on when native
+functionality is desired and turned off when normal
+<CODE><A HREF="viconview-x.html#viconview"><CODE>viconview</CODE></A></CODE> functionality is desired. By default
+this preference is ``on'' when running the Windows
+look-and-feel under Windows, and ``off'' by default in all
+other cases.
+    <P>
+There are a couple of restrictions on
+<CODE>vmainview</CODE> use. The <CODE><A HREF="vdialog-x.html#vdialog"><CODE>vdialog</CODE></A></CODE>
+associated with a <CODE>vmainview</CODE> must have its
+<CODE>vwindowSTYLE_MAIN</CODE> style set. For example:
+    <P>
+<CODE><A HREF="vwindow-x.html#vwindowAddStyle"><CODE>vwindowAddStyle</CODE></A></CODE><SAMP>(<CODE><A HREF="vdialog-x.html#vdialogGetWindow"><CODE>vdialogGetWindow</CODE></A></CODE>(myDlg), <CODE>vwindowSTYLE_MAIN</CODE>);</SAMP> 
+    <P>
+Also, there can only be one <CODE>vmainview</CODE> attached
+to any <CODE><A HREF="vdialog-x.html#vdialog"><CODE>vdialog</CODE></A></CODE>. This is a fundamental
+limitation of Microsoft Windows MDI.
+</DD></DL>
+<P>
+<A NAME="vmainviewClass"><HR><H4>vmainviewClass</H4></A>
+<PRE>
+        typedef ... <B>vmainviewClass</B>;
+</PRE>
+
+<DL><DD>
+Describes the behavior of a class of mainviews. Mainview
+classes are referenced by a pointer to this type.
+</DD></DL>
+<P>
+<A NAME="vmainviewIterator"><HR><H4>vmainviewIterator</H4></A>
+<PRE>
+        typedef ... <B>vmainviewIterator</B>;
+</PRE>
+
+<DL><DD>
+Denotes an abstract index variable  used for enumerating a
+collection of windows that belong to a mainview. Each
+iterator refers to a particular mainview and only behaves
+correctly if used with that mainview. An iterator becomes
+invalid if any windows are added or removed from the
+mainview to which it is attached.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vmainviewAddWindow"><HR><H4>vmainviewAddWindow</H4></A>
+<PRE>
+        void <B>vmainviewAddWindow</B>(
+                vmainview * mainview,
+                vwindow * window);
+</PRE>
+
+<DL><DD>
+Associates the <CODE><A HREF="vwindow-x.html#vwindow"><CODE>vwindow</CODE></A></CODE> <SAMP>window</SAMP>
+with  <CODE>vmainview</CODE> <SAMP>mainview</SAMP>. If the
+mainview is using native functionality, then
+<SAMP>window</SAMP> is parented and drawn according to
+window system specifications. Under the Windows
+look-and-feel, this means that the <CODE><A HREF="vwindow-x.html#vwindow"><CODE>vwindow</CODE></A></CODE>
+window is a child of the mainview's dialog and is drawn in
+and clipped to the main view's visible area (Multiple
+Document Interface or MDI). Other look-and-feels are not
+yet implemented. If not using native functionality,
+<SAMP>window</SAMP>'s icon shows up as normal in the
+visible area of the mainview, but <SAMP>window</SAMP> is
+drawn and parented distinct from the mainview's dialog. See
+the <CODE>vmainview</CODE> class definition for more
+relevant information. Failing to call
+<CODE>vmainviewAddWindow</CODE> could cause the icon
+(associated with <SAMP>window</SAMP>) not to appear in the
+visible area of the mainview.
+</DD></DL>
+<P>
+<A NAME="vmainviewCascade"><HR><H4>vmainviewCascade</H4></A>
+<PRE>
+        void <B>vmainviewCascade</B>(
+                vmainview * mainview);
+</PRE>
+
+<DL><DD>
+With native mainview behavior, this causes each
+<CODE><A HREF="vwindow-x.html#vwindow"><CODE>vwindow</CODE></A></CODE> handled by the mainview and not
+currently iconified to be cascaded in the visible area of
+the mainview. This has no effect when not using native
+mainview behavior. This is currently only functional with
+the Windows look-and-feel running under Windows.
+</DD></DL>
+<P>
+<A NAME="vmainviewCleanup"><HR><H4>vmainviewCleanup</H4></A>
+<PRE>
+        void <B>vmainviewCleanup</B>(
+                vmainview * mainview);
+</PRE>
+
+<DL><DD>
+Cleans up a mainview, so all icons are placed in
+non-overlapping grid locations.
+</DD></DL>
+<P>
+<A NAME="vmainviewClone"><HR><H4>vmainviewClone</H4></A>
+<PRE>
+        vmainview * <B>vmainviewClone</B>(
+                vmainview * mainview);
+</PRE>
+
+<DL><DD>
+Creates a copy of the mainview <SAMP>mainview</SAMP> and
+returns a pointer to its contents. This function is
+essentially a combination of <CODE><A HREF="vmainview-x.html#vmainviewCreate"><CODE>vmainviewCreate</CODE></A></CODE>
+and <CODE><A HREF="vmainview-x.html#vmainviewCopy"><CODE>vmainviewCopy</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vmainviewClose"><HR><H4>vmainviewClose</H4></A>
+<PRE>
+        void <B>vmainviewClose</B>(
+                vmainview * mainview);
+</PRE>
+
+<DL><DD>
+Closes <SAMP>mainview</SAMP>. See also
+<CODE><A HREF="vdialog-x.html#vdialogCloseItem"><CODE>vdialogCloseItem</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vmainviewCopy"><HR><H4>vmainviewCopy</H4></A>
+<PRE>
+        void <B>vmainviewCopy</B>(
+                vmainview * mainview,
+                vmainview * targetItem);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>mainview</SAMP> into
+<SAMP>target</SAMP>, so that the two mainviews represent
+equivalent objects. <SAMP>target</SAMP> must be created
+with <CODE><A HREF="vmainview-x.html#vmainviewCreate"><CODE>vmainviewCreate</CODE></A></CODE> or an equivalent
+function.
+</DD></DL>
+<P>
+<A NAME="vmainviewCopyInit"><HR><H4>vmainviewCopyInit</H4></A>
+<PRE>
+        void <B>vmainviewCopyInit</B>(
+                vmainview * mainview,
+                vmainview * targetItem);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>mainview</SAMP> into
+<SAMP>targetItem</SAMP>, so that the memory addressed by
+<SAMP>targetItem</SAMP> is a mainview equivalent to
+<SAMP>mainview</SAMP>. <SAMP>targetItem</SAMP> should be a
+pointer to uninitialized memory; the mainview initializes
+it as part of the copy.
+</DD></DL>
+<P>
+<A NAME="vmainviewCreate"><HR><H4>vmainviewCreate</H4></A>
+<PRE>
+        vmainview * <B>vmainviewCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new mainview of the default class and returns its
+pointer. The mainview is created with a set of default
+attributes. If a different set of attributes is desired,
+they must be set explicitly.
+</DD></DL>
+<P>
+<A NAME="vmainviewCreateOfClass"><HR><H4>vmainviewCreateOfClass</H4></A>
+<PRE>
+        vmainview * <B>vmainviewCreateOfClass</B>(
+                vmainviewClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new mainview of class <SAMP>clas</SAMP> and
+returns a pointer to its contents. Storage for the mainview
+instance is allocated by the mainview class. The mainview
+class reclaims the storage occupied by the mainview
+instance when it is destroyed with
+<CODE><A HREF="vmainview-x.html#vmainviewDestroy"><CODE>vmainviewDestroy</CODE></A></CODE>. The new mainview is created
+with a set of default attributes, determined by the class.
+The default attributes of the default window class are
+documented in the ``Standard Items'' chapter of the
+<I>Galaxy Application Environment Programmer's Guide</I>.
+This function essentially allocates space for a new
+mainview and calls <CODE>vmainiewInitOfClass</CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vmainviewDestroy"><HR><H4>vmainviewDestroy</H4></A>
+<PRE>
+        void <B>vmainviewDestroy</B>(
+                vmainview * mainview);
+</PRE>
+
+<DL><DD>
+Destroys the mainview represented by <SAMP>mainview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmainviewDestroyIterator"><HR><H4>vmainviewDestroyIterator</H4></A>
+<PRE>
+        void <B>vmainviewDestroyIterator</B>(
+                vmainviewIterator * iterator);
+</PRE>
+
+<DL><DD>
+Terminates the iteration represented by
+<SAMP>iterator</SAMP>, even if it is not yet exhausted.
+This function is necessary to reclaim any internal
+iteration objects allocated when initializing the iterator.
+</DD></DL>
+<P>
+<A NAME="vmainviewDestroyLater"><HR><H4>vmainviewDestroyLater</H4></A>
+<PRE>
+        void <B>vmainviewDestroyLater</B>(
+                vmainview * mainview);
+</PRE>
+
+<DL><DD>
+Marks <SAMP>mainview</SAMP> to be destroyed later (after
+the current event is done being processed). This is
+implemented by posting an event that destroys
+<SAMP>mainview</SAMP> later, when that event gets
+dispatched. See also <CODE><A HREF="vobject-x.html#vobjectDestroyLater"><CODE>vobjectDestroyLater</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vmainviewGetActiveWindow"><HR><H4>vmainviewGetActiveWindow</H4></A>
+<PRE>
+        vwindow * <B>vmainviewGetActiveWindow</B>(
+                vmainview * mainview);
+</PRE>
+
+<DL><DD>
+Returns the active <CODE><A HREF="vwindow-x.html#vwindow"><CODE>vwindow</CODE></A></CODE> <SAMP>window</SAMP>
+of the mainview<SAMP> mainview </SAMP>or NULL if there is
+no active window. If mainview is using native
+functionality, then <SAMP>window</SAMP> is the active
+window according to window system specifications. Under the
+Windows look-and-feel, this means that the
+<CODE><A HREF="vwindow-x.html#vwindow"><CODE>vwindow</CODE></A></CODE> window is a active MDI child of the
+mainview's dialog. If not using native functionality, the
+<SAMP>window</SAMP> is the windows of the mainview which
+has a focus or NULL if there is no such window. This
+function is implemented by sending the message
+<CODE><A HREF="vmainview-x.html#vmainviewGET_ACTIVE_WINDOW"><CODE>vmainviewGET_ACTIVE_WINDOW</CODE></A></CODE> to the mainview.
+</DD></DL>
+<P>
+<A NAME="vmainviewGetBase"><HR><H4>vmainviewGetBase</H4></A>
+<PRE>
+        void <B>vmainviewGetBase</B>();
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vmainviewGetClass"><HR><H4>vmainviewGetClass</H4></A>
+<PRE>
+        vmainviewClass * <B>vmainviewGetClass</B>(
+                vmainview * mainview);
+</PRE>
+
+<DL><DD>
+Returns the mainview class for the mainview
+<SAMP>mainview</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmainviewGetData"><HR><H4>vmainviewGetData</H4></A>
+<PRE>
+        void * <B>vmainviewGetData</B>(
+                vmainview * mainview);
+</PRE>
+
+<DL><DD>
+Returns the generic data pointer attached to the mainview
+<SAMP>mainview</SAMP>, which can be <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmainviewGetDefaultClass"><HR><H4>vmainviewGetDefaultClass</H4></A>
+<PRE>
+        vmainviewClass * <B>vmainviewGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the class used to create mainviews by the
+<CODE><A HREF="vmainview-x.html#vmainviewCreate"><CODE>vmainviewCreate</CODE></A></CODE> and <CODE><A HREF="vmainview-x.html#vmainviewInit"><CODE>vmainviewInit</CODE></A></CODE>
+functions. This class should not be modified by
+applications, because the default mainview class is
+<I>not</I> allocated on a per-application basis. Changes to
+this class are visible to all the applications in a given
+process and all the applications sharing the same display
+server. Server programs may alter this class to obtain
+custom behavior. This function can be called to explicitly
+register the default mainview class with the Class Manager.
+</DD></DL>
+<P>
+<A NAME="vmainviewGetIteratorWindow"><HR><H4>vmainviewGetIteratorWindow</H4></A>
+<PRE>
+        vwindow * <B>vmainviewGetIteratorWindow</B>(
+                vmainviewIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the window indexed by the iterator
+<SAMP>iterator</SAMP>. This function should only be called
+after <CODE><A HREF="vmainview-x.html#vmainviewNextIterator"><CODE>vmainviewNextIterator</CODE></A></CODE> has returned
+<SAMP>TRUE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmainviewGetView"><HR><H4>vmainviewGetView</H4></A>
+<PRE>
+        int <B>vmainviewGetView</B>(
+                vmainview * mainview);
+</PRE>
+
+<DL><DD>
+A mainview can have multiple view types. The current
+implementation of mainviews allows for two view types: view
+by name and view by type. With native functionality, only
+view by icon is used. Native functionality is currently
+only implemented under Windows look-and-feel running under
+Windows. View by name is analgous to the behavior of an
+icon view after having called
+<CODE><A HREF="viconview-x.html#viconviewSetView"><CODE>viconviewSetView</CODE></A></CODE><SAMP>(iconview,
+<CODE><A HREF="viconview-x.html#viconviewGetNameView"><CODE>viconviewGetNameView</CODE></A></CODE>())</SAMP>. View by icon
+is analgous to the behavior of an icon view after having
+called <CODE><A HREF="viconview-x.html#viconviewSetView"><CODE>viconviewSetView</CODE></A></CODE><SAMP>(iconview,
+<CODE><A HREF="viconview-x.html#viconviewGetIconView"><CODE>viconviewGetIconView</CODE></A></CODE>())</SAMP>. The value
+returned from <CODE>vmainviewGetView</CODE> is either
+<CODE>vmainviewICON_VIEW</CODE> or
+<CODE>vmainviewNAME_VIEW</CODE>.
+</DD></DL>
+<P>
+<A NAME="vmainviewHasWindow"><HR><H4>vmainviewHasWindow</H4></A>
+<PRE>
+        int <B>vmainviewHasWindow</B>(
+                vmainview * mainview,
+                vwindow * window);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE </SAMP>if the mainview
+<SAMP>mainview</SAMP> has a window<SAMP> window, FALSE
+</SAMP>if it does not.
+</DD></DL>
+<P>
+<A NAME="vmainviewInit"><HR><H4>vmainviewInit</H4></A>
+<PRE>
+        void <B>vmainviewInit</B>(
+                vmainview * mainview);
+</PRE>
+
+<DL><DD>
+Makes the mainview addressed by <SAMP>mainview</SAMP> a
+valid mainview of the default class in the same manner as
+<CODE><A HREF="vmainview-x.html#vmainviewInitOfClass"><CODE>vmainviewInitOfClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vmainviewInitIterator"><HR><H4>vmainviewInitIterator</H4></A>
+<PRE>
+        void <B>vmainviewInitIterator</B>(
+                vmainviewIterator * iterator,
+                vmainview * mainview);
+</PRE>
+
+<DL><DD>
+Begins an iteration of all the windows in the mainview
+<SAMP>mainview</SAMP> by initializing the iterator object
+<SAMP>iterator.</SAMP> The iterator initially contains no
+windows; <CODE><A HREF="vmainview-x.html#vmainviewNextIterator"><CODE>vmainviewNextIterator</CODE></A></CODE> must be called
+to obtain the first mainview window.
+</DD></DL>
+<P>
+<A NAME="vmainviewInitOfClass"><HR><H4>vmainviewInitOfClass</H4></A>
+<PRE>
+        void <B>vmainviewInitOfClass</B>(
+                vmainview * mainview,
+                vmainviewClass * clas);
+</PRE>
+
+<DL><DD>
+Makes the mainview addressed by <SAMP>mainview</SAMP> a
+valid mainview of class <SAMP>clas</SAMP> in the same
+manner as <CODE><A HREF="vmainview-x.html#vmainviewCreateOfClass"><CODE>vmainviewCreateOfClass</CODE></A></CODE>, except that
+storage is not allocated for the mainview. If the main view
+is passed to <CODE><A HREF="vmainview-x.html#vmainviewDestroy"><CODE>vmainviewDestroy</CODE></A></CODE>, any internally
+allocated storage is freed, but the mainview itself is not
+freed. The storage addressed by <SAMP>mainview</SAMP> need
+not be dynamically allocated.
+</DD></DL>
+<P>
+<A NAME="vmainviewLoad"><HR><H4>vmainviewLoad</H4></A>
+<PRE>
+        vmainview * <B>vmainviewLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a mainview from the resource <SAMP>resource</SAMP>
+and returns a pointer to its contents. The contents are
+allocated by the mainview. An exception is generated if the
+resource has not been constructed properly.
+</DD></DL>
+<P>
+<A NAME="vmainviewLoadInit"><HR><H4>vmainviewLoadInit</H4></A>
+<PRE>
+        void <B>vmainviewLoadInit</B>(
+                vmainview * mainview,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a mainview from the resource <SAMP>resource</SAMP>
+and stores it in the structure addressed by
+<SAMP>mainview</SAMP>, which should be uninitialized. An
+exception is generated if the resource has not been
+constructed properly.
+</DD></DL>
+<P>
+<A NAME="vmainviewNextIterator"><HR><H4>vmainviewNextIterator</H4></A>
+<PRE>
+        int <B>vmainviewNextIterator</B>(
+                vmainviewIterator * iterator);
+</PRE>
+
+<DL><DD>
+Performs the next step of the iteration represented by the
+iterator <SAMP>itrerator</SAMP> and returns
+<SAMP>TRUE</SAMP> if a window is available,
+<SAMP>FALSE</SAMP> if not. The particular window can be
+retrieved from the iterator with
+<CODE><A HREF="vmainview-x.html#vmainviewGetIteratorWindow"><CODE>vmainviewGetIteratorWindow</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vmainviewOpen"><HR><H4>vmainviewOpen</H4></A>
+<PRE>
+        void <B>vmainviewOpen</B>(
+                vmainview * mainview);
+</PRE>
+
+<DL><DD>
+Opens the given <SAMP>mainview</SAMP>. See also
+<CODE><A HREF="vdialog-x.html#vdialogOpenItem"><CODE>vdialogOpenItem</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vmainviewRemoveWindow"><HR><H4>vmainviewRemoveWindow</H4></A>
+<PRE>
+        void <B>vmainviewRemoveWindow</B>(
+                vmainview * mainview,
+                vwindow * window);
+</PRE>
+
+<DL><DD>
+Disassociates the <CODE><A HREF="vwindow-x.html#vwindow"><CODE>vwindow</CODE></A></CODE> <SAMP>window</SAMP>
+with the  <CODE>vmainview</CODE> <SAMP>mainview</SAMP>. See
+<CODE><A HREF="vmainview-x.html#vmainviewAddWindow"><CODE>vmainviewAddWindow</CODE></A></CODE> for more information. This
+call will generate a <CODE><A HREF="vex-x.html#vexModuleStateException"><CODE>vexModuleStateException</CODE></A></CODE>
+if the window to be removed has not been added to or has
+already been removed from the mainview.
+</DD></DL>
+<P>
+<A NAME="vmainviewSetActiveWindow"><HR><H4>vmainviewSetActiveWindow</H4></A>
+<PRE>
+        void <B>vmainviewSetActiveWindow</B>(
+                vmainview * mainview,
+                vwindow * window);
+</PRE>
+
+<DL><DD>
+Set the <CODE><A HREF="vwindow-x.html#vwindow"><CODE>vwindow</CODE></A></CODE> <SAMP>window</SAMP> as an
+active window of the <CODE>vmainview</CODE>
+<SAMP>mainview</SAMP>.<SAMP> </SAMP>If mainview is using
+native functionality, then <SAMP>window</SAMP> will be the
+active window according to window system specifications.
+Under the Windows look-and-feel, this means that the window
+<SAMP>window </SAMP>will be an active MDI child of the
+mainview's dialog. If not using native functionality, the
+<SAMP>window</SAMP> will have a keyboard focus. This
+function is implemented by sending the message
+<CODE><A HREF="vmainview-x.html#vmainviewSET_ACTIVE_WINDOW"><CODE>vmainviewSET_ACTIVE_WINDOW</CODE></A></CODE> to the mainview.
+</DD></DL>
+<P>
+<A NAME="vmainviewSetData"><HR><H4>vmainviewSetData</H4></A>
+<PRE>
+        void <B>vmainviewSetData</B>(
+                vmainview * mainview,
+                void * data);
+</PRE>
+
+<DL><DD>
+Sets a mainview's generic data pointer to
+<SAMP>data</SAMP>. This can be a pointer to whatever
+information the client wants to attach to the main view; it
+is not used by the mainview. <SAMP>data</SAMP> can be
+<SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmainviewSetIconView"><HR><H4>vmainviewSetIconView</H4></A>
+<PRE>
+        void <B>vmainviewSetIconView</B>(
+                vmainview * mainview);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Sets the view type of <SAMP>mainview</SAMP> to be ``view by
+icon.'' See <CODE><A HREF="vmainview-x.html#vmainviewGetView"><CODE>vmainviewGetView</CODE></A></CODE> for more
+information. This is now deprecated. Use
+<CODE><A HREF="vmainview-x.html#vmainviewSetView"><CODE>vmainviewSetView</CODE></A></CODE><SAMP>(mainview</SAMP>,
+<CODE>vmainviewGetIconView</CODE><SAMP>())</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmainviewSetNameView"><HR><H4>vmainviewSetNameView</H4></A>
+<PRE>
+        void <B>vmainviewSetNameView</B>(
+                vmainview * mainview);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Sets the view type of <SAMP>mainview</SAMP> to be ``view by
+name.'' See <CODE><A HREF="vmainview-x.html#vmainviewGetView"><CODE>vmainviewGetView</CODE></A></CODE> for more
+information. This is now deprecated. Use
+<CODE><A HREF="vmainview-x.html#vmainviewSetView"><CODE>vmainviewSetView</CODE></A></CODE><SAMP>(mainview</SAMP>,
+<CODE>vmainviewGetIconView</CODE><SAMP>())</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmainviewSetView"><HR><H4>vmainviewSetView</H4></A>
+<PRE>
+        void <B>vmainviewSetView</B>(
+                vmainview * mainview,
+                int view);
+</PRE>
+
+<DL><DD>
+A mainview can have multiple view types. The current
+implementation of mainviews allows for two view types: view
+by name and view by type. With native functionality, only
+view by icon is used. Native functionality is currently
+only implemented under Windows look-and-feel running under
+Windows. View by name is analgous to the behavior of an
+icon view after having called
+<CODE><A HREF="viconview-x.html#viconviewSetView"><CODE>viconviewSetView</CODE></A></CODE><SAMP>(iconview,
+<CODE><A HREF="viconview-x.html#viconviewGetNameView"><CODE>viconviewGetNameView</CODE></A></CODE>())</SAMP>. View by icon
+is analgous to the behavior of an icon view after having
+called <CODE><A HREF="viconview-x.html#viconviewSetView"><CODE>viconviewSetView</CODE></A></CODE><SAMP>(iconview,
+<CODE><A HREF="viconview-x.html#viconviewGetIconView"><CODE>viconviewGetIconView</CODE></A></CODE>())</SAMP>. The value
+passed to <CODE>vmainviewSetView</CODE> must be either
+<CODE>vmainviewICON_VIEW</CODE> or
+<CODE>vmainviewNAME_VIEW</CODE>.
+    <P>
+This call can generate a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> if
+the view type passed is not allowable.
+</DD></DL>
+<P>
+<A NAME="vmainviewSetWindowIconViewImage"><HR><H4>vmainviewSetWindowIconViewImage</H4></A>
+<PRE>
+        void <B>vmainviewSetWindowIconViewImage</B>(
+                vmainview * mainview,
+                vwindow * window,
+                vimage * image);
+</PRE>
+
+<DL><DD>
+When the view type of <SAMP>mainview</SAMP> is
+<CODE>vmainviewICON_VIEW</CODE> then <SAMP>window</SAMP>'s
+iconic representation is <SAMP>image</SAMP>. This call will
+generate a <CODE><A HREF="vex-x.html#vexModuleStateException"><CODE>vexModuleStateException</CODE></A></CODE> if the
+window has not been previously added to the mainview.
+    <P>
+This is only true for non-native mainview functionality.
+</DD></DL>
+<P>
+<A NAME="vmainviewSetWindowNameViewImage"><HR><H4>vmainviewSetWindowNameViewImage</H4></A>
+<PRE>
+        void <B>vmainviewSetWindowNameViewImage</B>(
+                vmainview * mainview,
+                vwindow * window,
+                vimage * image);
+</PRE>
+
+<DL><DD>
+When the view type of <SAMP>mainview</SAMP> is
+<CODE>vmainviewNAME_VIEW</CODE> then <SAMP>window</SAMP>'s
+iconic representation is <SAMP>image</SAMP>. This call will
+generate a <CODE><A HREF="vex-x.html#vexModuleStateException"><CODE>vexModuleStateException</CODE></A></CODE> if the
+window has not been previously added to the mainview.
+    <P>
+This is only true for non-native mainview functionality.
+</DD></DL>
+<P>
+<A NAME="vmainviewSetWindowTitle"><HR><H4>vmainviewSetWindowTitle</H4></A>
+<PRE>
+        void <B>vmainviewSetWindowTitle</B>(
+                vmainview * mainview,
+                vwindow * window,
+                vchar * title);
+</PRE>
+
+<DL><DD>
+Sets the title for <SAMP>window</SAMP>'s icon as it appears
+in the mainview (does not set the title of the window-- to
+do that, use <CODE><A HREF="vwindow-x.html#vwindowSetTitle"><CODE>vwindowSetTitle</CODE></A></CODE>). With native
+mainview behavior under the Windows look-and-feel, this
+title is ignored in favor of the name of
+<SAMP>window</SAMP> obtained using
+<CODE><A HREF="vwindow-x.html#vwindowGetTitle"><CODE>vwindowGetTitle</CODE></A></CODE>. On all look-and-feels besides
+Windows running under Windows, mainview behavior is
+identical to icon view behavior. This function is
+implemented by sending the message
+<CODE><A HREF="vmainview-x.html#vmainviewSET_WINDOW_TITLE_SCRIBED"><CODE>vmainviewSET_WINDOW_TITLE_SCRIBED</CODE></A></CODE> to
+<SAMP>mainview</SAMP>. This call will generate a
+<CODE><A HREF="vex-x.html#vexModuleStateException"><CODE>vexModuleStateException</CODE></A></CODE> if the window has not
+been previously added to the mainview.
+</DD></DL>
+<P>
+<A NAME="vmainviewSetWindowTitleScribed"><HR><H4>vmainviewSetWindowTitleScribed</H4></A>
+<PRE>
+        void <B>vmainviewSetWindowTitleScribed</B>(
+                vmainview * mainview,
+                vwindow * window,
+                vscribe * title);
+</PRE>
+
+<DL><DD>
+Changes the title (using a String Manager scribe) of
+<SAMP>window</SAMP>'s icon as it appears in the mainview
+(does not set the title of the window-- to do that, use
+<CODE><A HREF="vwindow-x.html#vwindowSetTitle"><CODE>vwindowSetTitle</CODE></A></CODE>). With native mainview
+behavior under the Windows look-and-feel, this title is
+ignored in favor of the name of <SAMP>window</SAMP>
+obtained using <CODE><A HREF="vwindow-x.html#vwindowGetTitle"><CODE>vwindowGetTitle</CODE></A></CODE>. On all
+look-and-feels besides Windows running under Windows,
+mainview behavior is identical to icon view behavior. This
+function is implemented by sending the message
+<CODE><A HREF="vmainview-x.html#vmainviewSET_WINDOW_TITLE_SCRIBED"><CODE>vmainviewSET_WINDOW_TITLE_SCRIBED</CODE></A></CODE> to
+<SAMP>mainview</SAMP>. This call will generate a
+<CODE><A HREF="vex-x.html#vexModuleStateException"><CODE>vexModuleStateException</CODE></A></CODE> if the window has not
+been previously added to the mainview.
+</DD></DL>
+<P>
+<A NAME="vmainviewStartup"><HR><H4>vmainviewStartup</H4></A>
+<PRE>
+        void <B>vmainviewStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the Main View manager for use. This function
+has no effect if the Main View manager has already been
+started up.
+</DD></DL>
+<P>
+<A NAME="vmainviewStore"><HR><H4>vmainviewStore</H4></A>
+<PRE>
+        void <B>vmainviewStore</B>(
+                vmainview * mainview,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Writes the contents of the mainview into the resource
+<SAMP>resource</SAMP>. The mainview can be recovered from
+the resource at a later time (perhaps by another
+application) with <CODE><A HREF="vmainview-x.html#vmainviewLoad"><CODE>vmainviewLoad</CODE></A></CODE> or
+<CODE><A HREF="vmainview-x.html#vmainviewLoadInit"><CODE>vmainviewLoadInit</CODE></A></CODE>. The resource should have
+type <CODE>vresourceDICT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vmainviewTile"><HR><H4>vmainviewTile</H4></A>
+<PRE>
+        void <B>vmainviewTile</B>(
+                vmainview * mainview);
+</PRE>
+
+<DL><DD>
+With native mainview behavior, this causes each
+<CODE><A HREF="vwindow-x.html#vwindow"><CODE>vwindow</CODE></A></CODE> handled by the mainview and not
+currently iconified to be tiled in the visible area of the
+mainview. This has no effect when not using native main
+view behavior. This is currently only functional with the
+Windows look-and-feel running under Windows.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vmainviewADD_WINDOW"><HR><H4>vmainviewADD_WINDOW</H4></A>
+<PRE>
+        &lt;<B>vmainviewADD_WINDOW</B>&gt;
+</PRE>
+
+<DL><DD>
+Associates the <CODE><A HREF="vwindow-x.html#vwindow"><CODE>vwindow</CODE></A></CODE> <SAMP>window</SAMP>
+with the <CODE>vmainview</CODE> <SAMP>mainview</SAMP>. If
+the mainview is using native functionality, then
+<SAMP>window</SAMP> is parented and drawn according to
+window system specifications. Under the Windows
+look-and-feel, this means that the <CODE><A HREF="vwindow-x.html#vwindow"><CODE>vwindow</CODE></A></CODE>
+window is a child of the mainview's dialog and is drawn in
+and clipped to the mainview's visible area (Multiple
+Document Interface or MDI). Other look-and-feels are not
+yet implemented. If not using native functionality, the
+<SAMP>window</SAMP> icon shows up as normal in the visible
+area of the mainview, but <SAMP>window</SAMP> is drawn and
+parented distinct from the mainview's dialog.
+</DD></DL>
+<P>
+<A NAME="vmainviewCASCADE"><HR><H4>vmainviewCASCADE</H4></A>
+<PRE>
+        &lt;<B>vmainviewCASCADE</B>&gt;
+</PRE>
+
+<DL><DD>
+With native mainview behavior, this causes each
+<CODE><A HREF="vwindow-x.html#vwindow"><CODE>vwindow</CODE></A></CODE> handled by the mainview and not
+currently iconified to be cascaded in the visible area of
+the mainview. This has no effect when not using native
+mainview behavior. This is currently only functional with
+the Windows look-and-feel running under Windows.
+</DD></DL>
+<P>
+<A NAME="vmainviewGET_ACTIVE_WINDOW"><HR><H4>vmainviewGET_ACTIVE_WINDOW</H4></A>
+<PRE>
+        &lt;<B>vmainviewGET_ACTIVE_WINDOW</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns the active <CODE><A HREF="vwindow-x.html#vwindow"><CODE>vwindow</CODE></A></CODE> <SAMP>window</SAMP>
+of the mainview <SAMP>mainview</SAMP> or NULL if there is
+no active window. If mainview is using native
+functionality, then <SAMP>window</SAMP> is the active
+window according to window system specifications. Under the
+Windows look-and-feel, this means that the
+<CODE><A HREF="vwindow-x.html#vwindow"><CODE>vwindow</CODE></A></CODE> window is an active MDI child of the
+mainview's dialog. If not using native functionality, the
+<SAMP>window</SAMP> is the window of the mainview which has
+a focus or NULL if there is no such window.
+</DD></DL>
+<P>
+<A NAME="vmainviewREMOVE_WINDOW"><HR><H4>vmainviewREMOVE_WINDOW</H4></A>
+<PRE>
+        &lt;<B>vmainviewREMOVE_WINDOW</B>&gt;
+</PRE>
+
+<DL><DD>
+Disassociates the <CODE><A HREF="vwindow-x.html#vwindow"><CODE>vwindow</CODE></A></CODE> <SAMP>window</SAMP>
+with the <CODE>vmainview</CODE> <SAMP>mainview</SAMP>. See
+<CODE><A HREF="vmainview-x.html#vmainviewAddWindow"><CODE>vmainviewAddWindow</CODE></A></CODE> for more information.
+</DD></DL>
+<P>
+<A NAME="vmainviewSET_ACTIVE_WINDOW"><HR><H4>vmainviewSET_ACTIVE_WINDOW</H4></A>
+<PRE>
+        &lt;<B>vmainviewSET_ACTIVE_WINDOW</B>&gt;
+</PRE>
+
+<DL><DD>
+Set the window <SAMP>window</SAMP> as an active window of
+the mainview <SAMP>mainview</SAMP>.<SAMP> </SAMP>If
+mainview is using native functionality, then
+<SAMP>window</SAMP> will be the active window according to
+window system specifications. Under the Windows
+look-and-feel, this means that the window
+<SAMP>window</SAMP> will be an active MDI child of the
+mainview's dialog. If not using native functionality, the
+<SAMP>window</SAMP> will have a keyboard focus.
+</DD></DL>
+<P>
+<A NAME="vmainviewSET_VIEW"><HR><H4>vmainviewSET_VIEW</H4></A>
+<PRE>
+        &lt;<B>vmainviewSET_VIEW</B>&gt;
+</PRE>
+
+<DL><DD>
+Set the view type of the mainview <SAMP>mainview</SAMP>.
+The view type can be either <CODE>vmainviewICON_VIEW</CODE>
+or <CODE>vmainviewNAME_VIEW</CODE>.
+</DD></DL>
+<P>
+<A NAME="vmainviewSET_WINDOW_TITLE"><HR><H4>vmainviewSET_WINDOW_TITLE</H4></A>
+<PRE>
+        &lt;<B>vmainviewSET_WINDOW_TITLE</B>&gt;
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Changes the title of <SAMP>window</SAMP>'s icon as it
+appears in the mainview (does not set the title of the
+window-- to do that, use <CODE><A HREF="vwindow-x.html#vwindowSetTitle"><CODE>vwindowSetTitle</CODE></A></CODE>).
+With native mainview behavior under the Windows
+look-and-feel, this title is ignored in favor of the name
+of <SAMP>window</SAMP> obtained using
+<CODE><A HREF="vwindow-x.html#vwindowGetTitle"><CODE>vwindowGetTitle</CODE></A></CODE>. On all look-and-feels besides
+Windows running under Windows, mainview behavior is
+identical to icon view behavior. A copy is made of the
+title before it is stored in the mainview, and the string
+is freed when the title is destroyed or the title is
+changed. You can inhibit copying and share titles between
+windows by using a shared scribe. The function entry points
+<CODE><A HREF="vmainview-x.html#vmainviewSetWindowTitleScribed"><CODE>vmainviewSetWindowTitleScribed</CODE></A></CODE> and
+<CODE><A HREF="vmainview-x.html#vmainviewSetWindowTitle"><CODE>vmainviewSetWindowTitle</CODE></A></CODE> are implemented by
+sending this message to the window.
+    <P>
+The default method for the default mainview class makes a
+copy of the title, if indicated by the scribe, and stores
+it in the mainview structure. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+set the title, then update any subclass-specific state.
+    <P>
+To accomplish the setting of the icon name and the window
+name at the same time, you might override this method and
+add a call to <CODE><A HREF="vwindow-x.html#vwindowSetTitle"><CODE>vwindowSetTitle</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vmainviewSET_WINDOW_TITLE_SCRIBED"><HR><H4>vmainviewSET_WINDOW_TITLE_SCRIBED</H4></A>
+<PRE>
+        &lt;<B>vmainviewSET_WINDOW_TITLE_SCRIBED</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the title (using a String Manager scribe) of
+<SAMP>window</SAMP>'s icon as it appears in the mainview.
+With native mainview behavior under the Windows
+look-and-feel, this title is ignored in favor of the name
+of <SAMP>window</SAMP> obtained using
+<CODE><A HREF="vwindow-x.html#vwindowGetTitle"><CODE>vwindowGetTitle</CODE></A></CODE>. On all look-and-feels besides
+Windows running under Windows, mainview behavior is
+identical to icon view behavior. A copy is made of the
+title before it is stored in the mainview, and the string
+is freed when the title is destroyed or the title is
+changed. You can inhibit copying and share titles between
+windows by using a shared scribe. The function entry points
+<CODE><A HREF="vmainview-x.html#vmainviewSetWindowTitleScribed"><CODE>vmainviewSetWindowTitleScribed</CODE></A></CODE> and
+<CODE><A HREF="vmainview-x.html#vmainviewSetWindowTitle"><CODE>vmainviewSetWindowTitle</CODE></A></CODE> are implemented by
+sending this message to the window.
+    <P>
+The default method for the default mainview class makes a
+copy of the title, if indicated by the scribe, and stores
+it in the mainview structure. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+set the title, then update any subclass-specific state.
+    <P>
+To accomplish the setting of the icon name and the window
+name at the same time, you might override this method and
+add a call to <CODE><A HREF="vwindow-x.html#vwindowSetTitle"><CODE>vwindowSetTitle</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vmainviewTILE"><HR><H4>vmainviewTILE</H4></A>
+<PRE>
+        &lt;<B>vmainviewTILE</B>&gt;
+</PRE>
+
+<DL><DD>
+With native mainview behavior, this causes each
+<CODE><A HREF="vwindow-x.html#vwindow"><CODE>vwindow</CODE></A></CODE> handled by the mainview and not
+currently iconified to be tiled in the visible area of the
+mainview. This has no effect when not using native main
+view behavior. This is currently only functional with the
+Windows look and feel running under Windows.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vmainviewICON_VIEW"><HR><H4>vmainviewICON_VIEW</H4></A>
+<PRE>
+        <B>vmainviewICON_VIEW</B>
+</PRE>
+
+<DL><DD>
+One of these values is returned from
+<CODE><A HREF="vmainview-x.html#vmainviewGetView"><CODE>vmainviewGetView</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vmainviewINCLUDED"><HR><H4>vmainviewINCLUDED</H4></A>
+<PRE>
+        <B>vmainviewINCLUDED</B>
+</PRE>
+
+<DL><DD>
+This macro is defined when the header file
+<SAMP>vmainvie.h</SAMP> is included by another file. Test
+this macro with the <SAMP>#ifdef</SAMP> directive to
+determine if <SAMP>vmainvie.h</SAMP> has been included.
+</DD></DL>
+<P>
+<A NAME="vmainviewNAME_VIEW"><HR><H4>vmainviewNAME_VIEW</H4></A>
+<PRE>
+        <B>vmainviewNAME_VIEW</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vmainviewCLASS"><HR><H4>vmainviewCLASS</H4></A>
+<PRE>
+        #define <B>vmainviewCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vmainviewGetBase"><HR><H4>vmainviewGetBase</H4></A>
+<PRE>
+        #define <B>vmainviewGetBase</B>(...) ...
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

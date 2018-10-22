@@ -1,0 +1,1790 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vname prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vname prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vname-x.html#section_DataType">Types</A> [6]</TD>
+<TD><A HREF="vname-x.html#section_Function">Functions</A> [51]</TD>
+<TD></TD>
+<TD><A HREF="vname-x.html#section_Constant">Constants</A> [3]</TD>
+<TD></TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vname"><HR><H4>vname</H4></A>
+<PRE>
+        typedef ... <B>vname</B>;
+</PRE>
+
+<DL><DD>
+A <SAMP>vname</SAMP> is a unique, atomic identifier for an
+arbitrary character string, implemented as a pointer to a
+character string that uniquely identifies that character
+string in the context of a given name table. A name is
+represented as a pointer to its character string contents
+so its printable representation can be easily recovered.
+<P>
+Note that you can pass a <SAMP>const vname*</SAMP> in place
+of a <SAMP>const <A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A>*</SAMP>, but <I>not</I> vice-versa.
+<P>
+The type <SAMP>vname</SAMP> is compatible with
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> in the same way that <SAMP><A HREF="vstr-x.html#vstr"><CODE>vstr</CODE></A></SAMP>
+is compatible with <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP>. Under no
+circumstances can a <SAMP>const vname*</SAMP> be passed in
+place of a (non-<SAMP>const</SAMP>) <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A>*</SAMP> or
+<SAMP><A HREF="vstr-x.html#vstr"><CODE>vstr</CODE></A>*</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnameArgTagException"><HR><H4>vnameArgTagException</H4></A>
+<PRE>
+        typedef ... <B>vnameArgTagException</B>;
+</PRE>
+
+<DL><DD>
+Signals that an unacceptable name argument was passed to a function.
+</DD></DL>
+<P>
+<A NAME="vnameCustomHashFunc"><HR><H4>vnameCustomHashFunc</H4></A>
+<PRE>
+        typedef ... <B>vnameCustomHashFunc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a generic hash function that returns an identifying
+value for a given pointer value and a hash context pointer.
+<P>
+The hash context pointer passed to the hash function is the one passed 
+to the <CODE><A HREF="vname-x.html#vnameCreateCustom"><CODE>vnameCreateCustom</CODE></A></CODE>, <CODE><A HREF="vname-x.html#vnameInitCustom"><CODE>vnameInitCustom</CODE></A></CODE>,
+or <CODE><A HREF="vname-x.html#vnameSetCustomData"><CODE>vnameSetCustomData</CODE></A></CODE> functions. 
+<P>
+Whether the pointer, or the data it addresses, is used
+for this value depends on the context in which this type is used.
+For example, the context can be name tables which use the pointer contents 
+(a string), dictionaries, or the pointer itself. 
+<P>
+A function of this type should return a value for each pointer, 
+or pointer contents, that is passed to it. This value <I>must</I> be the
+same for each identical pointer or contents. Values should
+be as distinct as possible to obtain a good distribution.
+<CODE><A HREF="vname-x.html#vnameHashString"><CODE>vnameHashString</CODE></A></CODE> is a good hash function for
+arbitrary character strings.
+</DD></DL>
+<P>
+<A NAME="vnameHashFunc"><HR><H4>vnameHashFunc</H4></A>
+<PRE>
+        typedef ... <B>vnameHashFunc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a generic hash function that returns an identifying
+value for a given pointer, or the contents it addresses.
+Whether the pointer, or the data it addresses, is used
+for this value depends on the context in which this type is used.
+For example, the context can be name tables which use the pointer contents 
+(a string), dictionaries, or the pointer itself. 
+<P>
+A function of this type should return a value for each pointer, 
+or pointer contents, that is passed to it. This value <I>must</I> be the
+same for each identical pointer or contents. Values should
+be as distinct as possible to obtain a good distribution.
+<CODE><A HREF="vname-x.html#vnameHashString"><CODE>vnameHashString</CODE></A></CODE> is a good hash function for
+arbitrary character strings.
+</DD></DL>
+<P>
+<A NAME="vnameTable"><HR><H4>vnameTable</H4></A>
+<PRE>
+        typedef ... <B>vnameTable</B>;
+</PRE>
+
+<DL><DD>
+A <B><I>name table</I></B> is a collection of zero or more
+unique names. You can pass a character string to a name
+table to retrieve the unique name for that character
+string. Given two names in the same name table, you can
+compare their pointer values to determine equality without
+comparing the characters of the names themselves. The fact
+that names can be compared quickly makes them particularly
+well suited as keys for arbitrary values. Names are often
+used as dictionary keys and resource tags.
+</DD></DL>
+<P>
+<A NAME="vnameTableIterator"><HR><H4>vnameTableIterator</H4></A>
+<PRE>
+        typedef ... <B>vnameTableIterator</B>;
+</PRE>
+
+<DL><DD>
+Denotes an abstract pointer variable used to enumerate the
+contents of a name table. Any given iterator refers to a
+particular name in a particular name table. An iterator
+behaves correctly only if it is used with the name table
+that it was initialized with. An iterator becomes invalid
+if the name table that it references is modified in any
+way. Iterators are normally declared as automatic variables
+of a function and are initialized with
+<CODE><A HREF="vname-x.html#vnameInitTableIterator"><CODE>vnameInitTableIterator</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vname"><HR><H4>vname</H4></A>
+<PRE>
+        void <B>vname</B>();
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vnameArgTAG"><HR><H4>vnameArgTAG</H4></A>
+<PRE>
+        void <B>vnameArgTAG</B>(
+                void * exception,
+                va_list * ap);
+</PRE>
+
+<DL><DD>
+Indicates that the next argument in an exception generation
+call is the name argument that caused the exception in its argument list.
+</DD></DL>
+<P>
+<A NAME="vnameCreate"><HR><H4>vnameCreate</H4></A>
+<PRE>
+        vnameTable * <B>vnameCreate</B>(
+                vnameHashFunc hashFunc);
+</PRE>
+
+<DL><DD>
+Creates an empty name table with hash function
+<SAMP>hashFunc</SAMP> and returns a pointer to its
+contents. <SAMP>hashFunc</SAMP> is used to distribute the
+names in the table. The hash table will be
+automatically resized when necessary, although it can be
+explicitly expanded with <CODE><A HREF="vname-x.html#vnameSetHashSize"><CODE>vnameSetHashSize</CODE></A></CODE>. 
+Use <CODE><A HREF="vname-x.html#vnameHashString"><CODE>vnameHashString</CODE></A></CODE> as a hash function
+unless you have a function that is better tuned to your
+application.
+</DD></DL>
+<P>
+<A NAME="vnameCreateCustom"><HR><H4>vnameCreateCustom</H4></A>
+<PRE>
+        vnameTable * <B>vnameCreateCustom</B>(
+                vnameCustomHashFunc hashFunc,
+                void * customData);
+</PRE>
+
+<DL><DD>
+Creates a new name table with a context-sensitive hash function and a
+hash context pointer.
+<P>
+The new, empty name table uses the hash function <SAMP>hashFunc</SAMP> 
+and passes the generic <SAMP>customData</SAMP> pointer to that hash
+function every time it is called.
+<SAMP>hashFunc</SAMP> is used to distribute the
+names in the table.  The hash table will be
+automatically resized when necessary, although it can be
+explicitly expanded with <CODE><A HREF="vname-x.html#vnameSetHashSize"><CODE>vnameSetHashSize</CODE></A></CODE>. 
+</DD></DL>
+<P>
+<A NAME="vnameDestroy"><HR><H4>vnameDestroy</H4></A>
+<PRE>
+        void <B>vnameDestroy</B>(
+                vnameTable * table);
+</PRE>
+
+<DL><DD>
+Destroys the name table addressed by <SAMP>table</SAMP>,
+which must have been created or initialized by a Name
+class function. Use this function to reclaim the storage
+occupied by a name table. The name table should not be
+referenced by any other object when it is destroyed. This
+function only attempts to free the storage occupied by
+<SAMP>table</SAMP> if it was allocated by
+<CODE><A HREF="vname-x.html#vnameCreate"><CODE>vnameCreate</CODE></A></CODE>. All the names in the table are
+destroyed also.
+</DD></DL>
+<P>
+<A NAME="vnameDestroyTableIterator"><HR><H4>vnameDestroyTableIterator</H4></A>
+<PRE>
+        void <B>vnameDestroyTableIterator</B>(
+                vnameTableIterator * iterator);
+</PRE>
+
+<DL><DD>
+Terminates the iteration represented by
+<SAMP>iterator</SAMP>, even if it is not yet exhausted.
+This function is necessary to reclaim internal iteration
+objects allocated by the iterator.
+</DD></DL>
+<P>
+<A NAME="vnameDump"><HR><H4>vnameDump</H4></A>
+<PRE>
+        void <B>vnameDump</B>(
+                vnameTable * table,
+                FILE * stream);
+</PRE>
+
+<DL><DD>
+Prints the contents of the name table <SAMP>table</SAMP> on
+the file <SAMP>stream</SAMP> in user-readable form. This
+function is intended for debugging and should not be used
+to store the contents of the name table in recoverable
+form. This function has effect only if debugging is
+enabled.
+</DD></DL>
+<P>
+<A NAME="vnameGenerateArgTag"><HR><H4>vnameGenerateArgTag</H4></A>
+<PRE>
+        void <B>vnameGenerateArgTag</B>(
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Generates an unacceptable name argument exception.
+</DD></DL>
+<P>
+<A NAME="vnameGenerateMessagedArgTag"><HR><H4>vnameGenerateMessagedArgTag</H4></A>
+<PRE>
+        void <B>vnameGenerateMessagedArgTag</B>(
+                const vname * tag,
+                const char * msg);
+</PRE>
+
+<DL><DD>
+Generates an unacceptable name argument exception with the given message.
+</DD></DL>
+<P>
+<A NAME="vnameGet"><HR><H4>vnameGet</H4></A>
+<PRE>
+        const vname * <B>vnameGet</B>(
+                vnameTable * table,
+                const vchar * str);
+</PRE>
+
+<DL><DD>
+Returns the existing name for the character string
+<SAMP>str</SAMP> with respect to the name table
+<SAMP>table</SAMP>, or <SAMP>NULL</SAMP> if the string is
+not in the name table. <SAMP>str</SAMP> is not stored in
+the name table. You can use this function to determine if a
+given string is already in a name table. The pointer
+returned by this function is guaranteed to be the same for
+all strings with the same character pattern and different
+for all strings with different character patterns. Pointer
+values, instead of string characters, can thus be compared
+directly. However, only names in the same name table can be compared
+meaningfully.
+<P>
+The name returned by this function points to a string 
+that is identical to the original
+string, except that the name is always in the
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> character set. Identifiers returned by
+this function must not be subsequently modified.
+</DD></DL>
+<P>
+<A NAME="vnameGetArgExceptionTag"><HR><H4>vnameGetArgExceptionTag</H4></A>
+<PRE>
+        const vname * <B>vnameGetArgExceptionTag</B>(
+                vnameArgTagException * ex);
+</PRE>
+
+<DL><DD>
+Returns the offending name from an unacceptable name argument exception.
+</DD></DL>
+<P>
+<A NAME="vnameGetArgTagClass"><HR><H4>vnameGetArgTagClass</H4></A>
+<PRE>
+        const vexClass * <B>vnameGetArgTagClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the unacceptable name argument exception class.
+</DD></DL>
+<P>
+<A NAME="vnameGetArgTagException"><HR><H4>vnameGetArgTagException</H4></A>
+<PRE>
+        vnameArgTagException * <B>vnameGetArgTagException</B>();
+</PRE>
+
+<DL><DD>
+Searches the current exception chain, finds the highest
+level exception of the unacceptable name argument type, and returns it.
+</DD></DL>
+<P>
+<A NAME="vnameGetCustomData"><HR><H4>vnameGetCustomData</H4></A>
+<PRE>
+        void * <B>vnameGetCustomData</B>(
+                vnameTable * table);
+</PRE>
+
+<DL><DD>
+Returns the hash context pointer of the name table.
+</DD></DL>
+<P>
+<A NAME="vnameGetCustomHashFunc"><HR><H4>vnameGetCustomHashFunc</H4></A>
+<PRE>
+        vnameCustomHashFunc <B>vnameGetCustomHashFunc</B>(
+                vnameTable * table);
+</PRE>
+
+<DL><DD>
+Returns the context-sensitive hash function of the name table.
+</DD></DL>
+<P>
+<A NAME="vnameGetGlobal"><HR><H4>vnameGetGlobal</H4></A>
+<PRE>
+        const vname * <B>vnameGetGlobal</B>(
+                const vchar * str);
+</PRE>
+
+<DL><DD>
+Returns the existing global name for the character string
+<SAMP>str</SAMP>, or <SAMP>NULL</SAMP> if the string is not
+in the global name table. <SAMP>str</SAMP> is not stored in
+the global name table. You can use this function to
+determine if a given string is already in the global name
+table. The pointer returned by this function is guaranteed
+to be the same for all strings with the same character
+pattern and different for all strings with different
+character patterns. Pointer values, instead of string
+characters, can thus be compared directly. However, only names in
+the global name table can be compared meaningfully.
+<P>
+The name returned by this function points to a
+string that is identical to the original string, except
+that the name is always in the <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> character
+set. Identifiers returned by this function must not be
+subsequently modified.
+</DD></DL>
+<P>
+<A NAME="vnameGetGlobalScribed"><HR><H4>vnameGetGlobalScribed</H4></A>
+<PRE>
+        const vname * <B>vnameGetGlobalScribed</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Returns the existing global name for the character string
+<SAMP>scribe</SAMP>, or <SAMP>NULL</SAMP> if the string is
+not in the global name table. <SAMP>scribe</SAMP> is not
+stored in the global name table. You can use this function
+to determine if a given string is already in the global
+name table. The pointer returned by this function is
+guaranteed to be the same for all strings with the same
+character pattern and different for all strings with
+different character patterns. Pointer values, instead of
+string characters, can thus be compared directly. However, only
+names in the global name table can be compared
+meaningfully.
+<P>
+The name returned by this function
+points to a string that is identical to the original
+string, except that the name is always in the
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> character set. Identifiers returned by
+this function must not be subsequently modified.
+<CODE>vnameGetGlobalScribed</CODE> uses a String class
+scribe to read the name.
+</DD></DL>
+<P>
+<A NAME="vnameGetGlobalTable"><HR><H4>vnameGetGlobalTable</H4></A>
+<PRE>
+        vnameTable * <B>vnameGetGlobalTable</B>();
+</PRE>
+
+<DL><DD>
+Returns the global name table.
+</DD></DL>
+<P>
+<A NAME="vnameGetHashFunc"><HR><H4>vnameGetHashFunc</H4></A>
+<PRE>
+        vnameHashFunc <B>vnameGetHashFunc</B>(
+                vnameTable * table);
+</PRE>
+
+<DL><DD>
+Returns the hash function of the name table
+<SAMP>table</SAMP>. This is typically
+<CODE><A HREF="vname-x.html#vnameHashString"><CODE>vnameHashString</CODE></A></CODE>. This function is specified
+when a name table is created and remains invariant
+throughout its lifetime.
+</DD></DL>
+<P>
+<A NAME="vnameGetHashSize"><HR><H4>vnameGetHashSize</H4></A>
+<PRE>
+        unsigned long <B>vnameGetHashSize</B>(
+                vnameTable * table);
+</PRE>
+
+<DL><DD>
+Returns the hash size of the name table <SAMP>table</SAMP>.
+This is the total number of names the table can contain
+without resizing. This value may be larger than a hash size
+set by <CODE><A HREF="vname-x.html#vnameSetHashSize"><CODE>vnameSetHashSize</CODE></A></CODE> if the requested hash
+size is not large enough to contain the contents of the
+name table.
+</DD></DL>
+<P>
+<A NAME="vnameGetScribed"><HR><H4>vnameGetScribed</H4></A>
+<PRE>
+        const vname * <B>vnameGetScribed</B>(
+                vnameTable * table,
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Returns the existing name for the character string
+<SAMP>scribe</SAMP> with respect to the name table
+<SAMP>table</SAMP>, or <SAMP>NULL</SAMP> if the string is
+not in the name table. <SAMP>scribe</SAMP> is not stored in
+the name table. You can use this function to determine if a
+given string is already in a name table. 
+<P>
+The pointer returned by this function is guaranteed to be the same for
+all strings with the same character pattern and different
+for all strings with different character patterns. Pointer
+values, instead of string characters, can thus be compared
+directly. However, only names in the same name table can be compared
+meaningfully. 
+<P>
+The name returned by this function
+points to a string that is identical to the original
+string, except that the name is always in the
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> character set. Identifiers returned by
+this function must not be subsequently modified.
+<CODE>vnameGetScribed</CODE> uses a String class scribe
+to read the name.
+</DD></DL>
+<P>
+<A NAME="vnameGetSize"><HR><H4>vnameGetSize</H4></A>
+<PRE>
+        unsigned long <B>vnameGetSize</B>(
+                vnameTable * table);
+</PRE>
+
+<DL><DD>
+Returns the number of names stored in the name table
+<SAMP>table</SAMP>. This value may be zero.
+</DD></DL>
+<P>
+<A NAME="vnameGetTableIteratorName"><HR><H4>vnameGetTableIteratorName</H4></A>
+<PRE>
+        const vname * <B>vnameGetTableIteratorName</B>(
+                vnameTableIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the name indexed by the iterator
+<SAMP>iterator</SAMP>. This function should be called only
+after <CODE><A HREF="vname-x.html#vnameNextTableIterator"><CODE>vnameNextTableIterator</CODE></A></CODE> has returned
+<SAMP>TRUE</SAMP>. Note that the order in which names are
+iterated is arbitrary.
+</DD></DL>
+<P>
+<A NAME="vnameGetTableMutex"><HR><H4>vnameGetTableMutex</H4></A>
+<PRE>
+        vmutex * <B>vnameGetTableMutex</B>(
+                vnameTable * table);
+</PRE>
+
+<DL><DD>
+Returns the thread mutex of the name table.
+</DD></DL>
+<P>
+<A NAME="vnameGetUnsafe"><HR><H4>vnameGetUnsafe</H4></A>
+<PRE>
+        const vname * <B>vnameGetUnsafe</B>(
+                vnameTable * table,
+                const vchar * str);
+</PRE>
+
+<DL><DD>
+Returns an existing name for a given character string with
+respect to a specific name table, without locking down the name table's
+thread mutex.
+<P>
+This is the unsafe variant of <CODE>vnameGet</CODE>.
+</DD></DL>
+<P>
+<A NAME="vnameGetUnsafeScribed"><HR><H4>vnameGetUnsafeScribed</H4></A>
+<PRE>
+        const vname * <B>vnameGetUnsafeScribed</B>(
+                vnameTable * table,
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Returns an existing name for a given character string with
+respect to a specific name table, without locking down the name table's
+thread mutex.
+<P>
+This is the unsafe variant of <CODE><A HREF="vname-x.html#vnameGetScribed"><CODE>vnameGetScribed</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vnameHash"><HR><H4>vnameHash</H4></A>
+<PRE>
+        unsigned long vport__IMPORT <B>vnameHash</B>(
+                const void * name);
+</PRE>
+
+<DL><DD>
+Returns an integer hash value for the name
+<SAMP>name</SAMP>, which must be a name object returned by
+the Name Manager. <SAMP>name</SAMP> is declared as a
+pointer to <SAMP>void</SAMP>, although it is actually
+treated as a pointer to <SAMP>vname</SAMP>. The address of
+this function should be passed to the Dictionary class
+when names are used exclusively as keys for a dictionary
+(this is the usual case). If used on other data or even
+regular character strings, its behavior is unpredictable.
+This function is significantly more efficient than
+<CODE><A HREF="vname-x.html#vnameHashString"><CODE>vnameHashString</CODE></A></CODE> when used in dictionaries that
+have names as keys.
+</DD></DL>
+<P>
+<A NAME="vnameHashString"><HR><H4>vnameHashString</H4></A>
+<PRE>
+        unsigned long <B>vnameHashString</B>(
+                const void * s);
+</PRE>
+
+<DL><DD>
+Returns an integer hash value for the string
+<SAMP>s</SAMP>. <SAMP>s</SAMP> is declared as a pointer to
+<SAMP>void</SAMP>, although it is actually treated as a
+pointer to <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP>. This is the standard hash
+function for character strings. The address of this
+function should be passed to the Dictionary class when
+character strings are used exclusively as keys for a
+dictionary. If used on other data, its behavior is
+unpredictable.
+</DD></DL>
+<P>
+<A NAME="vnameHashStringSized"><HR><H4>vnameHashStringSized</H4></A>
+<PRE>
+        unsigned long <B>vnameHashStringSized</B>(
+                const void * s,
+                size_t length);
+</PRE>
+
+<DL><DD>
+Returns an integer hash value for a given non-null-terminated string
+of the specified length.
+<P>
+<SAMP>s</SAMP> is declared as a pointer to
+<SAMP>void</SAMP>, although it is actually treated as a
+pointer to <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP>.
+<P>
+This function should not be passed a normal or custom hash function,
+since it does not have the proper function signature.  It is provide
+for convenience only.
+</DD></DL>
+<P>
+<A NAME="vnameInit"><HR><H4>vnameInit</H4></A>
+<PRE>
+        void <B>vnameInit</B>(
+                vnameTable * table,
+                vnameHashFunc hashFunc);
+</PRE>
+
+<DL><DD>
+Initializes an empty name table with hash function
+<SAMP>hashFunc</SAMP> in the memory addressed by the table
+<SAMP>table</SAMP>. <SAMP>hashFunc</SAMP> is used to
+distribute the names in the table. The address can be used
+in other calls as if it were created with <CODE><A HREF="vname-x.html#vnameCreate"><CODE>vnameCreate</CODE></A></CODE>. A
+call to <CODE><A HREF="vname-x.html#vnameDestroy"><CODE>vnameDestroy</CODE></A></CODE> frees any internal objects
+allocated by the name table but does <I>not</I> free the
+structure itself.
+</DD></DL>
+<P>
+<A NAME="vnameInitCustom"><HR><H4>vnameInitCustom</H4></A>
+<PRE>
+        void <B>vnameInitCustom</B>(
+                vnameTable * table,
+                vnameCustomHashFunc hashFunc,
+                void * customData);
+</PRE>
+
+<DL><DD>
+Initializes a new name table with a context-sensitive hash function
+and a hash context pointer.
+<P>
+The new, empty name table uses the hash function <SAMP>hashFunc</SAMP> 
+and passes the generic <SAMP>customData</SAMP> pointer to that hash
+function every time it is called.
+<SAMP>hashFunc</SAMP> is used to distribute the
+names in the table.  The hash table will be
+automatically resized when necessary, although it can be
+explicitly expanded with <CODE><A HREF="vname-x.html#vnameSetHashSize"><CODE>vnameSetHashSize</CODE></A></CODE>. 
+</DD></DL>
+<P>
+<A NAME="vnameInitTableIterator"><HR><H4>vnameInitTableIterator</H4></A>
+<PRE>
+        void <B>vnameInitTableIterator</B>(
+                vnameTableIterator * iterator,
+                vnameTable * table);
+</PRE>
+
+<DL><DD>
+Begins an iteration of all the names the name table
+<SAMP>table</SAMP> by initializing the iterator object
+<SAMP>iterator</SAMP>. The iterator will initially contain
+no name. <CODE><A HREF="vname-x.html#vnameNextTableIterator"><CODE>vnameNextTableIterator</CODE></A></CODE> must be called
+to obtain the first name. Note that the order in which
+names are iterated is arbitrary.
+</DD></DL>
+<P>
+<A NAME="vnameIntern"><HR><H4>vnameIntern</H4></A>
+<PRE>
+        const vname * <B>vnameIntern</B>(
+                vnameTable * table,
+                const vchar * str);
+</PRE>
+
+<DL><DD>
+Returns a name for the character string <SAMP>str</SAMP>,
+with respect to the name table <SAMP>table</SAMP>.
+<SAMP>str</SAMP> is copied into buffered storage before it
+is stored in the table. The pointer returned by this
+function is guaranteed to be the same for all strings with
+the same character pattern and different for all strings
+with different character patterns. Pointer values, instead
+of string characters, can thus be compared directly. However, 
+only names in the same name table can be compared meaningfully. 
+<P>
+The name returned by this function points to a
+string that is identical to the original string, except
+that the name is always in the <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> character
+set. This function may expand the hash size of the name
+table if there are not enough free entries. Identifiers
+returned by this function must not be subsequently
+modified.
+</DD></DL>
+<P>
+<A NAME="vnameInternGlobal"><HR><H4>vnameInternGlobal</H4></A>
+<PRE>
+        const vname * <B>vnameInternGlobal</B>(
+                const vchar * str);
+</PRE>
+
+<DL><DD>
+Returns a name for the character string <SAMP>str</SAMP>,
+with respect to the global name table. <SAMP>str</SAMP> is
+copied into buffered storage before it is stored in the
+table. The global name table is a convenience that should
+be used to provide names to other Galaxy modules. If you
+are going to create a large number of name identifiers that
+can be destroyed later (a language compiler may do this,
+for example), you should create your own name table instead
+of using the global name table. The pointer returned by
+this function is guaranteed to be the same for all strings
+with the same character pattern and different for all
+strings with different character patterns. Pointer values,
+instead of string characters, can thus be compared
+directly. However, only names in the global name table can be
+compared meaningfully.
+<P>
+The name returned by this function points to a string that 
+is identical to the original string, except that the name is always in the
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> character set. Identifiers returned by
+this function must not be subsequently modified.
+</DD></DL>
+<P>
+<A NAME="vnameInternGlobalLiteral"><HR><H4>vnameInternGlobalLiteral</H4></A>
+<PRE>
+        const vname * <B>vnameInternGlobalLiteral</B>(
+                const char * str);
+</PRE>
+
+<DL><DD>
+Returns a name for the character string <SAMP>str</SAMP>,
+with respect to the global name table. <SAMP>str</SAMP> is
+copied into buffered storage before it is stored in the
+table. The global name table is a convenience that should
+be used to provide names to other Galaxy modules. If a you
+are going to create a large number of name identifiers that
+can be destroyed later (a language compiler may do this,
+for example), you should create your own name table instead
+of using the global name table. The pointer returned by
+this function is guaranteed to be the same for all strings
+with the same character pattern and different for all
+strings with different character patterns. Pointer values,
+instead of string characters, can thus be compared
+directly. However, only names in the global name table can be
+compared meaningfully. 
+<P>
+The name returned by this function points to a string that is identical to the
+original string, except that the name is always in the
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> character set. Identifiers returned by
+this function must not be subsequently modified.
+<CODE>vnameInternGlobalLiteral</CODE> accepts a string in
+the literal character set: it is equivalent to
+<SAMP><A HREF="vname-x.html#vnameInternGlobalScribed"><CODE>vnameInternGlobalScribed</CODE></A>(<A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>(str))</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnameInternGlobalScribed"><HR><H4>vnameInternGlobalScribed</H4></A>
+<PRE>
+        const vname * <B>vnameInternGlobalScribed</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Returns a name for the character string represented by
+<SAMP>scribe</SAMP>, with respect to the global name table.
+The global name table is a convenience that should be used
+to provide names to other Galaxy modules. If a you are
+going to create a large number of name identifiers that can
+be destroyed later (a language compiler may do this, for
+example), you should create your own name table instead of
+using the global name table. The pointer returned by this
+function is guaranteed to be the same for all strings with
+the same character pattern and different for all strings
+with different character patterns. Pointer values, instead
+of string characters, can thus be compared directly. However,
+only names in the global name table can be compared
+meaningfully. 
+<P>
+The name returned by this function points to a string 
+that is identical to the original string, except that 
+the name is always in the <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> character set. 
+Identifiers returned by this function must not be subsequently modified.
+</DD></DL>
+<P>
+<A NAME="vnameInternLiteral"><HR><H4>vnameInternLiteral</H4></A>
+<PRE>
+        const vname * <B>vnameInternLiteral</B>(
+                vnameTable * table,
+                const char * str);
+</PRE>
+
+<DL><DD>
+Returns a name for the character string <SAMP>str</SAMP>,
+with respect to the name table <SAMP>table</SAMP>.
+<SAMP>str</SAMP> is copied into buffered storage before it
+is stored in the table. The pointer returned by this
+function is guaranteed to be the same for all strings with
+the same character pattern and different for all strings
+with different character patterns. Pointer values, instead
+of string characters, can thus be compared directly. However,
+only names in the same name table can be compared meaningfully. 
+<P>
+The name returned by this function points to a
+string that is identical to the original string, except
+that the name is always in the <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> character
+set. This function may expand the hash size of the name
+table if there are not enough free entries. Identifiers
+returned by this function must not be subsequently
+modified. <CODE>vnameInternLiteral</CODE> accepts a string
+in the literal character set: it is equivalent to
+<SAMP><A HREF="vname-x.html#vnameInternScribed"><CODE>vnameInternScribed</CODE></A>(<A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>(str))</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnameInternScribed"><HR><H4>vnameInternScribed</H4></A>
+<PRE>
+        const vname * <B>vnameInternScribed</B>(
+                vnameTable * table,
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Returns a name for the character string represented by
+<SAMP>scribe</SAMP>, with respect to the name table
+<SAMP>table</SAMP>. The pointer returned by this function
+is guaranteed to be the same for all strings with the same
+character pattern and different for all strings with
+different character patterns. Pointer values, instead of
+string characters, can thus be compared directly. However, only
+names in the same name table can be compared meaningfully.
+<P>
+The name returned by this function points to a
+string that is identical to the original string, except
+that the name is always in the <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> character
+set. This function may expand the hash size of the name
+table if there are not enough free entries. Identifiers
+returned by this function must not be subsequently
+modified.
+</DD></DL>
+<P>
+<A NAME="vnameInternUnsafe"><HR><H4>vnameInternUnsafe</H4></A>
+<PRE>
+        const vname * <B>vnameInternUnsafe</B>(
+                vnameTable * table,
+                const vchar * str);
+</PRE>
+
+<DL><DD>
+Returns a name for a given character string with respect to
+a specific name table, without locking down the name table's
+thread mutex.
+<P>
+This is the unsafe variant of <CODE>vnameIntern</CODE>.
+</DD></DL>
+<P>
+<A NAME="vnameInternUnsafeLiteral"><HR><H4>vnameInternUnsafeLiteral</H4></A>
+<PRE>
+        const vname * <B>vnameInternUnsafeLiteral</B>(
+                vnameTable * table,
+                const char * str);
+</PRE>
+
+<DL><DD>
+Returns a name for a given character string with respect to
+a specific name table, without locking down the name table's
+thread mutex.
+<P>
+This is the unsafe variant of <CODE><A HREF="vname-x.html#vnameInternLiteral"><CODE>vnameInternLiteral</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vnameInternUnsafeScribed"><HR><H4>vnameInternUnsafeScribed</H4></A>
+<PRE>
+        const vname * <B>vnameInternUnsafeScribed</B>(
+                vnameTable * table,
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Returns a name for a given character string with respect to
+a specific name table, without locking down the name table's
+thread mutex.
+<P>
+This is the unsafe variant of <CODE><A HREF="vname-x.html#vnameInternScribed"><CODE>vnameInternScribed</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vnameLockTable"><HR><H4>vnameLockTable</H4></A>
+<PRE>
+        void <B>vnameLockTable</B>(
+                vnameTable * table);
+</PRE>
+
+<DL><DD>
+Locks the thread mutex of the name table.
+</DD></DL>
+<P>
+<A NAME="vnameMakePrime"><HR><H4>vnameMakePrime</H4></A>
+<PRE>
+        unsigned long <B>vnameMakePrime</B>(
+                unsigned long n);
+</PRE>
+
+<DL><DD>
+Returns the least prime number greater than or equal to
+<SAMP>n</SAMP>. <SAMP>n</SAMP> is limited only by word size
+and available memory. The computation is efficient for all
+numbers less than the largest number returned so far. This
+function is used by both the <A HREF="vdict-x.html#vdict"><CODE>vdict</CODE></A> and <A HREF="vname-x.html#vnameTable"><CODE>vnameTable</CODE></A> types
+to maximize hash table distribution.
+</DD></DL>
+<P>
+<A NAME="vnameNextTableIterator"><HR><H4>vnameNextTableIterator</H4></A>
+<PRE>
+        int <B>vnameNextTableIterator</B>(
+                vnameTableIterator * iterator);
+</PRE>
+
+<DL><DD>
+Performs the next step of the iteration represented by
+<SAMP>iterator</SAMP> and returns <SAMP>TRUE</SAMP> if a
+name is available, <SAMP>FALSE</SAMP> if not. The
+particular name can be retrieved from the iterator with
+<CODE><A HREF="vname-x.html#vnameGetTableIteratorName"><CODE>vnameGetTableIteratorName</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vnameScribe"><HR><H4>vnameScribe</H4></A>
+<PRE>
+        vscribe * <B>vnameScribe</B>(
+                vnameTable * table,
+                const vname * name);
+</PRE>
+
+<DL><DD>
+Creates a scribe that returns the contents of the name
+<SAMP>name</SAMP> when used. The name must be in the name
+table <SAMP>table</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnameScribeGlobal"><HR><H4>vnameScribeGlobal</H4></A>
+<PRE>
+        vscribe * <B>vnameScribeGlobal</B>(
+                const vname * name);
+</PRE>
+
+<DL><DD>
+Creates a scribe that returns the contents of the name
+<SAMP>name</SAMP> when used. The name must be in the global
+name table. If the scribe is subsequently passed to
+<CODE><A HREF="vname-x.html#vnameInternGlobalScribed"><CODE>vnameInternGlobalScribed</CODE></A></CODE>, the name is returned
+without any searching. This can be useful for improving
+efficiency when another module which uses the global name
+table (such as the Class or Font classes)
+expects a string argument.
+</DD></DL>
+<P>
+<A NAME="vnameSetCustomData"><HR><H4>vnameSetCustomData</H4></A>
+<PRE>
+        void <B>vnameSetCustomData</B>(
+                vnameTable * table,
+                void * data);
+</PRE>
+
+<DL><DD>
+Sets the hash context pointer of the name table.
+<P>
+This value is passed to all subsequent calls to the custom hash
+function.  The name table's behavior is undefined if this new hash
+context pointer causes the custom hash function to return a different
+value for a given pointer value than was returned by previous calls on 
+the same table.
+</DD></DL>
+<P>
+<A NAME="vnameSetHashSize"><HR><H4>vnameSetHashSize</H4></A>
+<PRE>
+        void <B>vnameSetHashSize</B>(
+                vnameTable * table,
+                unsigned long hashSize);
+</PRE>
+
+<DL><DD>
+Changes the hash size of the name table <SAMP>table</SAMP>
+to <SAMP>hashSize</SAMP>. The actual hash size may be
+larger than <SAMP>hashSize</SAMP> if the contents of the
+table cannot fit in <SAMP>hashSize</SAMP> entries.
+</DD></DL>
+<P>
+<A NAME="vnameSetTableMutex"><HR><H4>vnameSetTableMutex</H4></A>
+<PRE>
+        void <B>vnameSetTableMutex</B>(
+                vnameTable * table,
+                vmutex * mutex);
+</PRE>
+
+<DL><DD>
+Sets the thread mutex of the name table.
+</DD></DL>
+<P>
+<A NAME="vnameStartup"><HR><H4>vnameStartup</H4></A>
+<PRE>
+        void <B>vnameStartup</B>();
+</PRE>
+
+<DL><DD>
+Starts up all of the global information in the vname module.
+</DD></DL>
+<P>
+<A NAME="vnameUnlockTable"><HR><H4>vnameUnlockTable</H4></A>
+<PRE>
+        void <B>vnameUnlockTable</B>(
+                vnameTable * table);
+</PRE>
+
+<DL><DD>
+Unlocks the thread mutex of the name table.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vnameINCLUDED"><HR><H4>vnameINCLUDED</H4></A>
+<PRE>
+        <B>vnameINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vname.h</SAMP> is included.
+</DD></DL>
+<P>
+<A NAME="vnameNULL"><HR><H4>vnameNULL</H4></A>
+<PRE>
+        <B>vnameNULL</B>
+</PRE>
+
+<DL><DD>
+Denotes a missing name identifier. You can pass this value
+to functions which expect a name identifier, but which can
+behave appropriately without one.
+</DD></DL>
+<P>
+<A NAME="vname_Abandon"><HR><H4>vname_Abandon</H4></A>
+<PRE>
+        <B>vname_Abandon</B>
+</PRE>
+<A NAME="vname_About"><PRE>
+        <B>vname_About</B>
+</PRE>
+</A>
+<A NAME="vname_Accelerator"><PRE>
+        <B>vname_Accelerator</B>
+</PRE>
+</A>
+<A NAME="vname_Adjust"><PRE>
+        <B>vname_Adjust</B>
+</PRE>
+</A>
+<A NAME="vname_Apply"><PRE>
+        <B>vname_Apply</B>
+</PRE>
+</A>
+<A NAME="vname_Array"><PRE>
+        <B>vname_Array</B>
+</PRE>
+</A>
+<A NAME="vname_Attribute"><PRE>
+        <B>vname_Attribute</B>
+</PRE>
+</A>
+<A NAME="vname_Background"><PRE>
+        <B>vname_Background</B>
+</PRE>
+</A>
+<A NAME="vname_BackgroundDeboss"><PRE>
+        <B>vname_BackgroundDeboss</B>
+</PRE>
+</A>
+<A NAME="vname_BackgroundEmboss"><PRE>
+        <B>vname_BackgroundEmboss</B>
+</PRE>
+</A>
+<A NAME="vname_BackgroundHilite"><PRE>
+        <B>vname_BackgroundHilite</B>
+</PRE>
+</A>
+<A NAME="vname_Binding"><PRE>
+        <B>vname_Binding</B>
+</PRE>
+</A>
+<A NAME="vname_Bits"><PRE>
+        <B>vname_Bits</B>
+</PRE>
+</A>
+<A NAME="vname_BlockCursor"><PRE>
+        <B>vname_BlockCursor</B>
+</PRE>
+</A>
+<A NAME="vname_Border"><PRE>
+        <B>vname_Border</B>
+</PRE>
+</A>
+<A NAME="vname_Bottom"><PRE>
+        <B>vname_Bottom</B>
+</PRE>
+</A>
+<A NAME="vname_Bounds"><PRE>
+        <B>vname_Bounds</B>
+</PRE>
+</A>
+<A NAME="vname_Cancel"><PRE>
+        <B>vname_Cancel</B>
+</PRE>
+</A>
+<A NAME="vname_Class"><PRE>
+        <B>vname_Class</B>
+</PRE>
+</A>
+<A NAME="vname_Classes"><PRE>
+        <B>vname_Classes</B>
+</PRE>
+</A>
+<A NAME="vname_Clear"><PRE>
+        <B>vname_Clear</B>
+</PRE>
+</A>
+<A NAME="vname_Close"><PRE>
+        <B>vname_Close</B>
+</PRE>
+</A>
+<A NAME="vname_Color"><PRE>
+        <B>vname_Color</B>
+</PRE>
+</A>
+<A NAME="vname_Colors"><PRE>
+        <B>vname_Colors</B>
+</PRE>
+</A>
+<A NAME="vname_Command"><PRE>
+        <B>vname_Command</B>
+</PRE>
+</A>
+<A NAME="vname_Confirm"><PRE>
+        <B>vname_Confirm</B>
+</PRE>
+</A>
+<A NAME="vname_Content"><PRE>
+        <B>vname_Content</B>
+</PRE>
+</A>
+<A NAME="vname_Copy"><PRE>
+        <B>vname_Copy</B>
+</PRE>
+</A>
+<A NAME="vname_CurrentConfirm"><PRE>
+        <B>vname_CurrentConfirm</B>
+</PRE>
+</A>
+<A NAME="vname_Cursor"><PRE>
+        <B>vname_Cursor</B>
+</PRE>
+</A>
+<A NAME="vname_Cut"><PRE>
+        <B>vname_Cut</B>
+</PRE>
+</A>
+<A NAME="vname_Data"><PRE>
+        <B>vname_Data</B>
+</PRE>
+</A>
+<A NAME="vname_Date"><PRE>
+        <B>vname_Date</B>
+</PRE>
+</A>
+<A NAME="vname_Default"><PRE>
+        <B>vname_Default</B>
+</PRE>
+</A>
+<A NAME="vname_DefaultFocus"><PRE>
+        <B>vname_DefaultFocus</B>
+</PRE>
+</A>
+<A NAME="vname_Defaults"><PRE>
+        <B>vname_Defaults</B>
+</PRE>
+</A>
+<A NAME="vname_Depth"><PRE>
+        <B>vname_Depth</B>
+</PRE>
+</A>
+<A NAME="vname_Dialog"><PRE>
+        <B>vname_Dialog</B>
+</PRE>
+</A>
+<A NAME="vname_Dictionary"><PRE>
+        <B>vname_Dictionary</B>
+</PRE>
+</A>
+<A NAME="vname_Direction"><PRE>
+        <B>vname_Direction</B>
+</PRE>
+</A>
+<A NAME="vname_Disable"><PRE>
+        <B>vname_Disable</B>
+</PRE>
+</A>
+<A NAME="vname_Disabled"><PRE>
+        <B>vname_Disabled</B>
+</PRE>
+</A>
+<A NAME="vname_Dispatch"><PRE>
+        <B>vname_Dispatch</B>
+</PRE>
+</A>
+<A NAME="vname_Document"><PRE>
+        <B>vname_Document</B>
+</PRE>
+</A>
+<A NAME="vname_DocumentPath"><PRE>
+        <B>vname_DocumentPath</B>
+</PRE>
+</A>
+<A NAME="vname_Domain"><PRE>
+        <B>vname_Domain</B>
+</PRE>
+</A>
+<A NAME="vname_Down"><PRE>
+        <B>vname_Down</B>
+</PRE>
+</A>
+<A NAME="vname_Drag"><PRE>
+        <B>vname_Drag</B>
+</PRE>
+</A>
+<A NAME="vname_Dropsite"><PRE>
+        <B>vname_Dropsite</B>
+</PRE>
+</A>
+<A NAME="vname_Duplicate"><PRE>
+        <B>vname_Duplicate</B>
+</PRE>
+</A>
+<A NAME="vname_Enabled"><PRE>
+        <B>vname_Enabled</B>
+</PRE>
+</A>
+<A NAME="vname_Event"><PRE>
+        <B>vname_Event</B>
+</PRE>
+</A>
+<A NAME="vname_Exclusive"><PRE>
+        <B>vname_Exclusive</B>
+</PRE>
+</A>
+<A NAME="vname_Extend"><PRE>
+        <B>vname_Extend</B>
+</PRE>
+</A>
+<A NAME="vname_False"><PRE>
+        <B>vname_False</B>
+</PRE>
+</A>
+<A NAME="vname_Field"><PRE>
+        <B>vname_Field</B>
+</PRE>
+</A>
+<A NAME="vname_Flags"><PRE>
+        <B>vname_Flags</B>
+</PRE>
+</A>
+<A NAME="vname_Flat"><PRE>
+        <B>vname_Flat</B>
+</PRE>
+</A>
+<A NAME="vname_Focus"><PRE>
+        <B>vname_Focus</B>
+</PRE>
+</A>
+<A NAME="vname_Font"><PRE>
+        <B>vname_Font</B>
+</PRE>
+</A>
+<A NAME="vname_Foreground"><PRE>
+        <B>vname_Foreground</B>
+</PRE>
+</A>
+<A NAME="vname_ForegroundHilite"><PRE>
+        <B>vname_ForegroundHilite</B>
+</PRE>
+</A>
+<A NAME="vname_FormCommand"><PRE>
+        <B>vname_FormCommand</B>
+</PRE>
+</A>
+<A NAME="vname_Format"><PRE>
+        <B>vname_Format</B>
+</PRE>
+</A>
+<A NAME="vname_Galaxy"><PRE>
+        <B>vname_Galaxy</B>
+</PRE>
+</A>
+<A NAME="vname_Grab"><PRE>
+        <B>vname_Grab</B>
+</PRE>
+</A>
+<A NAME="vname_Group"><PRE>
+        <B>vname_Group</B>
+</PRE>
+</A>
+<A NAME="vname_Height"><PRE>
+        <B>vname_Height</B>
+</PRE>
+</A>
+<A NAME="vname_Help"><PRE>
+        <B>vname_Help</B>
+</PRE>
+</A>
+<A NAME="vname_HelpMode"><PRE>
+        <B>vname_HelpMode</B>
+</PRE>
+</A>
+<A NAME="vname_Horizontal"><PRE>
+        <B>vname_Horizontal</B>
+</PRE>
+</A>
+<A NAME="vname_Hour"><PRE>
+        <B>vname_Hour</B>
+</PRE>
+</A>
+<A NAME="vname_Hypertext"><PRE>
+        <B>vname_Hypertext</B>
+</PRE>
+</A>
+<A NAME="vname_Icon"><PRE>
+        <B>vname_Icon</B>
+</PRE>
+</A>
+<A NAME="vname_Image"><PRE>
+        <B>vname_Image</B>
+</PRE>
+</A>
+<A NAME="vname_ImageMask"><PRE>
+        <B>vname_ImageMask</B>
+</PRE>
+</A>
+<A NAME="vname_Increment"><PRE>
+        <B>vname_Increment</B>
+</PRE>
+</A>
+<A NAME="vname_Index"><PRE>
+        <B>vname_Index</B>
+</PRE>
+</A>
+<A NAME="vname_Issue"><PRE>
+        <B>vname_Issue</B>
+</PRE>
+</A>
+<A NAME="vname_Item"><PRE>
+        <B>vname_Item</B>
+</PRE>
+</A>
+<A NAME="vname_ItemCount"><PRE>
+        <B>vname_ItemCount</B>
+</PRE>
+</A>
+<A NAME="vname_ItemList"><PRE>
+        <B>vname_ItemList</B>
+</PRE>
+</A>
+<A NAME="vname_Items"><PRE>
+        <B>vname_Items</B>
+</PRE>
+</A>
+<A NAME="vname_Key"><PRE>
+        <B>vname_Key</B>
+</PRE>
+</A>
+<A NAME="vname_Left"><PRE>
+        <B>vname_Left</B>
+</PRE>
+</A>
+<A NAME="vname_Length"><PRE>
+        <B>vname_Length</B>
+</PRE>
+</A>
+<A NAME="vname_LineWidth"><PRE>
+        <B>vname_LineWidth</B>
+</PRE>
+</A>
+<A NAME="vname_Map"><PRE>
+        <B>vname_Map</B>
+</PRE>
+</A>
+<A NAME="vname_Max"><PRE>
+        <B>vname_Max</B>
+</PRE>
+</A>
+<A NAME="vname_MaxColumn"><PRE>
+        <B>vname_MaxColumn</B>
+</PRE>
+</A>
+<A NAME="vname_MaxRow"><PRE>
+        <B>vname_MaxRow</B>
+</PRE>
+</A>
+<A NAME="vname_MaxSize"><PRE>
+        <B>vname_MaxSize</B>
+</PRE>
+</A>
+<A NAME="vname_Menu"><PRE>
+        <B>vname_Menu</B>
+</PRE>
+</A>
+<A NAME="vname_MenuBar"><PRE>
+        <B>vname_MenuBar</B>
+</PRE>
+</A>
+<A NAME="vname_MenuList"><PRE>
+        <B>vname_MenuList</B>
+</PRE>
+</A>
+<A NAME="vname_Metrics"><PRE>
+        <B>vname_Metrics</B>
+</PRE>
+</A>
+<A NAME="vname_Min"><PRE>
+        <B>vname_Min</B>
+</PRE>
+</A>
+<A NAME="vname_MinSize"><PRE>
+        <B>vname_MinSize</B>
+</PRE>
+</A>
+<A NAME="vname_Minute"><PRE>
+        <B>vname_Minute</B>
+</PRE>
+</A>
+<A NAME="vname_Mnemonic"><PRE>
+        <B>vname_Mnemonic</B>
+</PRE>
+</A>
+<A NAME="vname_Month"><PRE>
+        <B>vname_Month</B>
+</PRE>
+</A>
+<A NAME="vname_Move"><PRE>
+        <B>vname_Move</B>
+</PRE>
+</A>
+<A NAME="vname_Name"><PRE>
+        <B>vname_Name</B>
+</PRE>
+</A>
+<A NAME="vname_No"><PRE>
+        <B>vname_No</B>
+</PRE>
+</A>
+<A NAME="vname_NumMajor"><PRE>
+        <B>vname_NumMajor</B>
+</PRE>
+</A>
+<A NAME="vname_NumMinor"><PRE>
+        <B>vname_NumMinor</B>
+</PRE>
+</A>
+<A NAME="vname_Objects"><PRE>
+        <B>vname_Objects</B>
+</PRE>
+</A>
+<A NAME="vname_Off"><PRE>
+        <B>vname_Off</B>
+</PRE>
+</A>
+<A NAME="vname_Offset"><PRE>
+        <B>vname_Offset</B>
+</PRE>
+</A>
+<A NAME="vname_Ok"><PRE>
+        <B>vname_Ok</B>
+</PRE>
+</A>
+<A NAME="vname_OldValue"><PRE>
+        <B>vname_OldValue</B>
+</PRE>
+</A>
+<A NAME="vname_On"><PRE>
+        <B>vname_On</B>
+</PRE>
+</A>
+<A NAME="vname_Open"><PRE>
+        <B>vname_Open</B>
+</PRE>
+</A>
+<A NAME="vname_Operand"><PRE>
+        <B>vname_Operand</B>
+</PRE>
+</A>
+<A NAME="vname_Operator"><PRE>
+        <B>vname_Operator</B>
+</PRE>
+</A>
+<A NAME="vname_Page"><PRE>
+        <B>vname_Page</B>
+</PRE>
+</A>
+<A NAME="vname_Pairs"><PRE>
+        <B>vname_Pairs</B>
+</PRE>
+</A>
+<A NAME="vname_Palette"><PRE>
+        <B>vname_Palette</B>
+</PRE>
+</A>
+<A NAME="vname_Paper"><PRE>
+        <B>vname_Paper</B>
+</PRE>
+</A>
+<A NAME="vname_Paste"><PRE>
+        <B>vname_Paste</B>
+</PRE>
+</A>
+<A NAME="vname_Phrase"><PRE>
+        <B>vname_Phrase</B>
+</PRE>
+</A>
+<A NAME="vname_Preferences"><PRE>
+        <B>vname_Preferences</B>
+</PRE>
+</A>
+<A NAME="vname_Print"><PRE>
+        <B>vname_Print</B>
+</PRE>
+</A>
+<A NAME="vname_Query"><PRE>
+        <B>vname_Query</B>
+</PRE>
+</A>
+<A NAME="vname_Quit"><PRE>
+        <B>vname_Quit</B>
+</PRE>
+</A>
+<A NAME="vname_Rect"><PRE>
+        <B>vname_Rect</B>
+</PRE>
+</A>
+<A NAME="vname_Rects"><PRE>
+        <B>vname_Rects</B>
+</PRE>
+</A>
+<A NAME="vname_Redo"><PRE>
+        <B>vname_Redo</B>
+</PRE>
+</A>
+<A NAME="vname_Reset"><PRE>
+        <B>vname_Reset</B>
+</PRE>
+</A>
+<A NAME="vname_Right"><PRE>
+        <B>vname_Right</B>
+</PRE>
+</A>
+<A NAME="vname_ScrollX"><PRE>
+        <B>vname_ScrollX</B>
+</PRE>
+</A>
+<A NAME="vname_ScrollY"><PRE>
+        <B>vname_ScrollY</B>
+</PRE>
+</A>
+<A NAME="vname_Second"><PRE>
+        <B>vname_Second</B>
+</PRE>
+</A>
+<A NAME="vname_Select"><PRE>
+        <B>vname_Select</B>
+</PRE>
+</A>
+<A NAME="vname_Selection"><PRE>
+        <B>vname_Selection</B>
+</PRE>
+</A>
+<A NAME="vname_ShadowBottom"><PRE>
+        <B>vname_ShadowBottom</B>
+</PRE>
+</A>
+<A NAME="vname_ShadowTop"><PRE>
+        <B>vname_ShadowTop</B>
+</PRE>
+</A>
+<A NAME="vname_Shown"><PRE>
+        <B>vname_Shown</B>
+</PRE>
+</A>
+<A NAME="vname_Size"><PRE>
+        <B>vname_Size</B>
+</PRE>
+</A>
+<A NAME="vname_Solution"><PRE>
+        <B>vname_Solution</B>
+</PRE>
+</A>
+<A NAME="vname_Space"><PRE>
+        <B>vname_Space</B>
+</PRE>
+</A>
+<A NAME="vname_State"><PRE>
+        <B>vname_State</B>
+</PRE>
+</A>
+<A NAME="vname_Static"><PRE>
+        <B>vname_Static</B>
+</PRE>
+</A>
+<A NAME="vname_Status"><PRE>
+        <B>vname_Status</B>
+</PRE>
+</A>
+<A NAME="vname_Steps"><PRE>
+        <B>vname_Steps</B>
+</PRE>
+</A>
+<A NAME="vname_Style"><PRE>
+        <B>vname_Style</B>
+</PRE>
+</A>
+<A NAME="vname_SubMenu"><PRE>
+        <B>vname_SubMenu</B>
+</PRE>
+</A>
+<A NAME="vname_SystemFont"><PRE>
+        <B>vname_SystemFont</B>
+</PRE>
+</A>
+<A NAME="vname_Tag"><PRE>
+        <B>vname_Tag</B>
+</PRE>
+</A>
+<A NAME="vname_Tags"><PRE>
+        <B>vname_Tags</B>
+</PRE>
+</A>
+<A NAME="vname_Text"><PRE>
+        <B>vname_Text</B>
+</PRE>
+</A>
+<A NAME="vname_TextFlags"><PRE>
+        <B>vname_TextFlags</B>
+</PRE>
+</A>
+<A NAME="vname_TextView"><PRE>
+        <B>vname_TextView</B>
+</PRE>
+</A>
+<A NAME="vname_TextViewFlags"><PRE>
+        <B>vname_TextViewFlags</B>
+</PRE>
+</A>
+<A NAME="vname_Tip"><PRE>
+        <B>vname_Tip</B>
+</PRE>
+</A>
+<A NAME="vname_Title"><PRE>
+        <B>vname_Title</B>
+</PRE>
+</A>
+<A NAME="vname_Toggle"><PRE>
+        <B>vname_Toggle</B>
+</PRE>
+</A>
+<A NAME="vname_Top"><PRE>
+        <B>vname_Top</B>
+</PRE>
+</A>
+<A NAME="vname_Transparency"><PRE>
+        <B>vname_Transparency</B>
+</PRE>
+</A>
+<A NAME="vname_True"><PRE>
+        <B>vname_True</B>
+</PRE>
+</A>
+<A NAME="vname_Type"><PRE>
+        <B>vname_Type</B>
+</PRE>
+</A>
+<A NAME="vname_Undo"><PRE>
+        <B>vname_Undo</B>
+</PRE>
+</A>
+<A NAME="vname_Up"><PRE>
+        <B>vname_Up</B>
+</PRE>
+</A>
+<A NAME="vname_Value"><PRE>
+        <B>vname_Value</B>
+</PRE>
+</A>
+<A NAME="vname_Values"><PRE>
+        <B>vname_Values</B>
+</PRE>
+</A>
+<A NAME="vname_Vertical"><PRE>
+        <B>vname_Vertical</B>
+</PRE>
+</A>
+<A NAME="vname_View"><PRE>
+        <B>vname_View</B>
+</PRE>
+</A>
+<A NAME="vname_Width"><PRE>
+        <B>vname_Width</B>
+</PRE>
+</A>
+<A NAME="vname_Year"><PRE>
+        <B>vname_Year</B>
+</PRE>
+</A>
+<A NAME="vname_Yes"><PRE>
+        <B>vname_Yes</B>
+</PRE>
+</A>
+
+<DL><DD>
+These constants identify global names that have already
+been interned in the global name table by the Name Manager.
+Each has the type <SAMP>const vname*</SAMP>.
+<SAMP>vnameNULL</SAMP> is a name whose contents is the
+empty string. All other identifiers denote the name whose
+contents is the text after the <SAMP>vname_</SAMP> part of
+the identifier. For example, <SAMP>vname_Foreground</SAMP>
+denotes a name whose character contents is Foreground: this
+constant is the result of
+<SAMP><A HREF="vname-x.html#vnameInternGlobalLiteral"><CODE>vnameInternGlobalLiteral</CODE></A>("Foreground")</SAMP>. Note
+that the global name table must be initialized before you
+can use these constants. You can initialize the global name
+table explicitly with the statement
+<SAMP><A HREF="vname-x.html#vnameInternGlobalLiteral"><CODE>vnameInternGlobalLiteral</CODE></A>("");</SAMP>.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

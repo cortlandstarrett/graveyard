@@ -1,0 +1,1876 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vdrag prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vdrag prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vdrag-x.html#section_DataType">Types</A> [12]</TD>
+<TD><A HREF="vdrag-x.html#section_Function">Functions</A> [74]</TD>
+<TD><A HREF="vdrag-x.html#section_Message">Messages</A> [23]</TD>
+<TD><A HREF="vdrag-x.html#section_Constant">Constants</A> [3]</TD>
+<TD><A HREF="vdrag-x.html#section_Macro">Macros</A> [2]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vdrag"><HR><H4>vdrag</H4></A>
+<PRE>
+        typedef ... <B>vdrag</B>;
+</PRE>
+
+<DL><DD>
+Denotes an instance of a drag. A drag provides a graphical
+way to drag one or more items from one screen location to
+another. The drag is initiated from a button down, drag, or
+detail event with the call <CODE><A HREF="vdrag-x.html#vdragStart"><CODE>vdragStart</CODE></A></CODE>. 
+<P>
+The Drag class tracks the drag until the drag is completed
+with a button up event, or the drag is aborted with
+<CODE><A HREF="vdrag-x.html#vdragStop"><CODE>vdragStop</CODE></A></CODE>. On completion of a drag, a
+notification function is called to denote the ending
+location of the drag.
+</DD></DL>
+<P>
+<A NAME="vdragActionProc"><HR><H4>vdragActionProc</H4></A>
+<PRE>
+        typedef ... <B>vdragActionProc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a procedure which notifies the drag when certain actions
+are taken on it. <SAMP>actionFlag</SAMP> will be one of:
+
+<DL>
+<DT><CODE>vdragACTION_START</CODE>
+<DD>Indicates that the drag has started.
+
+<DT><CODE>vdragACTION_DROP</CODE>
+<DD>Indicates that the drag has ended in a drop.
+
+<DT><CODE>vdragACTION_CHANGE_DRAG_STATE</CODE>
+<DD>Indicates that some state of the drag has changed. A key press or
+release, for example.
+
+<DT><CODE>vdragACTION_ABORT</CODE>
+<DD>Indicates that the drag has been aborted.
+</DL>
+</DD></DL>
+<P>
+<A NAME="vdragClass"><HR><H4>vdragClass</H4></A>
+<PRE>
+        typedef ... <B>vdragClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variable bindings for objects of type
+<CODE>vdrag</CODE>. Classes declared with this type contain the same
+set of methods and variables as the default drag class, but the
+behavior of methods and the contents of variables may vary. This class
+type is derived from <CODE><A HREF="vinstance-x.html#vinstance"><CODE>vinstance</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdragDetailProc"><HR><H4>vdragDetailProc</H4></A>
+<PRE>
+        typedef ... <B>vdragDetailProc</B>;
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Denotes a notification function that is called each time
+the mouse position changes during the tracking of a drag.
+
+<DL>
+<DT><SAMP>from</SAMP> 
+<DD>specifies the window in which the drag was initiated.
+
+<DT><SAMP>to</SAMP> 
+<DD>specifies the window the mouse is currently over.
+
+<DT><SAMP>event</SAMP> 
+<DD>specifies the current drag event.
+
+<DT><SAMP>event</SAMP> 
+<DD>contains the current mouse location in the coordinates of the 
+window <SAMP>to</SAMP>. 
+</DL>
+
+<P>
+The return value is reserved for future use and is currently ignored. 
+Return the value zero to ensure future compatibility.
+<P>
+The detail procedure for a drag has been deprecated. Refer to the section
+<CODE><A HREF="vdrag-x.html#vdragNOTIFY_FEEDBACK_WITH"><CODE>vdragNOTIFY_FEEDBACK_WITH</CODE></A></CODE> for the new method for
+receiving notification when the user moves the drag.
+</DD></DL>
+<P>
+<A NAME="vdragDrawProc"><HR><H4>vdragDrawProc</H4></A>
+<PRE>
+        typedef ... <B>vdragDrawProc</B>;
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Denotes a procedure that draws the contents of a drag
+as it is tracked across the screen. <SAMP>drawRect</SAMP>
+specifies the rectangle in which to draw the item(s)
+composing the drag.
+<P>
+The draw procedure for a drag has been deprecated. Refer to the section
+<CODE><A HREF="vdrag-x.html#vdragNOTIFY_FEEDBACK_WITH"><CODE>vdragNOTIFY_FEEDBACK_WITH</CODE></A></CODE> for the new method for
+updating the visual representation of a drag.
+</DD></DL>
+<P>
+<A NAME="vdragDropsiteIterator"><HR><H4>vdragDropsiteIterator</H4></A>
+<PRE>
+        typedef ... <B>vdragDropsiteIterator</B>;
+</PRE>
+
+<DL><DD>
+Denotes an abstract index variable used for enumerating all dropsites
+registered to a specific window, or all windows. Iterators are
+normally declared as automatic variables of a function and initialized
+with <CODE><A HREF="vdrag-x.html#vdragInitEngineDropsiteIterator"><CODE>vdragInitEngineDropsiteIterator</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdragDropsiteIteratorClass"><HR><H4>vdragDropsiteIteratorClass</H4></A>
+<PRE>
+        typedef ... <B>vdragDropsiteIteratorClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variable bindings for objects of type
+<CODE>vdragDropsiteIterator</CODE>. Classes declared with this type
+contain the same set of methods and variables as the default drop site
+iterator class, but the behavior of methods and the contents of
+variables may vary. This class type is derived from
+<CODE><A HREF="viterator-x.html#viterator"><CODE>viterator</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdragEngine"><HR><H4>vdragEngine</H4></A>
+<PRE>
+        typedef ... <B>vdragEngine</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to represent a drag engine. A drag
+engine is responsible for conducting drag operating with specific
+<CODE>vdrag</CODE>s, including managing the communication with all
+dropsites registered with the engine and the current drag. The base
+<CODE>vdragEngine</CODE> class contains the functionality necessary to
+set up certain state for a drag operation, but cannot perform the drag
+itself. The <CODE><A HREF="vdrag-x.html#vdragInternalEngine"><CODE>vdragInternalEngine</CODE></A></CODE> class does contain the
+functionality necessary to perform a drag internal to the
+application.
+</DD></DL>
+<P>
+<A NAME="vdragEngineClass"><HR><H4>vdragEngineClass</H4></A>
+<PRE>
+        typedef ... <B>vdragEngineClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variable bindings for objects of type
+<CODE>vdragEngine</CODE>. Classes declared with this type contain the
+same set of methods and variables as the default drag engine class,
+but the behavior of methods and the contents of variables may
+vary. This class type is derived from <CODE><A HREF="vinstance-x.html#vinstance"><CODE>vinstance</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdragFeedbackProc"><HR><H4>vdragFeedbackProc</H4></A>
+<PRE>
+        typedef ... <B>vdragFeedbackProc</B>;
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Denotes a procedure which provides feedback for the drag
+<SAMP>drag</SAMP> to the user. Drawing should be performed into the
+rectangle specified in <SAMP>drawRect</SAMP>. <SAMP>dropAction</SAMP>
+will be one of:
+
+<DL>
+<DT><CODE>vdragDROP_ACTION_NONE</CODE>
+<DD>No dropsites have indicated that they will accept the drag.
+
+<DT><CODE>vdragDROP_ACTION_MOVE</CODE>
+<DD>A dropsite has indicated that it will accept the drag as a move
+operation.
+
+<DT><CODE>vdragDROP_ACTION_COPY</CODE>
+<DD>A dropsite has indicated that it will accept the drag as a copy
+operation.
+
+<DT><CODE>vdragDROP_ACTION_LINK</CODE>
+<DD>A dropsite has indicated that it will accept the drag as a link
+operation.
+</DL>
+
+<P>
+The feedback procedure has been deprecated. Override
+<CODE><A HREF="vdrag-x.html#vdragNOTIFY_FEEDBACK_WITH"><CODE>vdragNOTIFY_FEEDBACK_WITH</CODE></A></CODE> to provide drag feedback to the
+user.
+</DD></DL>
+<P>
+<A NAME="vdragInternalEngine"><HR><H4>vdragInternalEngine</H4></A>
+<PRE>
+        typedef ... <B>vdragInternalEngine</B>;
+</PRE>
+
+<DL><DD>
+Drag engine class for processing drags internal to an application.
+</DD></DL>
+<P>
+<A NAME="vdragNotifyProc"><HR><H4>vdragNotifyProc</H4></A>
+<PRE>
+        typedef ... <B>vdragNotifyProc</B>;
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Denotes a notification function that is called when a drag
+is completed. The drag is initiated with the function
+<CODE><A HREF="vdrag-x.html#vdragStart"><CODE>vdragStart</CODE></A></CODE> and is completed when a button up
+event occurs. 
+
+<DL>
+<DT><SAMP>from</SAMP> 
+<DD>Specifies the window in which the drag was initiated.
+
+<DT><SAMP>to</SAMP> 
+<DD>Specifies the window in which the drag completed.
+
+<DT><SAMP>event</SAMP> 
+<DD>Specifies the button up event. The event's coordinates are in
+display units relative to the lower left-hand corner of the window
+<SAMP>to</SAMP>.
+</DT>
+
+<P>
+The notify procedure for a drag has been deprecated. Refer to the section
+<CODE><A HREF="vdrag-x.html#vdragNOTIFY_ACTION"><CODE>vdragNOTIFY_ACTION</CODE></A></CODE> and <CODE><A HREF="vdrag-x.html#vdragActionProc"><CODE>vdragActionProc</CODE></A></CODE> for
+the new method for receiving notification when a drag terminates.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vdragAbortEngineDrag"><HR><H4>vdragAbortEngineDrag</H4></A>
+<PRE>
+        void <B>vdragAbortEngineDrag</B>(
+                vdragEngine * engine);
+</PRE>
+
+<DL><DD>
+Aborts the current drag being processed by the drag engine
+<SAMP>engine</SAMP>. This function is implemented by sending the
+message <CODE><A HREF="vdrag-x.html#vdragABORT_ENGINE_DRAG"><CODE>vdragABORT_ENGINE_DRAG</CODE></A></CODE> to the drag engine.
+</DD></DL>
+<P>
+<A NAME="vdragCleanUpEngineDrag"><HR><H4>vdragCleanUpEngineDrag</H4></A>
+<PRE>
+        void <B>vdragCleanUpEngineDrag</B>(
+                vdragEngine * engine);
+</PRE>
+
+<DL><DD>
+Cleans up any application state modified by the drag engine during the
+course of a drag. This function is implemented by sending the
+message <CODE><A HREF="vdrag-x.html#vdragCLEANUP_ENGINE_DRAG"><CODE>vdragCLEANUP_ENGINE_DRAG</CODE></A></CODE> to the drag engine.
+</DD></DL>
+<P>
+<A NAME="vdragConvertEngineDragScrap"><HR><H4>vdragConvertEngineDragScrap</H4></A>
+<PRE>
+        void <B>vdragConvertEngineDragScrap</B>(
+                vdragEngine * engine,
+                vdrag * drag,
+                vscrap * scrap);
+</PRE>
+
+<DL><DD>
+Converts the contents of the drag engine's clipboard engine into the
+given scrap. This function is implemented by sending the
+message <CODE><A HREF="vdrag-x.html#vdragCONVERT_ENGINE_DRAG_SCRAP"><CODE>vdragCONVERT_ENGINE_DRAG_SCRAP</CODE></A></CODE> to the drag
+engine.
+</DD></DL>
+<P>
+<A NAME="vdragCreate"><HR><H4>vdragCreate</H4></A>
+<PRE>
+        vdrag * <B>vdragCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new drag and returns a pointer to its contents.
+Storage for the drag is allocated by the Drag class. The
+Drag class reclaims the storage occupied by the drag when
+it is destroyed with <CODE><A HREF="vdrag-x.html#vdragDestroy"><CODE>vdragDestroy</CODE></A></CODE>. The drag is
+created with a set of default attributes. This function
+essentially allocates space for a new drag and calls
+<CODE><A HREF="vdrag-x.html#vdragInit"><CODE>vdragInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vdragCreateEngineOfClass"><HR><H4>vdragCreateEngineOfClass</H4></A>
+<PRE>
+        vdragEngine * <B>vdragCreateEngineOfClass</B>(
+                vdragEngineClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new drag engine of the specified class.
+</DD></DL>
+<P>
+<A NAME="vdragCreateInternalEngine"><HR><H4>vdragCreateInternalEngine</H4></A>
+<PRE>
+        vdragEngine * <B>vdragCreateInternalEngine</B>();
+</PRE>
+
+<DL><DD>
+Creates a new drag engine of the internal drag engine class.
+</DD></DL>
+<P>
+<A NAME="vdragCreateOfClass"><HR><H4>vdragCreateOfClass</H4></A>
+<PRE>
+        vdrag * <B>vdragCreateOfClass</B>(
+                vdragClass * drag);
+</PRE>
+
+<DL><DD>
+Creates a new drag of the specified class.
+</DD></DL>
+<P>
+<A NAME="vdragDestroy"><HR><H4>vdragDestroy</H4></A>
+<PRE>
+        void <B>vdragDestroy</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+Destroys the drag represented by <SAMP>drag</SAMP>, which
+must have been created or initialized by the Drag class.
+Use this function to reclaim the storage occupied by
+<SAMP>drag</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdragDestroyDropsiteIterator"><HR><H4>vdragDestroyDropsiteIterator</H4></A>
+<PRE>
+        void <B>vdragDestroyDropsiteIterator</B>(
+                vdragDropsiteIterator * iterator);
+</PRE>
+
+<DL><DD>
+Terminates the iteration represented by <SAMP>iterator</SAMP>, even if
+it is not yet exhausted. This function must be called to reclaim
+internal iteration objects.
+</DD></DL>
+<P>
+<A NAME="vdragDestroyEngine"><HR><H4>vdragDestroyEngine</H4></A>
+<PRE>
+        void <B>vdragDestroyEngine</B>(
+                vdragEngine * engine);
+</PRE>
+
+<DL><DD>
+Destroys the drag engine <SAMP>engine</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdragDestroyLater"><HR><H4>vdragDestroyLater</H4></A>
+<PRE>
+        void <B>vdragDestroyLater</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+Destroys the drag <SAMP>drag</SAMP> by posting an event into the
+future to perform the destruction.
+</DD></DL>
+<P>
+<A NAME="vdragEngineDragIntersectsDropsite"><HR><H4>vdragEngineDragIntersectsDropsite</H4></A>
+<PRE>
+        vbool <B>vdragEngineDragIntersectsDropsite</B>(
+                vdragEngine * engine,
+                vdropsite * dropsite,
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Tests for intersection between a dropsite and an event for the drag
+engine's current drag. This function is implemented by sending the
+message <CODE><A HREF="vdrag-x.html#vdragENGINE_DRAG_INTERSECTS_DROPSITE"><CODE>vdragENGINE_DRAG_INTERSECTS_DROPSITE</CODE></A></CODE> to the drag
+engine.
+</DD></DL>
+<P>
+<A NAME="vdragGetClass"><HR><H4>vdragGetClass</H4></A>
+<PRE>
+        vdragClass * <B>vdragGetClass</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+Returns the class of the drag <SAMP>drag</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdragGetData"><HR><H4>vdragGetData</H4></A>
+<PRE>
+        void * <B>vdragGetData</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+Returns the generic data pointer attached to the drag
+<SAMP>drag</SAMP>, which may be <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdragGetDefaultClass"><HR><H4>vdragGetDefaultClass</H4></A>
+<PRE>
+        vdragClass * <B>vdragGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the base Drag class, which is used by the
+<CODE><A HREF="vdrag-x.html#vdragCreate"><CODE>vdragCreate</CODE></A></CODE> and <CODE><A HREF="vdrag-x.html#vdragInit"><CODE>vdragInit</CODE></A></CODE> functions.
+</DD></DL>
+<P>
+<A NAME="vdragGetDefaultDropsiteIteratorClass"><HR><H4>vdragGetDefaultDropsiteIteratorClass</H4></A>
+<PRE>
+        vdragDropsiteIteratorClass * <B>vdragGetDefaultDropsiteIteratorClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the base dropsite Iterator class, which is used by
+<CODE><A HREF="vdrag-x.html#vdragInitEngineDropsiteIterator"><CODE>vdragInitEngineDropsiteIterator</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdragGetDefaultEngineClass"><HR><H4>vdragGetDefaultEngineClass</H4></A>
+<PRE>
+        vdragEngineClass * <B>vdragGetDefaultEngineClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the base Drag engine class, which is used by the
+<CODE>vdragCreateEngine</CODE> and <CODE><A HREF="vdrag-x.html#vdragInitEngine"><CODE>vdragInitEngine</CODE></A></CODE> functions.
+</DD></DL>
+<P>
+<A NAME="vdragGetDefaultInternalEngineClass"><HR><H4>vdragGetDefaultInternalEngineClass</H4></A>
+<PRE>
+        vdragEngineClass * <B>vdragGetDefaultInternalEngineClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the internal Drag engine class, which is used by the
+<CODE><A HREF="vdrag-x.html#vdragCreateInternalEngine"><CODE>vdragCreateInternalEngine</CODE></A></CODE> function.
+</DD></DL>
+<P>
+<A NAME="vdragGetDetail"><HR><H4>vdragGetDetail</H4></A>
+<PRE>
+        vdragDetailProc <B>vdragGetDetail</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Returns the detail notification function for the drag
+<SAMP>drag</SAMP>. If the detail notification function has
+not been set, <SAMP>NULL</SAMP> is returned.
+<P>
+The detail procedure for a drag has been deprecated. Refer to the section
+<CODE><A HREF="vdrag-x.html#vdragNOTIFY_FEEDBACK_WITH"><CODE>vdragNOTIFY_FEEDBACK_WITH</CODE></A></CODE> for the new method for
+receiving notification when the user moves the drag.
+</DD></DL>
+<P>
+<A NAME="vdragGetDrawProc"><HR><H4>vdragGetDrawProc</H4></A>
+<PRE>
+        vdragDrawProc <B>vdragGetDrawProc</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Returns the draw procedure associated with the drag
+<SAMP>drag</SAMP>. If the draw procedure has not been set,
+<SAMP>NULL</SAMP> is returned.
+<P>
+The draw procedure for a drag has been deprecated. Refer to the section
+<CODE><A HREF="vdrag-x.html#vdragNOTIFY_FEEDBACK_WITH"><CODE>vdragNOTIFY_FEEDBACK_WITH</CODE></A></CODE> for the new method for
+updating the visual representation of a drag.
+</DD></DL>
+<P>
+<A NAME="vdragGetDropsiteIteratorDropsite"><HR><H4>vdragGetDropsiteIteratorDropsite</H4></A>
+<PRE>
+        vdropsite * <B>vdragGetDropsiteIteratorDropsite</B>(
+                vdragDropsiteIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the dropsite indexed by the iterator. This method should only
+be invoked after <CODE><A HREF="vdrag-x.html#vdragNextDropsiteIterator"><CODE>vdragNextDropsiteIterator</CODE></A></CODE> has returned
+<SAMP>vTRUE</SAMP>. Note that the order in which dropsites are
+iterated is arbitrary.
+</DD></DL>
+<P>
+<A NAME="vdragGetEngine"><HR><H4>vdragGetEngine</H4></A>
+<PRE>
+        vdragEngine * <B>vdragGetEngine</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+Returns the drag engine to be used to coordinate the drag <SAMP>drag</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdragGetEngineClass"><HR><H4>vdragGetEngineClass</H4></A>
+<PRE>
+        vdragEngineClass * <B>vdragGetEngineClass</B>(
+                vdragEngine * engine);
+</PRE>
+
+<DL><DD>
+Returns the class of the drag engine <SAMP>engine</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdragGetEngineCurrentDrag"><HR><H4>vdragGetEngineCurrentDrag</H4></A>
+<PRE>
+        vdrag * <B>vdragGetEngineCurrentDrag</B>(
+                vdragEngine * engine);
+</PRE>
+
+<DL><DD>
+Returns the drag currently being processed by the drag engine.
+</DD></DL>
+<P>
+<A NAME="vdragGetEngineCurrentDropsite"><HR><H4>vdragGetEngineCurrentDropsite</H4></A>
+<PRE>
+        vdropsite * <B>vdragGetEngineCurrentDropsite</B>(
+                vdragEngine * engine);
+</PRE>
+
+<DL><DD>
+Returns the dropsite the current drag is interacting with, or
+<SAMP>NULL</SAMP> if there is no drag operation in effect, or if there
+is no eligible dropsite registered with the engine.
+</DD></DL>
+<P>
+<A NAME="vdragGetEngineDragEncodings"><HR><H4>vdragGetEngineDragEncodings</H4></A>
+<PRE>
+        vdict * <B>vdragGetEngineDragEncodings</B>(
+                vdragEngine * engine,
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+Retrieves the content encodings currently available in the clipboard
+engine being used by the drag engine. This function is implemented by
+sending the message <CODE><A HREF="vdrag-x.html#vdragGET_ENGINE_DRAG_ENCODINGS"><CODE>vdragGET_ENGINE_DRAG_ENCODINGS</CODE></A></CODE> to the
+drag engine.
+</DD></DL>
+<P>
+<A NAME="vdragGetEngineInstance"><HR><H4>vdragGetEngineInstance</H4></A>
+<PRE>
+        vinstance * <B>vdragGetEngineInstance</B>(
+                vdragEngine * engine);
+</PRE>
+
+<DL><DD>
+Returns the <CODE><A HREF="vinstance-x.html#vinstance"><CODE>vinstance</CODE></A></CODE> a drag engine is built upon.
+</DD></DL>
+<P>
+<A NAME="vdragGetInstance"><HR><H4>vdragGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vdragGetInstance</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+Returns the <CODE><A HREF="vinstance-x.html#vinstance"><CODE>vinstance</CODE></A></CODE> a drag is built upon.
+</DD></DL>
+<P>
+<A NAME="vdragGetInternalEngine"><HR><H4>vdragGetInternalEngine</H4></A>
+<PRE>
+        vdragEngine * <B>vdragGetInternalEngine</B>();
+</PRE>
+
+<DL><DD>
+Returns the default instance of the <CODE><A HREF="vdrag-x.html#vdragInternalEngine"><CODE>vdragInternalEngine</CODE></A></CODE> class.
+The default internal drag engine has its clipboard engine set to an
+instance of the <CODE><A HREF="vclipboard-x.html#vclipboardEngine"><CODE>vclipboardEngine</CODE></A></CODE> class.
+</DD></DL>
+<P>
+<A NAME="vdragGetLastFeedback"><HR><H4>vdragGetLastFeedback</H4></A>
+<PRE>
+        int <B>vdragGetLastFeedback</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vdragGetLastRect"><HR><H4>vdragGetLastRect</H4></A>
+<PRE>
+        const vrect * <B>vdragGetLastRect</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vdragGetMaxHeight"><HR><H4>vdragGetMaxHeight</H4></A>
+<PRE>
+        int <B>vdragGetMaxHeight</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+Returns the maximum height of the drag <SAMP>drag</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdragGetMaxWidth"><HR><H4>vdragGetMaxWidth</H4></A>
+<PRE>
+        int <B>vdragGetMaxWidth</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+Returns the maximum width of the drag <SAMP>drag</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdragGetNativeFeedback"><HR><H4>vdragGetNativeFeedback</H4></A>
+<PRE>
+        vbool <B>vdragGetNativeFeedback</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+Returns <samp>vTRUE</samp> if native feedback is enabled for the drag
+<SAMP>drag</SAMP>. When native feedback is enabled, the feedback
+cursor is set during the drag to the correct cursor for the current
+look-and-feel, according to the drop action.
+</DD></DL>
+<P>
+<A NAME="vdragGetNotify"><HR><H4>vdragGetNotify</H4></A>
+<PRE>
+        vdragNotifyProc <B>vdragGetNotify</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Returns the notification function for the drag
+<SAMP>drag</SAMP>. If the notification function has not
+been set, <SAMP>NULL</SAMP> is returned.
+<P>
+The notify procedure for a drag has been deprecated. Refer to the section
+<CODE><A HREF="vdrag-x.html#vdragActionProc"><CODE>vdragActionProc</CODE></A></CODE> for the new method for
+receiving notification when a drag terminates.
+</DD></DL>
+<P>
+<A NAME="vdragGetOffsetX"><HR><H4>vdragGetOffsetX</H4></A>
+<PRE>
+        int <B>vdragGetOffsetX</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+Returns the horizontal offset of the mouse location in
+relation to the bounding rectangle of the item(s) composing
+the drag. The default is zero which means the item(s) will
+be dragged from the left edge of the bounding rectangle.
+</DD></DL>
+<P>
+<A NAME="vdragGetOffsetY"><HR><H4>vdragGetOffsetY</H4></A>
+<PRE>
+        int <B>vdragGetOffsetY</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+Returns the vertical offset of the mouse location in
+relation to the bounding rectangle of the item(s) composing
+the drag. The default is zero which means the item(s) will
+be dragged from the bottom edge of the bounding rectangle.
+</DD></DL>
+<P>
+<A NAME="vdragGetValidDropActions"><HR><H4>vdragGetValidDropActions</H4></A>
+<PRE>
+        unsigned long <B>vdragGetValidDropActions</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+Returns a bit mask containing the valid drop actions for the drag
+<SAMP>drag</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdragHasUserUndraw"><HR><H4>vdragHasUserUndraw</H4></A>
+<PRE>
+        vbool <B>vdragHasUserUndraw</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vdragInit"><HR><H4>vdragInit</H4></A>
+<PRE>
+        void <B>vdragInit</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+Initializes a drag in the memory addressed by
+<SAMP>drag</SAMP>. The attributes of the drag are set to
+their default values. The address can be used in other
+calls to the Drag class as if it were created with
+<CODE><A HREF="vdrag-x.html#vdragCreate"><CODE>vdragCreate</CODE></A></CODE>. A call to
+<CODE><A HREF="vdrag-x.html#vdragDestroy"><CODE>vdragDestroy</CODE></A></CODE> frees any internal objects
+allocated by the Drag class but does not free the
+structure itself.
+</DD></DL>
+<P>
+<A NAME="vdragInitEngine"><HR><H4>vdragInitEngine</H4></A>
+<PRE>
+        void <B>vdragInitEngine</B>(
+                vdragEngine * engine);
+</PRE>
+
+<DL><DD>
+Initializes a drag engine in the memory addressed by
+<SAMP>engine</SAMP> so that it represents a valid drag engine of the
+default drag engine class (as returned by
+<CODE><A HREF="vdrag-x.html#vdragGetDefaultEngineClass"><CODE>vdragGetDefaultEngineClass</CODE></A></CODE>). A call to
+<CODE><A HREF="vdrag-x.html#vdragDestroyEngine"><CODE>vdragDestroyEngine</CODE></A></CODE> frees any internal objects allocated
+by the drag engine class, but does not free the memory addressed by
+<SAMP>engine</SAMP> itself.
+</DD></DL>
+<P>
+<A NAME="vdragInitEngineDropsiteIterator"><HR><H4>vdragInitEngineDropsiteIterator</H4></A>
+<PRE>
+        void <B>vdragInitEngineDropsiteIterator</B>(
+                vdragEngine * engine,
+                vwindow * window,
+                vdragDropsiteIterator * iterator);
+</PRE>
+
+<DL><DD>
+Begins an iteration of the dropsites registered with the engine
+<SAMP>engine</SAMP>. If <SAMP>window</SAMP> is non-<SAMP>NULL</SAMP>,
+then only the dropsites belonging to that window will be returned by
+the iterator.
+</DD></DL>
+<P>
+<A NAME="vdragInitEngineOfClass"><HR><H4>vdragInitEngineOfClass</H4></A>
+<PRE>
+        void <B>vdragInitEngineOfClass</B>(
+                vdragEngine * engine,
+                vdragEngineClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a drag engine in the memory addressed by
+<SAMP>engine</SAMP> so that it represents a valid drag engine of the
+drag engine class <SAMP>clas</SAMP>. A call to
+<CODE><A HREF="vdrag-x.html#vdragDestroyEngine"><CODE>vdragDestroyEngine</CODE></A></CODE> frees any internal objects allocated
+by the drag engine class, but does not free the memory addressed by
+<SAMP>engine</SAMP> itself.
+</DD></DL>
+<P>
+<A NAME="vdragInitOfClass"><HR><H4>vdragInitOfClass</H4></A>
+<PRE>
+        void <B>vdragInitOfClass</B>(
+                vdrag * drag,
+                vdragClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a drag in the memory addressed by
+<SAMP>drag</SAMP> so that it represents a valid drag of the drag clas
+<SAMP>clas</SAMP>. The attributes of the drag are set to
+their default values according to the class. The address can be used
+in other calls to the Drag class as if it were created with
+<CODE><A HREF="vdrag-x.html#vdragCreate"><CODE>vdragCreate</CODE></A></CODE>. A call to
+<CODE><A HREF="vdrag-x.html#vdragDestroy"><CODE>vdragDestroy</CODE></A></CODE> frees any internal objects
+allocated by the Drag class but does not free the
+structure itself.
+</DD></DL>
+<P>
+<A NAME="vdragLockEngine"><HR><H4>vdragLockEngine</H4></A>
+<PRE>
+        void <B>vdragLockEngine</B>(
+                vdragEngine * engine);
+</PRE>
+
+<DL><DD>
+Locks the drag engine's mutex. Refer to the section 
+<CODE><A HREF="vmutex-x.html#vmutexLock"><CODE>vmutexLock</CODE></A></CODE> for more information on mutex locking.
+</DD></DL>
+<P>
+<A NAME="vdragLockEngineWithHandling"><HR><H4>vdragLockEngineWithHandling</H4></A>
+<PRE>
+        void <B>vdragLockEngineWithHandling</B>(
+                vdragEngine * engine);
+</PRE>
+
+<DL><DD>
+Locks the drag engine's mutex and ensures that it is unlocked if an
+exception is thrown. Refer to the section <CODE><A HREF="vmutex-x.html#vmutexLockWithHandling"><CODE>vmutexLockWithHandling</CODE></A></CODE> 
+for more information.
+</DD></DL>
+<P>
+<A NAME="vdragNextDropsiteIterator"><HR><H4>vdragNextDropsiteIterator</H4></A>
+<PRE>
+        vbool <B>vdragNextDropsiteIterator</B>(
+                vdragDropsiteIterator * iterator);
+</PRE>
+
+<DL><DD>
+Performs the next step of the iteration represented by
+<SAMP>iterator</SAMP> and returns <SAMP>vTRUE</SAMP> if a dropsite is
+available, or <SAMP>vFALSE</SAMP> if not. The particular dropsite can
+be retrieved from the iterator with
+<CODE><A HREF="vdrag-x.html#vdragGetDropsiteIteratorDropsite"><CODE>vdragGetDropsiteIteratorDropsite</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdragNotifyAction"><HR><H4>vdragNotifyAction</H4></A>
+<PRE>
+        void <B>vdragNotifyAction</B>(
+                vdrag * drag,
+                int dragAction,
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Notifies the drag <SAMP>drag</SAMP> of various actions taken upon
+it. <SAMP>dragAction</SAMP> may be one of:
+
+<DL>
+<DT><CODE>vdragACTION_START</CODE>
+<DD>To indicate that the drag has started.
+
+<DT><CODE>vdragACTION_DROP</CODE>
+<DD>To indicate that the drag has ended in a drop.
+
+<DT><CODE>vdragACTION_CHANGE_DRAG_STATE</CODE>
+<DD>To indicate that some state of the drag has changed. A key press or
+release, for example.
+
+<DT><CODE>vdragACTION_ABORT</CODE>
+<DD>To indicates that the drag has been aborted.
+</DL>
+<P>
+This function is implemented by sending the message
+<CODE><A HREF="vdrag-x.html#vdragNOTIFY_ACTION"><CODE>vdragNOTIFY_ACTION</CODE></A></CODE> to the drag.
+</DD></DL>
+<P>
+<A NAME="vdragNotifyFeedback"><HR><H4>vdragNotifyFeedback</H4></A>
+<PRE>
+        void <B>vdragNotifyFeedback</B>(
+                vdrag * drag,
+                int dragAction,
+                vevent * event,
+                vrect * drawRect);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Notifies the drag to provide feedback to the
+user. Drawing should be performed into the rectangle specified in
+<SAMP>drawRect</SAMP>. <SAMP>dragAction</SAMP> will be one of:
+<P>
+<DL>
+<DT><CODE>vdragDROP_ACTION_NONE</CODE>
+<DD>No dropsites have indicated that they will accept the drag.
+
+<DT><CODE>vdragDROP_ACTION_MOVE</CODE>
+<DD>A dropsite has indicated that it will accept the drag as a move
+operation.
+
+<DT><CODE>vdragDROP_ACTION_COPY</CODE>
+<DD>A dropsite has indicated that it will accept the drag as a copy
+operation.
+
+<DT><CODE>vdragDROP_ACTION_LINK</CODE>
+<DD>A dropsite has indicated that it will accept the drag as a link
+operation.
+</DL>
+
+<P>
+This function is implemented by sending the message
+<CODE><A HREF="vdrag-x.html#vdragNOTIFY_FEEDBACK"><CODE>vdragNOTIFY_FEEDBACK</CODE></A></CODE> to the drag.
+<P>
+This function has been deprecated. Refer to the section
+<CODE><A HREF="vdrag-x.html#vdragNotifyFeedbackWith"><CODE>vdragNotifyFeedbackWith</CODE></A></CODE>, which is functionally
+equivalent, but accepts an additional <CODE><A HREF="vdrawcontext-x.html#vdrawcontext"><CODE>vdrawcontext</CODE></A></CODE>
+parameter to facilitate the use of the new drawing api.
+</DD></DL>
+<P>
+<A NAME="vdragNotifyFeedbackWith"><HR><H4>vdragNotifyFeedbackWith</H4></A>
+<PRE>
+        void <B>vdragNotifyFeedbackWith</B>(
+                vdrag * drag,
+                int dragAction,
+                vevent * event,
+                vrect * drawRect,
+                vdrawcontext * context);
+</PRE>
+
+<DL><DD>
+Notifies the drag to provide feedback to the
+user. Drawing should be performed into the rectangle specified in
+<SAMP>drawRect</SAMP> using the <CODE><A HREF="vdrawcontext-x.html#vdrawcontext"><CODE>vdrawcontext</CODE></A></CODE> provided in
+<SAMP>context</SAMP>. <SAMP>dragAction</SAMP> should be one of:
+
+<P>
+<DL>
+<DT><CODE>vdragDROP_ACTION_NONE</CODE>
+<DD>No dropsites have indicated that they will accept the drag.
+
+<DT><CODE>vdragDROP_ACTION_MOVE</CODE>
+<DD>A dropsite has indicated that it will accept the drag as a move
+operation.
+
+<DT><CODE>vdragDROP_ACTION_COPY</CODE>
+<DD>A dropsite has indicated that it will accept the drag as a copy
+operation.
+
+<DT><CODE>vdragDROP_ACTION_LINK</CODE>
+<DD>A dropsite has indicated that it will accept the drag as a link
+operation.
+</DL>
+</DD></DL>
+<P>
+<A NAME="vdragProcessEngineDrag"><HR><H4>vdragProcessEngineDrag</H4></A>
+<PRE>
+        int <B>vdragProcessEngineDrag</B>(
+                vdragEngine * engine,
+                vdrag * drag,
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Synchronously processes a given drag using the drag engine, returning
+the drop action which took place. This function is implemented by
+sending the message <CODE><A HREF="vdrag-x.html#vdragPROCESS_ENGINE_DRAG"><CODE>vdragPROCESS_ENGINE_DRAG</CODE></A></CODE> to the drag
+engine.
+</DD></DL>
+<P>
+<A NAME="vdragRegisterEngineDropsite"><HR><H4>vdragRegisterEngineDropsite</H4></A>
+<PRE>
+        void <B>vdragRegisterEngineDropsite</B>(
+                vdragEngine * engine,
+                vdropsite * dropsite);
+</PRE>
+
+<DL><DD>
+Registers a dropsite with the engine, thereby making that dropsite
+eligible to interact with drags being processed by the engine. This
+function is implemented by sending the message
+<CODE><A HREF="vdrag-x.html#vdragREGISTER_ENGINE_DROPSITE"><CODE>vdragREGISTER_ENGINE_DROPSITE</CODE></A></CODE> to the drag engine.
+</DD></DL>
+<P>
+<A NAME="vdragSetActionNotify"><HR><H4>vdragSetActionNotify</H4></A>
+<PRE>
+        void <B>vdragSetActionNotify</B>(
+                vdrag * drag,
+                vdragActionProc notify);
+</PRE>
+
+<DL><DD>
+Sets the action notification procedure for the drag. When set, the
+action notification procedure is invoked by the base implementation of
+<CODE><A HREF="vdrag-x.html#vdrag"><CODE>vdrag</CODE></A></CODE> to communicate various drag actions
+to the drag. This function is implemented by sending the message
+<CODE><A HREF="vdrag-x.html#vdragSET_ACTION_NOTIFY"><CODE>vdragSET_ACTION_NOTIFY</CODE></A></CODE> to the drag.
+</DD></DL>
+<P>
+<A NAME="vdragSetData"><HR><H4>vdragSetData</H4></A>
+<PRE>
+        void <B>vdragSetData</B>(
+                vdrag * drag,
+                const void * data);
+</PRE>
+
+<DL><DD>
+Sets the drag's generic data pointer to <SAMP>data</SAMP>.
+This may be a pointer to any information you want to attach
+to the drag. <SAMP>data</SAMP> may be <SAMP>NULL</SAMP>. This function
+is implemented by sending the message <CODE><A HREF="vdrag-x.html#vdragSET_DATA"><CODE>vdragSET_DATA</CODE></A></CODE> to
+the drag.
+</DD></DL>
+<P>
+<A NAME="vdragSetDetail"><HR><H4>vdragSetDetail</H4></A>
+<PRE>
+        void <B>vdragSetDetail</B>(
+                vdrag * drag,
+                vdragDetailProc notify);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Sets the detail notification function for the drag
+<SAMP>drag</SAMP>. The detail notification function is
+called each time the mouse position changes during the
+tracking of a drag. This function is passed information
+concerning the current location of the mouse, and is
+usually used to determine if a drop is valid over the
+current location.
+<P>
+The detail procedure for a drag has been deprecated. Refer to the section
+<CODE><A HREF="vdrag-x.html#vdragNOTIFY_FEEDBACK_WITH"><CODE>vdragNOTIFY_FEEDBACK_WITH</CODE></A></CODE> for the new method for
+receiving notification when the user moves the drag.
+</DD></DL>
+<P>
+<A NAME="vdragSetDrawProc"><HR><H4>vdragSetDrawProc</H4></A>
+<PRE>
+        void <B>vdragSetDrawProc</B>(
+                vdrag * drag,
+                vdragDrawProc draw);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Sets the drawing procedure for the drag <SAMP>drag</SAMP>.
+The drawing procedure is called to draw the contents of a
+drag as it tracked across the screen.
+<P>
+The draw procedure for a drag has been deprecated. Refer to the section
+<CODE><A HREF="vdrag-x.html#vdragNOTIFY_FEEDBACK_WITH"><CODE>vdragNOTIFY_FEEDBACK_WITH</CODE></A></CODE> for the new method for
+updating the visual representation of a drag.
+</DD></DL>
+<P>
+<A NAME="vdragSetEngine"><HR><H4>vdragSetEngine</H4></A>
+<PRE>
+        void <B>vdragSetEngine</B>(
+                vdrag * drag,
+                vdragEngine * engine);
+</PRE>
+
+<DL><DD>
+Sets the drag engine to be used to coordinate the drag
+<SAMP>drag</SAMP>. This function is implemented by sending the message
+<CODE><A HREF="vdrag-x.html#vdragSET_ENGINE"><CODE>vdragSET_ENGINE</CODE></A></CODE> to the drag.
+</DD></DL>
+<P>
+<A NAME="vdragSetEngineClipboardEngine"><HR><H4>vdragSetEngineClipboardEngine</H4></A>
+<PRE>
+        void <B>vdragSetEngineClipboardEngine</B>(
+                vdragEngine * engine,
+                vclipboardEngine * clipboardEngine);
+</PRE>
+
+<DL><DD>
+Sets a drag engine's clipboard engine to be used when converting drag
+scraps. This function is implemented by sending the message
+<CODE><A HREF="vdrag-x.html#vdragSET_ENGINE_CLIPBOARD_ENGINE"><CODE>vdragSET_ENGINE_CLIPBOARD_ENGINE</CODE></A></CODE> to the drag engine.
+</DD></DL>
+<P>
+<A NAME="vdragSetFeedbackCursor"><HR><H4>vdragSetFeedbackCursor</H4></A>
+<PRE>
+        void <B>vdragSetFeedbackCursor</B>(
+                vdrag * drag,
+                vwindow * to,
+                vcursor * cursor);
+</PRE>
+
+<DL><DD>
+Sets the window's feedback cursor during a drag operation. Most useful
+when called from within a <CODE><A HREF="vdrag-x.html#vdragNOTIFY_FEEDBACK_WITH"><CODE>vdragNOTIFY_FEEDBACK_WITH</CODE></A></CODE>
+override. Refer to the section <CODE><A HREF="vdrag-x.html#vdrag"><CODE>vdrag</CODE></A></CODE> 
+to have the drag automatically use the correct cursor as specified 
+by the current look-and-feel.
+</DD></DL>
+<P>
+<A NAME="vdragSetFeedbackNotify"><HR><H4>vdragSetFeedbackNotify</H4></A>
+<PRE>
+        void <B>vdragSetFeedbackNotify</B>(
+                vdrag * drag,
+                vdragFeedbackProc notify);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Sets the drag's feedback notification procedure. This function is
+implemented by sending the message
+<CODE><A HREF="vdrag-x.html#vdragSET_FEEDBACK_NOTIFY"><CODE>vdragSET_FEEDBACK_NOTIFY</CODE></A></CODE> to the drag.
+<P>
+This function has been deprecated along with
+<CODE><A HREF="vdrag-x.html#vdragFeedbackProc"><CODE>vdragFeedbackProc</CODE></A></CODE>. There is no direct replacement for
+this function, as there is no direct replacement for
+<CODE><A HREF="vdrag-x.html#vdragFeedbackProc"><CODE>vdragFeedbackProc</CODE></A></CODE>. Override
+<CODE><A HREF="vdrag-x.html#vdragNOTIFY_FEEDBACK_WITH"><CODE>vdragNOTIFY_FEEDBACK_WITH</CODE></A></CODE> to provide drag feedback to the
+user.
+</DD></DL>
+<P>
+<A NAME="vdragSetMaxSize"><HR><H4>vdragSetMaxSize</H4></A>
+<PRE>
+        void <B>vdragSetMaxSize</B>(
+                vdrag * drag,
+                int width,
+                int height);
+</PRE>
+
+<DL><DD>
+Sets the maximum width and height of the area that will be
+obscured as a drag tracks across the screen. The width and
+height correspond to the bounding rectangle of the item(s)
+that are drawn during a drag. This function is implemented by sending
+the message <CODE><A HREF="vdrag-x.html#vdragSET_MAX_SIZE"><CODE>vdragSET_MAX_SIZE</CODE></A></CODE> to the drag.
+</DD></DL>
+<P>
+<A NAME="vdragSetNativeFeedback"><HR><H4>vdragSetNativeFeedback</H4></A>
+<PRE>
+        void <B>vdragSetNativeFeedback</B>(
+                vdrag * drag,
+                vbool flag);
+</PRE>
+
+<DL><DD>
+Enables or disables native feedback for the drag. When native
+feedback is enabled, the feedback cursor is set during the drag to the
+correct cursor for the current look-and-feel according to the drop
+action. This function is implemented by sending the message
+<CODE><A HREF="vdrag-x.html#vdragSET_NATIVE_FEEDBACK"><CODE>vdragSET_NATIVE_FEEDBACK</CODE></A></CODE> to the drag.
+</DD></DL>
+<P>
+<A NAME="vdragSetNotify"><HR><H4>vdragSetNotify</H4></A>
+<PRE>
+        void <B>vdragSetNotify</B>(
+                vdrag * drag,
+                vdragNotifyProc notify);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Sets the notification function for a drag. The notification
+function is called when a drag is completed. This function
+is passed information concerning the location of the mouse
+when the drag completed, and is usually used to initiate a
+move or drop of the dragged item(s).
+<P>
+The notification procedure for a drag has been deprecated. Refer to the section
+<CODE><A HREF="vdrag-x.html#vdragSetActionNotify"><CODE>vdragSetActionNotify</CODE></A></CODE> and <CODE><A HREF="vdrag-x.html#vdragNotifyAction"><CODE>vdragNotifyAction</CODE></A></CODE>
+for the new method for receiving notification when a drag ends.
+</DD></DL>
+<P>
+<A NAME="vdragSetOffset"><HR><H4>vdragSetOffset</H4></A>
+<PRE>
+        void <B>vdragSetOffset</B>(
+                vdrag * drag,
+                int x,
+                int y);
+</PRE>
+
+<DL><DD>
+Sets the offset of the mouse location in the drag
+<SAMP>drag</SAMP>. The offset determines the mouse location
+in relation to the bounding rectangle of the item(s)
+composing the drag. The default is <SAMP>0,0</SAMP> which
+means the item(s) will be dragged from the lower left hand
+corner. To drag from the center, the offset would be set to
+the maximum width/2, maximum height/2. This function is implemented by
+sending the message <CODE><A HREF="vdrag-x.html#vdragSET_OFFSET"><CODE>vdragSET_OFFSET</CODE></A></CODE> to the drag.
+</DD></DL>
+<P>
+<A NAME="vdragSetScrap"><HR><H4>vdragSetScrap</H4></A>
+<PRE>
+        void <B>vdragSetScrap</B>(
+                vdrag * drag,
+                vscrap * scrap);
+</PRE>
+
+<DL><DD>
+Sets the drag's scrap to <SAMP>scrap</SAMP. When the drag is started,
+the drag's scrap is given to the drag engine's clipboard engine. 
+Refer to the section
+<CODE>vdragEngine::ConvertDragScrap</CODE> to retrieve the contents of
+the drag engine's clipboard engine. This function is implemented by
+sending the message <CODE>vdragSET_SCRAP</CODE> to the drag.
+</DD></DL>
+<P>
+<A NAME="vdragSetUpEngineDrag"><HR><H4>vdragSetUpEngineDrag</H4></A>
+<PRE>
+        void <B>vdragSetUpEngineDrag</B>(
+                vdragEngine * engine,
+                vdrag * drag,
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Initializes the pieces of state in the drag engine which correspond to
+a specific drag. In general, user-code does not need to call this
+function to set up a drag engine, as this is done for the user when a
+drag is started by <CODE><A HREF="vdrag-x.html#vdragStart"><CODE>vdragStart</CODE></A></CODE> or
+<CODE><A HREF="vdrag-x.html#vdragProcessEngineDrag"><CODE>vdragProcessEngineDrag</CODE></A></CODE>. This function is implemented by
+sending the message <CODE><A HREF="vdrag-x.html#vdragSETUP_ENGINE_DRAG"><CODE>vdragSETUP_ENGINE_DRAG</CODE></A></CODE> to the drag engine.
+</DD></DL>
+<P>
+<A NAME="vdragSetUserUndraw"><HR><H4>vdragSetUserUndraw</H4></A>
+<PRE>
+        void <B>vdragSetUserUndraw</B>(
+                vdrag * drag,
+                vbool flag);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vdragSetValidDropActions"><HR><H4>vdragSetValidDropActions</H4></A>
+<PRE>
+        void <B>vdragSetValidDropActions</B>(
+                vdrag * drag,
+                unsigned long actionFlags);
+</PRE>
+
+<DL><DD>
+Sets the valid drop actions for the drag
+<SAMP>drag</SAMP>. <CODE>actionFlags</CODE> should be the bitwise OR
+of the desired <SAMP>vdragDROP_ACTION_</SAMP> flags. A dropsite may
+use the drag's valid drop actions to determine what operation should
+take place if the drag were to be dropped in that dropsite. This
+function is implemented by sending the message
+<CODE><A HREF="vdrag-x.html#vdragSET_VALID_DROP_ACTIONS"><CODE>vdragSET_VALID_DROP_ACTIONS</CODE></A></CODE> to the drag.
+</DD></DL>
+<P>
+<A NAME="vdragStart"><HR><H4>vdragStart</H4></A>
+<PRE>
+        void <B>vdragStart</B>(
+                vdrag * drag,
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Starts the drag <SAMP>drag</SAMP> at the location specified
+by the event <SAMP>event</SAMP>. The event's coordinates must be in
+the containing window's coordinate system, and its type should be
+either button down, drag, or detail. The drag's
+<CODE><A HREF="vdrag-x.html#vdragEngine"><CODE>vdragEngine</CODE></A></CODE> will coordinate the drag itself, and will
+terminate when a drop is performed, the user cancels the drag, or
+<CODE><A HREF="vdrag-x.html#vdragStop"><CODE>vdragStop</CODE></A></CODE> is called.
+</DD></DL>
+<P>
+<A NAME="vdragStartup"><HR><H4>vdragStartup</H4></A>
+<PRE>
+        void <B>vdragStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the Drag class. Has no effect if the Drag class is already initialized.
+</DD></DL>
+<P>
+<A NAME="vdragStop"><HR><H4>vdragStop</H4></A>
+<PRE>
+        void <B>vdragStop</B>(
+                vdrag * drag);
+</PRE>
+
+<DL><DD>
+Stops the drag <SAMP>drag</SAMP> from further processing
+events. If a drag is allowed to process until completion,
+this function is called internally to end the drag event
+processing. Normally, this function is not called outside of
+the Drag class, but it may be used to abort the drag.
+</DD></DL>
+<P>
+<A NAME="vdragUnlockEngine"><HR><H4>vdragUnlockEngine</H4></A>
+<PRE>
+        void <B>vdragUnlockEngine</B>(
+                vdragEngine * engine);
+</PRE>
+
+<DL><DD>
+Unlocks the drag engine's mutex. 
+Refer to the section <CODE><A HREF="vmutex-x.html#vmutexUnlock"><CODE>vmutexUnlock</CODE></A></CODE> for more
+information on mutex unlocking.
+</DD></DL>
+<P>
+<A NAME="vdragUnlockEngineWithHandling"><HR><H4>vdragUnlockEngineWithHandling</H4></A>
+<PRE>
+        void <B>vdragUnlockEngineWithHandling</B>(
+                vdragEngine * engine);
+</PRE>
+
+<DL><DD>
+Unlocks the drag engine's mutex. Similar to
+<CODE>vdragUnlockEngine</CODE> except that it is the matching
+operation to <CODE><A HREF="vdrag-x.html#vdragLockEngineWithHandling"><CODE>vdragLockEngineWithHandling</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdragUnregisterEngineDropsite"><HR><H4>vdragUnregisterEngineDropsite</H4></A>
+<PRE>
+        void <B>vdragUnregisterEngineDropsite</B>(
+                vdragEngine * engine,
+                vdropsite * dropsite);
+</PRE>
+
+<DL><DD>
+Removes a dropsite from the engine's dropsite registry. Drags
+processed by that engine will no longer be eligible to interact with
+that dropsite. This function is implemented by sending the
+message <CODE><A HREF="vdrag-x.html#vdragUNREGISTER_ENGINE_DROPSITE"><CODE>vdragUNREGISTER_ENGINE_DROPSITE</CODE></A></CODE> to the drag
+engine.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vdragABORT_ENGINE_DRAG"><HR><H4>vdragABORT_ENGINE_DRAG</H4></A>
+<PRE>
+        &lt;<B>vdragABORT_ENGINE_DRAG</B>&gt;
+</PRE>
+
+<DL><DD>
+Aborts the current drag being processed by the drag engine
+<SAMP>engine</SAMP>. The function entry point
+<CODE><A HREF="vdrag-x.html#vdragAbortEngineDrag"><CODE>vdragAbortEngineDrag</CODE></A></CODE> is implemented by sending this
+message to the drag engine.
+<P>
+The default method for the default drag engine class communicates with
+any dropsite which may be currently interacting with the drag,
+notifies the drag of the abort, and cleans up the drag.
+</DD></DL>
+<P>
+<A NAME="vdragCLEANUP_ENGINE_DRAG"><HR><H4>vdragCLEANUP_ENGINE_DRAG</H4></A>
+<PRE>
+        &lt;<B>vdragCLEANUP_ENGINE_DRAG</B>&gt;
+</PRE>
+
+<DL><DD>
+Cleans up any application state modified by the drag engine during the
+course of a drag. The function entry point
+<CODE><A HREF="vdrag-x.html#vdragCleanUpEngineDrag"><CODE>vdragCleanUpEngineDrag</CODE></A></CODE> is implemented by sending this
+message to the engine.
+<P>
+The implementation in the base drag engine class restores the state of
+the screen and unlocks the drag engine. The internal engine class
+restores the application event handlers overridden in
+<CODE><A HREF="vdrag-x.html#vdragSetUpEngineDrag"><CODE>vdragSetUpEngineDrag</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdragCONVERT_ENGINE_DRAG_SCRAP"><HR><H4>vdragCONVERT_ENGINE_DRAG_SCRAP</H4></A>
+<PRE>
+        &lt;<B>vdragCONVERT_ENGINE_DRAG_SCRAP</B>&gt;
+</PRE>
+
+<DL><DD>
+Converts the contents of the drag engine's clipboard engine into the
+given scrap. The function entry point
+<CODE><A HREF="vdrag-x.html#vdragConvertEngineDragScrap"><CODE>vdragConvertEngineDragScrap</CODE></A></CODE> is implemented by sending
+this message to the engine.
+</DD></DL>
+<P>
+<A NAME="vdragENGINE_DRAG_INTERSECTS_DROPSITE"><HR><H4>vdragENGINE_DRAG_INTERSECTS_DROPSITE</H4></A>
+<PRE>
+        &lt;<B>vdragENGINE_DRAG_INTERSECTS_DROPSITE</B>&gt;
+</PRE>
+
+<DL><DD>
+tests for intersection between a dropsite and an event for the drag
+engine's current drag. During a drag operation, this message will
+only be sent for dropsites in the same window as the drag's event. The
+function entry point <CODE><A HREF="vdrag-x.html#vdragEngineDragIntersectsDropsite"><CODE>vdragEngineDragIntersectsDropsite</CODE></A></CODE> is
+implemented by sending this message to the engine.
+</DD></DL>
+<P>
+<A NAME="vdragGET_ENGINE_DRAG_ENCODINGS"><HR><H4>vdragGET_ENGINE_DRAG_ENCODINGS</H4></A>
+<PRE>
+        &lt;<B>vdragGET_ENGINE_DRAG_ENCODINGS</B>&gt;
+</PRE>
+
+<DL><DD>
+Retrieves the content encodings currently available in the clipboard
+engine being used by the drag engine. The function entry point
+<CODE><A HREF="vdrag-x.html#vdragGetEngineDragEncodings"><CODE>vdragGetEngineDragEncodings</CODE></A></CODE> is implemented by sending
+this message to the drag engine.
+</DD></DL>
+<P>
+<A NAME="vdragNOTIFY_ACTION"><HR><H4>vdragNOTIFY_ACTION</H4></A>
+<PRE>
+        &lt;<B>vdragNOTIFY_ACTION</B>&gt;
+</PRE>
+
+<DL><DD>
+Notifies the drag of various actions taken upon
+it. <SAMP>dragAction</SAMP> will be one of:
+
+<DL>
+<DT><CODE>vdragACTION_START</CODE>
+<DD>Indicates that the drag has started.
+
+<DT><CODE>vdragACTION_DROP</CODE>
+<DD>Indicates that the drag has ended in a drop.
+
+<DT><CODE>vdragACTION_CHANGE_DRAG_STATE</CODE>
+<DD>Indicates that some state of the drag has changed, such as a key press or
+release.
+
+<DT><CODE>vdragACTION_ABORT</CODE>
+<DD>Indicates that the drag has been aborted.
+</DL>
+<P>
+The function entry point <CODE><A HREF="vdrag-x.html#vdragNotifyAction"><CODE>vdragNotifyAction</CODE></A></CODE> is implemented
+by sending this message to the drag.
+<P>
+The default implementation of <CODE>vdragNOTIFY_ACTION</CODE> will
+invoke the <CODE><A HREF="vdrag-x.html#vdragActionProc"><CODE>vdragActionProc</CODE></A></CODE> in the drag if one has been
+set by <CODE><A HREF="vdrag-x.html#vdragSetActionNotify"><CODE>vdragSetActionNotify</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdragNOTIFY_FEEDBACK"><HR><H4>vdragNOTIFY_FEEDBACK</H4></A>
+<PRE>
+        &lt;<B>vdragNOTIFY_FEEDBACK</B>&gt;
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Notifies the drag to provide feedback to the user. Drawing should be
+performed into the rectangle specified in
+<SAMP>drawRect</SAMP>. <SAMP>dragAction</SAMP> will be one of:
+
+<P>
+<DL>
+<DT><CODE>vdragDROP_ACTION_NONE</CODE>
+<DD>No dropsites have indicated that they will accept the drag.
+
+<DT><CODE>vdragDROP_ACTION_MOVE</CODE>
+<DD>A dropsite has indicated that it will accept the drag as a move
+operation.
+
+<DT><CODE>vdragDROP_ACTION_COPY</CODE>
+<DD>A dropsite has indicated that it will accept the drag as a copy
+operation.
+
+<DT><CODE>vdragDROP_ACTION_LINK</CODE>
+<DD>A dropsite has indicated that it will accept the drag as a link
+operation.
+</DL>
+
+<P>
+The default implementation of <CODE>vdragNOTIFY_FEEDBACK</CODE> will
+invoke the deprecated <CODE><A HREF="vdrag-x.html#vdragDetailProc"><CODE>vdragDetailProc</CODE></A></CODE> and
+<CODE><A HREF="vdrag-x.html#vdragDrawProc"><CODE>vdragDrawProc</CODE></A></CODE> procedures on the drag to maintain backward
+compatibility. This is subject to change, and should not be depended
+on in future releases of the product.
+<P>
+This method has been deprecated.  Refer to the section
+<CODE><A HREF="vdrag-x.html#vdragNOTIFY_FEEDBACK_WITH"><CODE>vdragNOTIFY_FEEDBACK_WITH</CODE></A></CODE>, which is functionally
+equivalent, but accepts an additional <CODE><A HREF="vdrawcontext-x.html#vdrawcontext"><CODE>vdrawcontext</CODE></A></CODE>
+parameter to facilitate the use of the new drawing api.
+<P>
+The function entry point <CODE><A HREF="vdrag-x.html#vdragNotifyFeedback"><CODE>vdragNotifyFeedback</CODE></A></CODE> is
+implemented by sending this message to the drag.
+</DD></DL>
+<P>
+<A NAME="vdragNOTIFY_FEEDBACK_WITH"><HR><H4>vdragNOTIFY_FEEDBACK_WITH</H4></A>
+<PRE>
+        &lt;<B>vdragNOTIFY_FEEDBACK_WITH</B>&gt;
+</PRE>
+
+<DL><DD>
+Notifies the drag to provide feedback to the
+user. Drawing should be performed into the rectangle specified in
+<SAMP>drawRect</SAMP> using the <CODE><A HREF="vdrawcontext-x.html#vdrawcontext"><CODE>vdrawcontext</CODE></A></CODE> provided in
+<SAMP>context</SAMP>. <SAMP>dragAction</SAMP> will be one of:
+
+<P>
+<DL>
+<DT><CODE>vdragDROP_ACTION_NONE</CODE>
+<DD>No dropsites have indicated that they will accept the drag.
+
+<DT><CODE>vdragDROP_ACTION_MOVE</CODE>
+<DD>A dropsite has indicated that it will accept the drag as a move
+operation.
+
+<DT><CODE>vdragDROP_ACTION_COPY</CODE>
+<DD>A dropsite has indicated that it will accept the drag as a copy
+operation.
+
+<DT><CODE>vdragDROP_ACTION_LINK</CODE>
+<DD>A dropsite has indicated that it will accept the drag as a link
+operation.
+</DL>
+
+<P>
+The default implementation of <CODE>vdragNOTIFY_FEEDBACK_WITH</CODE>
+will invoke the deprecated method <CODE>vdragNOTIFY_FEEDBACK</CODE>
+to maintain backward compatibility. This is subject to change, and
+should not be depended on in future releases of the product.
+</DD></DL>
+<P>
+<A NAME="vdragPROCESS_ENGINE_DRAG"><HR><H4>vdragPROCESS_ENGINE_DRAG</H4></A>
+<PRE>
+        &lt;<B>vdragPROCESS_ENGINE_DRAG</B>&gt;
+</PRE>
+
+<DL><DD>
+Synchronously processes a given drag using the drag engine, returning
+the drop action which took place. The function entry point
+<CODE><A HREF="vdrag-x.html#vdragProcessEngineDrag"><CODE>vdragProcessEngineDrag</CODE></A></CODE> is implemented by sending this
+message to the drag engine. The internal drag engine class 
+implementation processes the drag in a sub-event loop.
+</DD></DL>
+<P>
+<A NAME="vdragREGISTER_ENGINE_DROPSITE"><HR><H4>vdragREGISTER_ENGINE_DROPSITE</H4></A>
+<PRE>
+        &lt;<B>vdragREGISTER_ENGINE_DROPSITE</B>&gt;
+</PRE>
+
+<DL><DD>
+Registers a dropsite with the engine, thereby making that dropsite
+eligible to interact with drags being processed by the engine. The
+function entry point <CODE><A HREF="vdrag-x.html#vdragRegisterEngineDropsite"><CODE>vdragRegisterEngineDropsite</CODE></A></CODE> is
+implemented by sending this message to the drag engine.
+</DD></DL>
+<P>
+<A NAME="vdragSETUP_ENGINE_DRAG"><HR><H4>vdragSETUP_ENGINE_DRAG</H4></A>
+<PRE>
+        &lt;<B>vdragSETUP_ENGINE_DRAG</B>&gt;
+</PRE>
+
+<DL><DD>
+Initializes the pieces of state in the drag engine which correspond to
+a specific drag. This message is sent to the engine when a drag using
+that engine is started. The function entry point
+<CODE><A HREF="vdrag-x.html#vdragSetUpEngineDrag"><CODE>vdragSetUpEngineDrag</CODE></A></CODE> is implemented by sending this
+message to the drag engine.
+<P>
+The implementation in the base engine class locks the engine for the
+duration of the drag, communicates with any dropsites beneath the
+drag, and notifies the drag to provide any feedback. The internal drag
+engine class overrides the application event handlers to intercept all
+pointer and key events for the duration of the drag.
+</DD></DL>
+<P>
+<A NAME="vdragSET_ACTION_NOTIFY"><HR><H4>vdragSET_ACTION_NOTIFY</H4></A>
+<PRE>
+        &lt;<B>vdragSET_ACTION_NOTIFY</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the action notification procedure for the drag. When set, the
+action notification procedure is invoked by the base implementation of
+<CODE><A HREF="vdrag-x.html#vdrag"><CODE>vdrag</CODE></A></CODE> to communicate various drag actions
+to the drag. The function entry point
+<CODE><A HREF="vdrag-x.html#vdragSetActionNotify"><CODE>vdragSetActionNotify</CODE></A></CODE> is implemented by sending this
+message to the drag.
+</DD></DL>
+<P>
+<A NAME="vdragSET_DATA"><HR><H4>vdragSET_DATA</H4></A>
+<PRE>
+        &lt;<B>vdragSET_DATA</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the drag's generic data pointer to <SAMP>data</SAMP>.
+This may be a pointer to any information you want to attach
+to the drag. <SAMP>data</SAMP> may be <SAMP>NULL</SAMP>. The function
+entry point <CODE><A HREF="vdrag-x.html#vdragSetData"><CODE>vdragSetData</CODE></A></CODE> is implemented by sending this
+message to the drag.
+</DD></DL>
+<P>
+<A NAME="vdragSET_ENGINE"><HR><H4>vdragSET_ENGINE</H4></A>
+<PRE>
+        &lt;<B>vdragSET_ENGINE</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the drag engine to be used to coordinate the drag
+<SAMP>drag</SAMP>. The function entry point
+<CODE><A HREF="vdrag-x.html#vdragSetEngine"><CODE>vdragSetEngine</CODE></A></CODE> is implemented by sending this message to
+the drag.
+</DD></DL>
+<P>
+<A NAME="vdragSET_ENGINE_CLIPBOARD_ENGINE"><HR><H4>vdragSET_ENGINE_CLIPBOARD_ENGINE</H4></A>
+<PRE>
+        &lt;<B>vdragSET_ENGINE_CLIPBOARD_ENGINE</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets a drag engine's clipboard engine to be used when converting drag
+scraps. The function entry point <CODE><A HREF="vdrag-x.html#vdragSetEngineClipboardEngine"><CODE>vdragSetEngineClipboardEngine</CODE></A></CODE> 
+is implemented by sending
+this message to the drag engine.
+</DD></DL>
+<P>
+<A NAME="vdragSET_FEEDBACK_NOTIFY"><HR><H4>vdragSET_FEEDBACK_NOTIFY</H4></A>
+<PRE>
+        &lt;<B>vdragSET_FEEDBACK_NOTIFY</B>&gt;
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Sets the drag's feedback notification procedure.  The function entry
+point <CODE><A HREF="vdrag-x.html#vdragSetFeedbackNotify"><CODE>vdragSetFeedbackNotify</CODE></A></CODE> is implemented by sending
+this message to the drag.
+<P>
+This message has been deprecated. Override
+<CODE><A HREF="vdrag-x.html#vdrag"><CODE>vdrag</CODE></A></CODE> to receive notification when
+drawing is to be performed.
+</DD></DL>
+<P>
+<A NAME="vdragSET_MAX_SIZE"><HR><H4>vdragSET_MAX_SIZE</H4></A>
+<PRE>
+        &lt;<B>vdragSET_MAX_SIZE</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the maximum width and height of the area that will be
+obscured as a drag tracks across the screen. The width and
+height correspond to the bounding rectangle of the item(s)
+that are drawn during a drag. The function entry point
+<CODE><A HREF="vdrag-x.html#vdragSetMaxSize"><CODE>vdragSetMaxSize</CODE></A></CODE> is implemented by sending this
+message to the drag.
+</DD></DL>
+<P>
+<A NAME="vdragSET_NATIVE_FEEDBACK"><HR><H4>vdragSET_NATIVE_FEEDBACK</H4></A>
+<PRE>
+        &lt;<B>vdragSET_NATIVE_FEEDBACK</B>&gt;
+</PRE>
+
+<DL><DD>
+Enables or disables native feedback for the drag. When native
+feedback is enabled, the feedback cursor is set during the drag to the
+correct cursor for the current look-and-feel according to the drop
+action. The function entry point <CODE><A HREF="vdrag-x.html#vdragSetNativeFeedback"><CODE>vdragSetNativeFeedback</CODE></A></CODE>
+is implemented by sending this message to the drag.
+</DD></DL>
+<P>
+<A NAME="vdragSET_OFFSET"><HR><H4>vdragSET_OFFSET</H4></A>
+<PRE>
+        &lt;<B>vdragSET_OFFSET</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the offset of the mouse location in the drag
+<SAMP>drag</SAMP>. The offset determines the mouse location
+in relation to the bounding rectangle of the item(s)
+composing the drag. The default is <SAMP>0,0</SAMP> which
+means the item(s) will be dragged from the lower left hand
+corner. To drag from the center, the offset would be set to
+the maximum width/2, maximum height/2. The function entry point
+<CODE><A HREF="vdrag-x.html#vdragSetOffset"><CODE>vdragSetOffset</CODE></A></CODE> is implemented by sending this
+message to the drag.
+</DD></DL>
+<P>
+<A NAME="vdragSET_SCRAP"><HR><H4>vdragSET_SCRAP</H4></A>
+<PRE>
+        &lt;<B>vdragSET_SCRAP</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the drag <SAMP>drag</SAMP>'s scrap to <SAMP>scrap</SAMP. When the
+drag is started, the drag's scrap is given to the drag engine's
+clipboard engine. Refer to the section <CODE>vdragConvertEngineDragScrap</CODE> to
+retrieve the contents of the drag engine's clipboard engine. The
+function entry point <CODE>vdragSetScrap</CODE> is implemented by
+sending this message to the drag.
+</DD></DL>
+<P>
+<A NAME="vdragSET_USER_UNDRAW"><HR><H4>vdragSET_USER_UNDRAW</H4></A>
+<PRE>
+        &lt;<B>vdragSET_USER_UNDRAW</B>&gt;
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vdragSET_VALID_DROP_ACTIONS"><HR><H4>vdragSET_VALID_DROP_ACTIONS</H4></A>
+<PRE>
+        &lt;<B>vdragSET_VALID_DROP_ACTIONS</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the valid drop actions for the drag
+<SAMP>drag</SAMP>. <CODE>actionFlags</CODE> should be the bitwise OR
+of the desired <SAMP>vdragDROP_ACTION_</SAMP> flags. A dropsite may
+use the drag's valid drop actions to determine what operation should
+take place if the drag were to be dropped in that dropsite. The
+function entry point <CODE><A HREF="vdrag-x.html#vdragSetValidDropActions"><CODE>vdragSetValidDropActions</CODE></A></CODE> is
+implemented by sending this message to the drag.
+</DD></DL>
+<P>
+<A NAME="vdragUNREGISTER_ENGINE_DROPSITE"><HR><H4>vdragUNREGISTER_ENGINE_DROPSITE</H4></A>
+<PRE>
+        &lt;<B>vdragUNREGISTER_ENGINE_DROPSITE</B>&gt;
+</PRE>
+
+<DL><DD>
+Removes a dropsite from the engine's dropsite registry. Drags
+processed by that engine will no longer be eligible to interact with
+that dropsite. The function entry point
+<CODE><A HREF="vdrag-x.html#vdragUnregisterEngineDropsite"><CODE>vdragUnregisterEngineDropsite</CODE></A></CODE> is implemented by sending
+this message to the drag engine.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vdragACTION_NONE"><HR><H4>vdragACTION_NONE</H4></A>
+<PRE>
+        <B>vdragACTION_NONE</B>
+</PRE>
+<A NAME="vdragACTION_START"><PRE>
+        <B>vdragACTION_START</B>
+</PRE>
+</A>
+<A NAME="vdragACTION_DROP"><PRE>
+        <B>vdragACTION_DROP</B>
+</PRE>
+</A>
+<A NAME="vdragACTION_CHANGE_DRAG_STATE"><PRE>
+        <B>vdragACTION_CHANGE_DRAG_STATE</B>
+</PRE>
+</A>
+<A NAME="vdragACTION_ABORT"><PRE>
+        <B>vdragACTION_ABORT</B>
+</PRE>
+</A>
+
+<DL><DD>
+Drag actions values as passed to <CODE><A HREF="vdrag-x.html#vdragNotifyAction"><CODE>vdragNotifyAction</CODE></A></CODE> and
+the <CODE><A HREF="vdrag-x.html#vdragActionProc"><CODE>vdragActionProc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdragDROP_ACTION_NONE"><HR><H4>vdragDROP_ACTION_NONE</H4></A>
+<PRE>
+        <B>vdragDROP_ACTION_NONE</B>
+</PRE>
+<A NAME="vdragDROP_ACTION_MOVE"><PRE>
+        <B>vdragDROP_ACTION_MOVE</B>
+</PRE>
+</A>
+<A NAME="vdragDROP_ACTION_COPY"><PRE>
+        <B>vdragDROP_ACTION_COPY</B>
+</PRE>
+</A>
+<A NAME="vdragDROP_ACTION_LINK"><PRE>
+        <B>vdragDROP_ACTION_LINK</B>
+</PRE>
+</A>
+<A NAME="vdragDROP_ACTION_ABORT"><PRE>
+        <B>vdragDROP_ACTION_ABORT</B>
+</PRE>
+</A>
+
+<DL><DD>
+Drop action bit flags for use with
+<CODE><A HREF="vdrag-x.html#vdragSetValidDropActions"><CODE>vdragSetValidDropActions</CODE></A></CODE>,
+<CODE><A HREF="vdrag-x.html#vdragNotifyFeedbackWith"><CODE>vdragNotifyFeedbackWith</CODE></A></CODE>, and returned by
+<CODE><A HREF="vdrag-x.html#vdragProcessEngineDrag"><CODE>vdragProcessEngineDrag</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vdragINCLUDED"><HR><H4>vdragINCLUDED</H4></A>
+<PRE>
+        <B>vdragINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vdrag.h</SAMP> is included.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vdragCLASS"><HR><H4>vdragCLASS</H4></A>
+<PRE>
+        #define <B>vdragCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for drag classes. This
+macro expands to the contents of
+<CODE><A HREF="vdrag-x.html#vdragClass"><CODE>vdragClass</CODE></A></CODE>. <SAMP>SUPER</SAMP> is the type identifier of
+the class being declared (for example, <CODE><A HREF="vdrag-x.html#vdragClass"><CODE>vdragClass</CODE></A></CODE>). This
+type is used by the class's subclasses to refer to
+it. <SAMP>DRAG</SAMP> is the type identifier of instances of the class
+being declared (for example, <CODE>vdrag</CODE>). This macro should be
+used by drag subclasses to declare the contents of the drag class. This
+macro should come first in the subclass structure declaration.
+</DD></DL>
+<P>
+<A NAME="vdragEngineCLASS"><HR><H4>vdragEngineCLASS</H4></A>
+<PRE>
+        #define <B>vdragEngineCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for drag engine
+classes. This macro expands to the contents of
+<CODE><A HREF="vdrag-x.html#vdragEngineClass"><CODE>vdragEngineClass</CODE></A></CODE>. <SAMP>SUPER</SAMP> is the type
+identifier of the class being declared (for example,
+<CODE><A HREF="vdrag-x.html#vdragEngineClass"><CODE>vdragEngineClass</CODE></A></CODE>). This type is used by the class's
+subclasses to refer to it. <SAMP>ENGINE</SAMP> is the type identifier
+of instances of the class being declared (for example,
+<CODE>vdragEngine</CODE>). This macro should be used by drag engine
+subclasses to declare the contents of the drag engine class. This
+macro should come first in the subclass structure declaration.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

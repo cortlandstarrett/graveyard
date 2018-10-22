@@ -1,0 +1,1002 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vtimer prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vtimer prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vtimer-x.html#section_DataType">Types</A> [5]</TD>
+<TD><A HREF="vtimer-x.html#section_Function">Functions</A> [52]</TD>
+<TD><A HREF="vtimer-x.html#section_Message">Messages</A> [2]</TD>
+<TD><A HREF="vtimer-x.html#section_Constant">Constants</A> [1]</TD>
+<TD><A HREF="vtimer-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vtimer"><HR><H4>vtimer</H4></A>
+<PRE>
+        typedef ... <B>vtimer</B>;
+</PRE>
+
+<DL><DD>
+Defines a timer consisting of a period, a call-back procedure, and
+call-back data. A timer may be either one-shot or recurring. A timer may
+be synchronous or asynchronous with respect to other handlers.
+</DD></DL>
+<P>
+<A NAME="vtimerCallbackProc"><HR><H4>vtimerCallbackProc</H4></A>
+<PRE>
+        typedef ... <B>vtimerCallbackProc</B>;
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Describes a procedure that is called by a <CODE>vtimer</CODE> at
+periodic intervals. This deprecated type exists for backward compatibility. The
+recommended type is <CODE><A HREF="vtimer-x.html#vtimerNoteProc"><CODE>vtimerNoteProc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimerClass"><HR><H4>vtimerClass</H4></A>
+<PRE>
+        typedef ... <B>vtimerClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variable bindings for object of type
+<CODE>vtimerClass</CODE>. Classes declared with this type contain the
+same set of methods and variables as the default vtimer class, but the
+behavior of methods and the contents of variables can vary. This class
+type is derived from <CODE><A HREF="vobservable-x.html#vobservableClass"><CODE>vobservableClass</CODE></A></CODE>
+</DD></DL>
+<P>
+<A NAME="vtimerNoteProc"><HR><H4>vtimerNoteProc</H4></A>
+<PRE>
+        typedef ... <B>vtimerNoteProc</B>;
+</PRE>
+
+<DL><DD>
+Describes a notification procedure that is called by a
+<CODE>vtimer</CODE> at periodic intervals. Every time the
+<CODE>vtimer</CODE> fires, it sends the message
+<CODE><A HREF="vtimer-x.html#vtimerNOTIFY"><CODE>vtimerNOTIFY</CODE></A></CODE> to it. For more information 
+refer also to sections:
+
+<ul>
+<li><CODE><A HREF="vtimer-x.html#vtimerSetNotify"><CODE>vtimerSetNotify</CODE></A></CODE>
+<li><CODE>vtimerNOTFY</CODE>
+<li><CODE><A HREF="vtimer-x.html#vtimerStart"><CODE>vtimerStart</CODE></A></CODE>
+</ul>
+
+<P>
+Providing a notification procedure with <CODE><A HREF="vtimer-x.html#vtimerSetNotify"><CODE>vtimerSetNotify</CODE></A></CODE> is
+equivalent to overriding the <CODE><A HREF="vtimer-x.html#vtimerNOTIFY"><CODE>vtimerNOTIFY</CODE></A></CODE> message handler.
+</DD></DL>
+<P>
+<A NAME="vtimerSyncProc"><HR><H4>vtimerSyncProc</H4></A>
+<PRE>
+        typedef ... <B>vtimerSyncProc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a procedure responsible for synchronizing the Event
+class event queue with the window system event queue. When 
+synchronization is necessary, the message <CODE><A HREF="vtimer-x.html#vtimerSYNCHRONIZE"><CODE>vtimerSYNCHRONIZE</CODE></A></CODE>
+is sent to the <CODE>vtimer</CODE>. Synchronization may be
+necessary for timers with interactive visual effects, such as
+auto-scrolling. The default handler of this message
+calls the synchronization procedure. The procedure normally used for
+this purpose is <CODE><A HREF="vwindow-x.html#vwindowSyncEvents"><CODE>vwindowSyncEvents</CODE></A></CODE>. Refer also to the section 
+<CODE><A HREF="vtimer-x.html#vtimerSetSyncProc"><CODE>vtimerSetSyncProc</CODE></A></CODE>, and
+<CODE><A HREF="vtimer-x.html#vtimerSYNCHRONIZE"><CODE>vtimerSYNCHRONIZE</CODE></A></CODE>
+<P>
+Providing a synchronization procedure with
+<CODE><A HREF="vtimer-x.html#vtimerSetSyncProc"><CODE>vtimerSetSyncProc</CODE></A></CODE> is equivalent to overriding the
+<CODE><A HREF="vtimer-x.html#vtimerSYNCHRONIZE"><CODE>vtimerSYNCHRONIZE</CODE></A></CODE> message handler.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vtimerAssert"><HR><H4>vtimerAssert</H4></A>
+<PRE>
+        void <B>vtimerAssert</B>(
+                const vtimer * timer);
+</PRE>
+
+<DL><DD>
+Asserts the validity of the <CODE>vtimer</CODE>. Will call
+<CODE><A HREF="vdebug-x.html#vdebugAbort"><CODE>vdebugAbort</CODE></A></CODE> with an appropriate message if the timer is
+invalid. Otherwise does nothing. This is more fine grained than
+<CODE><A HREF="vtimer-x.html#vtimerValidate"><CODE>vtimerValidate</CODE></A></CODE>. Refer also to the section 
+<CODE><A HREF="vtimer-x.html#vtimerHandledAssert"><CODE>vtimerHandledAssert</CODE></A></CODE> 
+for more information.
+</DD></DL>
+<P>
+<A NAME="vtimerClone"><HR><H4>vtimerClone</H4></A>
+<PRE>
+        vtimer * <B>vtimerClone</B>(
+                const vtimer * timer);
+</PRE>
+
+<DL><DD>
+Creates a new <CODE>vtimer</CODE> whose contents are identical to the
+<CODE>vtimer</CODE> <SAMP>timer</SAMP>. Cloning a running timer is
+inadvisable. Doing so will generate a warning and will result in a
+<B>non-running</B> <CODE>vtimer</CODE>.
+<P>
+When debugging is enabled, calls to this function are replaced with
+calls to <CODE><A HREF="vtimer-x.html#vtimerCloneDebug"><CODE>vtimerCloneDebug</CODE></A></CODE> passing it the "site" of the
+clone function call.
+</DD></DL>
+<P>
+<A NAME="vtimerCloneDebug"><HR><H4>vtimerCloneDebug</H4></A>
+<PRE>
+        vtimer * <B>vtimerCloneDebug</B>(
+                const vtimer * timer,
+                const char * tag,
+                const char * file,
+                int line);
+</PRE>
+
+<DL><DD>
+Creates a new <CODE>vtimer</CODE> whose contents are identical to the
+<CODE>vtimer</CODE> <SAMP>timer</SAMP>. Cloning a running timer is
+inadvisable. Doing so will generate a warning and will result in a
+<B>non-running</B> <CODE>vtimer</CODE>. <SAMP>tag</SAMP>,
+<SAMP>file</SAMP>, and <SAMP>line</SAMP> define the "site" of the
+clone for debugging purposes. <SAMP>tag</SAMP> is the tag of the
+module cloning the <CODE>vtimer</CODE> (a <CODE>vmemTag</CODE> from
+somewhere), <SAMP>file</SAMP> is the source file that contains the clone
+function call, and <SAMP>line</SAMP> is the line number of the function
+call within the source file.
+<P>
+When debugging is disabled, calls to this function are replaced with
+calls to <CODE>vtimerClone</CODE> (discarding the "site" of the clone
+function call.)
+</DD></DL>
+<P>
+<A NAME="vtimerCopy"><HR><H4>vtimerCopy</H4></A>
+<PRE>
+        void <B>vtimerCopy</B>(
+                const vtimer * from,
+                vtimer * to);
+</PRE>
+
+<DL><DD>
+Copies the contents of the <CODE>vtimer</CODE> <SAMP>from</SAMP> into
+the already-initialized <CODE>vtimer</CODE> <SAMP>to</SAMP>. Copying a
+running timer is inadvisable. Doing so will generate a warning and will
+result in a <B>non-running</B> <CODE>vtimer</CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimerCopyInit"><HR><H4>vtimerCopyInit</H4></A>
+<PRE>
+        void <B>vtimerCopyInit</B>(
+                const vtimer * from,
+                vtimer * to);
+</PRE>
+
+<DL><DD>
+Copies the contents of one timer into an uninitialized
+timer, initializing the destination in the process. Copying
+a running timer is unadvisable and will generate a warning
+and will result in a <B>non-running</B> timer.
+</DD></DL>
+<P>
+<A NAME="vtimerCopyInitDebug"><HR><H4>vtimerCopyInitDebug</H4></A>
+<PRE>
+        void <B>vtimerCopyInitDebug</B>(
+                const vtimer * from,
+                vtimer * to,
+                const char * tag,
+                const char * file,
+                int line);
+</PRE>
+
+<DL><DD>
+Copies the contents of the <CODE>vtimer</CODE> <SAMP>from</SAMP> into the
+uninitialized <CODE>vtimer</CODE> <SAMP>to</SAMP>, initializing
+<SAMP>to</SAMP> in the process. Copying a running timer is inadvisable.
+Doing so will generate a warning and will result in a <B>non-running</B>
+<CODE>vtimer</CODE>. <SAMP>tag</SAMP>, <SAMP>file</SAMP>, and
+<SAMP>line</SAMP> define the "site" of the copy for debugging
+purposes.  <SAMP>tag</SAMP> is the tag of the module copying the
+<CODE>vtimer</CODE> (a <CODE>vmemTag</CODE> from somewhere),
+<SAMP>file</SAMP> is the source file that contains the copy function
+call, and <SAMP>line</SAMP> is the line number of the function call
+within the source file.
+<P>
+When debugging is disabled, calls to this function are replaced with
+calls to <CODE>vtimerCopyInit</CODE> discarding the "site" of the copy
+call.
+</DD></DL>
+<P>
+<A NAME="vtimerCreate"><HR><H4>vtimerCreate</H4></A>
+<PRE>
+        vtimer * <B>vtimerCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new <CODE>vtimer</CODE> object and returns a pointer to it.
+The new <CODE>vtimer</CODE> is created as syncrhonous and one-shot with
+a random period, no call-back and no data.
+<P>
+When debugging is enabled, calls to this function are replaced with
+calls to <CODE><A HREF="vtimer-x.html#vtimerCreateDebug"><CODE>vtimerCreateDebug</CODE></A></CODE> passing in the "site" of the
+create function call.
+</DD></DL>
+<P>
+<A NAME="vtimerCreateDebug"><HR><H4>vtimerCreateDebug</H4></A>
+<PRE>
+        vtimer * <B>vtimerCreateDebug</B>(
+                const char * tag,
+                const char * file,
+                int line);
+</PRE>
+
+<DL><DD>
+Creates a new <CODE>vtimer</CODE> object and returns a pointer to it.
+The new <CODE>vtimer</CODE> is created as syncrhonous and one-shot with
+a random period, no call-back and no data. <SAMP>tag</SAMP>,
+<SAMP>file</SAMP>, and <SAMP>line</SAMP> define the "site" of the
+create for debugging purposes. <SAMP>tag</SAMP> is the tag of the
+module creating the <CODE>vtimer</CODE> (a <CODE>vmemTag</CODE> from
+somewhere), <SAMP>file</SAMP> is the source file that contains the
+create function call, and <SAMP>line</SAMP> is the line number of the
+function call within the source file.
+<P>
+When debugging is disabled, calls to this function are replaced with
+calls to <CODE>vtimerCreate</CODE> discarding the "site" of the create
+function call.
+</DD></DL>
+<P>
+<A NAME="vtimerCreateOfClass"><HR><H4>vtimerCreateOfClass</H4></A>
+<PRE>
+        vtimer * <B>vtimerCreateOfClass</B>(
+                vtimerClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new <CODE>vtimer</CODE> object of the class
+<SAMP>clas</SAMP>. <SAMP>clas</SAMP> should be a subclass of
+<CODE>vtimer</CODE>'s class. Refer also to the section
+<CODE><A HREF="vtimer-x.html#vtimerGetDefaultClass"><CODE>vtimerGetDefaultClass</CODE></A></CODE>. The new <CODE>vtimer</CODE> is
+created as synchronous and one-shot with a random period, no call-back,
+and no data.
+</DD></DL>
+<P>
+<A NAME="vtimerDestroy"><HR><H4>vtimerDestroy</H4></A>
+<PRE>
+        void <B>vtimerDestroy</B>(
+                vtimer * timer);
+</PRE>
+
+<DL><DD>
+Destroys the <CODE>vtimer</CODE> to free up any resources it was
+using. All <CODE>vtimers</CODE> must be destroyed when they are finished
+being used, regardless of how they were created or initialized.
+</DD></DL>
+<P>
+<A NAME="vtimerDump"><HR><H4>vtimerDump</H4></A>
+<PRE>
+        void <B>vtimerDump</B>(
+                const vtimer * timer,
+                FILE * stream);
+</PRE>
+
+<DL><DD>
+Print the contents of the <CODE>vtimer</CODE> in to the file
+<SAMP>stream</SAMP> in user readable form. This function is intended for
+debugging, and only has no effect if debugging is not enabled.
+</DD></DL>
+<P>
+<A NAME="vtimerGetCallback"><HR><H4>vtimerGetCallback</H4></A>
+<PRE>
+        vtimerNoteProc <B>vtimerGetCallback</B>(
+                vtimer * timer);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Deprecated form of <CODE><A HREF="vtimer-x.html#vtimerGetNotify"><CODE>vtimerGetNotify</CODE></A></CODE>. Returns the current
+notification procedure of the <CODE>vtimer</CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimerGetClass"><HR><H4>vtimerGetClass</H4></A>
+<PRE>
+        vtimerClass * <B>vtimerGetClass</B>(
+                vtimer * timer);
+</PRE>
+
+<DL><DD>
+Returns the <CODE><A HREF="vtimer-x.html#vtimerClass"><CODE>vtimerClass</CODE></A></CODE> of the <CODE>vtimer</CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimerGetData"><HR><H4>vtimerGetData</H4></A>
+<PRE>
+        void * <B>vtimerGetData</B>(
+                const vtimer * timer);
+</PRE>
+
+<DL><DD>
+Gets the client data associated with the <CODE>vtimer</CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimerGetDefaultClass"><HR><H4>vtimerGetDefaultClass</H4></A>
+<PRE>
+        vtimerClass * <B>vtimerGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the <CODE><A HREF="vtimer-x.html#vtimerClass"><CODE>vtimerClass</CODE></A></CODE> used by <CODE><A HREF="vtimer-x.html#vtimerCreate"><CODE>vtimerCreate</CODE></A></CODE>
+and <CODE><A HREF="vtimer-x.html#vtimerInit"><CODE>vtimerInit</CODE></A></CODE) to create <CODE>vtimer</CODE> objects.
+</DD></DL>
+<P>
+<A NAME="vtimerGetInstance"><HR><H4>vtimerGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vtimerGetInstance</B>(
+                vtimer * timer);
+</PRE>
+
+<DL><DD>
+Returns the underlying <CODE><A HREF="vinstance-x.html#vinstance"><CODE>vinstance</CODE></A></CODE> of the <CODE>vtimer</CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimerGetLoadable"><HR><H4>vtimerGetLoadable</H4></A>
+<PRE>
+        vloadable * <B>vtimerGetLoadable</B>(
+                vtimer * timer);
+</PRE>
+
+<DL><DD>
+Returns the underlying <CODE><A HREF="vloadable-x.html#vloadable"><CODE>vloadable</CODE></A></CODE> of the <CODE>vtimer</CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimerGetNotify"><HR><H4>vtimerGetNotify</H4></A>
+<PRE>
+        vtimerNoteProc <B>vtimerGetNotify</B>(
+                const vtimer * timer);
+</PRE>
+
+<DL><DD>
+Returns the notification procedure associated with the
+<CODE>vtimer</CODE>. Refer also to the sections <CODE><A HREF="vtimer-x.html#vtimerSetNotify"><CODE>vtimerSetNotify</CODE></A></CODE> and
+<CODE><A HREF="vtimer-x.html#vtimerNotify"><CODE>vtimerNotify</CODE></A></CODE> for more information.
+</DD></DL>
+<P>
+<A NAME="vtimerGetObservable"><HR><H4>vtimerGetObservable</H4></A>
+<PRE>
+        vobservable * <B>vtimerGetObservable</B>(
+                vtimer * timer);
+</PRE>
+
+<DL><DD>
+Returns the underlying <CODE><A HREF="vobservable-x.html#vobservable"><CODE>vobservable</CODE></A></CODE> of the <CODE>vtimer</CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimerGetPeriodNanoseconds"><HR><H4>vtimerGetPeriodNanoseconds</H4></A>
+<PRE>
+        unsigned long <B>vtimerGetPeriodNanoseconds</B>(
+                const vtimer * timer);
+</PRE>
+
+<DL><DD>
+Returns the number of nanoseconds in the <CODE>vtimer</CODE>'s current
+period.
+</DD></DL>
+<P>
+<A NAME="vtimerGetPeriodSeconds"><HR><H4>vtimerGetPeriodSeconds</H4></A>
+<PRE>
+        unsigned long <B>vtimerGetPeriodSeconds</B>(
+                const vtimer * timer);
+</PRE>
+
+<DL><DD>
+Returns the number of seconds in the <CODE>timer<CODE>'s current
+period.
+</DD></DL>
+<P>
+<A NAME="vtimerGetPriority"><HR><H4>vtimerGetPriority</H4></A>
+<PRE>
+        int <B>vtimerGetPriority</B>(
+                const vtimer * timer);
+</PRE>
+
+<DL><DD>
+Returns the current priority of a <CODE>timer</CODE>. Refer also to the sections
+<CODE><A HREF="vevent-x.html#veventSetPriority"><CODE>veventSetPriority</CODE></A></CODE> and <CODE><A HREF="vtimer-x.html#vtimerSetPriority"><CODE>vtimerSetPriority</CODE></A></CODE> 
+for more information.
+</DD></DL>
+<P>
+<A NAME="vtimerGetSyncProc"><HR><H4>vtimerGetSyncProc</H4></A>
+<PRE>
+        vtimerSyncProc <B>vtimerGetSyncProc</B>(
+                const vtimer * timer);
+</PRE>
+
+<DL><DD>
+Returns the synchronization procedure for the <CODE>vtimer</CODE>
+<SAMP>timer</SAMP>, or <SAMP>NULL</SAMP> if the timer is unsynchronized.
+The procedure normally used for event queue synchronization is
+<CODE><A HREF="vwindow-x.html#vwindowSyncEvents"><CODE>vwindowSyncEvents</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimerHandledAssert"><HR><H4>vtimerHandledAssert</H4></A>
+<PRE>
+        void <B>vtimerHandledAssert</B>(
+                const vtimer * timer,
+                vdebugAssertionHandler handler,
+                void * data);
+</PRE>
+
+<DL><DD>
+Asserts the validity of the <CODE>vtimer</CODE>. Same as
+<CODE><A HREF="vtimer-x.html#vtimerAssert"><CODE>vtimerAssert</CODE></A></CODE>, except that this will call the given handler
+if the timer is invalid. This is more fine grained than
+<CODE><A HREF="vtimer-x.html#vtimerValidate"><CODE>vtimerValidate</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimerInit"><HR><H4>vtimerInit</H4></A>
+<PRE>
+        void <B>vtimerInit</B>(
+                vtimer * timer);
+</PRE>
+
+<DL><DD>
+Initializes the uninitialized <CODE>vtimer</CODE> into a valid
+<CODE>vtimer</CODE> of the default <CODE><A HREF="vtimer-x.html#vtimerClass"><CODE>vtimerClass</CODE></A></CODE>.
+The <CODE>vtimer</CODE> is made synchronous and one-shot with a random
+period, no call-back, and no data.
+</DD></DL>
+<P>
+<A NAME="vtimerInitOfClass"><HR><H4>vtimerInitOfClass</H4></A>
+<PRE>
+        void <B>vtimerInitOfClass</B>(
+                vtimer * timer,
+                vtimerClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes the uninitialized <CODE>vtimer</CODE> into a valid
+instance of the <CODE><A HREF="vtimer-x.html#vtimerClass"><CODE>vtimerClass</CODE></A></CODE> <SAMP>clas</SAMP>. The
+<CODE>vtimer</CODE> is made synchronous and one-shot with a random
+period, no call-back, and no data.
+</DD></DL>
+<P>
+<A NAME="vtimerIsActive"><HR><H4>vtimerIsActive</H4></A>
+<PRE>
+        vbool <B>vtimerIsActive</B>(
+                const vtimer * timer);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the <CODE>vtimer</CODE> is currently
+running; <SAMP>FALSE</SAMP> otherwise.
+</DD></DL>
+<P>
+<A NAME="vtimerIsAsynchronous"><HR><H4>vtimerIsAsynchronous</H4></A>
+<PRE>
+        vbool <B>vtimerIsAsynchronous</B>(
+                const vtimer * timer);
+</PRE>
+
+<DL><DD>
+Returns whether the <CODE>vtimer</CODE> is currently set to be an
+asynchronous timer. Refer also to the section <CODE><A HREF="vtimer-x.html#vtimerSetAsynchronous"><CODE>vtimerSetAsynchronous</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimerIsRecurrent"><HR><H4>vtimerIsRecurrent</H4></A>
+<PRE>
+        vbool <B>vtimerIsRecurrent</B>(
+                const vtimer * timer);
+</PRE>
+
+<DL><DD>
+Returns whether the <CODE>vtimer</CODE> is currently set to be a
+recurring timer. It returns <SAMP>TRUE</SAMP> if it is a recurring
+timer, <SAMP>FALSE</SAMP> if it is a one-shot timer.
+</DD></DL>
+<P>
+<A NAME="vtimerLoad"><HR><H4>vtimerLoad</H4></A>
+<PRE>
+        vtimer * <B>vtimerLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads and returns a <CODE>vtimer</CODE> from the <CODE>vreasource</CODE>
+<SAMP>resource</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vtimerLoadInit"><HR><H4>vtimerLoadInit</H4></A>
+<PRE>
+        void <B>vtimerLoadInit</B>(
+                vtimer * timer,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a <CODE>vtimer</CODE> from the <CODE>vreasource</CODE>
+<SAMP>resource</SAMP> and stores it in the uninitialized
+<CODE>vtimer</CODE> <SAMP>timer</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vtimerNotify"><HR><H4>vtimerNotify</H4></A>
+<PRE>
+        void <B>vtimerNotify</B>(
+                vtimer * timer);
+</PRE>
+
+<DL><DD>
+Called when the <CODE>vtimer</CODE> fires. Subclasses should either
+override this member function or provide a function with
+<CODE><A HREF="vtimer-x.html#vtimerSetNotify"><CODE>vtimerSetNotify</CODE></A></CODE> to add a notification procedure that will
+be called when the timer fires.
+<P>
+The default implementation calls the notification procedure set by
+<CODE><A HREF="vtimer-x.html#vtimerSetNotify"><CODE>vtimerSetNotify</CODE></A></CODE>, if any. This function is implemented 
+by sending the message <A HREF="vtimer-x.html#vtimerNOTIFY"><CODE>vtimerNOTIFY</CODE></A> to the <CODE>vtimer</CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimerRestart"><HR><H4>vtimerRestart</H4></A>
+<PRE>
+        void <B>vtimerRestart</B>(
+                vtimer * timer);
+</PRE>
+
+<DL><DD>
+Restarts the <CODE>vtimer</CODE> if it is running, and starts it if it
+is not running. This is different from <CODE><A HREF="vtimer-x.html#vtimerStart"><CODE>vtimerStart</CODE></A></CODE>, which
+does nothing when called on a running timer.
+<P>
+When debugging is enabled, calls to this function are replaced with
+calls to <CODE><A HREF="vtimer-x.html#vtimerRestartDebug"><CODE>vtimerRestartDebug</CODE></A></CODE> (passing it the "site" of the
+restart function call.)
+</DD></DL>
+<P>
+<A NAME="vtimerRestartDebug"><HR><H4>vtimerRestartDebug</H4></A>
+<PRE>
+        void <B>vtimerRestartDebug</B>(
+                vtimer * timer,
+                const char * tag,
+                const char * file,
+                int line);
+</PRE>
+
+<DL><DD>
+Restarts the <CODE>vtimer</CODE> if it is running, and starts it if it
+is not running. This is different from <CODE><A HREF="vtimer-x.html#vtimerStart"><CODE>vtimerStart</CODE></A></CODE>, which
+does nothing when called on a running timer. <SAMP>tag</SAMP>,
+<SAMP>file</SAMP>, and <SAMP>line</SAMP> define the "site" of the
+restart for debugging purposes. <SAMP>tag</SAMP> is the tag of the
+module restarting the <CODE>vtimer</CODE> (a <CODE>vmemTag</CODE> from
+somewhere), <SAMP>file</SAMP> is the source file that contains the
+restart function call, and <SAMP>line</SAMP> is the line number of the
+function call within the source file.
+<P>
+When debugging is disabled, calls to this function are replaced with
+calls to <CODE>vtimerRestart</CODE> (discarding the "site" of the
+restart function call.)
+</DD></DL>
+<P>
+<A NAME="vtimerSetAsynchronous"><HR><H4>vtimerSetAsynchronous</H4></A>
+<PRE>
+        void <B>vtimerSetAsynchronous</B>(
+                vtimer * timer);
+</PRE>
+
+<DL><DD>
+Sets the <CODE>vtimer</CODE> to be asynchronous. An asynchronous timer
+calls its Notify procedure as soon as the timer expires instead of
+waiting until the currently executing Notify procedure completes. This
+means that this timer's Notify procedure may be called while another
+Notify procedure is in the middle of a statement deep inside itself.
+Extreme care must be taken when using asynchronous timers.
+</DD></DL>
+<P>
+<A NAME="vtimerSetCallback"><HR><H4>vtimerSetCallback</H4></A>
+<PRE>
+        void <B>vtimerSetCallback</B>(
+                vtimer * timer,
+                vtimerNoteProc callback);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Deprecated form of <CODE><A HREF="vtimer-x.html#vtimerSetNotify"><CODE>vtimerSetNotify</CODE></A></CODE>. Sets the current
+notification procedure of the <CODE>vtimer</CODE> to
+<SAMP>callback</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vtimerSetData"><HR><H4>vtimerSetData</H4></A>
+<PRE>
+        void <B>vtimerSetData</B>(
+                vtimer * timer,
+                void * data);
+</PRE>
+
+<DL><DD>
+Sets the client data associated with the <CODE>vtimer</CODE> to
+<SAMP>data</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vtimerSetNotify"><HR><H4>vtimerSetNotify</H4></A>
+<PRE>
+        void <B>vtimerSetNotify</B>(
+                vtimer * timer,
+                vtimerNoteProc notify);
+</PRE>
+
+<DL><DD>
+Sets the notification procedure of the <CODE>vtimer</CODE>. The
+notification procedure is called by the default implementation of the
+<CODE><A HREF="vtimer-x.html#vtimerNOTIFY"><CODE>vtimerNOTIFY</CODE></A></CODE> message. Refer also to the section
+<CODE><A HREF="vtimer-x.html#vtimerGetNotify"><CODE>vtimerGetNotify</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimerSetOneShot"><HR><H4>vtimerSetOneShot</H4></A>
+<PRE>
+        void <B>vtimerSetOneShot</B>(
+                vtimer * timer);
+</PRE>
+
+<DL><DD>
+Sets the <CODE>vtimer</CODE> to be non-recurrent. A non-recurrent 
+<CODE>vtimer<CODE> only fires once and then waits until it is
+<CODE><A HREF="vtimer-x.html#vtimerStart"><CODE>vtimerStart</CODE></A></CODE>ed again or some other event occurs.
+</DD></DL>
+<P>
+<A NAME="vtimerSetPeriod"><HR><H4>vtimerSetPeriod</H4></A>
+<PRE>
+        void <B>vtimerSetPeriod</B>(
+                vtimer * timer,
+                unsigned long seconds,
+                unsigned long nanoseconds);
+</PRE>
+
+<DL><DD>
+Sets the period of the <CODE>vtimer</CODE> to the specified seconds plus
+nanoseconds. The period specifies the amount of time that will elapse
+after the timer is started before it will fire.
+</DD></DL>
+<P>
+<A NAME="vtimerSetPriority"><HR><H4>vtimerSetPriority</H4></A>
+<PRE>
+        void <B>vtimerSetPriority</B>(
+                vtimer * timer,
+                int priority);
+</PRE>
+
+<DL><DD>
+Sets the priority of the <CODE>vtimer</CODE>. Refer also to the sections
+<CODE><A HREF="vevent-x.html#veventSetPriority"><CODE>veventSetPriority</CODE></A></CODE> and <CODE><A HREF="vtimer-x.html#vtimerGetPriority"><CODE>vtimerGetPriority</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimerSetRecurrent"><HR><H4>vtimerSetRecurrent</H4></A>
+<PRE>
+        void <B>vtimerSetRecurrent</B>(
+                vtimer * timer);
+</PRE>
+
+<DL><DD>
+Sets the <CODE>vtimer</CODE> as recurrent. A recurrent timer starts
+again as soon as the <CODE>vtimer</CODE> finishes handling the
+<CODE><A HREF="vtimer-x.html#vtimerNOTIFY"><CODE>vtimerNOTIFY</CODE></A></CODE> message it receives when the timer fires.
+</DD></DL>
+<P>
+<A NAME="vtimerSetSyncProc"><HR><H4>vtimerSetSyncProc</H4></A>
+<PRE>
+        void <B>vtimerSetSyncProc</B>(
+                vtimer * timer,
+                vtimerSyncProc syncProc);
+</PRE>
+
+<DL><DD>
+Changes the synchronization procedure for the <CODE>vtimer</CODE to
+<SAMP>syncProc</SAMP>. The procedure normally used for event queue
+synchronization is <CODE>vwindowSyncEvents</CODE>. If <SAMP>proc</SAMP>
+is <SAMP>NULL</SAMP>, the timer is unsynchronized.
+</DD></DL>
+<P>
+<A NAME="vtimerSetSynchronous"><HR><H4>vtimerSetSynchronous</H4></A>
+<PRE>
+        void <B>vtimerSetSynchronous</B>(
+                vtimer * timer);
+</PRE>
+
+<DL><DD>
+Sets the <CODE>vtimer</CODE> to be synchronous. A synchronous timer
+will wait for a currently executing observation procedure to complete
+before allowing the timer to fire again. Refer also to the section
+<CODE><A HREF="vtimer-x.html#vtimerSetAsynchronous"><CODE>vtimerSetAsynchronous</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimerStart"><HR><H4>vtimerStart</H4></A>
+<PRE>
+        void <B>vtimerStart</B>(
+                vtimer * timer);
+</PRE>
+
+<DL><DD>
+Initializes the countdown of a timer to its period and
+starts the countdown. When the countdown completes, the timer will
+fire, sending the <CODE><A HREF="vtimer-x.html#vtimerNOTIFY"><CODE>vtimerNOTIFY</CODE></A></CODE> message to the
+<CODE>vtimer</CODE>. Does nothing if the timer is already running. Refer 
+also to the section <CODE><A HREF="vtimer-x.html#vtimer"><CODE>vtimer</CODE></A></CODE>.
+<P>
+When debugging is enabled, calls to this function are replaced with
+calls to <CODE><A HREF="vtimer-x.html#vtimerStartDebug"><CODE>vtimerStartDebug</CODE></A></CODE> (passing it the "site" of the
+start function call).
+</DD></DL>
+<P>
+<A NAME="vtimerStartDebug"><HR><H4>vtimerStartDebug</H4></A>
+<PRE>
+        void <B>vtimerStartDebug</B>(
+                vtimer * timer,
+                const char * tag,
+                const char * file,
+                int line);
+</PRE>
+
+<DL><DD>
+Initializes the countdown of a timer to its period and
+starts the countdown. When the countdown completes, the timer will
+fire, sending the <CODE><A HREF="vtimer-x.html#vtimerNOTIFY"><CODE>vtimerNOTIFY</CODE></A></CODE> message to the
+<CODE>vtimer</CODE>. Does nothing if the timer is already running. See
+also <CODE><A HREF="vtimer-x.html#vtimer"><CODE>vtimer</CODE></A></CODE>. <SAMP>tag</SAMP>, <SAMP>file</SAMP>,
+and <SAMP>line</SAMP> define the "site" of the start for debugging
+purposes. <SAMP>tag</SAMP> is the tag of the module starting the
+<CODE>vtimer</CODE> (a <CODE>vmemTag</CODE> from somewhere),
+<SAMP>file</SAMP> is the source file that contains the start function
+call, and <SAMP>line</SAMP> is the line number of the function call
+within the source file.
+<P>
+When debugging is disabled, calls to this function are replaced with calls
+to <CODE>vtimerStart</CODE> (discarding the "site" of the start function
+call).
+</DD></DL>
+<P>
+<A NAME="vtimerStartup"><HR><H4>vtimerStartup</H4></A>
+<PRE>
+        void <B>vtimerStartup</B>();
+</PRE>
+
+<DL><DD>
+Starts the vtimer module. Forces it to register all global hooks.
+</DD></DL>
+<P>
+<A NAME="vtimerStop"><HR><H4>vtimerStop</H4></A>
+<PRE>
+        void <B>vtimerStop</B>(
+                vtimer * timer);
+</PRE>
+
+<DL><DD>
+Stops the countdown for the <CODE>vtimer</CODE>. 
+When debugging is enabled, calls to this method are replaced with calls
+to <CODE><A HREF="vtimer-x.html#vtimer"><CODE>vtimer</CODE></A></CODE> (passing it the "site" of the stop
+method call.)
+</DD></DL>
+<P>
+<A NAME="vtimerStopDebug"><HR><H4>vtimerStopDebug</H4></A>
+<PRE>
+        void <B>vtimerStopDebug</B>(
+                vtimer * timer,
+                const char * tag,
+                const char * file,
+                int line);
+</PRE>
+
+<DL><DD>
+Stops the countdown for the <CODE>vtimer</CODE>. <SAMP>tag</SAMP>,
+<SAMP>file</SAMP>, and <SAMP>line</SAMP> define the "site" of the
+stop for debugging purposes. <SAMP>tag</SAMP> is the tag of the
+module stopping the <CODE>vtimer</CODE> (a <CODE>vmemTag</CODE> from
+somewhere), <SAMP>file</SAMP> is the source file that contains the stop
+function call, and <SAMP>line</SAMP> is the line number of the function
+call within the source file. When debugging is disabled, 
+calls to this function are replaced with calls
+to <CODE>vtimerStop</CODE> (discarding the "site" of the stop function
+call.)
+</DD></DL>
+<P>
+<A NAME="vtimerStore"><HR><H4>vtimerStore</H4></A>
+<PRE>
+        void <B>vtimerStore</B>(
+                vtimer * timer,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Writes the <CODE>vtimer</CODE> to the <CODE><A HREF="vresource-x.html#vresource"><CODE>vresource</CODE></A></CODE>
+<SAMP>resource</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vtimerSynchronize"><HR><H4>vtimerSynchronize</H4></A>
+<PRE>
+        void <B>vtimerSynchronize</B>(
+                vtimer * timer);
+</PRE>
+
+<DL><DD>
+Called when the <CODE>vtimer</CODE> fires and event queue
+synchronization is required. Subclasses should either override this
+member function or provide a global function or static member function
+with <CODE><A HREF="vtimer-x.html#vtimer"><CODE>vtimer</CODE></A></CODE> to add a synchronization
+procedure.
+<P>
+The default implementation calls the synchronization procedure set by
+<CODE><A HREF="vtimer-x.html#vtimer"><CODE>vtimer</CODE></A></CODE>, if any. 
+This function is implemented by sending the message <A HREF="vtimer-x.html#vtimerSYNCHRONIZE"><CODE>vtimerSYNCHRONIZE</CODE></A> to
+the <CODE>vtimer</CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimerValidate"><HR><H4>vtimerValidate</H4></A>
+<PRE>
+        vbool <B>vtimerValidate</B>(
+                const vtimer * timer);
+</PRE>
+
+<DL><DD>
+Returns<samp>vTRUE</samp>
+<P>
+if
+<P>
+the
+<P>
+<CODE>vtimer</CODE>
+<P>
+is
+<P>
+valid.
+<P>
+
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vtimerNOTIFY"><HR><H4>vtimerNOTIFY</H4></A>
+<PRE>
+        &lt;<B>vtimerNOTIFY</B>&gt;
+</PRE>
+
+<DL><DD>
+Called when the <CODE>vtimer</CODE> fires. Subclasses should either
+override this member function or provide a function with
+<CODE><A HREF="vtimer-x.html#vtimerSetNotify"><CODE>vtimerSetNotify</CODE></A></CODE> to add a notification procedure that will
+be called when the timer fires.
+<P>
+The default implementation calls the notification procedure set by
+<CODE><A HREF="vtimer-x.html#vtimerSetNotify"><CODE>vtimerSetNotify</CODE></A></CODE>, if any. The function entry point 
+<CODE><A HREF="vtimer-x.html#vtimerNotify"><CODE>vtimerNotify</CODE></A></CODE> is implemented by
+sending this message to the <CODE>vtimer</CODE>.
+</DD></DL>
+<P>
+<A NAME="vtimerSYNCHRONIZE"><HR><H4>vtimerSYNCHRONIZE</H4></A>
+<PRE>
+        &lt;<B>vtimerSYNCHRONIZE</B>&gt;
+</PRE>
+
+<DL><DD>
+Called when the <CODE>vtimer</CODE> fires and event queue
+synchronization is required. Subclasses should either override this
+member function or provide a global function or static member function
+with <CODE><A HREF="vtimer-x.html#vtimer"><CODE>vtimer</CODE></A></CODE> to add a synchronization
+procedure.
+<P>
+The default implementation calls the synchronization procedure set by
+<CODE><A HREF="vtimer-x.html#vtimer"><CODE>vtimer</CODE></A></CODE>, if any. 
+The function entry point <CODE><A HREF="vtimer-x.html#vtimerSynchronize"><CODE>vtimerSynchronize</CODE></A></CODE> is implemented
+by sending this message to the <CODE>vtimer</CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vtimerINCLUDED"><HR><H4>vtimerINCLUDED</H4></A>
+<PRE>
+        <B>vtimerINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vtimerHEADER</SAMP> is included.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vtimerCLASS"><HR><H4>vtimerCLASS</H4></A>
+<PRE>
+        #define <B>vtimerCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for <CODE>vtimer</CODE>
+classes. This macro expands to the contents of
+<CODE><A HREF="vtimer-x.html#vtimerClass"><CODE>vtimerClass</CODE></A></CODE>. <SAMP>SUPER</SAMP> is the type identifier of
+the class being declared; for examples, <CODE><A HREF="vtimer-x.html#vtimerClass"><CODE>vtimerClass</CODE></A></CODE>. This
+type is used by the class's subclasses.
+<SAMP>OBJECT</SAMP> is the type identifier of instances of the class
+being declared; for example, <CODE>vtimer</CODE>.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

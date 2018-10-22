@@ -1,0 +1,95 @@
+#!/bin/sh
+#==========================================================================
+#
+# File:      $RCSfile: create_prv_and_pub,v $
+# Version:   $Revision: 1.9 $
+# Modified:  $Date: 2013/01/10 23:42:20 $
+#
+# (c) Copyright 1992-2013 by Mentor Graphics Corp. All rights reserved.
+#
+#==========================================================================
+# This document contains information proprietary and confidential to
+# Mentor Graphics Corp., and is not for external distribution.
+#==========================================================================
+#
+# This script creates a private BP build structure.
+#
+# Parameters:
+#   $1 - Platform for which this build is intended
+#   $2 - Version for which this build is intended
+
+set -u
+
+if [ $# -lt 2 ]; then
+  echo "Usage:
+   `basename $0` <platform> <version>
+"
+  exit 2
+fi
+
+PLATFORM=$1
+export PLATFORM
+VERSION=$2
+export VERSION
+shift
+shift
+
+# Include file with customizable build information
+this_path="`dirname $0`"
+if [ "$this_path" = "." ]; then
+  this_path="`pwd`"
+fi
+
+HOST_INFO_INCLUDE=$this_path/get_host_platform.inc
+. $HOST_INFO_INCLUDE
+
+case $RUNNING_PLATFORM in
+  win32 )
+    echo "You cannot run $0 on Windows NT"
+    exit 2
+    ;;
+esac
+
+BUILD_INCLUDE=$this_path/build_vars.inc
+. $BUILD_INCLUDE
+
+# Assure the directories exist
+mkdir -p $BUILD_DIR
+mkdir -p $LOG_DIR
+mkdir -p $SCHEMA_DIR
+
+if [ ! -d $BP_PRV_SRC ]; then
+  dir_down="`dirname $BP_PRV_SRC`"
+  mkdir -p $dir_down
+  mkdir -p $BP_PRV/source/bp
+  rm -f $BP_PRV_SRC
+  ln -s $BP_PRV/source/bp $BP_PRV_SRC
+fi
+
+if [ ! -d $BP_PRV_PRD ]; then
+  dir_down="`dirname $BP_PRV_PRD`"
+  mkdir -p $dir_down
+  mkdir -p $BP_PRV/prod/bp$VERSION
+  rm -f $BP_PRV_PRD
+  ln -s $BP_PRV/prod/bp$VERSION $BP_PRV_PRD
+fi
+
+if [ ! -d $BP_PUB_SRC ]; then
+  dir_down="`dirname $BP_PUB_SRC`"
+  mkdir -p $dir_down
+  mkdir -p $BP_PUB/source/bp
+  rm -f $BP_PUB_SRC
+  ln -s $BP_PUB/source/bp $BP_PUB_SRC
+fi
+
+if [ ! -d $BP_PUB_PRD ]; then
+  dir_down="`dirname $BP_PUB_PRD`"
+  mkdir -p $dir_down
+  mkdir -p $BP_PUB/prod/bp$VERSION
+  rm -f $BP_PUB_PRD
+  ln -s $BP_PUB/prod/bp$VERSION $BP_PUB_PRD
+fi
+
+echo "Private and public build directories are linked with source:
+ $BP_PRV->$BP_PRV_SRC and $BP_PRV_PRD
+ $BP_PUB->$BP_PUB_SRC and $BP_PUB_PRD"

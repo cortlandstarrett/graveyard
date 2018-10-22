@@ -1,0 +1,2551 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vnum prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vnum prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vnum-x.html#section_DataType">Types</A> [5]</TD>
+<TD><A HREF="vnum-x.html#section_Function">Functions</A> [127]</TD>
+<TD></TD>
+<TD><A HREF="vnum-x.html#section_Constant">Constants</A> [9]</TD>
+<TD><A HREF="vnum-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vnumDigitSet"><HR><H4>vnumDigitSet</H4></A>
+<PRE>
+        typedef ... <B>vnumDigitSet</B>;
+</PRE>
+
+<DL><DD>
+Denotes an object that contains a set of digits for a
+particular base of number. The number of digits varies
+according to the base of representation, and the digits
+themselves may vary according to cultural variations.
+Default internationalizeddigit sets are provided, but you
+can create your own as well.
+</DD></DL>
+<P>
+<A NAME="vnumFormat"><HR><H4>vnumFormat</H4></A>
+<PRE>
+        typedef ... <B>vnumFormat</B>;
+</PRE>
+
+<DL><DD>
+Denotes an object that contains information about how to
+represent a number textually. It contains information such
+as how to group the digits, what the decimal point
+character is, and how to represent a negative or positive
+number. It also can specify ``decorative'' characters, such
+as currency symbols, to place around the numbers and
+padding characters. Default internationalized number
+formats are provided for ordinary numbers and currency
+values, but you can customize these or create your own for
+specific number printing/parsing applications.
+</DD></DL>
+<P>
+<A NAME="vnumFormatIterator"><HR><H4>vnumFormatIterator</H4></A>
+<PRE>
+        typedef ... <B>vnumFormatIterator</B>;
+</PRE>
+
+<DL><DD>
+Denotes an abstract pointer to a component in a
+<CODE>vnumFormat</CODE>. The iterator can be used to
+examine or modify an already existing format.
+</DD></DL>
+<P>
+<A NAME="vnumRangeException"><HR><H4>vnumRangeException</H4></A>
+<PRE>
+        typedef ... <B>vnumRangeException</B>;
+</PRE>
+
+<DL><DD>
+This is the type for a <CODE>Num/Range</CODE> exception,
+which can occur when trying to format or parse a number.
+When formatting a number, the exception occurs if the given
+number cannot be represented with the specified format (for
+example, it might have more digits than are specified in
+the format). When parsing, the exception occurs when the
+number parsed is outside of the range of values that can be
+represented by the data type specified.
+</DD></DL>
+<P>
+<A NAME="vnumSyntaxException"><HR><H4>vnumSyntaxException</H4></A>
+<PRE>
+        typedef ... <B>vnumSyntaxException</B>;
+</PRE>
+
+<DL><DD>
+This is the type of a <SAMP>Num/Syntax</SAMP> exception,
+which can occur when trying to parse a string into a
+number. This occurs when the syntax of the string is
+incompatible with the format specified to parse the number
+with.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vnumAddFormatDecimal"><HR><H4>vnumAddFormatDecimal</H4></A>
+<PRE>
+        void <B>vnumAddFormatDecimal</B>(
+                vnumFormat * f,
+                vnumFormatIterator * before,
+                int decimalPoint);
+</PRE>
+
+<DL><DD>
+Adds the decimal point to the format. The decimal point is
+added before the position indicated by <SAMP>before</SAMP>
+(<SAMP>before</SAMP> still points to the same element after
+the call), or at the end of the format if
+<SAMP>before</SAMP> is a null pointer. At most one decimal
+point should appear in each format. The decimal point
+character is only printed if at least one digit appears
+after it.
+</DD></DL>
+<P>
+<A NAME="vnumAddFormatDigits"><HR><H4>vnumAddFormatDigits</H4></A>
+<PRE>
+        void <B>vnumAddFormatDigits</B>(
+                vnumFormat * f,
+                vnumFormatIterator * before,
+                int groupingCount,
+                int groupingCharacter,
+                int count);
+</PRE>
+
+<DL><DD>
+Adds spaceto include the digits of the printed number to
+the format. The space is added before the position
+indicated by <SAMP>before</SAMP> (<SAMP>before</SAMP> still
+points to the same element after the call), or at the end
+of the format if <SAMP>before</SAMP> is a null pointer. If
+<SAMP>groupingCount</SAMP> is non-zero,
+<SAMP>groupingCharacter</SAMP> is inserted between every
+<SAMP>groupingCount</SAMP> characters (counting from the
+decimal point outward.) If <SAMP>count</SAMP> is
+<SAMP>-1</SAMP>, the component contains all remaining
+digits either before or after the decimal point. Otherwise,
+a fixed number of digits are printed or parsed, filling
+unused digits farthest from the decimal point with zeroes.
+</DD></DL>
+<P>
+<A NAME="vnumAddFormatExponent"><HR><H4>vnumAddFormatExponent</H4></A>
+<PRE>
+        void <B>vnumAddFormatExponent</B>(
+                vnumFormat * f,
+                vnumFormatIterator * before);
+</PRE>
+
+<DL><DD>
+Adds the scientific exponentexponent fieldto the format.
+The exponent is added before the position indicated by
+<SAMP>before</SAMP> ( <SAMP>before</SAMP> still points to
+the same element after the call), or at the end of the
+format if <SAMP>before</SAMP> is a null pointer. The
+exponent is read or printed at this point in the format (if
+applicable), according to the exponent number format
+specified (if any) in the <SAMP>Scribe</SAMP> or
+<SAMP>Parse</SAMP> call.
+</DD></DL>
+<P>
+<A NAME="vnumAddFormatNegText"><HR><H4>vnumAddFormatNegText</H4></A>
+<PRE>
+        void <B>vnumAddFormatNegText</B>(
+                vnumFormat * f,
+                vnumFormatIterator * before,
+                const vchar * show,
+                vregexp * match);
+</PRE>
+
+<DL><DD>
+Adds text indicating a negative number to a number format.
+The text is added before the position indicated by
+<SAMP>before</SAMP> (<SAMP>before</SAMP> still points to
+the same element after the call), or at the end of the
+format if <SAMP>before</SAMP> is a null pointer. The string
+<SAMP>show</SAMP> indicates how the text appears when a
+negative number is printed, while the regular expression
+<SAMP>match</SAMP> should match any variation of the text
+that indicates a number is negative. If <SAMP>match</SAMP>
+is a null pointer, <SAMP>show</SAMP> must be matched
+exactly when parsing to indicate a negative number. Note
+that the space occupied by <SAMP>match</SAMP> becomes part
+of the number format.
+</DD></DL>
+<P>
+<A NAME="vnumAddFormatNegTextScribed"><HR><H4>vnumAddFormatNegTextScribed</H4></A>
+<PRE>
+        void <B>vnumAddFormatNegTextScribed</B>(
+                vnumFormat * f,
+                vnumFormatIterator * before,
+                vscribe * show,
+                vregexp * match);
+</PRE>
+
+<DL><DD>
+Adds text indicating a negative number to a number format.
+The text is added before the position indicated by
+<SAMP>before</SAMP> (<SAMP>before</SAMP> still points to
+the same element after the call), or at the end of the
+format if <SAMP>before</SAMP> is a null pointer. The String
+class scribe <SAMP>show</SAMP> indicates how the text
+appears when a negative number is printed, while the
+regular expression <SAMP>match</SAMP> should match any
+variation of the text that indicates a number is negative.
+If <SAMP>match</SAMP> is a null pointer, <SAMP>show</SAMP>
+must be matched exactly when parsing to indicate a negative
+number. Note that the space occupied by <SAMP>match</SAMP>
+becomes part of the number format.
+</DD></DL>
+<P>
+<A NAME="vnumAddFormatPadding"><HR><H4>vnumAddFormatPadding</H4></A>
+<PRE>
+        void <B>vnumAddFormatPadding</B>(
+                vnumFormat * f,
+                vnumFormatIterator * before,
+                int character,
+                int repetition);
+</PRE>
+
+<DL><DD>
+Adds padding charactersto the format.The characters are
+added before the position indicated by <SAMP>before</SAMP>
+( <SAMP>before</SAMP> still points to the same element
+after the call), or at the end of the format if
+<SAMP>before</SAMP> is a null pointer. The character is
+repeated <SAMP>repetition</SAMP> times when printing the
+number, but these characters are overwritten by following
+characters printed before the decimal point, if the padding
+component appears before the decimal component; or by
+preceding characters printed after and including the
+decimal point, if the padding component appears after the
+decimal component. Note that padding characters do not
+write over other padding characters but begin a new padding
+field.
+</DD></DL>
+<P>
+<A NAME="vnumAddFormatPosText"><HR><H4>vnumAddFormatPosText</H4></A>
+<PRE>
+        void <B>vnumAddFormatPosText</B>(
+                vnumFormat * f,
+                vnumFormatIterator * before,
+                const vchar * show,
+                vregexp * match);
+</PRE>
+
+<DL><DD>
+Adds text to a number format. The text is added before the
+position indicated by <SAMP>before</SAMP>
+(<SAMP>before</SAMP> still points to the same element after
+the call), or at the end of the format if
+<SAMP>before</SAMP> is a null pointer. The string
+<SAMP>show</SAMP> indicates how the text appears when the
+number is printed, while the regular expression
+<SAMP>match</SAMP> should match any variation of the text
+as it can be parsed. If <SAMP>match</SAMP> is a null
+pointer, <SAMP>show</SAMP> must be matched exactly when
+parsing. Note that the space occupied by <SAMP>match</SAMP>
+becomes part of the number format.
+</DD></DL>
+<P>
+<A NAME="vnumAddFormatPosTextScribed"><HR><H4>vnumAddFormatPosTextScribed</H4></A>
+<PRE>
+        void <B>vnumAddFormatPosTextScribed</B>(
+                vnumFormat * f,
+                vnumFormatIterator * before,
+                vscribe * show,
+                vregexp * match);
+</PRE>
+
+<DL><DD>
+Adds text to a number format. The text is added before the
+position indicated by <SAMP>before</SAMP>
+(<SAMP>before</SAMP> still points to the same element after
+the call), or at the end of the format if
+<SAMP>before</SAMP> is a null pointer. The String class
+scribe <SAMP>show</SAMP> indicates how the text appears
+when the number is printed, while the regular expression
+<SAMP>match</SAMP> should match any variation of the text
+as it can be parsed. If <SAMP>match</SAMP> is a null
+pointer, <SAMP>show</SAMP> must be matched exactly when
+parsing. Note that the space occupied by <SAMP>match</SAMP>
+becomes part of the number format.
+</DD></DL>
+<P>
+<A NAME="vnumAddFormatText"><HR><H4>vnumAddFormatText</H4></A>
+<PRE>
+        void <B>vnumAddFormatText</B>(
+                vnumFormat * f,
+                vnumFormatIterator * before,
+                const vchar * show,
+                vregexp * match);
+</PRE>
+
+<DL><DD>
+Adds text to a number format. The text is added before the
+position indicated by <SAMP>before</SAMP>
+(<SAMP>before</SAMP> still points to the same element after
+the call), or at the end of the format if
+<SAMP>before</SAMP> is a null pointer. The string
+<SAMP>show</SAMP> indicates how the text appears when the
+number is printed, while the regular expression
+<SAMP>match</SAMP> should match any variation of the text
+as it can be parsed. If <SAMP>match</SAMP> is a null
+pointer, <SAMP>show</SAMP> must be matched exactly when
+parsing. Note that the space occupied by <SAMP>match</SAMP>
+becomes part of the number format.
+</DD></DL>
+<P>
+<A NAME="vnumAddFormatTextScribed"><HR><H4>vnumAddFormatTextScribed</H4></A>
+<PRE>
+        void <B>vnumAddFormatTextScribed</B>(
+                vnumFormat * f,
+                vnumFormatIterator * before,
+                vscribe * show,
+                vregexp * match);
+</PRE>
+
+<DL><DD>
+Adds text to a number format. The text is added before the
+position indicated by <SAMP>before</SAMP>
+(<SAMP>before</SAMP> still points to the same element after
+the call), or at the end of the format if
+<SAMP>before</SAMP> is a null pointer. The String class
+scribe <SAMP>show</SAMP> indicates how the text appears
+when the number is printed, while the regular expression
+<SAMP>match</SAMP> should match any variation of the text
+as it can be parsed. If <SAMP>match</SAMP> is a null
+pointer, <SAMP>show</SAMP> must be matched exactly when
+parsing. Note that the space occupied by <SAMP>match</SAMP>
+becomes part of the number format.
+</DD></DL>
+<P>
+<A NAME="vnumAddFormatWhiteSpace"><HR><H4>vnumAddFormatWhiteSpace</H4></A>
+<PRE>
+        void <B>vnumAddFormatWhiteSpace</B>(
+                vnumFormat * f,
+                vnumFormatIterator * before,
+                int required,
+                int shown);
+</PRE>
+
+<DL><DD>
+Adds white space charactersadding white space charactersto
+the format. The space is added before the position
+indicated by <SAMP>before</SAMP> (<SAMP>before</SAMP> still
+points to the same element after the call), or at the end
+of the format if <SAMP>before</SAMP> is a null pointer. If
+<SAMP>shown</SAMP> is <SAMP>TRUE</SAMP>, a single space is
+printed when printing a number, otherwise nothing is
+printed by this component. If <SAMP>required</SAMP> is
+<SAMP>TRUE</SAMP>, a syntax error occurs if no white space
+occurs at this point in the number, otherwise the white
+space is considered optional.
+</DD></DL>
+<P>
+<A NAME="vnumCloneDigitSet"><HR><H4>vnumCloneDigitSet</H4></A>
+<PRE>
+        vnumDigitSet * <B>vnumCloneDigitSet</B>(
+                const vnumDigitSet * digits);
+</PRE>
+
+<DL><DD>
+Creates a duplicate of a digit set with its own storage.
+</DD></DL>
+<P>
+<A NAME="vnumCloneFormat"><HR><H4>vnumCloneFormat</H4></A>
+<PRE>
+        vnumFormat * <B>vnumCloneFormat</B>(
+                const vnumFormat * f);
+</PRE>
+
+<DL><DD>
+Makes a duplicate of the given number format and returns
+it.
+</DD></DL>
+<P>
+<A NAME="vnumCopyFormat"><HR><H4>vnumCopyFormat</H4></A>
+<PRE>
+        void <B>vnumCopyFormat</B>(
+                vnumFormat * src,
+                vnumFormat * dest);
+</PRE>
+
+<DL><DD>
+The destination format should already be initialized before calling
+this function.
+</DD></DL>
+<P>
+<A NAME="vnumCopyInitFormat"><HR><H4>vnumCopyInitFormat</H4></A>
+<PRE>
+        void <B>vnumCopyInitFormat</B>(
+                vnumFormat * src,
+                vnumFormat * dest);
+</PRE>
+
+<DL><DD>
+Initializes the destination format and then copies the source
+format into the destination.
+</DD></DL>
+<P>
+<A NAME="vnumCreateDigitSet"><HR><H4>vnumCreateDigitSet</H4></A>
+<PRE>
+        vnumDigitSet * <B>vnumCreateDigitSet</B>(
+                vchar * digits);
+</PRE>
+
+<DL><DD>
+Creates a digit set out of the string <SAMP>digits</SAMP>.
+The string should contain each of the characters to
+represent the digits from zero on up, in order, one
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> per digit. The digit set's base is then
+the length of the string. The base must be between 2 and
+255 (inclusive).
+</DD></DL>
+<P>
+<A NAME="vnumCreateDigitSetScribed"><HR><H4>vnumCreateDigitSetScribed</H4></A>
+<PRE>
+        vnumDigitSet * <B>vnumCreateDigitSetScribed</B>(
+                vscribe * digits);
+</PRE>
+
+<DL><DD>
+Creates a digit set out of the String class scribe
+<SAMP>digitString</SAMP>. The string should contain each
+of the characters to represent the digits from zero on up,
+in order, one <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> per digit. The digit set's
+base is then the length of the string. The base must be
+between 2 and 255 (inclusive).
+</DD></DL>
+<P>
+<A NAME="vnumCreateFormat"><HR><H4>vnumCreateFormat</H4></A>
+<PRE>
+        vnumFormat * <B>vnumCreateFormat</B>();
+</PRE>
+
+<DL><DD>
+Creates and returns an empty number format.
+</DD></DL>
+<P>
+<A NAME="vnumDestroyDigitSet"><HR><H4>vnumDestroyDigitSet</H4></A>
+<PRE>
+        void <B>vnumDestroyDigitSet</B>(
+                vnumDigitSet * digits);
+</PRE>
+
+<DL><DD>
+Destroys a digit set, freeing any associated memory. This
+should be done only on digit sets that you create or clone,
+not on digit sets returned by
+<SAMP>vnumGet</SAMP><SAMP>Base</SAMP><SAMP>DigitSet</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnumDestroyFormat"><HR><H4>vnumDestroyFormat</H4></A>
+<PRE>
+        void <B>vnumDestroyFormat</B>(
+                vnumFormat * f);
+</PRE>
+
+<DL><DD>
+Destroys a number format, freeing all associated memory.
+</DD></DL>
+<P>
+<A NAME="vnumDestroyFormatIterator"><HR><H4>vnumDestroyFormatIterator</H4></A>
+<PRE>
+        void <B>vnumDestroyFormatIterator</B>(
+                vnumFormatIterator * i);
+</PRE>
+
+<DL><DD>
+Ends the iteration begun by the iterator. This function can
+be called before the iteration is exhausted.
+</DD></DL>
+<P>
+<A NAME="vnumGetBinaryDigitSet"><HR><H4>vnumGetBinaryDigitSet</H4></A>
+<PRE>
+        vnumDigitSet * <B>vnumGetBinaryDigitSet</B>();
+</PRE>
+
+<DL><DD>
+Returns a digit set appropriate for representingbinary
+numbers in the current locale. The digit set remains the
+property of the Number class and should not be modified
+or disposed of.
+</DD></DL>
+<P>
+<A NAME="vnumGetDecimalDigitSet"><HR><H4>vnumGetDecimalDigitSet</H4></A>
+<PRE>
+        vnumDigitSet * <B>vnumGetDecimalDigitSet</B>();
+</PRE>
+
+<DL><DD>
+Returns a digit set appropriate for representingdecimal
+numbers in the current locale. The digit set remains the
+property of the Number class and should not be modified
+or disposed of.
+</DD></DL>
+<P>
+<A NAME="vnumGetDigitSetBase"><HR><H4>vnumGetDigitSetBase</H4></A>
+<PRE>
+        int <B>vnumGetDigitSetBase</B>(
+                const vnumDigitSet * digits);
+</PRE>
+
+<DL><DD>
+Returns the base of the given digit set.
+</DD></DL>
+<P>
+<A NAME="vnumGetDigitSetDigit"><HR><H4>vnumGetDigitSetDigit</H4></A>
+<PRE>
+        vchar <B>vnumGetDigitSetDigit</B>(
+                const vnumDigitSet * digits,
+                int number);
+</PRE>
+
+<DL><DD>
+Returns the character used to represent the given
+<SAMP>number</SAMP> in the digit set <SAMP>digits</SAMP>.
+<SAMP>number</SAMP> must be at least zero and less than the
+digit set's base.
+</DD></DL>
+<P>
+<A NAME="vnumGetDigitSetDigits"><HR><H4>vnumGetDigitSetDigits</H4></A>
+<PRE>
+        const vchar * <B>vnumGetDigitSetDigits</B>(
+                const vnumDigitSet * digits);
+</PRE>
+
+<DL><DD>
+Returns a string representation of the digits used in the digit set.
+</DD></DL>
+<P>
+<A NAME="vnumGetExponentFormat"><HR><H4>vnumGetExponentFormat</H4></A>
+<PRE>
+        vnumFormat * <B>vnumGetExponentFormat</B>();
+</PRE>
+
+<DL><DD>
+Returns a digit set appropriate for representing
+the exponent part of normal numbers in the current
+locale. The format contains an exponent prefix before the
+actual number (typically <SAMP>e</SAMP>) and contains no
+decimal point or exponent fields, so it is only appropriate
+for representing integers. The format remains the property
+of the Number class and should not be modified or
+disposed of.
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatComponentCount"><HR><H4>vnumGetFormatComponentCount</H4></A>
+<PRE>
+        int <B>vnumGetFormatComponentCount</B>(
+                vnumFormat * f);
+</PRE>
+
+<DL><DD>
+Returns the number of format components making up the format.
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatDecimalPointAt"><HR><H4>vnumGetFormatDecimalPointAt</H4></A>
+<PRE>
+        vchar <B>vnumGetFormatDecimalPointAt</B>(
+                vnumFormat * f,
+                int index);
+</PRE>
+
+<DL><DD>
+Returns the character used for the decimal point at the specified
+format component.
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatDigitsCountAt"><HR><H4>vnumGetFormatDigitsCountAt</H4></A>
+<PRE>
+        int <B>vnumGetFormatDigitsCountAt</B>(
+                vnumFormat * f,
+                int index);
+</PRE>
+
+<DL><DD>
+Returns the number of digits making up the specified format component.
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatDigitsGroupingCharacterAt"><HR><H4>vnumGetFormatDigitsGroupingCharacterAt</H4></A>
+<PRE>
+        vchar <B>vnumGetFormatDigitsGroupingCharacterAt</B>(
+                vnumFormat * f,
+                int index);
+</PRE>
+
+<DL><DD>
+Returns the grouping character for the specified format component.
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatDigitsGroupingCountAt"><HR><H4>vnumGetFormatDigitsGroupingCountAt</H4></A>
+<PRE>
+        int <B>vnumGetFormatDigitsGroupingCountAt</B>(
+                vnumFormat * f,
+                int index);
+</PRE>
+
+<DL><DD>
+Returns the group count for the specified format component.
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatIteratorDecimalPoint"><HR><H4>vnumGetFormatIteratorDecimalPoint</H4></A>
+<PRE>
+        vchar <B>vnumGetFormatIteratorDecimalPoint</B>(
+                const vnumFormatIterator * i);
+</PRE>
+
+<DL><DD>
+Returns the decimal point character for the decimal
+component indicated by the iterator <SAMP>i</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatIteratorDigitsCount"><HR><H4>vnumGetFormatIteratorDigitsCount</H4></A>
+<PRE>
+        int <B>vnumGetFormatIteratorDigitsCount</B>(
+                const vnumFormatIterator * i);
+</PRE>
+
+<DL><DD>
+Returns the fixed number of digits for the digits component
+indicated by the iterator <SAMP>i</SAMP>, or
+<SAMP>-1</SAMP> if there is no fixed number of digits.
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatIteratorDigitsGroupingCharacter"><HR><H4>vnumGetFormatIteratorDigitsGroupingCharacter</H4></A>
+<PRE>
+        vchar <B>vnumGetFormatIteratorDigitsGroupingCharacter</B>(
+                const vnumFormatIterator * i);
+</PRE>
+
+<DL><DD>
+Returns the grouping character for the digits
+component indicated by the iterator <SAMP>i</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatIteratorDigitsGroupingCount"><HR><H4>vnumGetFormatIteratorDigitsGroupingCount</H4></A>
+<PRE>
+        int <B>vnumGetFormatIteratorDigitsGroupingCount</B>(
+                const vnumFormatIterator * i);
+</PRE>
+
+<DL><DD>
+Returns the grouping count for the digits
+component indicated by the iterator <SAMP>i</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatIteratorIndex"><HR><H4>vnumGetFormatIteratorIndex</H4></A>
+<PRE>
+        int <B>vnumGetFormatIteratorIndex</B>(
+                const vnumFormatIterator * i);
+</PRE>
+
+<DL><DD>
+The first component will have index 0.
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatIteratorPaddingCharacter"><HR><H4>vnumGetFormatIteratorPaddingCharacter</H4></A>
+<PRE>
+        vchar <B>vnumGetFormatIteratorPaddingCharacter</B>(
+                const vnumFormatIterator * i);
+</PRE>
+
+<DL><DD>
+Returns the character that is repeated for the padding
+component indicated by the iterator <SAMP>i</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatIteratorPaddingRepetition"><HR><H4>vnumGetFormatIteratorPaddingRepetition</H4></A>
+<PRE>
+        int <B>vnumGetFormatIteratorPaddingRepetition</B>(
+                const vnumFormatIterator * i);
+</PRE>
+
+<DL><DD>
+Returns the repetition count for the formatting
+numbers padding component indicated by the iterator
+<SAMP>i</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatIteratorTextMatch"><HR><H4>vnumGetFormatIteratorTextMatch</H4></A>
+<PRE>
+        const vregexp * <B>vnumGetFormatIteratorTextMatch</B>(
+                const vnumFormatIterator * i);
+</PRE>
+
+<DL><DD>
+Returns the regular expression that is matched for the
+text, negative text, or positive text component indicated
+by the iterator <SAMP>i</SAMP>, or a null pointer if the
+<SAMP>Show</SAMP> string must be matched exactly.
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatIteratorTextShow"><HR><H4>vnumGetFormatIteratorTextShow</H4></A>
+<PRE>
+        const vchar * <B>vnumGetFormatIteratorTextShow</B>(
+                const vnumFormatIterator * i);
+</PRE>
+
+<DL><DD>
+Returns the string that is shown for the text, negative
+text, or positive text component indicated by the iterator
+<SAMP>i</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatIteratorType"><HR><H4>vnumGetFormatIteratorType</H4></A>
+<PRE>
+        int <B>vnumGetFormatIteratorType</B>(
+                const vnumFormatIterator * i);
+</PRE>
+
+<DL><DD>
+Returns a value indicating the type of component indicated
+by the iterator <SAMP>i</SAMP>. The returned value is one
+of the following:
+<P>
+<ul>
+<li><CODE>vnumFORMAT_TEXT</CODE>
+<li><CODE>vnumFORMAT_NEGATIVE_TEXT</CODE>
+<li><CODE>vnumFORMAT_POSITIVE_TEXT</CODE>
+<li><CODE>vnumFORMAT_PADDING</CODE>
+<li><CODE>vnumFORMAT_WHITE_SPACE</CODE>
+<li><CODE>vnumFORMAT_EXPONENT</CODE>
+<li><CODE>vnumFORMAT_DIGITS</CODE>
+<li><CODE>vnumFORMAT_DECIMAL</CODE>
+</ul>
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatPaddingCharacterAt"><HR><H4>vnumGetFormatPaddingCharacterAt</H4></A>
+<PRE>
+        vchar <B>vnumGetFormatPaddingCharacterAt</B>(
+                vnumFormat * f,
+                int index);
+</PRE>
+
+<DL><DD>
+Returns the padding character for the specified format component.
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatPaddingRepetitionAt"><HR><H4>vnumGetFormatPaddingRepetitionAt</H4></A>
+<PRE>
+        int <B>vnumGetFormatPaddingRepetitionAt</B>(
+                vnumFormat * f,
+                int index);
+</PRE>
+
+<DL><DD>
+Gets the padding character repetition count for the specified format component.
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatTextMatchAt"><HR><H4>vnumGetFormatTextMatchAt</H4></A>
+<PRE>
+        const vregexp * <B>vnumGetFormatTextMatchAt</B>(
+                vnumFormat * f,
+                int index);
+</PRE>
+
+<DL><DD>
+Returns the regular expression for text matching in the specified
+format component.
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatTextShowAt"><HR><H4>vnumGetFormatTextShowAt</H4></A>
+<PRE>
+        const vchar * <B>vnumGetFormatTextShowAt</B>(
+                vnumFormat * f,
+                int index);
+</PRE>
+
+<DL><DD>
+Returns the "show" text for the specified format component.
+</DD></DL>
+<P>
+<A NAME="vnumGetFormatTypeAt"><HR><H4>vnumGetFormatTypeAt</H4></A>
+<PRE>
+        int <B>vnumGetFormatTypeAt</B>(
+                vnumFormat * f,
+                int index);
+</PRE>
+
+<DL><DD>
+Returns the format component type for the specified component.
+</DD></DL>
+<P>
+<A NAME="vnumGetHexDigitSet"><HR><H4>vnumGetHexDigitSet</H4></A>
+<PRE>
+        vnumDigitSet * <B>vnumGetHexDigitSet</B>();
+</PRE>
+
+<DL><DD>
+Returns a digit set appropriate for
+representing hexadecimal numbers in the current
+locale. The digit set remains the property of the Number
+class and should not be modified or disposed of.
+</DD></DL>
+<P>
+<A NAME="vnumGetMoneyFormat"><HR><H4>vnumGetMoneyFormat</H4></A>
+<PRE>
+        vnumFormat * <B>vnumGetMoneyFormat</B>();
+</PRE>
+
+<DL><DD>
+Returns a digit set appropriate for representing monetary
+values in the current locale. The format contains a
+currency symbol and grouping of digits as appropriate. The
+precision is fixed to an appropriate value. The format
+remains the property of the Number class and should not
+be modified or disposed of.
+</DD></DL>
+<P>
+<A NAME="vnumGetNormalFormat"><HR><H4>vnumGetNormalFormat</H4></A>
+<PRE>
+        vnumFormat * <B>vnumGetNormalFormat</B>();
+</PRE>
+
+<DL><DD>
+Returns a digit set appropriate for representing normal
+numbers in the current locale. The format has no grouping
+of digits or fixed precision. The format remains the
+property of the Number class and should not be modified
+or disposed of.
+</DD></DL>
+<P>
+<A NAME="vnumGetOctalDigitSet"><HR><H4>vnumGetOctalDigitSet</H4></A>
+<PRE>
+        vnumDigitSet * <B>vnumGetOctalDigitSet</B>();
+</PRE>
+
+<DL><DD>
+Returns a digit set appropriate for representingoctal
+numbers in the current locale. The digit set remains the
+property of the Number class and should not be modified
+or disposed of.
+</DD></DL>
+<P>
+<A NAME="vnumGetRangeException"><HR><H4>vnumGetRangeException</H4></A>
+<PRE>
+        vnumRangeException * <B>vnumGetRangeException</B>();
+</PRE>
+
+<DL><DD>
+Returns the current <SAMP>Num/Range</SAMP> exception, or
+<SAMP>NULL</SAMP> if there has been no such exception.
+</DD></DL>
+<P>
+<A NAME="vnumGetRangeExceptionClass"><HR><H4>vnumGetRangeExceptionClass</H4></A>
+<PRE>
+        const vexClass * <B>vnumGetRangeExceptionClass</B>();
+</PRE>
+
+<DL><DD>
+This function returns a pointer to the exception class of
+the type <code><A HREF="vnum-x.html#vnumRangeException"><CODE>vnumRangeException</CODE></A></code>. It is most often
+used as an argument to <CODE><A HREF="vex-x.html#vexGenerate"><CODE>vexGenerate</CODE></A></CODE> to generate
+exceptions.
+</DD></DL>
+<P>
+<A NAME="vnumGetScribeDigitsAfter"><HR><H4>vnumGetScribeDigitsAfter</H4></A>
+<PRE>
+        size_t <B>vnumGetScribeDigitsAfter</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Returns the number of digits of precision which appear
+after the decimal point in <SAMP>scribe</SAMP>'s number.
+Note that <SAMP>scribe</SAMP> must have been created by a
+<SAMP>vnumScribe</SAMP> call.
+</DD></DL>
+<P>
+<A NAME="vnumGetScribeDigitsBefore"><HR><H4>vnumGetScribeDigitsBefore</H4></A>
+<PRE>
+        size_t <B>vnumGetScribeDigitsBefore</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Returns the number of digits which appear before the
+decimal point when <SAMP>scribe</SAMP> is used. Note that
+<SAMP>scribe</SAMP> must have been created by a
+<SAMP>vnumScribe</SAMP> call.
+</DD></DL>
+<P>
+<A NAME="vnumGetScribeTruncateZeroes"><HR><H4>vnumGetScribeTruncateZeroes</H4></A>
+<PRE>
+        vbool <B>vnumGetScribeTruncateZeroes</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Tests whether or not the number being printed by
+<SAMP>scribe</SAMP> p is displayed up to its full specified
+precision. Returns <SAMP>TRUE</SAMP> if the scribe
+truncates any trailing zeroes when filling in the number
+format. Returns <SAMP>FALSE</SAMP> if the trailing zeroes
+are included. Note that <SAMP>scribe</SAMP> must have been
+created by a <SAMP>vnumScribe</SAMP> call.
+</DD></DL>
+<P>
+<A NAME="vnumGetSyntaxException"><HR><H4>vnumGetSyntaxException</H4></A>
+<PRE>
+        vnumSyntaxException * <B>vnumGetSyntaxException</B>();
+</PRE>
+
+<DL><DD>
+Returns the current <SAMP>Num/Syntax</SAMP> exception, or
+<SAMP>NULL</SAMP> if there has been no such exception.
+</DD></DL>
+<P>
+<A NAME="vnumGetSyntaxExceptionClass"><HR><H4>vnumGetSyntaxExceptionClass</H4></A>
+<PRE>
+        const vexClass * <B>vnumGetSyntaxExceptionClass</B>();
+</PRE>
+
+<DL><DD>
+This function returns a pointer to the exception class of
+the type <code><A HREF="vnum-x.html#vnumSyntaxException"><CODE>vnumSyntaxException</CODE></A></code>. It is most often
+used as an argument to <CODE><A HREF="vex-x.html#vexGenerate"><CODE>vexGenerate</CODE></A></CODE> to generate
+exceptions.
+</DD></DL>
+<P>
+<A NAME="vnumGetSyntaxExceptionPosition"><HR><H4>vnumGetSyntaxExceptionPosition</H4></A>
+<PRE>
+        vchar * <B>vnumGetSyntaxExceptionPosition</B>(
+                vnumSyntaxException * e);
+</PRE>
+
+<DL><DD>
+Returns the position the syntax error occurred at with the
+given syntax exception.
+</DD></DL>
+<P>
+<A NAME="vnumInitFormat"><HR><H4>vnumInitFormat</H4></A>
+<PRE>
+        void <B>vnumInitFormat</B>(
+                vnumFormat * f);
+</PRE>
+
+<DL><DD>
+Initializes the uninitialized structure <SAMP>f</SAMP> to
+contain an empty number format.
+</DD></DL>
+<P>
+<A NAME="vnumInitFormatIterator"><HR><H4>vnumInitFormatIterator</H4></A>
+<PRE>
+        void <B>vnumInitFormatIterator</B>(
+                vnumFormatIterator * i,
+                vnumFormat * format);
+</PRE>
+
+<DL><DD>
+Initializes the given format iterator to prepare for an
+iteration through the components of <SAMP>format</SAMP>.
+The iterator does not point to the first element until
+<CODE><A HREF="vnum-x.html#vnumNextFormatIterator"><CODE>vnumNextFormatIterator</CODE></A></CODE> is called.
+</DD></DL>
+<P>
+<A NAME="vnumInsertFormatDecimal"><HR><H4>vnumInsertFormatDecimal</H4></A>
+<PRE>
+        void <B>vnumInsertFormatDecimal</B>(
+                vnumFormat * f,
+                int index,
+                int decimalPoint);
+</PRE>
+
+<DL><DD>
+Use -1 to insert at the end. 
+</DD></DL>
+<P>
+<A NAME="vnumInsertFormatDigits"><HR><H4>vnumInsertFormatDigits</H4></A>
+<PRE>
+        void <B>vnumInsertFormatDigits</B>(
+                vnumFormat * f,
+                int index,
+                int groupingCount,
+                int groupingCharacter,
+                int fixedCount);
+</PRE>
+
+<DL><DD>
+Use -1 for the index to place the new digit group at the end of the
+format. The groupingCount indicates the interval to place the 
+groupingCharacter. The fixedCount indicates the number of digits
+to print; use -1 to print all remaining digits.
+</DD></DL>
+<P>
+<A NAME="vnumInsertFormatExponent"><HR><H4>vnumInsertFormatExponent</H4></A>
+<PRE>
+        void <B>vnumInsertFormatExponent</B>(
+                vnumFormat * f,
+                int index);
+</PRE>
+
+<DL><DD>
+Use -1 for the index to place the exponent at the end.
+</DD></DL>
+<P>
+<A NAME="vnumInsertFormatNegText"><HR><H4>vnumInsertFormatNegText</H4></A>
+<PRE>
+        void <B>vnumInsertFormatNegText</B>(
+                vnumFormat * f,
+                int index,
+                const vchar * show,
+                vregexp * match);
+</PRE>
+
+<DL><DD>
+Use -1 to add the negative text to the end of the format.
+The string
+<SAMP>show</SAMP> indicates how the text appears when a
+negative number is printed, while the regular expression
+<SAMP>match</SAMP> should match any variation of the text
+that indicates a number is negative. If <SAMP>match</SAMP>
+is a null pointer, <SAMP>show</SAMP> must be matched
+exactly when parsing to indicate a negative number. Note
+that the space occupied by <SAMP>match</SAMP> becomes part
+of the number format.
+</DD></DL>
+<P>
+<A NAME="vnumInsertFormatNegTextScribed"><HR><H4>vnumInsertFormatNegTextScribed</H4></A>
+<PRE>
+        void <B>vnumInsertFormatNegTextScribed</B>(
+                vnumFormat * f,
+                int index,
+                vscribe * show,
+                vregexp * match);
+</PRE>
+
+<DL><DD>
+Use -1 to add the negative text to the end of the format.
+The string represented by the scribe
+<SAMP>show</SAMP> indicates how the text appears when a
+negative number is printed, while the regular expression
+<SAMP>match</SAMP> should match any variation of the text
+that indicates a number is negative. If <SAMP>match</SAMP>
+is a null pointer, <SAMP>show</SAMP> must be matched
+exactly when parsing to indicate a negative number. Note
+that the space occupied by <SAMP>match</SAMP> becomes part
+of the number format.
+</DD></DL>
+<P>
+<A NAME="vnumInsertFormatPadding"><HR><H4>vnumInsertFormatPadding</H4></A>
+<PRE>
+        void <B>vnumInsertFormatPadding</B>(
+                vnumFormat * f,
+                int index,
+                int character,
+                int repetition);
+</PRE>
+
+<DL><DD>
+Use -1 as an index to add the padding to the end.
+The character is
+repeated <SAMP>repetition</SAMP> times when printing the
+number, but these characters are overwritten by following
+characters printed before the decimal point, if the padding
+component appears before the decimal component; or by
+preceding characters printed after and including the
+decimal point, if the padding component appears after the
+decimal component. Note that padding characters do not
+write over other padding characters but begin a new padding
+field.
+</DD></DL>
+<P>
+<A NAME="vnumInsertFormatPosText"><HR><H4>vnumInsertFormatPosText</H4></A>
+<PRE>
+        void <B>vnumInsertFormatPosText</B>(
+                vnumFormat * f,
+                int index,
+                const vchar * show,
+                vregexp * match);
+</PRE>
+
+<DL><DD>
+Use -1 as an index to add the negative text to the end of the format.
+ The string
+<SAMP>show</SAMP> indicates how the text appears when the
+number is printed, while the regular expression
+<SAMP>match</SAMP> should match any variation of the text
+as it can be parsed. If <SAMP>match</SAMP> is a null
+pointer, <SAMP>show</SAMP> must be matched exactly when
+parsing. Note that the space occupied by <SAMP>match</SAMP>
+becomes part of the number format.
+</DD></DL>
+<P>
+<A NAME="vnumInsertFormatPosTextScribed"><HR><H4>vnumInsertFormatPosTextScribed</H4></A>
+<PRE>
+        void <B>vnumInsertFormatPosTextScribed</B>(
+                vnumFormat * f,
+                int index,
+                vscribe * show,
+                vregexp * match);
+</PRE>
+
+<DL><DD>
+Use -1 as an index to add the negative text to the end of the format.
+ The string
+<SAMP>show</SAMP> indicates how the text appears when the
+number is printed, while the regular expression
+<SAMP>match</SAMP> should match any variation of the text
+as it can be parsed. If <SAMP>match</SAMP> is a null
+pointer, <SAMP>show</SAMP> must be matched exactly when
+parsing. Note that the space occupied by <SAMP>match</SAMP>
+becomes part of the number format.
+</DD></DL>
+<P>
+<A NAME="vnumInsertFormatText"><HR><H4>vnumInsertFormatText</H4></A>
+<PRE>
+        void <B>vnumInsertFormatText</B>(
+                vnumFormat * f,
+                int index,
+                const vchar * show,
+                vregexp * match);
+</PRE>
+
+<DL><DD>
+Use -1 as an index to add the text to the end of the format.
+The string
+<SAMP>show</SAMP> indicates how the text appears when the
+number is printed, while the regular expression
+<SAMP>match</SAMP> should match any variation of the text
+as it can be parsed. If <SAMP>match</SAMP> is a null
+pointer, <SAMP>show</SAMP> must be matched exactly when
+parsing. Note that the space occupied by <SAMP>match</SAMP>
+becomes part of the number format.
+</DD></DL>
+<P>
+<A NAME="vnumInsertFormatTextScribed"><HR><H4>vnumInsertFormatTextScribed</H4></A>
+<PRE>
+        void <B>vnumInsertFormatTextScribed</B>(
+                vnumFormat * f,
+                int index,
+                vscribe * show,
+                vregexp * match);
+</PRE>
+
+<DL><DD>
+Use -1 as an index to add the text to the end of the format.
+The string
+<SAMP>show</SAMP> indicates how the text appears when the
+number is printed, while the regular expression
+<SAMP>match</SAMP> should match any variation of the text
+as it can be parsed. If <SAMP>match</SAMP> is a null
+pointer, <SAMP>show</SAMP> must be matched exactly when
+parsing. Note that the space occupied by <SAMP>match</SAMP>
+becomes part of the number format.
+</DD></DL>
+<P>
+<A NAME="vnumInsertFormatWhiteSpace"><HR><H4>vnumInsertFormatWhiteSpace</H4></A>
+<PRE>
+        void <B>vnumInsertFormatWhiteSpace</B>(
+                vnumFormat * f,
+                int index,
+                int required,
+                int shown);
+</PRE>
+
+<DL><DD>
+Use -1 as an index to add the white space to the end of the format.
+If <SAMP>shown</SAMP> is <SAMP>TRUE</SAMP>, a single space is
+printed when printing a number, otherwise nothing is
+printed by this component. If <SAMP>required</SAMP> is
+<SAMP>TRUE</SAMP>, a syntax error occurs if no white space
+occurs at this point in the number, otherwise the white
+space is considered optional.
+</DD></DL>
+<P>
+<A NAME="vnumIsFormatIteratorWhiteSpaceRequired"><HR><H4>vnumIsFormatIteratorWhiteSpaceRequired</H4></A>
+<PRE>
+        vbool <B>vnumIsFormatIteratorWhiteSpaceRequired</B>(
+                const vnumFormatIterator * i);
+</PRE>
+
+<DL><DD>
+Returns whether or not white spaceformatting numbersis
+required for the white space component indicated by the
+iterator<SAMP>i</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnumIsFormatIteratorWhiteSpaceShown"><HR><H4>vnumIsFormatIteratorWhiteSpaceShown</H4></A>
+<PRE>
+        vbool <B>vnumIsFormatIteratorWhiteSpaceShown</B>(
+                const vnumFormatIterator * i);
+</PRE>
+
+<DL><DD>
+Returns whether or not the white space is shown for the
+white space component indicated by the iterator
+<SAMP>i</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnumIsFormatWhiteSpaceRequiredAt"><HR><H4>vnumIsFormatWhiteSpaceRequiredAt</H4></A>
+<PRE>
+        vbool <B>vnumIsFormatWhiteSpaceRequiredAt</B>(
+                vnumFormat * f,
+                int index);
+</PRE>
+
+<DL><DD>
+Returns <samp>TRUE</samp> if the specified format component requires white space.
+</DD></DL>
+<P>
+<A NAME="vnumIsFormatWhiteSpaceShownAt"><HR><H4>vnumIsFormatWhiteSpaceShownAt</H4></A>
+<PRE>
+        vbool <B>vnumIsFormatWhiteSpaceShownAt</B>(
+                vnumFormat * f,
+                int index);
+</PRE>
+
+<DL><DD>
+Returns <samp>TRUE</samp> if the format component shows white space when
+scribing.
+</DD></DL>
+<P>
+<A NAME="vnumLoadDigitSet"><HR><H4>vnumLoadDigitSet</H4></A>
+<PRE>
+        vnumDigitSet * <B>vnumLoadDigitSet</B>(
+                vresource r);
+</PRE>
+
+<DL><DD>
+Loads a digit set from the given resource <SAMP>r</SAMP>.
+It generates an exception if <SAMP>r</SAMP> does not
+contain a digit set.
+</DD></DL>
+<P>
+<A NAME="vnumLoadFormat"><HR><H4>vnumLoadFormat</H4></A>
+<PRE>
+        vnumFormat * <B>vnumLoadFormat</B>(
+                vresource r);
+</PRE>
+
+<DL><DD>
+Loads a number format from the given resource
+<SAMP>r</SAMP>. Generates an exception if <SAMP>r</SAMP>
+does not contain a number format.
+</DD></DL>
+<P>
+<A NAME="vnumMatchDigitSet"><HR><H4>vnumMatchDigitSet</H4></A>
+<PRE>
+        int <B>vnumMatchDigitSet</B>(
+                vnumDigitSet * digits,
+                vchar digit);
+</PRE>
+
+<DL><DD>
+Attempts to match the given character to a digit in the
+digit set. Returns the numeric value of the digit matched,
+or <SAMP>-1</SAMP> if the character is not a digit in the
+given digit set.
+</DD></DL>
+<P>
+<A NAME="vnumNextFormatIterator"><HR><H4>vnumNextFormatIterator</H4></A>
+<PRE>
+        vbool <B>vnumNextFormatIterator</B>(
+                vnumFormatIterator * i);
+</PRE>
+
+<DL><DD>
+Moves the iterator <SAMP>i</SAMP> to point to the next
+component in its format and returns <SAMP>TRUE</SAMP>. It
+returns <SAMP>FALSE</SAMP> if there are no more components
+in the format.
+</DD></DL>
+<P>
+<A NAME="vnumParseFloat"><HR><H4>vnumParseFloat</H4></A>
+<PRE>
+        double <B>vnumParseFloat</B>(
+                const vchar * source,
+                vchar ** end);
+</PRE>
+
+<DL><DD>
+Parses a floating point number (of type
+<SAMP>double</SAMP>) from a string. <SAMP>source</SAMP>
+points to a null-terminated string to extract the number
+from. If <SAMP>end</SAMP> is non-null, the
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A>~*</SAMP> it points to is set to the character
+after the last character used to represent the parsed
+number, so parsing can continue after the number. The
+numbers are parsed as decimal numbers, in the normal number
+format. Scientific notation is recognized if used. A
+<SAMP>Num/Syntax</SAMP> exception is generated if a number
+cannot be parsed from the text. A <SAMP>Num/Range</SAMP>
+exception is generated if the magnitude of the parsed
+number is outside the allowable range for the given type,
+or if a non-integer is read for one of the integral types.
+</DD></DL>
+<P>
+<A NAME="vnumParseFloatFormatted"><HR><H4>vnumParseFloatFormatted</H4></A>
+<PRE>
+        double <B>vnumParseFloatFormatted</B>(
+                const vchar * source,
+                vchar ** end,
+                vnumDigitSet * digits,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                int approximateOk);
+</PRE>
+
+<DL><DD>
+Parses a number (of type <SAMP>double</SAMP>) from a string
+when more control is needed over the format.
+<SAMP>source</SAMP> specifies a null-terminated string to
+parse the number from. The digit set <SAMP>digits</SAMP>
+specifies which digits are used to make up the number.
+<SAMP>numberFormat</SAMP> specifies the format the mantissa
+appears in, while <SAMP>expFormat</SAMP> specifies the
+format the exponent appears in, including the exponent's
+prefix (typically <SAMP>e</SAMP>). 
+<P>
+If
+<SAMP>expFormat</SAMP> is a null pointer,scientific
+notation is not recognized. <SAMP>approximateOK</SAMP>
+should be <SAMP>TRUE</SAMP> if it is allowable for the
+number to be rounded off to fit into the appropriate data
+type, <SAMP>FALSE</SAMP> if this is inappropriate. Finally,
+<SAMP>end</SAMP>, if non-null, specifies a pointer to be
+set to the end of the parsed number, so parsing can
+continue. A <SAMP>Num/Syntax</SAMP> exception is generated
+if the text does not contain a number of the proper format.
+A <SAMP>Num/Range</SAMP> exception is generated if the
+parsed number is out of range to fit into the specified
+type (or if <SAMP>approximateOK</SAMP> is
+<SAMP>FALSE</SAMP> and the number would have to be rounded
+to be fully represented).
+</DD></DL>
+<P>
+<A NAME="vnumParseGeneral"><HR><H4>vnumParseGeneral</H4></A>
+<PRE>
+        void <B>vnumParseGeneral</B>(
+                const vchar * source,
+                vchar ** end,
+                vnumDigitSet * digitSet,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                vbyte * digits,
+                int * digitSize,
+                int * exponent,
+                vbool * negative,
+                vbool * overflow);
+</PRE>
+
+<DL><DD>
+This function is used to parse a numberthat is not one of
+those supported by the Number class (for example, fixed
+point or long double). It works the same as the
+<SAMP>vnumParse</SAMP><SAMP>Type</SAMP><SAMP>Formatted</SAMP> calls, 
+except that rather than returning a number of the appropriate type, 
+it fills a buffer with the digits of the parsed number and returns 
+other information about the number. The caller is then responsible 
+for actually converting this information into a number of the appropriate data type
+below.
+
+<P>
+<ul>
+<li><SAMP>source</SAMP>
+<li><SAMP>digitSet</SAMP>
+<li><SAMP>numberFormat</SAMP>
+<li><SAMP>exponentFormat</SAMP>
+<li><SAMP>end</SAMP> 
+<P>
+
+These are treated the same as the
+<SAMP>vnumParse</SAMP><SAMP>Type</SAMP><SAMP>Formatted</SAMP>
+calls. <SAMP>digits</SAMP> points to a <SAMP>vbyte</SAMP>
+array to which the numeric values of the digits of the
+number are written, one digit per <SAMP>vbyte</SAMP>.
+<SAMP>digitSize</SAMP> points to a number that should
+initially be set to the length of the digit buffer and on
+return contains the number of digits that were parsed for
+the number (up to the length of the buffer).
+<SAMP>exponent</SAMP> should point to a number that is set
+to the number of digits that would appear before the
+decimal point if the number were written in fixed place
+format. <SAMP>negative</SAMP> should point to a boolean
+variable that is set to <SAMP>TRUE</SAMP> if the number is
+negative, <SAMP>FALSE</SAMP> if it is positive. Finally,
+<SAMP>overflow</SAMP> should point to a boolean variable
+that is set to <SAMP>TRUE</SAMP> if the number of parsed
+digits overflowed the specified digit buffer,
+<SAMP>FALSE</SAMP> if it did not.
+</DD></DL>
+<P>
+<A NAME="vnumParseInt"><HR><H4>vnumParseInt</H4></A>
+<PRE>
+        int <B>vnumParseInt</B>(
+                const vchar * source,
+                vchar ** end);
+</PRE>
+
+<DL><DD>
+Parses a number (of type <SAMP>int</SAMP>) from a string.
+<SAMP>source</SAMP> points to a null-terminated string to
+extract the number from. If <SAMP>end</SAMP> is non-null,
+the <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A> *</SAMP> it points to is set to the
+character after the last character used to represent the
+parsed number, so parsing can continue after the number.
+The numbers are parsed as decimal numbers, in the normal
+number format. Scientific notation is recognized if used. A
+<SAMP>Num/Syntax</SAMP> exception is generated if a number
+cannot be parsed from the text. A <SAMP>Num/Range</SAMP>
+exception is generated if the magnitude of the parsed
+number is outside the allowable range for the given type,
+or if a non-integer is read for one of the integral types.
+</DD></DL>
+<P>
+<A NAME="vnumParseIntFormatted"><HR><H4>vnumParseIntFormatted</H4></A>
+<PRE>
+        int <B>vnumParseIntFormatted</B>(
+                const vchar * source,
+                vchar ** end,
+                vnumDigitSet * digits,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                int approximateOk);
+</PRE>
+
+<DL><DD>
+Parses a number (of type <SAMP>int</SAMP>) from a string
+when more control is needed over the format.
+<SAMP>source</SAMP> specifies a null-terminated string to
+parse the number from. The digit set <SAMP>digits</SAMP>
+specifies which digits are used to make up the number.
+<SAMP>numberFormat</SAMP> specifies the format the mantissa
+appears in, while <SAMP>expFormat</SAMP> specifies the
+format the exponent appears in, including the exponent's
+prefix (typically <SAMP>e</SAMP>). If
+<SAMP>expFormat</SAMP> is a null pointer,scientific
+notation is not recognized. <SAMP>approximateOK</SAMP>
+should be <SAMP>TRUE</SAMP> if it is allowable for the
+number to be rounded off to fit into the appropriate data
+type, <SAMP>FALSE</SAMP> if this is inappropriate. Finally,
+<SAMP>end</SAMP>, if non-null, specifies a pointer to be
+set to the end of the parsed number, so parsing can
+continue. A <SAMP>Num/Syntax</SAMP> exception is generated
+if the text does not contain a number of the proper format.
+A <SAMP>Num/Range</SAMP> exception is generated if the
+parsed number is out of range to fit into the specified
+type (or if <SAMP>approximateOK</SAMP> is
+<SAMP>FALSE</SAMP> and the number would have to be rounded
+to be fully represented).
+</DD></DL>
+<P>
+<A NAME="vnumParseLong"><HR><H4>vnumParseLong</H4></A>
+<PRE>
+        long <B>vnumParseLong</B>(
+                const vchar * source,
+                vchar ** end);
+</PRE>
+
+<DL><DD>
+Parses a number (of type <SAMP>long</SAMP>) from a string.
+<SAMP>source</SAMP> points to a null-terminated string to
+extract the number from. If <SAMP>end</SAMP> is non-null,
+the <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A> *</SAMP> it points to is set to the
+character after the last character used to represent the
+parsed number, so parsing can continue after the number.
+The numbers are parsed as decimal numbers, in the normal
+number format. Scientific notation is recognized if used. A
+<SAMP>Num/Syntax</SAMP> exception is generated if a number
+cannot be parsed from the text. A <SAMP>Num/Range</SAMP>
+exception is generated if the magnitude of the parsed
+number is outside the allowable range for the given type,
+or if a non-integer is read for one of the integral types.
+</DD></DL>
+<P>
+<A NAME="vnumParseLongFormatted"><HR><H4>vnumParseLongFormatted</H4></A>
+<PRE>
+        long <B>vnumParseLongFormatted</B>(
+                const vchar * source,
+                vchar ** end,
+                vnumDigitSet * digits,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                int approximateOk);
+</PRE>
+
+<DL><DD>
+Parses a number (of type <SAMP>long</SAMP>) from a string
+when more control is needed over the format which is used.
+<SAMP>source</SAMP> specifies a null-terminated string to
+parse the number from. The digit set <SAMP>digits</SAMP>
+specifies which digits are used to make up the number.
+<SAMP>numberFormat</SAMP> specifies the format the mantissa
+appears in, while <SAMP>expFormat</SAMP> specifies the
+format the exponent appears in, including the exponent's
+prefix (typically <SAMP>e</SAMP>). If
+<SAMP>expFormat</SAMP> is a null pointer,scientific
+notation is not recognized. <SAMP>approximateOK</SAMP>
+should be <SAMP>TRUE</SAMP> if it is allowable for the
+number to be rounded off to fit into the appropriate data
+type, <SAMP>FALSE</SAMP> if this is inappropriate. Finally,
+<SAMP>end</SAMP>, if non-null, specifies a pointer to be
+set to the end of the parsed number, so parsing can
+continue. A <SAMP>Num/Syntax</SAMP> exception is generated
+if the text does not contain a number of the proper format.
+A <SAMP>Num/Range</SAMP> exception is generated if the
+parsed number is out of range to fit into the specified
+type (or if <SAMP>approximateOK</SAMP> is
+<SAMP>FALSE</SAMP> and the number would have to be rounded
+to be fully represented).
+</DD></DL>
+<P>
+<A NAME="vnumParseLongLong"><HR><H4>vnumParseLongLong</H4></A>
+<PRE>
+        vlonglong <B>vnumParseLongLong</B>(
+                const vchar * source,
+                vchar ** end);
+</PRE>
+
+<DL><DD>
+Parses a number (of type <SAMP><A HREF="vlonglong-x.html#vlonglong"><CODE>vlonglong</CODE></A></SAMP>) from a string.
+<SAMP>source</SAMP> points to a null-terminated string to
+extract the number from. If <SAMP>end</SAMP> is non-null,
+the <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A> *</SAMP> it points to is set to the
+character after the last character used to represent the
+parsed number, so parsing can continue after the number.
+The numbers are parsed as decimal numbers, in the normal
+number format. Scientific notation is recognized if used. A
+<SAMP>Num/Syntax</SAMP> exception is generated if a number
+cannot be parsed from the text. A <SAMP>Num/Range</SAMP>
+exception is generated if the magnitude of the parsed
+number is outside the allowable range for the given type,
+or if a non-integer is read for one of the integral types.
+</DD></DL>
+<P>
+<A NAME="vnumParseLongLongFormatted"><HR><H4>vnumParseLongLongFormatted</H4></A>
+<PRE>
+        vlonglong <B>vnumParseLongLongFormatted</B>(
+                const vchar * source,
+                vchar ** end,
+                vnumDigitSet * digits,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                int approximateOk);
+</PRE>
+
+<DL><DD>
+Parses a number (of type <SAMP><A HREF="vlonglong-x.html#vlonglong"><CODE>vlonglong</CODE></A></SAMP>) from a string
+when more control is needed over the format which is used.
+<SAMP>source</SAMP> specifies a null-terminated string to
+parse the number from. The digit set <SAMP>digits</SAMP>
+specifies which digits are used to make up the number.
+<SAMP>numberFormat</SAMP> specifies the format the mantissa
+appears in, while <SAMP>expFormat</SAMP> specifies the
+format the exponent appears in, including the exponent's
+prefix (typically <SAMP>e</SAMP>). If
+<SAMP>expFormat</SAMP> is a null pointer,scientific
+notation is not recognized. <SAMP>approximateOK</SAMP>
+should be <SAMP>TRUE</SAMP> if it is allowable for the
+number to be rounded off to fit into the appropriate data
+type, <SAMP>FALSE</SAMP> if this is inappropriate. Finally,
+<SAMP>end</SAMP>, if non-null, specifies a pointer to be
+set to the end of the parsed number, so parsing can
+continue. A <SAMP>Num/Syntax</SAMP> exception is generated
+if the text does not contain a number of the proper format.
+A <SAMP>Num/Range</SAMP> exception is generated if the
+parsed number is out of range to fit into the specified
+type (or if <SAMP>approximateOK</SAMP> is
+<SAMP>FALSE</SAMP> and the number would have to be rounded
+to be fully represented).
+</DD></DL>
+<P>
+<A NAME="vnumParseUInt"><HR><H4>vnumParseUInt</H4></A>
+<PRE>
+        unsigned int <B>vnumParseUInt</B>(
+                const vchar * source,
+                vchar ** end);
+</PRE>
+
+<DL><DD>
+Parses a number (of type <SAMP>unsigned int</SAMP>) from a
+string. <SAMP>source</SAMP> points to a null-terminated
+string to extract the number from. If <SAMP>end</SAMP> is
+non-null, the <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A> *</SAMP> it points to is set to
+the character after the last character used to represent
+the parsed number, so parsing can continue after the
+number. The numbers are parsed as decimal numbers, in the
+normal number format. Scientific notation is recognized if
+used. A <SAMP>Num/Syntax</SAMP> exception is generated if a
+number cannot be parsed from the text. A
+<SAMP>Num/Range</SAMP> exception is generated if the
+magnitude of the parsed number is outside the allowable
+range for the given type, or if a non-integer is read for
+one of the integral types.
+</DD></DL>
+<P>
+<A NAME="vnumParseUIntFormatted"><HR><H4>vnumParseUIntFormatted</H4></A>
+<PRE>
+        unsigned int <B>vnumParseUIntFormatted</B>(
+                const vchar * source,
+                vchar ** end,
+                vnumDigitSet * digits,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                int approximateOk);
+</PRE>
+
+<DL><DD>
+Parses a number (of type <SAMP>unsigned int</SAMP>) from a
+string when more control is needed over the format.
+<SAMP>source</SAMP> specifies a null-terminated string to
+parse the number from. The digit set <SAMP>digits</SAMP>
+specifies which digits are used to make up the number.
+<SAMP>numberFormat</SAMP> specifies the format the mantissa
+appears in, while <SAMP>expFormat</SAMP> specifies the
+format the exponent appears in, including the exponent's
+prefix (typically <SAMP>e</SAMP>). If
+<SAMP>expFormat</SAMP> is a null pointer,parsing a number
+from a stringscientific notation is not recognized.
+<SAMP>approximateOK</SAMP> should be <SAMP>TRUE</SAMP> if
+it is allowable for the number to be rounded off to fit
+into the appropriate data type, <SAMP>FALSE</SAMP> if this
+is inappropriate. Finally, <SAMP>end</SAMP>, if non-null,
+specifies a pointer to be set to the end of the parsed
+number, so parsing can continue. A <SAMP>Num/Syntax</SAMP>
+exception is generated if the text does not contain a
+number of the proper format. A <SAMP>Num/Range</SAMP>
+exception is generated if the parsed number is out of range
+to fit into the specified type (or if
+<SAMP>approximateOK</SAMP> is <SAMP>FALSE</SAMP> and the
+number would have to be rounded to be fully represented).
+</DD></DL>
+<P>
+<A NAME="vnumParseULong"><HR><H4>vnumParseULong</H4></A>
+<PRE>
+        unsigned long <B>vnumParseULong</B>(
+                const vchar * source,
+                vchar ** end);
+</PRE>
+
+<DL><DD>
+Parses a number (of type <SAMP>unsigned long</SAMP>) from a
+string. <SAMP>source</SAMP> points to a null-terminated
+string to extract the number from. If <SAMP>end</SAMP> is
+non-null, the <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A> *</SAMP> it points to is set to
+the character after the last character used to represent
+the parsed number, so parsing can continue after the
+number. The numbers are parsed as decimal numbers, in the
+normal number format. Scientific notation is recognized if
+used. A <SAMP>Num/Syntax</SAMP> exception is generated if a
+number cannot be parsed from the text. A
+<SAMP>Num/Range</SAMP> exception is generated if the
+magnitude of the parsed number is outside the allowable
+range for the given type, or if a non-integer is read for
+one of the integral types.
+</DD></DL>
+<P>
+<A NAME="vnumParseULongFormatted"><HR><H4>vnumParseULongFormatted</H4></A>
+<PRE>
+        unsigned long <B>vnumParseULongFormatted</B>(
+                const vchar * source,
+                vchar ** end,
+                vnumDigitSet * digits,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                int approximateOk);
+</PRE>
+
+<DL><DD>
+Parses a number (of type <SAMP>unsigned long</SAMP>) from a
+string when more control is needed over the format.
+<SAMP>source</SAMP> specifies a null-terminated string to
+parse the number from. The digit set <SAMP>digits</SAMP>
+specifies which digits are used to make up the number.
+<SAMP>numberFormat</SAMP> specifies the format the mantissa
+appears in, while <SAMP>expFormat</SAMP> specifies the
+format the exponent appears in, including the exponent's
+prefix (typically <SAMP>e</SAMP>). If
+<SAMP>expFormat</SAMP> is a null pointer, scientific
+notation is not recognized. <SAMP>approximateOK</SAMP>
+should be <SAMP>TRUE</SAMP> if it is allowable for the
+number to be rounded off to fit into the appropriate data
+type, <SAMP>FALSE</SAMP> if this is inappropriate. Finally,
+<SAMP>end</SAMP>, if non-null, specifies a pointer to be
+set to the end of the parsed number, so parsing can
+continue. A <SAMP>Num/Syntax</SAMP> exception is generated
+if the text does not contain a number of the proper format.
+A <SAMP>Num/Range</SAMP> exception is generated if the
+parsed number is out of range to fit into the specified
+type (or if <SAMP>approximateOK</SAMP> is
+<SAMP>FALSE</SAMP> and the number would have to be rounded
+to be fully represented).
+</DD></DL>
+<P>
+<A NAME="vnumRemoveFormatComponent"><HR><H4>vnumRemoveFormatComponent</H4></A>
+<PRE>
+        vbool <B>vnumRemoveFormatComponent</B>(
+                vnumFormat * f,
+                vnumFormatIterator * i);
+</PRE>
+
+<DL><DD>
+Removes the number format component indicated by
+<SAMP>f</SAMP>, or the last one in the format if
+<SAMP>i</SAMP> is a null pointer. After the call,
+<SAMP>i</SAMP> points to the element after the one removed.
+</DD></DL>
+<P>
+<A NAME="vnumRemoveFormatComponentAt"><HR><H4>vnumRemoveFormatComponentAt</H4></A>
+<PRE>
+        vbool <B>vnumRemoveFormatComponentAt</B>(
+                vnumFormat * f,
+                int index);
+</PRE>
+
+<DL><DD>
+Use -1 to remove the last format component.
+Generates an /arg/range exception if index is out of range.
+</DD></DL>
+<P>
+<A NAME="vnumScribeFloat"><HR><H4>vnumScribeFloat</H4></A>
+<PRE>
+        vscribe * <B>vnumScribeFloat</B>(
+                double number);
+</PRE>
+
+<DL><DD>
+This function creates a scribe that writes a text
+representation of the specified number. The numbers are
+printed as decimal numbers, in the normal number format.
+<CODE>vnumScribeFloat</CODE> uses scientific notation to
+represent the number if the number's magnitude is very
+large or very small.
+</DD></DL>
+<P>
+<A NAME="vnumScribeFloatFormatted"><HR><H4>vnumScribeFloatFormatted</H4></A>
+<PRE>
+        vscribe * <B>vnumScribeFloatFormatted</B>(
+                double number,
+                vnumDigitSet * digits,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                int approximateOk,
+                int precision);
+</PRE>
+
+<DL><DD>
+This function creates a scribe that writes out the text
+representation of the given number, but they allow you to
+customize how the number is represented.
+<SAMP>digits</SAMP> specifies the digit set used to print
+the number (which allows you to use a base other than 10).
+<SAMP>numberFormat</SAMP> is the <CODE><A HREF="vnum-x.html#vnumFormat"><CODE>vnumFormat</CODE></A></CODE>
+used to print the number. <SAMP>expFormat</SAMP> is the
+format used to print the exponent, including the exponent's
+prefix (typically <SAMP>e</SAMP>) if scientific notation is
+to be used, or <SAMP>NULL</SAMP> if it is not.
+<SAMP>approximateOK</SAMP> should be <SAMP>TRUE</SAMP> if
+you don't care if the number's full precision is printed
+out by the format. If it is <SAMP>FALSE</SAMP>, a
+<SAMP>Num/Range</SAMP> exception is generated if this
+occurs. Finally, <SAMP>precision</SAMP>is the number of
+digits in the number that are significant and should be
+printed. Note that this includes all digits, not just
+digits after the decimal point. Pass <SAMP>-1</SAMP> for
+<SAMP>precision</SAMP> if you just want to truncate all
+trailing zeros.
+</DD></DL>
+<P>
+<A NAME="vnumScribeGeneral"><HR><H4>vnumScribeGeneral</H4></A>
+<PRE>
+        vscribe * <B>vnumScribeGeneral</B>(
+                vbyte * digits,
+                int digitCount,
+                int exponent,
+                int negative,
+                vnumDigitSet * digitSet,
+                vnumFormat * numberFormat,
+                vnumFormat * exponentFormat,
+                int approximateOk);
+</PRE>
+
+<DL><DD>
+This function is used to make a scribe to write a number in
+a data type that is not one of those supported by the
+Number class (for example, fixed point or long double).
+It works the same as the
+<SAMP>vnumScribe</SAMP><SAMP>Type</SAMP><SAMP>Formatted</SAMP> calls, 
+except that rather than taking a number of the appropriate type, 
+it takes a buffer with the digits of the number and other 
+information about the number which must be computed by the caller.
+
+<P>
+<ul>
+<li><SAMP>digits</SAMP>
+<li><SAMP>numberFormat</SAMP>,
+<li><SAMP>exponentFormat</SAMP>
+<li><SAMP>approximateOK</SAMP>
+</ul>
+
+<P>
+The calls above all work the same as in the
+<SAMP>vnumScribe</SAMP><SAMP>Type</SAMP><SAMP>Formatted</SAMP>
+calls. <SAMP>digits</SAMP> points to an array of type
+<SAMP>vbyte</SAMP> which contain the numeric values of the
+digits in the number to be printed, one digit per
+<SAMP>vbyte</SAMP>. <SAMP>digitCount</SAMP> contains the
+number of digits in the array. <SAMP>exponent</SAMP>
+indicates the number of digits that would appear before the
+decimal point if the number were written in fixed place
+format. <SAMP>negative</SAMP> should be <SAMP>TRUE</SAMP>
+if the number is negative, <SAMP>FALSE</SAMP> if it is
+positive.
+</DD></DL>
+<P>
+<A NAME="vnumScribeInt"><HR><H4>vnumScribeInt</H4></A>
+<PRE>
+        vscribe * <B>vnumScribeInt</B>(
+                int number);
+</PRE>
+
+<DL><DD>
+This function creates a scribe that writes a text
+representation of the specified number. The numbers are
+printed as decimal numbers, in the normal number format.
+</DD></DL>
+<P>
+<A NAME="vnumScribeIntFormatted"><HR><H4>vnumScribeIntFormatted</H4></A>
+<PRE>
+        vscribe * <B>vnumScribeIntFormatted</B>(
+                int number,
+                vnumDigitSet * digits,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                int approximateOk,
+                int precision);
+</PRE>
+
+<DL><DD>
+These functions also create a scribe that writes out the
+text representation of the given number, but they allow you
+to customize how the number is represented.
+<SAMP>digits</SAMP> specifies the digit set used to print
+the number (which allows you to use a base other than 10).
+<SAMP>numberFormat</SAMP> is the <SAMP><A HREF="vnum-x.html#vnumFormat"><CODE>vnumFormat</CODE></A></SAMP>
+used to print the number. <SAMP>expFormat</SAMP> is the
+format used to print the exponent, including the exponent's
+prefix (typically <SAMP>e</SAMP>) if scientific notation is
+to be used, or <SAMP>NULL</SAMP> if it is not.
+<SAMP>approximateOK</SAMP> should be <SAMP>TRUE</SAMP> if
+you don't care if the number's full precision is printed
+out by the format. If it is <SAMP>FALSE</SAMP>, a
+<SAMP>Num/Range</SAMP> exception is generated if this
+occurs. Finally, <SAMP>precision</SAMP> is the number of
+digits in the number that are significant and should be
+printed. 
+<P>
+Note that this includes all digits, not just
+digits after the decimal point. Pass <SAMP>-1</SAMP> for
+<SAMP>precision</SAMP> if you just want to truncate all
+trailing zeros.
+</DD></DL>
+<P>
+<A NAME="vnumScribeLong"><HR><H4>vnumScribeLong</H4></A>
+<PRE>
+        vscribe * <B>vnumScribeLong</B>(
+                long number);
+</PRE>
+
+<DL><DD>
+This function creates a scribe that writes a text
+representation of the specified number. The numbers are
+printed as decimal numbers, in the normal number format.
+</DD></DL>
+<P>
+<A NAME="vnumScribeLongFormatted"><HR><H4>vnumScribeLongFormatted</H4></A>
+<PRE>
+        vscribe * <B>vnumScribeLongFormatted</B>(
+                long number,
+                vnumDigitSet * digits,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                int approximateOk,
+                int precision);
+</PRE>
+
+<DL><DD>
+This function creates a scribe that writes out the text
+representation of the given number, but they allow you to
+customize how the number is represented.
+<SAMP>digits</SAMP> specifies the digit set used to print
+the number (which allows you to use a base other than 10).
+<SAMP>numberFormat</SAMP> is the <SAMP><A HREF="vnum-x.html#vnumFormat"><CODE>vnumFormat</CODE></A></SAMP>
+used to print the number. <SAMP>expFormat</SAMP> is the
+format used to print the exponent, including the exponent's
+prefix (typically <SAMP>e</SAMP>) if scientific notation is
+to be used, or <SAMP>NULL</SAMP> if it is not.
+<SAMP>approximateOK</SAMP> should be <SAMP>TRUE</SAMP> if
+you don't care if the number's full precision is printed
+out by the format. If it is <SAMP>FALSE</SAMP>, a
+<SAMP>Num/Range</SAMP> exception is generated if this
+occurs. Finally, <SAMP>precision</SAMP> is the number of
+digits in the number that are significant and should be
+printed. 
+<P>
+Note that this includes all digits, not just
+digits after the decimal point. Pass <SAMP>-1</SAMP> for
+<SAMP>precision</SAMP> if you just want to truncate all
+trailing zeros.
+</DD></DL>
+<P>
+<A NAME="vnumScribeLongLong"><HR><H4>vnumScribeLongLong</H4></A>
+<PRE>
+        vscribe * <B>vnumScribeLongLong</B>(
+                vlonglong number);
+</PRE>
+
+<DL><DD>
+This function creates a scribe that writes a text
+representation of the specified number. The numbers are
+printed as decimal numbers, in the normal number format.
+</DD></DL>
+<P>
+<A NAME="vnumScribeLongLongFormatted"><HR><H4>vnumScribeLongLongFormatted</H4></A>
+<PRE>
+        vscribe * <B>vnumScribeLongLongFormatted</B>(
+                vlonglong number,
+                vnumDigitSet * digits,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                int approximateOk,
+                int precision);
+</PRE>
+
+<DL><DD>
+This function creates a scribe that writes out the text
+representation of the given number, but they allow you to
+customize how the number is represented.
+<SAMP>digits</SAMP> specifies the digit set used to print
+the number (which allows you to use a base other than 10).
+<SAMP>numberFormat</SAMP> is the <SAMP><A HREF="vnum-x.html#vnumFormat"><CODE>vnumFormat</CODE></A></SAMP>
+used to print the number. <SAMP>expFormat</SAMP> is the
+format used to print the exponent, including the exponent's
+prefix (typically <SAMP>e</SAMP>) if scientific notation is
+to be used, or <SAMP>NULL</SAMP> if it is not.
+<SAMP>approximateOK</SAMP> should be <SAMP>TRUE</SAMP> if
+you don't care if the number's full precision is printed
+out by the format. If it is <SAMP>FALSE</SAMP>, a
+<SAMP>Num/Range</SAMP> exception is generated if this
+occurs. Finally, <SAMP>precision</SAMP> is the number of
+digits in the number that are significant and should be
+printed. 
+<P>
+Note that this includes all digits, not just
+digits after the decimal point. Pass <SAMP>-1</SAMP> for
+<SAMP>precision</SAMP> if you just want to truncate all
+trailing zeros.
+</DD></DL>
+<P>
+<A NAME="vnumScribeUInt"><HR><H4>vnumScribeUInt</H4></A>
+<PRE>
+        vscribe * <B>vnumScribeUInt</B>(
+                unsigned int number);
+</PRE>
+
+<DL><DD>
+This function creates a scribe that writes a text
+representation of the specified number. The numbers are
+printed as decimal numbers, in the normal number format.
+</DD></DL>
+<P>
+<A NAME="vnumScribeUIntFormatted"><HR><H4>vnumScribeUIntFormatted</H4></A>
+<PRE>
+        vscribe * <B>vnumScribeUIntFormatted</B>(
+                unsigned int number,
+                vnumDigitSet * digits,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                int approximateOk,
+                int precision);
+</PRE>
+
+<DL><DD>
+This function creates a scribe that writes out the text
+representation of the given number, but they allow you to
+customize how the number is represented.
+<SAMP>digits</SAMP> specifies the digit set used to print
+the number (which allows you to use a base other than 10).
+<SAMP>numberFormat</SAMP> is the <SAMP><A HREF="vnum-x.html#vnumFormat"><CODE>vnumFormat</CODE></A></SAMP>
+used to print the number. <SAMP>expFormat</SAMP> is the
+format used to print the exponent, including the exponent's
+prefix (typically <SAMP>e</SAMP>) if scientific notation is
+to be used, or <SAMP>NULL</SAMP> if it is not.
+<SAMP>approximateOK</SAMP> should be <SAMP>TRUE</SAMP> if
+you don't care if the number's full precision is printed
+out by the format. If it is <SAMP>FALSE</SAMP>, a
+<SAMP>Num/Range</SAMP> exception is generated if this
+occurs. Finally, <SAMP>precision</SAMP> is the number of
+digits in the number that are significant and should be
+printed. 
+<P>
+Note that this includes all digits, not just
+digits after the decimal point. Pass <SAMP>-1</SAMP> for
+<SAMP>precision</SAMP> if you just want to truncate all
+trailing zeros.
+</DD></DL>
+<P>
+<A NAME="vnumScribeULong"><HR><H4>vnumScribeULong</H4></A>
+<PRE>
+        vscribe * <B>vnumScribeULong</B>(
+                unsigned long number);
+</PRE>
+
+<DL><DD>
+This function creates a scribe that writes a text
+representation of the specified number. The numbers are
+printed as decimal numbers, in the normal number format.
+</DD></DL>
+<P>
+<A NAME="vnumScribeULongFormatted"><HR><H4>vnumScribeULongFormatted</H4></A>
+<PRE>
+        vscribe * <B>vnumScribeULongFormatted</B>(
+                unsigned long number,
+                vnumDigitSet * digits,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                int approximateOk,
+                int precision);
+</PRE>
+
+<DL><DD>
+This function creates a scribe that writes out the text
+representation of the given number, but they allow you to
+customize how the number is represented.
+<SAMP>digits</SAMP> specifies the digit set used to print
+the number (which allows you to use a base other than 10).
+<SAMP>numberFormat</SAMP> is the <CODE><A HREF="vnum-x.html#vnumFormat"><CODE>vnumFormat</CODE></A></CODE>
+used to print the number. <SAMP>expFormat</SAMP> is the
+format used to print the exponent, including the exponent's
+prefix (typically <SAMP>e</SAMP>) if scientific notation is
+to be used, or <SAMP>NULL</SAMP> if it is not.
+<SAMP>approximateOK</SAMP> should be <SAMP>TRUE</SAMP> if
+you don't care if the number's full precision is printed
+out by the format. If it is <SAMP>FALSE</SAMP>, a
+<SAMP>Num/Range</SAMP> exception is generated if this
+occurs. Finally, <SAMP>precision</SAMP> is the number of
+digits in the number that are significant and should be
+printed. 
+<P>
+Note that this includes all digits, not just
+digits after the decimal point. Pass <SAMP>-1</SAMP> for
+<SAMP>precision</SAMP> if you just want to truncate all
+trailing zeros.
+</DD></DL>
+<P>
+<A NAME="vnumSetScribeDigitsAfter"><HR><H4>vnumSetScribeDigitsAfter</H4></A>
+<PRE>
+        void <B>vnumSetScribeDigitsAfter</B>(
+                vscribe * scribe,
+                size_t digits);
+</PRE>
+
+<DL><DD>
+Sets the number of digits that appear after the decimal
+point when <SAMP>scribe</SAMP> is used. If
+<SAMP>digits</SAMP> is less than the current value, extra
+digits are truncated. If it is greater, zeroes are
+appended. (Note that if the TruncateZeros flag is set,
+these zeros will subsequently be truncated.)
+  <P>
+If the format used to scribe the number has fixed-size
+digit components after the decimal, the number may be
+additionally padded or truncated as the format specifies.
+  <P>
+Note that <SAMP>scribe</SAMP> must have been created by a
+<SAMP>vnumScribe</SAMP> call.
+</DD></DL>
+<P>
+<A NAME="vnumSetScribeDigitsBefore"><HR><H4>vnumSetScribeDigitsBefore</H4></A>
+<PRE>
+        void <B>vnumSetScribeDigitsBefore</B>(
+                vscribe * scribe,
+                size_t digits);
+</PRE>
+
+<DL><DD>
+Sets the number of digits that appear before the decimal
+point when <SAMP>scribe</SAMP> is used. If
+<SAMP>digits</SAMP> is greater than the current value,
+leading zeros are prepended to the number. If it is less,
+the digits are truncated.
+  <P>
+If the format used to scribe the number has fixed-size
+digit components before the decimal, the number may be
+additionally padded or truncated as the format specifies.
+  <P>
+Note that <SAMP>scribe</SAMP> must have been created by a
+<SAMP>vnumScribe</SAMP> call.
+</DD></DL>
+<P>
+<A NAME="vnumSetScribeTruncateZeroes"><HR><H4>vnumSetScribeTruncateZeroes</H4></A>
+<PRE>
+        void <B>vnumSetScribeTruncateZeroes</B>(
+                vscribe * scribe,
+                int value);
+</PRE>
+
+<DL><DD>
+This flag controls whether or not the number is displayed
+up to its full specified precision, or if trailing zeroes
+are truncated. The default value is <SAMP>TRUE</SAMP>. Set
+it to <SAMP>FALSE</SAMP> when you want to show a number up
+to its full specified precision.
+  <P>
+This truncation only applies to the precision of the number
+(as specified when scribing the number or by the
+<CODE><A HREF="vnum-x.html#vnumSetScribeDigitsAfter"><CODE>vnumSetScribeDigitsAfter</CODE></A></CODE> call), and will not
+change the behavior of any fixed-size digit components in
+the number format.
+  <P>
+Note that <SAMP>scribe</SAMP> must have been created by a
+<SAMP>vnumScribe</SAMP> call.
+</DD></DL>
+<P>
+<A NAME="vnumSizedParseFloat"><HR><H4>vnumSizedParseFloat</H4></A>
+<PRE>
+        double <B>vnumSizedParseFloat</B>(
+                const vchar * source,
+                size_t sourceLength,
+                vchar ** end);
+</PRE>
+
+<DL><DD>
+This function is identical to <CODE><A HREF="vnum-x.html#vnumParseFloat"><CODE>vnumParseFloat</CODE></A></CODE>,
+except that <SAMP>source</SAMP> has its length specified
+explicitly, rather than being null-terminated.
+</DD></DL>
+<P>
+<A NAME="vnumSizedParseFloatFormatted"><HR><H4>vnumSizedParseFloatFormatted</H4></A>
+<PRE>
+        double <B>vnumSizedParseFloatFormatted</B>(
+                const vchar * source,
+                size_t sourceLength,
+                vchar ** end,
+                vnumDigitSet * digits,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                int approximateOk);
+</PRE>
+
+<DL><DD>
+This function is identical to
+<CODE><A HREF="vnum-x.html#vnumParseFloatFormatted"><CODE>vnumParseFloatFormatted</CODE></A></CODE>, except it takes a
+non-null-terminated <SAMP>source</SAMP> with an explicit
+length, rather than a null-terminated <SAMP>source</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnumSizedParseGeneral"><HR><H4>vnumSizedParseGeneral</H4></A>
+<PRE>
+        void <B>vnumSizedParseGeneral</B>(
+                const vchar * source,
+                size_t sourceLength,
+                vchar ** end,
+                vnumDigitSet * digitSet,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                vbyte * digits,
+                int * digitSize,
+                int * exponent,
+                vbool * negative,
+                vbool * overflow);
+</PRE>
+
+<DL><DD>
+This function is identical to
+<CODE><A HREF="vnum-x.html#vnumParseGeneral"><CODE>vnumParseGeneral</CODE></A></CODE>, except it takes a non-null
+terminated <SAMP>source</SAMP> with an explicit length,
+rather than a null-terminated <SAMP>source</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnumSizedParseInt"><HR><H4>vnumSizedParseInt</H4></A>
+<PRE>
+        int <B>vnumSizedParseInt</B>(
+                const vchar * source,
+                size_t sourceLength,
+                vchar ** end);
+</PRE>
+
+<DL><DD>
+This function is identical to <CODE><A HREF="vnum-x.html#vnumParseInt"><CODE>vnumParseInt</CODE></A></CODE>,
+except that <SAMP>source</SAMP> has its length specified
+explicitly, rather than being null-terminated.
+</DD></DL>
+<P>
+<A NAME="vnumSizedParseIntFormatted"><HR><H4>vnumSizedParseIntFormatted</H4></A>
+<PRE>
+        int <B>vnumSizedParseIntFormatted</B>(
+                const vchar * source,
+                size_t sourceLength,
+                vchar ** end,
+                vnumDigitSet * digits,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                int approximateOk);
+</PRE>
+
+<DL><DD>
+This function is identical to
+<CODE><A HREF="vnum-x.html#vnumParseIntFormatted"><CODE>vnumParseIntFormatted</CODE></A></CODE>, except that it takes a
+non-null-terminated <SAMP>source</SAMP> with an explicit
+length, rather than a null-terminated <SAMP>source</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnumSizedParseLong"><HR><H4>vnumSizedParseLong</H4></A>
+<PRE>
+        long <B>vnumSizedParseLong</B>(
+                const vchar * source,
+                size_t sourceLength,
+                vchar ** end);
+</PRE>
+
+<DL><DD>
+This function is identical to <CODE><A HREF="vnum-x.html#vnumParseLong"><CODE>vnumParseLong</CODE></A></CODE>,
+except that <SAMP>source</SAMP> has its length specified
+explicitly, rather than being null-terminated.
+</DD></DL>
+<P>
+<A NAME="vnumSizedParseLongFormatted"><HR><H4>vnumSizedParseLongFormatted</H4></A>
+<PRE>
+        long <B>vnumSizedParseLongFormatted</B>(
+                const vchar * source,
+                size_t sourceLength,
+                vchar ** end,
+                vnumDigitSet * digits,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                int approximateOk);
+</PRE>
+
+<DL><DD>
+This function is identical to
+<CODE><A HREF="vnum-x.html#vnumParseLongFormatted"><CODE>vnumParseLongFormatted</CODE></A></CODE>, except that it takes a
+non-null-terminated <SAMP>source</SAMP> with an explicit
+length, rather than a null-terminated <SAMP>source</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnumSizedParseLongLong"><HR><H4>vnumSizedParseLongLong</H4></A>
+<PRE>
+        vlonglong <B>vnumSizedParseLongLong</B>(
+                const vchar * source,
+                size_t sourceLength,
+                vchar ** end);
+</PRE>
+
+<DL><DD>
+This function is identical to <CODE><A HREF="vnum-x.html#vnumParseLong"><CODE>vnumParseLong</CODE></A></CODE>,
+except that <SAMP>source</SAMP> has its length specified
+explicitly, rather than being null-terminated.
+</DD></DL>
+<P>
+<A NAME="vnumSizedParseLongLongFormatted"><HR><H4>vnumSizedParseLongLongFormatted</H4></A>
+<PRE>
+        vlonglong <B>vnumSizedParseLongLongFormatted</B>(
+                const vchar * source,
+                size_t sourceLength,
+                vchar ** end,
+                vnumDigitSet * digits,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                int approximateOk);
+</PRE>
+
+<DL><DD>
+This function is identical to
+<CODE><A HREF="vnum-x.html#vnumParseLongFormatted"><CODE>vnumParseLongFormatted</CODE></A></CODE>, except that it takes a
+non-null-terminated <SAMP>source</SAMP> with an explicit
+length, rather than a null-terminated <SAMP>source</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnumSizedParseUInt"><HR><H4>vnumSizedParseUInt</H4></A>
+<PRE>
+        unsigned int <B>vnumSizedParseUInt</B>(
+                const vchar * source,
+                size_t sourceLength,
+                vchar ** end);
+</PRE>
+
+<DL><DD>
+This function is identical to <CODE>vnumParseUnit</CODE>,
+except that <SAMP>source</SAMP> has its length specified
+explicitly, rather than being null-terminated.
+</DD></DL>
+<P>
+<A NAME="vnumSizedParseUIntFormatted"><HR><H4>vnumSizedParseUIntFormatted</H4></A>
+<PRE>
+        unsigned int <B>vnumSizedParseUIntFormatted</B>(
+                const vchar * source,
+                size_t sourceLength,
+                vchar ** end,
+                vnumDigitSet * digits,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                int approximateOk);
+</PRE>
+
+<DL><DD>
+This function is identical to
+<CODE><A HREF="vnum-x.html#vnumParseUIntFormatted"><CODE>vnumParseUIntFormatted</CODE></A></CODE>, except that it takes a
+non-null-terminated <SAMP>source</SAMP> with an explicit
+length, rather than a null-terminated <SAMP>source</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnumSizedParseULong"><HR><H4>vnumSizedParseULong</H4></A>
+<PRE>
+        unsigned long <B>vnumSizedParseULong</B>(
+                const vchar * source,
+                size_t sourceLength,
+                vchar ** end);
+</PRE>
+
+<DL><DD>
+This function is identical to <CODE><A HREF="vnum-x.html#vnumParseULong"><CODE>vnumParseULong</CODE></A></CODE>,
+except that <SAMP>source</SAMP> has its length specified
+explicitly, rather than being null-terminated.
+</DD></DL>
+<P>
+<A NAME="vnumSizedParseULongFormatted"><HR><H4>vnumSizedParseULongFormatted</H4></A>
+<PRE>
+        unsigned long <B>vnumSizedParseULongFormatted</B>(
+                const vchar * source,
+                size_t sourceLength,
+                vchar ** end,
+                vnumDigitSet * digits,
+                vnumFormat * numberFormat,
+                vnumFormat * expFormat,
+                int approximateOk);
+</PRE>
+
+<DL><DD>
+This function is identical to
+<CODE><A HREF="vnum-x.html#vnumParseULongFormatted"><CODE>vnumParseULongFormatted</CODE></A></CODE>, except that it takes
+a non-null-terminated <SAMP>source</SAMP> with an explicit
+length, rather than a null-terminated <SAMP>source</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnumStartup"><HR><H4>vnumStartup</H4></A>
+<PRE>
+        void <B>vnumStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the Number class. Has no effect if the Number
+class is already initialized.
+</DD></DL>
+<P>
+<A NAME="vnumStoreDigitSet"><HR><H4>vnumStoreDigitSet</H4></A>
+<PRE>
+        void <B>vnumStoreDigitSet</B>(
+                vnumDigitSet * ds,
+                vresource r);
+</PRE>
+
+<DL><DD>
+Stores a digit set in the given resource <SAMP>r</SAMP>.
+<SAMP>r</SAMP> should be an untyped resource created with
+<CODE><A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A></CODE> or the resource of a previously
+stored digit set.
+</DD></DL>
+<P>
+<A NAME="vnumStoreFormat"><HR><H4>vnumStoreFormat</H4></A>
+<PRE>
+        void <B>vnumStoreFormat</B>(
+                vnumFormat * f,
+                vresource r);
+</PRE>
+
+<DL><DD>
+Stores the number format <SAMP>f</SAMP> in the given
+resource <SAMP>r</SAMP>. <SAMP>r</SAMP> should be an
+untyped resource created with <CODE><A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A></CODE> or
+the resource of a previously stored format.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vnumFORMAT_DECIMAL"><HR><H4>vnumFORMAT_DECIMAL</H4></A>
+<PRE>
+        <B>vnumFORMAT_DECIMAL</B>
+</PRE>
+
+<DL><DD>
+This constant represents <A HREF="vnum-x.html#vnumFormat"><CODE>vnumFormat</CODE></A> decimal place format components.
+</DD></DL>
+<P>
+<A NAME="vnumFORMAT_DIGITS"><HR><H4>vnumFORMAT_DIGITS</H4></A>
+<PRE>
+        <B>vnumFORMAT_DIGITS</B>
+</PRE>
+
+<DL><DD>
+This constant represents <A HREF="vnum-x.html#vnumFormat"><CODE>vnumFormat</CODE></A> digit format components.
+</DD></DL>
+<P>
+<A NAME="vnumFORMAT_EXPONENT"><HR><H4>vnumFORMAT_EXPONENT</H4></A>
+<PRE>
+        <B>vnumFORMAT_EXPONENT</B>
+</PRE>
+
+<DL><DD>
+This constant represents <A HREF="vnum-x.html#vnumFormat"><CODE>vnumFormat</CODE></A> exponent format components.
+</DD></DL>
+<P>
+<A NAME="vnumFORMAT_NEGATIVE_TEXT"><HR><H4>vnumFORMAT_NEGATIVE_TEXT</H4></A>
+<PRE>
+        <B>vnumFORMAT_NEGATIVE_TEXT</B>
+</PRE>
+
+<DL><DD>
+This constant represents <A HREF="vnum-x.html#vnumFormat"><CODE>vnumFormat</CODE></A> negative text format components.
+</DD></DL>
+<P>
+<A NAME="vnumFORMAT_PADDING"><HR><H4>vnumFORMAT_PADDING</H4></A>
+<PRE>
+        <B>vnumFORMAT_PADDING</B>
+</PRE>
+
+<DL><DD>
+This constant represents <A HREF="vnum-x.html#vnumFormat"><CODE>vnumFormat</CODE></A> padding format components.
+</DD></DL>
+<P>
+<A NAME="vnumFORMAT_POSITIVE_TEXT"><HR><H4>vnumFORMAT_POSITIVE_TEXT</H4></A>
+<PRE>
+        <B>vnumFORMAT_POSITIVE_TEXT</B>
+</PRE>
+
+<DL><DD>
+This constant represents <A HREF="vnum-x.html#vnumFormat"><CODE>vnumFormat</CODE></A> positive text format components.
+</DD></DL>
+<P>
+<A NAME="vnumFORMAT_TEXT"><HR><H4>vnumFORMAT_TEXT</H4></A>
+<PRE>
+        <B>vnumFORMAT_TEXT</B>
+</PRE>
+
+<DL><DD>
+These constants are used to indicate the type of a
+component in a <SAMP><A HREF="vnum-x.html#vnumFormat"><CODE>vnumFormat</CODE></A></SAMP>.
+</DD></DL>
+<P>
+<A NAME="vnumFORMAT_WHITE_SPACE"><HR><H4>vnumFORMAT_WHITE_SPACE</H4></A>
+<PRE>
+        <B>vnumFORMAT_WHITE_SPACE</B>
+</PRE>
+
+<DL><DD>
+This constant represents <A HREF="vnum-x.html#vnumFormat"><CODE>vnumFormat</CODE></A> white space format components.
+</DD></DL>
+<P>
+<A NAME="vnumINCLUDED"><HR><H4>vnumINCLUDED</H4></A>
+<PRE>
+        <B>vnumINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vnum.h</SAMP> is
+included.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vnumFormatCLASS"><HR><H4>vnumFormatCLASS</H4></A>
+<PRE>
+        #define <B>vnumFormatCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the methods and variables declarations for the vnumFormat 
+class.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

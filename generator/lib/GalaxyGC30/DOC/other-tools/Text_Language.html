@@ -1,0 +1,171 @@
+<HTML>
+<HEAD>
+<TITLE>Galaxy Resource Text Language</TITLE>
+</HEAD>
+
+<BODY background="../vrb/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="../graphics/logo.gif">
+		<IMG WIDTH="130" SRC="../graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="../graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Galaxy Resource Text Language</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="../graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="../graphics/trans.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="../graphics/up.gif"></A>
+		<A HREF="vr2vrx.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="../graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="../graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="2660"></A>
+The language used to represent Galaxy resource files in ASCII was designed to keep the representation small, to allow some human reading and editing, and to permit exact recreation of a resource file.<P>
+This language is tailored to the primitives of Galaxy resource files and provides a different type of token or collection syntax for each resource type. The tokens are separated by white space; the amount and nature of the white space does not matter as far as the reader is concerned. The backslash (<TT></TT>) is an escape character that marks non-delimiting delimiters, non-graphic ASCII characters, and non-ASCII characters. The following sections describe the various token and collection syntax types for each resource type.<P>
+<A NAME="2663"><H1> Tag</H1></A>
+A token for a tag starts with a colon (<TT>:</TT>) and ends with unescaped white space of any kind. Internal spaces are represented by a backslash preceding a space (<TT> </TT>). Internal newlines are represented by <TT>n</TT>. Internal backslashes are represented by <TT></TT>. All other non-graphic ASCII characters are represented by <TT>PQR</TT>, where P, Q, and R are octal digits and PQR is equal to the ASCII value of the character. Characters with more than 7 bits of significance are represented by <TT>xSTUV</TT>, where S, T, U, and V are hexadecimal digits and STUV is equal to the 16-bit value of the character.<P>
+Examples:<P>
+<PRE><UL>:Class
+:abcde fghnijkx5DEDlmn177opq
+</UL></PRE><A NAME="2668"><H1> Integer</H1></A>
+A token for an integer starts with a plus (<TT>+</TT>) or a minus (<TT>-</TT>) and ends with white space of any kind. The value is represented by a string of decimal digits. An integer may have up to 32 bits of significance.<P>
+Examples:<P>
+<PRE><UL>+0
++1234
+-12
+</UL></PRE><A NAME="2674"><H1> Fixed</H1></A>
+A token for a fixed point number starts with a percent sign (<TT>%</TT>) and ends with white space of any kind. The value is represented by integral parts and fractional parts separated by pluses (<TT>+</TT>) and minuses (<TT>-</TT>). Each fractional part is further divided by a slash (<TT>/</TT>) into a numerator and a denominator. The denominator can have any value, but strictly it should be one of 2, 4, 8, 16, ..., 65536. (In the future a more compact representation may be considered.)<P>
+Examples:<P>
+<PRE><UL>%0
+%1234
+%1/2
+%1+1/128
+%-1-3/4
+%65535/65536
+</UL></PRE><A NAME="2683"><H1> Float</H1></A>
+A token for a floating point number starts with an asterisk (<TT>*</TT>) and ends with white space of any kind. The value is represented by a normal C-style floating point token, with or without a decimal point and with or without an exponential part.<P>
+Examples:<P>
+<PRE><UL>*0
+*1234.567
+*1.2e-12
+</UL></PRE><A NAME="2689"><H1> String</H1></A>
+A token for a string starts with a double quote (<TT>"</TT>) and ends with an unescaped double quote (<TT>"</TT>). Internal newlines are represented by <TT>n</TT>. Internal backslashes are represented by <TT></TT>. All other non-graphic ASCII characters are represented by <TT>PQR</TT>, where P, Q, and R are octal digits and PQR is equal to the ASCII value of the character. Characters with more than 7 bits of significance are represented by <TT>xSTUV</TT>, where S, T, U, and V are hexadecimal digits and STUV is equal to the<br>16-bit value of the character.<P>
+A number of conventions are used to allow long strings to wrap in a way that allows them to be correctly unwrapped. A single space surrounded by two non-spaces can be replaced with an unescaped newline. All other white space, including multiple spaces, can be followed by an unescaped newline that is not considered a substitute for a single space. An escaped newline, <TT></TT> followed by a newline (not <TT>n</TT>), may split any two characters.<P>
+Examples:<P>
+<PRE><UL>"Foo"
+"The next newline is really a space.<br>
+Internal newlines must be represented as an escaped `n'.n<br>
+Other escaped sequences can be used, like ", , 077,<br>
+and xABCD.n
+A newline will be translated into a single space unless it<br>
+is escaped, or preceded by other white-space or escaped seq<br>
+uences representing white-space.n"
+</UL></PRE><A NAME="2696"><H1> Boolean</H1></A>
+There are only two tokens for booleans. An ampersand (<TT>&amp;</TT>) followed by a zero (<TT>0</TT>) stands for FALSE. An ampersand followed by a one (<TT>1</TT>) stands for TRUE.<P>
+Examples:<P>
+<PRE><UL>&amp;0
+&amp;1
+</UL></PRE><A NAME="2701"><H1> Character</H1></A>
+A token for a single character starts with a single quote (<TT>'</TT>) and ends with white space of any kind. If the character after the quote character is not a backslash (<TT></TT>), then that character is the value. Otherwise, newlines are represented by <TT>n</TT>. Backslashes are represented by <TT></TT>. All other non-graphic ASCII characters are represented by <TT>PQR</TT>, where P, Q, and R are octal digits and PQR is equal to the ASCII value of the character. Characters with more than 7 bits of significance are represented by <TT>xSTUV</TT>, where S, T, U, and V are hexadecimal digits and STUV is equal to the 16-bit value of the character.<P>
+Examples:<P>
+<PRE><UL>'a
+'$
+'n
+'000
+'277
+'x0000
+'xFFFF
+</UL></PRE><A NAME="2711"><H1> Opaque</H1></A>
+There are two representations for opaque data. The first starts with a tilde (<TT>~</TT>) and uses uuencoding. The second starts with a single front quote (<TT>\Q</TT>) and uses simple hexadecimal encoding. Both forms end with a line that starts with a single front quote. The uuencoding does not have a begin or end statement, but otherwise can be cut-and-pasted to or from an actual uuencoded file. The hexadecimal encoding may have extraneous white space between pairs of hexadecimal digits, but not within the pairs.<P>
+Examples:<P>
+<PRE><UL>~
+M@=&gt;!UX'7@=&gt;!UX'7@=&gt;!UX'7@=&gt;!UX'7@=&gt;!UX'7@=&gt;!UX'7@=&gt;!UX'7@=&gt;!
+MUX'7@=&gt;!UX'7@=&gt;!UX'7@=&gt;!UX'7@=&gt;!UX'7@=&gt;!UX'7@=&gt;!UX'7@=&gt;!UX'7
+M@=&gt;!UX'7@=&gt;!UX'7@=&gt;!UX'7@=&gt;!UX'7@=&gt;!UX'7@=&gt;!UX'7@=&gt;!UX'7@=&gt;!
+\Q
+
+\Q
+01 2345 6789 ABCD EF
+fedcba 9876543210
+\Q
+</UL></PRE><A NAME="2724"><H1> Dictionary</H1></A>
+A dictionary starts with an open brace (<TT>{</TT>) token and ends with a close brace (<TT>}</TT>) token. Between these tokens there must be an even number of tokens and/or collections, and the first of each pair must be a tag token. The tag is the name used to retrieve the corresponding value (which may also be a tag) from the dictionary resource. An implicit pair of braces surrounds an ASCII resource text file if there is more than one token or collection in the file.<P>
+Examples:<P>
+<PRE><UL>{ :Name "Fred" :Value +1 }
+{ :Tag :Foo :ArrayOfTags [ :aaa :bbb :ccc ] }
+</UL></PRE><A NAME="2729"><H1> Array</H1></A>
+An array starts with an open hard bracket (<TT>[</TT>) token and ends with a close hard bracket (<TT>]</TT>) token. Between these tokens there may be any number (possibly zero) of tokens or collections, but they must all be the same type.<P>
+Examples:<P>
+<PRE><UL>[ +12 +34 +18 ]
+[ &amp;1 &amp;1 &amp;0 &amp;0 &amp;0 &amp;1 &amp;0 ]
+[ { :Name "Wilma" :Value -23 } { :Name "Barney" } ]
+</UL></PRE><A NAME="2735"><H1> Untyped</H1></A>
+An untyped resource token is a single question mark (<TT>?</TT>). An empty array collection is also untyped.<P>
+<A NAME="2737"><H1> Comment</H1></A>
+A comment is represented as a token that starts with a pound sign (<TT>#</TT>). It continues to the next newline (escaped or not) and is not used in the transcription process at all. A comment is only used in ASCII resource files and cannot be stored or retrieved from an actual binary resource.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="vr2vrx.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../../index.html">Switch to Another Document</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

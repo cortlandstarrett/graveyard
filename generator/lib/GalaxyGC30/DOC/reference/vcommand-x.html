@@ -1,0 +1,2970 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vcommand prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vcommand prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vcommand-x.html#section_DataType">Types</A> [25]</TD>
+<TD><A HREF="vcommand-x.html#section_Function">Functions</A> [120]</TD>
+<TD><A HREF="vcommand-x.html#section_Message">Messages</A> [16]</TD>
+<TD><A HREF="vcommand-x.html#section_Constant">Constants</A> [3]</TD>
+<TD><A HREF="vcommand-x.html#section_Macro">Macros</A> [5]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vcommand"><HR><H4>vcommand</H4></A>
+<PRE>
+        typedef ... <B>vcommand</B>;
+</PRE>
+
+<DL><DD>
+Represents a unit of application functionality that can be
+bound to a symbolic identifier. Commands can be
+<I>issued</I> and <I>queried</I>. Issuing a command causes
+the action that the command abstracts to be performed.
+Querying a command returns information about its current
+state. Commands are manipulated by a pointer to this type.
+Objects of this type have classes derived from
+<CODE><A HREF="vcommand-x.html#vcommandClass"><CODE>vcommandClass</CODE></A></CODE>. Commands created by the default
+command class have no attributes.
+</DD></DL>
+<P>
+<A NAME="vcommandClass"><HR><H4>vcommandClass</H4></A>
+<PRE>
+        typedef ... <B>vcommandClass</B>;
+</PRE>
+
+<DL><DD>
+Contains the message definitions for a class of commands.
+The default command class implements no functionality of
+its own; it must be subclassed to be useful. This class
+type is derived from <CODE><A HREF="vclass-x.html#vclassRoot"><CODE>vclassRoot</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandFunc"><HR><H4>vcommandFunc</H4></A>
+<PRE>
+        typedef ... <B>vcommandFunc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a function that will be called when a function
+command (<CODE><A HREF="vcommand-x.html#vcommandFunction"><CODE>vcommandFunction</CODE></A></CODE>) is dispatched or
+queried. <SAMP>command</SAMP> is the function command being
+dispatched or queried, and <SAMP>attr2value</SAMP> is the
+context in which the dispatch or query occurred. Issue
+functions should use the context information in
+<SAMP>attr2value</SAMP> to implement the command, while
+query functions should return information about the command
+in <SAMP>attr2value</SAMP>. <SAMP>attr2value</SAMP> will
+have the hash function <CODE><A HREF="vname-x.html#vnameHash"><CODE>vnameHash</CODE></A></CODE> and attribute
+names as its keys.
+</DD></DL>
+<P>
+<A NAME="vcommandFunction"><HR><H4>vcommandFunction</H4></A>
+<PRE>
+        typedef ... <B>vcommandFunction</B>;
+</PRE>
+
+<DL><DD>
+Represents a command that is implemented by a pair of
+functions. The creator of a function command should specify
+functions to implement the command's issue and query
+methods using <CODE><A HREF="vcommand-x.html#vcommandSetFunctionIssue"><CODE>vcommandSetFunctionIssue</CODE></A></CODE> and
+<CODE><A HREF="vcommand-x.html#vcommandSetFunctionQuery"><CODE>vcommandSetFunctionQuery</CODE></A></CODE>. Objects of this type
+have classes derived from
+<CODE><A HREF="vcommand-x.html#vcommandFunctionClass"><CODE>vcommandFunctionClass</CODE></A></CODE>. Objects created or
+initialized by the default function command class have the
+following default attributes:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><CODE>Issue</CODE>
+<DD><SAMP>(vcommandFunc)NULL</SAMP>
+<DT><CODE>Query</CODE>
+<DD><SAMP>(vcommandFunc)NULL</SAMP>
+</DL>
+</BLOCKQUOTE>
+
+    <P>
+
+    <P>
+</DD></DL>
+<P>
+<A NAME="vcommandFunctionClass"><HR><H4>vcommandFunctionClass</H4></A>
+<PRE>
+        typedef ... <B>vcommandFunctionClass</B>;
+</PRE>
+
+<DL><DD>
+Contains the message definitions for a class of function
+commands. The issue and query methods for classes derived
+from this type simply call the functions stored in the
+command instance. This class need not be subclassed to be
+useful. This class type is derived from
+<CODE><A HREF="vcommand-x.html#vcommandClass"><CODE>vcommandClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandFunctionInitializer"><HR><H4>vcommandFunctionInitializer</H4></A>
+<PRE>
+        typedef ... <B>vcommandFunctionInitializer</B>;
+</PRE>
+
+<DL><DD>
+Contains information needed to create a function command
+and store it in a dictionary. <SAMP>name</SAMP> is the name
+of the command, <SAMP>issueFunc</SAMP> is its issue
+function, and <SAMP>queryFunc</SAMP> is its query function.
+</DD></DL>
+<P>
+<A NAME="vcommandFunctionTemplate"><HR><H4>vcommandFunctionTemplate</H4></A>
+<PRE>
+        typedef ... <B>vcommandFunctionTemplate</B>;
+</PRE>
+
+<DL><DD>
+Contains information needed to create a function command
+and store it in a dictionary. <SAMP>name</SAMP> is the name
+of the command, <SAMP>issueFunc</SAMP> is its issue
+function, and <SAMP>queryFunc</SAMP> is its query function.
+</DD></DL>
+<P>
+<A NAME="vcommandInitializer"><HR><H4>vcommandInitializer</H4></A>
+<PRE>
+        typedef ... <B>vcommandInitializer</B>;
+</PRE>
+
+<DL><DD>
+Contains information needed to create a command and store
+it in a dictionary. <SAMP>name</SAMP> is the name of the
+command, and <SAMP>clas</SAMP> is its kind. An array of
+structures of this time is passed to
+<SAMP><A HREF="vcommand-x.html#vcommand"><CODE>vcommand</CODE></A></SAMP> to create
+a command dictionary for use in a command space.
+</DD></DL>
+<P>
+<A NAME="vcommandKey"><HR><H4>vcommandKey</H4></A>
+<PRE>
+        typedef ... <B>vcommandKey</B>;
+</PRE>
+
+<DL><DD>
+Represents a set of keystrokes that are bound to a command.
+Each keystroke is a separate
+binding---<CODE>vcommandKey</CODE>s never contain key
+sequences. Objects of this type are normally stored in
+dictionaries under the command name that they are bound to.
+Objects of type <CODE>vcommandKey</CODE> have the following
+default attribute:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><CODE>KeyStrokes</CODE>
+<DD><SAMP>None</SAMP>
+</DL>
+</BLOCKQUOTE>
+
+    <P>
+</DD></DL>
+<P>
+<A NAME="vcommandKeyIterator"><HR><H4>vcommandKeyIterator</H4></A>
+<PRE>
+        typedef ... <B>vcommandKeyIterator</B>;
+</PRE>
+
+<DL><DD>
+Represents an abstract pointer variable used to iterate
+over all the keystrokes in a command key binding
+(<CODE>vcommandKey</CODE>).
+</DD></DL>
+<P>
+<A NAME="vcommandSelector"><HR><H4>vcommandSelector</H4></A>
+<PRE>
+        typedef ... <B>vcommandSelector</B>;
+</PRE>
+
+<DL><DD>
+Represents a command that is identified by an integer
+selector. A set of selector commands can share the same
+class and be distinguished only by their selector values.
+Applications can switch off the selector values to
+determine which command is being issued or queried. The
+issue and query methods of the command class will typically
+be bound to application functions that switch off the
+selector value of the command to determine the appropriate
+functionality. Objects of this type have classes derived
+from <CODE><A HREF="vcommand-x.html#vcommandSelectorClass"><CODE>vcommandSelectorClass</CODE></A></CODE>. Objects created or
+initialized by the default selector command class have the
+following default attribute:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><CODE>Selector</CODE>
+<DD><SAMP>0</SAMP>
+</DL>
+</BLOCKQUOTE>
+
+    <P>
+
+    <P>
+</DD></DL>
+<P>
+<A NAME="vcommandSelectorClass"><HR><H4>vcommandSelectorClass</H4></A>
+<PRE>
+        typedef ... <B>vcommandSelectorClass</B>;
+</PRE>
+
+<DL><DD>
+Contains the message definitions for a class of selector
+commands. The default selector class must be subclassed to
+be useful. A typical application will override the issue
+and/or query methods of a selector class. Individual
+commands can then be implemented as cases of a
+<SAMP>switch</SAMP> statement inside the issue or query
+method. Note that the default selector class must be
+subclassed to be useful. This class type is derived from
+<CODE><A HREF="vcommand-x.html#vcommandClass"><CODE>vcommandClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandSelectorInitializer"><HR><H4>vcommandSelectorInitializer</H4></A>
+<PRE>
+        typedef ... <B>vcommandSelectorInitializer</B>;
+</PRE>
+
+<DL><DD>
+Contains information needed to create a selector command
+and store it in a dictionary. <SAMP>name</SAMP> is the name
+of the command, and <SAMP>value</SAMP> is its selector ID.
+An array of this type is passed to
+<SAMP><A HREF="vcommand-x.html#vcommand"><CODE>vcommand</CODE></A></SAMP> to
+create a command dictionary for use in a command space.
+</DD></DL>
+<P>
+<A NAME="vcommandSelectorTemplate"><HR><H4>vcommandSelectorTemplate</H4></A>
+<PRE>
+        typedef ... <B>vcommandSelectorTemplate</B>;
+</PRE>
+
+<DL><DD>
+Contains information needed to create a selector command
+and store it in a dictionary. <SAMP>name</SAMP> is the name
+of the command, and <SAMP>value</SAMP> is its selector ID.
+</DD></DL>
+<P>
+<A NAME="vcommandSpace"><HR><H4>vcommandSpace</H4></A>
+<PRE>
+        typedef ... <B>vcommandSpace</B>;
+</PRE>
+
+<DL><DD>
+Represents a set of command bindings that are normally
+attached to an object in the user interface inheritance
+hierarchy. A command space consists of a set of owners and
+a set of dictionaries. The owners of a command space are
+the objects in the user interface inheritance hierarchy
+that the command space is attached to (command spaces can
+be shared among multiple objects). The dictionaries contain
+the command bindings themselves: dictionary keys are the
+names of the commands to be bound and dictionary values are
+the objects they are bound to. Each dictionary is stored in
+the command space with an attribute name that specifies the
+attribute it refers to (including, for example, ``State,''
+``Command,'' ``Key''). Command spaces can be attached to
+object instances or object classes, at the discretion of
+the user. Owners receive notification when the contents of
+the space changes. Objects of type
+<CODE>vcommandSpace</CODE> have the following default
+attributes:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><CODE>Owners</CODE>
+<DD><SAMP>None</SAMP>
+<DT><CODE>Dicts</CODE>
+<DD><SAMP>None</SAMP>
+</DL>
+</BLOCKQUOTE>
+
+    <P>
+</DD></DL>
+<P>
+<A NAME="vcommandSpaceClass"><HR><H4>vcommandSpaceClass</H4></A>
+<PRE>
+        typedef ... <B>vcommandSpaceClass</B>;
+</PRE>
+
+<DL><DD>
+Contains the message definitions for a class of command
+spaces. This class type is derived from
+<CODE><A HREF="vobject-x.html#vobject"><CODE>vobject</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandSpaceIterator"><HR><H4>vcommandSpaceIterator</H4></A>
+<PRE>
+        typedef ... <B>vcommandSpaceIterator</B>;
+</PRE>
+
+<DL><DD>
+Represents an abstract pointer variable used to iterate
+over all the dictionaries in a command space.
+</DD></DL>
+<P>
+<A NAME="vcommandSpaceOwnerIterator"><HR><H4>vcommandSpaceOwnerIterator</H4></A>
+<PRE>
+        typedef ... <B>vcommandSpaceOwnerIterator</B>;
+</PRE>
+
+<DL><DD>
+Represents an abstract pointer variable used to iterate
+over all the owners of a command space.
+</DD></DL>
+<P>
+<A NAME="vcommandSynthetic"><HR><H4>vcommandSynthetic</H4></A>
+<PRE>
+        typedef ... <B>vcommandSynthetic</B>;
+</PRE>
+
+<DL><DD>
+Represents a command that invokes other commands to
+implement its functionality. Synthetic commands can add
+information to the context in which they are invoked as
+part of their execution. This is useful for specifying
+arguments to commands. Each synthetic command contains a
+set of <I>tags</I> and a set of <I>pairs</I>, either of
+which can be empty. The <I>tags</I> are the names of the
+commands to execute on behalf of the synthetic
+command---synthetic tags are executed in order. The
+<I>pairs</I> are the key/value pairs that will be added to
+the current context dictionary when the command is invoked.
+Objects of this type have classes derived from
+<CODE><A HREF="vcommand-x.html#vcommandSyntheticClass"><CODE>vcommandSyntheticClass</CODE></A></CODE>. Objects  created or
+initialized by the default synthetic command class have the
+following default attributes:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><CODE>Tags</CODE>
+<DD><SAMP><A HREF="vname-x.html#vname"><CODE>vname</CODE></A> *</SAMP>
+<DT><CODE>Pairs</CODE>
+<DD><SAMP>None</SAMP>
+</DL>
+</BLOCKQUOTE>
+
+    <P>
+Since the pairs keys and values have no specified type,
+they cannot be stored and retrieved from a resource file.
+</DD></DL>
+<P>
+<A NAME="vcommandSyntheticClass"><HR><H4>vcommandSyntheticClass</H4></A>
+<PRE>
+        typedef ... <B>vcommandSyntheticClass</B>;
+</PRE>
+
+<DL><DD>
+Contains the message definitions for a synthetic command
+class. The issue and query methods for classes derived from
+this type will copy the <I>pairs</I> from the command
+object into the current context dictionary, then execute
+each of the command object's <I>tags</I> in order. The
+default synthetic command class need not be subclassed to
+be useful. This class type is derived from
+<CODE><A HREF="vcommand-x.html#vcommandClass"><CODE>vcommandClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandSyntheticName"><HR><H4>vcommandSyntheticName</H4></A>
+<PRE>
+        typedef ... <B>vcommandSyntheticName</B>;
+</PRE>
+
+<DL><DD>
+A subclass of <SAMP><A HREF="vcommand-x.html#vcommandSyntheticClass"><CODE>vcommandSyntheticClass</CODE></A></SAMP>. This
+subclass specifies the type of the pairs keys and values to
+be <SAMP><A HREF="vname-x.html#vname"><CODE>vname</CODE></A> *</SAMP>. Because the pairs have specific
+types, they can be stored and retrieved from resource
+files.
+</DD></DL>
+<P>
+<A NAME="vcommandSyntheticNameClass"><HR><H4>vcommandSyntheticNameClass</H4></A>
+<PRE>
+        typedef ... <B>vcommandSyntheticNameClass</B>;
+</PRE>
+
+<DL><DD>
+Contains the message definitions for a synthetic name
+command class. The issue and query methods for classes
+derived from this type will copy the <I>pairs</I> from the
+command object into the current context dictionary, then
+execute each of the command object's <I>tags</I> in order.
+The default synthetic name command class need not be
+subclassed to be useful. This class type is derived from
+<CODE><A HREF="vcommand-x.html#vcommandSyntheticClass"><CODE>vcommandSyntheticClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandSyntheticPairIterator"><HR><H4>vcommandSyntheticPairIterator</H4></A>
+<PRE>
+        typedef ... <B>vcommandSyntheticPairIterator</B>;
+</PRE>
+
+<DL><DD>
+Represents an abstract pointer variable used to iterate
+over all the key/value pairs in a synthetic command.
+</DD></DL>
+<P>
+<A NAME="vcommandSyntheticTagIterator"><HR><H4>vcommandSyntheticTagIterator</H4></A>
+<PRE>
+        typedef ... <B>vcommandSyntheticTagIterator</B>;
+</PRE>
+
+<DL><DD>
+Represents an abstract pointer variable used to iterate
+over all the tags in a synthetic command.
+</DD></DL>
+<P>
+<A NAME="vcommandTemplate"><HR><H4>vcommandTemplate</H4></A>
+<PRE>
+        typedef ... <B>vcommandTemplate</B>;
+</PRE>
+
+<DL><DD>
+Another name for <CODE><A HREF="vcommand-x.html#vcommandInitializer"><CODE>vcommandInitializer</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vcommandAddKeyStroke"><HR><H4>vcommandAddKeyStroke</H4></A>
+<PRE>
+        void <B>vcommandAddKeyStroke</B>(
+                vcommandKey * key,
+                vkeyStroke stroke);
+</PRE>
+
+<DL><DD>
+Adds the keystroke <SAMP>stroke</SAMP> to the set of
+keystrokes in the command key binding <SAMP>key</SAMP>.
+Each keystroke in the set represents a keystroke to which a
+command has been bound; command key bindings do <I>not</I>
+represent key sequences. Keystroke objects are documented
+in the ``Event Manager'' chapter of the <I>Galaxy
+Application Environment Programmer's Guide</I>. The keys
+can be bound to a particular command by placing the
+<SAMP>key</SAMP> object in a dictionary under the command
+name and adding the dictionary to a command space under the
+name ``Key.'' This function is a convenience for the
+single-tag case of <CODE><A HREF="vcommand-x.html#vcommandAddKeyStrokes"><CODE>vcommandAddKeyStrokes</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandAddKeyStrokes"><HR><H4>vcommandAddKeyStrokes</H4></A>
+<PRE>
+        void <B>vcommandAddKeyStrokes</B>(
+                vcommandKey * key,
+                const vkeyStroke * strokes,
+                int count);
+</PRE>
+
+<DL><DD>
+Adds a set of keystrokes to the set of keystrokes in the
+command key binding <SAMP>key</SAMP>. There are
+<SAMP>count</SAMP> keystrokes in the array
+<SAMP>strokes</SAMP>. Each keystroke in the set represents
+a keystroke to which a command has been bound; command key
+bindings do <I>not</I> represent key sequences. Keystroke
+objects are documented in the ``Event Manager'' chapter in
+the <I>Galaxy Application Environment Programmer's
+Guide</I>. The keys can be bound to a particular command by
+placing <SAMP>key</SAMP> object in a dictionary under the
+command name and adding the dictionary to a command space
+under the name ``Key.''
+</DD></DL>
+<P>
+<A NAME="vcommandAddSpaceDict"><HR><H4>vcommandAddSpaceDict</H4></A>
+<PRE>
+        void <B>vcommandAddSpaceDict</B>(
+                vcommandSpace * space,
+                const vname * attr,
+                vdict * tag2value);
+</PRE>
+
+<DL><DD>
+Adds the dictionary of attribute bindings
+<SAMP>tag2value</SAMP> to the command space
+<SAMP>space</SAMP>. Each value in <SAMP>tag2value</SAMP>
+defines the attribute named <SAMP>attr</SAMP> for the
+object whose tag is the key of the value. The value will be
+returned as the attribute binding of the tagged object.
+Ownership of the dictionary does <I>not</I> pass to the
+command space, and its contents will <I>not</I> be copied
+(a reference <I>will</I> be copied). The dictionary will
+<I>not</I> be destroyed when the command space is
+destroyed. Shared dictionaries are not stored in resources.
+This function will propagate the resulting attribute
+changes to each owner of the command space.
+<SAMP>tag2value</SAMP> must have the hash function
+<CODE><A HREF="vname-x.html#vnameHash"><CODE>vnameHash</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandAddSpaceDictOwned"><HR><H4>vcommandAddSpaceDictOwned</H4></A>
+<PRE>
+        void <B>vcommandAddSpaceDictOwned</B>(
+                vcommandSpace * space,
+                const vname * attr,
+                vdict * tag2value);
+</PRE>
+
+<DL><DD>
+Adds the dictionary of attribute bindings
+<SAMP>tag2value</SAMP> to the command space
+<SAMP>space</SAMP> and gives the command space ownership of
+the dictionary. Each value in <SAMP>tag2value</SAMP>
+defines the attribute named <SAMP>attr</SAMP> for the
+object whose tag is the key of the value. The value will be
+returned as the attribute binding of the tagged object. The
+dictionary will be destroyed (along with its contents) when
+the command space is destroyed or the dictionary is removed
+or replaced. The dictionary will be cloned when the command
+space is copied or cloned. Only owned dictionaries are
+stored in resources. Note that multiple command spaces
+should not own the same dictionary; in this case, the
+dictionary should be shared. This function will propagate
+the resulting attribute changes to each owner of the
+command space. <SAMP>tag2value</SAMP> must have the hash
+function <CODE><A HREF="vname-x.html#vnameHash"><CODE>vnameHash</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandAddSpaceOwner"><HR><H4>vcommandAddSpaceOwner</H4></A>
+<PRE>
+        void <B>vcommandAddSpaceOwner</B>(
+                vcommandSpace * space,
+                vobjectAttributed * owner);
+</PRE>
+
+<DL><DD>
+Adds the object <SAMP>owner</SAMP> to the list of owning
+objects for the command space <SAMP>space</SAMP>. Whenever
+the command space is modified, the changes will be
+propagated from all owning objects to all lower-level
+objects. Command space owners are set automatically when a
+command space is stored in a user interface object (for
+example, <CODE><A HREF="vwindow-x.html#vwindowSetSpace"><CODE>vwindowSetSpace</CODE></A></CODE>). The owner's class
+must be derived from the default attributed object class.
+</DD></DL>
+<P>
+<A NAME="vcommandAddSyntheticPair"><HR><H4>vcommandAddSyntheticPair</H4></A>
+<PRE>
+        void <B>vcommandAddSyntheticPair</B>(
+                vcommandSynthetic * command,
+                const vname * attr,
+                const void * value);
+</PRE>
+
+<DL><DD>
+Adds the key/value pair (<SAMP>attr</SAMP>,
+<SAMP>value)</SAMP> to the context information of the
+synthetic command <SAMP>command</SAMP>. The command's
+context information will be added to the current context
+dictionary when the command is issued or queried. The
+command's tag sequence will be executed within the expanded
+context. This function is a convenience for the single-tag
+case of <CODE><A HREF="vcommand-x.html#vcommandAddSyntheticPairs"><CODE>vcommandAddSyntheticPairs</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandAddSyntheticPairs"><HR><H4>vcommandAddSyntheticPairs</H4></A>
+<PRE>
+        void <B>vcommandAddSyntheticPairs</B>(
+                vcommandSynthetic * command,
+                const vname ** attrs,
+                const void ** values,
+                int count);
+</PRE>
+
+<DL><DD>
+Adds the key/value pairs addressed by <SAMP>attrs</SAMP>
+and <SAMP>values</SAMP> to the context information of the
+synthetic command <SAMP>command</SAMP>. There are
+<SAMP>count</SAMP> elements in each of the arrays. Each
+element of <SAMP>attrs</SAMP> will be paired with the
+corresponding element of <SAMP>values</SAMP> when it is
+stored in the context dictionary. The command's context
+information will be added to the current context dictionary
+when the command is issued or queried. The command's tag
+sequence will be executed within the expanded context. This
+function is implemented by sending the message
+<CODE><A HREF="vcommand-x.html#vcommandADD_SYNTHETIC_PAIRS"><CODE>vcommandADD_SYNTHETIC_PAIRS</CODE></A></CODE> to
+<SAMP>command</SAMP>.
+    <P>
+</DD></DL>
+<P>
+<A NAME="vcommandAddSyntheticTag"><HR><H4>vcommandAddSyntheticTag</H4></A>
+<PRE>
+        void <B>vcommandAddSyntheticTag</B>(
+                vcommandSynthetic * command,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Appends the command tag <SAMP>tag</SAMP> to the sequence of
+command tags that will be executed when the command
+<SAMP>command</SAMP> is issued or queried. When the command
+is executed, each tag will be bound to a command in the
+same scope that <SAMP>command</SAMP> was bound, and the
+resulting command sequence will be executed in place of the
+original command. This function is a convenience for the
+single-tag case of <CODE><A HREF="vcommand-x.html#vcommandAddSyntheticTags"><CODE>vcommandAddSyntheticTags</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandAddSyntheticTags"><HR><H4>vcommandAddSyntheticTags</H4></A>
+<PRE>
+        void <B>vcommandAddSyntheticTags</B>(
+                vcommandSynthetic * command,
+                const vname ** tags,
+                int count);
+</PRE>
+
+<DL><DD>
+Adds a sequence of command tags to the sequence that is
+executed when the command <SAMP>command</SAMP> is issued or
+queried. There are <SAMP>count</SAMP> tags in the array
+addressed by <SAMP>tags</SAMP>. When the command is
+executed, each tag is bound to a command in the same scope
+that <SAMP>command</SAMP> was bound, and the resulting
+command sequence is executed in place of the original
+command. This function is implemented by sending the
+message <CODE><A HREF="vcommand-x.html#vcommandADD_SYNTHETIC_TAGS"><CODE>vcommandADD_SYNTHETIC_TAGS</CODE></A></CODE> to
+<SAMP>command</SAMP>.
+    <P>
+</DD></DL>
+<P>
+<A NAME="vcommandBindAllSpaceAttributes"><HR><H4>vcommandBindAllSpaceAttributes</H4></A>
+<PRE>
+        void <B>vcommandBindAllSpaceAttributes</B>(
+                vcommandSpace * space,
+                const vname * tag,
+                vdict * attr2value);
+</PRE>
+
+<DL><DD>
+Loads all the command bindings for the command identified
+by <SAMP>tag</SAMP> from the command space
+<SAMP>space</SAMP> and stores them in the dictionary
+<SAMP>attr2value</SAMP> under the appropriate attribute
+names. This function essentially searches each dictionary
+in <SAMP>space</SAMP> for a value under the key
+<SAMP>tag</SAMP> and stores it under the attribute name in
+<SAMP>attr2value</SAMP>, if found. This function is called
+by user interface objects that have instance command spaces
+in response to the message
+<CODE><A HREF="vobject-x.html#vobjectBIND_ALL_ATTRIBUTES"><CODE>vobjectBIND_ALL_ATTRIBUTES</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandBindSpaceAttribute"><HR><H4>vcommandBindSpaceAttribute</H4></A>
+<PRE>
+        const void * <B>vcommandBindSpaceAttribute</B>(
+                vcommandSpace * space,
+                const vname * attr,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Returns the binding for the attribute named
+<SAMP>attr</SAMP> of the command identified by
+<SAMP>tag</SAMP> in the command space <SAMP>space</SAMP>,
+or <SAMP>NULL</SAMP> if no such binding exists. This
+function essentially searches all the dictionaries whose
+attribute names are <SAMP>attr</SAMP> for a value under the
+key <SAMP>tag</SAMP>. This function is called by user
+interface objects that have instance command spaces in
+response to the message <CODE><A HREF="vobject-x.html#vobjectBIND_ATTRIBUTE"><CODE>vobjectBIND_ATTRIBUTE</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandCloneSpace"><HR><H4>vcommandCloneSpace</H4></A>
+<PRE>
+        vcommandSpace * <B>vcommandCloneSpace</B>(
+                vcommandSpace * space);
+</PRE>
+
+<DL><DD>
+Creates a copy of the command space <SAMP>space</SAMP> and
+returns a pointer to its contents, which are allocated by
+the Command Manager. The Command Manager will reclaim the
+storage occupied by the command space when it is destroyed
+with <CODE><A HREF="vcommand-x.html#vcommandDestroySpace"><CODE>vcommandDestroySpace</CODE></A></CODE>. All dictionaries
+owned by <SAMP>space</SAMP> will also be cloned. This
+function essentially allocates space for a new command
+space and calls <CODE><A HREF="vcommand-x.html#vcommandCopyInitSpace"><CODE>vcommandCopyInitSpace</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vcommandCopyInitSpace"><HR><H4>vcommandCopyInitSpace</H4></A>
+<PRE>
+        void <B>vcommandCopyInitSpace</B>(
+                vcommandSpace * space,
+                vcommandSpace * target);
+</PRE>
+
+<DL><DD>
+Copies the contents of the command space <SAMP>space</SAMP>
+into the uninitialized memory addressed by
+<SAMP>target</SAMP>. <SAMP>target</SAMP> can then be used
+as a normal, initialized command space. All dictionaries
+owned by <SAMP>space</SAMP> will be cloned and stored in
+<SAMP>target</SAMP>. Each shared dictionary in
+<SAMP>space</SAMP> will have a reference stored in
+<SAMP>target</SAMP>. <SAMP>target</SAMP> will have no
+owners after initialization.
+</DD></DL>
+<P>
+<A NAME="vcommandCopySpace"><HR><H4>vcommandCopySpace</H4></A>
+<PRE>
+        void <B>vcommandCopySpace</B>(
+                vcommandSpace * space,
+                vcommandSpace * target);
+</PRE>
+
+<DL><DD>
+Copies the contents of the command space <SAMP>space</SAMP>
+into the command space <SAMP>target</SAMP>. Both command
+spaces must be initialized. This function will destroy any
+dictionaries owned by <SAMP>target</SAMP> but will
+<I>not</I> destroy <SAMP>target</SAMP> itself. All
+dictionaries owned by <SAMP>space</SAMP> will be cloned and
+stored in <SAMP>target</SAMP>. Each shared dictionary in
+<SAMP>space</SAMP> will have a reference stored in
+<SAMP>target</SAMP>. This function does not copy the owners
+of <SAMP>space</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandCreateDictFunctionTemplates"><HR><H4>vcommandCreateDictFunctionTemplates</H4></A>
+<PRE>
+        vdict * <B>vcommandCreateDictFunctionTemplates</B>(
+                const vcommandFunctionTemplate * templates,
+                size_t count);
+</PRE>
+
+<DL><DD>
+Creates a dictionary of <SAMP>count</SAMP> function
+commands from the function command templates
+<SAMP>templates</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandCreateDictOfClassFunctionTemplates"><HR><H4>vcommandCreateDictOfClassFunctionTemplates</H4></A>
+<PRE>
+        vdict * <B>vcommandCreateDictOfClassFunctionTemplates</B>(
+                vcommandFunctionClass * clas,
+                const vcommandFunctionTemplate * templates,
+                size_t count);
+</PRE>
+
+<DL><DD>
+Creates a dictionary of <SAMP>count</SAMP> function
+commands of class <SAMP>clas</SAMP> from the function
+command templates <SAMP>templates</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandCreateDictOfClassSelectorTemplates"><HR><H4>vcommandCreateDictOfClassSelectorTemplates</H4></A>
+<PRE>
+        vdict * <B>vcommandCreateDictOfClassSelectorTemplates</B>(
+                vcommandSelectorClass * clas,
+                const vcommandSelectorTemplate * templates,
+                size_t count);
+</PRE>
+
+<DL><DD>
+Creates a dictionary of <SAMP>count</SAMP> selector
+commands of class <SAMP>clas</SAMP> from the selector
+command templates <SAMP>templates</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandCreateDictTemplates"><HR><H4>vcommandCreateDictTemplates</H4></A>
+<PRE>
+        vdict * <B>vcommandCreateDictTemplates</B>(
+                const vcommandTemplate * templates,
+                size_t count);
+</PRE>
+
+<DL><DD>
+Creates a dictionary of <SAMP>count</SAMP> commands from
+the command initializers <SAMP>templates</SAMP>. This
+dictionary can then be added to a command space as a
+<SAMP>vname_Command</SAMP> dictionary.
+</DD></DL>
+<P>
+<A NAME="vcommandCreateFunction"><HR><H4>vcommandCreateFunction</H4></A>
+<PRE>
+        vcommandFunction * <B>vcommandCreateFunction</B>();
+</PRE>
+
+<DL><DD>
+Creates a function command of the default function command
+class and returns a pointer to its contents. The command
+will initially contain no implementation functions. The
+Command Manager will reclaim the storage occupied by the
+command when it is destroyed with
+<CODE><A HREF="vcommand-x.html#vcommandDestroy"><CODE>vcommandDestroy</CODE></A></CODE>. This function essentially
+allocates space for a new instance and calls
+<CODE><A HREF="vcommand-x.html#vcommandInitFunction"><CODE>vcommandInitFunction</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vcommandCreateFunctionOfClass"><HR><H4>vcommandCreateFunctionOfClass</H4></A>
+<PRE>
+        vcommandFunction * <B>vcommandCreateFunctionOfClass</B>(
+                vcommandFunctionClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a function command of class <SAMP>clas</SAMP> and
+returns a pointer to its contents. The attributes of the
+command are set to their default values, according to the
+class. The command will initially contain no implementation
+functions. Space for the command is allocated dynamically
+based on the object size of the class. The Command Manager
+will reclaim the storage occupied by the command when it is
+destroyed with <CODE><A HREF="vcommand-x.html#vcommandDestroy"><CODE>vcommandDestroy</CODE></A></CODE>. This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vcommand-x.html#vcommandInitFunctionOfClass"><CODE>vcommandInitFunctionOfClass</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vcommandCreateKey"><HR><H4>vcommandCreateKey</H4></A>
+<PRE>
+        vcommandKey * <B>vcommandCreateKey</B>();
+</PRE>
+
+<DL><DD>
+Creates an empty command key binding and returns a pointer
+to its contents, which will be allocated by the Command
+Manager. The Command Manager will reclaim the storage
+occupied by the key binding when it is destroyed with
+<CODE><A HREF="vcommand-x.html#vcommandDestroyKey"><CODE>vcommandDestroyKey</CODE></A></CODE>. This function essentially
+allocates space for a new key binding and calls
+<CODE><A HREF="vcommand-x.html#vcommandInitKey"><CODE>vcommandInitKey</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vcommandCreateOfClass"><HR><H4>vcommandCreateOfClass</H4></A>
+<PRE>
+        vcommand * <B>vcommandCreateOfClass</B>(
+                vcommandClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a command of class <SAMP>clas</SAMP> and returns a
+pointer to its contents. The attributes of the command are
+set to their default values, according to the class. Space
+for the command is allocated dynamically based on the
+object size of the class. The Class Manager will reclaim
+the storage occupied by the command when it is destroyed
+with <CODE><A HREF="vcommand-x.html#vcommandDestroy"><CODE>vcommandDestroy</CODE></A></CODE>. This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vcommand-x.html#vcommandInitOfClass"><CODE>vcommandInitOfClass</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vcommandCreateSelectorOfClass"><HR><H4>vcommandCreateSelectorOfClass</H4></A>
+<PRE>
+        vcommandSelector * <B>vcommandCreateSelectorOfClass</B>(
+                vcommandSelectorClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a selector command of class <SAMP>clas</SAMP> and
+returns a pointer to its contents. The attributes of the
+command are set to their default values, according to the
+class. Space for the command is allocated dynamically based
+on the object size of the class. The Command Manager will
+reclaim the storage occupied by the command when it is
+destroyed with <CODE><A HREF="vcommand-x.html#vcommandDestroy"><CODE>vcommandDestroy</CODE></A></CODE>. This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vcommand-x.html#vcommandInitSelectorOfClass"><CODE>vcommandInitSelectorOfClass</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vcommandCreateSpace"><HR><H4>vcommandCreateSpace</H4></A>
+<PRE>
+        vcommandSpace * <B>vcommandCreateSpace</B>();
+</PRE>
+
+<DL><DD>
+Creates a new, empty command space and returns a pointer to
+its contents, which are allocated by the Command Manager.
+The Command Managerwill reclaim the storage occupied by the
+command space when it is destroyed with
+<CODE><A HREF="vcommand-x.html#vcommandDestroySpace"><CODE>vcommandDestroySpace</CODE></A></CODE>. This function
+essentially allocates space for a new command space and
+calls <CODE><A HREF="vcommand-x.html#vcommandInitSpace"><CODE>vcommandInitSpace</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vcommandCreateSpaceOfClass"><HR><H4>vcommandCreateSpaceOfClass</H4></A>
+<PRE>
+        vcommandSpace * <B>vcommandCreateSpaceOfClass</B>(
+                vcommandSpaceClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a command space of class <SAMP>clas</SAMP> and
+returns a pointer to its contents. The attributes of the
+command space are set to their default values, according to
+the class. Space for the command space is allocated
+dynamically based on the object size of the class. The
+Class Manager will reclaim the storage occupied by the
+command space when it is destroyed with
+<CODE><A HREF="vcommand-x.html#vcommandDestroy"><CODE>vcommandDestroy</CODE></A></CODE>. This function essentially
+allocates space for a new instance and calls
+<CODE><A HREF="vcommand-x.html#vcommandInitSpaceOfClass"><CODE>vcommandInitSpaceOfClass</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vcommandCreateSynthetic"><HR><H4>vcommandCreateSynthetic</H4></A>
+<PRE>
+        vcommandSynthetic * <B>vcommandCreateSynthetic</B>();
+</PRE>
+
+<DL><DD>
+Creates a synthetic command of the default synthetic
+command class and returns a pointer to its contents. The
+command will initially contain no sub-command tags and no
+additional context information. The Command Manager will
+reclaim the storage occupied by the command when it is
+destroyed with <CODE><A HREF="vcommand-x.html#vcommandDestroy"><CODE>vcommandDestroy</CODE></A></CODE>. This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vcommand-x.html#vcommandInitSynthetic"><CODE>vcommandInitSynthetic</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vcommandCreateSyntheticName"><HR><H4>vcommandCreateSyntheticName</H4></A>
+<PRE>
+        vcommandSyntheticName * <B>vcommandCreateSyntheticName</B>();
+</PRE>
+
+<DL><DD>
+Creates a synthetic name command of the default synthetic
+name command class and returns a pointer to its contents.
+The command will initially contain no sub-command tags and
+no additional context information. The Command Manager will
+reclaim the storage occupied by the command when it is
+destroyed with <CODE><A HREF="vcommand-x.html#vcommandDestroy"><CODE>vcommandDestroy</CODE></A></CODE>. This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vcommand-x.html#vcommandInitSyntheticName"><CODE>vcommandInitSyntheticName</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vcommandCreateSyntheticOfClass"><HR><H4>vcommandCreateSyntheticOfClass</H4></A>
+<PRE>
+        vcommandSynthetic * <B>vcommandCreateSyntheticOfClass</B>(
+                vcommandSyntheticClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a synthetic command of class <SAMP>clas</SAMP> and
+returns a pointer to its contents. The attributes of the
+command are set to their default values, according to the
+class. Space for the command is allocated dynamically based
+on the object size of the class. The Command Manager will
+reclaim the storage occupied by the command when it is
+destroyed with <CODE><A HREF="vcommand-x.html#vcommandDestroy"><CODE>vcommandDestroy</CODE></A></CODE>. This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vcommand-x.html#vcommandInitSyntheticOfClass"><CODE>vcommandInitSyntheticOfClass</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vcommandDestroy"><HR><H4>vcommandDestroy</H4></A>
+<PRE>
+        void <B>vcommandDestroy</B>(
+                vcommand * command);
+</PRE>
+
+<DL><DD>
+Reclaims any internal storage allocated for the command
+<SAMP>command</SAMP> and additionally reclaims the command
+itself if the command was created with a Command Manager
+<SAMP>Create</SAMP> or <SAMP>Load</SAMP> function. The
+command pointer must not be passed to any command functions
+once it has been destroyed. This function is implemented by
+sending the message <CODE>vcommandDESTROY</CODE> to
+command.
+</DD></DL>
+<P>
+<A NAME="vcommandDestroyDict"><HR><H4>vcommandDestroyDict</H4></A>
+<PRE>
+        void <B>vcommandDestroyDict</B>(
+                vdict * dict);
+</PRE>
+
+<DL><DD>
+Destroys the dictionary <SAMP>dict</SAMP> along with all of
+the command objects it contains. This function assumes that
+<I>all</I> values of the dictionary are command objects
+(pointers to objects of type <CODE>vcommand</CODE>), and it
+calls <CODE>vcommandDestroy</CODE> on each one of them
+before destroying <SAMP>dict</SAMP> itself. This function
+is a convenience for destroying command dictionaries that
+are used with command spaces. This function is called when
+a command space is destroyed on each owned dictionary with
+an attribute name of ``Command'' in the command space.
+</DD></DL>
+<P>
+<A NAME="vcommandDestroyKey"><HR><H4>vcommandDestroyKey</H4></A>
+<PRE>
+        void <B>vcommandDestroyKey</B>(
+                vcommandKey * key);
+</PRE>
+
+<DL><DD>
+Destroys the command key binding addressed by the command
+key <SAMP>key</SAMP>. This function will attempt to reclaim
+the storage occupied by <SAMP>key</SAMP> only if it was
+created with <CODE><A HREF="vcommand-x.html#vcommandCreateKey"><CODE>vcommandCreateKey</CODE></A></CODE>. The pointer
+must not be passed to any Command Manager functions once it
+has been destroyed.
+</DD></DL>
+<P>
+<A NAME="vcommandDestroyKeyDict"><HR><H4>vcommandDestroyKeyDict</H4></A>
+<PRE>
+        void <B>vcommandDestroyKeyDict</B>(
+                vdict * dict);
+</PRE>
+
+<DL><DD>
+Destroys the dictionary <SAMP>dict</SAMP> along with all of
+the command key bindings it contains. This function assumes
+that <I>all</I> values of the dictionary are command key
+binding objects (pointers to objects of type
+<CODE><A HREF="vcommand-x.html#vcommandKey"><CODE>vcommandKey</CODE></A></CODE>), and it calls
+<CODE>vcommandDestroyKey</CODE> on each one of them before
+destroying <SAMP>dict</SAMP> itself. This function is a
+convenience for destroying key dictionaries that are used
+with command spaces. This function is called when a command
+space is destroyed on each owned dictionary with an
+attribute name of ``Key'' in the command space.
+</DD></DL>
+<P>
+<A NAME="vcommandDestroyKeyIterator"><HR><H4>vcommandDestroyKeyIterator</H4></A>
+<PRE>
+        void <B>vcommandDestroyKeyIterator</B>(
+                vcommandKeyIterator * iterator);
+</PRE>
+
+<DL><DD>
+Ends the iteration begun by the iterator
+<SAMP>iterator</SAMP>. This function can be called before
+the iteration is exhausted.
+</DD></DL>
+<P>
+<A NAME="vcommandDestroySpace"><HR><H4>vcommandDestroySpace</H4></A>
+<PRE>
+        void <B>vcommandDestroySpace</B>(
+                vcommandSpace * space);
+</PRE>
+
+<DL><DD>
+Reclaims the storage occupied by the contents of the
+command space <SAMP>space</SAMP> and reclaims the command
+space itself if it was allocated by the Command Manager
+with <CODE><A HREF="vcommand-x.html#vcommandCreateSpace"><CODE>vcommandCreateSpace</CODE></A></CODE>,
+<CODE><A HREF="vcommand-x.html#vcommandCloneSpace"><CODE>vcommandCloneSpace</CODE></A></CODE>, or
+<CODE><A HREF="vcommand-x.html#vcommandLoadSpace"><CODE>vcommandLoadSpace</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandDestroySpaceIterator"><HR><H4>vcommandDestroySpaceIterator</H4></A>
+<PRE>
+        void <B>vcommandDestroySpaceIterator</B>(
+                vcommandSpaceIterator * iterator);
+</PRE>
+
+<DL><DD>
+Ends the iteration begun by the iterator
+<SAMP>iterator</SAMP>. This function can be called before
+the iteration is exhausted.
+</DD></DL>
+<P>
+<A NAME="vcommandDestroySpaceOwnerIterator"><HR><H4>vcommandDestroySpaceOwnerIterator</H4></A>
+<PRE>
+        void <B>vcommandDestroySpaceOwnerIterator</B>(
+                vcommandSpaceOwnerIterator * iterator);
+</PRE>
+
+<DL><DD>
+Ends the iteration begun by the iterator
+<SAMP>iterator</SAMP>. This function can be called before
+the iteration is exhausted.
+</DD></DL>
+<P>
+<A NAME="vcommandDestroySyntheticPairIterator"><HR><H4>vcommandDestroySyntheticPairIterator</H4></A>
+<PRE>
+        void <B>vcommandDestroySyntheticPairIterator</B>(
+                vcommandSyntheticPairIterator * iterator);
+</PRE>
+
+<DL><DD>
+Ends the iteration begun by the iterator
+<SAMP>iterator</SAMP>. This function can be called before
+the iteration is exhausted.
+</DD></DL>
+<P>
+<A NAME="vcommandDestroySyntheticTagIterator"><HR><H4>vcommandDestroySyntheticTagIterator</H4></A>
+<PRE>
+        void <B>vcommandDestroySyntheticTagIterator</B>(
+                vcommandSyntheticTagIterator * iterator);
+</PRE>
+
+<DL><DD>
+Ends the iteration begun by the iterator
+<SAMP>iterator</SAMP>. This function can be called before
+the iteration is exhausted.
+</DD></DL>
+<P>
+<A NAME="vcommandFilterSpaceChangeDict"><HR><H4>vcommandFilterSpaceChangeDict</H4></A>
+<PRE>
+        vdict * <B>vcommandFilterSpaceChangeDict</B>(
+                vcommandSpace * space,
+                const vname * attr,
+                vdict * tag2value);
+</PRE>
+
+<DL><DD>
+Removes all the command attribute bindings from the
+dictionary <SAMP>tag2value</SAMP> that are defined by the
+command space <SAMP>space</SAMP>. <SAMP>attr</SAMP>
+identifies which attribute the definitions in
+<SAMP>tag2value</SAMP> refer to. This function returns a
+new dictionary that encapsulates the result of removing the
+binding collisions, or <SAMP>tag2value</SAMP> if there are
+no collisions. This function is called by user interface
+objects that have instance command spaces in response to
+the message <CODE><A HREF="vobject-x.html#vobjectFILTER_CHANGE_DICT"><CODE>vobjectFILTER_CHANGE_DICT</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandGetClass"><HR><H4>vcommandGetClass</H4></A>
+<PRE>
+        vcommandClass * <B>vcommandGetClass</B>(
+                vcommand * command);
+</PRE>
+
+<DL><DD>
+Returns the class of the command <SAMP>command</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandGetDefaultClass"><HR><H4>vcommandGetDefaultClass</H4></A>
+<PRE>
+        vcommandClass * <B>vcommandGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default command class, which contains no useful
+behavior of its own. This class should be subclassed to
+create new command types.
+</DD></DL>
+<P>
+<A NAME="vcommandGetDefaultFunctionClass"><HR><H4>vcommandGetDefaultFunctionClass</H4></A>
+<PRE>
+        vcommandFunctionClass * <B>vcommandGetDefaultFunctionClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default function command class. Function
+command classes call the function pointers stored in the
+command object as their response to issue and query
+messages. Commands of this class are useful without
+subclassing.
+</DD></DL>
+<P>
+<A NAME="vcommandGetDefaultSelectorClass"><HR><H4>vcommandGetDefaultSelectorClass</H4></A>
+<PRE>
+        vcommandSelectorClass * <B>vcommandGetDefaultSelectorClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default selector command class. Selector
+command classes typically switch off the value stored in
+the selector command object. This class implements selector
+value manipulation and resource functions, but it must be
+subclassed to implement the commands themselves. Subclasses
+should override the methods <CODE><A HREF="vcommand-x.html#vcommandISSUE"><CODE>vcommandISSUE</CODE></A></CODE> and
+<CODE><A HREF="vcommand-x.html#vcommandQUERY"><CODE>vcommandQUERY</CODE></A></CODE>. If these methods are not
+overridden, the command instances will do nothing when
+issued or queried.
+</DD></DL>
+<P>
+<A NAME="vcommandGetDefaultSpaceClass"><HR><H4>vcommandGetDefaultSpaceClass</H4></A>
+<PRE>
+        vcommandSpaceClass * <B>vcommandGetDefaultSpaceClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default command space class. This class should
+be subclassed to create new command space types.
+</DD></DL>
+<P>
+<A NAME="vcommandGetDefaultSyntheticClass"><HR><H4>vcommandGetDefaultSyntheticClass</H4></A>
+<PRE>
+        vcommandSyntheticClass * <B>vcommandGetDefaultSyntheticClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default synthetic command class. Synthetic
+command classes use information contained in the command
+object to issue new commands with additional context
+information. Commands of this class are useful without
+subclassing. Note that commands of this class cannot
+load/store their pairs in a resource.
+</DD></DL>
+<P>
+<A NAME="vcommandGetDefaultSyntheticNameClass"><HR><H4>vcommandGetDefaultSyntheticNameClass</H4></A>
+<PRE>
+        vcommandSyntheticNameClass * <B>vcommandGetDefaultSyntheticNameClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default synthetic name command class. Synthetic
+name command classes use information contained in the
+command object to issue new commands with additional
+context information. Commands of this class are useful
+without subclassing. A synthetic name command class is a
+synthetic command class whose instance pair values are all
+global names. Synthetic name commands can be completely
+stored in resources.
+</DD></DL>
+<P>
+<A NAME="vcommandGetFunctionCommand"><HR><H4>vcommandGetFunctionCommand</H4></A>
+<PRE>
+        vcommand * <B>vcommandGetFunctionCommand</B>(
+                vcommandFunction * command);
+</PRE>
+
+<DL><DD>
+Returns the <SAMP>vcommand</SAMP> upon which the function
+command <SAMP>command</SAMP> is built.
+</DD></DL>
+<P>
+<A NAME="vcommandGetFunctionIssue"><HR><H4>vcommandGetFunctionIssue</H4></A>
+<PRE>
+        vcommandFunc <B>vcommandGetFunctionIssue</B>(
+                vcommandFunction * command);
+</PRE>
+
+<DL><DD>
+Returns the issue function of the function command
+<SAMP>command</SAMP>, which can be <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandGetFunctionQuery"><HR><H4>vcommandGetFunctionQuery</H4></A>
+<PRE>
+        vcommandFunc <B>vcommandGetFunctionQuery</B>(
+                vcommandFunction * command);
+</PRE>
+
+<DL><DD>
+Returns the query function of a function command
+<SAMP>command</SAMP>, which can be <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandGetInstance"><HR><H4>vcommandGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vcommandGetInstance</B>(
+                vcommand * command);
+</PRE>
+
+<DL><DD>
+Returns the instance upon which the command
+<SAMP>command</SAMP> is based.
+</DD></DL>
+<P>
+<A NAME="vcommandGetKeyIteratorStroke"><HR><H4>vcommandGetKeyIteratorStroke</H4></A>
+<PRE>
+        vkeyStroke <B>vcommandGetKeyIteratorStroke</B>(
+                vcommandKeyIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the keystroke being iterated by the iterator
+<SAMP>iterator</SAMP>. Keystroke objects are documented in
+the ``Event Manager'' chapter of the <I>Galaxy Application
+Environment Programmer's Guide</I>.
+</DD></DL>
+<P>
+<A NAME="vcommandGetResourceClass"><HR><H4>vcommandGetResourceClass</H4></A>
+<PRE>
+        vcommandClass * <B>vcommandGetResourceClass</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Returns the class of the command resource
+<SAMP>resource</SAMP> by examining the name stored under
+the tag ``Class.'' The name is used as a key to the class
+registry of the current application. It generates a
+<CODE><A HREF="vobject-x.html#vobjectUndefinedClassException"><CODE>vobjectUndefinedClassException</CODE></A></CODE> exception if
+the name does not denote a class in the Class Manager
+registry. This function is used to bind commands in
+resource files to their classes. <SAMP>resource</SAMP> must
+have been created by a command <SAMP>Store</SAMP> function.
+</DD></DL>
+<P>
+<A NAME="vcommandGetSelector"><HR><H4>vcommandGetSelector</H4></A>
+<PRE>
+        int <B>vcommandGetSelector</B>(
+                vcommandSelector * command);
+</PRE>
+
+<DL><DD>
+Returns the selector value of the selector command
+<SAMP>command</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandGetSelectorCommand"><HR><H4>vcommandGetSelectorCommand</H4></A>
+<PRE>
+        vcommand * <B>vcommandGetSelectorCommand</B>(
+                vcommandSelector * command);
+</PRE>
+
+<DL><DD>
+Returns the <SAMP>vcommand</SAMP> upon which the selector
+command <SAMP>command</SAMP> is based.
+</DD></DL>
+<P>
+<A NAME="vcommandGetSpaceClass"><HR><H4>vcommandGetSpaceClass</H4></A>
+<PRE>
+        vcommandSpaceClass * <B>vcommandGetSpaceClass</B>(
+                vcommandSpace * space);
+</PRE>
+
+<DL><DD>
+Returns the class of the command space <SAMP>space</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandGetSpaceIteratorAttr"><HR><H4>vcommandGetSpaceIteratorAttr</H4></A>
+<PRE>
+        const vname * <B>vcommandGetSpaceIteratorAttr</B>(
+                vcommandSpaceIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the attribute that is bound by the dictionary being
+iterated by the iterator <SAMP>iterator</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandGetSpaceIteratorDict"><HR><H4>vcommandGetSpaceIteratorDict</H4></A>
+<PRE>
+        vdict * <B>vcommandGetSpaceIteratorDict</B>(
+                vcommandSpaceIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the dictionary being iterated by the iterator
+<SAMP>iterator</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandGetSpaceLoadable"><HR><H4>vcommandGetSpaceLoadable</H4></A>
+<PRE>
+        vloadable * <B>vcommandGetSpaceLoadable</B>(
+                vcommandSpace * space);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vcommandGetSpaceObject"><HR><H4>vcommandGetSpaceObject</H4></A>
+<PRE>
+        vobject * <B>vcommandGetSpaceObject</B>(
+                vcommandSpace * space);
+</PRE>
+
+<DL><DD>
+Returns the object upon which the command space
+<SAMP>space</SAMP> is based.
+</DD></DL>
+<P>
+<A NAME="vcommandGetSpaceOwnerIteratorOwner"><HR><H4>vcommandGetSpaceOwnerIteratorOwner</H4></A>
+<PRE>
+        vobjectAttributed * <B>vcommandGetSpaceOwnerIteratorOwner</B>(
+                vcommandSpaceOwnerIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the owner being iterated by the iterator
+<SAMP>iterator</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandGetSyntheticCommand"><HR><H4>vcommandGetSyntheticCommand</H4></A>
+<PRE>
+        vcommand * <B>vcommandGetSyntheticCommand</B>(
+                vcommandSynthetic * command);
+</PRE>
+
+<DL><DD>
+Returns the <SAMP>vcommand</SAMP> upon which the synthetic
+command <SAMP>command</SAMP> is based.
+</DD></DL>
+<P>
+<A NAME="vcommandGetSyntheticPairIteratorAttr"><HR><H4>vcommandGetSyntheticPairIteratorAttr</H4></A>
+<PRE>
+        const vname * <B>vcommandGetSyntheticPairIteratorAttr</B>(
+                vcommandSyntheticPairIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the key of the pair being iterated by the iterator
+<SAMP>iterator</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandGetSyntheticPairIteratorValue"><HR><H4>vcommandGetSyntheticPairIteratorValue</H4></A>
+<PRE>
+        const void * <B>vcommandGetSyntheticPairIteratorValue</B>(
+                vcommandSyntheticPairIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the value of the pair being iterated by the
+iterator <SAMP>iterator</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandGetSyntheticTagIteratorTag"><HR><H4>vcommandGetSyntheticTagIteratorTag</H4></A>
+<PRE>
+        const vname * <B>vcommandGetSyntheticTagIteratorTag</B>(
+                vcommandSyntheticTagIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the tag being iterated by the iterator
+<SAMP>iterator</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandInitFunction"><HR><H4>vcommandInitFunction</H4></A>
+<PRE>
+        void <B>vcommandInitFunction</B>(
+                vcommandFunction * command);
+</PRE>
+
+<DL><DD>
+Initializes the uninitialized memory addressed by
+<SAMP>command</SAMP> so that it becomes a function command
+of the default function command class. The command will
+initially contain no implementation functions. The Command
+Manager will not attempt to reclaim the command's storage
+when it is destroyed. This function simply stores the
+default function command class in the command and sends it
+the message <CODE>vcommandINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandInitFunctionOfClass"><HR><H4>vcommandInitFunctionOfClass</H4></A>
+<PRE>
+        void <B>vcommandInitFunctionOfClass</B>(
+                vcommandFunction * command,
+                vcommandFunctionClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes the uninitialized memory addressed by
+<SAMP>command</SAMP> so that it becomes a function command
+of class <SAMP>clas</SAMP>. The attributes of the command
+are set to their default values, according to the class.
+The Command Manager will not attempt to reclaim the
+command's storage when it is destroyed. This function
+simply stores the class in the command and sends it the
+message <CODE>vcommandINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandInitKey"><HR><H4>vcommandInitKey</H4></A>
+<PRE>
+        void <B>vcommandInitKey</B>(
+                vcommandKey * key);
+</PRE>
+
+<DL><DD>
+Fills the uninitialized memory addressed by the command key
+<SAMP>key</SAMP> so that it becomes an empty command key
+binding.
+</DD></DL>
+<P>
+<A NAME="vcommandInitKeyIterator"><HR><H4>vcommandInitKeyIterator</H4></A>
+<PRE>
+        void <B>vcommandInitKeyIterator</B>(
+                vcommandKeyIterator * iterator,
+                vcommandKey * key);
+</PRE>
+
+<DL><DD>
+Begins an iteration of all the keystrokes in the command
+key binding <SAMP>key</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandInitOfClass"><HR><H4>vcommandInitOfClass</H4></A>
+<PRE>
+        void <B>vcommandInitOfClass</B>(
+                vcommand * command,
+                vcommandClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes the uninitialized memory addressed by
+<SAMP>command</SAMP> so that it becomes a command of class
+<SAMP>clas</SAMP>. The attributes of the command are set to
+their default values, according to the class. The Command
+Manager will not attempt to reclaim the command's storage
+when it is destroyed. This function simply stores the class
+in the command and sends it the message
+<CODE>vcommandINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandInitSelectorOfClass"><HR><H4>vcommandInitSelectorOfClass</H4></A>
+<PRE>
+        void <B>vcommandInitSelectorOfClass</B>(
+                vcommandSelector * command,
+                vcommandSelectorClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes the uninitialized memory addressed by
+<SAMP>command</SAMP> so that it becomes a selector command
+of class <SAMP>clas</SAMP>. The attributes of the command
+are set to their default values, according to the class.
+The Command Manager will not attempt to reclaim the
+command's storage when it is destroyed. This function
+simply stores the class in the command and sends it the
+message <CODE>vcommandINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandInitSpace"><HR><H4>vcommandInitSpace</H4></A>
+<PRE>
+        void <B>vcommandInitSpace</B>(
+                vcommandSpace * space);
+</PRE>
+
+<DL><DD>
+Makes the uninitialized memory addressed by
+<SAMP>space</SAMP> into an empty command space. The Command
+Manager will <I>not</I> attempt to reclaim the storage
+occupied by the command space when it is destroyed with
+<CODE><A HREF="vcommand-x.html#vcommandDestroySpace"><CODE>vcommandDestroySpace</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandInitSpaceIterator"><HR><H4>vcommandInitSpaceIterator</H4></A>
+<PRE>
+        void <B>vcommandInitSpaceIterator</B>(
+                vcommandSpaceIterator * iterator,
+                vcommandSpace * space);
+</PRE>
+
+<DL><DD>
+Begins an iteration of all the dictionaries in the command
+space <SAMP>space</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandInitSpaceOfClass"><HR><H4>vcommandInitSpaceOfClass</H4></A>
+<PRE>
+        void <B>vcommandInitSpaceOfClass</B>(
+                vcommandSpace * space,
+                vcommandSpaceClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes the uninitialized memory addressed by
+<SAMP>space</SAMP> so that it becomes a command space of
+class <SAMP>clas</SAMP>. The attributes of the command
+space are set to their default values, according to the
+class. The Command Manager will not attempt to reclaim the
+command space's storage when it is destroyed. This function
+simply stores the class in the command space and sends it
+the message <CODE>vobjectINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandInitSpaceOwnerIterator"><HR><H4>vcommandInitSpaceOwnerIterator</H4></A>
+<PRE>
+        void <B>vcommandInitSpaceOwnerIterator</B>(
+                vcommandSpaceOwnerIterator * iterator,
+                vcommandSpace * space);
+</PRE>
+
+<DL><DD>
+Begins an iteration of all the owners of the command space
+<SAMP>space</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandInitSynthetic"><HR><H4>vcommandInitSynthetic</H4></A>
+<PRE>
+        void <B>vcommandInitSynthetic</B>(
+                vcommandSynthetic * command);
+</PRE>
+
+<DL><DD>
+Initializes the uninitialized memory addressed by
+<SAMP>command</SAMP> so that it becomes a synthetic command
+of the default synthetic command class. The command will
+initially contain no tags and no pairs. The Command Manager
+will not attempt to reclaim the command's storage when it
+is destroyed. This function simply stores the default
+synthetic command class in the command and sends it the
+message <CODE>vcommandINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandInitSyntheticName"><HR><H4>vcommandInitSyntheticName</H4></A>
+<PRE>
+        void <B>vcommandInitSyntheticName</B>(
+                vcommandSyntheticName * command);
+</PRE>
+
+<DL><DD>
+Initializes the uninitialized memory addressed by
+<SAMP>command</SAMP> so that it becomes a synthetic name
+command of the default synthetic name command class. The
+command will initially contain no tags and no pairs. The
+Command Manager will not attempt to reclaim the command's
+storage when it is destroyed. This function simply stores
+the default synthetic name command class in the command and
+sends it the message <CODE>vcommandINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandInitSyntheticOfClass"><HR><H4>vcommandInitSyntheticOfClass</H4></A>
+<PRE>
+        void <B>vcommandInitSyntheticOfClass</B>(
+                vcommandSynthetic * command,
+                vcommandSyntheticClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes the uninitialized memory addressed by
+<SAMP>command</SAMP> so that it becomes a synthetic command
+of class <SAMP>clas</SAMP>. The attributes of the command
+are set to their default values, according to the class.
+The Command Manager will not attempt to reclaim the
+command's storage when it is destroyed. This function
+simply stores the class in the command and sends it the
+message <CODE>vcommandINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandInitSyntheticPairIterator"><HR><H4>vcommandInitSyntheticPairIterator</H4></A>
+<PRE>
+        void <B>vcommandInitSyntheticPairIterator</B>(
+                vcommandSyntheticPairIterator * iterator,
+                vcommandSynthetic * command);
+</PRE>
+
+<DL><DD>
+Begins an iteration of all the key/value pairs in the
+synthetic command <SAMP>command</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandInitSyntheticTagIterator"><HR><H4>vcommandInitSyntheticTagIterator</H4></A>
+<PRE>
+        void <B>vcommandInitSyntheticTagIterator</B>(
+                vcommandSyntheticTagIterator * iterator,
+                vcommandSynthetic * command);
+</PRE>
+
+<DL><DD>
+Begins an iteration of all the tags in the synthetic
+command <SAMP>command</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandIssue"><HR><H4>vcommandIssue</H4></A>
+<PRE>
+        int <B>vcommandIssue</B>(
+                vcommand * command,
+                vdict * attr2value);
+</PRE>
+
+<DL><DD>
+Executes the action represented by the command
+<SAMP>command</SAMP> in the context
+<SAMP>attr2value</SAMP>. The exact semantics of issuing a
+command depend on the command's class; typically, the
+application undertakes one or more tasks in response to the
+command. <SAMP>attr2value</SAMP> contains bindings of
+attribute names to attribute values. This information is
+intended to provide the implementor of the command with
+information about how the command was invoked as well as
+the state of the user interface object that invoked it.
+Refer to the section ``Context Dictionaries'' in the
+``Command Manager'' chapter of the <I>Galaxy Application
+Environment Programmer's Guide</I> for a description of the
+contents of a context dictionary. <SAMP>attr2value</SAMP>
+must have the hash function <CODE><A HREF="vname-x.html#vnameHash"><CODE>vnameHash</CODE></A></CODE>. This
+function is implemented by sending the message
+<CODE><A HREF="vcommand-x.html#vcommandISSUE"><CODE>vcommandISSUE</CODE></A></CODE> to <SAMP>command</SAMP>. This
+function is normally only called by the Command Manager to
+issue commands.
+    <P>
+</DD></DL>
+<P>
+<A NAME="vcommandLoad"><HR><H4>vcommandLoad</H4></A>
+<PRE>
+        vcommand * <B>vcommandLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a command from the resource <SAMP>resource</SAMP> and
+returns a pointer to its contents, which will be allocated
+by the Command Manager. The command will be assigned the
+same class it had when it was stored in the resource. Space
+for the command is allocated dynamically based on the
+object size of the command's class. The command's class is
+determined by the value of the tag ``Class.'' It generates
+a <CODE><A HREF="vobject-x.html#vobjectUndefinedClassException"><CODE>vobjectUndefinedClassException</CODE></A></CODE> exception if
+the name does not denote a class in the Class Manager
+registry. This function essentially allocates space for a
+new command and calls <CODE><A HREF="vcommand-x.html#vcommandLoadInit"><CODE>vcommandLoadInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vcommandLoadDict"><HR><H4>vcommandLoadDict</H4></A>
+<PRE>
+        vdict * <B>vcommandLoadDict</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Loads a dictionary of commands from the resource
+<SAMP>resource</SAMP> and returns a pointer to its
+contents.
+</DD></DL>
+<P>
+<A NAME="vcommandLoadInit"><HR><H4>vcommandLoadInit</H4></A>
+<PRE>
+        void <B>vcommandLoadInit</B>(
+                vcommand * command,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a command from the resource <SAMP>resource</SAMP> and
+stores it in the uninitialized memory addressed by
+<SAMP>command</SAMP>. The command will be assigned the same
+class it has when it was stored in the resource. Space for
+the command is allocated dynamically based on the object
+size of the command's class. The command's class is
+determined by the value of the tag ``Class.'' It generates
+a <CODE><A HREF="vobject-x.html#vobjectUndefinedClassException"><CODE>vobjectUndefinedClassException</CODE></A></CODE> exception if
+the name does not denote a class in the Class Manager
+registry. This function is implemented by sending the
+message <CODE><A HREF="vcommand-x.html#vcommandLOAD_INIT"><CODE>vcommandLOAD_INIT</CODE></A></CODE> to
+<SAMP>command</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandLoadInitKey"><HR><H4>vcommandLoadInitKey</H4></A>
+<PRE>
+        void <B>vcommandLoadInitKey</B>(
+                vcommandKey * key,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a command key binding from the resource
+<SAMP>resource</SAMP> and stores it in the uninitialized
+memory addressed by the command key <SAMP>key</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandLoadInitSpace"><HR><H4>vcommandLoadInitSpace</H4></A>
+<PRE>
+        void <B>vcommandLoadInitSpace</B>(
+                vcommandSpace * space,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a command space from the resource
+<SAMP>resource</SAMP> and stores it in the uninitialized
+memory addressed by <SAMP>space</SAMP>. The Command Manager
+stores and loads only dictionaries owned by the command
+space. The command space will have no owners.
+</DD></DL>
+<P>
+<A NAME="vcommandLoadKey"><HR><H4>vcommandLoadKey</H4></A>
+<PRE>
+        vcommandKey * <B>vcommandLoadKey</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a command key binding from the resource
+<SAMP>resource</SAMP> and returns a pointer to its
+contents, which will be allocated by the Command Manager.
+The Command Manager will reclaim the storage occupied by
+the key binding when it is destroyed with
+<CODE><A HREF="vcommand-x.html#vcommandDestroyKey"><CODE>vcommandDestroyKey</CODE></A></CODE>. This function essentially
+allocates space for a new key binding and calls
+<CODE><A HREF="vcommand-x.html#vcommandLoadInitKey"><CODE>vcommandLoadInitKey</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vcommandLoadKeyDict"><HR><H4>vcommandLoadKeyDict</H4></A>
+<PRE>
+        vdict * <B>vcommandLoadKeyDict</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Loads a dictionary of command keys from the resource
+<SAMP>resource</SAMP> and returns a pointer to its
+contents.
+</DD></DL>
+<P>
+<A NAME="vcommandLoadSpace"><HR><H4>vcommandLoadSpace</H4></A>
+<PRE>
+        vcommandSpace * <B>vcommandLoadSpace</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a command space from the resource
+<SAMP>resource</SAMP> and returns a pointer to its
+contents, which is allocated by the Command Manager. The
+Command Manager stores and loads only dictionaries owned by
+the command space. The command space will have no owners.
+</DD></DL>
+<P>
+<A NAME="vcommandMapKey"><HR><H4>vcommandMapKey</H4></A>
+<PRE>
+        void <B>vcommandMapKey</B>(
+                vcommandKey * key,
+                const void * value,
+                vdict * dict);
+</PRE>
+
+<DL><DD>
+Stores <SAMP>value</SAMP> as the value of each keystroke of
+the command key binding <SAMP>key</SAMP> in the dictionary
+<SAMP>dict</SAMP>. This function is useful for mapping the
+keystrokes of a command key binding to a single value
+inside a dictionary. A ``key map'' dictionary (a dictionary
+that maps keystrokes to command names) can be constructed
+by applying this function to each key binding in a key
+binding dictionary and passing the command name for the
+argument <SAMP>value</SAMP>; the function
+<CODE><A HREF="vcommand-x.html#vcommandMapKeyDict"><CODE>vcommandMapKeyDict</CODE></A></CODE> accomplishes this in a
+single function call. Key maps are used by the user
+interface classes during key event dispatch.
+<SAMP>dict</SAMP> must have the hash function
+<CODE><A HREF="vkey-x.html#vkeyHashStroke"><CODE>vkeyHashStroke</CODE></A></CODE>. Keystroke objects and their
+hash functions are documented in the ``Event Manager''
+chapter of the <I>Galaxy Application Environment
+Programmer's Guide</I>.
+</DD></DL>
+<P>
+<A NAME="vcommandMapKeyDict"><HR><H4>vcommandMapKeyDict</H4></A>
+<PRE>
+        void <B>vcommandMapKeyDict</B>(
+                vdict * keys,
+                vdict * map);
+</PRE>
+
+<DL><DD>
+Maps each keystroke of the command key bindings defined by
+<SAMP>keys</SAMP> to its corresponding command name and
+stores the mapping in the dictionary <SAMP>map</SAMP>. This
+function effectively inverts the bindings of
+<SAMP>keys</SAMP> and stores the results in
+<SAMP>map</SAMP>; instead of each command name being mapped
+to a set of keystrokes, each keystroke is mapped to a
+command name. A ``key map'' dictionary (a dictionary that
+maps keystrokes to command names) can be constructed by
+applying this function to a key binding dictionary in a
+command space. Key maps are used by the user interface
+classes during key event dispatch. <SAMP>keys</SAMP> must
+have the hash function <CODE><A HREF="vname-x.html#vnameHash"><CODE>vnameHash</CODE></A></CODE>, and
+<SAMP>map</SAMP> must have the hash function
+<CODE><A HREF="vkey-x.html#vkeyHashStroke"><CODE>vkeyHashStroke</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandMapSpaceKeys"><HR><H4>vcommandMapSpaceKeys</H4></A>
+<PRE>
+        void <B>vcommandMapSpaceKeys</B>(
+                vcommandSpace * space,
+                vdict * map);
+</PRE>
+
+<DL><DD>
+Maps all the key binding dictionaries in the command space
+<SAMP>space</SAMP> into the key map <SAMP>map</SAMP>. Key
+binding dictionaries have the attribute name ``Key'' and
+type <SAMP><A HREF="vcommand-x.html#vcommandKey"><CODE>vcommandKey</CODE></A>*</SAMP>. This function calls
+<CODE><A HREF="vcommand-x.html#vcommandMapKeyDict"><CODE>vcommandMapKeyDict</CODE></A></CODE> on each such dictionary in
+the command space. <CODE><A HREF="vcommand-x.html#vcommandMapKeyDict"><CODE>vcommandMapKeyDict</CODE></A></CODE>
+effectively inverts the bindings of keys and stores the
+results in <SAMP>map</SAMP>; instead of each command name
+being mapped to a set of keystrokes, each keystroke is
+mapped to a command name. A ``key map'' dictionary (a
+dictionary that maps keystrokes to command names) can be
+constructed by applying this function to a command space
+and an empty dictionary. Key maps are used by the user
+interface classes during key event dispatch.
+<SAMP>map</SAMP> must have the hash function
+<CODE><A HREF="vkey-x.html#vkeyHashStroke"><CODE>vkeyHashStroke</CODE></A></CODE>. Keystroke objects and their
+hash functions are documented in the ``Event Manager''
+chapter of the <I>Galaxy Application Environment
+Programmer's Guide</I>.
+</DD></DL>
+<P>
+<A NAME="vcommandNextKeyIterator"><HR><H4>vcommandNextKeyIterator</H4></A>
+<PRE>
+        int <B>vcommandNextKeyIterator</B>(
+                vcommandKeyIterator * iterator);
+</PRE>
+
+<DL><DD>
+Performs the next iteration of the iterator
+<SAMP>iterator</SAMP>. Returns <SAMP>TRUE</SAMP> if a
+keystroke is available, <SAMP>FALSE</SAMP> if it is not.
+</DD></DL>
+<P>
+<A NAME="vcommandNextSpaceIterator"><HR><H4>vcommandNextSpaceIterator</H4></A>
+<PRE>
+        int <B>vcommandNextSpaceIterator</B>(
+                vcommandSpaceIterator * iterator);
+</PRE>
+
+<DL><DD>
+Performs the next iteration of the iterator
+<SAMP>iterator</SAMP>. Returns <SAMP>TRUE</SAMP> if a
+dictionary is available, <SAMP>FALSE</SAMP> if it is not.
+</DD></DL>
+<P>
+<A NAME="vcommandNextSpaceOwnerIterator"><HR><H4>vcommandNextSpaceOwnerIterator</H4></A>
+<PRE>
+        int <B>vcommandNextSpaceOwnerIterator</B>(
+                vcommandSpaceOwnerIterator * iterator);
+</PRE>
+
+<DL><DD>
+Performs the next iteration of the iterator
+<SAMP>iterator</SAMP>. Returns <SAMP>TRUE</SAMP> if an
+owner is available, <SAMP>FALSE</SAMP> if not.
+</DD></DL>
+<P>
+<A NAME="vcommandNextSyntheticPairIterator"><HR><H4>vcommandNextSyntheticPairIterator</H4></A>
+<PRE>
+        int <B>vcommandNextSyntheticPairIterator</B>(
+                vcommandSyntheticPairIterator * iterator);
+</PRE>
+
+<DL><DD>
+Performs the next iteration of the iterator
+<SAMP>iterator</SAMP>. Returns <SAMP>TRUE</SAMP> if a
+key/value pair is available, <SAMP>FALSE</SAMP> if it is
+not.
+</DD></DL>
+<P>
+<A NAME="vcommandNextSyntheticTagIterator"><HR><H4>vcommandNextSyntheticTagIterator</H4></A>
+<PRE>
+        int <B>vcommandNextSyntheticTagIterator</B>(
+                vcommandSyntheticTagIterator * iterator);
+</PRE>
+
+<DL><DD>
+Performs the next iteration of the iterator
+<SAMP>iterator</SAMP>. Returns <SAMP>TRUE</SAMP> if a tag
+is available, <SAMP>FALSE</SAMP> if it is not.
+</DD></DL>
+<P>
+<A NAME="vcommandPrefLoadKeyDict"><HR><H4>vcommandPrefLoadKeyDict</H4></A>
+<PRE>
+        vdict * <B>vcommandPrefLoadKeyDict</B>(
+                vprefDict * prefDict);
+</PRE>
+
+<DL><DD>
+Retrieves the dictionary of command keys from the
+preference dictionary and returns a pointer to the command
+key dictionary.
+</DD></DL>
+<P>
+<A NAME="vcommandQuery"><HR><H4>vcommandQuery</H4></A>
+<PRE>
+        int <B>vcommandQuery</B>(
+                vcommand * command,
+                vdict * attr2value);
+</PRE>
+
+<DL><DD>
+Returns the contents of the command <SAMP>command</SAMP> in
+the context <SAMP>attr2value</SAMP>. The exact semantics of
+querying a command depend on the command's class;
+typically, the application will return any information it
+has about the command at the time of the query.
+<SAMP>attr2value</SAMP> contains bindings of attribute
+names to attribute values---the implementor of the query
+should add additional bindings to this dictionary based on
+whatever information it has about the command. Refer to the
+section ``Context Dictionaries'' in the ``Command Manager''
+chapter of the <I>Galaxy Application Environment
+Programmer's Guide</I> for a description of the contents of
+a context dictionary. <SAMP>attr2value</SAMP> must have the
+hash function <CODE><A HREF="vname-x.html#vnameHash"><CODE>vnameHash</CODE></A></CODE>. This function is
+implemented by sending the message
+<CODE><A HREF="vcommand-x.html#vcommandQUERY"><CODE>vcommandQUERY</CODE></A></CODE> to <SAMP>command</SAMP>. This
+function is normally only called by the Command Manager to
+issue commands.
+    <P>
+</DD></DL>
+<P>
+<A NAME="vcommandRemoveKeyStroke"><HR><H4>vcommandRemoveKeyStroke</H4></A>
+<PRE>
+        void <B>vcommandRemoveKeyStroke</B>(
+                vcommandKey * key,
+                vkeyStroke stroke);
+</PRE>
+
+<DL><DD>
+Removes the keystroke <SAMP>stroke</SAMP> from the set of
+keystrokes in the command key binding <SAMP>key</SAMP>.
+Keystroke objects are documented in the ``Event Manager''
+chapter of the <I>Galaxy Application Environment
+Programmer's Guide</I>. This function is a convenience for
+the single-tag case of
+<CODE><A HREF="vcommand-x.html#vcommandRemoveKeyStrokes"><CODE>vcommandRemoveKeyStrokes</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandRemoveKeyStrokes"><HR><H4>vcommandRemoveKeyStrokes</H4></A>
+<PRE>
+        void <B>vcommandRemoveKeyStrokes</B>(
+                vcommandKey * key,
+                const vkeyStroke * strokes,
+                int count);
+</PRE>
+
+<DL><DD>
+Removes a set of keystrokes from the set of keystrokes in
+the command key binding <SAMP>key</SAMP>. There are
+<SAMP>count</SAMP> keystrokes in the array
+<SAMP>strokes</SAMP>. Keystroke objects are documented in
+the ``Event Manager'' chapter of the <I>Galaxy Application
+Environment Programmer's Guide</I>.
+</DD></DL>
+<P>
+<A NAME="vcommandRemoveSpaceDict"><HR><H4>vcommandRemoveSpaceDict</H4></A>
+<PRE>
+        void <B>vcommandRemoveSpaceDict</B>(
+                vcommandSpace * space,
+                const vname * attr,
+                vdict * tag2value);
+</PRE>
+
+<DL><DD>
+Removes the dictionary <SAMP>tag2value</SAMP> from the
+command space <SAMP>space</SAMP>. The dictionary must be
+binding the attribute <SAMP>attr</SAMP>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if the
+attribute/dictionary pair is not found. The dictionary will
+be destroyed if it is owned by the command space. This
+function will propagate the resulting attribute changes to
+each owner of the command space.
+</DD></DL>
+<P>
+<A NAME="vcommandRemoveSpaceOwner"><HR><H4>vcommandRemoveSpaceOwner</H4></A>
+<PRE>
+        void <B>vcommandRemoveSpaceOwner</B>(
+                vcommandSpace * space,
+                vobjectAttributed * owner);
+</PRE>
+
+<DL><DD>
+Removes the object <SAMP>owner</SAMP> from the list of
+owning objects for the command space <SAMP>space</SAMP>.
+The object will no longer receive propagations from the
+command space. It generates a
+<CODE><A HREF="vex-x.html#vexArgNullException"><CODE>vexArgNullException</CODE></A></CODE> exception if
+<SAMP>owner</SAMP> is <SAMP>NULL</SAMP>. Command space
+owners are removed automatically when a command space is
+removed from a user interface object.
+</DD></DL>
+<P>
+<A NAME="vcommandRemoveSyntheticPair"><HR><H4>vcommandRemoveSyntheticPair</H4></A>
+<PRE>
+        void <B>vcommandRemoveSyntheticPair</B>(
+                vcommandSynthetic * command,
+                const vname * attr);
+</PRE>
+
+<DL><DD>
+Removes the key/value pair identified by <SAMP>attr</SAMP>
+from the additional context information of the command
+<SAMP>command</SAMP>. This function is a convenience for
+the single-tag case of
+<CODE><A HREF="vcommand-x.html#vcommandRemoveSyntheticPairs"><CODE>vcommandRemoveSyntheticPairs</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandRemoveSyntheticPairs"><HR><H4>vcommandRemoveSyntheticPairs</H4></A>
+<PRE>
+        void <B>vcommandRemoveSyntheticPairs</B>(
+                vcommandSynthetic * command,
+                const vname ** attrs,
+                int count);
+</PRE>
+
+<DL><DD>
+Removes the key/value pairs identified by
+<SAMP>attrs</SAMP> from the additional context information
+of the command <SAMP>command</SAMP>. There are
+<SAMP>count</SAMP> keys in the array <SAMP>attrs</SAMP>.
+This function is implemented by sending the message
+<CODE><A HREF="vcommand-x.html#vcommandREMOVE_SYNTHETIC_PAIRS"><CODE>vcommandREMOVE_SYNTHETIC_PAIRS</CODE></A></CODE> to
+<SAMP>command</SAMP>.
+    <P>
+</DD></DL>
+<P>
+<A NAME="vcommandRemoveSyntheticTag"><HR><H4>vcommandRemoveSyntheticTag</H4></A>
+<PRE>
+        void <B>vcommandRemoveSyntheticTag</B>(
+                vcommandSynthetic * command,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Removes the tag <SAMP>tag</SAMP> from the sequence of tags
+that will be executed when the command <SAMP>command</SAMP>
+is issued or queried. This function is a convenience for
+the single-tag case of
+<CODE><A HREF="vcommand-x.html#vcommandRemoveSyntheticTags"><CODE>vcommandRemoveSyntheticTags</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandRemoveSyntheticTags"><HR><H4>vcommandRemoveSyntheticTags</H4></A>
+<PRE>
+        void <B>vcommandRemoveSyntheticTags</B>(
+                vcommandSynthetic * command,
+                const vname ** tags,
+                int count);
+</PRE>
+
+<DL><DD>
+Removes a set of command tags from the sequence that will
+be executed when the command <SAMP>command</SAMP> is issued
+or queried. There are <SAMP>count</SAMP> tags in the array
+addressed by <SAMP>tags</SAMP>. This function is
+implemented by sending the message
+<CODE><A HREF="vcommand-x.html#vcommandREMOVE_SYNTHETIC_TAGS"><CODE>vcommandREMOVE_SYNTHETIC_TAGS</CODE></A></CODE> to
+<SAMP>command</SAMP>.
+    <P>
+The default method for the <SAMP><A HREF="vcommand-x.html#vcommandSynthetic"><CODE>vcommandSynthetic</CODE></A></SAMP>
+class simply removes the tags from the command structure.
+Subclasses that override this method should first call
+their parent method to remove the tags, then update any
+subclass-specific state that depends on them.
+</DD></DL>
+<P>
+<A NAME="vcommandReplaceSpaceDict"><HR><H4>vcommandReplaceSpaceDict</H4></A>
+<PRE>
+        void <B>vcommandReplaceSpaceDict</B>(
+                vcommandSpace * space,
+                const vname * attr,
+                vdict * tag2valueOld,
+                vdict * tag2valueNew);
+</PRE>
+
+<DL><DD>
+Substitutes the attribute binding dictionary
+<SAMP>tag2valueNew</SAMP> for the attribute binding
+dictionary <SAMP>tag2valueOld</SAMP> in the command space
+<SAMP>space</SAMP>. The existing dictionary must be binding
+the attribute <SAMP>attr</SAMP>; the replacement dictionary
+will bind this attribute also. The old dictionary will be
+destroyed if it is owned by the command space. The new
+dictionary will <I>not</I> be owned by the command space in
+any case. This function will propagate the resulting
+attribute changes to each owner of the command space.
+Calling this function is more efficient than calling
+<CODE><A HREF="vcommand-x.html#vcommandRemoveSpaceDict"><CODE>vcommandRemoveSpaceDict</CODE></A></CODE> and
+<CODE><A HREF="vcommand-x.html#vcommandAddSpaceDict"><CODE>vcommandAddSpaceDict</CODE></A></CODE> separately. This function
+is useful for rapidly switching between sets of command
+bindings in response to state changes (a document selection
+change, for example).
+</DD></DL>
+<P>
+<A NAME="vcommandSetFunctionIssue"><HR><H4>vcommandSetFunctionIssue</H4></A>
+<PRE>
+        void <B>vcommandSetFunctionIssue</B>(
+                vcommandFunction * command,
+                vcommandFunc issueFunc);
+</PRE>
+
+<DL><DD>
+Changes the issue function of the command
+<SAMP>command</SAMP> to <SAMP>issueFunc</SAMP>. This
+function will be called when the command is issued.
+<SAMP>issueFunc</SAMP> can be <SAMP>NULL</SAMP>, in which
+case no action will be taken when the command is issued.
+This function is implemented by sending the message
+<CODE><A HREF="vcommand-x.html#vcommandSET_FUNCTION_ISSUE"><CODE>vcommandSET_FUNCTION_ISSUE</CODE></A></CODE> to
+<SAMP>command</SAMP>.
+    <P>
+</DD></DL>
+<P>
+<A NAME="vcommandSetFunctionQuery"><HR><H4>vcommandSetFunctionQuery</H4></A>
+<PRE>
+        void <B>vcommandSetFunctionQuery</B>(
+                vcommandFunction * command,
+                vcommandFunc queryFunc);
+</PRE>
+
+<DL><DD>
+Changes the query function of the command
+<SAMP>command</SAMP> to <SAMP>queryFunc</SAMP>. This
+function will be called when the command is queried.
+<SAMP>queryFunc</SAMP> can be <SAMP>NULL</SAMP>, in which
+case no information will be returned when the command is
+queried. This function is implemented by sending the
+message <CODE><A HREF="vcommand-x.html#vcommandSET_FUNCTION_QUERY"><CODE>vcommandSET_FUNCTION_QUERY</CODE></A></CODE> to
+<SAMP>command</SAMP>.
+    <P>
+</DD></DL>
+<P>
+<A NAME="vcommandSetSelector"><HR><H4>vcommandSetSelector</H4></A>
+<PRE>
+        void <B>vcommandSetSelector</B>(
+                vcommandSelector * command,
+                int value);
+</PRE>
+
+<DL><DD>
+Changes the selector value of the command
+<SAMP>command</SAMP> to <SAMP>value</SAMP>. The selector
+value determines which particular unit of application
+functionality the command represents; it will be examined
+by the command's issue and query methods when the command
+is issued or queried. This function is implemented by
+sending the message <CODE><A HREF="vcommand-x.html#vcommandSET_SELECTOR"><CODE>vcommandSET_SELECTOR</CODE></A></CODE> to
+<SAMP>command</SAMP>.
+    <P>
+</DD></DL>
+<P>
+<A NAME="vcommandStartup"><HR><H4>vcommandStartup</H4></A>
+<PRE>
+        void <B>vcommandStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the Command Manager. Has no effect if the
+Command Manager is already initialized.
+</DD></DL>
+<P>
+<A NAME="vcommandStore"><HR><H4>vcommandStore</H4></A>
+<PRE>
+        void <B>vcommandStore</B>(
+                vcommand * command,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Writes the contents of the command <SAMP>command</SAMP>
+into the resource <SAMP>resource</SAMP>. The command can be
+recovered from the resource with <CODE><A HREF="vcommand-x.html#vcommandLoad"><CODE>vcommandLoad</CODE></A></CODE>.
+It generates a <CODE><A HREF="vobject-x.html#vobjectUnnamedClassException"><CODE>vobjectUnnamedClassException</CODE></A></CODE>
+exception if the command's class is not named. This
+function is implemented by sending the message
+<CODE><A HREF="vcommand-x.html#vcommandSTORE"><CODE>vcommandSTORE</CODE></A></CODE> to <SAMP>command</SAMP>.
+    <P>
+To make a command into a resource, first call
+<CODE><A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A></CODE> to create an untyped resource in
+the desired location, then call <CODE>vcommandStore</CODE>
+to write the command into the resource.
+    <P>
+<BLOCKQUOTE>
+Sample Code: Making a command into a resource using
+<CODE>vcommandStore</CODE>
+
+<PRE>
+
+vcommand *command;    /* contains a command */
+<A HREF="vresource-x.html#vresource"><CODE>vresource</CODE></A> fileResource, commandResource;
+fileResource    = <A HREF="vresource-x.html#vresourceOpenFile"><CODE>vresourceOpenFile</CODE></A>( ... );
+commandResource = <A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A>(fileResource, 
+                  <A HREF="vname-x.html#vnameInternGlobalLiteral"><CODE>vnameInternGlobalLiteral</CODE></A>("MyCommand"));
+vcommandStore(command, commandResource);
+<A HREF="vresource-x.html#vresourceCloseFile"><CODE>vresourceCloseFile</CODE></A>(fileResource);
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vcommandStoreDict"><HR><H4>vcommandStoreDict</H4></A>
+<PRE>
+        void <B>vcommandStoreDict</B>(
+                vdict * dict,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Stores the dictionary of commands <SAMP>dict</SAMP> into
+the resource <SAMP>resource</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandStoreDictFunctionTemplates"><HR><H4>vcommandStoreDictFunctionTemplates</H4></A>
+<PRE>
+        void <B>vcommandStoreDictFunctionTemplates</B>(
+                vdict * dict,
+                const vcommandFunctionTemplate * templates,
+                size_t count);
+</PRE>
+
+<DL><DD>
+Stores <SAMP>count</SAMP> function commands from the
+function command templates <SAMP>templates</SAMP> in the
+dictionary <SAMP>dict</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandStoreDictOfClassFunctionTemplates"><HR><H4>vcommandStoreDictOfClassFunctionTemplates</H4></A>
+<PRE>
+        void <B>vcommandStoreDictOfClassFunctionTemplates</B>(
+                vdict * dict,
+                vcommandFunctionClass * clas,
+                const vcommandFunctionTemplate * templates,
+                size_t count);
+</PRE>
+
+<DL><DD>
+Stores <SAMP>count</SAMP> function commands of class
+<SAMP>clas</SAMP> from the function command templates
+<SAMP>templates</SAMP> in the dictionary <SAMP>dict</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandStoreDictOfClassSelectorTemplates"><HR><H4>vcommandStoreDictOfClassSelectorTemplates</H4></A>
+<PRE>
+        void <B>vcommandStoreDictOfClassSelectorTemplates</B>(
+                vdict * dict,
+                vcommandSelectorClass * clas,
+                const vcommandSelectorTemplate * templates,
+                size_t count);
+</PRE>
+
+<DL><DD>
+Stores <SAMP>count</SAMP> selector commands of class
+<SAMP>clas</SAMP> from the selector command templates
+<SAMP>templates</SAMP> in the dictionary <SAMP>dict</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandStoreDictTemplates"><HR><H4>vcommandStoreDictTemplates</H4></A>
+<PRE>
+        void <B>vcommandStoreDictTemplates</B>(
+                vdict * dict,
+                const vcommandTemplate * templates,
+                size_t count);
+</PRE>
+
+<DL><DD>
+Adds <SAMP>count</SAMP> commands from the command
+initializers <SAMP>templates</SAMP> to the dictionary
+<SAMP>dict</SAMP>. The dictionary is usually a
+<SAMP>vname_Command</SAMP> dictionary in a command space.
+</DD></DL>
+<P>
+<A NAME="vcommandStoreKey"><HR><H4>vcommandStoreKey</H4></A>
+<PRE>
+        void <B>vcommandStoreKey</B>(
+                vcommandKey * key,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Writes the contents of the command key binding
+<SAMP>key</SAMP> into the resource <SAMP>resource</SAMP>.
+The key binding can be recovered with
+<CODE><A HREF="vcommand-x.html#vcommandLoadKey"><CODE>vcommandLoadKey</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vcommandStoreKeyDict"><HR><H4>vcommandStoreKeyDict</H4></A>
+<PRE>
+        void <B>vcommandStoreKeyDict</B>(
+                vdict * dict,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Stores the dictionary of command keys <SAMP>dict</SAMP>
+into the resource <SAMP>resource</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vcommandStoreSpace"><HR><H4>vcommandStoreSpace</H4></A>
+<PRE>
+        void <B>vcommandStoreSpace</B>(
+                vcommandSpace * space,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Writes the contents of the command space <SAMP>space</SAMP>
+into the resource <SAMP>resource</SAMP>. The command space
+can be recovered with <CODE><A HREF="vcommand-x.html#vcommandLoadSpace"><CODE>vcommandLoadSpace</CODE></A></CODE>. The
+Command Manager will store and load dictionaries only owned
+by the command space. This function does not store the
+owners of <SAMP>space</SAMP> in any way.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vcommandADD_SPACE_DICT"><HR><H4>vcommandADD_SPACE_DICT</H4></A>
+<PRE>
+        &lt;<B>vcommandADD_SPACE_DICT</B>&gt;
+</PRE>
+
+<DL><DD>
+Adds the dictionary of attribute bindings
+<SAMP>tag2value</SAMP> to the command space
+<SAMP>space</SAMP>. Ownership of the dictionary does
+<I>not</I> pass to the command space, and its contents will
+<I>not</I> be copied (a reference <I>will</I> be copied).
+The dictionary will <I>not</I> be destroyed when the
+command space is destroyed. Shared dictionaries are not
+stored in resources. <SAMP>tag2value</SAMP> must have the
+hash function <CODE><A HREF="vname-x.html#vnameHash"><CODE>vnameHash</CODE></A></CODE>. The function entry
+point <CODE><A HREF="vcommand-x.html#vcommandAddSpaceDict"><CODE>vcommandAddSpaceDict</CODE></A></CODE> is implemented by
+sending this message to the command space.
+    <P>
+The default method for the default command space class
+stores the dictionary in the command space and propagates
+any necessary changes. Subclasses that override this method
+should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to store the
+new dictionary, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vcommandADD_SPACE_OWNER"><HR><H4>vcommandADD_SPACE_OWNER</H4></A>
+<PRE>
+        &lt;<B>vcommandADD_SPACE_OWNER</B>&gt;
+</PRE>
+
+<DL><DD>
+Adds the object <SAMP>owner</SAMP> to the list of owning
+objects for the command space <SAMP>space</SAMP>. The
+owner's class must be derived from the default attributed
+object class. The function entry point
+<CODE><A HREF="vcommand-x.html#vcommandAddSpaceOwner"><CODE>vcommandAddSpaceOwner</CODE></A></CODE> is implemented by
+sending this message to the command space.
+    <P>
+The default method for the default command space class
+simply stores the owner in the command space. Subclasses
+that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to store the new owner, then
+update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vcommandADD_SYNTHETIC_PAIRS"><HR><H4>vcommandADD_SYNTHETIC_PAIRS</H4></A>
+<PRE>
+        &lt;<B>vcommandADD_SYNTHETIC_PAIRS</B>&gt;
+</PRE>
+
+<DL><DD>
+Adds the key/value pairs addressed by <SAMP>keys</SAMP> and
+<SAMP>values</SAMP> to the synthetic command
+<SAMP>command</SAMP>. There are <SAMP>count</SAMP> elements
+in each of the arrays. Each element of <SAMP>keys</SAMP>
+will be paired with the corresponding element of
+<SAMP>values</SAMP> when it is stored in the context
+dictionary. The function entry point
+<CODE><A HREF="vcommand-x.html#vcommandAddSyntheticPairs"><CODE>vcommandAddSyntheticPairs</CODE></A></CODE> is implemented by
+sending this message to the command.
+    <P>
+The default method for the default synthetic command class
+simply stores the pairs in the command structure.
+Subclasses that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to store the new pairs, then
+update any subclass-specific state that depends on them.
+</DD></DL>
+<P>
+<A NAME="vcommandADD_SYNTHETIC_TAGS"><HR><H4>vcommandADD_SYNTHETIC_TAGS</H4></A>
+<PRE>
+        &lt;<B>vcommandADD_SYNTHETIC_TAGS</B>&gt;
+</PRE>
+
+<DL><DD>
+Adds a sequence of command tags to the synthetic command
+<SAMP>command</SAMP>. There are <SAMP>count</SAMP> tags in
+the array addressed by <SAMP>tags</SAMP>. When the command
+is executed, each tag will be bound to a command in the
+same scope that <SAMP>command</SAMP> was bound, and the
+resulting command sequence will be executed in place of the
+original command. The function entry point
+<CODE><A HREF="vcommand-x.html#vcommandAddSyntheticTags"><CODE>vcommandAddSyntheticTags</CODE></A></CODE> is implemented by
+sending this message to the command.
+    <P>
+The default method for the default synthetic command class
+simply stores the tags in the command structure. Subclasses
+that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to store the new tags, then
+update any subclass-specific state that depends on them.
+</DD></DL>
+<P>
+<A NAME="vcommandISSUE"><HR><H4>vcommandISSUE</H4></A>
+<PRE>
+        &lt;<B>vcommandISSUE</B>&gt;
+</PRE>
+
+<DL><DD>
+Executes the action represented by the command
+<SAMP>command</SAMP> in the context
+<SAMP>attr2value</SAMP>. <SAMP>attr2value</SAMP> contains
+bindings of attribute names to attribute values. The
+function entry point <CODE><A HREF="vcommand-x.html#vcommandIssue"><CODE>vcommandIssue</CODE></A></CODE> is
+implemented by sending this message to the command.
+    <P>
+The default methods for the standard command classes issue
+the command based on its contents. For example, a function
+command simply calls its instance issue function.
+Subclasses that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to invoke the behavior of
+their superclass, then implement any subclass-specific
+behavior.
+</DD></DL>
+<P>
+<A NAME="vcommandLOAD_INIT"><HR><H4>vcommandLOAD_INIT</H4></A>
+<PRE>
+        &lt;<B>vcommandLOAD_INIT</B>&gt;
+</PRE>
+
+<DL><DD>
+Reads a command from the resource <SAMP>resource</SAMP> and
+stores it in the uninitialized memory addressed by
+<SAMP>command</SAMP>. The class of <SAMP>command</SAMP>
+must be set to the class specified by the resource; call
+<CODE><A HREF="vcommand-x.html#vcommandLoadInit"><CODE>vcommandLoadInit</CODE></A></CODE> to set the class pointer of a
+command from a resource and load it at once.
+    <P>
+The default methods for the standard command classes read
+the command attributes from the resource and store them in
+the command structure. Subclasses that override this method
+should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to load the
+core command, then initialize each subclass-defined
+attribute of the command. Attributes can be initialized
+based on the contents of the resource, or they can be set
+to default values, depending on the desired functionality.
+</DD></DL>
+<P>
+<A NAME="vcommandQUERY"><HR><H4>vcommandQUERY</H4></A>
+<PRE>
+        &lt;<B>vcommandQUERY</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns the contents of the command <SAMP>command</SAMP> in
+the context <SAMP>attr2value</SAMP>.
+<SAMP>attr2value</SAMP> contains bindings of attribute
+names to attribute values. The implementor of the query
+should add additional bindings to this dictionary based on
+whatever information it has about the command. The function
+entry point <CODE><A HREF="vcommand-x.html#vcommandQuery"><CODE>vcommandQuery</CODE></A></CODE> is implemented by
+sending this message to the command.
+    <P>
+The default methods for the standard command classes query
+the command based on its contents. For example, a function
+command simply calls its instance query function.
+Subclasses that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to invoke the behavior of
+their superclass, then implement any subclass-specific
+behavior.
+</DD></DL>
+<P>
+<A NAME="vcommandREMOVE_SPACE_DICT"><HR><H4>vcommandREMOVE_SPACE_DICT</H4></A>
+<PRE>
+        &lt;<B>vcommandREMOVE_SPACE_DICT</B>&gt;
+</PRE>
+
+<DL><DD>
+Removes the dictionary <SAMP>tag2value</SAMP> from the
+command space <SAMP>space</SAMP>. The dictionary must be
+binding the attribute <SAMP>attr</SAMP>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if the
+attribute/dictionary pair is not found. The dictionary will
+be destroyed if it is owned by the command space. This
+function will propagate the resulting attribute changes to
+each owner of the command space. The function entry point
+<CODE><A HREF="vcommand-x.html#vcommandRemoveSpaceDict"><CODE>vcommandRemoveSpaceDict</CODE></A></CODE> is implemented by
+sending this message to the command space.
+    <P>
+The default method for the default command space class
+removes the dictionary in the command space and propagates
+any necessary changes. Subclasses that override this method
+should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to remove
+the dictionary, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vcommandREMOVE_SPACE_OWNER"><HR><H4>vcommandREMOVE_SPACE_OWNER</H4></A>
+<PRE>
+        &lt;<B>vcommandREMOVE_SPACE_OWNER</B>&gt;
+</PRE>
+
+<DL><DD>
+Removes the object <SAMP>owner</SAMP> from the list of
+owning objects for the command space <SAMP>space</SAMP>. It
+generates a <CODE><A HREF="vex-x.html#vexArgNullException"><CODE>vexArgNullException</CODE></A></CODE> exception if
+<SAMP>owner</SAMP> is <SAMP>NULL</SAMP>. The function entry
+point <CODE><A HREF="vcommand-x.html#vcommandRemoveSpaceOwner"><CODE>vcommandRemoveSpaceOwner</CODE></A></CODE> is implemented
+by sending this message to the command space.
+    <P>
+The default method for the default command space class
+simply removes the owner from the command space. Subclasses
+that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to remove the owner, then
+update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vcommandREMOVE_SYNTHETIC_PAIRS"><HR><H4>vcommandREMOVE_SYNTHETIC_PAIRS</H4></A>
+<PRE>
+        &lt;<B>vcommandREMOVE_SYNTHETIC_PAIRS</B>&gt;
+</PRE>
+
+<DL><DD>
+Removes the key/value pairs identified by <SAMP>keys</SAMP>
+from the synthetic command <SAMP>command</SAMP>. There are
+<SAMP>count</SAMP> keys in the array <SAMP>keys</SAMP>. The
+function entry point
+<CODE><A HREF="vcommand-x.html#vcommandRemoveSyntheticPairs"><CODE>vcommandRemoveSyntheticPairs</CODE></A></CODE> is implemented by
+sending this message to the command.
+    <P>
+The default method for the default synthetic command class
+simply removes the pairs from the command structure.
+Subclasses that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to remove the pairs, then
+update any subclass-specific state that depends on them.
+</DD></DL>
+<P>
+<A NAME="vcommandREMOVE_SYNTHETIC_TAGS"><HR><H4>vcommandREMOVE_SYNTHETIC_TAGS</H4></A>
+<PRE>
+        &lt;<B>vcommandREMOVE_SYNTHETIC_TAGS</B>&gt;
+</PRE>
+
+<DL><DD>
+Removes a set of command tags from the synthetic command
+<SAMP>command</SAMP>. There are <SAMP>count</SAMP> tags in
+the array addressed by <SAMP>tags</SAMP>. The function
+entry point <CODE><A HREF="vcommand-x.html#vcommandRemoveSyntheticTags"><CODE>vcommandRemoveSyntheticTags</CODE></A></CODE> is
+implemented by sending this message to the command.
+    <P>
+The default method for the default synthetic command class
+simply removes the tags from the command structure.
+Subclasses that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to remove the tags, then
+update any subclass-specific state that depends on them.
+</DD></DL>
+<P>
+<A NAME="vcommandREPLACE_SPACE_DICT"><HR><H4>vcommandREPLACE_SPACE_DICT</H4></A>
+<PRE>
+        &lt;<B>vcommandREPLACE_SPACE_DICT</B>&gt;
+</PRE>
+
+<DL><DD>
+Substitutes the attribute binding dictionary
+<SAMP>tag2valueNew</SAMP> for the attribute binding
+dictionary <SAMP>tag2valueOld</SAMP> in the command space
+<SAMP>space</SAMP>. The existing dictionary must be binding
+the attribute <SAMP>attr</SAMP>; the replacement dictionary
+will bind this attribute also. The old dictionary will be
+destroyed if it is owned by the command space. The new
+dictionary will <I>not</I> be owned by the command space in
+any case. This function will propagate the resulting
+attribute changes to each owner of the command space. The
+function entry point <CODE><A HREF="vcommand-x.html#vcommandReplaceSpaceDict"><CODE>vcommandReplaceSpaceDict</CODE></A></CODE>
+is implemented by sending this message to the command
+space.
+    <P>
+The default method for the default command space class
+replaces the dictionary in the command space and propagates
+any necessary changes. Subclasses that override this method
+should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to replace
+the dictionary, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vcommandSET_FUNCTION_ISSUE"><HR><H4>vcommandSET_FUNCTION_ISSUE</H4></A>
+<PRE>
+        &lt;<B>vcommandSET_FUNCTION_ISSUE</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the issue function of the command
+<SAMP>command</SAMP> to <SAMP>issueFunc</SAMP>. This
+function will be called when the command is issued.
+<SAMP>issueFunc</SAMP> can be <SAMP>NULL</SAMP>, in which
+case no action will be taken when the command is issued.
+The function entry point
+<CODE><A HREF="vcommand-x.html#vcommandSetFunctionIssue"><CODE>vcommandSetFunctionIssue</CODE></A></CODE> is implemented by
+sending this message to the command.
+    <P>
+The default method for the default function command class
+simply stores the function pointer in the command
+structure. Subclasses that override this method should
+first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to store the new
+function, then update any subclass-specific state that
+depends on it.
+</DD></DL>
+<P>
+<A NAME="vcommandSET_FUNCTION_QUERY"><HR><H4>vcommandSET_FUNCTION_QUERY</H4></A>
+<PRE>
+        &lt;<B>vcommandSET_FUNCTION_QUERY</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the query function of the command
+<SAMP>command</SAMP> to <SAMP>queryFunc</SAMP>. This
+function will be called when the command is queried.
+<SAMP>queryFunc</SAMP> can be <SAMP>NULL</SAMP>, in which
+case no information will be returned when the command is
+queried. The function entry point
+<CODE><A HREF="vcommand-x.html#vcommandSetFunctionQuery"><CODE>vcommandSetFunctionQuery</CODE></A></CODE> is implemented by
+sending this message to the command.
+    <P>
+The default method for the default function command class
+simply stores the function pointer in the command
+structure. Subclasses that override this method should
+first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to store the new
+function, then update any subclass-specific state that
+depends on it.
+</DD></DL>
+<P>
+<A NAME="vcommandSET_SELECTOR"><HR><H4>vcommandSET_SELECTOR</H4></A>
+<PRE>
+        &lt;<B>vcommandSET_SELECTOR</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the selector value of the command
+<SAMP>command</SAMP> to <SAMP>value</SAMP>. The selector
+value determines which particular unit of application
+functionality the command represents. The function entry
+point <CODE><A HREF="vcommand-x.html#vcommandSetSelector"><CODE>vcommandSetSelector</CODE></A></CODE> is implemented by
+sending this message to the command.
+    <P>
+The default method for the default selector command class
+simply stores the selector in the command structure.
+Subclasses that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to store the new selector,
+then update any subclass-specific state that depends on it.
+</DD></DL>
+<P>
+<A NAME="vcommandSTORE"><HR><H4>vcommandSTORE</H4></A>
+<PRE>
+        &lt;<B>vcommandSTORE</B>&gt;
+</PRE>
+
+<DL><DD>
+Writes the contents of the command <SAMP>command</SAMP>
+into the resource <SAMP>resource</SAMP>. The function entry
+point <CODE><A HREF="vcommand-x.html#vcommandStore"><CODE>vcommandStore</CODE></A></CODE> is implemented by sending
+this message to the command.
+    <P>
+The default methods for the standard command classes store
+the class name and the command attributes (if any) in the
+resource. Subclasses that override this method should first
+call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to store the contents of
+the core command, then store each persistent attribute of
+the command in the resource dictionary.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vcommandDESTROY"><HR><H4>vcommandDESTROY</H4></A>
+<PRE>
+        <B>vcommandDESTROY</B>
+</PRE>
+
+<DL><DD>
+Destroys the command <SAMP>command</SAMP>, which should
+have been initialized by <CODE>vcommandINIT</CODE>. The
+function entry point <CODE><A HREF="vcommand-x.html#vcommandDestroy"><CODE>vcommandDestroy</CODE></A></CODE> is
+implemented by sending this message to the command.
+    <P>
+The default methods for the standard command classes will
+free any objects allocated internally by the command, then
+free the storage its structure occupies if it was created
+with a <SAMP>Create</SAMP> or <SAMP>Load</SAMP> function.
+Subclasses that override this method should destroy any
+internal objects they have allocated over the lifetime of
+the command, then call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+destroy the rest of the command.
+</DD></DL>
+<P>
+<A NAME="vcommandINCLUDED"><HR><H4>vcommandINCLUDED</H4></A>
+<PRE>
+        <B>vcommandINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vcommand.h</SAMP> is
+included.
+</DD></DL>
+<P>
+<A NAME="vcommandINIT"><HR><H4>vcommandINIT</H4></A>
+<PRE>
+        <B>vcommandINIT</B>
+</PRE>
+
+<DL><DD>
+Initializes the uninitialized memory addressed by
+<SAMP>command</SAMP>. <SAMP>command</SAMP> must contain the
+class of a command to initialize; call
+<CODE><A HREF="vcommand-x.html#vcommandInitOfClass"><CODE>vcommandInitOfClass</CODE></A></CODE> to set the class pointer
+of a command and initialize it at once.
+    <P>
+The default methods for the standard command classes clear
+the attributes of the command to their default values.
+Subclasses that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to initialize their base
+command, then initialize each attribute that is unique to
+the subclass. Any internal objects that need to be created
+should be allocated at this time. The command structure
+should be initialized completely.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vcommandCLASS"><HR><H4>vcommandCLASS</H4></A>
+<PRE>
+        #define <B>vcommandCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the declarations for all command classes. This macro expands
+to the contents of <CODE><A HREF="vcommand-x.html#vcommandClass"><CODE>vcommandClass</CODE></A></CODE>. <SAMP>SUPER</SAMP> is
+the type identifier of the class being declared (for example,
+<CODE><A HREF="vcommand-x.html#vcommandFunctionClass"><CODE>vcommandFunctionClass</CODE></A></CODE>). This type will be used by the class's
+subclasses to refer to it. <SAMP>COMMAND</SAMP> is the type identifier of
+command instances being declared (for example, <CODE><A HREF="vcommand-x.html#vcommandFunction"><CODE>vcommandFunction</CODE></A></CODE>).
+This macro should be used by higher-level class definitions to declare
+the core command class definition.
+</DD></DL>
+<P>
+<A NAME="vcommandFUNCTION_CLASS"><HR><H4>vcommandFUNCTION_CLASS</H4></A>
+<PRE>
+        #define <B>vcommandFUNCTION_CLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the declarations for function command classes. This macro
+expands to the contents of
+<CODE><A HREF="vcommand-x.html#vcommandFunctionClass"><CODE>vcommandFunctionClass</CODE></A></CODE>. <SAMP>SUPER</SAMP> is the type
+identifier of the class being declared (for example,
+<CODE><A HREF="vcommand-x.html#vcommandFunctionClass"><CODE>vcommandFunctionClass</CODE></A></CODE>). This type will be used by the
+class's  subclasses to refer to it. <SAMP>COMMAND</SAMP> is the type
+identifier of command instances being declared (for example,
+<CODE><A HREF="vcommand-x.html#vcommandFunction"><CODE>vcommandFunction</CODE></A></CODE>). This macro should be used by
+higher-level class definitions to declare the function command class
+definition.
+</DD></DL>
+<P>
+<A NAME="vcommandSELECTOR_CLASS"><HR><H4>vcommandSELECTOR_CLASS</H4></A>
+<PRE>
+        #define <B>vcommandSELECTOR_CLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the declarations for selector command classes. This macro
+expands to the contents of
+<CODE><A HREF="vcommand-x.html#vcommandSelectorClass"><CODE>vcommandSelectorClass</CODE></A></CODE>. <SAMP>SUPER</SAMP> is the type
+identifier of the class being declared (for example,
+<CODE><A HREF="vcommand-x.html#vcommandSelectorClass"><CODE>vcommandSelectorClass</CODE></A></CODE>). This type will be used by the
+class's subclasses to refer to it. <SAMP>COMMAND</SAMP> is the type
+identifier of command instances being declared (for example,
+<CODE><A HREF="vcommand-x.html#vcommandSelector"><CODE>vcommandSelector</CODE></A></CODE>). This macro should be used by
+higher-level class definitions to declare the selector command class
+definition.
+</DD></DL>
+<P>
+<A NAME="vcommandSPACE_CLASS"><HR><H4>vcommandSPACE_CLASS</H4></A>
+<PRE>
+        #define <B>vcommandSPACE_CLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the declarations for command space classes. This macro
+expands to the contents of
+<CODE><A HREF="vcommand-x.html#vcommandSpaceClass"><CODE>vcommandSpaceClass</CODE></A></CODE>. <SAMP>SUPER</SAMP> is the type
+identifier of the class being declared (for example,
+<CODE><A HREF="vcommand-x.html#vcommandSpaceClass"><CODE>vcommandSpaceClass</CODE></A></CODE>). This type will be used by the
+class's subclasses to refer to it. <SAMP>SPACE</SAMP> is the type
+identifier of command space instances being declared (for example,
+<CODE><A HREF="vcommand-x.html#vcommandSpace"><CODE>vcommandSpace</CODE></A></CODE>). This macro should be used by higher-level
+class definitions to declare the core command space class definition.
+</DD></DL>
+<P>
+<A NAME="vcommandSYNTHETIC_CLASS"><HR><H4>vcommandSYNTHETIC_CLASS</H4></A>
+<PRE>
+        #define <B>vcommandSYNTHETIC_CLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the declarations for synthetic command classes. This macro
+expands to the contents of
+<CODE><A HREF="vcommand-x.html#vcommandSyntheticClass"><CODE>vcommandSyntheticClass</CODE></A></CODE>. <SAMP>SUPER</SAMP> is the type
+identifier of the class being declared (for example,
+<CODE><A HREF="vcommand-x.html#vcommandSyntheticClass"><CODE>vcommandSyntheticClass</CODE></A></CODE>). This type will be used by the
+class's subclasses to refer to it. <SAMP>COMMAND</SAMP> is the type
+identifier of command instances being declared (for example,
+<CODE><A HREF="vcommand-x.html#vcommandSynthetic"><CODE>vcommandSynthetic</CODE></A></CODE>). This macro should be used by
+higher-level class definitions to declare the synthetic command class
+definition.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

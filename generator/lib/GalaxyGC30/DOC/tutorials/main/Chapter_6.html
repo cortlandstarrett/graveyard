@@ -1,0 +1,461 @@
+<HTML>
+<HEAD>
+<TITLE>Chapter 6. Menus</TITLE>
+
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR BGCOLOR="#CCCC66">
+		<!-- Margin Banner -->
+		<TD><CENTER><BR><IMG SRC="../../graphics/logo.gif"><BR> <BR></CENTER>
+      </TD>
+
+      <!-- Title block: DOCUMENT TITLE GOES HERE -->
+      <TD VALIGN=TOP>
+          <BR>
+           <H1><A NAME="Top">Chapter 6. Menus</A></H1>
+           <BR>
+      </TD>
+      
+   </TR>
+   </TABLE>
+ 		<P>
+
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="1508"></A>
+This chapter shows you how to use menus and menu bars. These are two of the basic user interface elements. We will extend tut5a to have a menu bar with a single menu. The menu will have three menu items. These are the now familiar Grow, Shrink, and Quit.<P>
+<UL><LI>Concepts
+<LI>Menu Manager
+<LI>Menu Bar Manager
+<LI>vre
+</UL><P>
+First we need to modify our resource file so it contains our menu. Start with a copy of tut5a.vr. Copy tut5a.vr into tut6a.vr with the following command:<P>
+<PRE><UL>copy tut5a.vr tut6a.vr
+</UL></PRE>Next, run the Visual Resource Builder:<P>
+<PRE><UL>vre tut6a.vr
+</UL></PRE>In the browser window, double-click the ButtonDialog entry to open the dialog editor. This opens the dialog editor for ButtonDialog as well as opening the dialog Item Palette. Select <B>Windows/Connection</B> from the dialog editor's menu. This opens the spring and strut connection dialog.<P>
+Menu bars are automatically positioned at the top of the dialog. They are sprung internally so they stretch the full length of the dialog and their top strut is zero length. By convention, the top of the dialog is where menu bars are normally positioned. You can change the menu bar's position and size by editing its springs and struts if you want. In this case, we let the menu bar position itself automatically so all we need to do is drag a menu bar from the Item Palette and release it in our dialog.<P>
+Drag a menu bar from the Item Palette and release it in the dialog. The menu bar positions itself along the top edge of the dialog and automatically fits itself to the width of the dialog. Unfortunately, it is now obscuring the Grow button. We need to move the Grow button so it is flush against the bottom of the menu bar instead of against the top edge of the dialog.<P>
+Select <B>Arrange/Send to Back</B>. This positions the menu bar behind the button, allowing us to see and manipulate the button. Select the <B>Grow</B> button. Now connect the top strut to the bottom of the menu bar. The button does not move, but the Value box in the Connection dialog changes from 0 to -26. To get it to move, select <B>Connection/Zero Length</B> in the dialog editor or enter <TT>0</TT> into the Value box of the connection dialog. The button is positioned just under the menu bar.<P>
+If you look closely at the dialog you will see that the buttons are no longer centered properly with respect to the open space of the dialog. The Quit button is closer to the Grow button than it is to the Shrink button. This is because the Quit button is centered with respect to the dialog and not the other two buttons. In <TT>tut5a</TT> this worked because there were no other dialog items, but now we must adjust the button springs to compensate. <P>
+Select the <B>Quit</B> button. Connect its top spring to the bottom of the Grow button. Then connect its bottom spring to the top of the Shrink button.<P>
+Now select the <B>Shrink</B> button. Connect its top spring to the bottom of the Quit button.<P>
+Use <B>Dialog/Try Dialog</B> to test out the resizing and see how it behaves now. It behaves as it did for tut5a except that the menu bar has been compensated for.<P>
+Now let's turn our attention to the menu bar. Double-click the menu bar to open the menu bar editor. The menu bar editor contains entries for two menus: File and Edit. The Visual Resource Builder creates these two menus by default but you can change their names or remove them. You can also add menus. In our case we don't need the edit menu so we will remove it. Do this by selecting the entry which says <EM><B>&lt;EditMenu&gt; - "Edit"</B></EM> (it should be the second entry in the list) and select <B>Edit/Cut</B>.<P>
+Now double-click the <EM><B>File</B></EM> entry. This opens the menu editor. At the moment this menu doesn't have any menu items. Add a menu item with <B>Menu/New Menu Item</B>. This creates a menu item with a title of New  and a blank tag. Change the title to <TT><B>Grow</B></TT> and type <TT><B>growMenu</B></TT> in the Tag field. Click in the Key field and press <TT><B>^G</B></TT>. Type <TT><B>G</B></TT> in the Mnemonic field.<P>
+<UL><B><I>Note:</I></B> The notation <EM>^</EM><EM>X</EM> means to hold down the Control key while pressing the <EM>X</EM> key.
+<P>
+</UL>Create another menu item. For this one, set the title to <TT><B>Shrink</B></TT>, the tag to <TT><B>shrinkMenu</B></TT>, the Key to <TT><B>^S</B></TT> and the Mnemonic to <TT><B>S</B></TT>. <P>
+Create a third menu item. Set its tag to <TT><B>Quit</B></TT>, the tag to <TT><B>quitMenu</B></TT>, the Key to <TT><B>^Q</B></TT>, and the Mnemonic to <TT><B>Q</B></TT>.<P>
+As you can see, menus and menu items get tags like other user interface elements. You may wonder what the tag for the menu bar itself is. Go to the menu bar editor and select <B>Panels/Dialog Item</B>. This displays the dialog item editor for the menu bar; you can see that the menu bar is given a tag of Menu Bar by default. We will use this default value though we can change the tag to whatever we wish.<P>
+The menu editor introduced <EM><B>mnemonics</B></EM> and <EM><B>accelerator keys</B></EM>. Mnemonics provide a way to traverse menus with the keyboard. Hold down the ALT key and then press one of the underlined letters in the menu bar. The menu will display. You can then traverse the menus using the arrow keys. You can also select menu items by the using the key or key combination corresponding or its underlined letters for the menu item.<P>
+Accelerators provide keyboard shortcuts to access menu items without opening the menu. The default setting for the Command key is the Control key, but that can be changed according to user preference. In this case, we set up the Grow menu item to use ^G as an accelerator key. Users of our program can access the Grow menu item by typing ^G without using the mouse.<P>
+Save your changes and exit vre.<P>
+<A NAME="172"><H1> Source Code</H1></A>
+<PRE><UL>	/*
+	 * tut6a.c
+	 *
+	 * "Three Buttons and Three Menu Items"
+	 *
+	 */
+	
+	/* ANSI headers */
+	#include &lt;vstdlib.h&gt;    /* for exit(), EXIT_ codes */
+	
+	/* Galaxy headers */
+	#include &lt;vrect.h&gt;
+	#include &lt;vchar.h&gt;
+	#include &lt;vname.h&gt;
+	#include &lt;vevent.h&gt;
+	#include &lt;vresource.h&gt;
+	#include &lt;vwindow.h&gt;
+	#include &lt;vmenu.h&gt;
+	#include &lt;vapplication.h&gt;
+	#include &lt;vdialog.h&gt;
+	#include &lt;vmenubar.h&gt;
+	#include &lt;vbutton.h&gt;
+	#include &lt;vstartup.h&gt;
+	
+	/* forward references */
+	static void shutdownMain (void);
+	static void dialogNoteProc (vdialog *dialog, vevent *event);
+	static void growButtonNoteProc (vbutton *button,
+	                                      vevent *event);
+	static void shrinkButtonNoteProc(vbutton *button,
+	                                      vevent *event);
+	static void quitButtonNoteProc (vbutton *button,
+	                                      vevent *event);
+	static void growMenuItemNoteProc (vmenuItem *item,
+	                                      vevent *event);
+	static void shrinkMenuItemNoteProc (vmenuItem *item,
+	                                      vevent *event);
+	static void quitMenuItemNoteProc (vmenuItem *item,
+	                                      vevent *event);
+	
+	/* Constants */
+	#define GROW_AMOUNT          50
+	
+	int main (int argc, char **argv)
+
+	{
+	
+	  vdialog     *dialog;
+	  vbutton     *button;
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(1)	  vmenubar    *menubar;
+	  vmenu       *menu;
+	  vmenuItem   *mItem;
+</UL></PRE>
+</FONT><PRE><UL>	  vresource    resource;
+	
+	  /* Initialize Galaxy */
+	  vstartup (argc, argv);
+	
+	  /*
+	   * Load the dialog from the application resource file.
+	   *
+	   */
+	  resource = vresourceGet (
+	        vapplicationGetResources (vapplicationGetCurrent()),
+	        vnameInternGlobalLiteral ("ButtonDialog"));
+	  dialog = vdialogLoad (resource);
+	  vdialogSetNotify (dialog, dialogNoteProc);
+	
+	  /*
+	   * Find the buttons and attach their notifies.
+	   *
+	   */
+	
+	  button = (vbutton *) vdialogFindItem (dialog,
+	                          vnameInternGlobalLiteral ("grow"));
+	  vbuttonSetNotify (button, growButtonNoteProc);
+	  
+	  button = (vbutton *) vdialogFindItem (dialog, 
+	                          vnameInternGlobalLiteral ("shrink"));
+	  vbuttonSetNotify (button, shrinkButtonNoteProc);
+	  
+	  button = (vbutton *) vdialogFindItem (dialog, 
+	                          vnameInternGlobalLiteral ("quit"));
+	  vbuttonSetNotify (button, quitButtonNoteProc);
+	
+	  /*
+	   *  Find the menuitems and attach their notifies.
+	   *
+	   */
+	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(2)	  menubar = (vmenubar *) vdialogFindItem (dialog,
+	                     vnameInternGlobalLiteral ("Menu Bar"));
+	  menu = vmenubarFindMenu (menubar, 
+	                     vnameInternGlobalLiteral ("FileMenu"));
+	
+	  mItem = vmenuFindItem (menu,
+	                     vnameInternGlobalLiteral ("growMenu"));
+	  vmenuSetItemNotify (mItem, growMenuItemNoteProc);
+</UL></PRE>
+</FONT><PRE><UL><TT>	
+</TT></UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>	  mItem = vmenuFindItem (menu, 
+	                     vnameInternGlobalLiteral ("shrinkMenu"));
+	  vmenuSetItemNotify (mItem, shrinkMenuItemNoteProc);
+	
+	  mItem = vmenuFindItem (menu,
+	                     vnameInternGlobalLiteral ("quitMenu"));
+	  vmenuSetItemNotify (mItem, quitMenuItemNoteProc);
+</UL></PRE>
+</FONT><PRE><UL>	
+	  /* Open the dialog */
+	  vdialogOpen (dialog);
+	
+	  /* Enter the event loop */
+	  veventProcess ();
+	
+	  /* Return the dialog's resources to the system */
+	  vdialogDestroy (dialog);
+	
+	  exit (EXIT_SUCCESS);
+	  return EXIT_FAILURE;
+	
+	}
+	
+	/*
+	 *  shutdownMain
+	 *
+	 *  Stop things
+	 *
+	 */
+	
+	static void shutdownMain ()
+	
+	{
+	
+	  veventStopProcessing ();
+	
+	}
+	
+	/*
+	 *  dialogNoteProc
+	 *
+	 *  The dialog notification procedure gets called whenever any
+	 *  major event applies to the dialog as a whole. We need to
+	 *  look for the event which tells us that the dialog has closed.
+	 *
+	 */
+	
+	static void dialogNoteProc (vdialog *dialog, vevent *event)
+	
+	{
+	
+	  int      et;
+	
+	  et = veventGetType (event);
+	  
+	  if (et == veventWINDOW_STATE &amp;&amp; veventIsClose (event))
+	    shutdownMain ();
+	
+	}
+	
+	/*
+	 *  quitButtonNoteProc
+	 *
+	 *  Shut things down
+	 *
+	 */
+	
+	static void quitButtonNoteProc (vbutton *button, vevent *event)
+	
+	{
+	
+	  shutdownMain ();
+	
+	}
+	
+	/*
+	 *  growButtonNoteProc
+	 *
+	 *  Expand the window by GROW_AMOUNT
+	 *
+	 */
+	
+	static void growButtonNoteProc (vbutton *button, vevent *event)
+	
+	{
+	
+	  vdialog *dialog;
+	  vwindow *window;
+	  vrect    rect;
+	
+	  dialog =  vdialogDetermineItemDialog (vbuttonGetItem (button));
+	  window =  vdialogGetWindow (dialog);
+	  rect   = *vwindowGetRect (window);
+	
+	  rect.w += GROW_AMOUNT;
+	  rect.h += GROW_AMOUNT;
+	  vwindowSetRect (window, &amp;rect);
+	
+	}
+	
+	/*
+	 *  shrinkButtonNoteProc
+	 *
+	 *  Shrink the window by GROW_AMOUNT
+	 *
+	 */
+	
+	static void shrinkButtonNoteProc (vbutton *button, vevent *event)
+	
+	{
+	
+	  vdialog *dialog;
+	  vwindow *window;
+	  vrect    rect;
+	
+	  dialog =  vdialogDetermineItemDialog (vbuttonGetItem (button));
+	  window =  vdialogGetWindow (dialog);
+	  rect   = *vwindowGetRect (window);
+	
+	  rect.w -= GROW_AMOUNT;
+	  rect.h -= GROW_AMOUNT;
+	
+	  vwindowSetRect (window, &amp;rect);
+	}
+	
+	/*
+	 *  quitMenuItemNoteProc
+	 *
+	 *  Shut things down
+	 *
+	 */
+	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(3)	static void quitMenuItemNoteProc (vmenuItem *item, vevent *event)
+	
+	{
+	
+	  shutdownMain ();
+	
+	}
+</UL></PRE>
+</FONT><PRE><UL>	
+	/*
+	 *  growMenuItemNoteProc
+	 *
+	 *  Expand the window by GROW_AMOUNT
+	 *
+	 */
+	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(4)	static void growMenuItemNoteProc (vmenuItem *item, vevent *event)
+	
+	{
+	
+	  vwindow *window;
+	  vrect    rect;
+	
+	  window = vwindowGetLeader (vmenuDetermineItemWindow (item));
+	  rect   = *vwindowGetRect (window);
+	
+	  rect.w += GROW_AMOUNT;
+	  rect.h += GROW_AMOUNT;
+	  vwindowSetRect (window, &amp;rect);
+	
+	}
+</UL></PRE>
+</FONT><PRE><UL>	
+	/*
+	 *  shrinkMenuItemNoteProc
+	 *
+	 *  Shrink the window by GROW_AMOUNT
+	 *
+	 */
+	
+	static void shrinkMenuItemNoteProc (vmenuItem *item,
+			vevent *event)
+	
+	{
+	
+	  vwindow *window;
+	  vrect    rect;
+	  window =  vwindowGetLeader (vmenuDetermineItemWindow (item));
+	  rect   = *vwindowGetRect (window);
+	
+	  rect.w -= GROW_AMOUNT;
+	  rect.h -= GROW_AMOUNT;
+	  vwindowSetRect (window, &amp;rect);
+	
+	}
+</UL></PRE><A NAME="1828"><H1> Looking at the Program</H1></A>
+This program is very similar to tut5a. In fact, it is functionally identical; the only difference is in the user interface.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(1)	  vmenubar    *menubar;
+	  vmenu       *menu;
+	  vmenuItem   *mItem;
+</UL></PRE>
+</FONT><PRE><UL>
+</UL></PRE>These are new variables. A <TT><B>vmenubar</B></TT> is a subclass of a <TT><B>vdialogItem</B></TT> that implements menu bars. A <EM><B>menu bar</B></EM> is a dialog item which contains menus. It displays the titles of the menus along its length. A menu bar usually contains at least one menu, although it is possible to have a menu bar without any menus. <P>
+A <TT><B>vmenu</B></TT> is a subclass of a <TT><B>vwindow</B></TT>. A <TT><B>vmenu</B></TT> is not a dialog item itself. Instead, it is part of a dialog item. Any dialog item can contain a menu, but menus are most commonly used within menu bars.<P>
+A <TT><B>vmenuItem</B></TT> is a subclass of a <TT><B>vobject</B></TT>. Like <TT><B>vmenus</B></TT>, <TT><B>vmenuItems</B></TT> are not dialog items. They are part of <TT><B>vmenus</B></TT>. In fact, <TT><B>vmenuItems</B></TT> may only be attached to <TT><B>vmenus</B></TT>.<P>
+<UL><B><I>Note:</I></B> Don't worry! We keep referring to subclassing and haven't explained it, but we'll get to it in 
+the next chapter.
+<P>
+</UL><FONT COLOR="0000BB">
+<PRE><UL>(2)	  menubar = (vmenubar *) vdialogFindItem (dialog,
+	              vnameInternGlobalLiteral ("Menu Bar"));
+	  menu = vmenubarFindMenu (menubar, 
+	              vnameInternGlobalLiteral ("FileMenu"));
+	
+	  mItem = vmenuFindItem (menu, 
+	              vnameInternGlobalLiteral ("growMenu"));
+	  vmenuSetItemNotify (mItem, growMenuItemNoteProc);
+	
+	  mItem = vmenuFindItem (menu, 
+	              vnameInternGlobalLiteral ("shrinkMenu"));
+	  vmenuSetItemNotify (mItem, shrinkMenuItemNoteProc);
+	
+	  mItem = vmenuFindItem (menu,
+	              vnameInternGlobalLiteral ("quitMenu"));
+	  vmenuSetItemNotify (mItem, quitMenuItemNoteProc);
+</UL></PRE>
+</FONT><PRE><UL>
+</UL></PRE>This is the code needed to attach our notify functions to the menu items. We couldn't find the menu items directly because menu items are not dialog items. They are contained within menus. We must first find the menu bar, then find the menu within the menu bar, and finally find the menu item within the menu. Once we find the menu item, we can attach the notify function using <B>vmenuSetItemNotify</B>.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(3)	static void quitMenuItemNoteProc (vmenuItem *item, vevent *event)
+	
+	{
+	
+	  shutdownMain ();
+	
+	}
+</UL></PRE>
+</FONT><PRE><UL>
+</UL></PRE>Our button notify procedures remain unchanged, but we now have new menu item notify procedures. Here is the notify function for the Quit menu item. It is exactly the same as the Quit button notify. Its sole purpose is to shut down the program.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(4)	static void growMenuItemNoteProc (vmenuItem *item, vevent *event)
+	
+	{
+	
+	  vwindow *window;
+	  vrect    rect;
+	
+	  window = vwindowGetLeader (vmenuDetermineItemWindow (item));
+	  rect   = *vwindowGetRect (window);
+	
+	  rect.w += GROW_AMOUNT;
+	  rect.h += GROW_AMOUNT;
+	  vwindowSetRect (window, &amp;rect);
+	
+	}
+</UL></PRE>
+</FONT><PRE><UL>
+</UL></PRE>This is the notify procedure for the Grow menu item. It is similar but not identical to the notify procedure for the Grow button. The difference is in how the containing dialog is located. Since <TT><B>vmenuItems</B></TT> are not dialog items we can't use <TT><B>vdialogDetermineItemDialog</B></TT> as we did for the <TT><B>vbuttons</B></TT>. Instead, we must get the <TT><B>vwindow</B></TT> that underlies our <TT><B>vmenu</B></TT>. The <TT><B>vmenuDetermineItemWindow</B></TT> call does this. We can then use <TT><B>vwindowGetLeader</B></TT> to find the leader window for the menu. The leader window for a menu is the window of the dialog which the menu is a part of.<P>
+We now have the window of the dialog so we can use <TT><B>vwindowSetRect</B></TT> as we did in tut5a to resize the dialog.<P>
+The notify function for the Shrink menu item is similarly constructed except that the rectangle is made smaller instead of larger.<P>
+This program falls prey to a common mistake of programs that use notify functions. We now have two sets of functions that perform growing and shrinking. They are similar, but not identical. If we need to change the semantics of growing or shrinking, we must modify two procedures per grow or shrink. It would have been better to encapsulate the common code into its own function and call that from both places to make the program easier to maintain.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+   <TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+   <TR BGCOLOR="#CCCC66">
+      <TD>
+      <CENTER>
+      <!-- These are the Navigation buttons -->
+      <A HREF="Chapter_5.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="../../graphics/left.gif"></A>
+      <A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="../../graphics/up.gif"></A>
+      <A HREF="Chapter_7.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="../../graphics/right.gif"></A><BR>
+</CENTER>
+</TD>
+
+      <TD>
+      <BR>
+      <FONT SIZE=-1>
+      <A HREF="Chapter_5.html">Previous Chapter</A> | 
+      <A HREF="Chapter_7.html">Next Chapter</A> <BR>
+      <A HREF="index.html">Tutorial Contents</A><BR>
+      <A HREF="../index.html">Switch to Another Document</A><BR>
+      <BR>
+      </FONT>
+      </TD><TD>
+      <BR>
+      <FONT SIZE=-1>
+      Need help? <a href="../../contact-visix.html">Contact Visix</a>.
+      <BR> <BR>
+      <A HREF="../../copyright.html">Copyright 1996-97</A>, <A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+      <BR>
+      </FONT>
+      </TD>
+   </TR>
+</TABLE>
+
+</BODY>
+</HTML>

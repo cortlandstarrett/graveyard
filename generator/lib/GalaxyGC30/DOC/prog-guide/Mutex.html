@@ -1,0 +1,172 @@
+<HTML>
+<HEAD>
+<TITLE>Mutex</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Mutex</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Module.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Name.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3593"></A>
+The <EM><B>Mutex</B></EM> (<TT>vmutex</TT>) class is used to provide mutually exclusive access to a shared resource by multiple threads in an application. Mutex objects can be created, destroyed, locked, and unlocked by the Mutex class. <P>
+The Thread class is used in conjunction with the Mutex class to create multiple threads within an application. The Condition class can also be used in conjunction with the Mutex class to provide more advanced thread synchronization.<P>
+A "mutex" object (from "mut" from mutual and "ex" from exclusion) provides mutual exclusion by allowing a thread to obtain and release a lock on the mutex. Only one thread at a time may lock a mutex. When a thread tries to obtain a lock on a mutex that is already locked by another thread, the thread will block until the mutex is released. <P>
+If multiple threads need to access a shared resource, such as a common piece of memory, then the threads will need to coordinate their efforts via a mutex. When a thread wants to access the memory, either for reading or writing, the thread will first acquire a lock on a mutex. The thread can then modify or read the data and release the lock on the mutex. Since a thread will block in an attempt to acquire a lock on a mutex that is already locked by another thread, only one thread at a time will be able to access the data.<P>
+There are two types of mutexes provided by the Mutex class: recursive and non-recursive. A recursive mutex can be locked by the same thread more than one time before it is unlocked. A recursive mutex that is locked multiple times by the same thread must be unlocked the same number of times before another thread can acquire a lock on the mutex. Conversely, a non-recursive can only be locked once by a thread before it is unlocked.<P>
+For example, a recursive mutex can be locked multiple times:<P>
+<PRE><UL>   vmutex m;
+
+   vmutexLock(&amp;m);
+   vmutexLock(&amp;m);
+
+   vmutexUnlock(&amp;m);
+   vmutexUnlock(&amp;m);
+
+</UL></PRE>The results of locking a non-recursive mutex twice, as in the above example, are undefined. In the debug version of the Galaxy libraries, locking a non-recursive twice will result in an assertion failure.<P>
+It is beyond the scope of this Programmers Guide to discuss all of the issues, pitfalls, and details involved with multithreaded programming. Developing a robust multithreaded program is a complicated task that requires full understanding of not only the application being developed, but the underlying operating system, hardware, and software libraries being used.<P>
+Differences in thread scheduling between operating systems and differences in memory and cache coherency between computer systems <B>must</B> be taken into account to develop a properly working application. The Galaxy Mutex class, as well as the Condition and Thread classes, have been designed to provide consistent access to each operating system's implementation of threads. However, use of these classes alone will not result in an operational multithreaded application without a proper understanding of multithreaded programming beyond Galaxy.<P>
+Visix recommends the following books on multithreaded programming:<P>
+<OL>
+<LI><EM>Programming with POSIX Threads</EM>, David R. Butenhof, Addison Wesley, 1997, ISBN 0-
+201-63392-2
+<BR>
+<LI><EM>Multithreading Applications in Win32</EM>, Jim Beveridge and Robert Wiener, Addison 
+Wesley, 1997, ISBN 0-201-44234-5
+<BR>
+</OL>
+The Butenhof book discusses multithreaded programming in general, with specific examples using POSIX threads on UNIX. The Beveridge and Wiener book illustrates writing multithreaded programs under Win32. Each book has chapters on thread basics, thread synchronization, thread local storage, and priorities.<P>
+Combined with the proper understanding of multithreaded programming techniques, this Programmers Guide will describe in detail how to use these techniques in the development of a Galaxy application.<P>
+<A NAME="3656"><H2> Key Functionality</H2></A>
+<A NAME="3659"><H3> Creating, Locking, Unlocking, and Destroying</H3></A>
+A mutex object can be initialized by the Mutex class via the <TT>Init</TT> or <TT>InitNonrecursive</TT> methods. <TT>Init</TT> creates a recursive mutex while <TT>InitNonrecursive</TT> creates a non-recursive mutex.<P>
+<PRE><UL>   vmutex m;
+   vmutex n;
+
+   vmutexInit(&amp;m);
+   vmutexInitNonrecursive(&amp;n);
+
+</UL></PRE>A mutex should be initialized only once. A mutex of either type may be destroyed with a call to <TT>Destroy</TT>. <P>
+The <TT>Lock</TT> method attempts to acquire a lock on a given mutex, while the <TT>Unlock</TT> method releases a lock on a mutex. <TT>Lock</TT> will block the current thread if the mutex is already locked by another thread. When the mutex is released, all threads currently waiting to acquire the lock will contend for the mutex. One will win and return from the <TT>Lock</TT> call with the mutex locked. The others will continue to wait.<P>
+<PRE><UL>   vmutex m;
+
+   vmutexLock(&amp;m);
+   &lt;access shared resource&gt;
+   vmutexUnlock(&amp;m);
+
+</UL></PRE>When a mutex is no longer needed, its storage should be released with the <TT>Destroy</TT> method. A mutex cannot be destroyed if a thread holds a lock on the mutex. <P>
+<A NAME="3676"><H3> Naming Mutexes</H3></A>
+As a debugging aid, mutexes can be given names via the <TT>SetName</TT> or <TT>SetNameFormatted</TT> methods. In the debugging versions of the Galaxy library, if there is an error involving a mutex its name as well as its address will be dumped. This can be helpful in tracking down problems with mutex usage.<P>
+<A NAME="3678"><H3> The Galaxy Global Mutex</H3></A>
+Galaxy provides a mutex that is always available after the Galaxy libraries have been initialized. The global mutex is typically used in startup code to ensure that two threads don't try to initialize the same data structures twice. <P>
+Lock the global mutex with <TT>LockGlobal</TT> and unlock the global mutex with <TT>UnlockGlobal</TT>. <P>
+The global mutex is used within the Galaxy libraries, as well as being available for public use. Any use of the global mutex should be very short term use, that is, don't hold the global mutex for a long time. Holding the global mutex for a long time or over a long block operation could cause other threads to block within the Galaxy library unnecessarily.<P>
+Just as there are <TT>Lock</TT> and <TT>Unlock</TT> methods for the global mutex, so are there global versions of most of the other mutex functions listed below.<P>
+<A NAME="3684"><H3> Mutexes and Exception Handlers</H3></A>
+If a thread locks a mutex, but never unlocks it, then no other thread will ever be able to acquire a lock on that mutex. Therefore, locks on a mutex are always paired with unlocks. However, if you write a section of code that locks a mutex, performs some operation that could throw an exception, then unlock the mutex, and an exception is throw, then the mutex will not be unlocked properly. Since this is such a common set of operations, Galaxy provides convenience functions so that you don't have to wrap every piece of code protected by a mutex in an exception handler.<P>
+<TT>LockWithHandling</TT> locks a mutex and installs an exception handler at the same time. The exception handler will automatically unlock the mutex and propagate any exception that it catches. <TT>LockWithHandling</TT> must be matched with <TT>UnlockWithHandling</TT> in the same lexical scope. (<TT>LockWithHandling</TT> is a macro that contains an open-brace while <TT>UnlockWithHandling</TT> is a macro that contains the matching close-brace.)<P>
+For example:<P>
+<PRE><UL>   vmutex m;
+
+   vmutexLockWithHandling(&amp;m);
+   vexGenerateArg();
+   vmutexUnlockWithHandling(&amp;m);
+
+</UL></PRE>The above code will ensure that when the exception is throw the mutex "<TT>m</TT>" will be unlocked, just as if you wrapped the code to throw the exception in an exception handler that calls <TT>Unlock</TT> and propagates the exception.<P>
+While the <TT>WithHandling</TT> variants of the mutex lock and unlock methods are convenient, that convenience comes at a price. Since <TT>LockWithHandling</TT> and <TT>UnlockWithHandling</TT> push and pop exception handlers, they are many times slower than <TT>Lock</TT> and <TT>Unlock</TT>.<P>
+<A NAME="3696"><H3> Determining if a Mutex is Locked</H3></A>
+The <TT>IsLocked</TT> method can be used to determine if the current thread already has a mutex locked. This can be used to avoid locking a recursive mutex when it is not necessary. IsLocked will return true if the mutex is locked, false otherwise.<P>
+<A NAME="3698"><H3> Non-blocking Mutex Locks</H3></A>
+There may be times when you would like to acquire a lock on a mutex, but only if you don't have to block to get it. The <TT>TryLock</TT> method will attempt to lock a mutex and return true if the mutex was locked, but will return false if the mutex is already locked by another thread. <TT>TryLock</TT> can be used to "poll" a mutex and let a thread do something else productive instead of waiting for the mutex.<P>
+<A NAME="3700"><H3> Asserting a Lock on a Mutex</H3></A>
+There are cases where you have a function or method that needs access to a shared resource, and you know that if this function or method ever gets called then the mutex to protect that shared resource should already be locked. In these cases, it is helpful to have a debugging aid rather than assume the mutex is locked. <P>
+Use <TT>AssertLocked</TT> to assert that the mutex in question is locked. If the mutex is not locked, the assertion will fail with a helpful debugging message. <P>
+This method is defined to compile-out in an optimized build, so there is no overhead in using it.<P>
+<A NAME="3365"><H2> Additional Functionality</H2></A>
+<A NAME="3709"><H3> Fast Locking and Unlocking</H3></A>
+<TT>Lock</TT> and <TT>Unlock</TT> are methods that incur overhead when they are called. Because locking and unlocking mutexes is something that an application can end up spending a great deal of time performing, Galaxy provides a slightly faster way to lock and unlock a mutex. <P>
+There are four additional methods that are implemented as macros that expand to platform specific code to lock or unlock a mutex. In order to use the macros, you must include <TT>vmutexsysHEADER</TT> in addition to <TT>vmutexHEADER</TT>. The macros are listed below:<P>
+<UL><TT>vmutexMLock</TT>	Macro version of <TT>Lock</TT> for a recursive mutex.
+<P><TT>vmutexMUnlock</TT>	Macro version of <TT>Unlock</TT> for a recursive mutex.
+<P><TT>vmutexMLockNR</TT>	Macro version of <TT>Lock</TT> for a non-recursive mutex. 
+<P><TT>vmutexMUnlockNR</TT>	Macro version of <TT>Unlock</TT> for a non-recursive mutex.
+<P></UL>Use of these macros is the fastest way to lock or unlock a mutex in Galaxy. The macros do not have <TT>WithHandling</TT> variants and they do not contain as many debugging assertions as the real <TT>Lock</TT> and <TT>Unlock</TT> methods do. But locking a non-recursive mutex with <TT>MLockNR</TT> is about twice as fast as locking a non-recursive mutex with <TT>Lock</TT>. The speedup is not as great for recursive mutexes, however.<P>
+We recommend using non-recursive mutex with <TT>MLockNR</TT> and <TT>MUnlockNR</TT> whenever possible, and using non-recursive mutexes in general. Non-recursive mutexes have much less overhead than recursive mutexes. Recursive mutexes need to keep extra state to track the locking depth and owner where non-recursive mutexes do not.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Module.html">Previous Chapter</A> | 
+		<A HREF="Name.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

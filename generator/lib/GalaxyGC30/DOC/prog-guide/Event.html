@@ -1,0 +1,359 @@
+<HTML>
+<HEAD>
+<TITLE>Event Manager</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Event Manager</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Drawing.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Exception.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="9723"></A>
+The Event Manager provides a logical interface for event-driven applications. It allows an application to respond to both internal and external events in an ordered fashion. The Event Manager places events into event queues which are then handled by event loops. This processing of events is done internally by the Event Manager.<P>
+Use the Event Manager when your application needs to handle incoming events, gather information from events, or programmatically generate events.<P>
+The Event Manager uses the Name class to gather and set event information. The Event Manager also interacts with the Client class to register quitter functions, and the Exception class to handle exceptions. You should be familiar with these managers to better understand this chapter.<P>
+Many high level classes use the Event Manager. Events that are dispatched by the Event Manager are routed through the Application class. The Application class is thus responsible for distributing events to its windows.<P>
+The Window class intercepts and processes windowing events, such as minimizing, maximizing, moving, and sizing. The Window class is responsible for distributing events to its items. Refer to the Application class and Window class chapters for details on how these classes handle events.<P>
+Other classes, such as the Confirm and Notification class, create event sub-loops. These process important events and prevent any events from reaching the main event loop. Refer to these classes to gain a better understanding of how to use and control event sub-loops.<P>
+<A NAME="2198"><H2> Glossary</H2></A>
+<UL><EM><B>block</B></EM>	Sit and wait for an interesting event before returning to the 
+caller (such as a timer or user input.)
+<P><EM><B>continuation event	</B></EM>Advanced concept of event-driven programming where 
+some work is done by an event handler, then the event is 
+scheduled for a future time in order to do more work.
+<P><EM><B>event</B></EM>	Packet of information representing some action that took 
+place in an application.
+<P><EM><B>event handler</B></EM>	Any function called in response to an event being 
+generated. When an event handler is passed an event, it 
+performs a series of instructions and then returns a 
+boolean value to the caller.
+<P><EM><B>event loop</B></EM>	Running loop of control that pulls events from event 
+queues and gives them to event handlers one at a time.
+<P><EM><B>event preblocker</B></EM>	Function called just before an event loop is about to block 
+for a non-zero length of time.
+<P><EM><B>event queue</B></EM>	Holds events in an ordered fashion based upon time and 
+priority. Events are added to, or removed from, the event 
+queue.
+<P><EM><B>event loop quitter</B></EM>	Called when an event loop is told to terminate.
+<P><EM><B>event sub-loop</B></EM>	Self-contained loop called from within another loop that 
+runs to completion before returning to the caller.
+<P><EM><B>future events</B></EM>	Events that are scheduled to take place at some future 
+time.
+<P><EM><B>key</B></EM>	Reference to any single key that might be located on a 
+keyboard.
+<P><EM><B>key modifier</B></EM>	Any mouse button or key such as Alt, Control, Shift, and 
+Command, pressed in combination with another key.
+<P><EM><B>keystroke</B></EM>	A key and any combination of key modifiers that might be 
+struck at the same time on a keyboard. For example, 
+pressing the `s' key while holding down the Shift and 
+Control key modifiers is considered a single keystroke.
+<P><EM><B>now events</B></EM>	Events that should be processed immediately, or at least as 
+soon as the event loop is able to process other events that 
+might be queued ahead of it.
+<P><EM><B>post</B></EM>	Same as queue.
+<P><EM><B>pre-queue	</B></EM>To place an event on an event queue before the event 
+queue has been accessed by an event loop.
+<P><EM><B>queue</B></EM>	Programmatically placing an event on an event queue.
+<P><EM><B>timestamp</B></EM>	Lightweight, relative reference to a point in time. 
+Timestamps are associated with events to indicate when an 
+event took place or is scheduled to take place.
+<P></UL><A NAME="9661"><H2> Event Driven Programming</H2></A>
+The Event Manager is an abstraction based upon the concept of event-driven programming; it allows your application to call certain event handlers when events are generated.<P>
+Most events are generated automatically by the operating system or the windowing system. Each event is automatically translated by the Event Manager, assigned a value representing the time the event took place, assigned a priority, and posted to the event queue to be processed.<P>
+The Event Manager has an event hierarchy, broken up according to event types. Note that every event has an event type, represented by each leaf of the tree illustrated in <A HREF="Event.html#10006">Figure 32</A>.<P>
+<A NAME="10006"><I>Figure 32.  Galaxy event hierarchy
+</I><P>
+<IMG SRC="Event.anc.gif"><P>
+Many events are automatically handled by the Event Manager. For example, most events dealing with windowing are handled by the Event Manager, freeing you from writing your own event handlers for common processes, such as minimizing a window. Refer to the Window class for details on which events are handled automatically.<P>
+<A NAME="3557"><H3> Event Loops</H3></A>
+The heart of any event driven program is the <EM><B>event loop</B></EM>. Most event loops have four main steps:<P>
+<OL>
+<LI>Post generated events to the event queue.
+<BR>
+<LI>Read an appropriate event from the event queue.
+<BR>
+<LI>Manipulate the event.
+<BR>
+<LI>Dispatch the event.
+<BR>
+</OL>
+The event loop, once started by the application, continues processing events in this manner until the application tells it to stop.<P>
+<A NAME="3558"><H3> Event Handlers</H3></A>
+The Event Manager allows you to assign, or register, an <EM><B>event handler</B></EM>. When the Event Manager sees an event, it calls the assigned handler. The handler can, in turn, call other functions in order to perform a given task. Upon completion, a handler should return a boolean value to indicate whether it was successful in completing the task.<P>
+<A NAME="3462"><H3> Starting the Main Event Loop</H3></A>
+Most functions in the Event Manager assume that an event loop is currently running. As a result, before executing any other Event Manager routines, it is important to start the main event loop. The main event loop is commonly started in main with a call to <TT><B>Process</B></TT>, as illustrated in <A HREF="Event.html#10099">Example 53</A>.<P>
+<A NAME="10099"><I>Example 53.  Starting the main event loop
+</I><P>
+<PRE><UL>int main(int argc, char *argv[])
+{
+   /* start up Galaxy */
+   vstartup(argc,argv);
+     
+   /* Do initial setting up */
+   mySetup();
+   
+   /* Enter the main event loop */
+   veventProcess();
+   
+   /*
+    * If we made it to here, the event loop was stopped, so 
+    * clean up memory, and so forth before exiting.
+    */
+   myCleanup();
+   
+   return EXIT_SUCCESS;
+}      
+		
+</UL></PRE>The call to <TT><B>Process</B></TT> enters a loop that waits for the next event and then dispatches it. It does this until told to stop by the application, at which point the program exits.<P>
+Be aware that if any exception handler throws an exception, the call backs out through <TT><B>Process</B></TT>. For this reason, you may want to wrap <TT><B>Process</B></TT> in an exception handler, as illustrated in <A HREF="Event.html#10144">Example 54</A>.<P>
+<A NAME="10144"><I>Example 54.  Exception handling the main event loop
+</I><P>
+<PRE><UL>   // ...
+   vexWITH_HANDLING
+     veventProcess(); /* Enter the main event loop */
+   vexON_EXCEPTION
+     myHandleError();
+   vexEND_HANDLING;
+   // ...
+
+</UL></PRE>Refer to the Exception chapter for details on how to handle exceptions.<P>
+<A NAME="10153"><H3> Stopping the Main Event Loop</H3></A>
+When quitting your program, make certain there is an orderly termination of the event loop and any sub-loops currently running. This can be done with <TT><B>Quit </B></TT>which attempts to quit all event loops currently running. In <A HREF="Event.html#10159">Example 55</A>, a dialog notification routine is used.<P>
+<A NAME="10159"><I>Example 55.  Stopping the main event loop
+</I><P>
+<PRE><UL>void myDialogNotify (vdialog *dialog, vevent *event)
+{
+   /* Check to see if they chose the Close item */
+   if (veventIsClose(event)) {
+      /* Stop the main event loop */
+      veventQuit();
+   }
+}
+
+</UL></PRE>Here <TT><B>IsClose</B></TT> determines if the event was a Close event. If it was, the event loop finishes processing all events in the queue, and then returns from the <TT><B>Process</B></TT> call in main. The Event Manager provides convenience functions to determine the type of windowing event, such as <TT><B>IsIconify</B></TT>, <TT><B>IsSize</B></TT>, <TT><B>IsMove</B></TT>, and <TT><B>IsMaximize</B></TT>.<P>
+<A NAME="10169"><H3> Determining the Event Type</H3></A>
+There are many different types of events that can be generated in an application. You can determine what type of event was generated using <TT><B>GetType</B></TT>, which examines the event passed to it and returns the type of event. You can find a list of possible event types in the <EM>Galaxy</EM> Application Environment Reference Manual under the vevent module. <A HREF="Event.html#10175">Example 56</A> provides a way to respond to a mouse click differently than a keyboard action, <P>
+<A NAME="10175"><I>Example 56.  Check for mouse or keyboard event
+</I><P>
+<PRE><UL>void myButtonNotify (vbutton *button, vevent *event)
+{
+   /* Check to see if they used the mouse */
+   if (veventGetType(event) == veventBUTTON_UP) {
+      /* They clicked on it with a mouse */
+   } else if (veventGetType(event) == veventKEY_UP) {
+      /* They used the keyboard */
+   }
+}
+
+</UL></PRE><A NAME="2240"><H3> Event Bindings</H3></A>
+An event can also have a binding associated with it. The binding (a <TT>const vname *</TT>) is the symbolic representation of the associated event, and can be found with <TT></TT><TT><B>G</B></TT><TT>etBinding</TT>. Note that the Event Manager does not assign any bindings itself; that is left to other higher level classes that interface with the Event Manager. Refer to the Name chapter for information on tags, names and bindings. <P>
+A common use of the event binding is to specify different functionality for an event dependent upon the context. <A HREF="Event.html#10261">Example 57</A> is a procedure that handles button down events in a dialog, providing different behavior depending on which mouse button was clicked.<P>
+<A NAME="10261"><I>Example 57.  Determining the mouse button
+</I><P>
+<PRE><UL>static int HandleButtonDown(vdialog *dialog, vevent *event)
+{
+   /* does one of the items in the dialog's list
+    * want to handle this? */
+   if (vdialogHandleItemListButtonDown(vdialogGetItemList(dialog),
+                                       event))
+     return TRUE;
+   
+   /* did the event occur in the menu? (and is there a menu?) */
+   if (veventGetBinding (event) == vname_Menu &amp;&amp; 
+       vdialogGetMenu(dialog) != NULL) {
+      
+      /*
+       * Move the menu so that its default item
+       * (or first item if there is no default item)
+       * is under the position stored in event
+       */
+      vmenuPlaceEvent (vdialogGetMenu(dialog), event);
+      
+      /* 
+       * opens the menu at its current position
+       * and passes it the event
+       */
+      (void)vmenuPopup (vdialogGetMenu(dialog), event);
+      
+      /* we handled the event */
+      return TRUE;
+   }
+   /* we didn't handle the event */
+   return FALSE;
+}
+
+</UL></PRE>In this case, the procedure looks for an event binding called <TT>vname_Menu</TT>, meaning that the user pressed the "menu" mouse button while clicking in the dialog. If the mouse button is pressed, the procedure pops up the menu associated with the dialog.<P>
+<A NAME="3714"><H3> Gathering Miscellaneous Event Information</H3></A>
+Events also contain useful information about the event that was generated. For example, <TT></TT><TT><B>G</B></TT><TT>etPointerX</TT> and <TT><B>G</B></TT><TT>etPointerY</TT> tell where the pointer was located in the dialog when the pointer event took place. Similarly, <TT><B>G</B></TT><TT>etPointerButton</TT> tells you which mouse button caused the event, while <TT><B>G</B></TT><TT>etPointerClickCount</TT> returns the number of times the pointer button was clicked (to differentiate between single and double clicks). If you need to determine the length of time between double clicks, use <TT></TT><TT><B>G</B></TT><TT>etDoubleClickInterval</TT>.<P>
+To determine which window an event was generated in, use <TT><B>G</B></TT><TT>etWindow</TT>. Information about a window's location and size can be found using <TT><B>G</B></TT><TT>etConfigureX</TT>, <TT></TT><TT><B>G</B></TT><TT>etConfigureY</TT>, <TT><B>G</B></TT><TT>etConfigureHeight</TT>, and <TT><B>G</B></TT><TT>etConfigureWidth</TT>.<P>
+<A NAME="3922"><H3> Creating and Posting Events</H3></A>
+The Event Manager allows you to create your own personalized events. These events can be assigned a handler, posted to the queue, and treated like other events by the Event Manager. Although this is a rare situation, the Event Manager provides several functions to aid you in this process.<P>
+If you want to create your own event, you must first determine what type of event you want to create. Several Create functions are provided that create and initialize an event to a standard set of values appropriate for that type of event, such as a Key event type, a Pointer event type, and so forth. See the <EM>Galaxy</EM> Application Environment Reference Manual for a complete list of creation functions.<P>
+After creating an event, the event must be posted to the existing event queue by using <TT>Post</TT>. <A HREF="Event.html#5111">Example 58</A> demonstrates creating and posting an event that tells your application that the Return key has been pressed.<P>
+<A NAME="5111"><I>Example 58.  Creating and posting a keyboard event
+</I><P>
+<PRE><UL>void sendReturnKeyEvent (void)
+{
+   vevent *event = veventCreateKeyDown();
+   veventSetKeyChar(event, vkeyRETURN);
+   veventPost(event);
+}
+
+</UL></PRE>If you want to create an event that is not based upon a pre-defined event type, you can use <TT><B>Create</B></TT>. <A HREF="Event.html#5117">Example 59</A> creates a new event, sets an object of class "Ping" to be the target, or event handler, and posts the event.<P>
+<A NAME="5117"><I>Example 59.  Creating and posting a new event type
+</I><P>
+<PRE><UL>int main2 (int argc, char **argv)
+{
+   vevent *event;
+   
+   /* Do your setup here */
+   
+   /* Create a new event type */
+   event = veventCreateClient();
+   
+   /* Set the event handler */
+   veventSetTarget(event, Ping);
+   
+   /* Now post the event (get the ball going) */
+   veventPost(event);
+   
+   /* Start the main event loop in order to process event */
+   veventProcess();
+   
+   /* Clean up here */
+   return(EXIT_SUCCESS);
+}
+
+   ...
+
+</UL></PRE><A NAME="5099"><H3> Posting Future Events</H3></A>
+You may want to post certain events after a specified amount of time. The Event Manager provides <TT><B>PostFuture</B></TT> to handle this situation. Refer to <A HREF="Event.html#5132">Example 60</A> as an example of posting events to a future time.<P>
+<A NAME="5132"><I>Example 60.  Posting events to a future time
+</I><P>
+<PRE><UL>static int Ping (vevent *event)
+{
+   veventSetTarget(event, Pong);
+   veventPostFuture(event, DELAY_SECONDS, DELAY_NANOSECONDS);
+}
+
+static int Pong (vevent *event)
+{
+   veventSetTarget(event, Ping);
+   veventPostFuture(event, DELAY_SECONDS, DELAY_NANOSECONDS);
+}
+
+   ...
+
+
+   ...
+
+</UL></PRE>This delays the current event from being immediately processed, and in a sense causes an event to "bounce" between two event handlers with a delayed amount of time set before calling the next event handler.<P>
+Note that the Timer class provides flexible, automatic handling of future events for the purpose of calling procedures after a given time. Consider using it for any type of periodic or recurring callbacks that you want to use, rather than using the Event Manager to post events into the future.<P>
+<A NAME="10570"><H3> Destroying Objects and Events</H3></A>
+Beware of destroying objects that still have events outstanding. One common problem is destroying a dialog from inside a button handler. The button handler may post future events to blink the button at the right time. Destroying that dialog before those blinks have had a chance to occur may cause problems. In this case use <TT><B>DestroyLater</B></TT> instead of <TT><B>Destroy</B></TT>, which will destroy the dialog at a future time. Note that it is much easier to use <TT><B>vinstanceDestroyLater</B></TT> to destroy objects; you avoid checking for possible future references to the object being destroyed.<P>
+Another method is to use <TT><B>Unpost</B></TT> to remove any events that refer an object from the event queue. Note that unposting an event does not destroy the event. It can be posted to another event queue or destroyed depending on the application's functionality.<P>
+<A NAME="10575"><H2> Additional Functionality</H2></A>
+<A NAME="3749"><H3> Quitters</H3></A>
+The request to terminate the event loop can be stopped by a registered <EM><B>quitter</B></EM>. Quitters are handlers that implement a program's shutdown and have the option of canceling a shutdown if necessary (such as when the user has unsaved files).<P>
+Note that even if all the quitters finish their work and return correctly, the event loop may still finish processing any events remaining in the queue before leaving <TT><B>Process</B></TT>. Refer to the Client class for details on registering shutdown procedures.<P>
+<A NAME="2245"><H3> Flushing the Event Queue</H3></A>
+There are times when you want to handle all current events before continuing. This is called flushing the event queue.The Event Manager provides <TT><B>Flush</B></TT> to perform this action. <A HREF="Event.html#5229">Example 61</A> demonstrates this.<P>
+<A NAME="5229"><I>Example 61.  Flushing the event queue
+</I><P>
+<PRE><UL>   while (i++ &lt; 1000000) {
+      DoWork();
+      if (i % 10000) veventFlush();
+   }
+
+</UL></PRE><A NAME="10633"><H3> Debugging With Events</H3></A>
+At times, it is convenient to look at the information that is currently in the event. You can use <TT><B>Dump</B></TT> to create a representation of the event, although this only returns information when compiled with a debugging library. The format of the event information might change in future releases of Galaxy, so you should not rely on the current format.<P>
+<A NAME="2247"><H2> Avoiding Pitfalls</H2></A>
+<A NAME="5139"><H3> Posting Future Events</H3></A>
+Although it is possible to have the Event Manager post events into the future, the Timer class provides flexible, automatic handling of future events for the purpose of calling procedures after a given time. Consider using it for any type of periodic or recurring callbacks.<P>
+<A NAME="10661"><H3> Destroying Objects</H3></A>
+Beware of destroying objects that still have events outstanding, since the Event Manager might try to reference a destroyed object once the event on the queue is processed. If it is absolutely necessary to destroy the object when the object might be referenced by the Event Manager at a later time, use <TT><B>DestroyLater</B></TT>, or remove the event from the queue by using <TT><B>Unpost</B></TT> or <TT><B>Flush</B></TT>.<P>
+<A NAME="10663"><H3> Posting Events During Shutdown</H3></A>
+After you have exited from your program, the Event Manager calls those functions that have been registered with <TT><B>atexit</B></TT> or <TT><B>vclientRegisterShutdown</B></TT>. At that point there usually are not any event loops running. Events posted during this period may or may not get handled, depending on whether a later shutdown handler happens to flush the event queue. Either avoid posting events after exit has been called or guarantee that any such posted events are handled by registering your own shutdown handler that flushes the event loop explicitly.<P>
+<A NAME="2254"><H3> Stranding Future Events</H3></A>
+Posting an event into the future may not do anything if an event loop is not running at the later time. When posting a future event, either make sure your program can still shut down in an orderly manner without having the future event come to pass, or force future events to happen at shutdown by taking them out of the queue and dispatching them yourself.<P>
+<A NAME="4832"><H2> Continuation Events</H2></A>
+A continuation event is a procedure that does some work, and then before returning to the caller, posts an event into the near future. This event, once processed calls the same procedure that posted the event, does some more work, and then posts the event onto the event queue again.<P>
+If you have a continuation event running, posting of events should be stopped before attempting to shutdown. A continuation event can clog the Event Manager and hang the shutdown process. Often the delay between leaving the procedure and calling the procedure may be so short that slower machines are not able to process other events in the queue before calling the procedure again. As a result, the event queue gets bigger and bigger, with little chance that the event handler will catch up. Timers provide a better solution to this problem. Refer to Timer chapter for details on how to use timers.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Drawing.html">Previous Chapter</A> | 
+		<A HREF="Exception.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

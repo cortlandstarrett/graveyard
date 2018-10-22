@@ -1,0 +1,739 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vinstall prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vinstall prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vinstall-x.html#section_DataType">Types</A> [3]</TD>
+<TD><A HREF="vinstall-x.html#section_Function">Functions</A> [45]</TD>
+<TD></TD>
+<TD><A HREF="vinstall-x.html#section_Constant">Constants</A> [2]</TD>
+<TD><A HREF="vinstall-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vinstall"><HR><H4>vinstall</H4></A>
+<PRE>
+        typedef ... <B>vinstall</B>;
+</PRE>
+
+<DL><DD>
+Installation objects provide utilities for searching for system files.
+</DD></DL>
+<P>
+<A NAME="vinstallClass"><HR><H4>vinstallClass</H4></A>
+<PRE>
+        typedef ... <B>vinstallClass</B>;
+</PRE>
+
+<DL><DD>
+Describes the behavior of a class of install objects.
+</DD></DL>
+<P>
+<A NAME="vinstallTestPathFunc"><HR><H4>vinstallTestPathFunc</H4></A>
+<PRE>
+        typedef ... <B>vinstallTestPathFunc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a test function that returns whether the specified path, given
+the context referenced by the data pointer, satisfies the function's
+characteristic test.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vinstallAppendSearchDirectoryOwned"><HR><H4>vinstallAppendSearchDirectoryOwned</H4></A>
+<PRE>
+        void <B>vinstallAppendSearchDirectoryOwned</B>(
+                vinstall * install,
+                vfsPath * path);
+</PRE>
+
+<DL><DD>
+Adds a new directory to search for files by the installation object at
+the end. The installation object assumes ownership of the passed path. 
+For efficiency sake, it is best not to add a search directory that
+does not exist, or is not a proper directory. Instead, use 
+<code><A HREF="vinstall-x.html#vinstall"><CODE>vinstall</CODE></A></code> 
+if the existence of the directory is uncertain.
+</DD></DL>
+<P>
+<A NAME="vinstallCreate"><HR><H4>vinstallCreate</H4></A>
+<PRE>
+        vinstall * <B>vinstallCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new install object.
+</DD></DL>
+<P>
+<A NAME="vinstallCreateOfClass"><HR><H4>vinstallCreateOfClass</H4></A>
+<PRE>
+        vinstall * <B>vinstallCreateOfClass</B>(
+                vinstallClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new install object of the specified class.
+</DD></DL>
+<P>
+<A NAME="vinstallDestroy"><HR><H4>vinstallDestroy</H4></A>
+<PRE>
+        void <B>vinstallDestroy</B>(
+                vinstall * install);
+</PRE>
+
+<DL><DD>
+Destroys an install object.
+</DD></DL>
+<P>
+<A NAME="vinstallFindDirectory"><HR><H4>vinstallFindDirectory</H4></A>
+<PRE>
+        vfsPath * <B>vinstallFindDirectory</B>(
+                vinstall * install,
+                const vfsPath * relativePath);
+</PRE>
+
+<DL><DD>
+Searches through the installation object for a subdirectory given a relative path.
+If none of the search directories of the installation object have that
+subdirectory, then the search is continued by the installation object's 
+search parent, if one. If any of these searched directories have that 
+subdirectory, then the subdirectory path is appended onto a copy of the 
+first successful search directory path and returned. 
+If the directory is not found, <SAMP>NULL</SAMP> is returned.
+</DD></DL>
+<P>
+<A NAME="vinstallFindDirectoryScribed"><HR><H4>vinstallFindDirectoryScribed</H4></A>
+<PRE>
+        vfsPath * <B>vinstallFindDirectoryScribed</B>(
+                vinstall * install,
+                vscribe * directoryScribe);
+</PRE>
+
+<DL><DD>
+Searches through the installation object for a subdirectory given a 
+scribed directory name. If none of the search directories of the 
+installation object have that subdirectory, then the search is continued 
+by the installation object's search parent, if one exists. If any of 
+these searched directories have that subdirectory, then the subdirectory 
+path is appended onto a copy of the first successful search directory path 
+and returned. If the directory is not found, <SAMP>NULL</SAMP> is returned.
+</DD></DL>
+<P>
+<A NAME="vinstallFindFile"><HR><H4>vinstallFindFile</H4></A>
+<PRE>
+        vfsPath * <B>vinstallFindFile</B>(
+                vinstall * install,
+                const vfsPath * relativePath);
+</PRE>
+
+<DL><DD>
+Searches through the installation object for a file given a relative path. 
+If none of the search directories of the installation object have that
+file, then the search is continued by the installation object's search parent, 
+if one exists. If any of these searched directories have that subdirectory, 
+then the relative path is appended onto a copy of the first successful 
+search directory path and returned. If the file is not found, 
+<SAMP>NULL</SAMP> is returned.
+</DD></DL>
+<P>
+<A NAME="vinstallFindFileScribed"><HR><H4>vinstallFindFileScribed</H4></A>
+<PRE>
+        vfsPath * <B>vinstallFindFileScribed</B>(
+                vinstall * install,
+                vscribe * filenameScribe);
+</PRE>
+
+<DL><DD>
+Searches through the installation object for a file given a scribed file name. 
+If none of the search directories of the installation object have that
+file, then the search is continued by the installation object's search parent, 
+if one exists. If any of these searched directories have that subdirectory, 
+then the relative path is appended onto a copy of the first successful 
+search directory path and returned. If the file is not found, 
+<SAMP>NULL</SAMP> is returned.
+</DD></DL>
+<P>
+<A NAME="vinstallFindResourceFile"><HR><H4>vinstallFindResourceFile</H4></A>
+<PRE>
+        vfsPath * <B>vinstallFindResourceFile</B>(
+                vinstall * install,
+                const vfsPath * relativePath);
+</PRE>
+
+<DL><DD>
+Searches through the installation object for a resource file given a relative path.
+If none of the search directories of the installation object have that
+file, then the search is continued by the installation object's search parent, 
+if one exists. If any of these searched directories have that subdirectory, 
+then the relative path is appended onto a copy of the first successful 
+search directory path and returned. If the resource file is not found, 
+<SAMP>NULL</SAMP> is returned.
+</DD></DL>
+<P>
+<A NAME="vinstallFindResourceFileScribed"><HR><H4>vinstallFindResourceFileScribed</H4></A>
+<PRE>
+        vfsPath * <B>vinstallFindResourceFileScribed</B>(
+                vinstall * install,
+                vscribe * filenameScribe);
+</PRE>
+
+<DL><DD>
+Searches through the installation object for a resource file given a 
+scribed file name. If none of the search directories of the installation 
+object have that file, then the search is continued by the installation 
+object's search parent, if one exists. If any of these searched directories 
+have that subdirectory, then the relative path is appended onto a copy of 
+the first successful search directory path and returned. If the resource file 
+is not found, <SAMP>NULL</SAMP> is returned.
+</DD></DL>
+<P>
+<A NAME="vinstallGetApplicationDirectory"><HR><H4>vinstallGetApplicationDirectory</H4></A>
+<PRE>
+        const vfsPath * <B>vinstallGetApplicationDirectory</B>();
+</PRE>
+
+<DL><DD>
+Returns the application directory that contains the application resource file.
+</DD></DL>
+<P>
+<A NAME="vinstallGetApplicationName"><HR><H4>vinstallGetApplicationName</H4></A>
+<PRE>
+        const vname * <B>vinstallGetApplicationName</B>();
+</PRE>
+
+<DL><DD>
+Returns the application name used to locate application resources.
+</DD></DL>
+<P>
+<A NAME="vinstallGetApplicationPreferences"><HR><H4>vinstallGetApplicationPreferences</H4></A>
+<PRE>
+        vresource <B>vinstallGetApplicationPreferences</B>(
+                const vname * name);
+</PRE>
+
+<DL><DD>
+Returns the root resource of the named application's preferences.
+</DD></DL>
+<P>
+<A NAME="vinstallGetApplicationResources"><HR><H4>vinstallGetApplicationResources</H4></A>
+<PRE>
+        vresource <B>vinstallGetApplicationResources</B>(
+                const vname * name);
+</PRE>
+
+<DL><DD>
+Returns the root resource of the named application's resources.
+</DD></DL>
+<P>
+<A NAME="vinstallGetClass"><HR><H4>vinstallGetClass</H4></A>
+<PRE>
+        vinstallClass * <B>vinstallGetClass</B>(
+                vinstall * install);
+</PRE>
+
+<DL><DD>
+Returns the class of an install object.
+</DD></DL>
+<P>
+<A NAME="vinstallGetDefaultClass"><HR><H4>vinstallGetDefaultClass</H4></A>
+<PRE>
+        vinstallClass * <B>vinstallGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default class of install objects.
+</DD></DL>
+<P>
+<A NAME="vinstallGetGalaxyHomeDirectory"><HR><H4>vinstallGetGalaxyHomeDirectory</H4></A>
+<PRE>
+        const vfsPath * <B>vinstallGetGalaxyHomeDirectory</B>();
+</PRE>
+
+<DL><DD>
+Returns the install directory of the library.
+</DD></DL>
+<P>
+<A NAME="vinstallGetInstallDirectory"><HR><H4>vinstallGetInstallDirectory</H4></A>
+<PRE>
+        const vfsPath * <B>vinstallGetInstallDirectory</B>();
+</PRE>
+
+<DL><DD>
+Returns the install directory of the library.
+</DD></DL>
+<P>
+<A NAME="vinstallGetInstallEnvironmentVariable"><HR><H4>vinstallGetInstallEnvironmentVariable</H4></A>
+<PRE>
+        const vname * <B>vinstallGetInstallEnvironmentVariable</B>();
+</PRE>
+
+<DL><DD>
+Returns the name of the environment variable that specifies the 
+install directory of the library.
+</DD></DL>
+<P>
+<A NAME="vinstallGetInstance"><HR><H4>vinstallGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vinstallGetInstance</B>(
+                vinstall * install);
+</PRE>
+
+<DL><DD>
+Returns the install object reference as a <A HREF="vinstance-x.html#vinstance"><CODE>vinstance</CODE></A> reference.
+</DD></DL>
+<P>
+<A NAME="vinstallGetSearchDirectoryAt"><HR><H4>vinstallGetSearchDirectoryAt</H4></A>
+<PRE>
+        vfsPath * <B>vinstallGetSearchDirectoryAt</B>(
+                vinstall * install,
+                int index);
+</PRE>
+
+<DL><DD>
+Returns a particular installation object search directory by index. 
+The passed index must not be negative, or greater-than or equal-to the
+count returned by <code><A HREF="vinstall-x.html#vinstallGetSearchDirectoryCount"><CODE>vinstallGetSearchDirectoryCount</CODE></A></code>.
+</DD></DL>
+<P>
+<A NAME="vinstallGetSearchDirectoryCount"><HR><H4>vinstallGetSearchDirectoryCount</H4></A>
+<PRE>
+        int <B>vinstallGetSearchDirectoryCount</B>(
+                vinstall * install);
+</PRE>
+
+<DL><DD>
+Returns the number of directories that are searched by the
+installation object itself. The total number of directories 
+search may be greater than this count if the installation object 
+has a search parent, as returned by <code><A HREF="vinstall-x.html#vinstall"><CODE>vinstall</CODE></A></code>.
+</DD></DL>
+<P>
+<A NAME="vinstallGetSearchParent"><HR><H4>vinstallGetSearchParent</H4></A>
+<PRE>
+        vinstall * <B>vinstallGetSearchParent</B>(
+                vinstall * install);
+</PRE>
+
+<DL><DD>
+Returns the installation object that continues the search when the
+invoking one fails to find a file itself. 
+The returned value may be <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vinstallGetSystem"><HR><H4>vinstallGetSystem</H4></A>
+<PRE>
+        vinstall * <B>vinstallGetSystem</B>();
+</PRE>
+
+<DL><DD>
+Returns the system installation object for the application. 
+This is the installation object that is used to locate system 
+resources files in particular.
+</DD></DL>
+<P>
+<A NAME="vinstallGetSystemPreferences"><HR><H4>vinstallGetSystemPreferences</H4></A>
+<PRE>
+        vresource <B>vinstallGetSystemPreferences</B>();
+</PRE>
+
+<DL><DD>
+Returns the root resource of the system preferences for the Galaxy 
+library as installed.
+</DD></DL>
+<P>
+<A NAME="vinstallGetSystemResources"><HR><H4>vinstallGetSystemResources</H4></A>
+<PRE>
+        vresource <B>vinstallGetSystemResources</B>();
+</PRE>
+
+<DL><DD>
+Returns the root resource of the system resources for the Galaxy 
+library as installed.
+</DD></DL>
+<P>
+<A NAME="vinstallInit"><HR><H4>vinstallInit</H4></A>
+<PRE>
+        void <B>vinstallInit</B>(
+                vinstall * install);
+</PRE>
+
+<DL><DD>
+Initializes a new install object.
+</DD></DL>
+<P>
+<A NAME="vinstallInitOfClass"><HR><H4>vinstallInitOfClass</H4></A>
+<PRE>
+        void <B>vinstallInitOfClass</B>(
+                vinstall * install,
+                vinstallClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a new install object of the specified class.
+</DD></DL>
+<P>
+<A NAME="vinstallInsertSearchDirectoryOwned"><HR><H4>vinstallInsertSearchDirectoryOwned</H4></A>
+<PRE>
+        void <B>vinstallInsertSearchDirectoryOwned</B>(
+                vinstall * install,
+                int index,
+                vfsPath * path);
+</PRE>
+
+<DL><DD>
+Inserts a new directory to search for files by the installation object
+at the given index. The passed index must not be negative, or greater than the count
+returned by <code><A HREF="vinstall-x.html#vinstallGetSearchDirectoryCount"><CODE>vinstallGetSearchDirectoryCount</CODE></A></code>.
+If the index equals the count, then the directory is added to the end of the
+current set.
+<P>
+For efficiency sake, it is best not to add a search directory that
+does not exist, or is not a proper directory. Instead, use 
+<code><A HREF="vinstall-x.html#vinstallTestInsertSearchDirectoryOwned"><CODE>vinstallTestInsertSearchDirectoryOwned</CODE></A></code> if the existence of the
+directory is uncertain.
+</DD></DL>
+<P>
+<A NAME="vinstallRemoveSearchDirectoryAt"><HR><H4>vinstallRemoveSearchDirectoryAt</H4></A>
+<PRE>
+        void <B>vinstallRemoveSearchDirectoryAt</B>(
+                vinstall * install,
+                int index);
+</PRE>
+
+<DL><DD>
+Removes the search at the given index in the installation object. 
+The passed index must not be negative or greater than or equal to the
+count returned by <code><A HREF="vinstall-x.html#vinstallGetSearchDirectoryCount"><CODE>vinstallGetSearchDirectoryCount</CODE></A></code>.
+</DD></DL>
+<P>
+<A NAME="vinstallSetApplicationDirectory"><HR><H4>vinstallSetApplicationDirectory</H4></A>
+<PRE>
+        void <B>vinstallSetApplicationDirectory</B>(
+                const vfsPath * directory);
+</PRE>
+
+<DL><DD>
+Sets the application directory that contains the application resource file.
+</DD></DL>
+<P>
+<A NAME="vinstallSetApplicationName"><HR><H4>vinstallSetApplicationName</H4></A>
+<PRE>
+        void <B>vinstallSetApplicationName</B>(
+                const vname * name);
+</PRE>
+
+<DL><DD>
+Sets the application name used to locate application resources.
+</DD></DL>
+<P>
+<A NAME="vinstallSetApplicationPreferences"><HR><H4>vinstallSetApplicationPreferences</H4></A>
+<PRE>
+        void <B>vinstallSetApplicationPreferences</B>(
+                const vname * name,
+                vresource preferences);
+</PRE>
+
+<DL><DD>
+Sets the root resource of the named application's preferences.
+</DD></DL>
+<P>
+<A NAME="vinstallSetApplicationResources"><HR><H4>vinstallSetApplicationResources</H4></A>
+<PRE>
+        void <B>vinstallSetApplicationResources</B>(
+                const vname * name,
+                vresource resources);
+</PRE>
+
+<DL><DD>
+Sets the root resource of the named application's resources.
+</DD></DL>
+<P>
+<A NAME="vinstallSetSearchParent"><HR><H4>vinstallSetSearchParent</H4></A>
+<PRE>
+        void <B>vinstallSetSearchParent</B>(
+                vinstall * install,
+                vinstall * parentInstall);
+</PRE>
+
+<DL><DD>
+Sets or clears the installation object that continues the search when
+the invoked one fails to find a file itself. 
+The passed argument may be <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vinstallSetSystemPreferences"><HR><H4>vinstallSetSystemPreferences</H4></A>
+<PRE>
+        void <B>vinstallSetSystemPreferences</B>(
+                vresource preferences);
+</PRE>
+
+<DL><DD>
+Sets the root resource of the system preferences for the Galaxy library.
+</DD></DL>
+<P>
+<A NAME="vinstallSetSystemResources"><HR><H4>vinstallSetSystemResources</H4></A>
+<PRE>
+        void <B>vinstallSetSystemResources</B>(
+                vresource resources);
+</PRE>
+
+<DL><DD>
+Sets the root resource of the system resources for the Galaxy library.
+</DD></DL>
+<P>
+<A NAME="vinstallStartup"><HR><H4>vinstallStartup</H4></A>
+<PRE>
+        void <B>vinstallStartup</B>();
+</PRE>
+
+<DL><DD>
+Starts up all of the classes and global information in the vinstall module.
+</DD></DL>
+<P>
+<A NAME="vinstallTestFindPath"><HR><H4>vinstallTestFindPath</H4></A>
+<PRE>
+        vfsPath * <B>vinstallTestFindPath</B>(
+                vinstall * install,
+                const vfsPath * relativePath,
+                vinstallTestPathFunc testerFunc,
+                const void * data);
+</PRE>
+
+<DL><DD>
+Searches through the installation object for a file or directory 
+given a relative path. The <SAMP>testerFunc</SAMP> argument is used to 
+filter out files or directories from the search. When it returns 
+<SAMP>TRUE</SAMP> for a path, the search terminates and the find method 
+returns that path, without checking for itself that the file exists. 
+The <SAMP>data</SAMP> argument of the find method is passed to the 
+tester function to provide context.
+</DD></DL>
+<P>
+<A NAME="vinstallTestInsertSearchDirectoryOwned"><HR><H4>vinstallTestInsertSearchDirectoryOwned</H4></A>
+<PRE>
+        vbool <B>vinstallTestInsertSearchDirectoryOwned</B>(
+                vinstall * install,
+                int index,
+                vfsPath * path);
+</PRE>
+
+<DL><DD>
+Inserts a new search directory at the given index only if the
+directory exists, and if directory will not already be searched. 
+The passed index must not be negative or greater than the count
+returned by <code><A HREF="vinstall-x.html#vinstall"><CODE>vinstall</CODE></A></code>. If the index
+equals the count, then the directory is added to the end of the
+current set.
+ <P>
+If no directory exists at the given path, then nothing is inserted.
+Additionally, if the same directory is already specified in the list
+before or at that index, then nothing is inserted.  However, if the
+directory happens to occur at a greater index, then the directory is
+still added, since the search behavior could conceivably change.
+</DD></DL>
+<P>
+<A NAME="vinstallTestPathExists"><HR><H4>vinstallTestPathExists</H4></A>
+<PRE>
+        vbool <B>vinstallTestPathExists</B>(
+                const void * data,
+                const vfsPath * path);
+</PRE>
+
+<DL><DD>
+Returns TRUE if the specified path points to a valid file system entity.
+<P>
+The data argument is not used.
+</DD></DL>
+<P>
+<A NAME="vinstallTestPathIsDirectory"><HR><H4>vinstallTestPathIsDirectory</H4></A>
+<PRE>
+        vbool <B>vinstallTestPathIsDirectory</B>(
+                const void * data,
+                const vfsPath * path);
+</PRE>
+
+<DL><DD>
+Returns TRUE if the specified path points to a valid file system directory.
+<P>
+The data argument is not used.
+</DD></DL>
+<P>
+<A NAME="vinstallTestPathIsFile"><HR><H4>vinstallTestPathIsFile</H4></A>
+<PRE>
+        vbool <B>vinstallTestPathIsFile</B>(
+                const void * data,
+                const vfsPath * path);
+</PRE>
+
+<DL><DD>
+Returns TRUE if the specified path points to a valid file system file.
+<P>
+The data argument is not used.
+</DD></DL>
+<P>
+<A NAME="vinstallTestPathIsResourceFile"><HR><H4>vinstallTestPathIsResourceFile</H4></A>
+<PRE>
+        vbool <B>vinstallTestPathIsResourceFile</B>(
+                const void * data,
+                const vfsPath * path);
+</PRE>
+
+<DL><DD>
+Returns TRUE if the specified path points to a valid file system resource file.
+<P>
+The data argument is not used.
+</DD></DL>
+<P>
+<A NAME="vinstallUseApplicationFilePath"><HR><H4>vinstallUseApplicationFilePath</H4></A>
+<PRE>
+        const vname * <B>vinstallUseApplicationFilePath</B>(
+                const vchar * path);
+</PRE>
+
+<DL><DD>
+Low-level method to set the application program's file path, 
+as determined by command line arguments.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vinstallINCLUDED"><HR><H4>vinstallINCLUDED</H4></A>
+<PRE>
+        <B>vinstallINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file vinstallHEADER is included.
+</DD></DL>
+<P>
+<A NAME="vinstall_Application"><HR><H4>vinstall_Application</H4></A>
+<PRE>
+        <B>vinstall_Application</B>
+</PRE>
+<A NAME="vinstall_ApplicationPreferences"><PRE>
+        <B>vinstall_ApplicationPreferences</B>
+</PRE>
+</A>
+<A NAME="vinstall_Preferences"><PRE>
+        <B>vinstall_Preferences</B>
+</PRE>
+</A>
+<A NAME="vinstall_SearchDirectories"><PRE>
+        <B>vinstall_SearchDirectories</B>
+</PRE>
+</A>
+<A NAME="vinstall_System"><PRE>
+        <B>vinstall_System</B>
+</PRE>
+</A>
+<A NAME="vinstall_SystemPreferences"><PRE>
+        <B>vinstall_SystemPreferences</B>
+</PRE>
+</A>
+
+<DL><DD>
+Globally interned strings used by the vinstall module.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vinstallCLASS"><HR><H4>vinstallCLASS</H4></A>
+<PRE>
+        #define <B>vinstallCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for the base install
+object class.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

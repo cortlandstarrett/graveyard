@@ -1,0 +1,818 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vfontspec prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vfontspec prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vfontspec-x.html#section_DataType">Types</A> [2]</TD>
+<TD><A HREF="vfontspec-x.html#section_Function">Functions</A> [48]</TD>
+<TD></TD>
+<TD><A HREF="vfontspec-x.html#section_Constant">Constants</A> [2]</TD>
+<TD><A HREF="vfontspec-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vfontspec"><HR><H4>vfontspec</H4></A>
+<PRE>
+        typedef ... <B>vfontspec</B>;
+</PRE>
+
+<DL><DD>
+Provides a means of specifying fonts independent of the set of fonts
+currently available on the system.
+<P>
+The font specification object keeps track of the desired attributes by
+value, favoring some alternatives and disfavoring others.  The
+specification is built by adding biases for or against family,
+foundry, encoding, and face names; and for or against specific sizes
+or transformation matrixes.
+    <P>
+The <CODE><A HREF="vfontspec-x.html#vfontspecDetermineFont"><CODE>vfontspecDetermineFont</CODE></A></CODE> function applies the
+instructions in the specification against the available set of system
+fonts.  Strongest biases are applied first.  Biases with equal
+strength are applied in the order they were added to the specificatio.
+When a particular bias cannot be met, either because of what fonts are
+available or because of what fonts have already been eliminated, it is
+disregarded and the remaining biases are considered in turn.
+    <P>
+When a font specification is rendered as a single bias string, the
+order of the individual biases is preserved, but the specific strength
+values are not retained.
+</DD></DL>
+<P>
+<A NAME="vfontspecClass"><HR><H4>vfontspecClass</H4></A>
+<PRE>
+        typedef ... <B>vfontspecClass</B>;
+</PRE>
+
+<DL><DD>
+Describes the behavior of a class of font specifications.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vfontspecAddBias"><HR><H4>vfontspecAddBias</H4></A>
+<PRE>
+        void <B>vfontspecAddBias</B>(
+                vfontspec * spec,
+                const vchar * biasType,
+                const vchar * biasValue,
+                int biasToward,
+                int biasStrength);
+</PRE>
+
+<DL><DD>
+Adds a particular bias to the font specification object.
+<P>
+This is a low-level function used by the other functions that add biases.
+Since it involves some implementation details of the particular
+encoding of a font specification's bias string, it is best not to use
+this function except for more advanced manipulations of the
+specification object.
+</DD></DL>
+<P>
+<A NAME="vfontspecAddBiasScribed"><HR><H4>vfontspecAddBiasScribed</H4></A>
+<PRE>
+        void <B>vfontspecAddBiasScribed</B>(
+                vfontspec * spec,
+                vscribe * biasType,
+                vscribe * biasValue,
+                int biasToward,
+                int biasStrength);
+</PRE>
+
+<DL><DD>
+Adds a particular bias to the font specification object using scribed
+arguments.
+<P>
+This is a low-level function used by the other functions that add biases.
+Since it involves some implementation details of the particular
+encoding of a font specification's bias string, it is best not to use
+this function except for more advanced manipulations of the
+specification object.
+</DD></DL>
+<P>
+<A NAME="vfontspecAddBitmapBias"><HR><H4>vfontspecAddBitmapBias</H4></A>
+<PRE>
+        void <B>vfontspecAddBitmapBias</B>(
+                vfontspec * spec,
+                int biasToward,
+                int biasStrength);
+</PRE>
+
+<DL><DD>
+Adds a bias toward or against finding a bitmap font.
+</DD></DL>
+<P>
+<A NAME="vfontspecAddEncodingBias"><HR><H4>vfontspecAddEncodingBias</H4></A>
+<PRE>
+        void <B>vfontspecAddEncodingBias</B>(
+                vfontspec * spec,
+                const vchar * encoding,
+                int biasToward,
+                int biasStrength);
+</PRE>
+
+<DL><DD>
+Adds a bias toward or against a particular font encoding by name.
+</DD></DL>
+<P>
+<A NAME="vfontspecAddEncodingBiasScribed"><HR><H4>vfontspecAddEncodingBiasScribed</H4></A>
+<PRE>
+        void <B>vfontspecAddEncodingBiasScribed</B>(
+                vfontspec * spec,
+                vscribe * encoding,
+                int biasToward,
+                int biasStrength);
+</PRE>
+
+<DL><DD>
+Adds a bias toward or against a particular font encoding by scribed name.
+</DD></DL>
+<P>
+<A NAME="vfontspecAddFaceBias"><HR><H4>vfontspecAddFaceBias</H4></A>
+<PRE>
+        void <B>vfontspecAddFaceBias</B>(
+                vfontspec * spec,
+                const vchar * faceName,
+                int biasToward,
+                int biasStrength);
+</PRE>
+
+<DL><DD>
+Adds a bias toward or against a particular font face by name.
+</DD></DL>
+<P>
+<A NAME="vfontspecAddFaceBiasScribed"><HR><H4>vfontspecAddFaceBiasScribed</H4></A>
+<PRE>
+        void <B>vfontspecAddFaceBiasScribed</B>(
+                vfontspec * spec,
+                vscribe * faceName,
+                int biasToward,
+                int biasStrength);
+</PRE>
+
+<DL><DD>
+Adds a bias toward or against a particular font face by scribed name.
+</DD></DL>
+<P>
+<A NAME="vfontspecAddFamilyBias"><HR><H4>vfontspecAddFamilyBias</H4></A>
+<PRE>
+        void <B>vfontspecAddFamilyBias</B>(
+                vfontspec * spec,
+                const vchar * familyName,
+                int biasToward,
+                int biasStrength);
+</PRE>
+
+<DL><DD>
+Adds a bias toward or against a particular font family by name.
+</DD></DL>
+<P>
+<A NAME="vfontspecAddFamilyBiasScribed"><HR><H4>vfontspecAddFamilyBiasScribed</H4></A>
+<PRE>
+        void <B>vfontspecAddFamilyBiasScribed</B>(
+                vfontspec * spec,
+                vscribe * familyName,
+                int biasToward,
+                int biasStrength);
+</PRE>
+
+<DL><DD>
+Adds a bias toward or against a particular font family by scribed name.
+</DD></DL>
+<P>
+<A NAME="vfontspecAddFoundryBias"><HR><H4>vfontspecAddFoundryBias</H4></A>
+<PRE>
+        void <B>vfontspecAddFoundryBias</B>(
+                vfontspec * spec,
+                const vchar * foundry,
+                int biasToward,
+                int biasStrength);
+</PRE>
+
+<DL><DD>
+Adds a bias toward or against a particular font foundry by name.
+</DD></DL>
+<P>
+<A NAME="vfontspecAddFoundryBiasScribed"><HR><H4>vfontspecAddFoundryBiasScribed</H4></A>
+<PRE>
+        void <B>vfontspecAddFoundryBiasScribed</B>(
+                vfontspec * spec,
+                vscribe * foundry,
+                int biasToward,
+                int biasStrength);
+</PRE>
+
+<DL><DD>
+Adds a bias toward or against a particular font foundry by scribed name.
+</DD></DL>
+<P>
+<A NAME="vfontspecAddMatrixBias"><HR><H4>vfontspecAddMatrixBias</H4></A>
+<PRE>
+        void <B>vfontspecAddMatrixBias</B>(
+                vfontspec * spec,
+                vmatrix * matrix,
+                int biasToward,
+                int biasStrength);
+</PRE>
+
+<DL><DD>
+Adds a bias toward or against a particular font transformation matrix.
+</DD></DL>
+<P>
+<A NAME="vfontspecAddMonospaceBias"><HR><H4>vfontspecAddMonospaceBias</H4></A>
+<PRE>
+        void <B>vfontspecAddMonospaceBias</B>(
+                vfontspec * spec,
+                int biasToward,
+                int biasStrength);
+</PRE>
+
+<DL><DD>
+Adds a bias toward or against finding a monospace font.
+</DD></DL>
+<P>
+<A NAME="vfontspecAddSizeBias"><HR><H4>vfontspecAddSizeBias</H4></A>
+<PRE>
+        void <B>vfontspecAddSizeBias</B>(
+                vfontspec * spec,
+                double size,
+                int biasToward,
+                int biasStrength);
+</PRE>
+
+<DL><DD>
+Adds a bias toward or against a particular font size.
+</DD></DL>
+<P>
+<A NAME="vfontspecClearAllBiases"><HR><H4>vfontspecClearAllBiases</H4></A>
+<PRE>
+        void <B>vfontspecClearAllBiases</B>(
+                vfontspec * spec);
+</PRE>
+
+<DL><DD>
+Removes all biases from the font specification object.
+</DD></DL>
+<P>
+<A NAME="vfontspecClone"><HR><H4>vfontspecClone</H4></A>
+<PRE>
+        vfontspec * <B>vfontspecClone</B>(
+                vfontspec * fontspec);
+</PRE>
+
+<DL><DD>
+Creates a new copy of a font specification.
+</DD></DL>
+<P>
+<A NAME="vfontspecCopy"><HR><H4>vfontspecCopy</H4></A>
+<PRE>
+        void <B>vfontspecCopy</B>(
+                vfontspec * fontspec,
+                vfontspec * target);
+</PRE>
+
+<DL><DD>
+Copies the attributes from an existing font specification.
+</DD></DL>
+<P>
+<A NAME="vfontspecCopyInit"><HR><H4>vfontspecCopyInit</H4></A>
+<PRE>
+        void <B>vfontspecCopyInit</B>(
+                vfontspec * fontspec,
+                vfontspec * target);
+</PRE>
+
+<DL><DD>
+Initializes a font specification by copying the attributes from an
+existing font specification.
+</DD></DL>
+<P>
+<A NAME="vfontspecCreate"><HR><H4>vfontspecCreate</H4></A>
+<PRE>
+        vfontspec * <B>vfontspecCreate</B>();
+</PRE>
+
+<DL><DD>
+Create a new font specification.
+</DD></DL>
+<P>
+<A NAME="vfontspecCreateOfClass"><HR><H4>vfontspecCreateOfClass</H4></A>
+<PRE>
+        vfontspec * <B>vfontspecCreateOfClass</B>(
+                vfontspecClass * clas);
+</PRE>
+
+<DL><DD>
+Create a new font specification of the specified class.
+</DD></DL>
+<P>
+<A NAME="vfontspecDestroy"><HR><H4>vfontspecDestroy</H4></A>
+<PRE>
+        void <B>vfontspecDestroy</B>(
+                vfontspec * fontspec);
+</PRE>
+
+<DL><DD>
+Destroys a font specification.
+</DD></DL>
+<P>
+<A NAME="vfontspecDetermineFont"><HR><H4>vfontspecDetermineFont</H4></A>
+<PRE>
+        vfont * <B>vfontspecDetermineFont</B>(
+                vfontspec * spec);
+</PRE>
+
+<DL><DD>
+Determines and returns the font which best matches the font specification.
+<P>
+The font returned is from the set of fonts recognized by the system at
+that point in time.  If more fonts are installed or if the application
+is run on a different platform, a different font may be returned.
+</DD></DL>
+<P>
+<A NAME="vfontspecDetermineRelativeFont"><HR><H4>vfontspecDetermineRelativeFont</H4></A>
+<PRE>
+        vfont * <B>vfontspecDetermineRelativeFont</B>(
+                vfontspec * spec,
+                vfont * relativeTo);
+</PRE>
+
+<DL><DD>
+Determines and returns the font which best matches the font
+specification in relation to another font.
+<P>
+The font returned is from the set of fonts recognized by the system at
+that point in time.  If more fonts are installed or if the application
+is run on a different platform, a different font may be returned.
+</DD></DL>
+<P>
+<A NAME="vfontspecDump"><HR><H4>vfontspecDump</H4></A>
+<PRE>
+        void <B>vfontspecDump</B>(
+                vfontspec * fontspec,
+                FILE * stream);
+</PRE>
+
+<DL><DD>
+Prints information about a font specification.
+</DD></DL>
+<P>
+<A NAME="vfontspecGetBiasCount"><HR><H4>vfontspecGetBiasCount</H4></A>
+<PRE>
+        int <B>vfontspecGetBiasCount</B>(
+                vfontspec * spec);
+</PRE>
+
+<DL><DD>
+Returns the number of biases in the font specification object.
+</DD></DL>
+<P>
+<A NAME="vfontspecGetBiasStrengthAt"><HR><H4>vfontspecGetBiasStrengthAt</H4></A>
+<PRE>
+        int <B>vfontspecGetBiasStrengthAt</B>(
+                vfontspec * spec,
+                int index);
+</PRE>
+
+<DL><DD>
+Returns the strength value of the indexed bias.
+</DD></DL>
+<P>
+<A NAME="vfontspecGetBiasString"><HR><H4>vfontspecGetBiasString</H4></A>
+<PRE>
+        const vchar * <B>vfontspecGetBiasString</B>(
+                vfontspec * spec);
+</PRE>
+
+<DL><DD>
+Returns the bias string that encodes the font specification.
+<P>
+While this bias string preserves the order of the individual biases in
+the font specification, it does not retain their actual strength
+values.  Therefore, a second font specification initialized with this
+bias string will behave the same with respect to determining a
+matching font, but it may not behave the same with respect to adding
+new biases.
+</DD></DL>
+<P>
+<A NAME="vfontspecGetClass"><HR><H4>vfontspecGetClass</H4></A>
+<PRE>
+        vfontspecClass * <B>vfontspecGetClass</B>(
+                vfontspec * fontspec);
+</PRE>
+
+<DL><DD>
+Returns the class of a font specification.
+</DD></DL>
+<P>
+<A NAME="vfontspecGetDefaultBiasString"><HR><H4>vfontspecGetDefaultBiasString</H4></A>
+<PRE>
+        const vchar * <B>vfontspecGetDefaultBiasString</B>();
+</PRE>
+
+<DL><DD>
+Returns the default font specification bias string for the application.
+</DD></DL>
+<P>
+<A NAME="vfontspecGetDefaultClass"><HR><H4>vfontspecGetDefaultClass</H4></A>
+<PRE>
+        vfontspecClass * <B>vfontspecGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default class of font specifications.
+</DD></DL>
+<P>
+<A NAME="vfontspecGetDefaultSpec"><HR><H4>vfontspecGetDefaultSpec</H4></A>
+<PRE>
+        vfontspec * <B>vfontspecGetDefaultSpec</B>();
+</PRE>
+
+<DL><DD>
+Returns the default font specification for the application.
+</DD></DL>
+<P>
+<A NAME="vfontspecGetInstance"><HR><H4>vfontspecGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vfontspecGetInstance</B>(
+                vfontspec * fontspec);
+</PRE>
+
+<DL><DD>
+Returns the font specification as a <A HREF="vinstance-x.html#vinstance"><CODE>vinstance</CODE></A> object reference.
+</DD></DL>
+<P>
+<A NAME="vfontspecGetLoadable"><HR><H4>vfontspecGetLoadable</H4></A>
+<PRE>
+        vloadable * <B>vfontspecGetLoadable</B>(
+                vfontspec * fontspec);
+</PRE>
+
+<DL><DD>
+Returns the font specification as a <A HREF="vloadable-x.html#vloadable"><CODE>vloadable</CODE></A> object reference.
+</DD></DL>
+<P>
+<A NAME="vfontspecInit"><HR><H4>vfontspecInit</H4></A>
+<PRE>
+        void <B>vfontspecInit</B>(
+                vfontspec * fontspec);
+</PRE>
+
+<DL><DD>
+Initializes a new font specification.
+</DD></DL>
+<P>
+<A NAME="vfontspecInitOfClass"><HR><H4>vfontspecInitOfClass</H4></A>
+<PRE>
+        void <B>vfontspecInitOfClass</B>(
+                vfontspec * fontspec,
+                vfontspecClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a new font specification of the specified class.
+</DD></DL>
+<P>
+<A NAME="vfontspecIsBiasTowardAt"><HR><H4>vfontspecIsBiasTowardAt</H4></A>
+<PRE>
+        vbool <B>vfontspecIsBiasTowardAt</B>(
+                vfontspec * spec,
+                int index);
+</PRE>
+
+<DL><DD>
+Returns whether the indexed bias is toward or against its value.
+</DD></DL>
+<P>
+<A NAME="vfontspecLoad"><HR><H4>vfontspecLoad</H4></A>
+<PRE>
+        vfontspec * <B>vfontspecLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Loads and returns a new font specification given a resource.
+</DD></DL>
+<P>
+<A NAME="vfontspecLoadInit"><HR><H4>vfontspecLoadInit</H4></A>
+<PRE>
+        void <B>vfontspecLoadInit</B>(
+                vfontspec * fontspec,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Initializes a new font specification given a resource.
+</DD></DL>
+<P>
+<A NAME="vfontspecScribeBiasAt"><HR><H4>vfontspecScribeBiasAt</H4></A>
+<PRE>
+        vscribe * <B>vfontspecScribeBiasAt</B>(
+                vfontspec * spec,
+                int index);
+</PRE>
+
+<DL><DD>
+Returns the encoding of the indexed bias as a scribe.
+</DD></DL>
+<P>
+<A NAME="vfontspecScribeBiasString"><HR><H4>vfontspecScribeBiasString</H4></A>
+<PRE>
+        vscribe * <B>vfontspecScribeBiasString</B>(
+                vfontspec * spec);
+</PRE>
+
+<DL><DD>
+Returns the bias string that encodes the font specification as a
+scribe.
+<P>
+While this bias string preserves the order of the individual biases in
+the font specification, it does not retain their actual strength
+values.  Therefore, a second font specification initialized with this
+bias string will behave the same with respect to determining a
+matching font, but it may not behave the same with respect to adding
+new biases.
+</DD></DL>
+<P>
+<A NAME="vfontspecScribeBiasTypeAt"><HR><H4>vfontspecScribeBiasTypeAt</H4></A>
+<PRE>
+        vscribe * <B>vfontspecScribeBiasTypeAt</B>(
+                vfontspec * spec,
+                int index);
+</PRE>
+
+<DL><DD>
+Returns a string which represents the type of bias of the indexed bias 
+as a scribe.
+</DD></DL>
+<P>
+<A NAME="vfontspecScribeBiasValueAt"><HR><H4>vfontspecScribeBiasValueAt</H4></A>
+<PRE>
+        vscribe * <B>vfontspecScribeBiasValueAt</B>(
+                vfontspec * spec,
+                int index);
+</PRE>
+
+<DL><DD>
+Returns a string which encodes the value of the indexed bias as a
+scribe. 
+</DD></DL>
+<P>
+<A NAME="vfontspecSetBiasString"><HR><H4>vfontspecSetBiasString</H4></A>
+<PRE>
+        void <B>vfontspecSetBiasString</B>(
+                vfontspec * spec,
+                const vchar * biasString);
+</PRE>
+
+<DL><DD>
+Sets the biases of the font specification according to the given bias
+string.
+<P>
+Since the encoding of bias strings does not include strength values
+for the individual biases, arbitrary strengths are assigned which
+preserve the order.
+</DD></DL>
+<P>
+<A NAME="vfontspecSetBiasStringScribed"><HR><H4>vfontspecSetBiasStringScribed</H4></A>
+<PRE>
+        void <B>vfontspecSetBiasStringScribed</B>(
+                vfontspec * spec,
+                vscribe * biasString);
+</PRE>
+
+<DL><DD>
+Sets the biases of the font specification according to the given
+scribed bias string.
+<P>
+Since the encoding of bias strings does not include strength values
+for the individual biases, arbitrary strengths are assigned which
+preserve the order.
+</DD></DL>
+<P>
+<A NAME="vfontspecSetDefaultBiasString"><HR><H4>vfontspecSetDefaultBiasString</H4></A>
+<PRE>
+        void <B>vfontspecSetDefaultBiasString</B>(
+                const vchar * biasString);
+</PRE>
+
+<DL><DD>
+Sets the default font specification bias string for the application.
+<P>
+This specification is applied when there are more than one match after
+applying any specific font specification.
+    <P>
+Different systems may start with different default specifications
+because of the different requirements and expectations for those
+platforms.  For this reason, it is usually best not to change the
+default specification unnecessarily.  The same effect can be achieved
+by forming a more specific font specification in the first place.
+</DD></DL>
+<P>
+<A NAME="vfontspecSetDefaultBiasStringScribed"><HR><H4>vfontspecSetDefaultBiasStringScribed</H4></A>
+<PRE>
+        void <B>vfontspecSetDefaultBiasStringScribed</B>(
+                vscribe * biasString);
+</PRE>
+
+<DL><DD>
+Sets the default font specification bias string for the application
+with a scribe.
+<P>
+This specification is applied when there are more than one match after
+applying any specific font specification.
+    <P>
+Different systems may start with different default specifications
+because of the different requirements and expectations for those
+platforms.  For this reason, it is usually best not to change the
+default specification unnecessarily.  The same effect can be achieved
+by forming a more specific font specification in the first place.
+</DD></DL>
+<P>
+<A NAME="vfontspecStartup"><HR><H4>vfontspecStartup</H4></A>
+<PRE>
+        void <B>vfontspecStartup</B>();
+</PRE>
+
+<DL><DD>
+Starts up all of the classes and global information in the vfontspec module.
+</DD></DL>
+<P>
+<A NAME="vfontspecStore"><HR><H4>vfontspecStore</H4></A>
+<PRE>
+        void <B>vfontspecStore</B>(
+                vfontspec * fontspec,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Stores the attributes of a font specification into a resource.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vfontspecDEFAULT_BIAS"><HR><H4>vfontspecDEFAULT_BIAS</H4></A>
+<PRE>
+        <B>vfontspecDEFAULT_BIAS</B>
+</PRE>
+<A NAME="vfontspecSTRONGEST_BIAS"><PRE>
+        <B>vfontspecSTRONGEST_BIAS</B>
+</PRE>
+</A>
+<A NAME="vfontspecDEFAULT_MONOSPACE_BIAS"><PRE>
+        <B>vfontspecDEFAULT_MONOSPACE_BIAS</B>
+</PRE>
+</A>
+<A NAME="vfontspecDEFAULT_BITMAP_BIAS"><PRE>
+        <B>vfontspecDEFAULT_BITMAP_BIAS</B>
+</PRE>
+</A>
+<A NAME="vfontspecDEFAULT_FAMILY_BIAS"><PRE>
+        <B>vfontspecDEFAULT_FAMILY_BIAS</B>
+</PRE>
+</A>
+<A NAME="vfontspecDEFAULT_FOUNDRY_BIAS"><PRE>
+        <B>vfontspecDEFAULT_FOUNDRY_BIAS</B>
+</PRE>
+</A>
+<A NAME="vfontspecDEFAULT_ENCODING_BIAS"><PRE>
+        <B>vfontspecDEFAULT_ENCODING_BIAS</B>
+</PRE>
+</A>
+<A NAME="vfontspecDEFAULT_FACE_BIAS"><PRE>
+        <B>vfontspecDEFAULT_FACE_BIAS</B>
+</PRE>
+</A>
+<A NAME="vfontspecDEFAULT_SIZE_BIAS"><PRE>
+        <B>vfontspecDEFAULT_SIZE_BIAS</B>
+</PRE>
+</A>
+<A NAME="vfontspecDEFAULT_MATRIX_BIAS"><PRE>
+        <B>vfontspecDEFAULT_MATRIX_BIAS</B>
+</PRE>
+</A>
+<A NAME="vfontspecWEAKEST_BIAS"><PRE>
+        <B>vfontspecWEAKEST_BIAS</B>
+</PRE>
+</A>
+
+<DL><DD>
+Values which indicate the relative strengths of different biases.
+<P>
+These constants or integral values derived from them may be passed to
+<CODE><A HREF="vfontspec-x.html#vfontspec"><CODE>vfontspec</CODE></A></CODE> or <CODE><A HREF="vfontspec-x.html#vfontspec"><CODE>vfontspec</CODE></A></CODE>
+and its more specific variants (<CODE><A HREF="vfontspec-x.html#vfontspec"><CODE>vfontspec</CODE></A></CODE>,
+etc.). Also, they may be used to gauge the strength values returned by
+<CODE><A HREF="vfontspec-x.html#vfontspec"><CODE>vfontspec</CODE></A></CODE>. 
+</DD></DL>
+<P>
+<A NAME="vfontspecINCLUDED"><HR><H4>vfontspecINCLUDED</H4></A>
+<PRE>
+        <B>vfontspecINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file vfontspecHEADER is included.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vfontspecCLASS"><HR><H4>vfontspecCLASS</H4></A>
+<PRE>
+        #define <B>vfontspecCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for the base font
+specification class.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

@@ -1,0 +1,375 @@
+<HTML>
+<HEAD>
+<TITLE>Strings, Character Sets, and Scribes</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Strings, Character Sets, and Scribes</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Status_Bar.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="StringItem.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+Galaxy provides a broad base of functions for manipulating strings. Both static and dynamic strings are supported, as are facilities for dealing with strings in varied character sets.<P>
+<A NAME="4237"><H2> Character Sets</H2></A>
+In traditional development environments, all strings are represented in a single character set, typically ASCII. If a program is to be able to run in different languages or on different types of systems, however, this condition is no longer acceptable. The programmer must deal with several potentially different character sets, some of which may not even be known until run-time.<P>
+Galaxy defines several abstract character sets. The actual character sets in which these abstract character sets are implemented may vary depending on various factors and should not be assumed by the developer. These character sets are the <EM><B>vchar character set</B></EM>, the <EM><B>literal character set</B></EM>, and the <EM><B>system character set</B></EM>.<P>
+The most important character set is the vchar character set. This is the character set used for all text processing done in a Galaxy application. Each character in this character set has the type vchar. All Galaxy entry points that take a string as a parameter (other than string conversion entry points) expect a string in the vchar character set. The vchar character set is bound to a "real" character set at compile time.<P>
+The character set used for the vchar character set is always a <EM><B>fixed width</B></EM> character set. This means that all characters in the character set are represented by the same number of bits. Character sets that use "escapes" to change character width will never be used as the vchar character set. Non-spacing characters, however, are permissible in the vchar character set. A non-spacing character is a character that effectively modifies the character preceding it in the string (an example is a non-spacing accent character, whose effect is to place an accent mark over the preceding character in the string).<P>
+The literal character set is the character set in which the compiler generates string literals (also known as string constants) and character constants. The character set that is used to implement this abstract character set is determined based on the compiler and is also bound at compile time. Note that this character set is not in general the same as the vchar character set. For example, the compiler may generate constants in ASCII, while Unicode is used for the vchar character set. Or, as is common in Japanese development environments, the literal character set may be a multibyte (non-fixed width) character set, while the vchar character set is a wide (16- or 32-bit fixed width) character set.<P>
+The system character set is the character set that is understood by the system the Galaxy application is running on. This character set should be used when going around Galaxy and passing strings directly to and from the operating system. It is also used internally by Galaxy in its interface to the system. Since a single Galaxy application may need to be able to run on systems with different system character sets, the system character set is not known until run time.<P>
+If you are using Galaxy with the native compiler on a particular system, the system and literal character sets will usually be the same. However, some compilers will allow you to choose between multiple character sets for string literals. If this is the case, and the vchar character set is different from the system character set, you might choose to have the compiler generate strings in the vchar character set rather than the system character set for efficiency reasons.<P>
+Note that the literal and system character sets will not always be fixed width character sets.<P>
+Finally, Galaxy knows about many character sets by name. Currently, ASCII, Latin-1, Macintosh Roman, Unicode, and Japanese EUC are supported as internal <TT>vchar</TT> character sets, while facilities are provided to import and export strings encoded in other well known standards such as Latin2, Latin3, Latin4, Latin5, Shift-JIS, Japanese EUC. As international versions of Galaxy are released, all major character sets will be supported.<P>
+It is important to note that although a single application always uses the same character set as its vchar character set, different Galaxy applications (or even the same application compiled differently) may have different character sets for their vchar character sets. Thus, all direct communication (including data storage) between Galaxy applications should take place in either the system character set (when the applications are running on the same system) or in a known, fixed character set (such as ASCII). In addition, various parts of Galaxy (such as the Resource class) provide facilities for dealing with this problem.<P>
+<A NAME="4266"><H2> String Representation</H2></A>
+Galaxy supports two general representation schemes for strings: null-terminated strings and explicitly sized strings. Both of these represent a string as a C-style array of characters. The difference lies in the way the length of the string is encoded.<P>
+The null-terminated string is the traditional string representation in C. In this scheme, the end of the string is marked with a zero-valued (or null) character. The advantage is that a string can be represented by a single pointer, and the length indication only takes up one additional character, regardless of the length of the string. The disadvantages are that finding the length of the string is a non-trivial operation, and strings that contain embedded null characters cannot be represented in this way.<P>
+The other scheme is the explicitly sized string. In this scheme, the length of the string is stored separately from the string data itself. This allows representation of strings that contain null characters, and of course the string length is readily available without scanning the string. Copy operations on sized strings can also be considerably faster than copy operations on null-terminated strings, as the characters may be able to be copied a machine word at a time, rather than a single character at a time. However, using explicitly sized strings can be awkward because each string is represented by two values: a pointer and a length.<P>
+<A NAME="4274"><H2> String Storage</H2></A>
+Aside from the representation scheme for the string, the storage of the string can vary as well. Examples of possible storage types are static, dynamic, name tables, and resources.<P>
+The simplest type of string storage is static storage. This is when you just declare an array of characters (and possibly a length) and write the contents of the string into the array. This is the easiest (and most efficient) way to store a string if the length of the string is fixed, or at least well-bounded.<P>
+A more flexible (but less efficient) way to store strings is to let Galaxy allocate space for them dynamically. Galaxy provides a set of routines for managing dynamic strings.<P>
+Name tables provide an efficient way to store strings when you have many strings that do not change over time. Within a single name table, identical strings are stored only once, and equality of strings in the same name table can be tested by simply comparing the string pointers. Strings stored in name tables are read-only. Name tables are implemented by the Name class.<P>
+String resources are used to store strings in files. The strings are stored in a system-independent way. String resources are handled by the Resource class.<P>
+<A NAME="4282"><H2> Scribes</H2></A>
+All of the different possible character sets, representations, and storage methods for strings lead to a problem in defining interfaces for functions that take strings as parameters. Namely, in what form should the string be specified? Typically, the caller has a string in one form, while the function wants the string in another form.<P>
+To solve this problem, Galaxy introduces the concept of a <EM><B>scribe</B></EM>. A scribe is a temporary object that contains the information necessary to write out a string in whatever format or location is desired. This object serves as a "third-party translator" between the function caller and function implementor. The function caller simply creates a scribe from the string (in whatever representation the string currently exists) and passes the scribe to the function. The function then tells the scribe what representation it wants the string in. If the caller's original representation and the implementor's required representation are the same, this can be done with no work at all. If some conversion is required, it is done directly to the representation desired by the function implementor, avoiding intermediate translation steps.<P>
+The creation of scribes is relatively inexpensive because a scribe does not "own" any data it references when it writes its string; it simply points to data in other locations. This means that a scribe does not have to do any string copying when it is created; it also means that the scribe will not be valid if any of this data changes or goes away. However, this is not a problem because the lifetime of a scribe is very short (usually just one function call).<P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+Galaxy uses three different prefixes in naming its functions: <TT>vchar</TT>, <TT>vstr</TT>, and <TT>vscribe</TT>. The <TT>vchar</TT> functions deal with single characters and with the contents of strings (they have no effect on the storage of the strings). The <TT>vstr</TT> functions manipulate dynamically allocated string objects. Finally, the <TT>vscribe</TT> functions routines deal with low-level manipulation of scribes.<P>
+Each of these module prefixes is also the name of a data type. <TT>vchar</TT> is the type of a single character in the <TT>vchar</TT> character set. It will represent some integral type, either signed or unsigned (depending on the actual character set used to implement the <TT>vchar</TT> character set). <TT>vstr</TT> is the type given to dynamic string objects. However, as a convenience, <TT>vstr</TT>s are implemented in such a way that a <TT>vstr *</TT> is identical (in both value and type) to a <TT>vchar *</TT> pointing to the first character in the dynamic string. Thus a <TT>vstr *</TT> can be used as a <TT>vchar *</TT> without a cast. (Note that the reverse is not necessarily true.) <TT>vscribe</TT> is the type used to represent a scribe.<P>
+When string, scribe, and character functions take or return a length for a <TT>vchar</TT> string as a parameter, the length value is the number of characters in the string, not the size of the string in bytes. If the string being measured is in a different character set, there are several cases to be considered. If the character set is a fixed width character set, the length is measured in characters, just like with <TT>vchar</TT> strings. If the character set is a variable width (multibyte) one, the length is measured in units of the smallest character in the font (this will typically be one byte). Thus the length of a multibyte string is a measure of the space the string occupies, as opposed to the number of characters in the string.<P>
+Note that when using null-terminated strings, the null-terminating character is never included in the length of the string.<P>
+<A NAME="4305"><H2> Using Scribes and vscribe Functions</H2></A>
+Scribes are temporary interface objects that are used to manage the translation of strings from one format or representation to another. You can make a scribe from any string or string-like data, and you can use a scribe to get a string in any format or representation.<P>
+To convert string data from one format to another, you first make a scribe from it and then make the desired string type from the scribe. Because creating a scribe has very little overhead, such a translation is nearly as efficient as directly converting between the two types.<P>
+For general use of scribes, there are two types of functions that are important. The first is a <TT>Scribe</TT> function, which creates a scribe. (<TT>Scribe</TT> here is a verb; it means "make a scribe" in Galaxy function names.) The other kind of function is a <TT>Scribed</TT> variation of a function, which takes a string as a parameter. (<TT>Scribed</TT> is an adverb; it is appended to the regular entry point name.) This kind of function is used to "extract" the string from the scribe. <A HREF="String.html#6547">Figure 76</A> shows some commonly used <TT>Scribe</TT> functions and <TT>Scribed</TT> variations and the kind of data they use.<P>
+<A NAME="6547"><I>Figure 76.  The Galaxy scribe process 
+</I><P>
+<IMG SRC="String.anc.gif">    <P>
+Note that when a scribe is passed to a <TT>Scribed</TT> variation, ownership of the scribe passes to the function. The function will then take care of destroying the scribe (either explicitly or by passing it to another <TT>Scribed</TT> variation of another function).<P>
+When a string is extracted from a scribe, the scribe writes it in a specific character set, determined by how the scribe was created. Nearly all of the time, this character set will be the vchar character set. However, there is a limited set of scribes, called <EM><B>export scribes</B></EM>, that may write their strings in different character sets. The use of these scribes is limited to exporting strings from the vchar character set into different character sets. Except where a scribe is explicitly described in the documentation as an export scribe, you can assume that a scribe will write its string in the vchar character set. Note that export scribes are really no different than ordinary scribes; they simply have no restriction on the character sets they write their strings in.<P>
+Because a scribe may not own a string or other data to which it contains references, scribes should not be used to store strings. They are intended to be transient objects only. Also, because ownership of a scribe is passed when the scribe is passed to a <TT>Scribed</TT> function, a scribe cannot be used more than once. If you need to store a scribe for an extended period of time, or use it to specify a string more than once, you should use the scribe to create a string (for example, with <TT><B>vstrCloneScribed</B></TT>), and then perform whatever actions you need to do with the string instead.<P>
+The main place you use scribes is where you have some data that is not a null-terminated <TT>vchar</TT> string, and you want to pass it as a string to a function. Simply Scribe the data and pass it to the <TT>Scribed</TT> variation of the function you wish to call. Galaxy will take care of converting the data to a form that the function can use.<P>
+For example, to set the title of a dialog you could do one of the following depending on the type of data you want to describe the title:<P>
+<PRE><UL>   vdialogSetTitleScribed(myDialog, vcharScribeLiteral("The New Title"));
+   vdialogSetTitleScribed(myDialog, vnumScribeInt(7));
+   vdialogSetTitleScribed(myDialog, vresourceScribeString(myRes, myTag));
+
+</UL></PRE>Note that ownership of the scribe created by the Scribe function is passed to <TT><B>SetTitleScribed</B></TT>, which takes care of destroying it.<P>
+Another use of scribes is to perform some sort of string processing on a string already in the vchar character set. For instance, there are scribes that convert the case of their arguments or perform replacement operations on the strings used to create them. Although this type of "string processing" scribe is not fundamentally different from the "type conversion" scribe, you will typically use them in different situations.<P>
+Most of the functions that are prefixed by vscribe are low-level functions that you will not need to deal with directly. (Use of these functions is covered in a later section.) However, there is one function that you may find useful in normal scribe use. If you want to "glue" several scribes together to make a scribe that writes the concatenation of all of the scribes' strings it contains, call <TT><B>vscribeScribeMulti</B></TT>. For example, the following code sets the title of the dialog to "Untitled 1." <P>
+<PRE><UL>   int   index = 1;
+
+   vwindowSetTitleScribed(myWindow,
+                          vscribeScribeMulti
+                          (vcharScribeLiteral("Untitled "),
+                           vnumScribeInt(index),
+                           NULL /* marks end of scribe list */));
+
+</UL></PRE>Note that because of the way functions with variable arguments are handled in C, you must pass a null pointer at the end of the list of scribes to combine. Note how <TT><B>ScribeMulti</B></TT> gives you functionality similar to the <TT><B>sprintf</B></TT> function in the standard C library, enabling you to combine different types of data together into a single string.<P>
+If you need to specify a string to a function that has no <TT>Scribed</TT> variation, you will need to convert whatever data you have into a string the function can handle (usually a null-terminated vchar string). An easy way to do this is to create a dynamic string with <TT><B>vstrCloneScribed</B></TT>, which you can then destroy with <TT><B>vstrDestroy</B></TT> after calling the function. For example:<P>
+<PRE><UL>void IsItAMonkey (vchar *testString)
+{
+   vstr *monkeyString;
+
+   monkeyString = vstrCloneScribed(vcharScribeLiteral("Monkey"));
+   if (vcharCompare(testString, monkeyString) == 0)
+     // They matched, so do something
+     ;
+   vstrDestroy(monkeyString);
+
+</UL></PRE><A NAME="4377"><H2> Using vchar Functions</H2></A>
+<TT>vchar</TT> functions perform most general string processing in Galaxy. <TT>vchar</TT> functions never affect the allocation of the strings they operate on; they treat strings as simple arrays of characters. How the array is allocated is irrelevant. Typically, there are versions of most vchar functions to handle both null-terminated and explicitly sized strings.<P>
+Most <TT>vchar</TT> prefixed functions have several variations. Typically, the "normal" variation of a function will use null-terminated strings and will provide no bounds checking on any copying or scanning it does. The <TT>Sized</TT> variation (<TT>Sized</TT> occurs before the verb) of the function will use explicitly sized strings instead of null-terminated strings. The <TT>Bounded</TT> variation (<TT>Bounded</TT> is appended to the function name) will take an extra parameter that indicates the maximum length string that will be processed. This typically represents a buffer size limit. Of course not all functions have all these variations; they only occur where they are useful.<P>
+In addition, <TT>vchar</TT> routines that copy their string arguments in some way will have <TT>Scribed</TT> variations. This lets you specify the strings as scribes. For efficiency reasons, most <TT>vchar</TT> routines that do not copy their arguments (such as search and replace routines, for instance) do not accept scribes for arguments. You must manually convert any strings or data to either null-terminated or explicitly sized vchar strings to use these entry points.<P>
+For classifying single characters in the <TT>vchar</TT> character set, you should call one of the <TT><B>vcharIs&lt;Class&gt;</B></TT> functions on the character. You should avoid classifying characters by enumerating possible values in your code, because the enumerations may not be complete when the vchar character set changes. For example, you should use:<P>
+<PRE><UL>   if (vcharIsWhiteSpace(character))
+     // Do something
+     ;
+
+</UL></PRE>rather than the following, because the second code fragment is not portable across character sets.<P>
+<PRE><UL>   if (character == vcharFromLiteral(' ') || character ==
+       vcharFromLiteral('t') || character == vcharFromLiteral('n'))
+     // Do something
+     ;
+
+</UL></PRE>There are several methods for performing case conversion and diacritical mark stripping. For single characters, <TT><B>vcharToUpperCase</B></TT>, <TT><B>vcharToLowerCase</B></TT>, and <TT><B>vcharStripDiacritics</B></TT> perform these functions. For complete strings, use <TT><B>vcharScribeToUpperCase</B></TT>, <TT><B>vcharScribeToLowerCase</B></TT>, <TT><B>vcharScribeStripDiacritics</B></TT>, or <TT><B>vcharScribeStripToLowerCase</B></TT> to create a scribe that will write out the appropriately transformed string.<P>
+The Scribe calls are recommended rather than the single character functions wherever possible, because there is not always a one-to-one character correspondence between uppercase and lowercase letters. (For example, in German, &#223; is lowercase, SS is uppercase.) The same can be true with diacritically marked characters as well.<P>
+Functions <TT><B>vcharToUpperCaseBuffer</B></TT>, <TT><B>vcharToUpperCaseBufferBounded</B></TT> and <TT><B>vcharToUpperCaseLength</B></TT> are provided in case you want to do your own character manipulation. It should be noted that the case conversion functions have limitations for some characters (for example, in most languages, letter I has the corresponding lowercase form i, but in some languages it maps to dotless \xf5 .)<P>
+Use functions such as <TT><B>vcharFromASCII</B></TT>, <TT><B>vcharFromLatin1</B></TT>, <TT><B>vcharFromMacintosh</B></TT>, <TT><B>vcharFromUnicode</B></TT>, <TT><B>vcharFromLatin2</B></TT> to transform a code in one of the above encodings to the equivalent vchar character.<P>
+Use functions such as <TT><B>vcharToASCII</B></TT>, <TT><B>vcharToLatin1</B></TT>, <TT><B>vcharToMacintosh</B></TT>, <TT><B>vcharToUnicode</B></TT>, <TT><B>vcharToLatin2</B></TT> to transform a <TT>vchar</TT> character into the appropriate code of the corresponding encoding.<P>
+Use <TT><B>vcharCopy</B></TT> to copy strings from one place to another (this is analogous to <TT><B>strcpy</B></TT> in the standard C library). The <TT>Scribed</TT> variations of this function, when combined with all of the <TT>Scribe</TT> functions available in Galaxy, serve as a versatile mechanism for converting many forms of data to string form. <TT><B>vcharAppend</B></TT> is much like <TT><B>vcharCopy</B></TT>, except that it moves to the end of any null-terminated string currently in the destination buffer before copying the source string (this is analogous to <TT>strcat</TT>).<P>
+You should use <TT><B>vcharLength</B></TT> (similar to <TT>strlen</TT>) to get the length of a null-terminated string or <TT><B>vcharLengthScribed</B></TT> to get the length of the string that a scribe will write.<P>
+Use <TT><B>vcharCompare</B></TT> to compare the contents of two strings. If you want the comparison to be independent of case and diacritical marks, use <TT><B>vcharCompareBase</B></TT>.<P>
+For scanning strings for specific substrings and/or characters, use one of the many variants of <TT><B>vcharSearch</B></TT>. The normal case searches for occurrences of a specific substring. <TT><B>vcharSearchChar</B></TT> scans for a specified character. <TT><B>vcharSearchOneOf</B></TT> and <TT><B>vcharSearchNotOneOf</B></TT> search for one of a set of characters, the set being defined by the characters' presence in (in the former case) or absence from (in the latter) a specified string. All of these functions have Backwards variations that will search from the end of the string, in addition to the regular functions that search from the beginning.<P>
+You can use <TT><B>vcharGetFirstToken</B></TT> and <TT><B>vcharGetNextToken</B></TT> when you need to extract fields from a string, where the fields are separated by one or more characters out of some set of separator characters.<P>
+Use <TT><B>vcharDump</B></TT> to write a vchar string onto a stream for debugging purposes. If you need to write some other data that can be <TT>Scribe</TT>'d, use <TT><B>vcharDumpScribed</B></TT>.<P>
+Use <TT><B>vcharScribe</B></TT> to create a scribe from a null-terminated vchar string. If the string is permanently allocated, use <TT><B>vcharScribeShared</B></TT> instead. Use <TT><B>vcharSizedScribe</B></TT> to create a scribe from an explicitly sized vchar string. If the string is permanently allocated, use <TT><B>vcharSizedScribeShared</B></TT> instead. Use <TT><B>vcharScribeCharacter</B></TT> to create a scribe that writes a single character.<P>
+If you need to perform a string or character replacement operation on a string, use <TT><B>vcharScribeReplace</B></TT> or one of its variations. This function creates a scribe that writes out the results of the replacement operation. <TT><B>vcharReplace</B></TT> replaces all occurrences of a string with another string. <TT><B>vcharReplaceChar</B></TT> replaces all occurrences of a single character with another character. <TT><B>vcharReplaceOneOf</B></TT> and <TT><B>vcharReplaceNotOneOf</B></TT> replace all occurrences of characters that are members of a given set with a single character. <TT><B>vcharReplaceMap</B></TT> replaces all occurrences of characters that are members of a given set with the corresponding character from another set.<P>
+For printf-like operations, use <TT><B>vcharScribeFormat</B></TT> or one of its variations. This function works just like <TT>sprintf</TT>, except that instead of copying directly into a buffer, it returns a scribe which you can use as you please. In addition to standard ANSI <TT>%</TT> constructs, <TT><B>vcharScribeFormat</B></TT> also recognizes <TT>%S</TT> to specify a <TT>vscribe</TT> pointer and <TT>%L</TT> to specify a literal string.<P>
+You can use <TT><B>vcharSizedNormalizeSystem</B></TT>, <TT><B>vcharSizedNormalizeSJIS</B></TT>, <TT><B>vcharSizedNormalizeJEUC</B></TT> and <TT><B>vcharSizedNormalizeUTF</B></TT> to find the maximum prefix of properly formed characters for a sized string in the corresponding encoding.<P>
+Examples of the usage of many of the above functions can be found in the section the Reference Manual section on <TT>vchar</TT> functions.<P>
+<A NAME="4468"><H2> Importing and Exporting Strings</H2></A>
+The vchar routines in Galaxy also provide the basic mechanisms for importing and exporting strings to and from the vchar character set.<P>
+To import a string, you simply <TT>Scribe</TT> the string. The scribe created will, when passed to another function, write out its string in the <TT>vchar</TT> character set, thus performing the conversion. This saves the step of performing the conversion into a temporary buffer and then passing the buffer to the function.<P>
+To use compiler generated string literals, use <TT><B>vcharScribeLiteral</B></TT>. To use strings obtained from system calls or other operating system sources, use <TT><B>vcharScribeSystem</B></TT>. To use a string that is in a known fixed character set, such as one obtained from a data file or from a non-Galaxy network connection with a known character set, use one of <TT><B>vcharScribeASCII</B></TT>, <TT><B>vcharScribeLatin1</B></TT>, <TT><B>vcharScribeMacintosh</B></TT>, <TT><B>vcharScribeUnicode</B></TT>, <TT><B>vcharScribeLatin2</B></TT>, <TT><B>vcharScribeLatin3</B></TT>, and <TT><B>vcharScribeSJIS</B></TT>. More character sets will be supported in future releases of Galaxy.<P>
+If you have a vchar string that you need to convert to a string in another character set, you should first create an export scribe with <TT><B>vcharScribeSystemExport</B></TT>, <TT><B>vcharScribeASCIIExport</B></TT>, <TT><B>vcharScribeLatin1Export</B></TT>, or <TT><B>vcharScribeUnicodeExport</B></TT>. This export scribe can then be passed to <TT><B>vcharExport</B></TT> (to write the exported string into a static buffer) or <TT><B>vcharExportAlloc</B></TT> (to return dynamically allocated memory containing the exported string). <TT><B>vcharExportFree</B></TT> will free a string allocated with <TT><B>vcharExportAlloc</B></TT>.<P>
+Note that in general the export scribes used by these functions do not necessarily write vchar strings and should not be used in any functions other than Export functions.<P>
+<A NAME="4493"><H2> Using vstr Functions</H2></A>
+Functions whose names are prefixed by <TT>vstr</TT> operate on dynamic string objects. You use these objects much the same as you would use other Galaxy objects. You create them with <TT><B>vstrCreate</B></TT> or <TT><B>vstrClone</B></TT>, copy to an existing one with <TT><B>vstrCopy</B></TT>, and destroy them with <TT><B>vstrDestroy</B></TT>.<P>
+There are several important differences from regular Galaxy objects, however. Because <TT>vstr</TT>s can change size to store strings of varying length, they may have to be reallocated. Thus any routines that change a vstr in such a way that it might change size (and thus might have to be reallocated) return the pointer to the <TT>vstr</TT>. This pointer may be the same as the old pointer, or it may have changed.<P>
+Another important difference between <TT>vstrs</TT> and other Galaxy objects is an implementation trick that makes a <TT>vstr</TT> pointer directly usable as a <TT>vchar</TT> pointer to the beginning of the string. When a <TT>vstr</TT> is allocated, it looks like the example shown in <A HREF="String.html#6564">Figure 77</A>:<P>
+<A NAME="6564"><I>Figure 77.  A vstr
+</I><P>
+<IMG SRC="String.anc2.gif"><P>
+Furthermore, the type <TT>vstr</TT> is a synonym of <TT>vchar</TT>. You can act directly on the array of characters a <TT>vstr</TT> pointer points to (treating it like a <TT>vchar *</TT>), or pass it to any function that takes a <TT>vchar *</TT>. However, if you increment the pointer, it fails to be a real <TT>vstr</TT> pointer anymore, as it is not pointing to the beginning of the string.<P>
+This brings up another important point: the array of characters inside a <TT>vstr</TT> is public. You are free to read from it directly or write anything into it that you want. The only restriction is that you do not write outside the bounds of the array, except that you can write a null character in the location just past the array. (In fact, this location will always hold a null character in a <TT>vstr</TT>.) You should not write a non-null character to that location, because Galaxy may rely on a <TT>vstr</TT>'s contents being a null-terminated string for some operations.<P>
+The storage used by <TT>vstr</TT> objects is directly managed by Galaxy and is optimized for frequent allocation, re-allocation, and freeing of variably sized memory chunks. vstr strings are not allocated storage with <TT>vmemAlloc</TT> and should be created and destroyed only through string methods (either directly or indirectly).<P>
+You should use <TT>vstr</TT>s anywhere in your application where you need to use dynamically allocated strings. While creating and destroying a <TT>vstr</TT> to hold a string is less efficient than simply using already allocated space, it will be considerably more efficient than using <TT>vmemAlloc</TT> and <TT>vmemFree</TT> to allocate space to hold a string.<P>
+The easiest way to use dynamic strings is to keep the allocated size of the vstr the same as the length of the string it contains. If you are using null-terminated strings, the extra null on the end of the string should serve as the string's null terminator.<P>
+There are several ways to create a string of this type. You can call <TT><B>vstrCreate</B></TT> for a zero-length string. Use <TT><B>vstrClone</B></TT> to specify the initial contents and length of the new <TT>vstr</TT> with a null-terminated <TT>vchar</TT> string, or <TT><B>vstrCloneScribed</B></TT> to specify the initial contents and length with anything that you can make a scribe from. Note that the verb <TT>Clone</TT> is used a bit loosely here; the object that you clone does not necessarily have to be a <TT>vstr</TT>.<P>
+You can also create a dynamic string from more than one piece of information. <TT><B>vstrCopyMulti</B></TT> (with a destination argument of <TT>NULL</TT>) creates a dynamic string whose contents is the concatenation of a list of null-terminated vchar strings, and <TT><B>vstrCopyMultiScribed</B></TT> (again with a <TT>NULL</TT> destination) creates a dynamic string from a list of scribes.<P>
+When the length of the string is the same as the size of the <TT>vchar</TT> array of the <TT>vstr</TT>, you can get the length of the string with <TT><B>vstrGetSize</B></TT>. In general, this is much faster than using <TT><B>vcharLength</B></TT>, as the string does not have to be scanned to find the terminating null character.<P>
+You can replace the contents of a dynamic string with new contents with <TT><B>vstrCopy</B></TT> or <TT><B>vstrCopyScribed</B></TT>. This will reuse the space of the dynamic string if it is of an appropriate size or reallocate it if it is not. You can also use <TT><B>vstrCopyMulti</B></TT> or <TT><B>vstrCopyMultiScribed</B></TT> to replace the contents with the concatenation of a set of other strings.<P>
+<TT><B>vstrConcatenate</B></TT> and <TT><B>vstrConcatenateScribed</B></TT> will concatenate a string to the end of the current contents of a dynamic string, increasing the size of the dynamic string in the process.<P>
+Another way to use dynamic strings is to simply use the <TT>vstr</TT> as a dynamically allocated vchar array. You can then write null-terminated strings directly into this array (as long as the string is short enough to fit). This approach may be more efficient than keeping the allocated size the same as the length if the contents of the <TT>vstr</TT> (and thus the length) will change often. The downside is that you may waste memory by allocating buffers that are larger than the contained strings, and you will have to either bound the length of the string stored in the <TT>vstr</TT>, or manually maintain the size of the <TT>vstr</TT> yourself.<P>
+To create a <TT>vstr</TT> for this purpose, use <TT><B>vstrCreateSized</B></TT>. The first character in the <TT>vchar</TT> array of the <TT>vstr</TT> will be a null character; the rest will be uninitialized. (Of course, the null character after the end of the array will still be there.)<P>
+<PRE><UL>#define MAX_STRING_SIZE 64
+
+void CopyString (vchar *someString)
+{
+   vstr *buffer;
+
+   buffer = vstrCreateSized(MAX_STRING_SIZE);
+
+   /* now we can use buffer just like a static vchar array: */
+   vcharCopyBounded(someString, buffer, MAX_STRING_SIZE);
+   buffer[4] = vcharFromLiteral('J');
+}
+
+</UL></PRE>Note that even if the copied string is truncated by <TT><B>vcharCopyBounded</B></TT> because it is longer than <TT>MAX_STRING_SIZE</TT>, the resulting string in <TT>buffer</TT> will still be null-terminated by the fixed null after the end of the <TT>vchar</TT> array.<P>
+To change the size of a dynamic string buffer, you can use <TT><B>vstrSetSize</B></TT> or <TT><B>vstrSetSizeMangle</B></TT>. The difference between the two calls is that the first will preserve the contents of the <TT>vchar</TT> array, while the second may not. Thus, if you are going to overwrite the array with another string anyway, you should call <TT><B>vstrSetSizeMangle</B></TT> to avoid doing unnecessary work.<P>
+<TT><B>vstrAppend</B></TT> and <TT><B>vstrAppendScribed</B></TT> will append a string to the end of the null-terminated string contained in a dynamic string buffer, increasing the size of the dynamic string if necessary to contain the new string.<P>
+There are several ways to create a scribe from a dynamic string. If you want to pass ownership of the dynamic string, you should call <TT><B>vstrScribe</B></TT>. If you do not, then you should just call <TT><B>vcharScribe</B></TT> or <TT><B>vcharSizedScribe</B></TT>, depending on the contents of the <TT>vstr</TT>.<P>
+Consider the following example:<P>
+<PRE><UL>void CloneStrings (vstr *string1)  // Initialized string
+{
+   vstr *string2, *string3;
+
+   string2 = vstrCloneScribed(vcharScribe(string1));
+   string3 = vstrCloneScribed(vstrScribe(string1));
+}
+
+</UL></PRE>In the first call to <TT><B>vstrCloneScribed</B></TT>, a copy of <TT>string1</TT> is placed into a new dynamic string, because ownership of <TT>string1</TT> was not passed to the scribe. In the second case, however, <TT>string3</TT> will be identical to <TT>string1</TT>. The ownership of <TT>string1</TT> was passed to the scribe, which was passed to <TT><B>vstrCloneScribed</B></TT>. The <TT><B>vstrCloneScribed</B></TT> function then took the string out of the scribe, destroyed the scribe, and returned the string, unmodified.<P>
+<A NAME="3372"><H2> Subclassing</H2></A>
+Normally you simply use the routines provided to create and use scribes. You may, however, find that you want to use scribes in an interface you are creating, or provide a scribe that has functionality not provided by Galaxy.<P>
+Defining a <TT>Scribed</TT> variation of a function that normally takes a string for an argument is straightforward. Assume you have an <TT>exampleFoo</TT> object and want to set its <TT>Fintoozler</TT> attribute, which contains a string value. Just what you do with the string that is passed to you depends on how you store the value of the <TT>Fintoozler</TT> attribute.<P>
+If you store the attribute in a static buffer that is part of the <TT>foo</TT> structure, the function to set the attribute looks like this:<P>
+<PRE><UL>void exampleSetFooFintoozlerScribed(exampleFoo *foo,
+                                    vscribe    *fintoozler)
+{
+   vcharCopyScribedBounded(fintoozler,
+                           foo-&gt;fintoozler,
+                           exampleMAX_FINTOOZLER_SIZE);
+}
+
+</UL></PRE>Note that the string of the <TT>Fintoozler</TT> will be truncated if it is longer than the size of the fixed buffer. This may or may not be acceptable, depending on the specifics of the application.<P>
+If you store the attribute as a dynamic string in the <TT>foo</TT> structure, the function to set the attribute looks like this:<P>
+<PRE><UL>void exampleSetFooFintoozlerScribed1(exampleFoo *foo,
+                                     vscribe    *fintoozler)
+{
+   foo-&gt;fintoozler = vstrCopyScribed(fintoozler,
+                                     foo-&gt;fintoozler);
+}
+
+</UL></PRE>As an optimization, you may want to check to see if the string used to create the scribe was permanently allocated. If this is so, you can skip making your own dynamic copy and just point to the permanently allocated string. If the string is permanently allocated, the share flag on the scribe will be set. (This flag is set by <TT><B>vcharScribeShared</B></TT>, <TT><B>vnameScribeGlobal</B></TT>, and sometimes <TT><B>vcharScribeLiteral</B></TT>.)<P>
+Because you have to be able to handle two different storage strategies for the string, you will need to keep a flag in the foo structure to keep track of whether the <TT>fintoozler</TT> string is dynamically allocated or shared. The function to set the <TT>fintoozler</TT> with a scribe looks like this:<P>
+<PRE><UL>void exampleSetFooFintoozlerScribed2(exampleFoo *foo,
+                                     vscribe    *fintoozler)
+{
+   /* test the share flag so we can avoid unnecessary allocation */
+   if (vscribeIsShare(fintoozler))
+   {
+      /* Destroy old dynamic fintoozler (if any) */
+      if (foo-&gt;isDynamicFintoozler)
+        vstrDestroy(foo-&gt;fintoozler);
+
+      /* fintoozler is now shared */
+      foo-&gt;fintoozler = vscribeGetUnscribed(fintoozler);
+      foo-&gt;isDynamicFintoozler = FALSE;
+   }
+   else
+   {
+      if (foo-&gt;isDynamicFintoozler)
+        /* re-use old dynamic fintoozler */
+        foo-&gt;fintoozler = vstrCopyScribed(fintoozler,
+                                          foo-&gt;fintoozler);
+      else
+        /* make a new dynamic fintoozler */
+        foo-&gt;isDynamicFintoozler = TRUE;
+   }
+}
+
+</UL></PRE>Note that the extra work you have done in the last function is purely an optimization; the functionality is exactly the same as the previous function.<P>
+Now that you have written the <TT>Scribed</TT> variation of the entry point, you can implement the normal entry point in terms of the <TT>Scribed</TT> entry point, via a macro:<P>
+<PRE><UL>#define exampleSetFooFintoozler(foo,fint) 
+     exampleSetFooFintoozlerScribed(foo,vcharScribe(fint))
+
+</UL></PRE>This saves the work of writing and maintaining another function to do the same thing but with a different argument type.<P>
+Note that for sized scribes, you may check whether the <TT>shareSized</TT> flag is set and avoid making your own dynamic copies of permanently allocated strings. It is your responsibility not to access any part of the string that the sized scribe wouldn't access.<P>
+Now that you have implemented your own <TT>Scribed</TT> variation, you can explore how to write a <TT>Scribe</TT> function, in other words, to create a scribe that will write a <TT>vchar</TT> string from some sort of data. There are two ways you can do this. The easy way is to make the scribe with <TT>Scribe</TT> functions which already exist. The harder way is to implement a new scribe type customized for our particular application.<P>
+One way to make the scribe out of existing <TT>Scribe</TT> functions is to create a dynamic string containing the string you want the scribe to write and then use <TT><B>vstrScribe</B></TT> to create the scribe. However, if you use this approach, a dynamic string will always have to be allocated, so this is not very efficient.<P>
+Another approach would be to use <TT><B>vscribeScribeMulti</B></TT> and combine the results of several different <TT>Scribe</TT> functions into a single, new scribe. However, this method works only if you can define the scribe in terms of other scribes.<P>
+If you cannot create the scribe out of existing <TT>Scribe</TT> functions, you must implement a new type of scribe. You must define a <TT>vscribeFuncs</TT> object that contains pointers to the functions that perform the operations required for a scribe. (This is a little like a class object.) The operations required are the <TT>Scribble</TT> function, which writes the string given a destination buffer; the <TT>Length</TT> function, which returns the length of the string that will be written; and the <TT>FreeData</TT> function, which is called when the scribe is destroyed. You must then implement these three functions (or use one or more of the simple predefined scribe functions). Finally, you must write the <TT>Scribe</TT> function itself that creates the scribe, sets any appropriate flags and data fields, and returns the scribe.<P>
+A scribe contains two user settable pointer fields: a string field and a data field. These both have the type <TT>void *</TT> and are set and retrieved by <TT><B>vscribe</B></TT>[<TT><B>Set/Get</B></TT>][<TT><B>String/Data</B></TT>]. The only distinction between the two fields is that the string field is returned by <TT><B>vscribeGetUnscribed</B></TT>, so it should contain the actual string if the <TT>copy</TT> flag is set for the scribe. Otherwise, anything can be stored in these fields to be retrieved by the vscribeFuncs functions.<P>
+A scribe also contains four flags. The <TT>copy</TT> flag should be set if the string field of the scribe contains a null-terminated vchar string representing the string to be written. The share flag should be set only if the <TT>copy</TT> flag is set; it indicates that the string in the string field is permanently allocated and can be shared. The interned flag indicates that this string is an entry in the global name table (that is, the string is a global <TT>vname</TT>). This flag is typically used only by the Name class. Finally, the <TT>dynamic</TT> flag can be set in place of the share flag to indicate that the string in the string field is a <TT>vstr</TT> pointer and is "owned" by the scribe.<P>
+This example shows how to write a function <TT>exampleScribeToLower()</TT>, which returns a scribe that writes a lowercase version of the string passed to it. A similar function, <TT><B>vcharScribeToLowerCase</B></TT>, is already provided, but this simplified version is shown for an example.<P>
+<PRE><UL>vscribe *exampleScribeToLower(vchar *string);
+
+</UL></PRE>First, declare the <TT>vscribeFunc</TT>'s structure. You will write your own function to write the lowercase string, but because the string's length will not change, you can use the standard function <TT><B>vcharGetScribbledLengthSame</B></TT> as your length function. You do not need a <TT>freeData</TT> function, because you will not allocate any data in your scribe.<P>
+<PRE><UL>static void *exampleLowerScribbleFunc(vscribe *scribe, void *dest,
+                                      size_t maxLength);
+
+vscribeFuncs vexampleScribeToLowerFuncs =
+   vscribeFuncsDEC(exampleLowerScribbleFunc,
+                   vcharGetScribbledLengthSame,
+                   NULL, sizeof(vchar));
+
+
+// Now implement exampleLowerScribbleFunc:
+static void *exampleLowerScribbleFunc(vscribe *scribe, void *dest,
+                 size_t maxLength)
+{
+   register vchar  *string;
+   register vchar  *output;
+
+   /* Store the string to convert in the scribe's string field */
+   string = (vchar *) vscribeGetString(scribe);
+   output = (vchar *) dest;
+
+   /* Check to see if maxLength is vscribeMAX_LENGTH. This indicates
+    * that there are no real bounds for the scribble. If this is the
+    * case, we will make an optimization by eliminating bounds checking
+    * from the scribbling loop. Note that doing this check is completely
+    * optional; you can just always do the bounds checking and everything
+    * will work fine.
+    */
+   if (maxLength == vscribeMAX_LENGTH)
+   {
+      /* Do not copy the terminating null character! */
+      while (*string != 0)
+        *output++ = vcharToLowerCase(*string++);
+   }
+   else
+   {
+      /* Do not copy the terminating null character! */
+      while ((maxLength-- &gt; 0) &amp;&amp; (*string != 0))
+        *output++ = vcharToLowerCase(*string++);
+   }
+
+   /* return where we left off copying to */
+   return (void *) output;
+}
+
+// Finally, write exampleScribeToLower:
+vscribe *exampleScribeToLower(vchar *string) {
+   vscribe *scribe;
+   scribe = vscribeCreate(&amp;vexampleScribeToLowerFuncs);
+
+   /* set string field for length &amp; scribble functions */
+   vscribeSetString(scribe, string);
+
+   /* don't set any flags, because none apply */
+   return scribe;
+}
+
+// Now, we can use the new type of scribe like this:
+void testFunction (vchar *randomString) // Initialized string
+{
+   vstr *string;
+
+   string = vstrCloneScribed(exampleScribeToLower(randomString));
+
+   // string will be a dynamic string that contains randomString but
+   // with all letters in lowercase.
+}
+
+</UL></PRE><P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Status_Bar.html">Previous Chapter</A> | 
+		<A HREF="StringItem.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

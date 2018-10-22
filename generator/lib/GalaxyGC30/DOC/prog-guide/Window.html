@@ -1,0 +1,427 @@
+<HTML>
+<HEAD>
+<TITLE>Window</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Window</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Web_Browse.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/trans.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="5332"></A>
+The Window class lets you manipulate rectangular, overlapping display regions known as <EM><B>windows</B></EM>. Windows are not often used as user interface objects in their own right. Rather, other classes build upon the functionality introduced by the Window class. The Dialog and Menu classes for example, implement dialogs and menus on top of windows. Even though windows are not often used as objects in their own right, a basic understanding of the Window class helps you understand the higher-level modules that use it.<P>
+Windows have attributes, such as size, location, state, borders, and icons. You manipulate these attributes through functionality introduced by the Window class.<P>
+Most window events, such as closing, maximizing, moving and minimizing a window are automatically handled by the Window class although response to these events can be tailored for your application.<P>
+<A NAME="9573"><H2> Relationship to Other Classes</H2></A>
+After reading this chapter, you may want to read the Dialog and Menu chapters to gain a better understanding of how they implement the Window class.<P>
+The Print class also makes use of the Window class by redirecting the window drawing from the screen to the printer. If you plan on creating your own window drawing routines, you should consult the Print chapter to make certain your routines are device-independent and compatible with the Print class.<P>
+This chapter discusses some of the events handled by the Window class, but read the Event Manager chapter to better understand how events are generated and handled by a Galaxy application.<P>
+Window classes derive from the attributed object class, which means that windows are part of the user interface inheritance hierarchy.Refer to the Class Manager for more information on the user interface inheritance hierarchy.<P>
+<A NAME="2200"><H2> Window Capabilities</H2></A>
+The Window class controls how windows in a Galaxy application appear and behave in relation to the underlying window system, such as the X Window System and Microsoft Windows. Other classes override the Window class functionality to implement more complex behavior, such as the drawing of a dialog and its items in the window.<P>
+Each window has a set of attributes that can be changed explicitly. Note that a change in a window attribute may or may not result in a change to a window, since platform-specific implementation details are generally hidden and change from platform to platform. Window attributes can be specified in any combination, even if such combinations do not make sense. For example, setting the title of a closed window has no visible effect until the window is opened.<P>
+Changing certain attributes of an opened window (such as modality or leadership) may require the window be closed and then reopened with the new attribute in place. Attributes that require this behavior are generally not interactive in nature. Note that the need to close and open a window is system-specific and changes according to platform requirements.<P>
+On some platforms, a <EM><B>pop-up cache</B></EM> of window system resources is maintained to facilitate opening and closing windows quickly. Transient dialogs and pop-up menus are usually stored in this cache, although changing a pop-up window's attribute may also remove it from the cache.<P>
+Windows can grab the input stream, preventing other windows from receiving any input events; all input events are sent to the grabbing window. This type of window is known as a <EM><B>modal window</B></EM>. Additionally, the screen as a whole can be grabbed; this prevents windows from drawing on the display until the screen is released. Some platforms do this for modal dialogs, too.<P>
+<A NAME="3871"><H3> Window Coordinates</H3></A>
+Window positions and sizes are specified in terms of <EM><B>display units</B></EM>. These units are relative to the lower left-hand corner of the display or relative to the lower left-hand corner of a given window. This allows any position on a screen or window to be described with a pair of positive (x,y) values. On displays, units normally correspond to the size of a single pixel.<P>
+<A NAME="3243"><H3> Window Inheritance</H3></A>
+Windows can be assigned a <EM><B>leader</B></EM> or <EM><B>follower</B></EM> status. This allows you to create a hierarchy of windows in your application. A window can have a single leader (or no leader at all), but can have several followers. A leader window changes the state of any windows that are following it. For example, if a leader window is opened, closed, iconified, uniconified, blocked, or unblocked, then all the window's followers change state to match their leader. <P>
+A window's leader also determines its position in the user interface inheritance hierarchy.Refer to the Class Manager for more information on the user interface inheritance hierarchy. Inherited window attributes (foreground color or font, for example) are first determined from the window's instance attributes, if any, followed by the window's class attributes. If the window has a leader, the leader's instance and class attributes are searched next, followed by the leader of the leader, and so on until a window with no leader is reached. Once the window's leader chain has been exhausted, the application instance and application class are examined. For more information refer to the Application chapter.<P>
+<A NAME="3102"><H3> Window Styles</H3></A>
+A number of different window styles can be specified. A window's style determine what decorations, if any, are placed around the window's border. This also affects how the end-user can directly manipulate the window. Note that not all styles are valid on every platform.<P>
+Use <TT><B>SetStyle</B></TT> to specify the window style. This function is passed any combination of the following constants:<P>
+<UL><LI><TT>vwindowSTYLE_BACKGROUND</TT>
+</UL><DL>
+<DT><DD> The window has an opaque background.
+</DL>
+<UL><LI><TT>vwindowSTYLE_BORDER</TT>
+</UL><DL>
+<DT><DD> The window is drawn with a border.
+</DL>
+<UL><LI><TT>vwindowSTYLE_CONFIRM</TT>
+</UL><DL>
+<DT><DD> The window is a confirmation window.
+</DL>
+<UL><LI><TT>vwindowSTYLE_DOCUMENT</TT>
+</UL><DL>
+<DT><DD> The window is a document window.
+</DL>
+<UL><LI><TT>vwindowSTYLE_ICONIFIABLE</TT>
+</UL><DL>
+<DT><DD> The window can be iconified (minimized).
+</DL>
+<UL><LI><TT>vwindowSTYLE_Main</TT>
+</UL><DL>
+<DT><DD> The window is the main window for the application.
+</DL>
+<UL><LI><TT>vwindowSTYLE_MAXIMIZABLE</TT>
+</UL><DL>
+<DT><DD> The window can be maximized.
+</DL>
+<UL><LI><TT>vwindowSTYLE_MOVABLE</TT>
+</UL><DL>
+<DT><DD> The window can be moved around by the end-user.
+</DL>
+<UL><LI><TT>vwindowSTYLE_PALETTE</TT>
+</UL><DL>
+<DT><DD> The window is a palette.
+</DL>
+<UL><LI><TT>vwindowSTYLE_PINNABLE</TT>
+</UL><DL>
+<DT><DD> The window has a pushpin. Only applicable under the OpenLook look-and-feel.
+</DL>
+<UL><LI><TT>vwindowSTYLE_RESIZABLE</TT>
+</UL><DL>
+<DT><DD> The window can be resized by the end-user.
+</DL>
+<UL><LI><TT>vwindowSTYLE_UNCLOSABLE</TT>
+</UL><DL>
+<DT><DD> The window cannot be closed by the user.
+</DL>
+Flags are passed to the function by being bitwise OR'ed (|) together. For example, the following code fragment sets the window's attributes to an iconifiable, resizable, and maximizable window with a border:<P>
+<PRE><UL>   vwindowSetStyle(window, vwindowSTYLE_ICONIFIABLE |
+                           vwindowSTYLE_RESIZABLE |
+                           vwindowSTYLE_MAXIMIZABLE |
+                           vwindowSTYLE_BORDER);
+
+</UL></PRE>Styles can also be added to a window by using <TT><B>AddStyle</B></TT>. Similarly, use <TT><B>RemoveStyle</B></TT> to remove styles from a window.<P>
+<A NAME="3894"><H3> Window Attributes</H3></A>
+The Window class allows you to set a number of window attributes, such as cursor, foreground and background colors, fonts, and icon. Although all of these attributes can be set using the Visual Resource Builder, you can also change these attributes programmatically. Refer to the <EM>Galaxy Application Environment Reference Manual</EM> for a complete list of window attributes.<P>
+<A NAME="3890"><H4> Cursors</H4></A>
+One of the most common attributes changed in a window is the cursor. Cursors are changed to indicate a specific action that can take place (such as a pencil cursor in a drawing program) or to indicate that the application is not currently accepting input (such as an hourglass cursor or stopwatch cursor). To assign the cursor that is displayed whenever the pointer is located in the entire window, use <TT><B>SetCursor</B></TT>. Similarly, you can always retrieve the current window cursor by using <TT><B>DetermineCursor</B></TT>. If a cursor is not explicitly set, the system default cursor (usually an arrow) is used.<P>
+It is also possible to define different cursors in specific areas of a window by using <TT><B>AddCursorRect</B></TT>, specifying the cursor and a rectangular section of the window. <A HREF="Window.html#4004">Example 171</A> illustrates assigning a different cursor whenever the pointer is located over a dialog item called "Palette".<P>
+<A NAME="4004"><I>Example 171.  Changing the cursor in a rectangular area in a window
+</I><P>
+<PRE><UL>   vresource rRoot; /* Root resource */
+   vdialog *dialog; /* Current dialog containing palette */
+   vdialogItem *diPalette; /* Dialog item containing palette */
+   const vrect *rect; /* Rectangular area of the palette */
+   vcursor *cuPalette; /* Cursor to be assigned to palette */
+
+   /*
+    * Find the dialog item called "Palette"
+    */
+   diPalette = vdialogFindItem(dialog, vnameInternGlobalLiteral("Palette"));
+
+   /*
+    * Now find the rectangle of Palette
+    */
+   rect = vdialogGetItemRect(diPalette);
+
+   /*
+    * Load the cursor from the resource file. This assumes that a cursor
+    * called "Palette Cursor" was created in the resource file by the
+    * developer.
+    */
+   cuPalette = vcursorLoad
+     (vresourceGet(rRoot, vnameInternGlobalLiteral("Palette Cursor")));
+
+   /*
+    * Assign the cursor to the rectangle
+    */
+   vwindowAddCursorRect(vdialogGetWindow(dialog), cuPalette, rect);
+
+</UL></PRE>To signify that the application is currently busy, use <TT><B>Block</B></TT> to change the cursor to the platform's wait cursor. Note that this method does not require a user-defined cursor, since a platform specific wait cursor (either an hourglass or a stopwatch) is automatically provided. Use <TT><B>Unblock</B></TT> to restore the cursor to its original state. <P>
+<A NAME="4067"><H4> Window Icons</H4></A>
+A window's icon is assigned in the Visual Resource Builder, or programmatically by using <TT><B>SetIcon</B></TT>. This icon is used to represent the window when it is minimized. Some platforms use this icon to represent the window in other areas of the desktop.<P>
+<A NAME="3861"><H4> Window Size and Location</H4></A>
+The Window class allows you to determine and control a window's size and location. Find the horizontal and vertical size of a window by using <TT><B>GetH</B></TT> and <TT><B>GetW</B></TT>. Use <TT><B>GetX</B></TT> and <TT><B>GetY</B></TT> to obtain the horizontal and vertical position of a window. You can also use <TT><B>GetRect</B></TT> to get all four coordinates in a rectangular type. Remember that the X and Y coordinates are relative to the lower left hand corner of the screen. All units are expressed in pixel display units.<P>
+<A HREF="Window.html#4072">Example 172</A> demonstrates using <TT><B>GetRoot</B></TT> to retrieve the root window (the background screen) and informing the end-user of sizing of the associated rectangle.<P>
+<A NAME="4072"><I>Example 172.  Determining screen size
+</I><P>
+<PRE><UL>const vrect *GetScreenSize (void)
+{
+   /*
+    * Get the root window (full screen of the display)
+    */
+   vwindow *wRoot = vwindowGetRoot();
+
+   /*
+    * Now find the size of the root window
+    */
+   const vrect *rect = vwindowGetRect(wRoot);
+
+   vdebugMInform(("Background screen size is %d by %d",
+                  rect-&gt;w, rect-&gt;h));
+
+   /*
+    * Return the rectangular size of the root window
+    */
+   return (rect);
+}
+
+</UL></PRE><A NAME="3851"><H3> Controlling Windows</H3></A>
+The Window class, by default, automatically handles important window events. For example, if the user selects "Close" from the window menu, the Window class automatically closes the window. Your application does not need to provide any explicit code to close the window. There are times, however, when you may want to manipulate a window within an application.<P>
+Use <TT><B>Close</B></TT> to make a window no longer visible. If the window is already closed, this function has no effect. For example, the following code fragment demonstrates a command function called when a specific action was requested (such as a button or menu item called "Close" being selected). Refer to the Command chapter for more information on commands.<P>
+<A NAME="3954"><I>Example 173.  Closing a window programmatically
+</I><P>
+<PRE><UL>int CloseButtonFunction (vcommand *command, vdict *context)
+{
+   /*
+    * Get the dialog that generated this command from the context
+    * dictionary
+    */
+   vdialog *dialog = (vdialog *) vdictLoad(context, vname_Dialog);
+
+   /*
+    * Now get the window that belongs to this dialog
+    */
+   vwindow *window = vdialogGetWindow(dialog);
+
+   /*
+    * Close the window.
+    */
+   vwindowClose(window);
+
+   return TRUE;
+}
+
+</UL></PRE>Similarly, use <TT><B>Open</B></TT> to open a window. This function is usually overridden by a higher level class, such as the Dialog class, and as a result is not commonly used (use <TT><B>vdialogOpen</B></TT> instead). You can determine if a window is currently open, though, by using <TT><B>IsOpen</B></TT>.<P>
+A window can be lowered or raised by using <TT><B>Lower</B></TT> or <TT><B>Raise</B></TT>. A window can be initially placed on the screen by using <TT><B>Place</B></TT>. This function uses Plane Geometry macros to place the window relative to another specified window. For example, the following code fragment places the window in the top center of the display:<P>
+<PRE><UL>   vwindowPlace(NewWindow, vwindowGetRoot(), vrectPLACE_CENTER,
+                vrectPLACE_TOP);
+</UL></PRE>The next example places a window in a top-left position relative to another defined window. This creates a "tiled" effect:<P>
+<PRE><UL>   vwindowPlace(NewWindow, OldWindow, vrectPLACE_LEFT, vrectPLACE_TOP);
+
+</UL></PRE>Similar functionality can be achieved by using <TT><B>PlaceRect</B></TT> and specifying a rectangle as a relative positioning agent rather than an existing window.<P>
+After a window is on-screen, it can be moved by using <TT><B>Move</B></TT>, specifying an (x,y) coordinate. The window then moves to the location. Note that the Window class, unlike some operating systems, uses the <EM>lower</EM> left hand corner of the screen as the origin (position 0,0).<P>
+Windows can also be programmatically iconified by using <TT><B>Iconify</B></TT> and <TT><B>Uniconify</B></TT>. Similarly, use <TT><B>Maximize</B></TT> and <TT><B>Unmaximize</B></TT> to maximize or unmaximize a window.<P>
+If possible, <TT><B>Beep</B></TT> causes the display speaker to beep. This is useful when notifying the end-user of an error message, invalid action, or notification of an important application event.<P>
+<A NAME="3863"><H3> Pop-up Windows</H3></A>
+On some platforms, the Window class maintains a memory cache of windows that are commonly used in an application. By placing common dialogs in memory, the amount of time an application might use when bringing up common dialogs is reduced. By default, the cache contains pop-up menus and error messaging dialogs such as Notification dialogs and Confirmation dialogs. Refer to the Notification and Confirm chapters for more information on notification and confirmation dialogs.<P>
+You can assign a window that is commonly used by your application to this cache by using <TT><B>SetPopup</B></TT>. Note that this request, however, may not be honored, and serves only as a hint to the Window class. Cache size and availability depends upon the platform.<P>
+<A NAME="3867"><H3> Modal Windows</H3></A>
+A modal window is defined as any dialog that seizes control of an application, requiring the end-user to respond to the dialog before proceeding. Common modal dialogs include error message dialogs, open dialogs, printing dialogs, and saving dialogs. To programmatically make a window modal, use <TT><B>SetModal</B></TT>.<P>
+When opened, a modal window calls <TT><B>GrabInput</B></TT>. This suspends input from other windows until the modal dialog is closed. Closing a modal dialog causes <TT><B>ReleaseInput</B></TT> to be called. This releases the other windows, allowing the end-user to further manipulate the application.<P>
+Depending on the platform, modal dialogs can function differently. Some platforms allow end-users to access windows that do not belong to the current application. Others disallow the end-user access to <EM>any</EM> windows on the screen.<P>
+If you want to control the behavior explicitly, use <TT><B>GrabScreen</B></TT> to grab the entire display. This may be useful if your application needs to draw on the root window, for example. Control of the screen can be released with <TT><B>ReleaseScreen</B></TT>.<P>
+<A NAME="4171"><H3> Window Inheritance</H3></A>
+Windows can be assigned a hierarchy. Each window is assigned a "leader" window by using <TT><B>SetLeader</B></TT>. In this manner, several windows can be assigned as "followers," but a window can have only one leader. Using <TT><B>SetLeader</B></TT> on a window that already has a leader will change the leadership to the new window. Use <TT><B>GetLeader</B></TT> to find the leader assigned to a window.<P>
+<A HREF="Window.html#4181">Example 174</A> creates a window hierarchy like that represented in <A HREF="Window.html#4187">Figure 85</A>.<P>
+<A NAME="4181"><I>Example 174.  Creating a window hierarchy
+</I><P>
+<PRE><UL>{
+
+   // ...
+   vwindowSetLeader(window2, window1);
+   vwindowSetLeader(window3, window2);
+   vwindowSetLeader(window4, window2);
+   vwindowSetLeader(window5, window4);
+   // ...
+
+}
+
+</UL></PRE><A NAME="4187"><I>Figure 85.  A window hierarchy
+</I><P>
+A follower inherits all of the leader's attributes. For example, minimizing <EM>window1</EM> causes all the windows below it to be minimized. Minimizing <EM>window4</EM> causes only <EM>window4</EM> and <EM>window5</EM> to be minimized.<P>
+<A NAME="3857"><H3> Locating Windows</H3></A>
+If a window hierarchy is assigned, you can find a window's parent window with <TT><B>GetLeader</B></TT>. You can also use a window follower iterator to find the windows that are assigned as followers of leader window. See <A HREF="Window.html#23485">"Window Iterators" on page 885</A> for some detailed examples and information on using iterators.<P>
+To determine what window in your application is currently in focus, use <TT><B>GetFocusWindow</B></TT>. This is often useful in determining from what window a user requested an action.<P>
+<A NAME="23485"><H4> Window Iterators </H4></A>
+Like many other classes, the Window class implements the use of iterators to loop through a collection of windows. <P>
+The Window class defines two different types of iterators. A regular iterator loops through the windows currently on the screen. Note that a regular window iterator will go through <EM>all</EM> of the windows on the screen, not just those that belong to your application. This includes the root window.<P>
+The Window class also defines a follower iterator, used in looping through a set of windows assigned a leader/follower relationship. A follower iterator only loops through windows that are designated as followers of a parent window, and as a result only references windows that belong to the current application.<P>
+The Window class does not guarantee the iterating order of the windows, only that they are iterated over only once.<P>
+<A NAME="22216"><H4> Regular Iterators</H4></A>
+You initialize a regular iterator by using <TT><B>InitIterator</B></TT>. Use <TT><B>NextIterator</B></TT> to advance the iterator to the next (or first) window on the screen. This returns <TT>TRUE</TT> <TT>true</TT> when there is another window to iterate over, and <TT>FALSE</TT> <TT>false</TT> if there are no more windows available.<P>
+You can obtain a reference to the window currently pointed to by the iterator by using <TT><B>GetIteratorWindow</B></TT>. After using an iterator, destroy it by using <TT><B>DestroyIterator</B></TT>.<P>
+The use of a window iterator is very useful when you need to assign a common attribute to all of your application's windows. <A HREF="Window.html#22224">Example 175</A> demonstrates using a window iterator to close all of the windows in an application.<P>
+<A NAME="22224"><I>Example 175.  Closing all windows in an application
+</I><P>
+<PRE><UL>void CloseAllWindows (void)
+{
+   vwindowIterator  iterator;
+   vwindow         *window;
+
+   /*
+    * Initialize the iterator
+    */
+   vwindowInitIterator(&amp;iterator);
+
+   /*
+    * Now loop through the iterator, getting the window and determining
+    * if it belongs to our application. If it does, close it.
+    */
+   while (vwindowNextIterator(&amp;iterator)) {
+      window = vwindowGetIteratorWindow(&amp;iterator);
+
+      if (vwindowGetApplication(window) == vapplicationGetCurrent()) {
+         /* The window belongs to this application */
+         vwindowClose(window);
+      }
+   }
+
+   /*
+    * All done with the iterator. Clean up.
+    */
+   vwindowDestroyFollowerIterator(&amp;iterator);
+}
+
+</UL></PRE><A NAME="22228"><H4> Follower Iterators</H4></A>
+Similar to a regular window iterator, use <TT><B>InitFollowerIterator</B></TT> to initialize a follower iterator, but specify the parent window of whose followers you want to examine. Advance through the followers by using <TT><B>NextFollowerIterator</B></TT>.<P>
+Use <TT><B>GetFollowerIteratorWindow</B></TT> to obtain a reference to the current follower window pointed to by the iterator. Destroy the iterator by using <TT><B>DestroyFollowerIterator</B></TT>.<P>
+<A HREF="Window.html#22239">Example 176</A> is very similar to <A HREF="Window.html#22224">Example 175</A>, except only those windows that are followers of the passed in window are closed.<P>
+<A NAME="22239"><I>Example 176.  Closing all windows under a leader window
+</I><P>
+<PRE><UL>void CloseAllWindows2 (vwindow *parent)
+{
+   vwindowFollowerIterator  iterator;
+   vwindow                 *window;
+
+   /*
+    * Initialize the follower iterator with the parent window
+    */
+   vwindowInitFollowerIterator(&amp;iterator, parent);
+
+   /*
+    * Now loop through the iterator, getting the follower windows and
+    * closing them.
+    */
+   while (vwindowNextFollowerIterator(&amp;iterator)) {
+      window = vwindowGetFollowerIteratorWindow(&amp;iterator);
+
+      vwindowClose(window);
+   }
+
+   /*
+    * All done with the iterator. Clean up.
+    */
+   vwindowDestroyFollowerIterator(iterator);
+}
+
+</UL></PRE><A NAME="3852"><H3> Drawing in Windows</H3></A>
+The actual drawing of a window's contents is done by higher level classes that override the <TT>vwindowDRAW</TT><TT></TT> method. This function should not be called to re-draw a window. Instead, use <TT><B>Inval</B></TT>. To redraw a specific part of a window, use <TT><B>InvalRect</B></TT>, specifying the rectangular area to redraw.<P>
+If you need to draw in a specific window, use <TT><B>DrawDevice</B></TT>. This assigns the window as the current drawing device. Further drawing will make marks upon the window. As with most drawing calls, this should be surrounded with the <TT><B>vdrawGSave</B></TT> and <TT><B>vdrawGRestore</B></TT> to insure that the graphics state is not changed.<P>
+In order to improve drawing performance, it is sometimes desirable to draw in an off-screen image. Use <TT><B>CreateBufferImage</B></TT> to create an image suitable for off-screen drawing. This function is passed the width and length of the desired image size.<P>
+Refer to the Drawing chapter for more information on drawing. Refer to the Print chapter to make certain that your drawing code is device-independent and compatible with printing.<P>
+<A NAME="3115"><H2> Exceptions</H2></A>
+Refer to the Exception chapter for information on handling exceptions, common exceptions, and code samples.<P>
+The Window class generates the following exceptions:<P>
+<UL><LI><TT>vwindowGrabException</TT> 
+<UL>This exception is generated if more than one grab is attempted for a given window, 
+or if a release is attempted for a window that is not grabbing. The same is true for 
+screens: an exception is generated if more than one screen grab is attempted, or if 
+a screen release is attempted on a screen that was not grabbed.
+<P>
+</UL><LI><TT>vwindowNotOpenException</TT>
+<UL>This exception is generated if a function needed to have an open window in order 
+to work properly.
+<P>
+</UL></UL><A NAME="4242"><H3> Window Notification</H3></A>
+Although the Window class handles window events automatically, it is sometimes desirable to override the window's notify method and examine the window events. For example, you may want to quit your application when the main window is closed. <A HREF="Window.html#4248">Example 177</A> demonstrates a notify method that looks for a close event, and, when found, stops the event loop.<P>
+<A NAME="4248"><I>Example 177.  Window notification
+</I><P>
+<PRE><UL>void MyWindowNotify (vwindow *window, vevent *event)
+{
+   /*
+    * Examine the event that was generated. Is a close event?
+    */
+   if (veventIsClose(event))
+     /*
+      * Close event. Stop the event loop.
+      */
+     veventStopProcessing();
+}
+
+
+</UL></PRE>Similar window events can be detected in a window's notification function. Refer to the vevent class documentation in the <EM>Galaxy Application Environment Reference Manual</EM> for a complete list of windowing events that are handled by the Event Manager. <P>
+The following window methods are commonly overridden:<P>
+<DL>
+<DT><DD> <TT>vwindowHANDLE_DRAG</TT>
+<UL><TT></TT>Determine pointer location within a window.
+<P>
+</UL><DT><DD> <TT>vwindowHANDLE_ACQUIRE</TT>
+<DT><DD> <TT>vwindowHANDLE_LOSE</TT>
+<UL><TT></TT>Determine when the window acquires and loses keyboard focus.
+<P>
+</UL><DT><DD> <TT>vwindowHANDLE_ENTER</TT>
+<DT><DD> <TT>vwindowHANDLE_LEAVE</TT>
+<UL><TT></TT>Determine when the pointer enters and leaves the window.
+<P>
+</UL><DT><DD> <TT>vwindowHANDLE_BUTTON_DOWN</TT>
+<DT><DD> <TT>vwindowHANDLE_BUTTON_UP</TT>
+<UL><TT></TT>Determine when a mouse button was pressed or released.
+<P>
+</UL><DT><DD> <TT>vwindowHANDLE_KEY_DOWN</TT>
+<DT><DD> <TT>vwindowHANDLE_KEY_UP</TT>
+<UL><TT></TT>Determine when a key on the keyboard was pressed or released.
+<P>
+</UL></DL>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Web_Browse.html">Previous Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

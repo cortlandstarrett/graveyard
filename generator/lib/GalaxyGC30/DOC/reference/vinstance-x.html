@@ -1,0 +1,766 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vinstance prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vinstance prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vinstance-x.html#section_DataType">Types</A> [8]</TD>
+<TD><A HREF="vinstance-x.html#section_Function">Functions</A> [40]</TD>
+<TD><A HREF="vinstance-x.html#section_Message">Messages</A> [3]</TD>
+<TD><A HREF="vinstance-x.html#section_Constant">Constants</A> [1]</TD>
+<TD><A HREF="vinstance-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vinstance"><HR><H4>vinstance</H4></A>
+<PRE>
+        typedef ... <B>vinstance</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to represent a single
+instance of an object---objects of this type have classes
+derived from <CODE><A HREF="vinstance-x.html#vinstanceClass"><CODE>vinstanceClass</CODE></A></CODE>. An instance is an
+object that provides simple creation and destruction
+semantics; this class can be used instead of the <A HREF="vobject-x.html#vobject"><CODE>vobject</CODE></A>
+class for those classes that need to be instantiated but do
+not provide resource access semantics. Instances can be
+created dynamically using the
+<CODE><A HREF="vinstance-x.html#vinstanceCreateOfClass"><CODE>vinstanceCreateOfClass</CODE></A></CODE> function or can be
+initialized statically using the
+<CODE><A HREF="vinstance-x.html#vinstanceInitOfClass"><CODE>vinstanceInitOfClass</CODE></A></CODE> function. All object
+types and classes that directly inherit from
+<CODE><A HREF="vinstance-x.html#vinstanceClass"><CODE>vinstanceClass</CODE></A></CODE> must declare a
+<CODE>vinstance</CODE> as their first field so that
+<CODE>vinstance</CODE> pointers can be interchanged with
+pointers to the new data type. Instances inherit from
+<CODE><A HREF="vclass-x.html#vclassROOT"><CODE>vclassROOT</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vinstanceAllocFunc"><HR><H4>vinstanceAllocFunc</H4></A>
+<PRE>
+        typedef ... <B>vinstanceAllocFunc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a function that returns enough memory to hold an instance of
+the specified class.
+</DD></DL>
+<P>
+<A NAME="vinstanceClass"><HR><H4>vinstanceClass</H4></A>
+<PRE>
+        typedef ... <B>vinstanceClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variable bindings for objects of type
+<CODE>vinstance</CODE>. Classes declared with this type
+contain the same set of methods and variables as the
+default instance class, but the behavior of methods and the
+contents of variables may vary. This class type is derived
+from <CODE><A HREF="vclass-x.html#vclassROOT"><CODE>vclassROOT</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vinstanceDestroyFunc"><HR><H4>vinstanceDestroyFunc</H4></A>
+<PRE>
+        typedef ... <B>vinstanceDestroyFunc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a function that destroys an instance object.
+</DD></DL>
+<P>
+<A NAME="vinstanceFreeFunc"><HR><H4>vinstanceFreeFunc</H4></A>
+<PRE>
+        typedef ... <B>vinstanceFreeFunc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a function that frees the memory of an already destroyed
+instance object.
+</DD></DL>
+<P>
+<A NAME="vinstanceNotFoundException"><HR><H4>vinstanceNotFoundException</H4></A>
+<PRE>
+        typedef ... <B>vinstanceNotFoundException</B>;
+</PRE>
+
+<DL><DD>
+Signals that an instance object could not be resolved given the
+specified path and class pointer.
+</DD></DL>
+<P>
+<A NAME="vinstancePreserveFunc"><HR><H4>vinstancePreserveFunc</H4></A>
+<PRE>
+        typedef ... <B>vinstancePreserveFunc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a function that preserves an instance object.
+</DD></DL>
+<P>
+<A NAME="vinstanceResolveFunc"><HR><H4>vinstanceResolveFunc</H4></A>
+<PRE>
+        typedef ... <B>vinstanceResolveFunc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a function that resolves an instance object from a specified
+path string and an optional class pointer.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vinstanceAlloc"><HR><H4>vinstanceAlloc</H4></A>
+<PRE>
+        vinstance * <B>vinstanceAlloc</B>(
+                vinstanceClass * clas);
+</PRE>
+
+<DL><DD>
+Allocates memory for an instance of the specified class and sets the
+class pointer for that memory.
+<P>
+The allocated memory is still uninitialized.
+<P>
+This function is implemented by calling the function returned by
+<CODE><A HREF="vinstance-x.html#vinstanceGetAllocFunc"><CODE>vinstanceGetAllocFunc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vinstanceCLASS"><HR><H4>vinstanceCLASS</H4></A>
+<PRE>
+        void <B>vinstanceCLASS</B>();
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vinstanceCreateOfClass"><HR><H4>vinstanceCreateOfClass</H4></A>
+<PRE>
+        vinstance * <B>vinstanceCreateOfClass</B>(
+                vinstanceClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new instance of class <SAMP>clas</SAMP> and
+returns a pointer to its contents. Storage for the instance
+object is allocated by the Class Manager. The Class Manager
+reclaims the storage occupied by the instance when it is
+destroyed with <CODE><A HREF="vinstance-x.html#vinstanceDestroy"><CODE>vinstanceDestroy</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vinstanceDestroy"><HR><H4>vinstanceDestroy</H4></A>
+<PRE>
+        void <B>vinstanceDestroy</B>(
+                vinstance * instance);
+</PRE>
+
+<DL><DD>
+Destroy the instance object represented by
+<SAMP>instance</SAMP>, which must have been created or
+initialized by a Class Manager function. Use this function
+to reclaim the storage occupied by <SAMP>instance</SAMP>.
+<SAMP>instance</SAMP> should not be referenced by any other
+object when it is destroyed. Any objects allocated
+internally by the Class Manager are freed. The function
+only attempts to free the storage occupied by
+<SAMP>instance</SAMP> if <SAMP>instance</SAMP> was
+allocated by <CODE><A HREF="vinstance-x.html#vinstanceCreateOfClass"><CODE>vinstanceCreateOfClass</CODE></A></CODE>. This
+function is implemented by sending the message
+<CODE><A HREF="vinstance-x.html#vinstanceDESTROY"><CODE>vinstanceDESTROY</CODE></A></CODE> to <SAMP>instance</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vinstanceDestroyLater"><HR><H4>vinstanceDestroyLater</H4></A>
+<PRE>
+        void <B>vinstanceDestroyLater</B>(
+                vinstance * instance);
+</PRE>
+
+<DL><DD>
+Destroy the instance object represented by
+<SAMP>instance</SAMP> a second after the current event has
+finished being processed. <SAMP>instance</SAMP> must have
+been created or initialized by a Class Manager function.
+Use this function to reclaim the storage occupied by
+`instance' at some future time. <SAMP>instance</SAMP>
+should not be referenced by any other object when it is
+destroyed. Any objects allocated internally by the Class
+Manager are freed. The function only attempts to free the
+storage occupied by <SAMP>instance</SAMP> if
+<SAMP>instance</SAMP> was allocated by
+<SAMP><CODE><A HREF="vinstance-x.html#vinstanceCreateOfClass"><CODE>vinstanceCreateOfClass</CODE></A></CODE>()</SAMP>. This
+function is implemented by posting an event to the event
+queue marking <SAMP>instance</SAMP> for destruction using
+<CODE>vinstanceDestroy</CODE>. Same as
+<CODE><A HREF="vobject-x.html#vobjectDestroyLater"><CODE>vobjectDestroyLater</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vinstanceFree"><HR><H4>vinstanceFree</H4></A>
+<PRE>
+        void <B>vinstanceFree</B>(
+                vinstance * instance);
+</PRE>
+
+<DL><DD>
+Frees the memory allocated for the specified instance.
+<P>
+This function assumes that the instance has already been otherwise
+destroyed.
+<P>
+This function is implemented by calling the function returned by
+<CODE><A HREF="vinstance-x.html#vinstanceGetFreeFunc"><CODE>vinstanceGetFreeFunc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vinstanceGetAllocFunc"><HR><H4>vinstanceGetAllocFunc</H4></A>
+<PRE>
+        vinstanceAllocFunc <B>vinstanceGetAllocFunc</B>();
+</PRE>
+
+<DL><DD>
+Returns the function pointer used to allocate new instance objects.
+</DD></DL>
+<P>
+<A NAME="vinstanceGetClass"><HR><H4>vinstanceGetClass</H4></A>
+<PRE>
+        vinstanceClass * <B>vinstanceGetClass</B>(
+                vinstance * instance);
+</PRE>
+
+<DL><DD>
+Returns the class of the instance object
+<SAMP>instance</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vinstanceGetDefaultClass"><HR><H4>vinstanceGetDefaultClass</H4></A>
+<PRE>
+        vinstanceClass * <B>vinstanceGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the class used to create instances using the
+<CODE><A HREF="vinstance-x.html#vinstanceCreateOfClass"><CODE>vinstanceCreateOfClass</CODE></A></CODE> or
+<CODE><A HREF="vinstance-x.html#vinstanceInitOfClass"><CODE>vinstanceInitOfClass</CODE></A></CODE> functions. This class can
+be modified to alter the behavior of all instances
+subsequently created by this function. Changes to this
+class are not visible to any other applications in the same
+process or sharing the same display server. This function
+can be called to explicitly register the default instance
+class with the Class Manager.
+</DD></DL>
+<P>
+<A NAME="vinstanceGetDestroyFunc"><HR><H4>vinstanceGetDestroyFunc</H4></A>
+<PRE>
+        vinstanceDestroyFunc <B>vinstanceGetDestroyFunc</B>();
+</PRE>
+
+<DL><DD>
+Returns the function pointer used to destroy instance objects.
+</DD></DL>
+<P>
+<A NAME="vinstanceGetFreeFunc"><HR><H4>vinstanceGetFreeFunc</H4></A>
+<PRE>
+        vinstanceFreeFunc <B>vinstanceGetFreeFunc</B>();
+</PRE>
+
+<DL><DD>
+Returns the function pointer used to free destroyed instance objects.
+</DD></DL>
+<P>
+<A NAME="vinstanceGetMarkFreedFunc"><HR><H4>vinstanceGetMarkFreedFunc</H4></A>
+<PRE>
+        vinstanceFreeFunc <B>vinstanceGetMarkFreedFunc</B>();
+</PRE>
+
+<DL><DD>
+Returns the function pointer used to mark instance objects as already freed.
+</DD></DL>
+<P>
+<A NAME="vinstanceGetNotFoundException"><HR><H4>vinstanceGetNotFoundException</H4></A>
+<PRE>
+        vinstanceNotFoundException * <B>vinstanceGetNotFoundException</B>();
+</PRE>
+
+<DL><DD>
+Returns the instance not found exception that was thrown, if one was thrown.
+</DD></DL>
+<P>
+<A NAME="vinstanceGetNotFoundExceptionClass"><HR><H4>vinstanceGetNotFoundExceptionClass</H4></A>
+<PRE>
+        const vexClass * <B>vinstanceGetNotFoundExceptionClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the exception class of the instance not found exception.
+</DD></DL>
+<P>
+<A NAME="vinstanceGetNotFoundExceptionPath"><HR><H4>vinstanceGetNotFoundExceptionPath</H4></A>
+<PRE>
+        const vchar * <B>vinstanceGetNotFoundExceptionPath</B>(
+                vinstanceNotFoundException * exception);
+</PRE>
+
+<DL><DD>
+Returns the path that caused the instance not found exception to be thrown.
+</DD></DL>
+<P>
+<A NAME="vinstanceGetNotFoundExceptionResultClass"><HR><H4>vinstanceGetNotFoundExceptionResultClass</H4></A>
+<PRE>
+        vinstanceClass * <B>vinstanceGetNotFoundExceptionResultClass</B>(
+                vinstanceNotFoundException * exception);
+</PRE>
+
+<DL><DD>
+Returns the result class pointer that caused the instance not found
+exception to be thrown. 
+</DD></DL>
+<P>
+<A NAME="vinstanceGetPreserveFunc"><HR><H4>vinstanceGetPreserveFunc</H4></A>
+<PRE>
+        vinstancePreserveFunc <B>vinstanceGetPreserveFunc</B>();
+</PRE>
+
+<DL><DD>
+Returns the function pointer used to preserve instance objects.
+</DD></DL>
+<P>
+<A NAME="vinstanceGetResolveFunc"><HR><H4>vinstanceGetResolveFunc</H4></A>
+<PRE>
+        vinstanceResolveFunc <B>vinstanceGetResolveFunc</B>();
+</PRE>
+
+<DL><DD>
+Returns the function pointer used to resolve instance objects.
+</DD></DL>
+<P>
+<A NAME="vinstanceGetSize"><HR><H4>vinstanceGetSize</H4></A>
+<PRE>
+        size_t <B>vinstanceGetSize</B>(
+                vinstance * instance);
+</PRE>
+
+<DL><DD>
+Returns the size of <SAMP>instance</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vinstanceInitClass"><HR><H4>vinstanceInitClass</H4></A>
+<PRE>
+        void <B>vinstanceInitClass</B>(
+                vinstance * instance,
+                vinstanceClass * clas);
+</PRE>
+
+<DL><DD>
+Sets the class of <SAMP>instance</SAMP> to
+<SAMP>clas</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vinstanceInitOfClass"><HR><H4>vinstanceInitOfClass</H4></A>
+<PRE>
+        void <B>vinstanceInitOfClass</B>(
+                vinstance * instance,
+                vinstanceClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a dialog of class <SAMP>clas</SAMP> in the
+memory addressed by <SAMP>instance</SAMP>. A call to
+<CODE><A HREF="vinstance-x.html#vinstanceDestroy"><CODE>vinstanceDestroy</CODE></A></CODE> frees any internal objects
+allocated by the Class Manager but does not free the
+structure itself. This function is implemented by storing
+<SAMP>clas</SAMP> in the class field of
+<SAMP>instance</SAMP> and then sending the message
+<CODE><A HREF="vinstance-x.html#vinstanceINIT"><CODE>vinstanceINIT</CODE></A></CODE> to <SAMP>instance</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vinstanceIsKindOf"><HR><H4>vinstanceIsKindOf</H4></A>
+<PRE>
+        int <B>vinstanceIsKindOf</B>(
+                const vinstance * instance,
+                const void * clas);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if <SAMP>instance</SAMP>
+implements the class <SAMP>clas</SAMP>, <SAMP>FALSE</SAMP>
+if not.
+</DD></DL>
+<P>
+<A NAME="vinstanceMarkFreed"><HR><H4>vinstanceMarkFreed</H4></A>
+<PRE>
+        void <B>vinstanceMarkFreed</B>(
+                vinstance * instance);
+</PRE>
+
+<DL><DD>
+Marks the specified instance as already freed.
+<P>
+This function is implemented by calling the function returned by
+<CODE><A HREF="vinstance-x.html#vinstanceGetMarkFreedFunc"><CODE>vinstanceGetMarkFreedFunc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vinstanceNotFoundExceptionPATH"><HR><H4>vinstanceNotFoundExceptionPATH</H4></A>
+<PRE>
+        void <B>vinstanceNotFoundExceptionPATH</B>(
+                void * exception,
+                va_list * args);
+</PRE>
+
+<DL><DD>
+Special value passed to <CODE><A HREF="vex-x.html#vexGenerate"><CODE>vexGenerate</CODE></A></CODE> calls to signify that 
+the next argument is problematic resolve path.
+</DD></DL>
+<P>
+<A NAME="vinstanceNotFoundExceptionRESULT_CLASS"><HR><H4>vinstanceNotFoundExceptionRESULT_CLASS</H4></A>
+<PRE>
+        void <B>vinstanceNotFoundExceptionRESULT_CLASS</B>(
+                void * exception,
+                va_list * args);
+</PRE>
+
+<DL><DD>
+Special value passed to <CODE><A HREF="vex-x.html#vexGenerate"><CODE>vexGenerate</CODE></A></CODE> calls to signify that 
+the next argument is problematic result class pointer for the resolve.
+</DD></DL>
+<P>
+<A NAME="vinstancePreserve"><HR><H4>vinstancePreserve</H4></A>
+<PRE>
+        void <B>vinstancePreserve</B>(
+                vinstance * instance);
+</PRE>
+
+<DL><DD>
+Preserves the specified instance.
+<P>
+This function is implemented by calling the function returned by
+<CODE><A HREF="vinstance-x.html#vinstanceGetPreserveFunc"><CODE>vinstanceGetPreserveFunc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vinstanceResolve"><HR><H4>vinstanceResolve</H4></A>
+<PRE>
+        vinstance * <B>vinstanceResolve</B>(
+                const vchar * path);
+</PRE>
+
+<DL><DD>
+Resolves the specified path string into an instance object.
+<P>
+The <CODE>vresolver</CODE> type provides a mechanism from resolving
+objects from registered resource files.
+<P>
+This function is implemented by calling the function returned by
+<CODE><A HREF="vinstance-x.html#vinstanceGetResolveFunc"><CODE>vinstanceGetResolveFunc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vinstanceResolveLiteral"><HR><H4>vinstanceResolveLiteral</H4></A>
+<PRE>
+        vinstance * <B>vinstanceResolveLiteral</B>(
+                const vchar * path);
+</PRE>
+
+<DL><DD>
+Resolves the specified path string literal into an instance object.
+<P>
+The <CODE>vresolver</CODE> type provides a mechanism from resolving
+objects from registered resource files.
+<P>
+This function is implemented by calling the function returned by
+<CODE><A HREF="vinstance-x.html#vinstanceGetResolveFunc"><CODE>vinstanceGetResolveFunc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vinstanceResolveOfClass"><HR><H4>vinstanceResolveOfClass</H4></A>
+<PRE>
+        vinstance * <B>vinstanceResolveOfClass</B>(
+                const vchar * path,
+                vinstanceClass * clas);
+</PRE>
+
+<DL><DD>
+Resolves the specified path string into an instance object of the
+specified class.
+<P>
+The <CODE>vresolver</CODE> type provides a mechanism from resolving
+objects from registered resource files.
+<P>
+This function is implemented by calling the function returned by
+<CODE><A HREF="vinstance-x.html#vinstanceGetResolveFunc"><CODE>vinstanceGetResolveFunc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vinstanceResolveOfClassLiteral"><HR><H4>vinstanceResolveOfClassLiteral</H4></A>
+<PRE>
+        vinstance * <B>vinstanceResolveOfClassLiteral</B>(
+                const char * path,
+                vinstanceClass * clas);
+</PRE>
+
+<DL><DD>
+Resolves the specified path string literal into an instance object of
+the specified class.
+<P>
+The <CODE>vresolver</CODE> type provides a mechanism from resolving
+objects from registered resource files.
+<P>
+This function is implemented by calling the function returned by
+<CODE><A HREF="vinstance-x.html#vinstanceGetResolveFunc"><CODE>vinstanceGetResolveFunc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vinstanceResolveOfClassScribed"><HR><H4>vinstanceResolveOfClassScribed</H4></A>
+<PRE>
+        vinstance * <B>vinstanceResolveOfClassScribed</B>(
+                vscribe * path,
+                vinstanceClass * clas);
+</PRE>
+
+<DL><DD>
+Resolves the specified path scribe into an instance object of
+the specified class.
+<P>
+The <CODE>vresolver</CODE> type provides a mechanism from resolving
+objects from registered resource files.
+<P>
+This function is implemented by calling the function returned by
+<CODE><A HREF="vinstance-x.html#vinstanceGetResolveFunc"><CODE>vinstanceGetResolveFunc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vinstanceResolveScribed"><HR><H4>vinstanceResolveScribed</H4></A>
+<PRE>
+        vinstance * <B>vinstanceResolveScribed</B>(
+                vscribe * path);
+</PRE>
+
+<DL><DD>
+Resolves the specified path scribe into an instance object.
+<P>
+The <CODE>vresolver</CODE> type provides a mechanism from resolving
+objects from registered resource files.
+<P>
+This function is implemented by calling the function returned by
+<CODE><A HREF="vinstance-x.html#vinstanceGetResolveFunc"><CODE>vinstanceGetResolveFunc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vinstanceSetAllocFunc"><HR><H4>vinstanceSetAllocFunc</H4></A>
+<PRE>
+        void <B>vinstanceSetAllocFunc</B>(
+                vinstanceAllocFunc func);
+</PRE>
+
+<DL><DD>
+Sets the function pointer used to allocate new instance objects.
+</DD></DL>
+<P>
+<A NAME="vinstanceSetDestroyFunc"><HR><H4>vinstanceSetDestroyFunc</H4></A>
+<PRE>
+        void <B>vinstanceSetDestroyFunc</B>(
+                vinstanceDestroyFunc func);
+</PRE>
+
+<DL><DD>
+Sets the function pointer used to destroy instance objects.
+</DD></DL>
+<P>
+<A NAME="vinstanceSetFreeFunc"><HR><H4>vinstanceSetFreeFunc</H4></A>
+<PRE>
+        void <B>vinstanceSetFreeFunc</B>(
+                vinstanceFreeFunc func);
+</PRE>
+
+<DL><DD>
+Sets the function pointer used to free destroyed instance objects.
+</DD></DL>
+<P>
+<A NAME="vinstanceSetMarkFreedFunc"><HR><H4>vinstanceSetMarkFreedFunc</H4></A>
+<PRE>
+        void <B>vinstanceSetMarkFreedFunc</B>(
+                vinstanceFreeFunc func);
+</PRE>
+
+<DL><DD>
+Sets the function pointer used to mark instance objects as already freed.
+</DD></DL>
+<P>
+<A NAME="vinstanceSetPreserveFunc"><HR><H4>vinstanceSetPreserveFunc</H4></A>
+<PRE>
+        void <B>vinstanceSetPreserveFunc</B>(
+                vinstancePreserveFunc func);
+</PRE>
+
+<DL><DD>
+Sets the function pointer used to preserve instance objects.
+</DD></DL>
+<P>
+<A NAME="vinstanceSetResolveFunc"><HR><H4>vinstanceSetResolveFunc</H4></A>
+<PRE>
+        void <B>vinstanceSetResolveFunc</B>(
+                vinstanceResolveFunc func);
+</PRE>
+
+<DL><DD>
+Sets the function pointer used to resolve instance objects.
+</DD></DL>
+<P>
+<A NAME="vinstanceStartup"><HR><H4>vinstanceStartup</H4></A>
+<PRE>
+        void <B>vinstanceStartup</B>();
+</PRE>
+
+<DL><DD>
+Starts up all of the classes and global information in the vinstance module.
+</DD></DL>
+<P>
+<A NAME="vinstanceTrace"><HR><H4>vinstanceTrace</H4></A>
+<PRE>
+        void <B>vinstanceTrace</B>(
+                vinstance * instance);
+</PRE>
+
+<DL><DD>
+Traces all pointer members of the instance object.
+<P>
+This function is implemented by send the <CODE><A HREF="vinstance-x.html#vinstanceTRACE"><CODE>vinstanceTRACE</CODE></A></CODE>
+message.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vinstanceDESTROY"><HR><H4>vinstanceDESTROY</H4></A>
+<PRE>
+        &lt;<B>vinstanceDESTROY</B>&gt;
+</PRE>
+
+<DL><DD>
+Performs any instance-specific destruction of
+<SAMP>instance</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vinstanceINIT"><HR><H4>vinstanceINIT</H4></A>
+<PRE>
+        &lt;<B>vinstanceINIT</B>&gt;
+</PRE>
+
+<DL><DD>
+Performs any instance-specific initialization of
+<SAMP>instance</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vinstanceTRACE"><HR><H4>vinstanceTRACE</H4></A>
+<PRE>
+        &lt;<B>vinstanceTRACE</B>&gt;
+</PRE>
+
+<DL><DD>
+Traces all pointer members of the instance object.
+<P>
+This method does nothing by default.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vinstanceINCLUDED"><HR><H4>vinstanceINCLUDED</H4></A>
+<PRE>
+        <B>vinstanceINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vinstance.h</SAMP> is
+included.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vinstanceCLASS"><HR><H4>vinstanceCLASS</H4></A>
+<PRE>
+        #define <B>vinstanceCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for the base instance
+object class.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

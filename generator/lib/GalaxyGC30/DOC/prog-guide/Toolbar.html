@@ -1,0 +1,373 @@
+<HTML>
+<HEAD>
+<TITLE>Toolbar</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Toolbar</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Timestamp.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Tree.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+A <EM><B>Toolbar</B></EM> provides end-users convenient access to the most commonly used commands and functions in an application. Although application commands available on a toolbar are often available through menus or other user interface components as well, the toolbar provides a simple, graphical, one touch access to those functions.<P>
+Since toolbars occupy screen real estate that could otherwise be used as application document area, their use should be limited to the most important functions only. It is often a good idea to provide a way to show and hide toolbars or to customize toolbars. The toolbar class provides a facility to aid in implementing customizeable toolbars.<P>
+In terms of core functionality, a toolbar is a container for holding other dialog items. Typically a toolbar holds buttons and popdown comboboxes, but the choice of items is not restricted to these. Other items that work well in toolbars are spinners, sliders, toggles, option menus, and one-line text items.<P>
+Toolbars are often used in conjunction with tooltip and status help. See the Help chapter for more information.<P>
+The toolbar class is derived from the Form class. Knowledge of the Form class is only necessary for certain uses of toolbars, although some knowledge of the Form class is useful to better understand this chapter. Since forms have close ties to fields, some knowledge of the Field class is also recommended. Knowledge of the Container class (from which forms are derived) and the Dialog Item classes is also assumed.<P>
+A toolbar is designed to be dockable through the use of the Docker class. If you plan to use toolbars with dockers, then you should refer to the Docker class and familiarize yourself with dockers and other dock related classes.<P>
+Toolbars have a built-in end-user customization capability that allows the end-user to customize the toolbars with drag and drop. Therefore, an understanding of the Drag class would be helpful in understanding how this process works.<P>
+In addition to the toolbar class itself, there are several other classes which work in conjunction with toolbars:<P>
+<UL>Toolbutton (<TT>vtoolbutton</TT>)<br>
+A special button subclass designed for use in a toolbar.
+<P>Toolbutton group field (<TT>vtoolbuttonGroupField</TT>)<br>
+A field used for representing the state of an exclusive group 
+of toolbuttons.
+<P>Toolbar separator (vtoolbarSeparator)<br>
+A simple dialog item used as a spacer between groups of 
+items on a toolbar.
+<P>Toolchanger (<TT>vtoolchanger</TT>)<br>
+A special container subclass designed for use in a toolbar 
+which changes its appearance based upon the toolbar's 
+orientation.
+<P></UL>There are also a number of classes of objects that work together to provide drag and drop customization functionality:<P>
+<UL>Toolbar Rearranger (<TT>vtoolbarRearranger)<br>
+</TT>A non-graphical object that encapsulates the logic needed 
+to allow end-users to rearrange the toolbar.
+<P>Toolbar Rearrange Drag<TT>(vtoolbarRearrangeDrag)<br>
+</TT>A non-graphical object used to encapsulate a rearrange 
+action performed on or between toolbars.
+<P>Toolbar Dropsite <TT>(vtoolbarRearrangeDropsite)<br>
+</TT>A non-graphical object used to represent a potential 
+landing place for rearrange drags,
+<P>Toolbar Rearrange Occurrence <TT>(vtoolbarRearrangeOccurrence)<br>
+</TT>An occurrence containing the information about a 
+rearrange action.<TT>
+</TT><P></UL>Toolbars are similar to several other Galaxy classes, and rely on the functionality introduced in those other classes. Knowledge of the paradigms and classes used by toolbar can facilitate understanding of toolbars.<P>
+Like a group container, a toolbar arranges its items algorithmically without a spring solution. Unlike a group container, however, in a toolbar you do not have the option to use a spring solution for arrangement. The only way to control the positioning of the items in a toolbar is through their ordering in their item list.<P>
+Being a subclass of <TT>vform</TT>, toolbars take advantage of the form and field paradigm to provide exclusive grouping of buttons. <EM><B>Toolbuttons</B></EM> are field-aware buttons which observe and react to changes in connected fields, and that in turn update the connected field when they change. The fields used by toolbuttons are field subclasses known as a <TT>vtoolbuttonGroupField</TT>. The arrangement is similar to the data-observer-view paradigm used in many other classes. In this case, the toolbutton group fields contain the data, while the toolbar buttons observe and display the data.<P>
+At the most basic level a toolbar is a container and thus naturally borrows much from the container class.<P>
+Toolbars are also designed to work well as dockers. When a toolbar is a docker's held item, it automatically switches its vertical or horizontal orientation to match the dock where it resides.<P>
+The customization facility built into toolbars is manipulated by the end-user based upon the drag-dropsite paradigm. A <EM><B>toolbar rearranger</B></EM> object owns a dropsite and controls it so that it stays in sync with the rectangle of toolbar's item. The rearranger also initiates toolbar rearrange drags at the toolbar's request. Upon a drop, the rearrange dropsite calls on the rearranger to actually perform the rearrange action on a toolbar. Thus the rearranger and dropsite serve as an interface to the toolbar that provides rearrange services. This is similar to the way dockers work. In a docker, a dock (which is a kind of dropsite) serves as an interface providing rearrange services to a dock item. The dock item then handles the arrangement of the items it holds, just as the toolbar handles the arrangement of its items.<P>
+<A NAME="3623"><H2> Glossary</H2></A>
+<UL><EM><B>Rearrangeable</B></EM>	An application's end user can rearrange the items in a 
+toolbar using drag and drop at run time.
+<P><EM><B>Customization</B></EM>	An end user's rearranging a toolbar's items, adding new 
+items, copying items, or removing items.
+<P></UL><A NAME="3358"><H2>  Key Functionality</H2></A>
+To be useful, a toolbar must be placed in an dialog, making it visible to the end-user. There are two ways to place a toolbar in an application dialog. The first method is to place it directly in a dialog or container like any other GUI item. If this route is chosen, the spring connections of the toolbar are critical. A toolbar's spring connections to the surrounding container or dialog work very much like that of a menubar, and is covered in detail later.<P>
+The second way to place a toolbar in an application dialog is to identify it as a docker's held item. Of course, this means that if a toolbar is a dockers held item then the dialog probably has a dock container at its top level and the toolbar's docker will be in one of the dock container's docks. While this option is slightly more complicated to arrange, it is the most flexible for the user, allowing the user to place the toolbar wherever he finds it most convenient.<P>
+<A NAME="3630"><H3> Layout</H3></A>
+Unlike normal Galaxy forms, dialogs, and containers, toolbars arrange their items by themselves, ignoring any spring solution. For a horizontal toolbar, the items are lined up from left to right in rows which proceed from top to bottom, just like words on a printed page. For a vertical toolbar, the item layout goes from top to bottom in columns that proceed from left to right.<P>
+Breaks in the layout, where one row ends and the next begins, are controlled by <TT>vtoolbarSeparator</TT> objects inserted between the other dialog items in the toolbar's item list. Toolbar separators also serve to visually group items with related functionality. See below for more on toolbar attributes that affect layout.<P>
+<A NAME="3632"><H3> User Customization and Toolbar Attributes</H3></A>
+The toolbar class has a built in facility for allowing end-users to rearrange the items on a toolbar. For example, on Windows, users can rearrange the buttons on a toolbar to their liking by holding down the Alt key, dragging an item with the left mouse button, and dropping it in the desired location. Many different programmatic options are available that allow you to control the rearrange behavior.<P>
+There are three named attributes used by the toolbar class: <EM><B>Rearrangeable</B></EM>, <EM><B>Vertical</B></EM>, and <EM><B>Wrap</B></EM>. To specify these different attributes, you can use the pre-interned global vnames:<P>
+<DL>
+<DT><DD> <TT>vtoolbar_Rearrangeable</TT>
+<DT><DD> <TT>vname_Vertical</TT>
+<DT><DD> <TT>vtoolbar_Wrap</TT>
+</DL>
+Or, use the matching attribute IDs:<P>
+<DL>
+<DT><DD> <TT>vtoobarID_ATTRIBUTE_REARRANGEABLE</TT>
+<DT><DD> <TT>vtoobarID_ATTRIBUTE_VERTICAL</TT>
+<DT><DD> <TT>vtoobarID_ATTRIBUTE_WRAP</TT>
+</DL>
+The <EM><B>Rearrangeable</B></EM> attribute determines if the toolbar will participate in rearranging. The value of this attribute is either <TT>vname_True</TT> or <TT>vname_False</TT> (the default). The value be modified through direct use of the attribute API or with the method <TT>SetRearrangeable</TT>. <P>
+Setting a toolbar to be rearrangeable will cause a default rearranger to be created and assigned to the toolbar if one has not already been set. Note, however, that setting a toolbar <EM>not</EM> to be rearrangeable does not destroy any rearranger currently assigned to the toolbar. This allows for rearrangeablity to be turned on and off without having to repeatedly allocate rearrangers.<P>
+The <EM><B>Vertical</B></EM> attribute controls whether the toolbar's automatic layout algorithm arranges items in rows or columns. If the Vertical attribute is set to <TT>vname_True</TT> then items will be arranged in columns, if <TT>vname_False</TT> they will be arranged in rows. The method <TT>SetVertical</TT> can also be used to change the Vertical attribute.<P>
+<EM><B>Wrap</B></EM> is another attribute that impacts the layout of a toolbar. In a wrapping toolbar, items that do not fit on one row or column are wrapped to the next row or column. Items on a horizontal toolbar flow from left to right and rows are added in top to bottom order. On a vertical toolbar the flow is top to bottom and columns proceed from left to right.<P>
+Wrapping ensures that essentially all of the items on the toolbar remain visible to the user. This, however, is not always desirable since the space occupied by the toolbar does not shrink at the same rate as the window in which it resides, sometimes leading to a situation where the toolbar can occupy the majority of the space in the dialog.<P>
+<UL><B><I>NOTE:</I></B> The Wrap attribute does not affect the layout of a toolbar located in a 
+floating docker. In this case the toolbar items always wrap. Likewise, the 
+Wrap attribute does not affect the layout of a toolbar located in a docked 
+docker that does not span the breadth of its current dock (see 
+<TT>vdockerSetSpanStyle</TT>). In that case the items never wrap.
+<P>
+</UL><A NAME="3648"><H3> Placing Toolbars in a Dialog</H3></A>
+To take the best advantage of the toolbar's automatic layout functionality particular spring connections are necessary. For instance, assume that a standard dialog is desired, with a single toolbar at the top being placed underneath the menubar. Connections to and within the toolbar should be as follows:<P>
+<PRE><UL>External:
+  Top:    zero-length to the menubar
+  Left:   zero-length to the left side of the dialog
+  Right:  zero-length to the right side of the dialog
+  Bottom: spring
+Internal:
+  Horizontal: Spring
+  Vertical:   Natural length
+
+</UL></PRE><A NAME="3658"><H3> Toolbar Buttons</H3></A>
+A <EM><B>toolbutton</B></EM> (<TT>vtoolbutton</TT>) is a button subclass that is specifically designed for use in a toolbar. The key differences between a toolbutton and a normal button are in the way title drawing is handled, and that a toolbutton is aware of a <TT>vfield</TT> subclass known as a <EM><B>toolbutton group field</B></EM>.<P>
+Unlike a normal button, a toolbutton does not draw its title if an image is set. Icons of size 16x16 are recommended for toolbutton images, but larger images can be used, resulting in larger buttons.<P>
+Toolbuttons are designed to be sensitive to changes in the attached toolbutton group fields (<TT>vtoolbuttonGroupField</TT>). Toolbutton group fields are used to keep a group of exclusive toggle toolbuttons synchronized. The field holds the tag of the selected item in its "Selection" attribute, and toolbuttons update this value when they are clicked upon. This means that unlike exclusive group containers (see the Container chapter of the Programmer's Guide) which maintain exclusivity based on the memory address of the items themselves, two toolbuttons with the same tag in a toolbar will act in unison if they observe the same field. In short, exclusivity in toolbars depends upon the tags of the toolbuttons that participate in the group.<P>
+Maintaining state by observing and updating a field is a very powerful mechanism. In essence it is another instance of the data-view paradigm seen in various classes such as Textview and Listview, only in this case the data is a single value and the viewer is a set of buttons, rather than a complex text or list object.<P>
+But buttons do not necessarily have to be the only viewing mechanism for the field's data. One could imagine having a field-aware option menu that shows all the choices and keeps the field in sync, or menu choices that mirror the functionality also presented through the toolbuttons. Furthermore one can programmatically update that bit of application state represented by the field in response to some other application event and all observers of that field will update themselves automatically to reflect the change.<P>
+In a word processor, for instance, it might be necessary to have the current justification style state updated based on the cursor location. If the cursor is on a line which is right justified, then the right justify button should be on, and center and left justify buttons should be off. Setting the value of the field that the toolbuttons observe automatically causes the toolbuttons, as well as any other objects observing that field, to update their state.<P>
+<A NAME="3365"><H2> Additional Functionality</H2></A>
+<A NAME="3673"><H3> Modified Rearrange Permissions</H3></A>
+A simple way to modify the default behavior of rearrange actions is through use of the rearrange permissions. The permissions can be set with <TT>SetRearrangerPermissions</TT> and consist of a set of flags combined with bitwise <TT>OR</TT>.<P>
+The permissions are used by the default implementation of <TT>RearrangerTestRearrange</TT> to determine which actions are allowed. For a full description of all the flags see the <TT>vtoolbarRearranger</TT> section of the <EM>Galaxy Reference Manual</EM>.<P>
+Consider a case where a toolbar is designed to serve as a non-modifiable palette for a selection of items that can be added to other toolbars. You can set the toolbar rearranger permissions to only allow actions which do not modify the rearranger's toolbar:<P>
+<PRE><UL>void makeIntoPalette(vtoolbar *toolbar)
+{
+   vtoolbarRearranger *tbr = vtoolbarGetRearranger(toolbar);
+   int permissions;
+
+   if (tbr == NULL)
+      vtoolbarSetRearrangeable(toolbar, TRUE);
+   tbr = vtoolbarGetRearranger(toolbar);
+   vtoolbarSetRearrangerPermissions(
+      tbr,
+      vtoolbarPERMIT_DRAG |
+      vtoolbarPERMIT_SOURCE_INTER_COPY);
+}
+
+</UL></PRE>Note that not setting the <TT>vtoolbarPERMIT_DRAG</TT> flag prevents rearrange drags from starting on the toolbar. The toolbar calls <TT>vtoolbarRearrangerProcessRearrange</TT> to do the drag, but if the rearranger does not have permission to drag items, the rearrange operation terminates immediately.<P>
+<A NAME="3692"><H3> Using a Rearrange Observer</H3></A>
+Other customization of a toolbar is possible by installing an observer. Occurrences of type <TT>vtoolbarRearrangeOccurrence</TT> are announced both before and after significant rearrange events. For details about what information can be obtained from a rearrange occurrence, refer to the rearrange occurrence section of <EM>Galaxy Reference Manual</EM>.<P>
+For example, by using an observer and examining the rearrange occurrences, you can set up a new behavior for items dropped over an invalid dropsite. The default behavior is to remove and destroy those items. Instead, the following code sets up a tool bat that creates a new undocked toolbar that contains the item.<P>
+First, set the proper permissions:<P>
+<PRE><UL>void toolbarSetupNewDockerOnRemove(vtoolbar *toolbar, vobservable *obs)
+{
+   vtoolbarRearranger *tbr;
+
+   tbr = vtoolbarGetRearranger(toolbar);
+   vdebugAssert(tbr != NULL);
+   vtoolbarInstallObserver(vtoolbarGetObservable(toolbar), obs);
+   vtoolbarSetRearrangerPermissions(
+      tbr,
+      vtoolbarGetRearrangerPermissions(tbr) |
+      ~vtoolbarPERMIT_DESTROY_ON_REMOVE);
+}
+
+</UL></PRE>Next, write the <TT>Observe</TT> and <TT>WillObserve</TT> methods of the observer that was installed in the toolbar: <P>
+<PRE><UL>vbool _willObserve(vobservable *obs, voccurrenceClass *clas)
+{
+   if (vclassIsKindOf(clas, vtoolbarGetDefaultRearrangeOccurrenceClass()))
+      return TRUE;
+   return vclassSendSuper(defaultClass, vobservableWILL_OBSERVE, 
+                          (obs, clas);
+}
+
+void _observe(vobservable *obs, voccurrence *occ)
+{
+   vtoolbarRearrangeOccurrence *tbocc;
+   if (vclassIsKindOf(voccurrenceGetClass(occ), 
+                      vtoolbarGetDefaultRearrangeOccurrenceClass())
+   {
+      tbocc = (vtoolbarRearrangeOccurrence *) occ;
+      if (vtoolbarGetRearrangeOccurrenceType(tbocc) == 
+          vtoolbarREARRANGE_REMOVE_OCCURRENCE)
+      {
+          vdocker *docker = vdockerCreate();
+          vtoolbar *toolbar = vtoolbarCreate();
+          vrect *drop = vtoolbarGetRearrangeOccurrenceDropRect(tbocc);
+          vdialogItem *item = 
+             vtoolbarGetRearrangeOccurrenceDragItem(tbocc);
+         vdialog *dlg;
+
+         vdebugAssert(item != NULL);
+         vtoolbarAppendItem(toolbar, item);
+         vdockerSetHeldItem(docker, toolbar);
+         vdockerSetFloating(docker, TRUE);
+         /*
+          * Need to add the docker to some dock here
+          * with vdock::AddDock
+          */
+
+         /* Position it somewhere reasonable */
+         dlg = vdockerGetDialog(docker);
+         vdialogPlace(dlg, drop, vrectCENTER_X|vrectCENTER_Y);
+         vdockerOpen(docker);
+      }
+   }
+}
+
+</UL></PRE>Lastly, the toolbar's own <TT>Observe</TT> method is not be called unless the toolbar is installed as an observer on itself. Do this with the following code:<P>
+<PRE><UL>   vobservableInstallObserver(vtoolbarGetObservable(toolbar),
+                              vtoolbarGetObservable(toolbar));
+
+</UL></PRE><A NAME="3750"><H3> Alternate Rearrange Binding Maps</H3></A>
+When a button down event occurs in a rearrangeable toolbar, that event's modifiers are compared against a predefined set of rearrange "bindings". If the event modifiers map to a known binding (either "RearrangeMove" or "RearrangeCopy") then that type of rearrange drag is initiated. A class default <EM><B>binding map</B></EM> (a vdict which maps <TT>vkeyModifiers</TT> to the <TT>vnames</TT> of bindings) is automatically loaded at startup from the preferences. However, instance specific binding maps can also be set by calling <TT>SetRearrangerBindingMap</TT>. Such a map can be useful for creating a toolbar that is in "customize" mode, allowing the end-user to rearrange the toolbar with their mouse without using any keyboard modifiers.<P>
+<PRE><UL>void changeInstanceBindingMap(vtoolbarRearranger *tbr)
+{
+   vdict *bindingMap = vdictCreate(vkeyHashModifiers);
+   /* Add a new binding for plain left button. */
+   vdictStore(bindingMap, vkeyMODIFIER_BUTTON_LEFT, 
+              vnameInternGlobalLiteral("RearrangeMove"));
+   vtoolbarSetRearrangerBindingMapOwned(bindingMap);
+}
+
+</UL></PRE>Note that in addition to changing the <EM>local</EM> default binding map, it is also possible to change the <EM>class</EM> default binding map:<P>
+<PRE><UL>void changeClassBindingMap()
+{
+   vdict *bindingMap = (vdict*)
+      vclassGet(vtoolbarGetDefaultRearrangerClass(), 
+                vtoolbarRearrangerBINDING_MAP);
+   /* Add a new binding for plain left button. */
+   vdictStore(bindingMap, vkeyMODIFIER_BUTTON_LEFT, 
+              vnameInternGlobalLiteral("RearrangeMove"));
+}
+
+</UL></PRE>To set the default action that takes place when the end-user interacts with the toolbar, use <TT>vtoolbarREARRANGE_BINDING_MAP_DEFAULT_KEY</TT>. For example:<P>
+<PRE><UL>void changeRearrangerBindingMap (vtoolbarRearranger *tbr)
+{
+   vdict *bindingMap = vdictCreate(vkeyHashModifiers);
+
+   /* Add a default binding */
+   vdictStore(bindingMap, 
+              vtoolbarREARRANGE_BINDING_MAP_DEFAULT_KEY, 
+              vnameInternGlobalLiteral("RearrangeMove"));
+
+   /* Add a copy binding for ctrl+left button. */
+   vdictStore(bindingMap,
+              vkeyMODIFIER_BUTTON_LEFT|vkeyMODIFIER_KEY_CTRL,
+              vnameInternGlobalLiteral("RearrangeMove"));
+
+   /* Add a no-op binding for shift+left button. */
+   vdictStore(bindingMap,
+              vkeyMODIFIER_BUTTON_LEFT | vkeyMODIFIER_KEY_SHIFT,
+              vnameInternGlobalLiteral("RearrangeNone"));
+
+   /* Set the new binding dict on the rearranger */
+   vtoolbarSetRearrangerBindingMapOwned(tbr, bindingMap);
+}
+
+</UL></PRE><A NAME="4829"><H3> Using A Toolchanger</H3></A>
+A <EM><B>toolchanger</B></EM> (<TT>vtoolchanger</TT>), a subclass of a container, is useful when you need to modify the appearance of objects in a toolbar on the fly.<P>
+For example, the classic case for using a toolchanger is when you have a toolbar that contains a popdown combobox. This is fine while the toolbar is in a horizontal position. A problem presents itself, however, if the toolbar is changed to a vertical orientation (perhaps because it is located in a docker). A horizontal combobox is no longer appropriate, since it is too wide to fit aesthetically within the toolbar.<P>
+To solve the problem, you can place the combobox in a toolchanger. In addition to the combobox, add a toolbutton that opens up a dialog containing a copy of the combobox. In a toolchanger, by convention, the item at item list index zero is displayed when the parent is horizontal and item at item list index one is displayed when it is vertical. If you want to have more than one item appear and disappear in a toolchanger, place the items in a container, and then set the container to be item zero or item one.<P>
+The container's "Selection" attribute determines what item is displayed. By using <TT>SetSelection</TT>, you can programmatically control what item is displayed. All items except for the selection are hidden and disabled, providing the illusion that only the selected item is present.<P>
+The toolchanger monitors changes in its parent and automatically switches the toolchanger's selected item when the parent's "Vertical" attribute changes. Since a toolbar changes its vertical attribute based on the orientation of the dock it inhabits, a toolchanger in a toolbar will change its selection when its toolbar's dock changes.<P>
+<A NAME="3368"><H1> Specialized Use</H1></A>
+<A NAME="3791"><H3> Determining Row Structure</H3></A>
+In some situations it may be desirable to determine the number and extent of the rows (or columns) of items in a toolbar. You can gather this information by using <TT>MakeRowInfoSequence</TT>. It returns a <TT>vsequence</TT> of row information about the toolbar. The <TT>vsequence</TT> is made up of items of type <TT>vtoolbarRowInfo</TT> (a subclass of <TT>vinstance</TT>).<P>
+From these row info objects, you can determine what items are on located on what row. You can also determine the bounding rectangle of each row.<P>
+Note that despite the existence of <TT>Set*</TT> entry points for row info objects, setting properties such as the ending index and the starting index does not cause the toolbar's structure to change.<P>
+<A NAME="3795"><H3> Customize Dialogs</H3></A>
+Many applications use a <EM><B>customize dialog</B></EM>, a dialog containing a predefined palette of buttons that can be dragged and dropped into an end-user defined toolbar. Certain concepts should be kept in mind when making an effective customize dialog. First, you must take into account what buttons should be made available to the end-user to add to specific toolbars. Next, if the end-user is allowed to remove a button from a previously defined toolbar by dragging it off, then there must be a way for the user to get that button back if he changes his mind.<P>
+Programmatically, you also need to prevent the customize dialog's buttons themselves from acting as buttons. For instance, if there were a quit command on the palette, you would not want that command to be invoked while in customize mode. The easiest way to accomplish this is by setting the default binding of the rearranger to "RearrangeCopy."<P>
+A neat trick is to alter the class's binding map while the customize dialog is open so that all toolbar items automatically are rearrangeable with the left mouse button only.<P>
+<A NAME="3370"><H2> Preferences</H2></A>
+The Toolbar class implements a set of preferences that are used to define the bindings for rearranging. The preferences are located in the preferences under the path vtoolbar:Bindings:{LAF} where {LAF} stands for the look-and-feel identifier. For instance, for the Motif look-an-feel, it would be located under vtoolbar:Binding:Motif.<P>
+The default binding names and their event modifier mappings for the various look-and-feels are as follows:<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="3823"><I>Table 40.  Toolbar preferences
+</I><P>
+</CAPTION>
+
+<tr><th><B>Binding
+</B></th><th><B>Motif
+</B></th><th><B>Windows/Win95/CUA
+</B></th><th><B>Mac
+</B></th>
+<tr><td><TT>RearrangeMove
+</TT></td><td><TT>middle button
+</TT></td><td><TT>left button+alt
+</TT></td><td><TT>left button+alt
+</TT></td></tr>
+<tr><td><TT>RearrangeCopy
+</TT></td><td><TT>middle+ctrl
+</TT></td><td><TT>left+alt+ctrl
+</TT></td><td><TT>left+cmd+alt
+</TT></td></tr>
+<tr><td><TT>RearrangeNone
+</TT></td><td><TT>n/a
+</TT></td><td><TT>n/a
+</TT></td><td><TT>n/a
+</TT></td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+The resource format of the binding preferences is similar to that of key binding preferences used by many classes. Each binding mapping is either an integer or an array of integers depending whether one or several event modifiers correspond to a particular binding. The tag of the integer or array is the name of the binding, either <TT>RearrangeMove</TT>, <TT>RearrangeCopy</TT>, or <TT>RearrangeNone</TT>.<P>
+The binding mappings set up with these preferences populate the <TT>vtoolbarRearranger</TT>'s class default binding map.<P>
+<A NAME="3862"><H2> Subclassing a Rearranger</H2></A>
+To obtain the finest level of control over how a rearranger acts, you can subclass the rearranger and override the <TT>TestRearrange</TT> and <TT>Rearrange</TT> methods. See the <EM>Galaxy Reference Manual</EM> documentation of these methods for a full description of the parameters and use of these methods.   After subclassing the rearranger one can either create an instance of that class and attach them directly to a toolbar, or one can subclass the toolbar class and override the <TT>vtoolbarCREATE_REARRANGER</TT> method to return an object of the new rearranger subclass type.<P>
+The rearrange dropsite used by a rearranger can be subclassed in a similar manner. After subclassing the dropsite, instances of the dropsite can be set directly on rearrangers. Alternatively, a subclass of the rearranger can also override the <TT>vtoolbarCREATE_DROPSITE</TT> to return instances of the new dropsite class.<P>
+The rearranger also calls the <TT>vtoolbarCREATE_DRAG</TT> method to create rearrange drag objects. Since drags are created on the fly, the rearranger must be subclassed and the <TT>vtoolbarCREATE_DRAG</TT> method overridden in order to use subclassed rearrange drags.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Timestamp.html">Previous Chapter</A> | 
+		<A HREF="Tree.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

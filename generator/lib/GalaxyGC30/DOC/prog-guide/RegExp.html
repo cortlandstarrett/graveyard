@@ -1,0 +1,322 @@
+<HTML>
+<HEAD>
+<TITLE>Regular Expression</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Regular Expression</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Process.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Representation.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The <EM><B>Regular Expression</B></EM> class handles creating and using regular expressions, which are used to search blocks of text for pattern matches. <EM><B>Regular expressions</B></EM> are shorthand ways of specifying text patterns; they provide a great deal of flexibility in letting you search for any combination of text patterns. The patterns are represented by special forms given in <A HREF="RegExp.html#3902">Table 34</A>.<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="3847"><I>Table 34.  Regular expressions
+</I><P>
+</CAPTION>
+
+<tr><th><B>Pattern
+</B></th><th><B>Meaning
+</B></th>
+<tr><td><TT>c
+</TT></td><td>Matches the character c, unless that character has special meaning 
+in any of the patterns below.
+</td></tr>
+<tr><td><TT>c
+</TT></td><td>Matches the character c, except: n matches a newline , r 
+matches a carriage return, and t matches a horizontal tab.
+</td></tr>
+<tr><td><TT>[characterList]
+</TT></td><td>Matches any one character specified by characterList. The 
+character list is a series of elements, where each element is either a 
+single character as specified by one of the above two patterns or a 
+range of characters as specified by "s-e". The character s should 
+have a value less than character e.
+</td></tr>
+<tr><td><TT>[^characterList]
+</TT></td><td>Matches any one character not specified by characterList. The 
+character list is as described for the above pattern.
+</td></tr>
+<tr><td><TT>.
+</TT></td><td>Matches any single character, except n.
+</td></tr>
+<tr><td><TT>characterExpression*
+</TT></td><td>Matches the largest series of 0 or more characters, each of which 
+can be specified by characterExpression. The character expression 
+may be any of the above patterns.
+</td></tr>
+<tr><td><TT>characterExpression+
+</TT></td><td>Matches the largest series of 1 or more characters, each of which 
+can be specified by characterExpression. The character expression is 
+as described for the above pattern.
+</td></tr>
+<tr><td><TT>characterExpression?
+</TT></td><td>Matches 1 character which can be specified by characterExpression, 
+if possible. The character expression is as described for the above 
+pattern.
+</td></tr>
+<tr><td><TT>(segmentExpression)@n
+</TT></td><td>Matches according to segmentExpression and tags the match with 
+the digit n (that is, 0 &eth; n &eth; 9). The segment expression is a series of 
+elements, where each element is one of the above patterns or one 
+of these patterns.
+</td></tr>
+<tr><td><TT>^segmentExpression
+</TT></td><td>Matches segmentExpression when it occurs at the beginning of a 
+line. The segment expression is as described for the above pattern.
+</td></tr>
+<tr><td><TT>segmentExpression$
+</TT></td><td>Matches segmentExpression when it occurs at the end of a line. The 
+segment expression is as described for the above pattern.
+</td></tr>
+<tr><td><TT>expression1 | 
+expression2
+</TT></td><td>Matches either expression1 or expression2. The expressions may be 
+any of the above patterns.
+</td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+<A NAME="3911"><H3> Character Expressions</H3></A>
+In the simplest case, regular expressions consist of series of literal characters. For example:<P>
+<PRE><UL>end of sentence.
+
+</UL></PRE>There is one complication with this regular expression; the "." is a special regular expression character that means "any single character, except the newline character." As the chart above shows, a backslash ("") before a character causes the character to lose any special meaning it may have. If you really want to search for a "." (and not for any single character), you need to place a backslash ("") before the ".".<P>
+<PRE><UL>end of sentence.
+
+</UL></PRE>This makes the "." a literal character rather than a special character. Be sure to place a backslash before any special regular expression character you want to be taken as a literal character.<P>
+<A NAME="3919"><H3> Wildcard Operators</H3></A>
+In addition to literal characters, regular expressions can include the operators "." and "[ ]", which are used as follows:<P>
+<UL>.	Any single character except the newline character
+<P>[characterList]	Any character in the character list 
+<P>[^characterList]	Any character not in the character list
+<P></UL>A character list is an expression consisting of one or more characters enclosed in brackets ([...]). It matches any character found in the list. The case sensitivity of the characters in the list depends on the state of the case sensitive search option (caseSensitive in <TT><B>SetCaseSensitive</B></TT>). A list can consist of individual characters or a range of characters, specified with a dash "-". For instance, the following two regular expressions are equivalent:<P>
+<PRE><UL>[jklmn234]
+[j-n2-4]
+
+</UL></PRE>You can include any character in the character list; however, if you want to include the negation symbol ("^") or brackets ("[  ]") in the character list, you must precede these symbols with a backslash. The following example specifies any of the characters a through z, 0 through 9, [, and ].<P>
+<PRE><UL>[a-z0-9[]]
+
+</UL></PRE>The negation symbol ("^") lets you specify any character not in the list. For example:<P>
+<PRE><UL>[^A-Za-z]
+
+</UL></PRE>The character list specifies all characters except the characters A through Z and a through z. To specify the "^" character itself, make it a literal by preceding it with a backslash.<P>
+<A NAME="3938"><H3> Repeated Regular Expressions</H3></A>
+There are three symbols that let you specify that a regular expression must repeat a certain number of times. The "*" symbol matches zero or more occurrences of the immediately preceding regular expression. The "+" symbol matches one or more occurrences of an expression, and "?" matches zero or one occurrences of an expression. For example:<P>
+<PRE><UL>[0-9]+
+
+</UL></PRE>matches any string of one or more digits. For example, if this regular expression were applied to the sentence, "There are 5 more shopping days before Dec. 25, 1992", "5", "25", and "1992" would all be matches. (For more examples, refer to <A HREF="RegExp.html#3971">"Example Search Patterns"</A>.)<P>
+<A NAME="3947"><H3> Tagging Regular Expressions</H3></A>
+You can tag various segments of a regular expression, so that later you can retrieve the corresponding segments of the matching expression. To do this, you enclose up to ten segments of the regular expression in parentheses and place an "@" and a digit from 0 to 9 after each. You may use any subset of the ten tags, but if you use the same tag more than once in an expression, you will not be able to retrieve all of the corresponding segments. After a search, you can retrieve the corresponding segment by passing the value of the digit as a segment index.<P>
+For example, consider the following table with two columns of numbers separated by spaces or tabs:<P>
+<PRE><UL>123      456
+123      456
+123      456
+123      456
+.. and so on 
+
+</UL></PRE>If you search for ([0-9]+)@1[ t]+([0-9]+)@2 and replace it with: @2 @1 you will switch the order of the two columns, separated by one tab. An explanation of the expressions follows:<P>
+<UL>[0-9]+	Match any number, composed of any number of digits.
+<P>([0-9]+)@1	Remember the selection (the expression enclosed in 
+parentheses) as @1.
+<P>[ t]+	Next, match any number of spaces and tabs.
+<P>([0-9]+)@2	Then, match another number and remember it as @2.
+<P>@2 @1	Finally, replace the whole matched string with what was 
+remembered as @2, a tab, and what was remembered as @1. 
+(The tab was inserted here by pressing the tab key and 
+therefore does not appear on the printed page.)
+<P></UL>After this search and replace operation, the table looks like this:<P>
+<PRE><UL>456      123
+456      123
+456      123
+456      123
+.. and so on
+
+</UL></PRE><A NAME="3971"><H3> Example Search Patterns</H3></A>
+<UL>t.e	Matches any string containing a "t", followed by any 
+character (except the newline character), followed by an 
+"e". For example, this pattern matches whole words such 
+as "the" or "tie", as well as substrings such as "tre" in 
+"treat".
+<P>^the	Matches any occurrence of the string "the" located at the 
+beginning of a line. This could be the word "the" or the 
+string "the" in a longer word, such as "then". No spaces or 
+tabs can occur before the "t".
+<P>the$	Matches any occurrence of the string "the" located at the 
+end of a line. This could be the word "the" or the string 
+"the" in a longer word, such as "bathe". No spaces or tabs 
+can be after the "e".
+<P>^$	Matches lines that contain just a newline character. (In 
+other words, lines with no characters between the 
+beginning and the end of the line.)
+<P>be*t	Matches any string containing a "b", followed by zero or 
+more occurrences of "e", followed by a "t". For example, 
+this pattern matches the words "bet" or "beet", as well as 
+substrings such as "bet" in "better".
+<P>be[snl]t	Matches any string containing "be" followed by either an 
+"s", "n" or "l", followed by a "t". For example, this pattern 
+matches the words "best", "bent" and "belt", as well as 
+substrings such as "belt" in "belted".
+<P>end[^a-z]	Matches any string containing "end" followed by any 
+character except any alphabetic characters (a, b, ... z). For 
+example, this pattern matches "end23", "endZONE", 
+"end:", or "blend,".
+<P>end[^a-zA-Z]	Matches any string containing "end" followed by any 
+character except any alphabetic characters (a, b, ... z) and 
+(A, B, ... Z). For example, this pattern matches "end23", 
+"end:", or "blend,".
+<P>jack|jill	Matches any occurrences of the word "jack" or "jill". Up to 
+128 expressions separated by an "OR" ("|") are allowed.
+<P>(.*)	Matches zero or more occurrences of any character (except 
+the newline character) between two parentheses. The 
+backslashes indicate that the parentheses are to be taken 
+literally; they do not indicate a tagged expression here. For 
+example, this pattern matches "()", "(Hello)", "(483)".
+<P>[ t]+$	Matches any number of trailing spaces or tabs ($ = end of 
+line).
+<P>([0-9]+)@0,([0-9]+)@1	Matches two numbers, each with any number of digits, 
+separated by a comma. Replacing with @1@0 swaps the two 
+numbers. A similar illustration of this was given in 
+"Tagging Regular Expressions" earlier in this document.
+<P>^[a-z]+[ t]*.*([^;]*)[^;]*$	Matches the next occurrence of a subroutine declaration in 
+a C program: the beginning of a line (^), followed by one 
+or more occurrences of a character in the range of "a" to 
+"z" ([a-z]+), followed by zero or more occurrences of a 
+space or a tab ([ t]*), followed by any character (except the 
+newline character) repeated zero or more times (.*), 
+followed by an open parenthesis ( ( ), followed by zero or 
+more occurrences of any character except a semicolon 
+([^;]*), followed by a closing parenthesis ( ) ), followed by 
+zero or more occurrences of any character except a 
+semicolon ([^;]*), followed by an end of line ($).
+<P></UL><A NAME="3358"><H2>  Key Functionality</H2></A>
+To use the Regular Expression class, you first need to determine what kind of search you want to perform and whether the search is a one-time quick search or a repeated search.<P>
+If you will be searching for a regular expression many times, first create a regular expression with <TT><B>Create</B></TT>. This returns a pointer to a regular expression, which can be used in future calls to <TT><B>Search</B></TT>, a function that searches specified text for the given regular expression. For example, suppose you want to search for the next whole word occurrence of a user specified regular expression. In this case, the definition of whole word is that the found text have a tab or space on each side. <A HREF="RegExp.html#4003">Example 122</A> shows one way to do this.<P>
+<A NAME="4003"><I>Example 122.  Search using a regular expression
+</I><P>
+<PRE><UL>vchar *findNextWholeWord (vchar *regExpression, vchar *text)
+{
+   vregexp *regExp;
+   vbool    found = FALSE;
+   vchar   *result;
+   int      resultLength;
+
+   regExp = vregexpCreate(regExpression);
+
+   while (!found) {
+      if ((result = vregexpSearch(regExp, text,
+                                  vcharLength(text), &amp;resultLength))
+          == NULL)
+        return(NULL);
+
+      found =  ((result != text &amp;&amp; result != (text + resultLength) &amp;&amp;
+                 (*(result - 1) == ' '       || *(result - 1) == 9) &amp;&amp;
+                 (*(result + resultLength) == ' '  ||
+                  *(result + resultLength) == 9)));
+   }
+   return(NULL);
+}
+
+</UL></PRE><A HREF="RegExp.html#4003">Example 122</A> could have also been written as shown below, combining the two operations into one:<P>
+<PRE><UL>   while (!found) {
+      if ((result = vregexpSearch(vregexpCreate(regExpression),
+                                  text,
+                                  vcharLength(text), &amp;resultLength))
+          == NULL) {
+         // ...
+      }
+   }
+
+</UL></PRE>However, this would be much more inefficient because the actual regular expression would have to be generated each time <TT><B>Search</B></TT> is called. Using <TT><B>Create</B></TT> as shown in the first example creates an efficient compiled form of the regular expression.<P>
+If you do not want to search for regular expressions but would rather simply search literal strings of text, then use <TT><B>SearchLiteral</B></TT>, which takes the target text character for character, with no interpretation. For example, the following search looks for the actual text "[a-z]+", not the regular expression, which would have searched for the next sequence of alphabetic characters.<P>
+<PRE><UL>   vregexpSearchLiteral((const vchar *)"[a-z]+",
+                        text, textLength,
+                        FALSE, vregexpFORWARD);
+
+</UL></PRE><P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Process.html">Previous Chapter</A> | 
+		<A HREF="Representation.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

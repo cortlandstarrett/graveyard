@@ -1,0 +1,213 @@
+#!/bin/ksh
+#===========================================================================
+# create_bp_build
+#
+# Description:
+# This script creates the "bp_build" directory and it's associated
+# subdirectories.  The "bp_build" tree is where the compilation actually
+# occurs, even though the make file traversal happens in the "bp_source"
+# tree.  "bp_build" contains a single directory dump of all the source
+# and header files that exist in the "bp_source" tree.
+# 
+#
+# Notice:
+#===========================================================================
+
+set -u
+
+#---------------------------------------------------------------------------
+# Show function usage.
+#---------------------------------------------------------------------------
+function usage
+{
+  print -u2 "\n\n\
+usage:  $(basename ${1}) [-h] [-d] [-p <PCCTS directory>] 
+      h                :  Print this help message
+      d                :  Run this script using the default library paths
+      <PCCTS directory>:  The location on disk of the PCCTS library tree
+
+description:
+ This script creates the \"bp_build\" directory and it's associated
+ subdirectories.  The \"bp_build\" tree is where the compilation actually
+ occurs, even though the make file traversal happens in the \"bp_source\"
+ tree.  \"bp_build\" contains a single directory dump of all the source
+ and header files that exist in the \"bp_source\" tree.
+
+example: 
+  ./$(basename ${1}) -p C:/git/generator/lib/PCCTS/v1.33_mr20 
+
+note:
+  The library paths shown in the example above are the defaults used in 
+  the -d argument.\n"
+}
+
+#---------------------------------------------------------------------------
+# Check for request for help on the command line.
+#---------------------------------------------------------------------------
+if [[ $# -gt 0 ]] ; then
+  if [[ "$1" == "-h" ]] ; then
+    usage $0
+    exit 1
+  fi
+fi
+
+set +u
+if [[ "${ZSH_VERSION}" != "" ]] ; then
+  setopt KSH_ARRAYS
+  setopt SH_WORD_SPLIT
+fi
+set -u
+
+base_dir=`pwd`
+build_dir="bp_build/win32/7.1B/build"
+source_dir="bp_source/win32/7.1B"
+libtrans_dir="/cygdrive/c/git/bridgepoint/src/libTRANS"
+
+print "Starting to populate bp_build directory tree."
+print "    Be patient!  This will take a minute."
+
+#---------------------------------------------------------------------------
+# Parse the command line arguments and assign variables to what is found.
+#---------------------------------------------------------------------------
+pccts_dir=""
+if [[ $# -gt 0 ]] ; then
+  if [[ "$1" == "-d" ]] ; then
+    pccts_dir="C:/git/generator/lib/PCCTS/v1.33_mr20"
+  else 
+    while getopts m:p: option $* ; do
+      case "${option}" in
+        ( "p" )
+          pccts_dir=${OPTARG} ;;
+      esac
+    done
+  fi
+  
+  if [ ! -d  ${pccts_dir} ] ; then
+    print "${pccts_dir} does not exist. Exiting.\n"
+    exit 2
+  fi
+fi
+
+#---------------------------------------------------------------------------
+# Make sure the mc git repository in the expected place.
+#---------------------------------------------------------------------------
+mc_git_repo_dir="C:/git/mc"
+if [ ! -d  ${mc_git_repo_dir} ] ; then
+  print "\nERROR: ${mc_git_repo_dir} does not exist. Exiting. You must\nset this up before building generator.\n"
+  exit 2
+fi 
+
+#---------------------------------------------------------------------------
+# Create bp_build directory tree.
+#---------------------------------------------------------------------------
+if [ ! -d ./bp_build ] ; then
+  mkdir bp_build
+  mkdir bp_build/win32
+  mkdir bp_build/win32/7.1B
+  mkdir bp_build/win32/7.1B/build
+  mkdir bp_build/win32/7.1B/build/tclap
+  mkdir bp_build/win32/7.1B/build/mc_dbms
+  mkdir bp_build/win32/7.1B/build_log
+  mkdir bp_build/win32/7.1B/schema
+fi
+
+
+#---------------------------------------------------------------------------
+# Copy in the PCCTS files
+#---------------------------------------------------------------------------
+if [[ "${pccts_dir}" != "" ]] ; then
+  cp -f ${pccts_dir}/unix/pccts/sorcerer/lib/STreeParser.cpp ${build_dir}
+
+  cp -f ${pccts_dir}/unix/pccts/sorcerer/h/SASTBase.h ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/sorcerer/h/STreeParser.h ${build_dir}
+
+  cp -f ${pccts_dir}/unix/pccts/h/AParser.cpp ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/AParser.h ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/ASTBase.cpp ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/ASTBase.h ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/ATokenBuffer.cpp ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/ATokenBuffer.h ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/ATokenStream.h ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/ATokPtr.cpp ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/ATokPtr.h ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/AToken.h ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/DLexer.cpp ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/DLexerBase.cpp ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/DLexerBase.h ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/PCCTSAST.cpp ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/PCCTSAST.h ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/config.h ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/pccts_assert.h ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/pccts_iostream.h ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/pccts_istream.h ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/pccts_setjmp.h ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/pccts_stdarg.h ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/pccts_stdio.h ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/pccts_stdlib.h ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/pccts_string.h ${build_dir}
+  cp -f ${pccts_dir}/unix/pccts/h/pcctscfg.h ${build_dir}
+else
+  print "Don't forget to run this script with the PCCTS path specified at least once!"
+fi
+
+#---------------------------------------------------------------------------
+# Create the binary model compiler files
+#---------------------------------------------------------------------------
+# set up a meaningless file to build the 2020 binary arc array
+mkdir -p /tmp/mc2020/arc/
+cp -f ${mc_git_repo_dir}/arc/sys_util.arc /tmp/mc2020/arc/sys_util.arc
+
+../tools/xtumlmc_cplusify_archetypes.pl ${mc_git_repo_dir}/arc 3020 ${build_dir} > ${build_dir}/mc3020_archetypes.hh
+# Note: though this next line looks like we're still including 2020 arcs, we're
+# really not.  This just sets up the file the build process depends on.
+../tools/xtumlmc_cplusify_archetypes.pl /tmp/mc2020/arc 2020 ${build_dir} > ${build_dir}/mc2020_archetypes.hh
+
+rm -rf /tmp/mc2020/
+
+#---------------------------------------------------------------------------
+# Copy in the source files
+#---------------------------------------------------------------------------
+cp -f ${source_dir}/action/include/* ${build_dir} > /dev/null 2>&1
+cp -f ${source_dir}/action/src/* ${build_dir} > /dev/null 2>&1
+
+cp -f ${source_dir}/gen_sim/include/* ${build_dir} > /dev/null 2>&1
+cp -f ${source_dir}/gen_sim/src/gen/* ${build_dir} > /dev/null 2>&1
+cp -f ${source_dir}/gen_sim/src/idb/* ${build_dir} > /dev/null 2>&1
+cp -f ${source_dir}/gen_sim/src/idbio/* ${build_dir} > /dev/null 2>&1
+cp -f ${source_dir}/gen_sim/src/intp/* ${build_dir} > /dev/null 2>&1
+cp -f ${source_dir}/gen_sim/src/sim/* ${build_dir} > /dev/null 2>&1
+cp -f ${source_dir}/gen_sim/src/ui/* ${build_dir} > /dev/null 2>&1
+
+cp -f ${source_dir}/main/src/gen/* ${build_dir} > /dev/null 2>&1
+cp -f ${source_dir}/main/src/gen_erate/* ${build_dir} > /dev/null 2>&1
+cp -f ${source_dir}/main/src/imp/* ${build_dir} > /dev/null 2>&1
+cp -f ${source_dir}/main/src/pas/* ${build_dir} > /dev/null 2>&1
+cp -f ${source_dir}/main/tclap/* ${build_dir}/tclap > /dev/null 2>&1
+
+cp -f ${source_dir}/parser/include/* ${build_dir} > /dev/null 2>&1
+cp -f ${source_dir}/parser/src/* ${build_dir} > /dev/null 2>&1
+
+cp -f ${source_dir}/repbin/include/* ${build_dir} > /dev/null 2>&1
+cp -f ${source_dir}/repbin/src/* ${build_dir} > /dev/null 2>&1
+
+cp -f ${source_dir}/utility/include/* ${build_dir} > /dev/null 2>&1
+cp -f ${source_dir}/utility/src/* ${build_dir} > /dev/null 2>&1
+
+cp -f ${source_dir}/xtra_includes/* ${build_dir} > /dev/null 2>&1
+
+cp -fRd ${base_dir}/../mc_dbms/include ${build_dir}/mc_dbms
+cp -fRd ${base_dir}/../mc_dbms/src ${build_dir}/mc_dbms
+cp -f ${base_dir}/../mc_dbms/makefile ${build_dir}/mc_dbms
+
+cp -f ${libtrans_dir}/pt_trans.* ${build_dir}
+cp -f ${libtrans_dir}/libTRANS.def ${build_dir}
+
+#---------------------------------------------------------------------------
+# Clean up stuff that got copied but didn't need to
+#---------------------------------------------------------------------------
+rm -f ${build_dir}/*.mk
+rm -f ${build_dir}/makefile
+rm -f ${build_dir}/*.orig
+
+
+print "Done."

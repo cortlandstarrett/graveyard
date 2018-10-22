@@ -1,0 +1,295 @@
+<HTML>
+<HEAD>
+<TITLE>Service Broker</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Service Broker</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Resource.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Service_Chooser.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The<EM><B> service broker</B></EM> is a service provider implemented by the application <TT>vdasserv</TT>. (The name and implementation of the service broker is platform dependent. Consult your Release Notes for further information.) The service broker provides a service that allows other service providers to register themselves with it so these providers can be located by service consumers. Service consumers also use the service broker to locate potential service providers.<P>
+The service broker does not participate in the normal communication between service providers and service consumers. Its acts as a network-wide locator for all registered services. A typical installation would contain multiple service brokers working in concert to provide a global service location registry for a group of machines or an entire network. The exact configuration (hierarchy) of these brokers is not typically seen by applications using the service registry.<P>
+The service broker does not have a graphical interface. It is purely a background application.<P>
+In a typical installation, no more than one service broker is running on a machine at any time. By default, all applications running on the same machine share the same service broker. The service broker is typically started at system startup, as it must be running for applications to make use of it. Unless otherwise configured to do so, service brokers on different machines do not communicate with each other.<P>
+<A NAME="3609"><H2> Configuring the Service Broker</H2></A>
+The network topology used by the service broker is a forest. (A forest is a set of unconnected trees.) By default, each broker is a tree consisting only of itself&#175;a single node. Two brokers can be joined together by specifying the <TT>vdasservParentLocation</TT> attribute for one of the brokers. The value of the attribute is the location of the parent broker. Two joined brokers have a parent/child relationship. If the specified host does not yet have a broker running, or if the broker on the host terminates for any reason, the child broker periodically attempts to reestablish itself to its parent. The parent broker can be on a different platform, but must have a network level (remote) transport in common with the child (for example, both child and parent must support a transport like 'tcp' or 'decnet'). If the parent and child are on the same machine, they can use either a local transport (for example, 'unix', 'dde', and so forth) or a remote transport to communicate.<P>
+Requests flow through the whole tree regardless of which broker received the initial request. The depth of the tree does not matter, but a deeper tree may take longer to traverse than a shallower tree. Also, if one of the nodes becomes unavailable, the tree is split at that node and each of the child nodes becomes the root of a new tree until the parent node becomes available again. Therefore, unreliable machines should not be configured in the critical path of the hierarchy.<P>
+If setting the parent location causes a cycle, the parent is ignored. A cycle occurs when the broker tree is configured so a node's parent is also one of its descendants. <P>
+(For example, setting the first broker's parent to be the second broker, and the second broker's parent to be the first.) In this case, ignoring the parent still maintains connectivity from the node to the rest of the network because the specified parent was already a descendant.<P>
+The service broker uses a fixed port known by the Service Broker class. (The current default port used is 1928. Note that the default port used may be subject to change in future releases of the Service Broker) If for some reason this port is not available, the preference <TT>vdasservPort</TT> can be used to specify the port. This preference must be set for both the broker and any applications using it. The parent broker port can be specified with <TT>vdasservParentPort</TT>. This preference is specific to the service broker. It is best to use the default ports.<P>
+<A NAME="3619"><H2> Logging</H2></A>
+The service broker provides some administrative logging capabilities in the form of output to a text file. The preference <TT>vdasservLogFile</TT> is used to enable logging. The preference value specifies the pathname of the text file that output should be appended to. The empty path (<TT>""</TT>) uses the default Debugging class output stream. By default, logging is not enabled.<P>
+Events that are logged include establishment of sessions with consumers, services (registered and unregistered), and interactions with other brokers.<P>
+<A NAME="3626"><H2> Purging the Registry</H2></A>
+Periodically, a registered service provider terminates without unregistering itself. This can be the result of a hardware failure, an abnormal termination, or perhaps the programmer's omission to attempt to unregister the provider. These services remain in the broker's registry indefinitely. One way to remove these services is to request the broker to purge its registry. This request is made by invoking another broker with the <TT>-purge</TT> switch, which causes a message to be sent to the broker.<P>
+The broker purges its registry by looking for registered attribute lists that contain a valid Communication class address using the attributes <TT>vsession_Port</TT>, <TT>vsession_Location</TT>, and <TT>vsession_Transport</TT>. Those without valid addresses are left in the registry. Of the remaining lists, those which do accept a connection from the service broker remain and those which do not accept a connection are removed. The Service class automatically adds these attributes so normal DAS applications do not need to be concerned with this. Any services that are purged are noted in the log file (if logging is enabled).<P>
+<A NAME="3634"><H2> Terminating the Service Broker</H2></A>
+The service broker is terminated by running another broker with the argument <br><TT>-shutdown</TT>. This causes the second broker to terminate immediately. The broker's registry (services explicitly registered with it) are lost when the broker terminates. Registries on other (parent/child) brokers are not affected.<P>
+If the broker terminates abnormally while executing, the port it is using may be busy for a short time to prevent the broker from restarting. If you need to terminate the broker, first try to terminate the clients to reduce the possibility of this port remaining busy.<P>
+<A NAME="4089"><H2> Registering and Unregistering a Service</H2></A>
+The easiest way to register a service is to call <TT><B>vdasservRegisterService</B></TT> once the service is enabled. Enabling a service may modify the attribute dictionary and consequently affect the attributes registered. Applications that register a service should also be sure to unregister the service when it is no longer available. Failure to unregister a service clutters the registry with unreachable applications. Eventually these unreachable applications may become purged from the namespace, but it is more friendly for the application to clean up after itself.<P>
+To unregister a service, call <TT><B>vdasservUnregisterService</B></TT>. A service must be unregistered with exactly the same attributes with which it was registered. Since disabling a service might modify some attributes, the service should be unregistered before it is disabled.<P>
+<A HREF="Service_Broker.html#4104">Example 124</A> shows how to register and unregister a service. <P>
+Note that <TT>vdasservRegisterService</TT> and <TT>vdasservUnregisterService</TT> do not guarantee that the application was able to contact the service broker to perform the desired operation. If an application needs to be sure that it has registered or unregistered a particular service, it should establish an explicit session with the service broker and send the appropriate statement and examine the resultant status.<P>
+<A NAME="4104"><I>Example 124.  Registering and unregistering a service
+</I><P>
+<PRE><UL>int main (int argc, char *argv[])
+{
+   vservice      *service;
+
+   service = vserviceCreate();
+   /*  initialize service */
+   // ...
+   vserviceEnable(service);
+   vdasservRegisterService(service);
+
+   veventProcess();   /* enter application event loop */
+
+   /* application cleanup */
+   vdasservUnregisterService(service);
+   vserviceDisable(service);
+   vserviceDestroy(service);
+   // ...
+
+   exit(EXIT_SUCCESS);
+   return EXIT_FAILURE;
+}
+
+</UL></PRE><A NAME="4145"><H2> Establishing a Session</H2></A>
+Any <TT>vsession</TT> can be used to establish a session with the broker. The session should have the attributes contained in the scrap returned by <TT><B>vdasservCreateAttributeScrap</B></TT> before calling <TT><B>vdasservRegisterService</B></TT>.<P>
+<A HREF="Service_Broker.html#4154">Example 125</A> shows how to establish a session with the service broker.<P>
+<A NAME="4154"><I>Example 125.  Establishing a session with the service broker
+</I><P>
+<PRE><UL>{
+   vsession      *sessionBroker;
+
+   sessionBroker = vsessionCreate();
+   vsessionSetAttributesFromScrap(sessionBroker,
+                                  vdasservCreateAttributeScrap());
+   vsessionBegin(sessionBroker);
+   // ...
+   vsessionEnd(sessionBroker);
+   vsessionDestroy(sessionBroker);
+}
+
+</UL></PRE><UL><B><I>NOTE:</I></B> Using the <TT><B>vdasservRegisterService</B></TT> and 
+<TT><B>vdasservUnregisterService</B></TT> functions does not require an explicit 
+session to be established.
+<P>
+</UL><A NAME="4183"><H2> Locating a Service</H2></A>
+An application can find available service providers by sending the broker the statement returned by <TT><B>vdasservMakeMatchStatement</B></TT>. The statement takes a single argument, a dictionary scrap, that specifies some of the required attributes and their values. An array of a provider's matching attributes is returned. Any provider matches the request if it has all the attributes in the specification scrap with appropriate values. Equivalent string and tag values are interchangeable. Similarly, equivalent scalar values (such as a short and an integer) are interchangeable. An empty dictionary scrap matches everything.<P>
+The resulting array is not ordered and may contain providers that were registered on other service brokers known by the service broker that handled the request.<P>
+<A HREF="Service_Broker.html#4193">Example 126</A> shows how to locate all the services known by a service broker.<P>
+<A NAME="4193"><I>Example 126.  Locating known services by a service broker
+</I><P>
+<PRE><UL>{
+   vsession          *sessionBroker;
+   vscrap            *scrapSpec;
+   vsessionStatement *statement;
+
+   /* initialize sessionBroker */
+   // ...
+   scrapSpec = vscrapCreateDictionary();
+   statement = vdasservMakeMatchStatement(sessionBroker,
+                                          scrapSpec);
+   vsessionSetStatementNotify(statement, exampleMatchNotify);
+   vsessionSendStatement(statement);
+   // ...
+}
+
+</UL></PRE><A HREF="Service_Broker.html#4228">Example 127</A> shows an example notification function that handles the result of a match statement.<P>
+<A NAME="4228"><I>Example 127.  Example match notification function
+</I><P>
+<PRE><UL>static void exampleMatchNotify (vsessionStatement      *statement,
+                                vsessionStatementEvent *event)
+{
+   int       code = vsessionGetStatementEventCode(event);
+   int       nArray;
+   int       i;
+   vsession *session;
+   vscrap  **array;
+
+   if (code == vsessionStatementEVENT_COMPLETED) {
+      vsessionGetStatementReturnValue(statement, &amp;nArray,
+                                      &amp;array);
+
+      /* Keep trying to begin a session with something until it
+       * finds one that it can talk to.  This is slightly less
+       *  naive than just picking the first one.
+       */
+      for (i = 0; i &lt; nArray; i++) {
+         session = vsessionCreate();
+         vsessionSetAttributesFromScrap(session, array[i]);
+
+         vexWITH_HANDLING  {
+            vsessionBegin(session);
+         }
+         vexON_EXCEPTION;
+         vexEND_HANDLING;
+
+       if (vsessionIsActive(session)) {
+          /* finish initializing */
+          // ...
+          break;   /* from loop */
+       } else {
+          vsessionDestroy(session);
+          session = NULL;
+       }
+      }  /* end loop  */
+
+      while (--nArray &gt; i)   /* cleanup rest of return results */
+        vscrapDestroy(array[nArray]);
+      if (array != NULL)
+        vmemFree(array);
+   } else {
+      vscribe      *scribe;
+
+      if (code == vsessionStatementEVENT_CANNOT_SEND) {
+         scribe =
+           vcharScribeLiteral("Cannot send statement to Service Broker.n");
+      } else if (code == vsessionStatementEVENT_FAILED) {
+         scribe =
+           vcharScribeLiteral("Error encountered in Service Broker.n");
+      } else {
+         scribe = vcharScribeFormatLiteral("Unknown return result code %d "
+                                           "from Service Broker.n", code);
+      }
+      exampleAlertScribed(scribe);
+   }
+
+   vsessionSetDestroyStatementWhenFinished(statement, TRUE);
+}
+
+</UL></PRE>If the application must find a service before continuing, it can call <TT><B>BlockStatement</B></TT> after sending the statement. When using <TT><B>BlockStatement</B></TT>, it may be more convenient to replace the notification function with a function that returns a pointer to the session and poll the statement's status when <TT><B>BlockStatement</B></TT> returns. Although applications are most friendly when they do not block on statements, <A HREF="Service_Broker.html#4366">Example 128</A> shows how blocking a statement implemented with a null time out can cause an indefinite wait.<P>
+<A NAME="4366"><I>Example 128.  Example of blocking on a broker query
+</I><P>
+<PRE><UL>{
+   vsession *session;
+
+   statement = vdasservMakeMatchStatement(sessionBroker,
+                                          scrapSpec);
+   vsessionSendStatement(statement);
+   vsessionBlockStatement(statement, NULL);   /* dangerous! */
+   if (vsessionGetStatementStatus(statement) ==
+       vsessionStatementSTATUS_COMPLETED)
+     session = exampleMakeSessionFromMatchStatement(statement);
+   else
+     // ...
+     ;
+}
+
+</UL></PRE>The <EM><B>service chooser</B></EM> can be used to provide a graphical interface to the application user. Refer to the <A HREF="Service_Chooser.html#3204">"Service Chooser"</A> chapter for more information.<P>
+<A NAME="4401"><H2> Registering Services</H2></A>
+An application may want to register a service directly rather than use <TT><B>vdasservRegisterService</B></TT>. This gives the application more control over the statement (for example, to look at the return status).<P>
+Services are registered by sending the statement returned by <TT><B>vdasservMakeRegisterStatement</B></TT>. This statement takes a scrap that service consumers see when trying to locate the service. This scrap must contain at least enough information for the service consumers to be able to start a session with the service provider. Typically this scrap is the result of <TT><B>vserviceMakeAttributeScrap</B></TT>.<P>
+<A HREF="Service_Broker.html#4412">Example 129</A> shows how to directly register a service.<P>
+<A NAME="4412"><I>Example 129.  Registering a service using statements
+</I><P>
+<PRE><UL>{
+   vsession          *sessionBroker;
+   vsessionStatement *statement;
+   vservice          *service;
+   vscrap            *scrapAttributes;
+
+    /* setup sessionBroker and service */
+   // ...
+   scrapAttributes = vserviceMakeAttributeScrap(service);
+   statement = vdasservMakeRegisterStatement(sessionBroker,
+                                             scrapAttributes);
+   vsessionSendStatement(statement);
+   vsessionDestroyStatement(statement);
+   // ...
+}
+
+</UL></PRE><A NAME="4444"><H2> Unregistering Services</H2></A>
+Services are unregistered much the same way they are registered. The statement returned by <TT><B>vdasservMakeUnregisterStatement</B></TT> takes a scrap equivalent to the scrap used with <TT><B>vdasservMakeRegisterStatement</B></TT>.<P>
+<UL><B><I>NOTE:</I></B> Since making the statements consumes the scrap, the same scrap instance 
+cannot be used for both registering and unregistering.
+<P>
+</UL>To unregister a service in <A HREF="Service_Broker.html#4412">Example 129</A>, use <TT><B>vdasservUnregisterStatement</B></TT> instead of <TT><B>vdasservMakeRegisterStatement</B></TT>. The service should still be enabled before unregistering it because the attribute scrap may change when the service is disabled.<P>
+<A NAME="4454"><H2> Specifying the Default Service Broker</H2></A>
+The Service Broker class considers the following preferences when creating the attribute scrap to be returned by <TT><B>vdasservCreateAttributeScrap</B></TT>:<P>
+<UL><TT>vdasservLocation</TT>	The host name of the service broker.
+<P><TT>vdasservTransport</TT>	Transport used by the service broker.
+<P><TT>vdasserv	</TT>Port of the broker.
+<P></UL>These preferences do not explicitly appear in the scrap, but other attributes in the scrap may be modified accordingly. Applications should not modify these preferences directly, but they can be modified by a resource file used by the application (using the resource dictionary <TT>vdasserv</TT>). This allows an application to use the broker on another machine rather than supply one itself for non-standard installations of the service broker. For more information on preferences, refer to the <A HREF="Preference.html#3204">"Preference"</A> chapter.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Resource.html">Previous Chapter</A> | 
+		<A HREF="Service_Chooser.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

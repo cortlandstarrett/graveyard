@@ -1,0 +1,341 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vstartup prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vstartup prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vstartup-x.html#section_DataType">Types</A> [1]</TD>
+<TD><A HREF="vstartup-x.html#section_Function">Functions</A> [8]</TD>
+<TD></TD>
+<TD><A HREF="vstartup-x.html#section_Constant">Constants</A> [1]</TD>
+<TD></TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vstartupFunction"><HR><H4>vstartupFunction</H4></A>
+<PRE>
+        typedef ... <B>vstartupFunction</B>;
+</PRE>
+
+<DL><DD>
+Type of a startup function pointer which is registered with <code>vstartup</code>.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vstartup"><HR><H4>vstartup</H4></A>
+<PRE>
+        void <B>vstartup</B>(
+                int argc,
+                char ** argv);
+</PRE>
+
+<DL><DD>
+Registers startup functions for all the classes provided by Galaxy, 
+and initializes all preferences. This function should be called by your
+<SAMP>main</SAMP> function with its command-line arguments
+<SAMP>argc</SAMP> and <SAMP>argv</SAMP>.
+<P> 
+Note that any modules <I>not</I> initialized by this
+function will be initialized on first use. This is the
+easiest way to initialize Galaxy. For example:
+
+<P>
+<BLOCKQUOTE>
+<PRE>
+
+int main(int argc, char **argv)
+
+{
+    <A HREF="vdialog-x.html#vdialog"><CODE>vdialog</CODE></A> *dialog;
+
+    vstartup(argc, argv);
+
+    dialog = <A HREF="vdialog-x.html#vdialogLoad"><CODE>vdialogLoad</CODE></A>(<A HREF="vresource-x.html#vresourceGet"><CODE>vresourceGet</CODE></A>(<A HREF="vapplication-x.html#vapplicationGetResources"><CODE>vapplicationGetResources</CODE></A>(), 
+                         <A HREF="vname-x.html#vnameInternGlobalLiteral"><CODE>vnameInternGlobalLiteral</CODE></A>("MainDialog")));
+
+    <A HREF="vdialog-x.html#vdialogOpen"><CODE>vdialogOpen</CODE></A>(dialog);
+
+    <A HREF="vevent-x.html#veventProcess"><CODE>veventProcess</CODE></A>();
+
+    return EXIT_SUCCESS; 
+}
+
+</PRE>
+</BLOCKQUOTE>
+
+    <P>
+Alternatively, you can call <CODE><A HREF="vstartup-x.html#vstartupMinimal"><CODE>vstartupMinimal</CODE></A></CODE> from
+the beginning of your <SAMP>main</SAMP> function to pass
+your command-line arguments to Galaxy, then explicitly
+initialize each class that you know you may be using. Use
+the <CODE>GetDefaultClass</CODE> function of the module
+that implements a given class to register its classes. Call
+<CODE><A HREF="vwindow-x.html#vwindowGetDefaultClass"><CODE>vwindowGetDefaultClass</CODE></A></CODE> for example, to
+register the default window class. If you use this
+approach, your application may be smaller than if you use
+<CODE>vstartup</CODE> to initialize Galaxy (if you 
+are using static libraries). For example:
+
+<P>
+<BLOCKQUOTE>
+<PRE>
+
+int main(int argc, char **argv)
+
+{
+    <A HREF="vdialog-x.html#vdialog"><CODE>vdialog</CODE></A> *dialog;
+
+    <A HREF="vstartup-x.html#vstartupMinimal"><CODE>vstartupMinimal</CODE></A>(argc, argv);
+
+    (void)<A HREF="vdialog-x.html#vdialogGetDefaultClass"><CODE>vdialogGetDefaultClass</CODE></A>();
+    (void)<A HREF="vtextitem-x.html#vtextitemGetDefaultClass"><CODE>vtextitemGetDefaultClass</CODE></A>();
+    (void)<A HREF="vlistitem-x.html#vlistitemGetDefaultClass"><CODE>vlistitemGetDefaultClass</CODE></A>();
+    (void)<A HREF="vmenubar-x.html#vmenubarGetDefaultClass"><CODE>vmenubarGetDefaultClass</CODE></A>();
+
+    dialog = <A HREF="vdialog-x.html#vdialogLoad"><CODE>vdialogLoad</CODE></A>(<A HREF="vresource-x.html#vresourceGet"><CODE>vresourceGet</CODE></A>(<A HREF="vapplication-x.html#vapplicationGetResources"><CODE>vapplicationGetResources</CODE></A>(), 
+                         <A HREF="vname-x.html#vnameInternGlobalLiteral"><CODE>vnameInternGlobalLiteral</CODE></A>("MainDialog")));
+
+    <A HREF="vdialog-x.html#vdialogOpen"><CODE>vdialogOpen</CODE></A>(dialog);
+
+    <A HREF="vevent-x.html#veventProcess"><CODE>veventProcess</CODE></A>();
+
+    return EXIT_SUCCESS; 
+}
+
+</PRE>
+</BLOCKQUOTE>
+
+<P>
+If you fail to register the class of an object that is
+contained in a resource file, you will get a
+<CODE><A HREF="vobject-x.html#vobjectUndefinedClassException"><CODE>vobjectUndefinedClassException</CODE></A></CODE> when you
+attempt to read the object from the resource. It is
+recommended that you use <CODE>vstartup</CODE> for your
+initial application development, then switch to the above
+approach if it significantly reduces the size of your
+application executable file. Refer to the Class Manager
+chapter of the <I>Galaxy Application Environment Programmer's Guide</I>
+for more information about class registration.
+    <P>
+Note that in Release 3.0 <CODE>vstartup</CODE> 
+does not actually initialize most of the 
+Galaxy class, but instead registers startup functions for classes of those
+managers. This results in a more "lazy" (but presumably more selective) 
+startup. If you desire the old behavior of <CODE>vstartup</CODE> 
+which initializes everything right away, use <CODE><A HREF="vstartup-x.html#vstartupAll"><CODE>vstartupAll</CODE></A></CODE>. 
+<P>
+Note that since <CODE>vstartup</CODE> can call routines in
+any Galaxy classes, it is possible for it to generate just
+about any exception in Galaxy.
+</DD></DL>
+<P>
+<A NAME="vstartupAll"><HR><H4>vstartupAll</H4></A>
+<PRE>
+        void <B>vstartupAll</B>(
+                int argc,
+                char ** argv);
+</PRE>
+
+<DL><DD>
+Initializes all Galaxy classes. Refer to the section 
+<CODE>vstartup</CODE> for
+more discussion of Galaxy startup.
+</DD></DL>
+<P>
+<A NAME="vstartupDelayed"><HR><H4>vstartupDelayed</H4></A>
+<PRE>
+        void <B>vstartupDelayed</B>(
+                int argc,
+                char ** argv);
+</PRE>
+
+<DL><DD>
+Registers all the startup functions provided by Galaxy. The startup functions
+will be called as needed to instantiate their classes.
+Refer to the section <CODE>vstartup</CODE> for more information on Galaxy startup.
+</DD></DL>
+<P>
+<A NAME="vstartupGetClassStartup"><HR><H4>vstartupGetClassStartup</H4></A>
+<PRE>
+        vstartupFunction <B>vstartupGetClassStartup</B>(
+                const vname * classPrefix);
+</PRE>
+
+<DL><DD>
+Returns the startup function which has been registered for the given class
+prefix. Returns <samp>NULL</samp> if no such function has been registered.
+</DD></DL>
+<P>
+<A NAME="vstartupMinimal"><HR><H4>vstartupMinimal</H4></A>
+<PRE>
+        void <B>vstartupMinimal</B>(
+                int argc,
+                char ** argv);
+</PRE>
+
+<DL><DD>
+Performs the minimum amount of startup necessary to initialize Galaxy.  
+Initializes the preference manager, but does not register or call any 
+startup functions. Use this startup variant only if you are manually 
+calling or registering startup functions. Refer to the section 
+<CODE>vstartup</CODE> for more information on Galaxy startup.
+</DD></DL>
+<P>
+<A NAME="vstartupPrefs"><HR><H4>vstartupPrefs</H4></A>
+<PRE>
+        void <B>vstartupPrefs</B>(
+                int argc,
+                char ** argv);
+</PRE>
+
+<DL><DD>
+Registers startup functions for all the classes provided by Galaxy, 
+and initializes all preferences. This function is identical to 
+<CODE>vstartup</CODE>. Refer to the section 
+<CODE>vstartup</CODE> for more information on Galaxy startup.
+</DD></DL>
+<P>
+<A NAME="vstartupRegisterClassStartup"><HR><H4>vstartupRegisterClassStartup</H4></A>
+<PRE>
+        void <B>vstartupRegisterClassStartup</B>(
+                const vname * classPrefix,
+                vstartupFunction startupFunction);
+</PRE>
+
+<DL><DD>
+Registers a startup function for classes beginning with the given prefix. The
+startup function will be called automatically when a <A HREF="vclass-x.html#vclass"><CODE>vclass</CODE></A> tries to load a
+class which has the given prefix to its name. The "prefix" of a class is 
+determined to be the longest prefix of the class name string which consists of
+lower case letters and digits. For example, the prefix of "<A HREF="vdialog-x.html#vdialogItem"><CODE>vdialogItem</CODE></A>" is
+"<A HREF="vdialog-x.html#vdialog"><CODE>vdialog</CODE></A>". The startup function registered under "<A HREF="vdialog-x.html#vdialog"><CODE>vdialog</CODE></A>"
+must start up _all_ the classes with the <A HREF="vdialog-x.html#vdialog"><CODE>vdialog</CODE></A> prefix.
+    <P>
+A startup function registered in this way should instantiate all classes in
+your application with the given prefix. This allows "lazy" startup of user
+classes when they are encountered, for example, in resource files. 
+For more information, refer to the section <CODE><A HREF="vstartup-x.html#vstartupRegisterModule"><CODE>vstartupRegisterModule</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vstartupRegisterModule"><HR><H4>vstartupRegisterModule</H4></A>
+<PRE>
+        void <B>vstartupRegisterModule</B>(
+                vmodule * module);
+</PRE>
+
+<DL><DD>
+Registers the given module as a source of dynamic startup functions. When 
+<A HREF="vclass-x.html#vclass"><CODE>vclass</CODE></A> encounters an unregistered class name, which has no startup function
+registered from it, it tries to dynamically lookup the startup function for
+the class in any modules which have been registered. This startup function
+should instantiate all classes in the application with the given prefix.
+    <P>
+The startup function name is formed by concatenating the class prefix 
+with "Startup".  The "prefix" of a class is determined to be the longest 
+prefix of the class name string which consists of lower case letters 
+and digits. For example, the prefix of "<A HREF="vdialog-x.html#vdialogItem"><CODE>vdialogItem</CODE></A>" is "<A HREF="vdialog-x.html#vdialog"><CODE>vdialog</CODE></A>", and the
+startup function for the class "<A HREF="vdialog-x.html#vdialogItem"><CODE>vdialogItem</CODE></A>" would be "<A HREF="vdialog-x.html#vdialogStartup"><CODE>vdialogStartup</CODE></A>".
+This function then must start up _all_ the classes with the <A HREF="vdialog-x.html#vdialog"><CODE>vdialog</CODE></A> prefix. 
+For more information, refer to the section <CODE><A HREF="vstartup-x.html#vstartupRegisterClassStartup"><CODE>vstartupRegisterClassStartup</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vstartupINCLUDED"><HR><H4>vstartupINCLUDED</H4></A>
+<PRE>
+        <B>vstartupINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vstartup.h</SAMP> is
+included.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

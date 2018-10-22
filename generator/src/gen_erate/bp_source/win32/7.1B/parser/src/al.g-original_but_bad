@@ -1,0 +1,3004 @@
+//========================================================================
+//
+// File:      $RCSfile: al.g-original_but_bad,v $
+// Version:   $Revision: 1.8 $
+// Modified:  $Date: 2013/01/10 23:41:22 $
+//
+// (c) Copyright 1992-2013 by Mentor Graphics Corp. All rights reserved.
+//
+//========================================================================
+// This document contains information proprietary and confidential to
+// Mentor Graphics Corp., and is not for external distribution.
+//======================================================================== 
+//
+
+header {
+#include "p_types.hh"
+#include "myAST.h"
+#include "p_symtbl.hh"
+#include "p_msgs.hh"
+#include "p_error.hh"
+#include "p_check.hh"
+#include "p_ckbase.hh"
+#include "p_tthred.hh"
+#include "d_typdef.hh"
+#include "u_desc.hh"
+#include <stdio.h>
+#include "sym.hh"
+}
+
+
+//---------------------------------------------------------------------
+// scanner rules
+//---------------------------------------------------------------------
+
+//---------------------------------------------------------------------
+// single quoted character strings
+// (Note:  separate scanner class!)
+// All ticked text strings will be stored as Bush_Relocatables without
+// the surrounding ticks.  It is important to know how long a token is
+// and what the displacement of it is in the AL buffer.  Note that we
+// are messing with the length here when the trailing tick is replaced
+// with '\0'.  We need to assure the Bushes are created correctly; This
+// could cause problems with the MB backend when it creates the Bushes.
+//---------------------------------------------------------------------
+#lexclass TICKED_PHRASE
+
+#token TOK_BADPHRASE_EOF "@@"          << replchar('\0'); mode(START); >>
+#token                   "~['\n\r@]"   << more(); >>
+#token TOK_PHRASE        "'"           << mode(START); >>
+#token TOK_BADPHRASE_NL  "\n|\r|\r\n"  << replchar('\'');
+                                          ColToken::update_offset(endcol());
+                                          newline();
+                                          set_endcol(0);
+                                          mode(START);
+                                       >>
+
+//---------------------------------------------------------------------
+// string literal processing
+// (Note:  separate scanner class!)
+// All (double) quoted strings will be captured in the AST without
+// the surrounding quotes.  Doubled quotes imbedded in the string
+// will be changed to a single quote.
+//---------------------------------------------------------------------
+#lexclass QUOTED_STRING
+
+#token TOK_BADSTRING_EOF "@@@"         << replchar('\0'); mode(START); >>
+#token                   "\"\""        << more(); >>
+#token                   "~[\"\n\r@]"  << more(); >>
+#token TOK_STRING        "\""          << replchar('\0');
+                                          mode(START);
+                                       >>
+#token TOK_BADSTRING_NL  "\n|\r|\r\n"  << replchar('\0');
+                                          ColToken::update_offset(endcol());
+                                          newline();
+                                          set_endcol(0);
+                                          mode(START);
+                                       >>
+
+//---------------------------------------------------------------------
+// C-sytle comment processing
+// (Note:  separate scanner class!)
+//---------------------------------------------------------------------
+#lexclass C_COMMENT
+
+#token TOK_MISSING_ASTSL  "@@@@"       << replchar('\0');
+                                          mode(START);
+                                       >>
+#token                    "\*/"        << replchar('\0');
+                                          skip();
+                                          mode(START);
+                                       >>
+#token                    "\n|\r|\r\n" << replchar('\0');
+                                          ColToken::update_offset(endcol());
+                                          newline();
+                                          set_endcol(0);
+                                          skip();
+                                       >>
+#token                    "~[]"        << skip(); >>
+
+//--------------------------------------------------------------------
+// "Main" scanner class
+//--------------------------------------------------------------------
+#lexclass START
+
+//--------------------------------------------------------------------
+// keywords
+//--------------------------------------------------------------------
+// Set 1 - keywords which cannot also be local variables
+//   kw_as_id1 starting token
+#token TOK_ACROSS       "[aA]cross       | ACROSS"
+#token TOK_ANY          "[aA]ny          | ANY"
+#token TOK_ASSIGNER     "[aA]ssigner     | ASSIGNER"
+#token TOK_ASSIGN       "[aA]ssign       | ASSIGN"
+#token TOK_BREAKTOKEN   "[bB]reak        | BREAK"
+#token TOK_BY           "[bB]y           | BY"
+#token TOK_CLASS        "[cC]lass        | CLASS"
+#token TOK_CONTINUE     "[cC]ontinue     | CONTINUE"
+#token TOK_CONTROL      "[cC]ontrol      | CONTROL"
+#token TOK_CREATE       "[cC]reate       | CREATE"
+#token TOK_CREATOR      "[cC]reator      | CREATOR"
+#token TOK_DELETE       "[dD]elete       | DELETE"
+#token TOK_EACH         "[eE]ach         | EACH"
+#token TOK_END          "[eE]nd          | END"
+#token TOK_EVENT        "[eE]vent        | EVENT"
+#token TOK_FOR          "[fF]or          | FOR"
+#token TOK_FROM         "[fF]rom         | FROM"
+#token TOK_GENERATE     "[gG]enerate     | GENERATE"
+#token TOK_IN           "[iI]n           | IN"
+#token TOK_INSTANCES    "[iI]nstances    | INSTANCES"
+#token TOK_INSTANCE     "[iI]nstance     | INSTANCE"
+#token TOK_MANY         "[mM]any         | MANY"
+#token TOK_OBJECT       "[oO]bject       | OBJECT"
+#token TOK_OF           "[oO]f           | OF"
+#token TOK_ONE          "[oO]ne          | ONE"
+#token TOK_RELATED      "[rR]elated      | RELATED"
+#token TOK_RELATE       "[rR]elate       | RELATE"
+#token TOK_SELECT       "[sS]elect       | SELECT"
+#token TOK_STOP         "[sS]top         | STOP"
+#token TOK_TO           "[tT]o           | TO"
+#token TOK_WHERE        "[wW]here        | WHERE"
+#token TOK_UNRELATE     "[uU]nrelate     | UNRELATE"
+#token TOK_USING        "[uU]sing        | USING"
+//  kw_as_id1 ending token
+
+// Set 2 - keywords which cannot also be local variables
+//  kw_as_id2 starting token
+#token TOK_BRIDGE       "[bB]ridge       | BRIDGE"
+#token TOK_CARDINALITY  "[cC]ardinality  | CARDINALITY"
+#token TOK_EMPTY        "[eE]mpty        | EMPTY"
+#token TOK_FALSETOKEN   "[fF]alse        | FALSE"
+#token TOK_NOT          "[nN]ot          | NOT"
+#token TOK_NOTEMPTY     "[nN]ot_[eE]mpty | NOT_EMPTY"
+#token TOK_TRANSFORM    "[tT]ransform    | TRANSFORM"
+#token TOK_TRUETOKEN    "[tT]rue         | TRUE"
+//  kw_as_id2 ending token
+
+// Set 3 - keywords which cannot be used otherwise
+//  kw_as_id3 starting token
+#token TOK_PARAM        "[pP]aram        | PARAM"
+#token TOK_RCVD_EVT     "[rR]cvd_[eE]vt  | RCVD_EVT"
+#token TOK_SELECTED     "[sS]elected     | SELECTED"
+#token TOK_SELF         "[sS]elf         | SELF"
+//  kw_as_id3 ending token
+
+// Set 4 - keywords which cannot be used otherwise
+//  kw_as_id4 starting token
+#token TOK_AND          "[aA]nd          | AND"
+#token TOK_ELIF         "[eE]lif         | ELIF"
+#token TOK_ELSE         "[eE]lse         | ELSE"
+#token TOK_IF           "[iI]f           | IF"
+#token TOK_OR           "[oO]r           | OR"
+#token TOK_RETURN       "[rR]eturn       | RETURN"
+#token TOK_WHILE        "[wW]hile        | WHILE"
+//  kw_as_id4 ending token
+
+//--------------------------------------------------------------------
+// debug tokens
+//--------------------------------------------------------------------
+#token TOK_DEBUG        "_[dD]ebug       | _DEBUG"
+#token TOK_ON           "_[oO]n          | _ON"
+#token TOK_OFF          "_[oO]ff         | _OFF"
+#token TOK_TRACE        "_[tT]race       | _TRACE"
+#token TOK_STAT         "_[sS]tat        | _STAT"
+#token TOK_DUMP         "_[dD]ump        | _DUMP"
+#token TOK_SOR          "_[sS]or         | _SOR"
+
+//---------------------------------------------------------------------
+// operators
+//---------------------------------------------------------------------
+#token TOK_ARROW        "\->"
+#token TOK_COMMA        ","
+#token TOK_COLON        ":"
+#token TOK_DIV          "\/"
+#token TOK_DOT          "\."
+#token TOK_DOUBLECOLON  "::"
+#token TOK_DOUBLEEQUAL  "=="
+#token TOK_EQUAL        "="
+#token TOK_GE           ">="
+#token TOK_GT           ">"
+#token TOK_LE           "<="
+#token TOK_LESSTHAN     "<"
+#token TOK_LPAREN       "\("
+#token TOK_LSQBR        "\["
+#token TOK_MINUS        "\-"
+#token TOK_MOD          "%"
+#token TOK_NOTEQUAL     "\!="
+#token TOK_PLUS         "\+"
+#token TOK_RPAREN       "\)"
+#token TOK_RSQBR        "\]"
+#token TOK_SEMI         ";"
+#token TOK_TIMES        "\*"
+#token TOK_QMARK        "?"
+
+//--------------------------------------------------------------------
+// literals
+//--------------------------------------------------------------------
+#token TOK_TICK         "'"   << more();
+                                 mode(TICKED_PHRASE);
+                              >>
+#token TOK_QUOTE        "\""  << mode(QUOTED_STRING); >>
+
+#token TOK_FRACTION     "( ([0-9]*.[0-9]+) | ([0-9]+.) ) {[eE] {[\-\+]} [0-9]+} {[FfLl]}"
+
+//--------------------------------------------------------------------
+// comments
+//--------------------------------------------------------------------
+#token TOK_COMMENT      "// ~[\n\r@]*" << skip(); >>
+#token TOK_C_COMMENT    "/\*"          << skip();
+                                          mode(C_COMMENT);
+                                       >>
+
+// special Antlr token for eof
+#token Eof          "@"        << replchar('\0'); >>  
+
+//--------------------------------------------------------------------
+// tokens for semantic checking
+//--------------------------------------------------------------------
+#token TOK_KL_OBJECT
+#token TOK_KL_EXTERNAL_ENTITY
+#token TOK_KL_UNKNOWN
+
+//--------------------------------------------------------------------
+// tokens for AST trees
+//--------------------------------------------------------------------
+// Statement tokens
+#token TOK_STMT_ASSIGN
+#token TOK_STMT_BREAK
+#token TOK_STMT_BRIDGE
+#token TOK_STMT_CONTINUE
+#token TOK_STMT_CONTROL
+#token TOK_STMT_CREATE_EVENT
+#token TOK_STMT_CREATE_OBJECT
+#token TOK_STMT_DELETE
+#token TOK_STMT_EMPTY
+#token TOK_STMT_FOR
+#token TOK_STMT_GENERATE
+#token TOK_STMT_IF
+#token TOK_STMT_RELATE
+#token TOK_STMT_RETURN
+#token TOK_STMT_SELECT_ONE
+#token TOK_STMT_SELECT_ANY
+#token TOK_STMT_SELECT_MANY
+#token TOK_STMT_SYNCH_SVC
+#token TOK_STMT_TRANSFORM
+#token TOK_STMT_UNRELATE
+#token TOK_STMT_WHILE
+#token TOK_STMT_UNKNOWN
+#token TOK_RELATED_WHERE
+
+#token TOK_STATEMENTS
+#token TOK_CONTEXT_PUSH
+#token TOK_CONTEXT_POP
+#token TOK_CLAUSE_IF
+#token TOK_CLAUSE_ELIF
+#token TOK_CLAUSE_ELSE
+#token TOK_CLAUSE_FOR
+#token TOK_CLAUSE_WHILE
+
+// Data items
+#token TOK_ENUMERATOR
+#token TOK_ENUMERATION
+#token TOK_BRIDGE_EXPR
+#token TOK_BRIDGE_PARAM
+#token TOK_ATTRIBUTE_PARAM
+#token TOK_DATA_ITEM_NAME
+#token TOK_EVENT_LABEL
+#token TOK_EVENT_REF_VAR
+#token TOK_EXPRESSION
+#token TOK_PAREN_EXPR
+#token TOK_FUNCTION_NAME
+#token TOK_INST_REF
+#token TOK_INST_REF_SET_VAR
+#token TOK_INST_REF_VAR
+#token TOK_KL_OBJECT_ASSIGNER
+#token TOK_KL_OBJECT_CREATOR
+#token TOK_LOCAL_VAR
+#token TOK_OBJ_ATTR
+#token TOK_SUPP_DATA
+#token TOK_SUPP_DATA_NAME
+#token TOK_SYNCH_SVC_EXPR
+#token TOK_SYNCH_SVC_PARAM
+#token TOK_TRANSFORMER_EXPR
+#token TOK_TRANSFORMER_IB_EXPR
+#token TOK_TRANSFORMER_PARAM
+#token TOK_UNARY_PLUS
+#token TOK_UNARY_MINUS
+#token TOK_SPECIAL_WHERE
+
+#errclass "operator" { TOK_PLUS TOK_MINUS TOK_TIMES TOK_DIV TOK_MOD TOK_AND TOK_OR }
+#errclass "boolean operator" { TOK_DOUBLEEQUAL TOK_NOTEQUAL TOK_LESSTHAN TOK_LE TOK_GT TOK_GE }
+
+#tokclass TOK_COMPARISON_OPERATOR { TOK_DOUBLEEQUAL TOK_NOTEQUAL TOK_LESSTHAN TOK_LE TOK_GT TOK_GE }
+#tokclass TOK_PLUS_OR_MINUS { TOK_PLUS TOK_MINUS }
+#tokclass TOK_MULT_OP { TOK_TIMES TOK_DIV TOK_MOD }
+#tokclass TOK_RESYNCH { TOK_SEMI Eof }
+
+#lexprefix <<
+#include "p_error.hh"
+#include "P.h"
+#include "vchar.h"
+>>
+
+#lexmember <<
+void errstd(const char *s)
+{
+  if ( s )
+  {
+    ((P*)parser)->er->stmt_error( _line, _begcol, _endcol, 
+       "Near line %d col %d (err354): %S (skipping text '%S')\n",
+        _line, _begcol, vcharScribeASCII(s), vcharScribeASCII(_lextext) );
+  }
+  else
+  {
+    ((P*)parser)->er->stmt_error( _line, _begcol, _endcol, 
+       "Near line %d col %d (err355): Lexical error (skipping text '%S')\n",
+       _line, _begcol, vcharScribeASCII(_lextext) );
+  }
+}
+
+void panic ( const char *msg )
+{
+  throw msg;
+}
+>>
+
+//---------------------------------------------------------------------
+// Parser class is defined here.
+//---------------------------------------------------------------------
+class P
+{
+<<
+public:
+  void init( P_error *p_er,
+             P_checkBase *p_ck,
+             persObjPtr p_self,
+             persObjPtr p_rcvd_evt,
+             persObjPtr p_selected,
+             persObjPtr p_param ); 
+
+  // this function is here purely to eliminate a compiler warning:
+  //    warning:  P::init()  hides virtual ANTLRParser::init() 
+  void init()
+    { panic ( "incorrect parser initialization function called" ); }
+
+  void setBufferAddr(const char *p_ascii_buffer,
+                     const vchar *p_vchar_buffer);
+  void initReloc();
+  void initWSpec(bool p_trace, bool p_dump);
+  ~P();
+  static const ANTLRChar *_get_token( const ANTLRTokenType token );
+  static const ANTLRChar * tokenName(ANTLRTokenType t);
+  void syn(ANTLRAbstractToken * tok,
+           ANTLRChar * egroup,
+           SetWordType * eset,
+           ANTLRTokenType etok,
+           int k);
+  bool enum_oper_check( AST* op );
+  bool accum_datatype( AST* e1, AST* e2, t_core_data_type &t1,
+                       t_core_data_type t2,
+                       bool &mismatch );
+  void tracein(const char *r);
+  void traceout(const char *r);
+
+  void panic ( const char *msg )
+  {
+    throw msg;
+  }
+
+  // This is invoked externally
+  void parse_action(ASTBase **_root,int *_retsignal );
+
+public:
+  P_error *er;
+  P_check *pck;
+  BPSymbol_Table *st;
+  P_treeThread *ttr;   // relocatables
+  P_treeThread *ttqm;  // question marks
+  bool relocflag;
+  bool wspecflag;
+  bool trace;
+  bool dumpflag;
+  bool sor;
+  bool severe_error;
+  // For parsing AL in bridge and transformer descriptions
+  bool return_valid;
+  bool return_found;
+  // For parsing AL in derived attributes
+  vchar* attribute_write_valid;
+  bool attribute_write_found;
+  // For insuring that selected is used in a where clause
+  bool selected_found;
+  bool in_where;
+  void* return_type_reqd;
+  // For handling param.a in AL specifications
+  enum al_spec_type
+    {
+      AL_SPEC_NONE_E,
+      AL_SPEC_STATE_ACTION_E,
+      AL_SPEC_ASSIGNER_E,
+      AL_SPEC_IB_ASSIGNER_E,
+      AL_SPEC_BRIDGE_E,
+      AL_SPEC_TRANSFORMER_E,
+      AL_SPEC_IB_TRANSFORMER_E,
+      AL_SPEC_SYNSVC_E,
+      AL_SPEC_ATTRIBUTE_E
+    };
+  bool param_valid;
+  bool self_valid;
+  al_spec_type spec_type;
+  Description spec_descr;
+  int loop_clause_nest_level;
+  const char *ascii_buffer;
+  const vchar *orig_buffer;
+>>
+
+exception
+    default :
+	   << tracein("default exception handler");
+          *_retsignal = _signal;
+          traceout("default exception handler");
+      >>
+
+
+statement!
+  "state actions"
+  : << loop_clause_nest_level = 0;
+       er->no_stmt_error();
+    >>
+    (
+      stmt:valid_statement
+        << #( NULL, #0->bottom(), #stmt ); >>
+    |
+      ustmt:unmatched_statement
+        << #( NULL, #0->bottom(), #ustmt ); >>
+    )*
+    Eof
+  ;
+exception
+    default :
+	  << tracein("statement exception handler");
+         AST *c_ast = #[LT(1)];
+         // Prevent an endless loop here:
+         if ( set_el(LA(1), TOK_RESYNCH_set) )
+           {
+             AL_PARSE_ERR1( c_ast, AL_GETMSG(ERR,300,1),
+                            c_ast->getVcharText() )
+             labase++;
+             consume();
+           }
+         else
+           {
+             if (LA(1) == TOK_MISSING_ASTSL )
+               {
+                 // Missing trailing asterisk-slash on a comment
+                 AL_PARSE_ERR0( c_ast, AL_GETMSG(ERR,321,0) )
+               }
+             else
+               {
+                 AL_PARSE_ERR1( c_ast, AL_GETMSG(ERR,300,1),
+                                c_ast->getVcharText() )
+               }
+             consumeUntil(TOK_RESYNCH_set);
+             *_retsignal=NoSignal;
+           }
+         delete c_ast;
+         traceout("statement exception handler");
+      >>
+
+// This is invoked externally
+al_spec[al_spec_type p_type, char *p_descr, void* p_return_type_reqd, const vchar* p_attribute_write_valid]
+  "AL specification"
+  : <<
+       spec_type = $p_type;
+       spec_descr = $p_descr;
+       return_type_reqd = $p_return_type_reqd;
+       switch (spec_type)
+         {
+         case AL_SPEC_NONE_E:
+           // should never get here
+           // invoke an error and exit parser
+           return;
+           break;
+         case AL_SPEC_STATE_ACTION_E:
+           return_valid = FALSE;
+           param_valid = FALSE;
+           self_valid = TRUE;
+           attribute_write_valid = 0;
+           break;
+         case AL_SPEC_ASSIGNER_E:
+           return_valid = FALSE;
+           param_valid = FALSE;
+           self_valid = FALSE;
+           attribute_write_valid = 0;
+           break;
+         case AL_SPEC_IB_ASSIGNER_E:
+           return_valid = FALSE;
+           param_valid = FALSE;
+           self_valid = TRUE;
+           attribute_write_valid = 0;
+           break;
+         case AL_SPEC_BRIDGE_E:
+           return_valid = TRUE;
+           param_valid = TRUE;
+           self_valid = FALSE;
+           attribute_write_valid = 0;
+           break;
+         case AL_SPEC_TRANSFORMER_E:
+           return_valid = TRUE;
+           param_valid = TRUE;
+           self_valid = FALSE;
+           attribute_write_valid = 0;
+           break;
+         case AL_SPEC_IB_TRANSFORMER_E:
+           return_valid = TRUE;
+           param_valid = TRUE;
+           self_valid = TRUE;
+           attribute_write_valid = 0;
+           break;
+         case AL_SPEC_SYNSVC_E:
+           return_valid = TRUE;
+           param_valid = TRUE;
+           self_valid = FALSE;
+           attribute_write_valid = 0;
+           break;
+         case AL_SPEC_ATTRIBUTE_E:
+           return_valid = FALSE;
+           param_valid = FALSE;
+           self_valid = TRUE;
+           attribute_write_valid = (vchar*)p_attribute_write_valid;
+           break;
+         }
+       // Parse the AL with the parse_action function (not a rule)
+       return_found = FALSE;
+	   attribute_write_found = FALSE;
+       loop_clause_nest_level = 0;
+       parse_action( &(#0), &_signal );
+    >>
+  e:Eof
+    << if ( ! return_found && ! attribute_write_valid )
+         {
+           pck->verify_return_void( return_type_reqd, e_ast, spec_descr.char_ptr());
+         }
+       if ( attribute_write_valid && ! attribute_write_found )
+         {
+           AL_PARSE_ERR1( e_ast, AL_GETMSG(ERR,249,1), attribute_write_valid )
+         }
+    >>
+  ;
+
+valid_statement
+  "action statement"
+  : << AST *c_ast = NULL;
+       er->no_stmt_error();
+       bool adjust_seglength = TRUE;
+    >>
+  (
+    (     implicit_ib_transform_statement )?
+    iibt: implicit_ib_transform_statement
+  |
+    (     synch_svc_statement )?
+    ssvc: synch_svc_statement
+  | iasn: implicit_assignment_statement
+  | ibt : implicit_bridge_or_transform_statement
+
+  | asgn: assignment_statement
+  | ctrl: control_statement
+  | brk : break_statement
+      << if ( ! loop_clause_nest_level )
+           AL_PARSE_ERR0( #brk, AL_GETMSG(ERR,009,0) )
+      >>
+  | brdg: bridge_statement
+  | cont: continue_statement
+      << if ( ! loop_clause_nest_level )
+           AL_PARSE_ERR0( #cont, AL_GETMSG(ERR,010,0) )
+      >>
+  | crob: create_object_statement
+  | crte: create_event_statement
+  | del : delete_statement
+  | fors: for_statement      << adjust_seglength = FALSE; >>
+  | gen : generate_statement
+  | ifst: if_statement       << adjust_seglength = FALSE; >>
+  | rel : relate_statement
+  | rtrn: return_statement
+  | sel : select_statement
+  | tran: transform_statement
+  | whil: while_statement    << adjust_seglength = FALSE; >>
+  | urel: unrelate_statement
+  | dbug: debug_statement
+  | emty: empty_statement
+  )
+    semi:TOK_SEMI!
+      << AST *stmt;
+         c_ast = #[$semi];
+         long int semi_offset = c_ast->getOffset();
+         delete c_ast;
+         stmt = (AST *)*_root;
+         if ( stmt )
+           {
+             long int stmt_offset = stmt->getOffset();
+             if ( stmt_offset == -1 )
+               stmt->setOffset(semi_offset);
+             if (adjust_seglength)
+               stmt->setSegLength(semi_offset + 1 - stmt_offset);
+           }
+         if ( dumpflag && #0 )
+           {
+             printf("--------------------------------------------------\n");
+             ((AST *)#0)->dumpTree("\nAST tree", ascii_buffer);
+           }
+      >>
+  ;
+
+if_clause_statement
+  "valid statement in if clause"
+  : << er->no_stmt_error(); >>
+  ( valid_statement
+  | unmatched_end_in_if_clause
+  )
+  ;
+
+for_clause_statement
+  "valid statement in for each clause"
+  : << er->no_stmt_error(); >>
+  ( valid_statement
+  | unmatched_end_in_for_clause
+  )
+  ;
+
+while_clause_statement
+  "valid statement in while clause"
+  : << er->no_stmt_error(); >>
+  ( valid_statement
+  | unmatched_end_in_while_clause
+  )
+  ;
+
+unmatched_statement
+  "invalid statement"
+  : << er->no_stmt_error(); >>
+  ( uels: unmatched_else_statement
+  | ueli: unmatched_elif_statement
+  | uend: unmatched_end_statement
+  )
+  ;
+
+//---------------------------------------------------------------------
+// AL statement rules
+//---------------------------------------------------------------------
+
+assignment_statement!
+  "assignment statement"
+  : << t_core_data_type t1;
+       AST *c_ast = NULL;
+    >>
+    ta:TOK_ASSIGN
+    ae:assignment_expr > [t1]
+      <<
+         c_ast = #[$ta, TOK_STMT_ASSIGN];
+         #0 = #( c_ast, #ae );
+      >>
+  ;
+
+break_statement
+  "break statement"
+  : brk:TOK_BREAKTOKEN
+      << #brk->setType(TOK_STMT_BREAK); >>
+  ;
+
+bridge_statement!
+  "bridge statement"
+  : << t_core_data_type t1;
+       t_core_data_type t2;
+       bool requiresReturnValue = FALSE;
+       AST *c_ast;
+       AST *b_ast;
+    >>
+    tb:TOK_BRIDGE
+    {
+      ( lv:local_variable[ASSIGN_LVAL]
+      | aa:attribute_access[ASSIGN_LVAL] > [t1]
+      )
+      TOK_EQUAL  << requiresReturnValue = TRUE; >>
+    }
+    br:bridge_invocation[requiresReturnValue] > [t2]
+      << if ( #lv )
+           {
+             c_ast = #[$tb, TOK_STMT_ASSIGN];
+             st->newadd( #lv, t2, #br );
+             b_ast = #[TOK_EXPRESSION, #br];  // sets datatype and offset
+             b_ast->setSegLength(#br->getSegLength());
+             #0 = #( c_ast, #lv, #( b_ast, #br) );
+           }
+         else if (#aa)
+           {
+             bool mismatch = FALSE;
+             if ( accum_datatype( #aa, #br, t1, t2, mismatch ) )
+               AL_PARSE_ERR0( #aa, AL_GETMSG(ERR,274,0) )
+             c_ast = #[$tb, TOK_STMT_ASSIGN];
+             b_ast = #[TOK_EXPRESSION, #br];  // sets datatype and offset
+             b_ast->setSegLength(#br->getSegLength());
+             #0 = #( c_ast, #aa, #( b_ast, #br) );
+           }
+         else
+           {
+             c_ast = #[$tb, TOK_STMT_BRIDGE];
+             #0 = #( c_ast, #br );
+           }
+      >>
+  ;
+
+control_statement
+  "control statement"
+  :
+    ctrl:TOK_CONTROL^
+      << #ctrl->setType(TOK_STMT_CONTROL); >>
+    TOK_STOP
+  ;
+
+continue_statement
+  "continue statement"
+  :
+    cont:TOK_CONTINUE
+      << #cont->setType(TOK_STMT_CONTINUE); >>
+  ;
+
+create_event_statement!
+  "create event instance statement"
+  : << AST *c_ast; >>
+    cr:TOK_CREATE
+    TOK_EVENT
+    TOK_INSTANCE
+    eirv:local_variable[ASSIGN_LVAL]
+    TOK_OF
+    es:event_spec
+      << #eirv->setType(TOK_EVENT_REF_VAR);
+         st->newadd( #eirv, EVENT_INST_DATATYPE, #es );
+         c_ast = #[$cr, TOK_STMT_CREATE_EVENT];
+         #0 = #( c_ast, #eirv, #es );
+      >>
+  ;
+
+create_object_statement!
+  "create object instance statement"
+  : << AST *c_ast; >>
+    cr:TOK_CREATE
+    TOK_OBJECT
+    TOK_INSTANCE
+  {
+    (  local_variable[ASSIGN_LVAL] TOK_OF )?
+    lv:local_variable[ASSIGN_LVAL]
+  }
+    TOK_OF
+    kl:object_keyletters
+      << if ( #lv )
+           {
+             #lv->setType(TOK_INST_REF_VAR);
+             st->newadd( #lv, OBJECT_INST_REF_DATATYPE, #kl );
+           }
+         c_ast = #[$cr, TOK_STMT_CREATE_OBJECT];
+         #0 = #( c_ast, #kl, #lv );
+      >>
+  ;
+
+debug_statement!
+   "debug statement"
+   :
+     TOK_DEBUG
+     (
+       ( debug_operand )+
+     |
+       << trace = TRUE;
+          dumpflag = TRUE;
+       >>
+     )
+  ;
+
+delete_statement!
+  "delete object instance statement"
+  : << Sym *s_ref = NULL;
+       AST *c_ast;
+    >>
+    td:TOK_DELETE
+    TOK_OBJECT
+    TOK_INSTANCE
+    irv:inst_ref_var
+      <<
+         if ( #irv )
+         {
+            // This goes along with error 41 in the inst_ref_var subrule
+            if ( ! ( st->is_inst_ref_var( #irv->getVcharText(), &s_ref ) ) )
+               AL_PARSE_ERR1( #irv, AL_GETMSG(ERR,120,1), #irv->getVcharText() )
+            c_ast = #[$td, TOK_STMT_DELETE];
+            #0 = #( c_ast, #irv );
+         }
+      >>
+  ;
+
+empty_statement!
+  "empty statement"
+  :
+    // the empty statement
+      << #0 = #[TOK_STMT_EMPTY]; >>
+  ;
+
+for_statement!
+  "for statement"
+  : << AST *fa;
+       AST *pa1;
+       AST *pa2;
+       AST *t_ast;
+       Sym *s_ref;
+    >>
+    f:TOK_FOR
+    TOK_EACH
+    irv:local_variable[ASSIGN_LVAL]
+    TOK_IN
+    irsv:inst_ref_set_var
+      << #irv->setType(TOK_INST_REF_VAR);
+         if ( st->is_inst_ref_set_var( #irsv->getVcharText(), &s_ref ) )
+           st->newadd( #irv, OBJECT_INST_REF_DATATYPE, #irsv );
+         st = st->push();
+         fa = #[$f, TOK_STMT_FOR];
+         fa->setSegLength(#irsv->getOffset() +
+                          #irsv->getSegLength() -
+                          fa->getOffset());
+         pa1 = #[TOK_CONTEXT_PUSH];
+         pa1->setObjPtr( st );
+         #0 = #( fa, #irv, #irsv, #( #[TOK_CLAUSE_FOR], pa1) );
+         loop_clause_nest_level++;
+      >>
+    ( stmt:for_clause_statement
+        << #( NULL, pa1->bottom(), #stmt ); >>
+    )*
+      << loop_clause_nest_level--;
+         st = st->pop();
+         pa2 = #[TOK_CONTEXT_POP];
+         pa2->setObjPtr( st );
+         #( NULL, pa1->bottom(), pa2 );
+      >>
+    (
+      TOK_END TOK_FOR
+    |
+      Eof
+        << AL_PARSE_ERR0( fa, AL_GETMSG(ERR,011,0) ) >>
+    )
+  ;
+
+generate_statement!
+  "generate event statement"
+  : << Sym *s_ref = NULL;
+       t_core_data_type t1;
+    >>
+  ge:TOK_GENERATE
+  (
+    es:event_spec
+      << #0 = #( #[$ge, TOK_STMT_GENERATE], #es ); >> 
+  |
+    ev:local_variable[ASSIGN_RVAL]
+      << #ev->setType(TOK_EVENT_REF_VAR);
+         if ( ! (st->is_var_this_type_defined( #ev->getVcharText(),
+                                       EVENT_INST_DATATYPE, &s_ref ) ) )
+           AL_PARSE_ERR1( #ev, AL_GETMSG(ERR,044,1), #ev->getVcharText() )
+         #0 = #( #[$ge, TOK_STMT_GENERATE], #ev ); 
+      >>
+  |
+    aa:attribute_access[ASSIGN_RVAL] > [t1]
+      << if ( t1 != EVENT_INST_DATATYPE)
+           AL_PARSE_ERR1( #aa, AL_GETMSG(ERR,283,1), #aa->getVcharText() )
+         #0 = #( #[$ge, TOK_STMT_GENERATE], #aa ); 
+      >>
+  )
+  ;
+
+if_statement!
+  "if statement"
+  : << t_core_data_type t1;
+       AST *ifa = NULL;
+       AST *eia = NULL;
+       AST *ela = NULL;
+       AST *pa1;
+       AST *pa2;
+       ASTBase *ia1;
+    >>
+    ifs:TOK_IF
+    e1:expr > [t1]
+      << st = st->push();
+         ifa = #[$ifs, TOK_STMT_IF];
+         ifa->setSegLength(#e1->getOffset() +
+                           #e1->getSegLength() -
+                           ifa->getOffset());
+         pa1 = #[TOK_CONTEXT_PUSH];
+         pa1->setObjPtr( st );
+         ia1 = #[TOK_CLAUSE_IF];
+         #0 = #( ifa, #( ia1, #e1, pa1 ) );
+         if ( t1 != BOOLEAN_DATATYPE )
+           AL_PARSE_ERR0( ifa, AL_GETMSG(ERR,014,0) )
+      >>
+    ( stmt1:if_clause_statement
+        << #( NULL, pa1->bottom(), #stmt1 ); >>
+    )*
+      << st = st->pop();
+         pa2 = #[TOK_CONTEXT_POP];
+         pa2->setObjPtr( st );
+         #( NULL, pa1->bottom(), pa2 );
+      >>
+    {
+      (
+        elf:TOK_ELIF
+        e2:expr > [t1]
+          << st = st->push();
+             eia = #[$elf, TOK_CLAUSE_ELIF];
+             eia->setSegLength(#e2->getOffset() +
+                               #e2->getSegLength() -
+                               eia->getOffset());
+             pa1 = #[TOK_CONTEXT_PUSH];
+             pa1->setObjPtr( st );
+             #( NULL, ia1->tail(), #( eia, #e2, pa1 ) );
+             if ( t1 != BOOLEAN_DATATYPE )
+               AL_PARSE_ERR0( eia, AL_GETMSG(ERR,015,0) )
+      >>
+        ( stmt2:if_clause_statement
+          << #( NULL, pa1->bottom(), #stmt2 ); >>
+        )*
+          << st = st->pop();
+             pa2 = #[TOK_CONTEXT_POP];
+             pa2->setObjPtr( st );
+             #( NULL, pa1->bottom(), pa2 );
+          >>
+      )+
+    }
+    {
+      el:TOK_ELSE
+        << st = st->push();
+           pa1 = #[TOK_CONTEXT_PUSH];
+           pa1->setObjPtr( st );
+           ela = #[$el, TOK_CLAUSE_ELSE];
+           ela->setSegLength(strlen(ela->getAsciiText()));
+           #( NULL, ia1->tail(), #( ela, pa1 ) );
+        >>
+      ( stmt3:if_clause_statement
+          << #( NULL, pa1->bottom(), #stmt3 ); >>
+      )*
+        << st = st->pop();
+           pa2 = #[TOK_CONTEXT_POP];
+           pa2->setObjPtr( st );
+           #( NULL, pa1->bottom(), pa2 );
+        >>
+    }
+    (
+      TOK_END TOK_IF
+    |
+      Eof
+        << AL_PARSE_ERR0( ifa, AL_GETMSG(ERR,004,0) ) >>
+    )
+  ;
+
+implicit_assignment_statement!
+  "assignment statement"
+  : << t_core_data_type t1;
+       AST *c_ast = NULL;
+    >>
+    ae:assignment_expr > [t1]
+      << 
+         c_ast = #[TOK_STMT_ASSIGN, #ae];  // sets datatype and offset
+         #0 = #( c_ast, #ae );
+      >>
+  ;
+
+implicit_bridge_or_transform_statement!
+  "implicit bridge or transform statement"
+  : << ANTLRTokenType OorEE;
+       t_core_data_type t;
+       AST *s_ast;
+    >>
+  bt:bridge_or_transform_invocation[FALSE] > [t, OorEE]
+    << if ( OorEE == TOK_KL_OBJECT )
+         s_ast = #[TOK_STMT_TRANSFORM, #bt];  // set datatype and offset
+       else   // ( OorEE == TOK_KL_EXTERNAL_ENTITY )
+         s_ast = #[TOK_STMT_BRIDGE, #bt];  // set datatype and offset
+       #0 = #( s_ast, #bt ); 
+    >>
+  ;
+
+implicit_ib_transform_statement!
+  "implicit ib transform statement"
+  : << t_core_data_type t;
+       AST *s_ast;
+    >>
+    tr:transform_ib_invocation[FALSE] > [t]
+      <<
+         s_ast = #[TOK_STMT_TRANSFORM, #tr];  // set datatype and offset
+         #0 = #( s_ast, #tr );
+      >>
+  ;
+
+relate_statement!
+  "relate statement"
+  : << AST *t_ast; >>
+    tr:TOK_RELATE
+    ir1:inst_ref_var
+    TOK_TO
+    ir2:inst_ref_var
+    TOK_ACROSS 
+    rel:relationship
+    {
+      TOK_DOT
+      ph:phrase
+        << ttr->add( #ph ); >>
+    }
+    {
+      TOK_USING
+      airv:assoc_obj_inst_ref_var
+    }
+      << if (!#airv)
+           pck->validate_relate( #rel, #ir1, #ir2, #ph );
+         else
+           pck->validate_assoc_relate( #rel, #ir1, #ir2, #airv, #ph );
+         t_ast = #[$tr, TOK_STMT_RELATE];
+         if ( #ph )
+           #0 = #( t_ast, #ir1, #ir2, #rel, #ph, #airv );
+         else
+           #0 = #( t_ast, #ir1, #ir2, #rel, #airv );
+      >>
+    ;
+
+return_statement
+  "return statement"
+  : << t_core_data_type dt; >>
+    t:TOK_RETURN^
+      << #t->setType(TOK_STMT_RETURN); >>
+  {
+    e:expr > [dt]
+  }
+    << if (return_valid)
+         {
+           return_found = TRUE;
+		   pck->verify_return_type( dt, return_type_reqd, #e, spec_descr.char_ptr() );
+         }
+       else
+         AL_PARSE_ERR1(#e, AL_GETMSG(ERR, 300, 1), #t->getVcharText())
+    >>
+  ;    
+
+select_statement!
+  "select statement"
+  : << Sym *s_ref;
+       persObjPtr obj;
+       // An error message if the variable is already used as an
+       // instance reference variable of a different object.  MSG:
+       // "Cannot use previously defined variable for this select statement"
+    >>
+    s1:TOK_SELECT
+    (
+      TOK_ONE
+      irv1:local_variable[ASSIGN_LVAL]
+      os1:object_spec[CARD_ONE] > [obj]
+        << #irv1->setType(TOK_INST_REF_VAR);
+           s_ref = st->newadd( #irv1, OBJECT_INST_REF_DATATYPE, obj );
+           // Error messages generated by newadd():
+           //   Variable --> %s <-- already exists as a different type
+           // Check to make sure no right objects have multiplicity of many
+           #0 = #( #[$s1, TOK_STMT_SELECT_ONE], #irv1, #os1 );
+        >>
+    |    
+      TOK_ANY
+      irv2:local_variable[ASSIGN_LVAL]
+      os2:object_spec[CARD_ANY] > [obj]
+        << #irv2->setType(TOK_INST_REF_VAR);
+           s_ref = st->newadd( #irv2, OBJECT_INST_REF_DATATYPE, obj );
+           #0 = #( #[$s1, TOK_STMT_SELECT_ANY], #irv2, #os2 );
+        >>
+    |
+      TOK_MANY
+      irsv:local_variable[ASSIGN_LVAL]
+      os3:object_spec[CARD_MANY] > [obj]
+        << #irsv->setType(TOK_INST_REF_SET_VAR);
+           s_ref = st->newadd( #irsv, OBJECT_INST_REF_SET_DATATYPE, obj );
+           #0 = #( #[$s1, TOK_STMT_SELECT_MANY], #irsv, #os3 );
+        >>
+    )
+    ;
+
+synch_svc_statement!
+  "synchronous service statement"
+  : << t_core_data_type t;
+       AST *s_ast;
+    >>
+  TOK_DOUBLECOLON
+  ss:synch_svc_invocation[FALSE] > [t]
+    <<
+       s_ast = #[TOK_STMT_SYNCH_SVC, #ss];  // set datatype and offset
+       #0 = #( s_ast, #ss );
+    >>
+  ;
+
+transform_statement!
+  "transform statement"
+  : << t_core_data_type t1;
+       t_core_data_type t2;
+       bool requiresReturnValue = FALSE;
+       AST *s_ast;
+       AST *t_ast;
+       AST *tr_ast;
+    >>
+    tt:TOK_TRANSFORM
+    {
+      (  attribute_access[ASSIGN_LVAL] > [t1] TOK_EQUAL )?
+      aa:attribute_access[ASSIGN_LVAL] > [t1]
+      TOK_EQUAL    << requiresReturnValue = TRUE; >>
+    |
+      lv:local_variable[ASSIGN_LVAL]
+      TOK_EQUAL    << requiresReturnValue = TRUE; >>
+    }
+    (
+      (   transform_ib_invocation[requiresReturnValue] > [t2] )?
+      tr1:transform_ib_invocation[requiresReturnValue] > [t2]
+        << tr_ast = #tr1; >>
+    |
+      tr2:transform_invocation[requiresReturnValue] > [t2]
+        << tr_ast = #tr2; >>
+    )
+      << if ( #lv )
+           {
+             st->newadd( #lv, t2, tr_ast );
+             s_ast = #[$tt, TOK_STMT_ASSIGN];
+             t_ast = #[TOK_EXPRESSION, tr_ast];  // sets datatype and offset
+             t_ast->setSegLength(tr_ast->getSegLength());
+             #0 = #( s_ast, #lv, #( t_ast, tr_ast) );
+           }
+         else if (#aa)
+           {
+             bool mismatch = FALSE;
+             if ( accum_datatype( #aa, #tr, t1, t2, mismatch ) )
+               AL_PARSE_ERR0( #aa, AL_GETMSG(ERR,274,0) )
+             s_ast = #[$tt, TOK_STMT_ASSIGN];
+             t_ast = #[TOK_EXPRESSION, tr_ast];  // sets datatype and offset
+             t_ast->setSegLength(tr_ast->getSegLength());
+             #0 = #( s_ast, #aa, #( t_ast, tr_ast) );
+           }
+         else
+           {
+             s_ast = #[$tt, TOK_STMT_TRANSFORM];
+             #0 = #( s_ast, tr_ast );
+           }
+      >>
+  ;
+
+unrelate_statement!
+  "unrelate statement"
+  : << AST *t_ast; >>
+    tu:TOK_UNRELATE
+    ir1:inst_ref_var
+    TOK_FROM
+    ir2:inst_ref_var
+    TOK_ACROSS
+    rel:relationship
+    {
+      TOK_DOT
+      ph:phrase
+        << ttr->add( #ph ); >>
+    }
+    {
+      TOK_USING
+      airv:assoc_obj_inst_ref_var
+    }
+      << if (!#airv)
+           pck->validate_relate( #rel, #ir1, #ir2, #ph );
+         else
+           pck->validate_assoc_relate( #rel, #ir1, #ir2, #airv, #ph );
+         t_ast = #[$tu, TOK_STMT_UNRELATE];
+         if ( #ph )
+           #0 = #( t_ast, #ir1, #ir2, #rel, #ph, #airv );
+         else
+           #0 = #( t_ast, #ir1, #ir2, #rel, #airv );
+      >>
+
+  ;
+
+while_statement!
+  "while statement"
+  : << t_core_data_type t;
+       AST *wa = NULL;
+       AST *pa1;
+       AST *pa2;
+    >>
+    w:TOK_WHILE
+    e:expr > [t]
+      << st = st->push();
+         wa = #[$w, TOK_STMT_WHILE];
+         wa->setSegLength(#e->getOffset() +
+                          #e->getSegLength() -
+                          wa->getOffset());
+         pa1 = #[TOK_CONTEXT_PUSH];
+         pa1->setObjPtr( st );
+         #0 = #( wa, #e, #( #[TOK_CLAUSE_WHILE], pa1) );
+         if ( t != BOOLEAN_DATATYPE )
+           AL_PARSE_ERR0( wa, AL_GETMSG(ERR,016,0) )
+         loop_clause_nest_level++;
+      >>
+    ( stmt:while_clause_statement
+        << #( NULL, pa1->bottom(), #stmt ); >>
+    )*
+      << loop_clause_nest_level--;
+         st = st->pop();
+         pa2 = #[TOK_CONTEXT_POP];
+         pa2->setObjPtr( st );
+         #( NULL, pa1->bottom(), pa2 );
+      >>
+    (
+      TOK_END TOK_WHILE
+    |
+      Eof
+        << AL_PARSE_ERR0( wa, AL_GETMSG(ERR,008,0) ) >>
+    )
+  ;
+
+//---------------------------------------------------------------------
+// Rules used to catch dangling phrases
+//---------------------------------------------------------------------
+
+unmatched_else_statement!
+  "unmatched else statement"
+  : << AST *a = NULL; >>
+  e:TOK_ELSE
+    << a = #[$e];
+       AL_PARSE_ERR0( a, AL_GETMSG(ERR,002,0) )
+       delete a;
+    >>
+  ;
+
+unmatched_elif_statement!
+  "unmatched elif statement"
+  : << t_core_data_type t;
+       AST *a = NULL; >>
+  e:TOK_ELIF expr > [t]
+    << a = #[$e];
+       AL_PARSE_ERR0( a, AL_GETMSG(ERR,007,0) )
+       delete a;
+    >>
+  ;
+
+unmatched_end_statement!
+  "unmatched end statement"
+  : << AST *a = NULL; >>
+  (
+    e:TOK_END
+    (
+      TOK_FOR
+    | TOK_IF
+    | TOK_WHILE
+    )
+  )
+      << a = #[$e];
+         AL_PARSE_ERR0( a, AL_GETMSG(ERR,001,0) )
+         delete a;
+      >>
+  ;
+
+unmatched_end_in_for_clause!
+  "unmatched end statement in for clause"
+  : << AST *a = NULL; >>
+  (
+    e:TOK_END
+    (
+      TOK_IF
+    | TOK_WHILE
+    )
+  )
+      << a = #[$e];
+         AL_PARSE_ERR0( a, AL_GETMSG(ERR,003,0) )
+         delete a;
+      >>
+  ;
+
+unmatched_end_in_if_clause!
+  "unmatched end statement in if clause"
+  : << AST *a = NULL; >>
+  (
+    e:TOK_END
+    (
+      TOK_FOR
+    | TOK_WHILE
+    )
+  )
+      << a = #[$e];
+         AL_PARSE_ERR0( a, AL_GETMSG(ERR,004,0) )
+         delete a;
+      >>
+
+  ;
+
+unmatched_end_in_while_clause!
+  "unmatched end statement in while clause"
+  : << AST *a = NULL; >>
+  (
+    e:TOK_END
+    (
+      TOK_FOR
+    | TOK_IF
+    )
+  )
+      << a = #[$e];
+         AL_PARSE_ERR0( a, AL_GETMSG(ERR,008,0) )
+         delete a;
+      >>
+  ;
+
+//---------------------------------------------------------------------
+// Major rules used by AL statement rules
+//---------------------------------------------------------------------
+
+assignment_expr! > [t_core_data_type t]
+  "assignment expression"
+  : << t_core_data_type t1;
+       t_core_data_type t2;
+     >>
+    // Don't worry about the segLength of assignment_expr.
+    (  local_variable[ASSIGN_LVAL] TOK_EQUAL )? 
+    lv:local_variable[ASSIGN_LVAL]
+    TOK_EQUAL
+    ex1:expr > [$t]
+      << // newadd() checks that datatypes are compatible
+         st->newadd( #lv, $t, #ex1 );
+         #lv->setDatatype($t);
+         #0 = #( NULL, #lv, #ex1 );
+      >>
+  |
+    (  attribute_access[ASSIGN_LVAL] > [t1] TOK_EQUAL )?
+    aa:attribute_access[ASSIGN_LVAL] > [t1]
+    TOK_EQUAL
+    ex2:expr > [t2]
+      << #0 = #( NULL, #aa, #ex2 );
+         bool mismatch = FALSE;
+         if ( accum_datatype( #aa, #ex2, t1, t2, mismatch ) )
+           AL_PARSE_ERR0( #aa, AL_GETMSG(ERR,274,0) )
+         $t = t1;
+      >>
+  |
+    eda:event_data_access[ASSIGN_LVAL] > [t1]
+    TOK_EQUAL
+    ex3:expr > [$t]
+      << #eda->setDatatype(t1);
+         #0 = #( NULL, #eda );
+      >>
+  | 
+    pda:param_data_access[ASSIGN_LVAL] > [t1]
+    TOK_EQUAL
+    ex4:expr > [t2]
+      << #0 = #( NULL, #pda, #ex4 );
+         bool mismatch = FALSE;
+         if ( accum_datatype( #pda, #ex4, t1, t2, mismatch ) )
+           AL_PARSE_ERR0( #pda, AL_GETMSG(ERR,274,0) )
+         $t = t1;
+      >>
+  ;
+
+attribute_access![Assign_Val_e isLval] > [t_core_data_type t]
+  "object attribute access"
+   :
+    ir:inst_ref_var
+    TOK_DOT
+    attr:attribute
+      << t_boolean derived_attribute_written = 
+            pck->validate_obj_attribute( #attr, #ir, isLval, attribute_write_valid );
+         if (attribute_write_valid && derived_attribute_written)
+	 {
+           attribute_write_found = TRUE;
+         }
+         $t = #attr->getDatatype();
+         #ir->setDatatype($t);
+         #ir->setSegLength(#attr->getOffset() +
+                           #attr->getSegLength() -
+                           #ir->getOffset());
+         #0 = #( #ir, #attr );
+      >>
+  ;
+
+bridge_invocation![bool requiresReturnValue] > [t_core_data_type t]
+  "bridge invocation"
+  : << AST *top_ast = NULL;
+       AST *b_ast;
+    >>
+    kl:ee_keyletters
+    TOK_DOUBLECOLON
+    bf:bridge_function[#kl] > [$t]
+      << top_ast = #[TOK_BRIDGE_EXPR, #kl];  // sets offset
+         top_ast->setDatatype($t);
+         #0 = #( top_ast, #kl, #bf);
+         if ( requiresReturnValue && ($t == VOID_DATATYPE) )
+           AL_PARSE_ERR2( #kl, AL_GETMSG(ERR,223,2),
+                          #kl->getVcharText(), #bf->getVcharText())
+         if ( !requiresReturnValue && ($t != VOID_DATATYPE) )
+           AL_PARSE_ERR2( #kl, AL_GETMSG(ERR,225,2),
+                          #kl->getVcharText(), #bf->getVcharText())
+      >>
+    TOK_LPAREN
+    {
+      fp:function_parameters
+        << #( NULL, #0->bottom(), #fp); >>
+    }
+    rp:TOK_RPAREN
+      << // Validate data items here
+         pck->validate_bridge_data_items( #bf, #fp );
+         b_ast = #[$rp];
+         top_ast->setSegLength(b_ast->getOffset() +
+                               1 -
+                               top_ast->getOffset());
+         delete b_ast;         
+      >>
+  ;
+
+bridge_or_transform_invocation![bool requiresReturnValue] > [t_core_data_type t, ANTLRTokenType OorEE]
+  "bridge or transformer invocation"
+  :  << AST *top_ast;
+        AST *b_ast;
+     >>
+    kl:obj_or_ee_keyletters
+    TOK_DOUBLECOLON
+    mn:function_name
+      << top_ast = #[TOK_STMT_UNKNOWN, #kl];  // sets offset
+         #0 = #(top_ast, #kl, #mn);
+         #kl->setType(TOK_KL_OBJECT);
+         if ( pck->is_valid_obj_kl( #kl ) &&
+              pck->is_valid_transformer( #mn, #kl, FALSE ) )
+           {
+             $OorEE = TOK_KL_OBJECT;
+             top_ast->setType(TOK_TRANSFORMER_EXPR);
+             $t = pck->get_transformer_return_type( #mn );
+             if ( requiresReturnValue && ($t == VOID_DATATYPE) )
+                AL_PARSE_ERR2( #kl, AL_GETMSG(ERR,232,2),
+                               #kl->getVcharText(), #mn->getVcharText())
+             if ( !requiresReturnValue && ($t != VOID_DATATYPE) )
+               AL_PARSE_ERR2( #kl, AL_GETMSG(ERR,235,2),
+                              #kl->getVcharText(), #mn->getVcharText())
+           }
+         else
+           {
+             $OorEE = TOK_KL_EXTERNAL_ENTITY;
+             top_ast->setType(TOK_BRIDGE_EXPR);
+             #kl->setType(TOK_KL_EXTERNAL_ENTITY);
+             if ( pck->is_valid_ee_kl( #kl ) &&
+                  pck->is_valid_ee_bridge( #mn, #kl ) )
+               {
+                 pck->validate_ee_kl( #kl );
+                 pck->validate_bridge( #mn, #kl );
+                 $t = pck->get_bridge_return_type( #mn );
+                 if ( requiresReturnValue && ($t == VOID_DATATYPE) )
+                   AL_PARSE_ERR2( #kl, AL_GETMSG(ERR,223,2),
+                                  #kl->getVcharText(), #mn->getVcharText())
+                 if ( !requiresReturnValue && ($t != VOID_DATATYPE) )
+                   AL_PARSE_ERR2( #kl, AL_GETMSG(ERR,225,2),
+                                  #kl->getVcharText(), #mn->getVcharText())
+               }
+             else
+               AL_PARSE_ERR2( #kl, AL_GETMSG(ERR,103,2),
+                              #kl->getVcharText(), #mn->getVcharText())
+           }
+         top_ast->setDatatype($t);
+      >>
+    TOK_LPAREN
+    {
+      fp:function_parameters
+        << #( NULL, #0->bottom(), #fp); >>
+    }
+    rp:TOK_RPAREN
+      << // Validate data items here
+         if ( $OorEE == TOK_KL_OBJECT )
+           pck->validate_transformer_data_items( #mn, #fp );
+         else   // ( $OorEE == TOK_KL_EXTERNAL_ENTITY )
+           pck->validate_bridge_data_items( #mn, #fp );
+         b_ast = #[$rp];
+         top_ast->setSegLength(b_ast->getOffset() +
+                               1 -
+                               top_ast->getOffset());
+         delete b_ast;         
+      >>
+  ;
+
+bridge_expr > [ t_core_data_type t ]
+  "bridge expression"
+  : << ANTLRTokenType OorEE;
+       AST *t_ast;
+    >>
+  tb:TOK_BRIDGE!
+  br:bridge_invocation[TRUE] > [$t]
+    << t_ast = #[$tb];
+       #br->setSegLength(#br->getOffset() +
+                         #br->getSegLength() -
+                         t_ast->getOffset());
+       #br->setOffset(t_ast->getOffset());
+       delete t_ast;
+    >>
+  ;
+
+bridge_or_transform_expr > [ t_core_data_type t ]
+  "bridge or transform invocation"
+  : << ANTLRTokenType OorEE;
+    >>
+    bt:bridge_or_transform_invocation[TRUE] > [$t, OorEE]
+  ;
+
+enumerator_access > [t_core_data_type t]
+  "enumerator access"
+   :
+    enumdt:enum_data_type
+    TOK_DOUBLECOLON!
+    enumtr:enumerator
+      << pck->validate_enumerator( #enumdt, #enumtr );
+         $t = #enumdt->getDatatype();
+      >>
+  ;
+
+debug_operand!
+  "debug operand"
+  :
+    ( TOK_TRACE
+      (  TOK_OFF      << trace = FALSE; >>
+      |  TOK_ON       << trace = TRUE; >>
+      )
+    )
+  | ( TOK_DUMP
+      (  TOK_OFF      << dumpflag = FALSE; >>
+      |  TOK_ON       << dumpflag = TRUE; >>
+      )
+    )
+  | ( TOK_SOR
+      (  TOK_OFF      << sor = FALSE; >>
+      |  TOK_ON       << sor = TRUE; >>
+      )
+    )
+  | TOK_ON            << trace = TRUE;  dumpflag = TRUE; >>
+  | TOK_OFF           << trace = FALSE; dumpflag = FALSE; >>
+  | TOK_STAT          << st->stat(); >>
+  ;
+
+event_data_access[Assign_Val_e isLval] > [t_core_data_type t]
+  "event data access"
+  : << Sym *s_ref = NULL; >>
+    re:TOK_RCVD_EVT
+      << if ( isLval == ASSIGN_LVAL )
+           AL_PARSE_ERR0( #re, AL_GETMSG(ERR,075,0) )
+      >>
+    TOK_DOT!
+    sdi:supp_data_item
+      << // We have made an entry in the symbol table for a readonly
+         // local variable named "rcvd_evt".  It is an EVENT_INST_REF
+         // for the event (any one) which transitions to this state.
+         // Set the seglength of re to include the sdi
+         #re->setSegLength(#sdi->getOffset() +
+                           #sdi->getSegLength() -
+                           #re->getOffset());
+         // Validate the supplemental data item for this state
+         if ( st->is_var_this_type_defined( #re->getVcharText(),
+                                            EVENT_INST_DATATYPE, &s_ref ) )
+           {
+             // rcvd_evt's objPtr is set to the value of an SM_EVT
+             // object that transitions to this state by the init() function.
+             #re->setObjPtr( s_ref->objPtr );
+             pck->validate_rcvd_evt_data_item_name( #sdi, #re );
+             $t = #sdi->getDatatype();
+             #re->setDatatype($t);
+           }
+         else
+           {
+             $t = UNKNOWN_DATATYPE;
+             AL_PARSE_ERR1( #re, AL_GETMSG(ERR, 300, 1), #re->getVcharText() )
+           }
+      >>
+  ;
+
+event_spec!
+  "event specification"
+  : << Sym *s_ref = NULL;
+       AST *event_and_label = NULL;
+       AST *target = NULL;
+       AST *tt_ast = NULL;
+       persObjPtr sm_objPtr;
+       bool PE_indicated = FALSE;
+    >>
+  // Don't need to set segLength for this rule
+  l:event_label
+  { t:TOK_TIMES
+      << PE_indicated = TRUE;
+         tt_ast = #[$t];
+         tt_ast->markReloc( RELOC_IGNORE_DATA );
+         ttr->add( tt_ast );
+      >>
+  }
+  { TOK_COLON! m:event_meaning }
+  { TOK_LPAREN! { s:supp_data } TOK_RPAREN! }
+  TOK_TO!
+  (
+    (
+      (     object_keyletters (TOK_ASSIGNER | TOK_CLASS))?
+        kla:object_keyletters (TOK_ASSIGNER | TOK_CLASS)
+          <<
+             #kla->setType(TOK_KL_OBJECT_ASSIGNER);
+             pck->validate_obj_is_assigner(#kla);
+             pck->validate_assigner_event_label( #l, #kla );
+             if (#m)
+               pck->validate_sm_event_meaning( #m, #l );
+             pck->validate_sm_event_data_items( #l, #s );
+             if ( PE_indicated )
+               AL_PARSE_ERR0( #t, AL_GETMSG(ERR,077,0) )
+             target = #kla;
+          >>
+    |
+        klc:object_keyletters TOK_CREATOR
+          <<
+             #klc->setType(TOK_KL_OBJECT_CREATOR);
+             pck->validate_obj_has_creation_state( #klc );
+             pck->validate_creator_event_label( #l, #klc );
+             if (#m)
+               pck->validate_sm_event_meaning( #m, #l );
+             pck->validate_sm_event_data_items( #l, #s );
+             if ( PE_indicated )
+               AL_PARSE_ERR0( #t, AL_GETMSG(ERR,077,0) )
+             target = #klc;
+          >>
+    )
+  |
+    (
+      irvee:inst_ref_var_or_ee_keyletters
+        << target = #irvee;
+           if ( PE_indicated )
+             AL_PARSE_ERR0( #t, AL_GETMSG(ERR,077,0) )
+        >>
+    )
+      << if ( st->is_inst_ref_var( target->getVcharText(), &s_ref ) )
+           {
+             target->setType(TOK_INST_REF_VAR);
+             target->setObjPtr( s_ref->objPtr );
+             pck->validate_obj_event_label( #l, target );
+             if (#m)
+               pck->validate_sm_event_meaning( #m, #l );
+             pck->validate_sm_event_data_items( #l, #s );
+           }
+         else
+           {
+             target->setType( TOK_KL_EXTERNAL_ENTITY );
+             ttr->add( target );
+             if ( pck->is_valid_ee_kl( target ) )
+               {
+                 pck->validate_ee_event_label( #l, target );
+                 if (#m)
+                   pck->validate_ee_event_meaning( #m, #l );
+                 pck->validate_ee_event_data_items( #l, #s );
+                 if ( PE_indicated )
+                   AL_PARSE_ERR0( #t, AL_GETMSG(ERR,077,0) )
+               }
+             else
+               AL_PARSE_ERR1( target, AL_GETMSG(ERR,043,1), target->getVcharText() )
+           }
+      >>
+  )
+    << if (PE_indicated)
+         event_and_label = (AST*) #( #l, tt_ast , #m );
+       else   
+         event_and_label = (AST*) #( #l, #m );
+       #0 = #( NULL, event_and_label, target, #s );
+       ((AST *)(*_root))->setObjPtr( #l->getObjPtr() );
+    >>
+  ;
+
+function_parameters!
+  "function parameters"
+  : << t_core_data_type dt; >>
+  // Don't set the segLength for this rule
+  di1:data_item
+  TOK_COLON
+  e1:expr > [dt]
+    << #0 = #( #di1, #e1 ); >>
+  (
+    TOK_COMMA
+    di2:data_item
+    TOK_COLON
+    e2:expr > [dt]
+      << #( NULL, #0->tail(), #( #di2, #e2 ) ); >>
+  )*
+  ;
+
+inst_ref_var_or_ee_keyletters
+  "instance reference variable or ee keyletters"
+  :
+  (
+    local_variable[ASSIGN_RVAL]
+  |
+    TOK_GENERAL_NAME
+  |
+    kw_as_id2
+  )
+  ;
+
+instance_chain! [Obj_Card_e card]
+  "instance reference"
+  :  << AST *top_ast;
+        AST *left_obj;
+        bool manyFound = FALSE;
+        bool irs_var = FALSE;
+        Sym *s_ref;
+        ANTLRTokenType save_type;
+     >>
+   // Don't need to set segLength for this rule
+   lv:local_variable[ASSIGN_RVAL]
+     << top_ast = #[TOK_INST_REF];
+        left_obj = #lv;
+        #0 = #( NULL, top_ast, #lv );
+        if ( st->is_inst_ref_var( #lv->getVcharText(), &s_ref ) )
+          {
+            #lv->setType(TOK_INST_REF_VAR);
+            #lv->setObjPtr( s_ref->objPtr );
+          }
+        else if ( st->is_inst_ref_set_var( #lv->getVcharText(), &s_ref ) )
+          {
+            irs_var = TRUE;  // remember it's an inst_ref_set_var
+            #lv->setType(TOK_INST_REF_SET_VAR);
+            #lv->setObjPtr( s_ref->objPtr );
+            if ( card == CARD_ONE )
+              AL_PARSE_ERR1( #lv, AL_GETMSG(ERR,188,1), #lv->getVcharText() )
+          }
+        else
+          AL_PARSE_ERR1( #lv, AL_GETMSG(ERR,041,1), #lv->getVcharText() )
+        top_ast->setObjPtr( #lv->getObjPtr() );
+        >>
+    ( TOK_ARROW 
+      kl:object_keyletters
+      TOK_LSQBR
+      rel:relationship
+        << #drp = 0;   // clear it out for the next link in the chain I1034
+        >>
+      {
+        TOK_DOT
+        drp:phrase
+          << ttr->add( #drp ); >>
+      }
+      TOK_RSQBR
+        << save_type = left_obj->getType();  // save type to restore later
+           left_obj->setType(TOK_KL_OBJECT);
+           pck->validate_rel_id (#rel, left_obj, #kl, #drp, card, manyFound);
+           left_obj->setType(save_type);     // restore the type
+           left_obj = #kl;
+           #( NULL, #0->tail(), #( #kl, #rel, #drp) );
+           top_ast->setObjPtr( #kl->getObjPtr() );
+           top_ast->setVcharText( #kl->getVcharText() );
+        >>
+    )+
+    << if ( ( !manyFound ) && ( !irs_var ) )
+         {
+           if ( card == CARD_ANY )
+             AL_PARSE_ERR0( #rel, AL_GETMSG(ERR,177,0) )
+           if ( card == CARD_MANY )
+             AL_PARSE_ERR0( #rel, AL_GETMSG(ERR,178,0) )
+         }
+    >>
+  ;
+
+object_spec![Obj_Card_e card] > [persObjPtr obj]
+  "object specification"
+  : << 
+       t_core_data_type t1;
+       AST * w_ast;
+       AST * rel_ast = NULL;
+       Sym * s_ref1 = NULL;
+       Sym * s_ref2 = NULL;
+       Sym * s_ref3 = NULL;
+    >>
+   // Don't need to set segLength for this rule
+  (
+    r:TOK_RELATED TOK_BY
+    ic:instance_chain[card]
+      << $obj = #ic->getObjPtr();
+         rel_ast = #[$r, TOK_RELATED];
+         #0 = #( rel_ast, #ic );
+      >>
+  | 
+    f:TOK_FROM TOK_INSTANCES TOK_OF
+    kl:object_keyletters
+      << AST * from_ast;
+         $obj = #kl->getObjPtr();
+         from_ast = #[$f, TOK_FROM];
+         #0 = #( from_ast, #kl );
+         if ( card == CARD_ONE )
+           AL_PARSE_ERR0( from_ast, AL_GETMSG(ERR,189,0) )
+      >>
+  )
+  {
+     wt:TOK_WHERE
+     <<
+        w_ast = #[TOK_SELECTED];
+        w_ast->setAsciiText("selected");
+        s_ref1 = st->newadd( w_ast, OBJECT_INST_REF_DATATYPE, $obj );
+        w_ast->setAsciiText("Selected");
+        s_ref2 = st->newadd( w_ast, OBJECT_INST_REF_DATATYPE, $obj );
+        w_ast->setAsciiText("SELECTED");
+        s_ref3 = st->newadd( w_ast, OBJECT_INST_REF_DATATYPE, $obj );
+        delete w_ast;
+        in_where=TRUE;
+        selected_found = FALSE;
+     >>
+     ex:expr > [t1]
+     << 
+        st->remove( s_ref1 );
+        s_ref1 = NULL;
+        st->remove( s_ref2 );
+        s_ref2 = NULL;
+        st->remove( s_ref3 );
+        s_ref3 = NULL;
+        w_ast = #[$wt];
+        #( NULL, #0->tail(), w_ast, #ex );
+        if ( rel_ast )   // select related by ...
+          rel_ast->setType(TOK_RELATED_WHERE);
+        if ( t1 != BOOLEAN_DATATYPE )
+          AL_PARSE_ERR0( w_ast, AL_GETMSG(ERR,017,0) )
+        if ( ! selected_found )
+          AL_PARSE_ERR0( #ex, AL_GETMSG(ERR,155,0) )
+        in_where=FALSE;
+     >>
+  }
+  ;
+  <<
+     if ( s_ref1 ) st->remove( s_ref1 );
+     if ( s_ref2 ) st->remove( s_ref2 );
+     if ( s_ref3 ) st->remove( s_ref3 );
+  >>
+
+param_data_access[Assign_Val_e isLval] > [t_core_data_type t]
+  "bridge or transformer parameter data access"
+  : << Sym *s_ref = NULL; >>
+  pd:TOK_PARAM^
+  TOK_DOT!
+  din:data_item
+    << // Set the seglength to include the data item
+       #pd->setSegLength(#din->getOffset() +
+                         #din->getSegLength() -
+                         #pd->getOffset());
+       // Validate that param.xx is valid
+       if (!param_valid)
+         AL_PARSE_ERR1( #pd, AL_GETMSG(ERR, 300, 1), #pd->getVcharText() )
+       else
+         {
+         // Validate the supplemental data item for this state
+         st->is_var_this_type_defined( #pd->getVcharText(),
+                                       BRIDGE_OR_TRANSFORMER_INST_DATATYPE,
+                                       &s_ref );
+         // objPtr is set to the value of an BRIDGE or TRANSFORMER instance
+         #pd->setObjPtr( s_ref->objPtr );
+         switch (spec_type)
+           {
+           case AL_SPEC_BRIDGE_E:
+             #pd->setType(TOK_BRIDGE_PARAM);
+             pck->validate_bridge_data_item( #din, #pd, isLval );
+             break;
+           case AL_SPEC_TRANSFORMER_E:
+           case AL_SPEC_IB_TRANSFORMER_E:
+             #pd->setType(TOK_TRANSFORMER_PARAM);
+             pck->validate_transformer_data_item( #din, #pd, isLval );
+             break;
+           case AL_SPEC_SYNSVC_E:
+             #pd->setType(TOK_SYNCH_SVC_PARAM);
+             pck->validate_synch_svc_data_item( #din, #pd, isLval );
+             break;
+           default:
+             break;
+           }
+         $t = #din->getDatatype();
+         }
+      >>
+  ;
+
+supp_data!
+  "event supplemental data"
+  : << t_core_data_type dt; >>
+   // Don't need to set segLength for this rule
+    s1:supp_data_item
+    TOK_COLON
+    e1:expr > [dt]
+      << #0 = #( #s1, #e1 ); >>
+    (
+      TOK_COMMA
+      s2:supp_data_item
+      TOK_COLON
+      e2:expr > [dt]
+        << #( NULL, #0->tail(), #( #s2, #e2 ) ); >>
+    )*
+  ;
+
+synch_svc_invocation![bool requiresReturnValue] > [t_core_data_type t]
+  "synchronous service"
+  : << AST *top_ast;
+       AST *b_ast;
+    >>
+    ss:synch_svc_function > [$t]
+      << top_ast = #[TOK_SYNCH_SVC_EXPR, #ss];
+         top_ast->setDatatype($t);
+         #0 = #( top_ast, #ss);
+         if ( requiresReturnValue && ($t == VOID_DATATYPE) )
+           AL_PARSE_ERR1( #ss, AL_GETMSG(ERR,245,1),
+                          #ss->getVcharText() )
+         if ( !requiresReturnValue && ($t != VOID_DATATYPE) )
+           AL_PARSE_ERR1( #ss, AL_GETMSG(ERR,246,1),
+                          #ss->getVcharText() )
+      >>
+    TOK_LPAREN
+    {
+      fp:function_parameters
+        << #( NULL, #0->bottom(), #fp ); >>
+    }
+    rp:TOK_RPAREN
+      << // Set the seglength to include up to right paren
+         b_ast = #[$rp];
+         top_ast->setSegLength(b_ast->getOffset() +
+                               1 -
+                               top_ast->getOffset());
+         // Validate data items here
+         pck->validate_synch_svc_data_items( #ss, #fp );
+         delete b_ast;         
+      >>
+  ;
+
+transform_ib_invocation![bool requiresReturnValue] > [t_core_data_type t]
+  "instance-based transformer"
+  : << AST *top_ast;
+       AST *b_ast;
+    >>
+    ir:inst_ref_var
+    TOK_DOT
+    tn:transformer_function[#ir, TRUE] > [$t]
+      << top_ast = #[TOK_TRANSFORMER_IB_EXPR, #ir];
+         top_ast->setDatatype($t);
+         #0 = #( top_ast, #ir, #tn);
+         if ( requiresReturnValue && ($t == VOID_DATATYPE) )
+           AL_PARSE_ERR2( #ir, AL_GETMSG(ERR,241,2),
+                          #ir->getVcharText(), #tn->getVcharText())
+         if ( !requiresReturnValue && ($t != VOID_DATATYPE) )
+           AL_PARSE_ERR2( #ir, AL_GETMSG(ERR,242,2),
+                          #ir->getVcharText(), #tn->getVcharText())
+      >>
+    TOK_LPAREN
+    {
+      fp:function_parameters
+        << #( NULL, #0->bottom(), #fp ); >>
+    }
+    rp:TOK_RPAREN
+      << // Set the seglength to include up to right paren
+         b_ast = #[$rp];
+         top_ast->setSegLength(b_ast->getOffset() +
+                               1 -
+                               top_ast->getOffset());
+         // Validate data items here
+         pck->validate_transformer_data_items( #tn, #fp );
+         delete b_ast;         
+      >>
+  ;
+
+transform_expr > [ t_core_data_type t ]
+  "transformer expression"
+  : << ANTLRTokenType OorEE;
+       AST *t_ast;
+    >>
+  tt:TOK_TRANSFORM!
+  tr:transform_invocation[TRUE] > [$t]
+    << t_ast = #[$tt];
+       #tr->setSegLength(#tr->getOffset() +
+                         #tr->getSegLength() -
+                         t_ast->getOffset());
+       #tr->setOffset(t_ast->getOffset());
+       delete t_ast;
+    >>
+ ;
+
+transform_invocation![bool requiresReturnValue] > [t_core_data_type t]
+  "transform invocation"
+  : << AST *top_ast;
+       AST *b_ast;
+    >>
+    kl:object_keyletters
+    TOK_DOUBLECOLON
+    tn:transformer_function[#kl, FALSE] > [$t]
+      << top_ast = #[TOK_TRANSFORMER_EXPR, #kl];
+         top_ast->setDatatype($t);
+         #0 = #( top_ast, #kl, #tn);
+         if ( requiresReturnValue && ($t == VOID_DATATYPE) )
+           AL_PARSE_ERR2( #kl, AL_GETMSG(ERR,232,2),
+                          #kl->getVcharText(), #tn->getVcharText())
+         if ( !requiresReturnValue && ($t != VOID_DATATYPE) )
+           AL_PARSE_ERR2( #kl, AL_GETMSG(ERR,235,2),
+                          #kl->getVcharText(), #tn->getVcharText())
+      >>
+    TOK_LPAREN
+    {
+      fp:function_parameters
+        << #( NULL, #0->bottom(), #fp ); >>
+    }
+    rp:TOK_RPAREN
+      << // Set the seglength to include up to right paren
+         b_ast = #[$rp];
+         top_ast->setSegLength(b_ast->getOffset() +
+                               1 -
+                               top_ast->getOffset());
+         // Validate data items here
+         pck->validate_transformer_data_items( #tn, #fp );
+         delete b_ast;         
+      >>
+  ;
+
+// This is invoked externally
+where_spec
+  "where specification"
+  :  << t_core_data_type t; >>
+  e:expr > [t]
+    << if ( t != BOOLEAN_DATATYPE )
+         AL_PARSE_ERR0( #e, AL_GETMSG(ERR,018,0) )
+       if ( dumpflag && #0 )
+         {
+           ((AST *)#0)->dumpTree("\nwhere_spec AST tree", ascii_buffer);
+           printf("--------------------------------------------------\n");
+           printf("QMark ASTs:\n");
+           AST *look = ttqm->getItemHead();
+           while (look)
+             {
+               look->dumpNode("  ");
+               look = look->getItemNext();
+             }
+           printf("--------------------------------------------------\n");
+         }
+    >>
+  ;
+
+//---------------------------------------------------------------------
+// Miscellaneous terms used in various statements
+//---------------------------------------------------------------------
+
+assoc_obj_inst_ref_var
+  "associative object instance reference variable"
+  :
+    inst_ref_var
+  ;
+
+attribute
+  "object attribute"
+  :
+    attr:general_name
+      << #attr->setType(TOK_OBJ_ATTR);
+         ttr->add( #attr );
+      >>
+  ;
+
+bridge_function[AST *ee_kl] > [t_core_data_type t]
+  "bridge function"
+  :
+    bf:function_name
+      << pck->validate_bridge( #bf, ee_kl );
+         $t = pck->get_bridge_return_type( #bf );
+      >>
+  ;
+
+data_item
+  "data item"
+  :
+    n:data_item_name
+      << #n->setType(TOK_DATA_ITEM_NAME);
+         ttr->add( #n );
+      >>
+  ;
+
+data_item_name
+  "data item name"
+  :
+    general_name
+  ;
+
+enum_data_type
+  "enumeration data type"
+  :
+    n:general_name
+      << #n->setType(TOK_ENUMERATION); ttr->add( #n ); >>
+  ;
+
+enumerator
+  "enumerator"
+  :
+    n:general_name
+      << #n->setType(TOK_ENUMERATOR); ttr->add( #n ); >>
+  ;
+
+keyletters
+  "keyletters"
+  :
+    kl:general_name
+      << ttr->add( #kl ); >>
+  ;
+
+ee_keyletters
+  "external entity keyletters"
+  :
+    eekl:keyletters
+      << #eekl->setType(TOK_KL_EXTERNAL_ENTITY);
+         pck->validate_ee_kl( #eekl );
+      >>
+  ;
+
+event_label
+  "event label"
+  :
+    el:general_name
+      << #el->setType(TOK_EVENT_LABEL);
+         ttr->add( #el );
+      >>
+  ;
+
+event_meaning
+  "event meaning"
+  : << AST *em = NULL; >>
+  (
+    em1:phrase
+      << em = #em1; >>
+  |
+    em2:general_name
+      << em = #em2; >>
+  )
+    << ttr->add( em );
+       em->setType(TOK_PHRASE);
+    >>
+  ;
+
+general_name
+  "general name"
+  : << AST *gn = NULL; >> 
+  (
+    gn1:limited_name
+      << gn = #gn1; >>
+  |
+    gn2:TOK_GENERAL_NAME
+      << gn = #gn2;
+         gn->setSegLength(strlen(gn->getAsciiText()));
+      >>
+  |
+    gn3:kw_as_id1
+      << gn = #gn3; >>
+  |
+    gn4:kw_as_id2
+      << gn = #gn4; >>
+  |
+    gn5:kw_as_id3
+      << gn = #gn5;
+         AL_PARSE_ERR1( gn, AL_GETMSG(ERR,265,1), gn->getVcharText() )
+      >>
+  |
+    gn8:TOK_GARBAGE
+      << gn = #gn8;
+         gn->setSegLength(strlen(gn->getAsciiText()));
+         AL_PARSE_ERR1( gn, AL_GETMSG(ERR, 300, 1), gn->getVcharText() )
+      >>
+  |
+    gn9:TOK_BAD_ID
+      << gn = #gn9;
+         gn->setSegLength(strlen(gn->getAsciiText()));
+         AL_PARSE_ERR1( gn, AL_GETMSG(ERR, 300, 1), gn->getVcharText() )
+      >>
+  |
+    gna:TOK_BAD_NAME
+      << gn = #gna;
+         gn->setSegLength(strlen(gn->getAsciiText()));
+         AL_PARSE_ERR1( gn, AL_GETMSG(ERR, 300, 1), gn->getVcharText() )
+      >>
+  )
+    << gn->setType(TOK_ID); >>
+  ;
+
+svc_general_name
+  "service general name"
+  : << AST *gn = NULL; >> 
+  (
+    gn1:limited_name
+      << gn = #gn1; >>
+  |
+    gn2:TOK_GENERAL_NAME
+      << gn = #gn2;
+         gn->setSegLength(strlen(gn->getAsciiText()));
+      >>
+  |
+    gn3:kw_as_id1
+      << gn = #gn3; >>
+  |
+    gn4:kw_as_id2
+      << gn = #gn4; >>
+  |
+    gn5:kw_as_id3
+      << gn = #gn5;
+         AL_PARSE_ERR1( gn, AL_GETMSG(ERR,265,1), gn->getVcharText() )
+      >>
+  |
+    gn7:kw_as_id4
+      << gn = #gn7; >>
+  |
+    gn8:TOK_GARBAGE
+      << gn = #gn8;
+         gn->setSegLength(strlen(gn->getAsciiText()));
+         AL_PARSE_ERR1( gn, AL_GETMSG(ERR, 300, 1), gn->getVcharText() )
+      >>
+  |
+    gn9:TOK_BAD_ID
+      << gn = #gn9;
+         gn->setSegLength(strlen(gn->getAsciiText()));
+         AL_PARSE_ERR1( gn, AL_GETMSG(ERR, 300, 1), gn->getVcharText() )
+      >>
+  |
+    gna:TOK_BAD_NAME
+      << gn = #gna;
+         gn->setSegLength(strlen(gn->getAsciiText()));
+         AL_PARSE_ERR1( gn, AL_GETMSG(ERR, 300, 1), gn->getVcharText() )
+      >>
+  )
+    << gn->setType(TOK_ID); >>
+  ;
+
+limited_name
+  "limited name"
+  :
+    i1:TOK_ID
+      << #i1->setSegLength(strlen(#i1->getAsciiText())); >>
+
+  |
+    i2:TOK_RELID
+      << #i2->setType(TOK_ID);
+         #i2->setSegLength(strlen(#i2->getAsciiText()));
+      >>
+  ;
+
+inst_ref_set_var
+  "instance reference set variable"
+  : << Sym *s_ref; >>
+  irsv:local_variable[ASSIGN_RVAL]
+    << #irsv->setType(TOK_INST_REF_SET_VAR);
+       if ( st->is_inst_ref_set_var( #irsv->getVcharText(), &s_ref ) )
+         #irsv->setObjPtr( s_ref->objPtr );
+       else
+         AL_PARSE_ERR1( #irsv, AL_GETMSG(ERR,041,1), #irsv->getVcharText() )
+    >>
+  ;
+
+inst_ref_var
+  "instance reference variable"
+  : << Sym *s_ref; >>
+  lv:local_variable[ASSIGN_RVAL]
+    << #lv->setType(TOK_INST_REF_VAR);
+       if ( st->is_inst_ref_var( #lv->getVcharText(), &s_ref ) )
+         #lv->setObjPtr( s_ref->objPtr );
+       else
+         AL_PARSE_ERR1( #lv, AL_GETMSG(ERR,041,1), #lv->getVcharText() )
+    >>
+  ;
+
+kw_as_id1
+  "keyword as identifier"
+  :
+    x:TOK_ACROSS .. TOK_USING
+      << #x->setType(TOK_ID);
+         #x->setSegLength(strlen(#x->getAsciiText()));
+      >>
+  ;
+
+kw_as_id2
+  "keyword as identifier"
+  :
+    x:TOK_BRIDGE .. TOK_TRUETOKEN
+      << #x->setType(TOK_ID);
+         #x->setSegLength(strlen(#x->getAsciiText()));
+      >>
+  ;
+
+kw_as_id3
+  "keyword as identifier"
+  :
+    x:TOK_PARAM .. TOK_SELF
+      << #x->setType(TOK_ID);
+         #x->setSegLength(strlen(#x->getAsciiText()));
+      >>
+  ;
+
+kw_as_id4
+  "keyword as identifier"
+  :
+    x:TOK_AND .. TOK_WHILE
+      << #x->setType(TOK_ID);
+         #x->setSegLength(strlen(#x->getAsciiText()));
+      >>
+  ;
+
+local_variable[Assign_Val_e isLval]
+  "local variable"
+  : << Sym * s_ref;
+       AST *lv = NULL;
+    >>
+  (
+    lv1:limited_name   << lv = #lv1; >>
+  |
+    lv2:kw_as_id1      << lv = #lv2; >>
+  |
+    lv3:TOK_SELECTED
+      << lv = #lv3;
+         lv->setSegLength(strlen(lv->getAsciiText()));
+         if ( ! in_where )
+           AL_PARSE_ERR0( lv, AL_GETMSG(ERR,154,0) )
+         selected_found = TRUE;
+      >>
+  |
+    lv4:TOK_SELF
+      << lv = #lv4;
+         lv->setSegLength(strlen(lv->getAsciiText()));
+         if (! self_valid)
+           {
+             if ( ! ( st->is_inst_ref_var( lv->getVcharText(), &s_ref) ) )
+               {
+                 AL_PARSE_ERR1( lv, AL_GETMSG(ERR,156,1), spec_descr.char_ptr() )
+               }
+           }
+         else if ( isLval == ASSIGN_LVAL )
+           AL_PARSE_ERR0( lv, AL_GETMSG(ERR,284,0) )
+      >>
+  |
+    lv5:TOK_GARBAGE
+      << lv = #lv5;
+         lv->setSegLength(strlen(lv->getAsciiText()));
+         AL_PARSE_ERR1( lv, AL_GETMSG(ERR, 300, 1), lv->getVcharText() )
+      >>
+  |
+    lv6:TOK_BAD_ID
+      << lv = #lv6;
+         lv->setSegLength(strlen(lv->getAsciiText()));
+         AL_PARSE_ERR1( lv, AL_GETMSG(ERR, 300, 1), lv->getVcharText() )
+      >>
+  |
+    lv7:TOK_BAD_NAME
+      << lv = #lv7;
+         lv->setSegLength(strlen(lv->getAsciiText()));
+         AL_PARSE_ERR1( lv, AL_GETMSG(ERR, 300, 1), lv->getVcharText() )
+      >>
+  )
+    << lv->setType(TOK_LOCAL_VAR); >>
+  ;
+
+function_name
+  "function name"
+  :
+    fn:general_name
+      << #fn->setType(TOK_FUNCTION_NAME);
+         ttr->add( #fn );
+      >>
+  ;
+
+svc_function_name
+  "service function name"
+  :
+    fn:svc_general_name
+      << #fn->setType(TOK_FUNCTION_NAME);
+         ttr->add( #fn );
+      >>
+  ;
+
+obj_or_ee_keyletters
+  "object or external entity keyletters"
+  :
+    keyletters
+  ;
+
+object_keyletters
+  "object keyletters"
+  :
+    kl:keyletters
+      << #kl->setType(TOK_KL_OBJECT);
+         pck->validate_obj_kl( #kl );
+         // This generates errors "more than one object..." and "Object with
+         //  keyletters $s does not exist".  All other object kl errors
+         //  should be removed from p_msglst.hh
+      >>
+  ;
+
+phrase
+  "phrase"
+  : << AST *s_ast = NULL; >>
+  (
+    s1:TOK_PHRASE
+      << s_ast = #s1;
+         #s1->setSegLength(strlen(#s1->getAsciiText()) + 2);  // adjust for ticks
+      >>
+  |
+    s2:TOK_BADPHRASE_NL
+      << s_ast = #s2;
+         #s2->setSegLength(strlen(#s2->getAsciiText()) + 1);  // adjust for single tick
+         #s2->setLine( #s2->getLine() - 1 );  // correct line number
+         AL_PARSE_ERR0( #s2, AL_GETMSG(ERR,315,0) )
+      >>
+  |      
+    s3:TOK_BADPHRASE_EOF
+      << s_ast = #s3;
+         #s3->setSegLength(strlen(#s3->getAsciiText()) + 1);  // adjust for single tick
+         AL_PARSE_ERR0( #s3, AL_GETMSG(ERR,315,0) )
+      >>
+  )
+    << s_ast->setType(TOK_PHRASE); >>
+  ;
+
+relationship
+  "relationship id"
+  :
+    rn:TOK_RELID
+      << ttr->add( #rn );
+         #rn->setSegLength(strlen(#rn->getAsciiText()));
+      >>
+  ;
+
+supp_data_item
+  "event supplemental data name"
+  :
+    nm:data_item_name
+      << #nm->setType(TOK_SUPP_DATA_NAME);
+         ttr->add( #nm );
+      >>
+  ;
+
+synch_svc_function > [t_core_data_type t]
+  "synchronous service function"
+  :
+    nm:svc_function_name
+      << pck->validate_synch_svc( #nm );
+         $t = pck->get_synch_svc_return_type( #nm );
+      >>
+  ;
+
+transformer_function[AST *obj_kl_or_inst_ref_var, bool isInstanceBased] > [t_core_data_type t]
+  "transformer function"
+  :
+    nm:function_name
+      << pck->validate_transformer( #nm, $obj_kl_or_inst_ref_var,
+                                    isInstanceBased );
+         $t = pck->get_transformer_return_type( #nm );
+      >>
+  ;
+
+//---------------------------------------------------------------------
+// Expressions
+// Depth of nesting determines precedence.
+//---------------------------------------------------------------------
+
+expr! > [t_core_data_type t]
+  "expression"
+  : << AST *c_ast; >>
+  e:sub_expr > [$t]
+    << c_ast = #[TOK_EXPRESSION, #e];  // sets datatype and offset
+       c_ast->setSegLength(#e->getSegLength());
+       c_ast->setObjPtr(#e->getObjPtr());
+       c_ast->setReadOnly(#e->isReadOnly());
+       #0 = #( c_ast, #e );
+    >>
+  ;
+
+sub_expr > [t_core_data_type t]
+  "sub_expression"
+  : << t_core_data_type t1, t2; >>
+  c1:conjunction > [t1]
+    << $t = t1; >>
+  (
+    o:TOK_OR^
+    c2:conjunction > [t2]
+      << $t = BOOLEAN_DATATYPE;
+         #o->setDatatype($t);
+         #o->setObjPtr(#c2->getObjPtr());
+         #o->setOffset(#c1->getOffset());
+         #o->setSegLength(#c2->getOffset() -
+                          #c1->getOffset() +
+                          #c2->getSegLength());
+         if ( t1 != $t ) AL_PARSE_ERR0( #c1, AL_GETMSG(ERR,317,0) )
+         if ( t2 != $t ) AL_PARSE_ERR0( #c2, AL_GETMSG(ERR,317,0) )
+         
+      >>
+  )*
+  ;
+
+conjunction > [t_core_data_type t]
+  "expression"
+  : << t_core_data_type t1, t2; >>
+  e1:relational_expr > [t1] << $t = t1; >>
+  (
+    a:TOK_AND^
+    e2:relational_expr > [t2]
+      << $t = BOOLEAN_DATATYPE;
+         #a->setDatatype($t);
+         #a->setObjPtr(#e2->getObjPtr());
+         #a->setOffset(#e1->getOffset());
+         #a->setSegLength(#e2->getOffset() -
+                          #e1->getOffset() +
+                          #e2->getSegLength());
+         if ( t1 != $t ) AL_PARSE_ERR0( #e1, AL_GETMSG(ERR,317,0) )
+         if ( t2 != $t ) AL_PARSE_ERR0( #e2, AL_GETMSG(ERR,317,0) )
+      >>
+  )*
+  ;
+
+relational_expr > [t_core_data_type t]
+  "expression"
+  : << t_core_data_type t1, t2;
+       bool mismatch = FALSE;
+    >>
+  a1:addition > [t1]  << $t = t1; >>
+  {
+    op:TOK_COMPARISON_OPERATOR^     // op:comparison_operator
+    a2:addition > [t2]
+      << $t = BOOLEAN_DATATYPE;
+         #op->setDatatype($t);
+         #op->setObjPtr(#a2->getObjPtr());
+         #op->setOffset(#a1->getOffset());
+         #op->setSegLength(#a2->getOffset() -
+                           #a1->getOffset() +
+                           #a2->getSegLength());
+         if ( accum_datatype( #a1, #a2, t1, t2, mismatch ) )
+		 {
+             AL_PARSE_ERR0( #op, AL_GETMSG(ERR,318,0) );
+	     }
+         else if ( t1 == ENUMERATION_DATATYPE )
+         {
+           if ( enum_oper_check ( #op ) )
+		   {
+             AL_PARSE_ERR0( #op, AL_GETMSG(ERR,294,0) );
+		   }
+         }
+         else if ( t1 == STRING_DATATYPE )
+         {
+            if ( #a1->getType() == TOK_STRING && #a2->getType() == TOK_STRING )
+            {
+                // fixup the AST's Offset
+                #op->setOffset( #op->getOffset() - 1 );
+            }
+            else if ( #a1->getType() != TOK_STRING && #a2->getType() == TOK_STRING )
+            {
+                // fixup the AST's segLength
+                #op->setSegLength( #op->getSegLength() - 1 );
+            }
+            else if ( #a1->getType() == TOK_STRING && #a2->getType() != TOK_STRING )
+            {
+                // fixup the AST's Offset
+                #op->setOffset( #op->getOffset() - 1 );
+                // fixup the AST's segLength
+                #op->setSegLength( #op->getSegLength() + 1 );
+            }
+         }
+      >>
+  }
+  ;
+
+addition > [t_core_data_type t]
+  "expression"
+  : << t_core_data_type t1, t2;
+       bool mismatch = FALSE;
+    >>
+  m1:multiplication > [t1]
+   << $t = t1;
+      #m1->setDatatype(t1);
+   >>
+  (
+    op:TOK_PLUS_OR_MINUS^
+    m2:multiplication > [t2]
+      << // Set the offset and seglength to include both terms
+         #op->setOffset(#m1->getOffset());
+         #op->setSegLength(#m2->getOffset() -
+                           #m1->getOffset() +
+                           #m2->getSegLength());
+         if ( ! mismatch )
+           {
+           if ( accum_datatype( #m1, #m2, t1, t2, mismatch ) )
+             {
+               AL_PARSE_ERR0( #op, AL_GETMSG(ERR,319,0) )
+             }
+           else
+             {
+               switch ( t1 )
+                 {
+                   case INTEGER_DATATYPE:
+                   case REAL_DATATYPE:
+                     break;
+                   case STRING_DATATYPE:
+                     if ( #op->getType() != TOK_PLUS )
+                       {
+                         mismatch = TRUE;
+                         AL_PARSE_ERR0( #op, AL_GETMSG(ERR,320,0) )
+                       }
+                     else
+                     {
+                        if ( #m1->getType() == TOK_STRING && #m2->getType() == TOK_STRING )
+                        {
+                            // fixup the AST's Offset
+                            #op->setOffset( #op->getOffset() - 1 );
+                        }
+                        else if ( #m1->getType() != TOK_STRING && #m2->getType() == TOK_STRING )
+                        {
+                            // fixup the AST's segLength
+                            #op->setSegLength( #op->getSegLength() - 1 );
+                        }
+                        else if ( #m1->getType() == TOK_STRING && #m2->getType() != TOK_STRING )
+                        {
+                            // fixup the AST's Offset
+                            #op->setOffset( #op->getOffset() - 1 );
+                            // fixup the AST's segLength
+                            #op->setSegLength( #op->getSegLength() + 1 );
+                        }
+                     }
+                     break;
+                   default:
+                     mismatch = TRUE;
+                     AL_PARSE_ERR0( #op, AL_GETMSG(ERR,319,0) )
+                 }
+             }
+           }                 
+         $t = t1;
+         #op->setDatatype($t);
+         #op->setObjPtr(#m2->getObjPtr());
+      >>
+  )*
+  ;
+
+multiplication > [t_core_data_type t]
+  "expression"
+  : << t_core_data_type t1, t2;
+       bool mismatch = FALSE;
+    >>
+    (  boolean_negation > [$t] )?
+    bn:boolean_negation > [$t]
+  |
+    e1:sign_expr > [t1] << $t = t1; >>
+    (
+      op:TOK_MULT_OP^
+      e2:sign_expr > [t2]
+      << // Set the offset and seglength to include both terms
+         #op->setOffset(#e1->getOffset());
+         #op->setSegLength(#e2->getOffset() -
+                           #e1->getOffset() +
+                           #e2->getSegLength());
+         if ( ! mismatch )
+           {
+             if ( accum_datatype( #e1, #e2, t1, t2, mismatch ) )
+               {
+                 AL_PARSE_ERR0( #op, AL_GETMSG(ERR,319,0) )
+               }
+             else
+               {
+                 switch ( t1 )
+                   {
+                     case INTEGER_DATATYPE:
+                     case REAL_DATATYPE:
+                       break;
+                     default:
+                       AL_PARSE_ERR0( #op, AL_GETMSG(ERR,319,0) )
+                   }
+               }
+           }
+         $t = t1;
+         #op->setDatatype($t);
+      >>
+    )*
+  ;
+
+sign_expr! > [t_core_data_type t]
+  "expression"
+  : << t_core_data_type t1, t2;
+       bool mismatch = FALSE;
+       AST *op = NULL;
+    >>
+  { op1:TOK_PLUS
+      << op = #[$op1, TOK_UNARY_PLUS]; >>
+  | op2:TOK_MINUS
+      << op = #[$op2, TOK_UNARY_MINUS]; >>
+  }
+  t:term > [t1]
+    << $t = t1;
+       if ( op )
+         { // Set the seglength to include both term and operator
+           op->setSegLength(#t->getOffset() +
+                            #t->getSegLength() -
+                            op->getOffset());
+           t2 = INTEGER_DATATYPE;
+           if ( accum_datatype( #t, #t, t2, t1, mismatch ) )
+             {
+               AL_PARSE_ERR0( op, AL_GETMSG(ERR,312,0) )
+             }
+           $t = t2;                    // return accum datatype
+           op->setDatatype($t);
+           op->setObjPtr(#t->getObjPtr());
+           if ( ( #t->getOffset() - op->getOffset() ) == 1 )
+             {
+               switch (#t->getType())
+                 {
+                 case TOK_NUMBER:
+                 case TOK_FRACTION:
+                   {
+                     // combine sign with number
+                     size_t l_num = strlen(#t->getAsciiText());
+                     vchar *s = new vchar[l_num + 2];
+                     vchar *endpt;
+                     vcharCopyBounded(op->getVcharText(), s, 1);
+                     endpt = vcharCopyBounded(#t->getVcharText(), s+1, l_num+1);
+                     *endpt = '\0';
+                     op->setVcharText( s );
+                     op->setSegLength(l_num + 1);
+                     op->setType(#t->getType());
+                     #0 = op;
+                     delete #t;
+                     delete [] s;
+                   }
+                   break;
+                 default:
+                     #0 = #(op, #t);
+                   break;
+                 }
+             }
+           else  // separation between sign and number
+             #0 = #(op, #t);
+         }
+       else
+         #0 = #t;
+    >>
+  ;
+
+boolean_negation > [t_core_data_type t]
+  "expression"
+  : << t_core_data_type t1;
+    >>
+  op:TOK_NOT^
+  t:term > [t1]
+    << // Set the seglength to include both terms
+       #op->setSegLength(#t->getOffset() -
+                         #op->getOffset() +
+                         #t->getSegLength());
+       if ( t1 != BOOLEAN_DATATYPE )
+         {
+           AL_PARSE_ERR0( #op, AL_GETMSG(ERR,312,0) )
+         }
+       $t = BOOLEAN_DATATYPE;
+       #op->setDatatype($t);
+       #op->setObjPtr(#t->getObjPtr());
+    >>
+  ;
+
+term > [t_core_data_type t]
+  "expression"
+  : << t_core_data_type t1;
+       Sym *s_ref;
+       AST *op = NULL;
+       AST *p_ast;
+    >>
+    (
+      op1:TOK_CARDINALITY^
+        << $t = INTEGER_DATATYPE;
+           op = #op1;
+           op->setDatatype($t);
+        >>
+    | op2:TOK_EMPTY^
+        << $t = BOOLEAN_DATATYPE;
+           op = #op2;
+           op->setDatatype($t);
+        >>
+    | op3:TOK_NOTEMPTY^
+        << $t = BOOLEAN_DATATYPE;
+           op = #op3;
+           op->setDatatype($t);
+        >>
+    )
+    idx:local_variable[ASSIGN_RVAL]
+      << // Set the seglength to include both terms
+        op->setSegLength(#idx->getOffset() -
+                         op->getOffset() +
+                         #idx->getSegLength());
+        if ( st->is_var_this_type_defined( #idx->getVcharText(),
+                                           OBJECT_INST_REF_DATATYPE,
+                                           &s_ref ) )
+          {
+            #idx->setDatatype(OBJECT_INST_REF_DATATYPE);   // inst_ref variable
+            #idx->setObjPtr( s_ref->objPtr );
+          }
+        else if ( st->is_var_this_type_defined( #idx->getVcharText(),
+                                                OBJECT_INST_REF_SET_DATATYPE,
+                                                &s_ref ) )
+          {
+            #idx->setDatatype(OBJECT_INST_REF_SET_DATATYPE);   // inst_ref_set
+            #idx->setObjPtr( s_ref->objPtr );
+          }
+        else
+          {
+            #idx->setDatatype(UNKNOWN_DATATYPE);
+            AL_PARSE_ERR1( #idx, AL_GETMSG(ERR, 044, 1), #idx->getVcharText() )
+          }
+        op->setObjPtr(#idx->getObjPtr());
+      >>
+  |
+    rval > [$t]
+  |
+    lp:TOK_LPAREN^
+    (
+      (  assignment_expr > [t1] )?
+      ae:assignment_expr > [t1]
+        << AL_PARSE_ERR0( #ae, AL_GETMSG(ERR, 314, 0) ) >>
+    |
+      e:expr > [$t]
+        << #lp->setObjPtr(#e->getObjPtr()); >>
+    )
+    rp:TOK_RPAREN!
+      << #lp->setType(TOK_PAREN_EXPR);
+         #lp->setDatatype($t);
+         p_ast = #[$rp];
+         #lp->setSegLength(p_ast->getOffset() +
+                           1 -
+                           #lp->getOffset());
+         delete p_ast;
+      >>
+  ;
+
+rval > [ t_core_data_type t ]
+  "expression"
+  :
+    ( TOK_DOUBLECOLON )?
+      TOK_DOUBLECOLON! synch_svc_invocation[TRUE] > [$t]
+  |
+    ( transform_ib_invocation[TRUE] > [$t] )?
+      transform_ib_invocation[TRUE] > [$t]
+  |
+    ( bridge_or_transform_expr > [$t] )?
+      bridge_or_transform_expr > [$t]
+  |
+    ( enumerator_access > [$t] )?
+      enumerator_access > [$t]
+  |
+    attribute_access[ASSIGN_RVAL] > [$t]
+  | constant_value > [$t]
+  | variable > [$t]
+  | event_data_access[ASSIGN_RVAL] > [$t]
+  | bridge_expr > [$t]
+  | transform_expr > [$t]
+  | param_data_access[ASSIGN_RVAL] > [$t]
+  | q:TOK_QMARK
+      << $t = QMARK_DATATYPE;
+         #q->setSegLength(strlen(#q->getAsciiText()));
+         ttqm->add( #q );
+         if ( ! wspecflag )
+           AL_PARSE_ERR1( #q, AL_GETMSG(ERR, 300, 1), #q->getVcharText() )
+      >>
+  ;
+
+variable > [ t_core_data_type t ]
+  "local variable"
+  : << Sym *s = NULL;
+    >>
+  idx:local_variable[ASSIGN_RVAL]
+    //-----------------------------------------------------------------
+    // A referenced variable name which is defined both as an
+    // instance reference and a non-instance reference looks
+    // first for the non-instance reference definition.
+    //
+    // Note: this may not be quite accurate.  In this fragment of AL,
+    //   assign a = 1;
+    //   assign b = 2;
+    //   select any a from instances of A;
+    //   select any b from instances of B;
+    //   assign b = a;
+    // What variable is used to assign to b?  The integer one, which 
+    // follows the rule above.  Is there a case where the inst_ref
+    // variable "a" is used?  I can't think of a case.  Let's keep
+    // thinking about this for a while...
+    // The following code is valid except where <-error.
+    //   assign x_b = 1;
+    //   select any x_b from instances of ACT;
+    //   assign x_bx = x_b;
+    //   generate ACT1:test() to x_b;
+    //   // Error: generate ACT1:test() to x_bx;   <-error
+    //   
+    //   select any x_c from instances of ACT;
+    //   assign x_cx = x_c;
+    //   generate ACT1:test() to x_c;
+    //   generate ACT1:test() to x_cx;
+    //-----------------------------------------------------------------
+    << if ( st->is_var_this_space_defined( #idx->getVcharText(),
+                                           SYMBOL_ENTRY_NON_INST_REF, &s ) )
+         {
+           $t = (t_core_data_type)s->datatype;
+           #idx->setDatatype($t);
+           #idx->setObjPtr(s->objPtr);
+           #idx->setReadOnly(FALSE);
+         }
+       else if ( st->is_var_this_space_defined( #idx->getVcharText(),
+                                                SYMBOL_ENTRY_INST_REF, &s ) )
+         {
+           $t = (t_core_data_type)s->datatype;
+           #idx->setDatatype($t);
+           #idx->setObjPtr(s->objPtr);
+           #idx->setReadOnly(FALSE);
+         }
+       else
+         {
+           $t = UNKNOWN_DATATYPE;
+           #idx->setDatatype($t);
+           AL_PARSE_ERR1( #idx, AL_GETMSG( ERR, 044, 1), #idx->getVcharText() )
+         }
+    >>
+  ;
+
+constant_value > [t_core_data_type t]
+  "constant"
+  :  << AST *t; >>
+  (
+    op1:TOK_FRACTION        << $t = REAL_DATATYPE;    t = #op1; >>
+  | op2:TOK_NUMBER          << $t = INTEGER_DATATYPE; t = #op2; >>
+  | op4:TOK_TRUETOKEN       << $t = BOOLEAN_DATATYPE; t = #op4; >>
+  | op5:TOK_FALSETOKEN      << $t = BOOLEAN_DATATYPE; t = #op5; >>
+  )
+    << t->setDatatype($t);
+       t->setSegLength(strlen(t->getAsciiText()));
+    >>
+  |
+    op3:quoted_string
+    << $t = STRING_DATATYPE;
+       #op3->setDatatype($t);
+    >>
+  ;
+
+quoted_string
+  "quoted string"
+  : << AST *t_ast;
+       AST *s_ast;
+       int increment = 2;
+    >>
+  tq:TOK_QUOTE!
+    << t_ast = #[$tq]; >>
+  (
+    s1:TOK_STRING
+      << s_ast = #s1;
+         s_ast->setSegLength( strlen(s_ast->getAsciiText()) + increment );
+         // s_ast->setOffset( t_ast->getOffset());
+      >>
+  |
+    s2:TOK_BADSTRING_NL
+      << s_ast = #s2;
+         increment = 1;  // add one for a single quote
+         #s2->setType(TOK_STRING);
+         #s2->setLine( #s2->getLine() - 1 );  // correct line number
+         s_ast->setSegLength( strlen(s_ast->getAsciiText()) + increment );
+         s_ast->setOffset( t_ast->getOffset() );
+         AL_PARSE_ERR0( #s2, AL_GETMSG(ERR,316,0) )
+      >>
+  |      
+    s3:TOK_BADSTRING_EOF
+      << s_ast = #s3;
+         increment = 1;  // add one for a single quote
+         #s3->setType(TOK_STRING);
+         s_ast->setSegLength( strlen(s_ast->getAsciiText()) + increment );
+         s_ast->setOffset( t_ast->getOffset() );
+         AL_PARSE_ERR0( #s3, AL_GETMSG(ERR,316,0) )
+      >>
+  )
+    << 
+       delete t_ast;
+    >>
+  ;
+
+}
+
+//--------------------------------------------------------------------
+// white space
+//--------------------------------------------------------------------
+#token "[\ \t]+"          << skip(); >>
+#token "\n|\r|\r\n"       << skip();
+                             newline();
+                             ColToken::update_offset(endcol());
+                             set_endcol(0);
+                          >>
+
+//---------------------------------------------------------------------
+// identifiers and numbers
+// These are here, because key words, etc. need to be matched first.
+//---------------------------------------------------------------------
+#token TOK_RELID         "[rR][0-9]+"
+#token TOK_ID            "[_a-zA-Z\@][_a-zA-Z\@0-9]*"
+#token TOK_GENERAL_NAME  "[_a-zA-Z\@#][_a-zA-Z\@0-9#]*"
+#token TOK_BAD_ID        "[0-9]+[_a-zA-Z\@][_a-zA-Z\@0-9]*"
+#token TOK_BAD_NAME      "[0-9]+[_a-zA-Z\@#][_a-zA-Z\@0-9#]*"
+#token TOK_NUMBER        "[0-9]+"
+#token TOK_GARBAGE       "..*"

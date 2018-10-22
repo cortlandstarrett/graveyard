@@ -1,0 +1,101 @@
+<HTML>
+<HEAD>
+<TITLE>Observable</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Observable</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Number.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Palette.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The <EM><B>Observable</B></EM> module provides a base mechanism for allowing objects to notify each other of changes, events, and general occurrences. The primary class of this module is <TT>vobservable</TT>, which is derived from the <TT>vloadable</TT> class. Instances of this class keep track of observing objects so they can announce relevant information to those objects as needed. Also, the instances of this class can themselves be used as the observing objects.<P>
+The <TT>vobserver</TT> subclass of <TT>vobservable</TT> provides a little more functionality for dedicated observer objects, especially those that are go-betweens for other objects. The information that is sent between the observed and the observing objects is packaged up into occurrence (<TT>voccurrence</TT>) instances. Occurrence instances are intended to be light-weight and reusable.<P>
+The most important subclass of <TT>vobservable</TT> is <TT>vobject</TT> or the attributed object class. Since that class has named attributes and dynamic relationships between objects, there are lots of possibilities for inter-object communication. However, since previous versions of Galaxy have relied on the Command classes to coordinate most of this communication, vobservable-based broadcasting of attribute and state changes is not hooked up by default.<P>
+Subclasses may selectively add this functionality as needed. For example, the user interface items will announce significant event occurrences to observers at the same time as dispatching command objects and calling special purpose observe methods.<P>
+The <TT>vlistObserver</TT> and <TT>vtextObserver</TT> classes are derived from the <TT>vobserver</TT> base class. These observer objects are installed the same way as any <TT>vobservable</TT> and other types of observers can now be used to receive occurrence from the <TT>vlist</TT> and <TT>vtext</TT> data objects.<P>
+An observable object keeps a list of observers. Installing an observer adds it to this list and uninstalling, removes it. Although it is not terribly useful, the same object can be installed multiple times and it will receive that many announcements. Also, and more usefully, an object can be installed to observe multiple objects. The observing object can know which object made the announcement by looking at the announcer attribute of the passed occurrence object.<P>
+The Observable class allows some optimization by allowing observers to give a hint about which class of occurrences they are actually interested in, but these are only hints to help decide whether to announce anything. Once an object decides to announce an occurrence, all observers will get the occurrence, so they must still filter inside of their observe implementations.<P>
+Instances of the <TT>vobserver</TT> class have an enabled attribute which they should use to decide whether to disregard all announcements until they are re-enabled. Also, <TT>vobserver</TT> instances have a patron attribute. This is usually a reference to the object that the observer will more specifically notify or modify in response to observations. For example, the patron of a <TT>vlistObserver</TT> might be a <TT>vlistview</TT>. When the <TT>vlist</TT> data changes, it announces to the observer, which then possibly refreshes its patron, the <TT>vlistview</TT> object.<P>
+<A NAME="3358"><H2> Key Functionality</H2></A>
+The two main methods of the <TT>vobservable</TT> class are <TT>AnnounceOccurrence</TT> and <TT>ObserveOccurrence</TT>. A <TT>vobservable</TT> object calls the <TT>AnnounceOccurrence</TT> method when it wants to broadcast to all of its observers. A <TT>vobservable</TT> subclass overrides the <TT>ObserveOccurrence</TT> method when it wants to customize its response to certain occurrences.<P>
+The default <TT>AnnounceOccurrence</TT> method will set the announcer attribute on the occurrence object passed in to the invoking object, unless the occurrence already had a non-<TT>NULL</TT> announcer reference. In that case, the method assumes that the message is just being passed on and leaves the announcer attribute alone. Also, if it set the announce attribute, then it clears the attribute when it is done.<P>
+No observer should keep a reference to the occurrence object that was passed to it. This is because the announcer may destroy or reuse that occurrence object after the announce is finished.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Number.html">Previous Chapter</A> | 
+		<A HREF="Palette.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

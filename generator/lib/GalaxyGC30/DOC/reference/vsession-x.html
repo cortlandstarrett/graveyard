@@ -1,0 +1,2629 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vsession prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vsession prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vsession-x.html#section_DataType">Types</A> [12]</TD>
+<TD><A HREF="vsession-x.html#section_Function">Functions</A> [94]</TD>
+<TD><A HREF="vsession-x.html#section_Message">Messages</A> [9]</TD>
+<TD><A HREF="vsession-x.html#section_Constant">Constants</A> [33]</TD>
+<TD><A HREF="vsession-x.html#section_Macro">Macros</A> [2]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vsession"><HR><H4>vsession</H4></A>
+<PRE>
+        typedef ... <B>vsession</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to maintain a session
+between a service consumer and a service provider. Both the
+service consumer and the service provider have a pointer to
+a <SAMP>vsession</SAMP> that is used as the application
+level interface between the two applications.
+  <P>
+The service consumer's <SAMP>vsession</SAMP> is created by
+the user's application with <CODE><A HREF="vsession-x.html#vsessionCreate"><CODE>vsessionCreate</CODE></A></CODE>. It
+must also be explicitly destroyed by the user's application
+with <CODE><A HREF="vsession-x.html#vsessionDestroy"><CODE>vsessionDestroy</CODE></A></CODE>. However, ownership may
+be passed to the Session class to destroy it with
+<CODE><A HREF="vsession-x.html#vsessionSetDestroyWhenInactive"><CODE>vsessionSetDestroyWhenInactive</CODE></A></CODE> when the
+session ends. The service consumer must explicitly begin a
+session with <CODE><A HREF="vsession-x.html#vsessionBegin"><CODE>vsessionBegin</CODE></A></CODE>.
+  <P>
+The service provider's <SAMP>vsession</SAMP> is created,
+started, and maintained by the Session class itself.
+These sessions are derived from the template session for
+the service. The template session can be configured using
+the result of <CODE><A HREF="vservice-x.html#vserviceGetTemplateSession"><CODE>vserviceGetTemplateSession</CODE></A></CODE>. By
+default, the service provider's session is destroyed by the
+Session class when the session with the service consumer
+ends. The Service class begins the sessions it creates
+and then notifies the session once it is ready. The
+application can set the notification function on the
+template session to become aware of these generated
+sessions.
+  <P>
+The service provider or the service consumer, may terminate
+a session by calling <CODE><A HREF="vsession-x.html#vsessionEnd"><CODE>vsessionEnd</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionAttributeIterator"><HR><H4>vsessionAttributeIterator</H4></A>
+<PRE>
+        typedef ... <B>vsessionAttributeIterator</B>;
+</PRE>
+
+<DL><DD>
+Denotes an abstract variable used to sequence through the
+attributes for a session. The iterator contains
+<SAMP><A HREF="vname-x.html#vname"><CODE>vname</CODE></A></SAMP>/<SAMP>vdatatag</SAMP>/<I>value</I>
+triplets. The type of <I>value</I> is determined by the
+<SAMP>vdatatag</SAMP>. An iterator becomes invalid if any
+session attributes are added, removed, or modified.
+Iterators are normally declared as automatic variables and
+are initialized with
+<CODE><A HREF="vsession-x.html#vsessionInitAttributeIterator"><CODE>vsessionInitAttributeIterator</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionClass"><HR><H4>vsessionClass</H4></A>
+<PRE>
+        typedef ... <B>vsessionClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variable bindings for objects of type
+<CODE>vsession</CODE>. Classes declared with this type contain the same
+set of methods and variables as the default session class, but the
+behavior of methods and the contents of variables can vary. This class
+type is derived from <CODE><A HREF="vloadable-x.html#vloadableClass"><CODE>vloadableClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionEvent"><HR><H4>vsessionEvent</H4></A>
+<PRE>
+        typedef ... <B>vsessionEvent</B>;
+</PRE>
+
+<DL><DD>
+Denotes an event that is passed to the
+<CODE><A HREF="vsession-x.html#vsessionNoteProc"><CODE>vsessionNoteProc</CODE></A></CODE>. The function
+<CODE><A HREF="vsession-x.html#vsessionGetEventCode"><CODE>vsessionGetEventCode</CODE></A></CODE> is used to get the code
+categorizing the event.
+</DD></DL>
+<P>
+<A NAME="vsessionEventCode"><HR><H4>vsessionEventCode</H4></A>
+<PRE>
+        typedef ... <B>vsessionEventCode</B>;
+</PRE>
+
+<DL><DD>
+An integral type that categorizes an event sent to a
+session notify function. The code is retrieved from the
+event with <CODE><A HREF="vsession-x.html#vsessionGetEventCode"><CODE>vsessionGetEventCode</CODE></A></CODE>. It can be one
+of <CODE>vsessionEVENT_BEGIN</CODE>,
+<CODE>vsessionEVENT_CANNOT_BEGIN</CODE>, or
+<CODE>vsessionEVENT_END</CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionNoteProc"><HR><H4>vsessionNoteProc</H4></A>
+<PRE>
+        typedef ... <B>vsessionNoteProc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a notification function that is called when a
+session is handling an event, such as when the session
+starts or ends. <SAMP>session</SAMP> is the session
+handling the event, and <SAMP>event</SAMP> is the event
+being handled. <CODE><A HREF="vsession-x.html#vsessionGetEventCode"><CODE>vsessionGetEventCode</CODE></A></CODE> can be
+called to determine the type of event.
+</DD></DL>
+<P>
+<A NAME="vsessionStatement"><HR><H4>vsessionStatement</H4></A>
+<PRE>
+        typedef ... <B>vsessionStatement</B>;
+</PRE>
+
+<DL><DD>
+Denotes a message that an application sends to a service
+through a session. The <CODE>vsessionStatement</CODE> is
+only used by service consumers, whereas the
+<CODE><A HREF="vservice-x.html#vservicePrimitive"><CODE>vservicePrimitive</CODE></A></CODE> is only used by service
+providers.
+  <P>
+Statements are either created with
+<CODE><A HREF="vsession-x.html#vsessionCreateStatement"><CODE>vsessionCreateStatement</CODE></A></CODE>, or initialized with
+<CODE><A HREF="vsession-x.html#vsessionInitStatement"><CODE>vsessionInitStatement</CODE></A></CODE>. Statements are
+destroyed by calling <CODE><A HREF="vsession-x.html#vsessionDestroyStatement"><CODE>vsessionDestroyStatement</CODE></A></CODE>.
+Statements are sent to a service provider by sending them
+through the session with
+<CODE><A HREF="vsession-x.html#vsessionSendStatement"><CODE>vsessionSendStatement</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementClass"><HR><H4>vsessionStatementClass</H4></A>
+<PRE>
+        typedef ... <B>vsessionStatementClass</B>;
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vsessionStatementEvent"><HR><H4>vsessionStatementEvent</H4></A>
+<PRE>
+        typedef ... <B>vsessionStatementEvent</B>;
+</PRE>
+
+<DL><DD>
+Denotes an event that is being handled by a
+<SAMP>vsessionStatement</SAMP>. The function
+<CODE><A HREF="vsession-x.html#vsessionGetStatementEventCode"><CODE>vsessionGetStatementEventCode</CODE></A></CODE> can be used to
+get the code categorizing the event.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementEventCode"><HR><H4>vsessionStatementEventCode</H4></A>
+<PRE>
+        typedef ... <B>vsessionStatementEventCode</B>;
+</PRE>
+
+<DL><DD>
+An integral type that categorizes an event sent to a
+statement notify function. The code is retrieved from the
+event with <CODE><A HREF="vsession-x.html#vsessionGetStatementEventCode"><CODE>vsessionGetStatementEventCode</CODE></A></CODE>. It
+can be one of
+<CODE>vsessionStatementEVENT_COMPLETED</CODE>,
+<CODE>vsessionStatementEVENT_CANNOT_SEND</CODE>,
+<CODE>vsessionStatementEVENT_END_SESSION</CODE>, or
+<CODE>vsessionStatementEVENT_FAILED</CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementNoteProc"><HR><H4>vsessionStatementNoteProc</H4></A>
+<PRE>
+        typedef ... <B>vsessionStatementNoteProc</B>;
+</PRE>
+
+<DL><DD>
+Denotes an observationa notification function that is
+called when a statement is handling an event, such as when
+the outcome of sending the statement is known.
+<SAMP>statement</SAMP> is the statement handling the event,
+and <SAMP>event</SAMP> is the event being handled.
+<CODE><A HREF="vsession-x.html#vsessionGetStatementEventCode"><CODE>vsessionGetStatementEventCode</CODE></A> </CODE>can be called to
+determine the type of event.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementStatus"><HR><H4>vsessionStatementStatus</H4></A>
+<PRE>
+        typedef ... <B>vsessionStatementStatus</B>;
+</PRE>
+
+<DL><DD>
+Denotes the last known status of a statement. If a
+statement is still pending, its outcome may already have
+been determined, but is not yet be known to the statement.
+A statement's status can be checked by calling
+<CODE><A HREF="vsession-x.html#vsessionGetStatementEventCode"><CODE>vsessionGetStatementEventCode</CODE></A></CODE>. Possible status
+values are:
+
+<UL>
+<LI><CODE>vsessionStatementSTATUS_UNSENT</CODE>
+<LI><CODE>vsessionStatementSTATUS_PENDING</CODE>
+<LI><CODE>vsessionStatementSTATUS_COMPLETED</CODE>
+<LI><CODE>vsessionStatementSTATUS_FAILED</CODE>
+<LI><CODE>vsessionStatementSTATUS_ENDED_SESSION</CODE>.
+</ul>
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vsessionAddObject"><HR><H4>vsessionAddObject</H4></A>
+<PRE>
+        void <B>vsessionAddObject</B>(
+                vsession * session,
+                const vname * name,
+                vobject * object);
+</PRE>
+
+<DL><DD>
+Gives the session <SAMP>session</SAMP> access to the object
+<SAMP>object</SAMP>, using the name <SAMP>name</SAMP>. This
+function is only intended for service providers that are
+using the default handler for the primitive returned by
+<CODE><A HREF="vservice-x.html#vserviceCreateIssueCommandPrimitive"><CODE>vserviceCreateIssueCommandPrimitive</CODE></A></CODE>, however
+the application can create other primitives that make use
+of this facility. Objects that are globally shared by all
+sessions for the service can be added to the service with
+<CODE><A HREF="vservice-x.html#vserviceAddObject"><CODE>vserviceAddObject</CODE></A></CODE> instead of to each session.
+  <P>
+Ownership of the object is still retained by the
+application. The object should be removed with
+<CODE><A HREF="vsession-x.html#vsessionRemoveObject"><CODE>vsessionRemoveObject</CODE></A></CODE> before the object is
+destroyed.
+</DD></DL>
+<P>
+<A NAME="vsessionBegin"><HR><H4>vsessionBegin</H4></A>
+<PRE>
+        void <B>vsessionBegin</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Attempts to start a new session with the service described
+by the session <SAMP>session</SAMP>. If the session has a
+notification function, the session is established
+asynchronously, notifying the session with
+<CODE>vsessionEVENT_BEGIN</CODE> when it is ready, or
+<CODE>vsessionEVENT_CANNOT_BEGIN</CODE> if the session
+could not be started. If the session does not have a
+notification function, the session is established
+synchronously and is ready when the function returns, or
+generates an exception if the session could not be started
+properly. Normally sessions have notification functions.
+  <P>
+While the session is being established asynchronously,
+<CODE><A HREF="vsession-x.html#vsessionIsActivating"><CODE>vsessionIsActivating</CODE></A></CODE> is <SAMP>TRUE</SAMP>. Any
+statements sent are queued until the session is
+established, and are flushed when the session is ready,
+after it is notified. When the session is ready,
+<CODE><A HREF="vsession-x.html#vsessionIsActive"><CODE>vsessionIsActive</CODE></A></CODE> is <SAMP>TRUE</SAMP>.
+  <P>
+Service providers do not need to explicitly call
+<CODE>vsessionBegin</CODE>, since the Service class
+automatically does this when it generates the session with
+the service consumer.
+  <P>
+Either side may terminate a session at any time by calling
+<CODE><A HREF="vsession-x.html#vsessionEnd"><CODE>vsessionEnd</CODE></A></CODE>. Destroying the session with
+<CODE><A HREF="vsession-x.html#vsessionDestroy"><CODE>vsessionDestroy</CODE></A></CODE> or exiting the application
+also causes the session to terminate, but the other end of
+the session may take an arbitrarily long time to be
+notified depending on the underlying protocols that the
+session is using. This call has no effect if the 
+session is already active or activating.
+</DD></DL>
+<P>
+<A NAME="vsessionBlockStatement"><HR><H4>vsessionBlockStatement</H4></A>
+<PRE>
+        int <B>vsessionBlockStatement</B>(
+                vsessionStatement * statement,
+                vtimestamp * timeout);
+</PRE>
+
+<DL><DD>
+Blocks the application until the statement
+<SAMP>statement</SAMP> is notified, or the timestamp
+specified by <SAMP>timeout</SAMP> expires. If
+<SAMP>timeout</SAMP> is <SAMP>NULL</SAMP> then the
+application blocks until the statement is notified. If the
+specified time is of duration <SAMP>0,0</SAMP> then the
+network is polled to see if the result is waiting.
+  <P>
+The application might process other events coming from the
+session that the statement was sent to while it is
+blocking, however it may queue events coming from other
+sources, such as other sessions, GUI objects, and timers.
+  <P>
+The statement is notified before
+<CODE>vsessionBlockStatement</CODE> returns, unless the
+timeout expires. A result of <SAMP>FALSE</SAMP> means that
+<SAMP>timeout</SAMP> expired before the statement was
+notified.
+  <P>
+If <CODE>vsessionGetDestroyWhenFinished</CODE> is
+<SAMP>TRUE</SAMP> when the statement notification function
+returns, then <SAMP>statement</SAMP> is invalid when this
+function returns. This function has no effect if
+<SAMP>statement</SAMP> is not pending.
+</DD></DL>
+<P>
+<A NAME="vsessionCall"><HR><H4>vsessionCall</H4></A>
+<PRE>
+        vsessionStatementStatus <B>vsessionCall</B>(
+                vsession * session,
+                vtimestamp * timeout,
+                vsignature * sig,
+                ... arg4);
+</PRE>
+
+<DL><DD>
+Encapsulates an entire synchronous remote invocation. This function
+calls the operation indicated by the given signature using the given
+arguments and waits for results for the specified time. The variable
+argument list passed to this function contains storage for the expected
+return value (if any) followed by variables indicating the arguments
+to the remote operation.
+</DD></DL>
+<P>
+<A NAME="vsessionClone"><HR><H4>vsessionClone</H4></A>
+<PRE>
+        vsession * <B>vsessionClone</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Creates a copy of the session <SAMP>session</SAMP> and
+returns a pointer to it. The cloned session is not active,
+even if <SAMP>session</SAMP> is active. It does not belong
+to a service even if <SAMP>session</SAMP> belongs to a
+service. It does, however, copy attributes and added
+objects.
+  <P>
+The caller is responsible for eventually calling
+<CODE><A HREF="vsession-x.html#vsessionDestroy"><CODE>vsessionDestroy</CODE></A></CODE> to reclaim memory when the
+clone is no longer needed.
+</DD></DL>
+<P>
+<A NAME="vsessionCopyInit"><HR><H4>vsessionCopyInit</H4></A>
+<PRE>
+        void <B>vsessionCopyInit</B>(
+                vsession * sessionSource,
+                vsession * sessionDest);
+</PRE>
+
+<DL><DD>
+Initializes the session <SAMP>sessionDest</SAMP> as a copy
+of the session <SAMP>sessionSource</SAMP>. The resulting
+copy is not active, even if the source was. It does not
+belong to a service even if the source does. It does,
+however, copy attributes and added objects. 
+  <P>
+The caller is responsible for eventually calling
+<CODE><A HREF="vsession-x.html#vsessionDestroy"><CODE>vsessionDestroy</CODE></A></CODE> to reclaim memory when the
+copy is no longer needed.
+</DD></DL>
+<P>
+<A NAME="vsessionCreate"><HR><H4>vsessionCreate</H4></A>
+<PRE>
+        vsession * <B>vsessionCreate</B>();
+</PRE>
+
+<DL><DD>
+Allocates and initializes a new session and returns a
+pointer to it. The resulting session is not active, nor
+does it have a service.
+  <P>
+The result can be used to start a session with a service
+provider by adding individual attributes with
+<CODE><A HREF="vsession-x.html#vsessionSetAttribute"><CODE>vsessionSetAttribute</CODE></A></CODE> or sets of attributes
+with <CODE><A HREF="vsession-x.html#vsessionSetAttributesFromScrap"><CODE>vsessionSetAttributesFromScrap</CODE></A></CODE>, and
+calling <CODE><A HREF="vsession-x.html#vsessionBegin"><CODE>vsessionBegin</CODE></A></CODE>.
+  <P>
+The caller is responsible for eventually calling
+<CODE><A HREF="vsession-x.html#vsessionDestroy"><CODE>vsessionDestroy</CODE></A></CODE> to reclaim memory when the
+session is no longer needed. Alternatively, the Session
+class can destroy the session when the session terminates
+by calling <CODE><A HREF="vsession-x.html#vsessionSetDestroyWhenInactive"><CODE>vsessionSetDestroyWhenInactive</CODE></A></CODE> with
+<SAMP>TRUE</SAMP>.
+  <P>
+This call is intended for service consumers. Service
+providers automatically get their session instances from
+the Service class.
+</DD></DL>
+<P>
+<A NAME="vsessionCreateOfClass"><HR><H4>vsessionCreateOfClass</H4></A>
+<PRE>
+        vsession * <B>vsessionCreateOfClass</B>(
+                vsessionClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new session of class <SAMP>clas</SAMP> and
+returns a pointer to the new session. Memory is
+allocated by the Session class. The new session is
+created with a set of default attributes, determined by the
+class.
+</DD></DL>
+<P>
+<A NAME="vsessionCreateStatement"><HR><H4>vsessionCreateStatement</H4></A>
+<PRE>
+        vsessionStatement * <B>vsessionCreateStatement</B>();
+</PRE>
+
+<DL><DD>
+Allocates and initializes a new statement and returns a
+pointer to it. The statement must be given a signature with
+<CODE><A HREF="vsession-x.html#vsessionSetStatementSignature"><CODE>vsessionSetStatementSignature</CODE></A></CODE> and a session
+with <CODE><A HREF="vsession-x.html#vsessionSetStatementSession"><CODE>vsessionSetStatementSession</CODE></A></CODE> before the
+arguments can be set. Arguments are set using
+<CODE><A HREF="vsession-x.html#vsessionSetStatementArgs"><CODE>vsessionSetStatementArgs</CODE></A></CODE>.
+  <P>
+The statement should be destroyed with
+<CODE><A HREF="vsession-x.html#vsessionDestroyStatement"><CODE>vsessionDestroyStatement</CODE></A></CODE> to reclaim memory
+when it is no longer needed. Alternatively, the Session
+class can destroy the statement when the statement
+outcome is known by calling
+<CODE><A HREF="vsession-x.html#vsessionSetDestroyStatementWhenFinished"><CODE>vsessionSetDestroyStatementWhenFinished</CODE></A></CODE> with
+<SAMP>TRUE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsessionDestroy"><HR><H4>vsessionDestroy</H4></A>
+<PRE>
+        void <B>vsessionDestroy</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Reclaims all memory used by the session
+<SAMP>session</SAMP> and invalidates the pointer. Active
+sessions should be terminated by calling
+<CODE><A HREF="vsession-x.html#vsessionEnd"><CODE>vsessionEnd</CODE></A></CODE> before calling
+<CODE>vsessionDestroy</CODE> or risk the chance of any data
+it has sent across the session not arriving.
+<CODE><A HREF="vsession-x.html#vsessionSetDestroyWhenInactive"><CODE>vsessionSetDestroyWhenInactive</CODE></A></CODE> should be used
+when destroying a session from within a notification
+function.
+  <P>
+This function generates an exception if the result of
+<CODE><A HREF="vsession-x.html#vsessionGetDestroyWhenInactive"><CODE>vsessionGetDestroyWhenInactive</CODE></A></CODE> is
+<SAMP>TRUE</SAMP> since that means that the Session class
+has ownership.
+</DD></DL>
+<P>
+<A NAME="vsessionDestroyAttributeIterator"><HR><H4>vsessionDestroyAttributeIterator</H4></A>
+<PRE>
+        void <B>vsessionDestroyAttributeIterator</B>(
+                vsessionAttributeIterator * iterator);
+</PRE>
+
+<DL><DD>
+Terminates the iteration represented by the iterator
+<SAMP>iterator</SAMP>, even if it is not yet exhausted.
+This function is necessary to reclaim internal iteration
+objects allocated by the Session class.
+</DD></DL>
+<P>
+<A NAME="vsessionDestroyStatement"><HR><H4>vsessionDestroyStatement</H4></A>
+<PRE>
+        void <B>vsessionDestroyStatement</B>(
+                vsessionStatement * statement);
+</PRE>
+
+<DL><DD>
+Reclaims all memory used by the statement
+<SAMP>statement</SAMP> and invalidates the pointer. If the
+statement has been sent but has not yet finished, then any
+further events and results are discarded if and when they
+arrive. <CODE><A HREF="vsession-x.html#vsessionSetDestroyStatementWhenFinished"><CODE>vsessionSetDestroyStatementWhenFinished</CODE></A></CODE> should
+be used if a statement is destroyed within a notification
+function. The statement signature is not affected.
+</DD></DL>
+<P>
+<A NAME="vsessionDump"><HR><H4>vsessionDump</H4></A>
+<PRE>
+        void <B>vsessionDump</B>(
+                vsession * session,
+                FILE * fp);
+</PRE>
+
+<DL><DD>
+Dumps information about the session <SAMP>session</SAMP> to
+the stream <SAMP>fp</SAMP>. If <SAMP>fp</SAMP> is
+<SAMP>NULL</SAMP> then <CODE><A HREF="vdebug-x.html#vdebugGetInfoStream"><CODE>vdebugGetInfoStream</CODE></A></CODE> is
+used. This function is primarily used for debugging. It is
+always defined, but does not produce any output when
+<CODE>vportDEBUG</CODE> is <SAMP>FALSE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsessionEnd"><HR><H4>vsessionEnd</H4></A>
+<PRE>
+        void <B>vsessionEnd</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Attempts to terminate the session <SAMP>session</SAMP>. If
+the session has a notification function, the session is
+terminated asynchronously, notifying the session with
+<CODE>vsessionEVENT_END</CODE> when it finishes
+terminating. If the session does not have a notification
+function, the session is terminated synchronously. Either
+end of the session may terminate it. Both ends receive the
+event when the session is actually terminated.
+  <P>
+Since notification may occur before the function returns,
+<SAMP>session</SAMP> may be invalid if
+<CODE><A HREF="vsession-x.html#vsessionGetDestroyWhenInactive"><CODE>vsessionGetDestroyWhenInactive</CODE></A></CODE> is
+<SAMP>TRUE</SAMP> when the function returns. Otherwise, the
+session is deactivating until the session is actually
+terminated. This function has no effect if the session is already
+inactive.
+</DD></DL>
+<P>
+<A NAME="vsessionFindAttributeDatatag"><HR><H4>vsessionFindAttributeDatatag</H4></A>
+<PRE>
+        vdatatag * <B>vsessionFindAttributeDatatag</B>(
+                vsession * session,
+                const vname * name);
+</PRE>
+
+<DL><DD>
+Returns the datatag used by the attribute that was added to
+the session <SAMP>session</SAMP> with the name
+<SAMP>name</SAMP>. <SAMP>NULL</SAMP> is returned if there
+is no such attribute. Attributes can be added with
+<CODE><A HREF="vsession-x.html#vsessionSetAttribute"><CODE>vsessionSetAttribute</CODE></A></CODE> or any of the convenience
+functions such as <CODE><A HREF="vsession-x.html#vsessionSetAttributeScribe"><CODE>vsessionSetAttributeScribe</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionFindAttributeFloat"><HR><H4>vsessionFindAttributeFloat</H4></A>
+<PRE>
+        double <B>vsessionFindAttributeFloat</B>(
+                vsession * session,
+                const vname * name);
+</PRE>
+
+<DL><DD>
+Returns the float value of the attribute that was added to
+the session <SAMP>session</SAMP> with the name
+<SAMP>name</SAMP>. <SAMP>FLT_MIN</SAMP> is returned if
+there is no such float value. Float attributes can be added
+with <CODE><A HREF="vsession-x.html#vsessionSetAttributeFloat"><CODE>vsessionSetAttributeFloat</CODE></A></CODE> or by passing a
+float with the datatag <CODE>vdatatagGetSingleFloat</CODE>
+or <CODE>vdatatagGetDoubleFloat</CODE> to
+<CODE><A HREF="vsession-x.html#vsessionSetAttribute"><CODE>vsessionSetAttribute</CODE></A></CODE>. Precision is 
+currently only that of a <SAMP>float</SAMP>
+regardless of the datatag.
+</DD></DL>
+<P>
+<A NAME="vsessionFindAttributeScalar"><HR><H4>vsessionFindAttributeScalar</H4></A>
+<PRE>
+        long <B>vsessionFindAttributeScalar</B>(
+                vsession * session,
+                const vname * name);
+</PRE>
+
+<DL><DD>
+Returns the scalar value of the attribute that was added to
+the session <SAMP>session</SAMP> with the name
+<SAMP>name</SAMP>. <SAMP>LONG_MIN</SAMP> is returned if
+there is no such scalar value. Scalar attributes can be
+added with <CODE><A HREF="vsession-x.html#vsessionSetAttributeScalar"><CODE>vsessionSetAttributeScalar</CODE></A></CODE> or by
+passing an integer with the datatag
+<CODE>vdatatagGetInteger</CODE> or
+<CODE>vdatatagGetUnsignedInteger</CODE> to
+<CODE><A HREF="vsession-x.html#vsessionSetAttribute"><CODE>vsessionSetAttribute</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionFindAttributeScribe"><HR><H4>vsessionFindAttributeScribe</H4></A>
+<PRE>
+        vscribe * <B>vsessionFindAttributeScribe</B>(
+                vsession * session,
+                const vname * name);
+</PRE>
+
+<DL><DD>
+Returns a scribe containing the value of an attribute that
+was added to the session <SAMP>session</SAMP> with the name
+<SAMP>name</SAMP>. <SAMP>NULL</SAMP> is returned if there
+is no such attribute value. Any string, scalar, or float
+attribute type can be scribed.
+  <P>
+<SAMP>session</SAMP> still retains ownership of the
+attribute itself, but ownership of the resulting scribe is
+passed to the caller.
+</DD></DL>
+<P>
+<A NAME="vsessionFindAttributeTag"><HR><H4>vsessionFindAttributeTag</H4></A>
+<PRE>
+        const vname * <B>vsessionFindAttributeTag</B>(
+                vsession * session,
+                const vname * name);
+</PRE>
+
+<DL><DD>
+Returns the tag value of an attribute that was added to the
+session <SAMP>session</SAMP> with the name
+<SAMP>name</SAMP>. <SAMP>NULL</SAMP> is returned if there
+is no such tag value. Tag attributes can be added with
+<CODE><A HREF="vsession-x.html#vsessionSetAttributeTag"><CODE>vsessionSetAttributeTag</CODE></A></CODE> or by passing a name
+with the datatag <CODE>vdatatagGetTag</CODE> to
+<CODE><A HREF="vsession-x.html#vsessionSetAttribute"><CODE>vsessionSetAttribute</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionFindObject"><HR><H4>vsessionFindObject</H4></A>
+<PRE>
+        vobject * <B>vsessionFindObject</B>(
+                vsession * session,
+                const vname * name);
+</PRE>
+
+<DL><DD>
+Returns the object that was added to the session
+<SAMP>session</SAMP> by calling
+<CODE><A HREF="vsession-x.html#vsessionAddObject"><CODE>vsessionAddObject</CODE></A></CODE> with an object whose
+<CODE><A HREF="vobject-x.html#vobjectGetTag"><CODE>vobjectGetTag</CODE></A></CODE> value is <SAMP>name</SAMP>.
+<SAMP>NULL</SAMP> is returned if no such object is found.
+This function only checks the local <SAMP>vsession</SAMP>.
+It does not find an object added to the remote
+<SAMP>vsession</SAMP> instance.
+</DD></DL>
+<P>
+<A NAME="vsessionGetAttribute"><HR><H4>vsessionGetAttribute</H4></A>
+<PRE>
+        void <B>vsessionGetAttribute</B>(
+                vsession * session,
+                const vname * name,
+                ... arg3);
+</PRE>
+
+<DL><DD>
+Retrieves the value for attribute in the session
+<SAMP>session</SAMP> with the name <SAMP>name</SAMP>. The
+value is stored in the memory pointed to by the parameter
+in the variable argument list. An exception is generated if
+the session does not contain the named attribute. The type
+of the attribute can be determined with
+<CODE><A HREF="vsession-x.html#vsessionFindAttributeDatatag"><CODE>vsessionFindAttributeDatatag</CODE></A></CODE>.
+  <P>
+Attributes are added with
+<CODE><A HREF="vsession-x.html#vsessionSetAttribute"><CODE>vsessionSetAttribute</CODE></A></CODE>, or with one of the
+convenience functions such as
+<CODE><A HREF="vsession-x.html#vsessionSetAttributeScribe"><CODE>vsessionSetAttributeScribe</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionGetAttributeIteratorDatatag"><HR><H4>vsessionGetAttributeIteratorDatatag</H4></A>
+<PRE>
+        vdatatag * <B>vsessionGetAttributeIteratorDatatag</B>(
+                vsessionAttributeIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the datatag of the current attribute in the
+iterator <SAMP>iterator</SAMP>. This function should only
+be called after <CODE><A HREF="vsession-x.html#vsessionNextAttributeIterator"><CODE>vsessionNextAttributeIterator</CODE></A></CODE>
+returns <SAMP>TRUE</SAMP>. The datatag is the same
+<SAMP>datatag</SAMP> argument passed to
+<CODE><A HREF="vsession-x.html#vsessionSetAttribute"><CODE>vsessionSetAttribute</CODE></A></CODE>, or the appropriate
+datatag if the attribute was set with one of the
+convenience functions such as
+<CODE><A HREF="vsession-x.html#vsessionSetAttributeScribe"><CODE>vsessionSetAttributeScribe</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionGetAttributeIteratorName"><HR><H4>vsessionGetAttributeIteratorName</H4></A>
+<PRE>
+        const vname * <B>vsessionGetAttributeIteratorName</B>(
+                vsessionAttributeIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the name of the current attribute in the iterator 
+<SAMP>iterator</SAMP>. This function should only be called
+after <CODE><A HREF="vsession-x.html#vsessionNextAttributeIterator"><CODE>vsessionNextAttributeIterator</CODE></A></CODE> returns
+<SAMP>TRUE</SAMP>. The name is the <SAMP>name</SAMP>
+argument that was passed to
+<CODE><A HREF="vsession-x.html#vsessionSetAttribute"><CODE>vsessionSetAttribute</CODE></A></CODE> when the attribute was
+added.
+</DD></DL>
+<P>
+<A NAME="vsessionGetAttributeIteratorValue"><HR><H4>vsessionGetAttributeIteratorValue</H4></A>
+<PRE>
+        const void * <B>vsessionGetAttributeIteratorValue</B>(
+                vsessionAttributeIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns a reference to the value of the current attribute
+in the iterator <SAMP>iterator</SAMP>. This function should
+only be called after
+<CODE><A HREF="vsession-x.html#vsessionNextAttributeIterator"><CODE>vsessionNextAttributeIterator</CODE></A></CODE> returns
+<SAMP>TRUE</SAMP>, and the value is known to be of a
+pointer type.
+</DD></DL>
+<P>
+<A NAME="vsessionGetAttributeIteratorValueFloat"><HR><H4>vsessionGetAttributeIteratorValueFloat</H4></A>
+<PRE>
+        double <B>vsessionGetAttributeIteratorValueFloat</B>(
+                vsessionAttributeIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the float value of the current attribute in the
+iterator <SAMP>iterator</SAMP>. This function should only
+be called after <CODE><A HREF="vsession-x.html#vsessionNextAttributeIterator"><CODE>vsessionNextAttributeIterator</CODE></A></CODE>
+returns <SAMP>TRUE</SAMP>, and the value is known to be a
+<SAMP>float</SAMP>.
+  <P>
+The precision is currently that of a <SAMP>float</SAMP>
+despite the fact that a <SAMP>double</SAMP> is returned.
+</DD></DL>
+<P>
+<A NAME="vsessionGetAttributeIteratorValueScalar"><HR><H4>vsessionGetAttributeIteratorValueScalar</H4></A>
+<PRE>
+        long <B>vsessionGetAttributeIteratorValueScalar</B>(
+                vsessionAttributeIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the scalar value of the current attribute in the
+iterator <SAMP>iterator</SAMP>. This function should only
+be called after <CODE><A HREF="vsession-x.html#vsessionNextAttributeIterator"><CODE>vsessionNextAttributeIterator</CODE></A></CODE>
+returns <SAMP>TRUE</SAMP>, and the value is known to be a
+scalar.
+</DD></DL>
+<P>
+<A NAME="vsessionGetAttributeIteratorValueScribe"><HR><H4>vsessionGetAttributeIteratorValueScribe</H4></A>
+<PRE>
+        vscribe * <B>vsessionGetAttributeIteratorValueScribe</B>(
+                vsessionAttributeIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns a scribe of the string value of the current
+attribute in the iterator <SAMP>iterator</SAMP>. This
+function should only be called after
+<CODE><A HREF="vsession-x.html#vsessionNextAttributeIterator"><CODE>vsessionNextAttributeIterator</CODE></A></CODE> returns
+<SAMP>TRUE</SAMP>, and the value is known to be a scribable
+attribute. Strings, scalars, and floats are all scribable
+attributes.
+</DD></DL>
+<P>
+<A NAME="vsessionGetClass"><HR><H4>vsessionGetClass</H4></A>
+<PRE>
+        vsessionClass * <B>vsessionGetClass</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Returns the session class of a session.
+</DD></DL>
+<P>
+<A NAME="vsessionGetData"><HR><H4>vsessionGetData</H4></A>
+<PRE>
+        void * <B>vsessionGetData</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Returns the user data pointer for the session
+<SAMP>session</SAMP>. The user data pointer is set with
+<CODE><A HREF="vsession-x.html#vsessionSetData"><CODE>vsessionSetData</CODE></A></CODE>. It is for use by the
+application only; it is not referenced by the Session
+class. The default value is <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsessionGetDefaultClass"><HR><H4>vsessionGetDefaultClass</H4></A>
+<PRE>
+        vsessionClass * <B>vsessionGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the class used to create sessions by the
+<CODE><A HREF="vsession-x.html#vsessionCreate"><CODE>vsessionCreate</CODE></A></CODE> and <CODE><A HREF="vsession-x.html#vsessionInit"><CODE>vsessionInit</CODE></A></CODE>
+functions. This class can be modified to alter the behavior
+of all sessions subsequently created by these functions.
+</DD></DL>
+<P>
+<A NAME="vsessionGetDefaultStatementClass"><HR><H4>vsessionGetDefaultStatementClass</H4></A>
+<PRE>
+        vsessionStatementClass * <B>vsessionGetDefaultStatementClass</B>();
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vsessionGetDestroyStatementWhenFinished"><HR><H4>vsessionGetDestroyStatementWhenFinished</H4></A>
+<PRE>
+        int <B>vsessionGetDestroyStatementWhenFinished</B>(
+                vsessionStatement * statement);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the statement
+<SAMP>statement</SAMP> is destroyed after it is notified
+with an event that causes it to no longer be pending and
+<SAMP>FALSE</SAMP> otherwise. The behavior can be changed
+at any time by calling
+<CODE><A HREF="vsession-x.html#vsessionSetDestroyStatementWhenFinished"><CODE>vsessionSetDestroyStatementWhenFinished</CODE></A></CODE>. 
+The default return value is <SAMP>FALSE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsessionGetDestroyWhenInactive"><HR><H4>vsessionGetDestroyWhenInactive</H4></A>
+<PRE>
+        int <B>vsessionGetDestroyWhenInactive</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the session
+<SAMP>session</SAMP> is destroyed after receiving the
+<CODE>vsessionEVENT_END</CODE> or
+<CODE>vsessionEVENT_CANNOT_BEGIN</CODE> event. The default
+value for service consumers is <SAMP>FALSE</SAMP>; the
+default value for service providers is <SAMP>TRUE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsessionGetEventCode"><HR><H4>vsessionGetEventCode</H4></A>
+<PRE>
+        vsessionEventCode <B>vsessionGetEventCode</B>(
+                vsessionEvent * event);
+</PRE>
+
+<DL><DD>
+Returns a <SAMP><A HREF="vsession-x.html#vsessionEventCode"><CODE>vsessionEventCode</CODE></A></SAMP> code that
+describes the type of <SAMP>event</SAMP> passed to a
+<CODE><A HREF="vsession-x.html#vsessionNoteProc"><CODE>vsessionNoteProc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionGetGeneralDebugFlags"><HR><H4>vsessionGetGeneralDebugFlags</H4></A>
+<PRE>
+        unsigned int <B>vsessionGetGeneralDebugFlags</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Returns the set of debugging flags last passed to
+<CODE><A HREF="vsession-x.html#vsessionSetGeneralDebugFlags"><CODE>vsessionSetGeneralDebugFlags</CODE></A></CODE> for the session
+<SAMP>session</SAMP>. The default set is empty.
+</DD></DL>
+<P>
+<A NAME="vsessionGetIODebugFlags"><HR><H4>vsessionGetIODebugFlags</H4></A>
+<PRE>
+        unsigned int <B>vsessionGetIODebugFlags</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Returns the set of debugging flags last passed to
+<CODE><A HREF="vsession-x.html#vsessionSetIODebugFlags"><CODE>vsessionSetIODebugFlags</CODE></A></CODE> for the session
+<SAMP>session</SAMP>. The default set is empty.
+</DD></DL>
+<P>
+<A NAME="vsessionGetIssueCommandSignature"><HR><H4>vsessionGetIssueCommandSignature</H4></A>
+<PRE>
+        vsignature * <B>vsessionGetIssueCommandSignature</B>();
+</PRE>
+
+<DL><DD>
+Returns a signature which is used for a service consumer to
+issue a command to a particular object in a service
+provider.
+  <P>
+The signature takes three arguments. The first argument is
+a <SAMP><A HREF="vstr-x.html#vstr"><CODE>vstr</CODE></A></SAMP> string denoting the name of the object
+that the command should be issued to. The second argument
+is a <SAMP><A HREF="vname-x.html#vname"><CODE>vname</CODE></A></SAMP> name denoting the name of the
+command to issue. The last argument is a
+<SAMP><A HREF="vscrap-x.html#vscrap"><CODE>vscrap</CODE></A></SAMP> dictionary scrap denoting the context
+dictionary. The signature return result is a
+<SAMP>vbool</SAMP> which is <SAMP>TRUE</SAMP> if the
+command was handled and <SAMP>FALSE</SAMP> otherwise.
+  <P>
+For service consumers creating statements, the dictionary
+scrap can be created using
+<CODE>vdatatagScrapFromValue</CODE> with a dictionary
+datatag. This datatag describes a <SAMP><A HREF="vdict-x.html#vdict"><CODE>vdict</CODE></A></SAMP> which
+is used as the context dictionary.
+  <P>
+For service providers writing a primitive handler, the
+dictionary scrap can be converted to the <SAMP><A HREF="vdict-x.html#vdict"><CODE>vdict</CODE></A></SAMP>
+context dictionary using
+<CODE>vdatatagScrapFromReference</CODE> with a dictionary
+datatag that describes the expected contents.
+  <P>
+The Session class provides the convenience function
+<CODE><A HREF="vsession-x.html#vsessionMakeIssueCommandStatementScribed"><CODE>vsessionMakeIssueCommandStatementScribed</CODE></A></CODE> for
+sending statements, and the Service class provides the
+convenience function
+<CODE>vserviceMakeIssueCommandPrimitive</CODE> for
+implementing the primitive. The resulting signature 
+should not be destroyed by the application.
+</DD></DL>
+<P>
+<A NAME="vsessionGetLoadable"><HR><H4>vsessionGetLoadable</H4></A>
+<PRE>
+        vloadable * <B>vsessionGetLoadable</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Returns the loadable upon which the session was built.
+</DD></DL>
+<P>
+<A NAME="vsessionGetNotify"><HR><H4>vsessionGetNotify</H4></A>
+<PRE>
+        vsessionNoteProc <B>vsessionGetNotify</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Returns the notification function for the session
+<SAMP>session</SAMP>. The notification function can be
+changed with <CODE><A HREF="vsession-x.html#vsessionSetNotify"><CODE>vsessionSetNotify</CODE></A></CODE>. The default
+notification function is <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsessionGetPingSignature"><HR><H4>vsessionGetPingSignature</H4></A>
+<PRE>
+        vsignature * <B>vsessionGetPingSignature</B>();
+</PRE>
+
+<DL><DD>
+Returns a signature that can be used to ping a service that
+supports the basic ping primitive. Ping takes no arguments,
+and does not return a result. A
+<CODE>vsessionStatementEVENT_COMPLETED</CODE> message
+indicates that the service is available and that the
+session is operable.
+  <P>
+The resulting signature should not be destroyed by the
+application.
+</DD></DL>
+<P>
+<A NAME="vsessionGetService"><HR><H4>vsessionGetService</H4></A>
+<PRE>
+        vservice * <B>vsessionGetService</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Returns a pointer to the service that provides primitives
+for the session <SAMP>session</SAMP>.
+  <P>
+For service consumers, this may be <SAMP>NULL</SAMP>. If
+the service consumer is providing primitives which the
+service provider might use, such as a primitive to update
+data, then this service is the service passed to
+<CODE><A HREF="vsession-x.html#vsessionSetService"><CODE>vsessionSetService</CODE></A></CODE>. For service providers,
+this is the service that was passed to
+<CODE><A HREF="vservice-x.html#vserviceEnable"><CODE>vserviceEnable</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionGetShutdownSignature"><HR><H4>vsessionGetShutdownSignature</H4></A>
+<PRE>
+        vsignature * <B>vsessionGetShutdownSignature</B>();
+</PRE>
+
+<DL><DD>
+Returns the standard signature for allowing a service
+consumer to shutdown a service provider. This signature has
+no arguments and does not return a result.
+  <P>
+The resulting signature should not be destroyed by the
+application.
+</DD></DL>
+<P>
+<A NAME="vsessionGetStatementClass"><HR><H4>vsessionGetStatementClass</H4></A>
+<PRE>
+        vsessionStatementClass * <B>vsessionGetStatementClass</B>(
+                vsessionStatement * statement);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vsessionGetStatementData"><HR><H4>vsessionGetStatementData</H4></A>
+<PRE>
+        void * <B>vsessionGetStatementData</B>(
+                vsessionStatement * statement);
+</PRE>
+
+<DL><DD>
+Returns the user data pointer for the statement
+<SAMP>statement</SAMP>. The user data pointer is set with
+<CODE><A HREF="vsession-x.html#vsessionSetStatementData"><CODE>vsessionSetStatementData</CODE></A></CODE>. It is for
+application use only. It is not referenced by the Session
+class. The default value is <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsessionGetStatementDebugFlags"><HR><H4>vsessionGetStatementDebugFlags</H4></A>
+<PRE>
+        unsigned int <B>vsessionGetStatementDebugFlags</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Returns the set of debugging flags last passed to
+<CODE><A HREF="vsession-x.html#vsessionSetStatementDebugFlags"><CODE>vsessionSetStatementDebugFlags</CODE></A></CODE> for the session
+<SAMP>session</SAMP>. The default set is empty.
+</DD></DL>
+<P>
+<A NAME="vsessionGetStatementEventCode"><HR><H4>vsessionGetStatementEventCode</H4></A>
+<PRE>
+        vsessionStatementEventCode <B>vsessionGetStatementEventCode</B>(
+                vsessionStatementEvent * event);
+</PRE>
+
+<DL><DD>
+Returns a <SAMP><A HREF="vsession-x.html#vsessionStatementEventCode"><CODE>vsessionStatementEventCode</CODE></A></SAMP> code that
+describes the type of <SAMP>event</SAMP> passed to a
+<CODE><A HREF="vsession-x.html#vsessionStatementNoteProc"><CODE>vsessionStatementNoteProc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionGetStatementInstance"><HR><H4>vsessionGetStatementInstance</H4></A>
+<PRE>
+        vinstance * <B>vsessionGetStatementInstance</B>(
+                vsessionStatement * statement);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vsessionGetStatementNotify"><HR><H4>vsessionGetStatementNotify</H4></A>
+<PRE>
+        vsessionStatementNoteProc <B>vsessionGetStatementNotify</B>(
+                vsessionStatement * statement);
+</PRE>
+
+<DL><DD>
+Returns the notification function for the statement
+<SAMP>statement</SAMP>. The notification function can be
+changed with <CODE><A HREF="vsession-x.html#vsessionSetStatementNotify"><CODE>vsessionSetStatementNotify</CODE></A></CODE>. The
+default notification function is <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsessionGetStatementReturnValue"><HR><H4>vsessionGetStatementReturnValue</H4></A>
+<PRE>
+        void <B>vsessionGetStatementReturnValue</B>(
+                vsessionStatement * statement,
+                ... arg2);
+</PRE>
+
+<DL><DD>
+Copies the value of the statement <SAMP>statement</SAMP>
+return result into storage passed into the variable
+argument list. The storage should be a pointer to the type
+specified by the return result of the statement's
+signature, or a pointer to <SAMP>NULL</SAMP> if the storage
+should be allocated by the Session class. Note that
+<SAMP>NULL</SAMP> pointers themselves are invalid
+parameters.
+  <P>
+Ownership of all storage, regardless of where it was
+created, is passed back to the caller. An exception is
+generated if the statement has not successfully completed
+or does not have a return result.
+</DD></DL>
+<P>
+<A NAME="vsessionGetStatementSession"><HR><H4>vsessionGetStatementSession</H4></A>
+<PRE>
+        vsession * <B>vsessionGetStatementSession</B>(
+                vsessionStatement * statement);
+</PRE>
+
+<DL><DD>
+Returns the session that the statement
+<SAMP>statement</SAMP> is sent to when
+<CODE><A HREF="vsession-x.html#vsessionSendStatement"><CODE>vsessionSendStatement</CODE></A></CODE> is called. The session
+must be set with <CODE><A HREF="vsession-x.html#vsessionSetStatementSession"><CODE>vsessionSetStatementSession</CODE></A></CODE>
+before any arguments can be added. The default value is
+<SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsessionGetStatementSignature"><HR><H4>vsessionGetStatementSignature</H4></A>
+<PRE>
+        vsignature * <B>vsessionGetStatementSignature</B>(
+                vsessionStatement * statement);
+</PRE>
+
+<DL><DD>
+Returns the signature that the statement
+<SAMP>statement</SAMP> is using. The statement signature
+denotes what the statement does, what the arguments are,
+and what the return result is. The signature must be set
+with <CODE><A HREF="vsession-x.html#vsessionSetStatementSignature"><CODE>vsessionSetStatementSignature</CODE></A></CODE> before any
+arguments can be added, or before the statement can be
+sent. The default value is <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsessionGetStatementStatus"><HR><H4>vsessionGetStatementStatus</H4></A>
+<PRE>
+        vsessionStatementStatus <B>vsessionGetStatementStatus</B>(
+                vsessionStatement * statement);
+</PRE>
+
+<DL><DD>
+Returns status of the statement <SAMP>statement</SAMP>. The
+status is <CODE>vsessionStatementSTATUS_UNSENT</CODE>
+before <CODE><A HREF="vsession-x.html#vsessionSendStatement"><CODE>vsessionSendStatement</CODE></A></CODE> is called. The
+status is <CODE>vsessionStatementSTATUS_PENDING</CODE>
+after it is sent, but before the outcome is known.
+</DD></DL>
+<P>
+<A NAME="vsessionInit"><HR><H4>vsessionInit</H4></A>
+<PRE>
+        void <B>vsessionInit</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Initializes the session <SAMP>session</SAMP>. This is used
+to pass a session allocated as an automatic variable. The
+session is initialized as inactive and not associated with
+any particular service. The session can then be activated
+by adding attributes and calling
+<CODE><A HREF="vsession-x.html#vsessionBegin"><CODE>vsessionBegin</CODE></A></CODE>.
+  <P>
+The caller is responsible for eventually calling
+<CODE><A HREF="vsession-x.html#vsessionDestroy"><CODE>vsessionDestroy</CODE></A></CODE> to reclaim memory when the
+session is no longer needed. 
+This call is intended for service consumers. Service
+providers get their session instances from the Service
+class.
+</DD></DL>
+<P>
+<A NAME="vsessionInitAttributeIterator"><HR><H4>vsessionInitAttributeIterator</H4></A>
+<PRE>
+        void <B>vsessionInitAttributeIterator</B>(
+                vsessionAttributeIterator * iterator,
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Initializes the iterator <SAMP>iterator</SAMP> to sequence
+through all of the attributes for the session
+<SAMP>session</SAMP>. The iterator is invalidated when any
+attributes are added or removed from the session.
+  <P>
+The caller must eventually call
+<CODE><A HREF="vsession-x.html#vsessionDestroyAttributeIterator"><CODE>vsessionDestroyAttributeIterator</CODE></A></CODE> to reclaim
+memory that might be allocated by this call.
+  <P>
+<CODE><A HREF="vsession-x.html#vsessionNextAttributeIterator"><CODE>vsessionNextAttributeIterator</CODE></A></CODE> must be called
+to advance the iterator to the first element, if any.
+</DD></DL>
+<P>
+<A NAME="vsessionInitStatement"><HR><H4>vsessionInitStatement</H4></A>
+<PRE>
+        void <B>vsessionInitStatement</B>(
+                vsessionStatement * statement);
+</PRE>
+
+<DL><DD>
+Initialize the statement <SAMP>statement</SAMP>. This is
+used to pass a statement allocated as an automatic
+variable. The statement must be given a signature with
+<CODE><A HREF="vsession-x.html#vsessionSetStatementSignature"><CODE>vsessionSetStatementSignature</CODE></A></CODE>, and a session
+with <CODE><A HREF="vsession-x.html#vsessionSetStatementSession"><CODE>vsessionSetStatementSession</CODE></A></CODE>, before the
+arguments can be set.
+  <P>
+The caller is responsible for destroying the statement when
+it is no longer needed to reclaim any storage.
+  <P>
+If <SAMP>statement</SAMP> is an automatic variable, care
+should be taken that the statement completes before the
+scope of the variable is lost.
+</DD></DL>
+<P>
+<A NAME="vsessionIsActivating"><HR><H4>vsessionIsActivating</H4></A>
+<PRE>
+        int <B>vsessionIsActivating</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the session
+<SAMP>session</SAMP> is in the process of activating. This
+is true between the time that <CODE><A HREF="vsession-x.html#vsessionBegin"><CODE>vsessionBegin</CODE></A></CODE> is
+called, and the notification function is called. Any
+statements sent while the session is activating are queued
+until the session becomes active.
+</DD></DL>
+<P>
+<A NAME="vsessionIsActive"><HR><H4>vsessionIsActive</H4></A>
+<PRE>
+        int <B>vsessionIsActive</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the session
+<SAMP>session</SAMP> is active. This is true between the
+time that the notification function gets
+<CODE>vsessionEVENT_BEGIN</CODE> and
+<CODE>vsessionEVENT_END</CODE>. Applications can only
+communicate while the session is active.
+</DD></DL>
+<P>
+<A NAME="vsessionIsDeactivating"><HR><H4>vsessionIsDeactivating</H4></A>
+<PRE>
+        int <B>vsessionIsDeactivating</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the session
+<SAMP>session</SAMP> is in the process of deactivating.
+This is true between the time that <CODE><A HREF="vsession-x.html#vsessionEnd"><CODE>vsessionEnd</CODE></A></CODE>
+is called and the notification function is called.
+</DD></DL>
+<P>
+<A NAME="vsessionIsInactive"><HR><H4>vsessionIsInactive</H4></A>
+<PRE>
+        int <B>vsessionIsInactive</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the session
+<SAMP>session</SAMP> is not active. This is true before
+calling <CODE><A HREF="vsession-x.html#vsessionBegin"><CODE>vsessionBegin</CODE></A></CODE> and after the
+notification function gets <CODE>vsessionEVENT_END</CODE>
+or <CODE>vsessionEVENT_CANNOT_BEGIN</CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionIsStatementEventFinished"><HR><H4>vsessionIsStatementEventFinished</H4></A>
+<PRE>
+        vbool <B>vsessionIsStatementEventFinished</B>(
+                vsessionStatementEvent * event);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the statement event<SAMP>
+event</SAMP> indicates that the statement has finished
+(successfully or otherwise). <SAMP>FALSE</SAMP> is returned
+if the statement event indicates the statement is still
+pending.
+</DD></DL>
+<P>
+<A NAME="vsessionLoad"><HR><H4>vsessionLoad</H4></A>
+<PRE>
+        vsession * <B>vsessionLoad</B>(
+                vresource res);
+</PRE>
+
+<DL><DD>
+Reads a session from the resource <SAMP>res</SAMP>
+and returns a pointer to its contents, which are allocated
+by the Session class. An exception is generated if the
+resource has not been constructed properly.
+</DD></DL>
+<P>
+<A NAME="vsessionLoadInit"><HR><H4>vsessionLoadInit</H4></A>
+<PRE>
+        void <B>vsessionLoadInit</B>(
+                vsession * session,
+                vresource res);
+</PRE>
+
+<DL><DD>
+Reads a session from the resource <SAMP>res</SAMP>
+and stores it in the structure addressed by
+<SAMP>session</SAMP>, which should be uninitialized. An
+exception is generated if the resource has not been
+constructed properly.
+</DD></DL>
+<P>
+<A NAME="vsessionMakeIssueCommandStatementScribed"><HR><H4>vsessionMakeIssueCommandStatementScribed</H4></A>
+<PRE>
+        vsessionStatement * <B>vsessionMakeIssueCommandStatementScribed</B>(
+                vsession * session,
+                vscribe * scribeObjectName,
+                vscribe * scribeCommandName,
+                vscrap * scrapContext);
+</PRE>
+
+<DL><DD>
+Creates a statement that issues a command to the session
+and returns a pointer to it. <SAMP>session</SAMP> points to
+the session that the statement is sent to.
+<SAMP>scribeObjectName</SAMP> is the object that the
+command is sent to. <SAMP>scribeCommandName</SAMP> is the
+name of the command that is issued.
+<SAMP>scrapContext</SAMP> contains the context dictionary
+that is issued.
+  <P>
+The context scrap, <SAMP>scrapContext</SAMP>, can be formed
+by calling <CODE>vdatatagScrapFromValue</CODE> with a
+<SAMP><A HREF="vdict-x.html#vdict"><CODE>vdict</CODE></A></SAMP> and a datatag dictionary describing the
+contents of the dict.
+  <P>
+The resulting statement uses the signature returned by
+<CODE><A HREF="vsession-x.html#vsessionGetIssueCommandSignature"><CODE>vsessionGetIssueCommandSignature</CODE></A></CODE>. It assumes
+that the service provider contains an appropriate
+primitive, such as the one returned from
+<CODE><A HREF="vservice-x.html#vserviceCreateIssueCommandPrimitive"><CODE>vserviceCreateIssueCommandPrimitive</CODE></A></CODE>.
+  <P>
+The caller is responsible for destroying the statement when
+it is no longer needed to reclaim any storage.
+</DD></DL>
+<P>
+<A NAME="vsessionMakePingStatement"><HR><H4>vsessionMakePingStatement</H4></A>
+<PRE>
+        vsessionStatement * <B>vsessionMakePingStatement</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Creates a statement that pings the session
+<SAMP>session</SAMP> to see that it is still responding.
+This assumes that the service for the session has a
+primitive with the standard ping signature returned by
+<CODE><A HREF="vsession-x.html#vsessionGetPingSignature"><CODE>vsessionGetPingSignature</CODE></A></CODE>.
+  <P>
+The caller is responsible for destroying the statement when
+it is no longer needed to reclaim any storage.
+</DD></DL>
+<P>
+<A NAME="vsessionMakeShutdownStatement"><HR><H4>vsessionMakeShutdownStatement</H4></A>
+<PRE>
+        vsessionStatement * <B>vsessionMakeShutdownStatement</B>(
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Creates a statement that terminates the service used by the
+session <SAMP>session</SAMP>. This assumes that the
+service for the session has the primitive with the standard
+shutdown signature returned by
+<CODE><A HREF="vsession-x.html#vsessionGetShutdownSignature"><CODE>vsessionGetShutdownSignature</CODE></A></CODE>.
+  <P>
+The caller is responsible for destroying the statement when
+it is no longer needed to reclaim any storage.
+</DD></DL>
+<P>
+<A NAME="vsessionMakeStatement"><HR><H4>vsessionMakeStatement</H4></A>
+<PRE>
+        vsessionStatement * <B>vsessionMakeStatement</B>(
+                vsession * session,
+                vsignature * sig,
+                ... arg3);
+</PRE>
+
+<DL><DD>
+Builds a statement from for a specific session. The statement is
+constructed dynamically, the session and signature are set to the
+specified values, and the arguments in the variable argument list
+are set as arguments to the statement.
+</DD></DL>
+<P>
+<A NAME="vsessionNextAttributeIterator"><HR><H4>vsessionNextAttributeIterator</H4></A>
+<PRE>
+        vbool <B>vsessionNextAttributeIterator</B>(
+                vsessionAttributeIterator * iterator);
+</PRE>
+
+<DL><DD>
+Advances the iterator <SAMP>iterator</SAMP> to the next
+attribute. It returns <SAMP>TRUE</SAMP> if there was an
+attribute to advance to, and <SAMP>FALSE</SAMP> if the
+iteration is complete. Use
+<CODE><A HREF="vsession-x.html#vsessionGetAttributeIteratorValue"><CODE>vsessionGetAttributeIteratorValue</CODE></A></CODE> to get the
+current attribute value,
+<CODE><A HREF="vsession-x.html#vsessionGetAttributeIteratorName"><CODE>vsessionGetAttributeIteratorName</CODE></A></CODE> to get the
+current attribute name, and
+<CODE><A HREF="vsession-x.html#vsessionGetAttributeIteratorDatatag"><CODE>vsessionGetAttributeIteratorDatatag</CODE></A></CODE> to get the
+current attribute type.
+</DD></DL>
+<P>
+<A NAME="vsessionNotify"><HR><H4>vsessionNotify</H4></A>
+<PRE>
+        void <B>vsessionNotify</B>(
+                vsession * session,
+                vsessionEvent * event);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vsessionNotifyStatement"><HR><H4>vsessionNotifyStatement</H4></A>
+<PRE>
+        void <B>vsessionNotifyStatement</B>(
+                vsessionStatement * statement,
+                vsessionStatementEvent * event);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vsessionRemoveObject"><HR><H4>vsessionRemoveObject</H4></A>
+<PRE>
+        void <B>vsessionRemoveObject</B>(
+                vsession * session,
+                const vname * name);
+</PRE>
+
+<DL><DD>
+Removes access to the object that was added to the session
+<SAMP>session</SAMP> with the name <SAMP>name</SAMP>.
+Objects that are globally shared by all sessions for the
+service can be removed with
+<CODE><A HREF="vservice-x.html#vserviceRemoveObject"><CODE>vserviceRemoveObject</CODE></A></CODE>. The object can be made
+accessible again by calling <CODE><A HREF="vsession-x.html#vsessionAddObject"><CODE>vsessionAddObject</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionSendStatement"><HR><H4>vsessionSendStatement</H4></A>
+<PRE>
+        void <B>vsessionSendStatement</B>(
+                vsessionStatement * statement);
+</PRE>
+
+<DL><DD>
+Sends the statement <SAMP>statement</SAMP> to the session
+that is returned by
+<CODE><A HREF="vsession-x.html#vsessionGetStatementSession"><CODE>vsessionGetStatementSession</CODE></A></CODE>. An exception is
+generated if the session was not set with
+<CODE><A HREF="vsession-x.html#vsessionSetStatementSession"><CODE>vsessionSetStatementSession</CODE></A></CODE>, the signature was
+not set with <CODE><A HREF="vsession-x.html#vsessionSetStatementSignature"><CODE>vsessionSetStatementSignature</CODE></A></CODE>, or
+the arguments were not set with
+<CODE><A HREF="vsession-x.html#vsessionSetStatementArgs"><CODE>vsessionSetStatementArgs</CODE></A></CODE> or
+<CODE><A HREF="vsession-x.html#vsessionSetStatementArgsScrap"><CODE>vsessionSetStatementArgsScrap</CODE></A></CODE>.
+  <P>
+The statement notification function is called when the
+result of the statement is known. This may actually occur
+before <CODE>vsessionSendStatement</CODE> returns. If the
+statement does not have a notification function, then the
+return result is available when the statement's status is
+<CODE>vsessionStatmentSTATUS_COMPLETED</CODE>. Note that if
+<CODE><A HREF="vsession-x.html#vsessionSetDestroyStatementWhenFinished"><CODE>vsessionSetDestroyStatementWhenFinished</CODE></A></CODE> is
+<SAMP>TRUE</SAMP>, and there is no notification function
+set, the statement is destroyed when the return result
+becomes available, and the return result is discarded.
+  <P>
+When the statement has completed, the return result, if
+any, can be retrieved with
+<CODE><A HREF="vsession-x.html#vsessionGetStatementReturnValue"><CODE>vsessionGetStatementReturnValue</CODE></A></CODE>.
+  <P>
+If the statement is destroyed before the outcome is known
+it is still sent to the provider as normal, but any return
+results and notification are discarded.
+</DD></DL>
+<P>
+<A NAME="vsessionSetAttribute"><HR><H4>vsessionSetAttribute</H4></A>
+<PRE>
+        void <B>vsessionSetAttribute</B>(
+                vsession * session,
+                const vname * name,
+                vdatatag * datatag,
+                ... arg4);
+</PRE>
+
+<DL><DD>
+Creates an attribute named <SAMP>name</SAMP> in the session
+<SAMP>session</SAMP> with the value in the variable
+argument list. <SAMP>datatag</SAMP> describes the type of
+the attribute and the value in the variable argument list.
+If <SAMP>datatag</SAMP> is <SAMP>NULL</SAMP>, the attribute
+is removed. If the attribute already exists, its value (and
+datatag) are updated.
+  <P>
+The attribute value can be retrieved later with
+<CODE><A HREF="vsession-x.html#vsessionGetAttribute"><CODE>vsessionGetAttribute</CODE></A></CODE> or one of the convenience
+functions such as <CODE><A HREF="vsession-x.html#vsessionFindAttributeScribe"><CODE>vsessionFindAttributeScribe</CODE></A></CODE>.
+The datatag can be retrieved later with
+<CODE><A HREF="vsession-x.html#vsessionFindAttributeDatatag"><CODE>vsessionFindAttributeDatatag</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionSetAttributeFloat"><HR><H4>vsessionSetAttributeFloat</H4></A>
+<PRE>
+        void <B>vsessionSetAttributeFloat</B>(
+                vsession * session,
+                const vname * name,
+                double nValue);
+</PRE>
+
+<DL><DD>
+Creates an attribute named <SAMP>name</SAMP> to the session
+<SAMP>session</SAMP> with a float value of
+<SAMP>nValue</SAMP> and the datatag
+<CODE>vdatatagGetSingleFloat</CODE>. The value can be
+retrieved later with either
+<CODE><A HREF="vsession-x.html#vsessionFindAttributeFloat"><CODE>vsessionFindAttributeFloat</CODE></A></CODE> or
+<CODE><A HREF="vsession-x.html#vsessionGetAttribute"><CODE>vsessionGetAttribute</CODE></A></CODE>.
+  <P>
+If an attribute <SAMP>name</SAMP> already exists, it is
+replaced even if the types do not match.
+</DD></DL>
+<P>
+<A NAME="vsessionSetAttributeScalar"><HR><H4>vsessionSetAttributeScalar</H4></A>
+<PRE>
+        void <B>vsessionSetAttributeScalar</B>(
+                vsession * session,
+                const vname * name,
+                long value);
+</PRE>
+
+<DL><DD>
+Creates an attribute named <SAMP>name</SAMP> in the session
+<SAMP>session</SAMP> with a scalar value of
+<SAMP>value</SAMP> and the datatag
+<CODE>vdatatagGetInteger</CODE>. The value can be retrieved
+later with either <CODE><A HREF="vsession-x.html#vsessionFindAttributeScalar"><CODE>vsessionFindAttributeScalar</CODE></A></CODE>,
+or <CODE><A HREF="vsession-x.html#vsessionGetAttribute"><CODE>vsessionGetAttribute</CODE></A></CODE>.
+  <P>
+If an attribute <SAMP>name</SAMP> already exists, it is
+replaced even if the types do not match.
+</DD></DL>
+<P>
+<A NAME="vsessionSetAttributeScribe"><HR><H4>vsessionSetAttributeScribe</H4></A>
+<PRE>
+        void <B>vsessionSetAttributeScribe</B>(
+                vsession * session,
+                const vname * name,
+                vscribe * scribeValue);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> This function is now depricated, the prefered call is
+<CODE><A HREF="vsession-x.html#vsessionSetAttributeScribed"><CODE>vsessionSetAttributeScribed</CODE></A></CODE>.
+  <P>
+Creates an attribute named <SAMP>name</SAMP> to the session
+<SAMP>session</SAMP> with a string value contained in the
+scribe <SAMP>scribeValue</SAMP> and the datatag
+<CODE>vdatatagGetString</CODE>. This function creates and
+manages a clone for the string. The value can be retrieved
+later with either <CODE><A HREF="vsession-x.html#vsessionFindAttributeScribe"><CODE>vsessionFindAttributeScribe</CODE></A></CODE>,
+or <CODE><A HREF="vsession-x.html#vsessionGetAttribute"><CODE>vsessionGetAttribute</CODE></A></CODE>.
+  <P>
+If an attribute <SAMP>name</SAMP> already exists, it is
+replaced even if the types do not match.
+</DD></DL>
+<P>
+<A NAME="vsessionSetAttributeScribed"><HR><H4>vsessionSetAttributeScribed</H4></A>
+<PRE>
+        void <B>vsessionSetAttributeScribed</B>(
+                vsession * session,
+                const vname * name,
+                vscribe * scribeValue);
+</PRE>
+
+<DL><DD>
+Creates an attribute named <SAMP>name</SAMP> to the session
+<SAMP>session</SAMP> with a string value contained in the
+scribe <SAMP>scribeValue</SAMP> and the datatag
+<CODE>vdatatagGetString</CODE>. This function creates and
+manages a clone for the string. The value can be retrieved
+later with either <CODE><A HREF="vsession-x.html#vsessionFindAttributeScribe"><CODE>vsessionFindAttributeScribe</CODE></A></CODE>,
+or <CODE><A HREF="vsession-x.html#vsessionGetAttribute"><CODE>vsessionGetAttribute</CODE></A></CODE>.
+  <P>
+If an attribute <SAMP>name</SAMP> already exists, it is
+replaced even if the types do not match.
+</DD></DL>
+<P>
+<A NAME="vsessionSetAttributeTag"><HR><H4>vsessionSetAttributeTag</H4></A>
+<PRE>
+        void <B>vsessionSetAttributeTag</B>(
+                vsession * session,
+                const vname * name,
+                const vname * nameValue);
+</PRE>
+
+<DL><DD>
+Creates an attribute named <SAMP>name</SAMP> in the session
+<SAMP>session</SAMP> with a tag value of
+<SAMP>nameValue</SAMP> and the datatag
+<CODE>vdatatagGetTag</CODE>. The value can be retrieved
+later with either <CODE><A HREF="vsession-x.html#vsessionFindAttributeTag"><CODE>vsessionFindAttributeTag</CODE></A></CODE>, or
+<CODE><A HREF="vsession-x.html#vsessionGetAttribute"><CODE>vsessionGetAttribute</CODE></A></CODE>.
+  <P>
+If an attribute <SAMP>name</SAMP> already exists, it is
+replaced even if the types do not match.
+</DD></DL>
+<P>
+<A NAME="vsessionSetAttributesFromScrap"><HR><H4>vsessionSetAttributesFromScrap</H4></A>
+<PRE>
+        void <B>vsessionSetAttributesFromScrap</B>(
+                vsession * session,
+                vscrap * scrap);
+</PRE>
+
+<DL><DD>
+Creates attributes in a session <SAMP>session</SAMP> as
+described by the dictionary scrap <SAMP>scrap</SAMP>.
+<SAMP>scrap</SAMP> is typically one of the elements of the
+array returned by <CODE>vdasservMakeMatchStatement</CODE>,
+or the scrap returned from
+<CODE>vdasservCreateAttributeScrap</CODE>. The session
+retains its original attributes in addition to those
+specified by the scrap. Any attributes that already exist
+are replaced, even if the types differ.
+  <P>
+This call passes ownership of <SAMP>scrap</SAMP> to the
+session.
+</DD></DL>
+<P>
+<A NAME="vsessionSetData"><HR><H4>vsessionSetData</H4></A>
+<PRE>
+        void <B>vsessionSetData</B>(
+                vsession * session,
+                void * data);
+</PRE>
+
+<DL><DD>
+Sets user data pointer for the session <SAMP>session</SAMP>
+to <SAMP>data</SAMP>. The data pointer is for application
+use. It is not used by the Session class. The default
+data pointer is <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsessionSetDestroyStatementWhenFinished"><HR><H4>vsessionSetDestroyStatementWhenFinished</H4></A>
+<PRE>
+        void <B>vsessionSetDestroyStatementWhenFinished</B>(
+                vsessionStatement * statement,
+                int bOn);
+</PRE>
+
+<DL><DD>
+Tells the Session class whether the statement
+<SAMP>statement</SAMP> should be destroyed after it is
+notified with an event that causes the statement to no
+longer be pending. If <SAMP>bOn</SAMP> is
+<SAMP>TRUE</SAMP>, the statement is destroyed after the
+event, if <SAMP>bOn</SAMP> is <SAMP>FALSE</SAMP>, the
+statement must be explicitly destroyed by the application.
+The default value is <SAMP>FALSE</SAMP>.
+  <P>
+By setting the value to <SAMP>TRUE</SAMP>, the application
+effectively passes ownership of the statement to the
+Session class, and grabs ownership back by setting the
+value to <SAMP>FALSE</SAMP>.
+  <P>
+This function can be called at any time, regardless of
+whether or not the statement is currently pending, but the
+statement is only destroyed after it handles an event that
+makes its status no longer pending. If the statement has a
+notification function, the statement is not destroyed until
+after the notification function returns. The decision to
+destroy the statement is not determined until after the
+notification function returns.
+</DD></DL>
+<P>
+<A NAME="vsessionSetDestroyWhenInactive"><HR><H4>vsessionSetDestroyWhenInactive</H4></A>
+<PRE>
+        void <B>vsessionSetDestroyWhenInactive</B>(
+                vsession * session,
+                int bOn);
+</PRE>
+
+<DL><DD>
+Tells the Session class whether the session
+<SAMP>session</SAMP> should be destroyed after the
+<CODE>vsessionEVENT_END</CODE> event is handled in the
+notification function. If <SAMP>bOn</SAMP> is
+<SAMP>TRUE</SAMP>, the session is destroyed after the
+event; if <SAMP>bOn</SAMP> is <SAMP>FALSE</SAMP>, the
+session must be explicitly destroyed by the application.
+  <P>
+For service providers, the default value is
+<SAMP>TRUE</SAMP> because the Service class creates and
+manages the session. For service consumers, the default
+value is <SAMP>FALSE</SAMP> because the application creates
+and manages the session.
+  <P>
+By setting the value to <SAMP>TRUE</SAMP>, the application
+effectively passes ownership of the session to the Session
+class, and grabs ownership back by setting the value to
+<SAMP>FALSE</SAMP>. This function can be called at any time, regardless of
+whether or not the session is active.
+</DD></DL>
+<P>
+<A NAME="vsessionSetGeneralDebugFlags"><HR><H4>vsessionSetGeneralDebugFlags</H4></A>
+<PRE>
+        void <B>vsessionSetGeneralDebugFlags</B>(
+                vsession * session,
+                unsigned int flags);
+</PRE>
+
+<DL><DD>
+Sets the current set of debugging flags for the session 
+<SAMP>session</SAMP> to the flags specified by
+<SAMP>flags</SAMP>. A set of flags can be cleared by using
+the return result of
+<CODE><A HREF="vsession-x.html#vsessionGetGeneralDebugFlags"><CODE>vsessionGetGeneralDebugFlags</CODE></A></CODE> and masking with
+the complement (<SAMP>~</SAMP>) of the bitwise OR
+(<SAMP>|</SAMP>) of the flags that should be cleared. 
+The default set of general debug flags is empty.
+</DD></DL>
+<P>
+<A NAME="vsessionSetIODebugFlags"><HR><H4>vsessionSetIODebugFlags</H4></A>
+<PRE>
+        void <B>vsessionSetIODebugFlags</B>(
+                vsession * session,
+                unsigned int flags);
+</PRE>
+
+<DL><DD>
+Sets the current set of network input/output debugging
+flags for the session <SAMP>session</SAMP> to the flags
+specified by <SAMP>flags</SAMP>. A set of flags can be
+cleared by using the return result of
+<CODE><A HREF="vsession-x.html#vsessionGetIODebugFlags"><CODE>vsessionGetIODebugFlags</CODE></A></CODE> and masking with the
+complement (<SAMP>~</SAMP>) of the bitwise OR
+(<SAMP>|</SAMP>) of the flags that should be cleared. 
+The default set of network input/output debug flags is
+empty.
+</DD></DL>
+<P>
+<A NAME="vsessionSetNotify"><HR><H4>vsessionSetNotify</H4></A>
+<PRE>
+        void <B>vsessionSetNotify</B>(
+                vsession * session,
+                vsessionNoteProc fnNotify);
+</PRE>
+
+<DL><DD>
+Sets the notification function for the session
+<SAMP>session</SAMP> to <SAMP>fnNotify</SAMP>. The default
+value is <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsessionSetService"><HR><H4>vsessionSetService</H4></A>
+<PRE>
+        void <B>vsessionSetService</B>(
+                vsession * session,
+                vservice * service);
+</PRE>
+
+<DL><DD>
+Sets the service that the session <SAMP>session</SAMP> is
+providing. The service contains the primitives that the
+remote application can invoke. If <SAMP>service</SAMP> is
+<SAMP>NULL</SAMP>, then the remote application cannot
+invoke any primitives, and can only be used in a pure
+client/server way.
+  <P>
+If the session is being used with a peer-to-peer model,
+then <SAMP>service</SAMP> contains the primitives that the
+remote application calls.
+  <P>
+The default service for a service provider is the service
+that was passed to <CODE><A HREF="vservice-x.html#vserviceEnable"><CODE>vserviceEnable</CODE></A></CODE> whose
+session template session was derived from.
+  <P>
+This call passes ownership of the session to the service if
+<SAMP>service</SAMP> is not <SAMP>NULL</SAMP>, or passes
+ownership of the session back to the application if
+<SAMP>service</SAMP> is <SAMP>NULL</SAMP>.
+  <P>
+The default service for a service consumer is
+<SAMP>NULL</SAMP>. The default service for a service
+provider is the service that generated the session.
+</DD></DL>
+<P>
+<A NAME="vsessionSetStatementArgs"><HR><H4>vsessionSetStatementArgs</H4></A>
+<PRE>
+        void <B>vsessionSetStatementArgs</B>(
+                vsessionStatement * statement,
+                ... arg2);
+</PRE>
+
+<DL><DD>
+Sets the arguments that should be used by the statement
+<SAMP>statement</SAMP>. Both
+<CODE>vsessionSetSession</CODE> and
+<CODE>vsessionSetSignature</CODE> must be called before the
+arguments can be set with this function. The parameters in
+the variable argument list are the arguments specified by
+the statement's signature.
+</DD></DL>
+<P>
+<A NAME="vsessionSetStatementArgsScrap"><HR><H4>vsessionSetStatementArgsScrap</H4></A>
+<PRE>
+        void <B>vsessionSetStatementArgsScrap</B>(
+                vsessionStatement * statement,
+                vscrap * scrap);
+</PRE>
+
+<DL><DD>
+Sets the arguments that should be used by the statement 
+<SAMP>statement</SAMP>. Both
+<CODE>vsessionSetSession</CODE> and
+<CODE>vsessionSetSignature</CODE> must be called before the
+arguments can be set with this function. 
+This call passes ownership of <SAMP>scrap</SAMP> to the
+statement.
+</DD></DL>
+<P>
+<A NAME="vsessionSetStatementData"><HR><H4>vsessionSetStatementData</H4></A>
+<PRE>
+        void <B>vsessionSetStatementData</B>(
+                vsessionStatement * statement,
+                void * data);
+</PRE>
+
+<DL><DD>
+Sets the user data pointer for the statement
+<SAMP>statement</SAMP> to <SAMP>data</SAMP>. The data
+pointer is for application use only; it is not used by the
+Session class. The default data pointer is
+<SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsessionSetStatementDebugFlags"><HR><H4>vsessionSetStatementDebugFlags</H4></A>
+<PRE>
+        void <B>vsessionSetStatementDebugFlags</B>(
+                vsession * session,
+                unsigned int flags);
+</PRE>
+
+<DL><DD>
+Sets the current set of statement debugging flags for the
+session <SAMP>session</SAMP> to the flags specified by
+<SAMP>flags</SAMP>. A set of flags can be cleared by using
+the return result of
+<CODE><A HREF="vsession-x.html#vsessionGetStatementDebugFlags"><CODE>vsessionGetStatementDebugFlags</CODE></A></CODE> and masking
+with the complement (<SAMP>~</SAMP>) of the bitwise OR
+(<SAMP>|</SAMP>) of the flags that should be cleared. 
+The default set of statement debug flags is empty.
+</DD></DL>
+<P>
+<A NAME="vsessionSetStatementNotify"><HR><H4>vsessionSetStatementNotify</H4></A>
+<PRE>
+        void <B>vsessionSetStatementNotify</B>(
+                vsessionStatement * statement,
+                vsessionStatementNoteProc fnNotify);
+</PRE>
+
+<DL><DD>
+Sets the notification function for the statement
+<SAMP>statement</SAMP> to <SAMP>fnNotify</SAMP>. The
+statement is notified when an event occurs, such as it
+completes or is known to have failed execution. If
+<SAMP>fnNotify</SAMP> is <SAMP>NULL</SAMP> then the
+statement does not receive any notification. When the
+statement gets a completion notify, it can get the return
+result with <CODE><A HREF="vsession-x.html#vsessionGetStatementReturnValue"><CODE>vsessionGetStatementReturnValue</CODE></A></CODE>.
+The notification function should be set before calling
+<CODE><A HREF="vsession-x.html#vsessionSendStatement"><CODE>vsessionSendStatement</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionSetStatementSession"><HR><H4>vsessionSetStatementSession</H4></A>
+<PRE>
+        void <B>vsessionSetStatementSession</B>(
+                vsessionStatement * statement,
+                vsession * session);
+</PRE>
+
+<DL><DD>
+Sets the session that the statement <SAMP>statement</SAMP>
+is sent to. <SAMP>session</SAMP> must be a currently active
+session. The session must be set before the arguments are
+set, and must be set before calling
+<CODE><A HREF="vsession-x.html#vsessionSendStatement"><CODE>vsessionSendStatement</CODE></A></CODE>.
+  <P>
+Note that <SAMP>session</SAMP> must not be <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsessionSetStatementSignature"><HR><H4>vsessionSetStatementSignature</H4></A>
+<PRE>
+        void <B>vsessionSetStatementSignature</B>(
+                vsessionStatement * statement,
+                vsignature * signature);
+</PRE>
+
+<DL><DD>
+Sets the signature that the statement
+<SAMP>statement</SAMP> is using to the signature
+<SAMP>signature</SAMP>. The signature determines the
+arguments, the return result, and which primitive to invoke
+in the service provider when the statement is sent. The
+signature must be set before the arguments are set and
+before the statement is sent.
+  <P>
+Ownership of the signature is not passed with this call.
+</DD></DL>
+<P>
+<A NAME="vsessionStartup"><HR><H4>vsessionStartup</H4></A>
+<PRE>
+        void <B>vsessionStartup</B>();
+</PRE>
+
+<DL><DD>
+Starts up the Session class if it has not been started
+already.
+</DD></DL>
+<P>
+<A NAME="vsessionStore"><HR><H4>vsessionStore</H4></A>
+<PRE>
+        void <B>vsessionStore</B>(
+                vsession * session,
+                vresource res);
+</PRE>
+
+<DL><DD>
+Writes the contents of the session <SAMP>session</SAMP> into
+the resource <SAMP>res</SAMP>. The session can be recovered
+from the resource at a later time (perhaps by another program)
+with <CODE><A HREF="vsession-x.html#vsessionLoad"><CODE>vsessionLoad</CODE></A></CODE> or <CODE><A HREF="vsession-x.html#vsessionLoadInit"><CODE>vsessionLoadInit</CODE></A></CODE>.
+The resource should have type <SAMP>vresourceDICT</SAMP>.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vsessionBEGIN"><HR><H4>vsessionBEGIN</H4></A>
+<PRE>
+        &lt;<B>vsessionBEGIN</B>&gt;
+</PRE>
+
+<DL><DD>
+Attempts to start a new session with the service described
+by the session <SAMP>session</SAMP>. If the session has a
+notification function, the session is established
+asynchronously, notifying the session with
+<CODE>vsessionEVENT_BEGIN</CODE> when it is ready, or
+<CODE>vsessionEVENT_CANNOT_BEGIN</CODE> if the session
+could not be started. If the session does not have a
+notification function, the session is established
+synchronously and is ready when the function returns, or
+generates an exception if the session could not be started
+properly. Normally sessions have notification functions.
+  <P>
+While the session is being established asynchronously,
+<CODE><A HREF="vsession-x.html#vsessionIsActivating"><CODE>vsessionIsActivating</CODE></A></CODE> is <SAMP>TRUE</SAMP>. Any
+statements sent are queued until the session is
+established, and are flushed when the session is ready,
+after it is notified. When the session is ready,
+<CODE><A HREF="vsession-x.html#vsessionIsActive"><CODE>vsessionIsActive</CODE></A></CODE> is <SAMP>TRUE</SAMP>.
+  <P>
+Service providers do not need to explicitly call
+<CODE><A HREF="vsession-x.html#vsessionBegin"><CODE>vsessionBegin</CODE></A></CODE>, since the Service class
+automatically does this when it generates the session with
+the service consumer.
+  <P>
+Either side may terminate a session at any time by calling
+<CODE><A HREF="vsession-x.html#vsessionEnd"><CODE>vsessionEnd</CODE></A></CODE>. Destroying the session with
+<CODE><A HREF="vsession-x.html#vsessionDestroy"><CODE>vsessionDestroy</CODE></A></CODE> or exiting the application
+also causes the session to terminate, but the other end of
+the session may take an arbitrarily long time to be
+notified depending on the underlying protocols that the
+session is using. This call has no effect if the session 
+is already active or activating.
+</DD></DL>
+<P>
+<A NAME="vsessionBLOCK"><HR><H4>vsessionBLOCK</H4></A>
+<PRE>
+        &lt;<B>vsessionBLOCK</B>&gt;
+</PRE>
+
+<DL><DD>
+Wait for activity on a session for the period of time specified
+by <CODE>timeout</CODE>. If <CODE>timeout</CODE) is <CODE>NULL</CODE>
+this method blocks indefinitely. Activity is defined as an control
+or i/o event on the underlying transport, for example data arrival,
+write-side flow control, or connection loss.
+</DD></DL>
+<P>
+<A NAME="vsessionCALL"><HR><H4>vsessionCALL</H4></A>
+<PRE>
+        &lt;<B>vsessionCALL</B>&gt;
+</PRE>
+
+<DL><DD>
+Encapsulates an entire synchronous remote invocation. This method
+calls the operation indicated by the given signature using the given
+arguments and waits for results for the specified time. The variable
+argument list passed to this method contains storage for the expected
+return value (if any) followed by variables indicating the arguments
+to the remote operation.
+</DD></DL>
+<P>
+<A NAME="vsessionEND"><HR><H4>vsessionEND</H4></A>
+<PRE>
+        &lt;<B>vsessionEND</B>&gt;
+</PRE>
+
+<DL><DD>
+Attempts to terminate the session <SAMP>session</SAMP>. If
+the session has a notification function, the session is
+terminated asynchronously, notifying the session with
+<CODE>vsessionEVENT_END</CODE> when it finishes
+terminating. If the session does not have a notification
+function, the session is terminated synchronously. Either
+end of the session may terminate it. Both ends receive the
+event when the session is actually terminated.
+  <P>
+Since notification may occur before the function returns,
+<SAMP>session</SAMP> may be invalid if
+<CODE><A HREF="vsession-x.html#vsessionGetDestroyWhenInactive"><CODE>vsessionGetDestroyWhenInactive</CODE></A></CODE> is
+<SAMP>TRUE</SAMP> when the function returns. Otherwise, the
+session is deactivating until the session is actually
+terminated. This function has no effect if the session is already
+inactive.
+</DD></DL>
+<P>
+<A NAME="vsessionNOTIFY"><HR><H4>vsessionNOTIFY</H4></A>
+<PRE>
+        &lt;<B>vsessionNOTIFY</B>&gt;
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vsessionNOTIFY_STATEMENT"><HR><H4>vsessionNOTIFY_STATEMENT</H4></A>
+<PRE>
+        &lt;<B>vsessionNOTIFY_STATEMENT</B>&gt;
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vsessionSEND_STATEMENT"><HR><H4>vsessionSEND_STATEMENT</H4></A>
+<PRE>
+        &lt;<B>vsessionSEND_STATEMENT</B>&gt;
+</PRE>
+
+<DL><DD>
+Sends the statement <CODE>statement</CODE> over a session. This
+method only adds the statement the the queue of statements to be
+sent by a session; the statement is not necessarily sent immediately.
+</DD></DL>
+<P>
+<A NAME="vsessionSTARTED"><HR><H4>vsessionSTARTED</H4></A>
+<PRE>
+        &lt;<B>vsessionSTARTED</B>&gt;
+</PRE>
+
+<DL><DD>
+Notifies the session that it has completely started. This method
+is used by session subclasses to insert additional processing steps
+into the session startup sequence. The default implementation of
+this method sends vsessionEVENT_BEGIN to the session.
+</DD></DL>
+<P>
+<A NAME="vsessionTERMINATED"><HR><H4>vsessionTERMINATED</H4></A>
+<PRE>
+        &lt;<B>vsessionTERMINATED</B>&gt;
+</PRE>
+
+<DL><DD>
+Notifies a session that it has terminated completely. This method
+is used by session subclasses to insert additional processing steps
+into the session teardown sequence. The default implementation of
+this method notifies all outstanding statements that the session has
+terminated, and then sends vsessionEVENT_END to the session.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vsessionEVENT_BEGIN"><HR><H4>vsessionEVENT_BEGIN</H4></A>
+<PRE>
+        <B>vsessionEVENT_BEGIN</B>
+</PRE>
+
+<DL><DD>
+Denotes that a session has just started. When a service
+consumer gets this event, the <SAMP>session</SAMP>
+parameter is the session that was passed to
+<CODE><A HREF="vsession-x.html#vsessionBegin"><CODE>vsessionBegin</CODE></A></CODE>. When a service provider gets
+this event, the <SAMP>session</SAMP> parameter to the
+observationnotification function is a new session derived
+from the result of <CODE><A HREF="vservice-x.html#vserviceGetTemplateSession"><CODE>vserviceGetTemplateSession</CODE></A></CODE>.
+The service that the session is bound to can be retrieved
+with <CODE><A HREF="vsession-x.html#vsessionGetService"><CODE>vsessionGetService</CODE></A></CODE>.
+  <P>
+Any statements queued to be written to the session (because
+they were sent while the session was still activating) are
+flushed after the observationnotification function is
+handled.
+</DD></DL>
+<P>
+<A NAME="vsessionEVENT_CANNOT_BEGIN"><HR><H4>vsessionEVENT_CANNOT_BEGIN</H4></A>
+<PRE>
+        <B>vsessionEVENT_CANNOT_BEGIN</B>
+</PRE>
+
+<DL><DD>
+Denotes that <CODE><A HREF="vsession-x.html#vsessionBegin"><CODE>vsessionBegin</CODE></A></CODE> could not succeed.
+The <SAMP>session</SAMP> parameter is the session that was
+passed to <CODE><A HREF="vsession-x.html#vsessionBegin"><CODE>vsessionBegin</CODE></A></CODE>. The session is still
+valid, but is destroyed after the observationnotification
+function returns if
+<CODE><A HREF="vsession-x.html#vsessionGetDestroyWhenInactive"><CODE>vsessionGetDestroyWhenInactive</CODE></A></CODE> is
+<SAMP>TRUE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsessionEVENT_END"><HR><H4>vsessionEVENT_END</H4></A>
+<PRE>
+        <B>vsessionEVENT_END</B>
+</PRE>
+
+<DL><DD>
+Denotes that a session has just ended. The
+<SAMP>session</SAMP> parameter is the session that was
+passed to the <CODE>vsessionEVENT_BEGIN</CODE> event that
+marked the start of the session.
+  <P>
+If <CODE><A HREF="vsession-x.html#vsessionGetDestroyWhenInactive"><CODE>vsessionGetDestroyWhenInactive</CODE></A></CODE> is
+<SAMP>TRUE</SAMP>, the session is destroyed after the
+observationnotification function returns. This is the
+default for service providers, but not for service
+consumers.
+  <P>
+The <CODE>vsessionEVENT_END</CODE> notification is sent
+after either application in the session calls
+<CODE><A HREF="vsession-x.html#vsessionEnd"><CODE>vsessionEnd</CODE></A></CODE>, or when the Session class
+detects that the other application is no longer accessible.
+  <P>
+Any statements still pending are notified with
+<CODE>vsessionStatementEVENT_END_SESSION</CODE> and their
+status changed to
+<CODE>vsessionStatementSTATUS_ENDED_SESSION</CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionEVENT_LOCAL_EXCEPTION"><HR><H4>vsessionEVENT_LOCAL_EXCEPTION</H4></A>
+<PRE>
+        <B>vsessionEVENT_LOCAL_EXCEPTION</B>
+</PRE>
+
+<DL><DD>
+Denotes that an exception occurred while managing the local side
+of a session. The <SAMP>session</SAMP> parameter is the session
+that passed to the <CODE>vsessionEVENT_BEGIN</CODE> event that
+marked the exception occurrance.
+  <P>
+Since sessions can operate asynchronously and thus throw exceptions
+asynchronously, the Session class traps any asynchronous exceptions
+and converts them to notifications so that the context in which the
+exception occurred is preserved for use by the application.
+</DD></DL>
+<P>
+<A NAME="vsessionFLAG_DEBUG"><HR><H4>vsessionFLAG_DEBUG</H4></A>
+<PRE>
+        <B>vsessionFLAG_DEBUG</B>
+</PRE>
+
+<DL><DD>
+Denotes whether the Session class should display
+miscellaneous debugging output while there is activity on
+the session. This flag is set and cleared by calling
+<CODE><A HREF="vsession-x.html#vsessionSetGeneralDebugFlags"><CODE>vsessionSetGeneralDebugFlags</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionFLAG_DEBUG_ALL"><HR><H4>vsessionFLAG_DEBUG_ALL</H4></A>
+<PRE>
+        <B>vsessionFLAG_DEBUG_ALL</B>
+</PRE>
+
+<DL><DD>
+Denotes whether the Session class should display all
+general debugging output while there is activity on the
+session. This flag is set and cleared by calling
+<CODE><A HREF="vsession-x.html#vsessionSetGeneralDebugFlags"><CODE>vsessionSetGeneralDebugFlags</CODE></A></CODE>.
+  <P>
+This flag is equivalent to: <SAMP>
+<CODE>vsessionFLAG_DEBUG</CODE> |
+<CODE>vsessionFLAG_DEBUG_NOTIFY</CODE></SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsessionFLAG_DEBUG_IO"><HR><H4>vsessionFLAG_DEBUG_IO</H4></A>
+<PRE>
+        <B>vsessionFLAG_DEBUG_IO</B>
+</PRE>
+
+<DL><DD>
+Denotes whether the Session class should display
+miscellaneous debugging output while there is network
+input/output activity on the session. This flag is set and
+cleared by calling <CODE><A HREF="vsession-x.html#vsessionSetIODebugFlags"><CODE>vsessionSetIODebugFlags</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionFLAG_DEBUG_IO_ALL"><HR><H4>vsessionFLAG_DEBUG_IO_ALL</H4></A>
+<PRE>
+        <B>vsessionFLAG_DEBUG_IO_ALL</B>
+</PRE>
+
+<DL><DD>
+Denotes whether the Session class should display all
+debugging output while there is network input/output
+activity on the session. This flag is set and cleared by
+calling <CODE><A HREF="vsession-x.html#vsessionSetIODebugFlags"><CODE>vsessionSetIODebugFlags</CODE></A></CODE>.
+  <P>
+This flag is equivalent to: <SAMP>
+<CODE>vsessionFLAG_DEBUG_IO_BLOCKING</CODE> |
+<CODE>vsessionFLAG_DEBUG_IO_INPUT</CODE> |
+<CODE>vsessionFLAG_DEBUG_IO_OUTPUT</CODE></SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsessionFLAG_DEBUG_IO_BLOCKING"><HR><H4>vsessionFLAG_DEBUG_IO_BLOCKING</H4></A>
+<PRE>
+        <B>vsessionFLAG_DEBUG_IO_BLOCKING</B>
+</PRE>
+
+<DL><DD>
+Denotes whether the Session class should display output
+while the session blocks for network input/output activity
+on itself. This flag is set and cleared by calling
+<CODE><A HREF="vsession-x.html#vsessionSetIODebugFlags"><CODE>vsessionSetIODebugFlags</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionFLAG_DEBUG_IO_INPUT"><HR><H4>vsessionFLAG_DEBUG_IO_INPUT</H4></A>
+<PRE>
+        <B>vsessionFLAG_DEBUG_IO_INPUT</B>
+</PRE>
+
+<DL><DD>
+Denotes whether the Session class should display output
+while there is network input on the session. This flag is
+set and cleared by calling
+<CODE><A HREF="vsession-x.html#vsessionSetIODebugFlags"><CODE>vsessionSetIODebugFlags</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionFLAG_DEBUG_IO_OUTPUT"><HR><H4>vsessionFLAG_DEBUG_IO_OUTPUT</H4></A>
+<PRE>
+        <B>vsessionFLAG_DEBUG_IO_OUTPUT</B>
+</PRE>
+
+<DL><DD>
+Denotes whether the Session class should display output
+while there is network output activity on the session. This
+flag is set and cleared by calling
+<CODE><A HREF="vsession-x.html#vsessionSetIODebugFlags"><CODE>vsessionSetIODebugFlags</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionFLAG_DEBUG_NOTIFY"><HR><H4>vsessionFLAG_DEBUG_NOTIFY</H4></A>
+<PRE>
+        <B>vsessionFLAG_DEBUG_NOTIFY</B>
+</PRE>
+
+<DL><DD>
+Denotes whether the Session class should display events
+sent to the session observationnotification function. This
+flag is set and cleared by calling
+<CODE><A HREF="vsession-x.html#vsessionSetGeneralDebugFlags"><CODE>vsessionSetGeneralDebugFlags</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionINCLUDED"><HR><H4>vsessionINCLUDED</H4></A>
+<PRE>
+        <B>vsessionINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vsession.h</SAMP> has
+been included by the preprocessor. It can be used as a
+means to test if the header file was already included.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementEVENT_CANNOT_SEND"><HR><H4>vsessionStatementEVENT_CANNOT_SEND</H4></A>
+<PRE>
+        <B>vsessionStatementEVENT_CANNOT_SEND</B>
+</PRE>
+
+<DL><DD>
+Denotes that a statement could not be sent within the
+session. The service provider never receives the statement.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementEVENT_COMPLETED"><HR><H4>vsessionStatementEVENT_COMPLETED</H4></A>
+<PRE>
+        <B>vsessionStatementEVENT_COMPLETED</B>
+</PRE>
+
+<DL><DD>
+Denotes that the statement has completed. The return
+result, if any, should be retrieved using
+<CODE><A HREF="vsession-x.html#vsessionGetStatementReturnValue"><CODE>vsessionGetStatementReturnValue</CODE></A></CODE> before
+returning from the notification function.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementEVENT_END_SESSION"><HR><H4>vsessionStatementEVENT_END_SESSION</H4></A>
+<PRE>
+        <B>vsessionStatementEVENT_END_SESSION</B>
+</PRE>
+
+<DL><DD>
+Denotes that the session with the service provider was
+terminated before any further status of the statement was
+known.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementEVENT_FAILED"><HR><H4>vsessionStatementEVENT_FAILED</H4></A>
+<PRE>
+        <B>vsessionStatementEVENT_FAILED</B>
+</PRE>
+
+<DL><DD>
+Denotes that the service provider started to execute the
+statement, but could not finish for some reason. This might
+occur because of an untrapped exception in a primitive.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementFLAG_DEBUG"><HR><H4>vsessionStatementFLAG_DEBUG</H4></A>
+<PRE>
+        <B>vsessionStatementFLAG_DEBUG</B>
+</PRE>
+
+<DL><DD>
+Denotes whether the Session class should display
+miscellaneous debugging output while there is activity on a
+statement bound to a session. The flag is set and cleared
+by calling <CODE><A HREF="vsession-x.html#vsessionSetStatementDebugFlags"><CODE>vsessionSetStatementDebugFlags</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementFLAG_DEBUG_ALL"><HR><H4>vsessionStatementFLAG_DEBUG_ALL</H4></A>
+<PRE>
+        <B>vsessionStatementFLAG_DEBUG_ALL</B>
+</PRE>
+
+<DL><DD>
+Denotes whether the Session class should display all
+debugging output while there is activity on a statement
+bound to a session. The flag is set and cleared by calling
+<CODE><A HREF="vsession-x.html#vsessionSetStatementDebugFlags"><CODE>vsessionSetStatementDebugFlags</CODE></A></CODE>.
+  <P>
+This flag is equivalent to: <SAMP>
+<CODE>vsessionStatementFLAG_DEBUG_ARG</CODE> |
+<CODE>vsessionStatementFLAG_DEBUG_RESULT</CODE> |
+<CODE>vsessionStatementFLAG_DEBUG_NOTIFY</CODE> |
+<CODE>vsessionStatementFLAG_DEBUG_SEND</CODE></SAMP>.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementFLAG_DEBUG_ARG"><HR><H4>vsessionStatementFLAG_DEBUG_ARG</H4></A>
+<PRE>
+        <B>vsessionStatementFLAG_DEBUG_ARG</B>
+</PRE>
+
+<DL><DD>
+Denotes whether the Session class should display the
+argument list for a statement while it is sent. The flag is
+set and cleared by calling
+<CODE><A HREF="vsession-x.html#vsessionSetStatementDebugFlags"><CODE>vsessionSetStatementDebugFlags</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementFLAG_DEBUG_NOTIFY"><HR><H4>vsessionStatementFLAG_DEBUG_NOTIFY</H4></A>
+<PRE>
+        <B>vsessionStatementFLAG_DEBUG_NOTIFY</B>
+</PRE>
+
+<DL><DD>
+Denotes whether the Session class should display events
+sent to the statement observationnotification function. The
+flag is set and cleared by calling
+<CODE><A HREF="vsession-x.html#vsessionSetStatementDebugFlags"><CODE>vsessionSetStatementDebugFlags</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementFLAG_DEBUG_RESULT"><HR><H4>vsessionStatementFLAG_DEBUG_RESULT</H4></A>
+<PRE>
+        <B>vsessionStatementFLAG_DEBUG_RESULT</B>
+</PRE>
+
+<DL><DD>
+Denotes whether the Session class should display the
+return result for a statement while it binds the return
+result to the statement. The flag is set and cleared by
+calling <CODE><A HREF="vsession-x.html#vsessionSetStatementDebugFlags"><CODE>vsessionSetStatementDebugFlags</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementFLAG_DEBUG_SEND"><HR><H4>vsessionStatementFLAG_DEBUG_SEND</H4></A>
+<PRE>
+        <B>vsessionStatementFLAG_DEBUG_SEND</B>
+</PRE>
+
+<DL><DD>
+Denotes whether the Session class should display output
+while statements are sent. The flag is set and cleared by
+calling <CODE><A HREF="vsession-x.html#vsessionSetStatementDebugFlags"><CODE>vsessionSetStatementDebugFlags</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementSTATUS_COMPLETED"><HR><H4>vsessionStatementSTATUS_COMPLETED</H4></A>
+<PRE>
+        <B>vsessionStatementSTATUS_COMPLETED</B>
+</PRE>
+
+<DL><DD>
+Denotes that the statement has completed. The return
+result, if any, can be retrieved using
+<CODE><A HREF="vsession-x.html#vsessionGetStatementReturnValue"><CODE>vsessionGetStatementReturnValue</CODE></A></CODE>. If the
+statement has a notification function, the return result
+should be retrieved from within the notification function.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementSTATUS_ENDED_SESSION"><HR><H4>vsessionStatementSTATUS_ENDED_SESSION</H4></A>
+<PRE>
+        <B>vsessionStatementSTATUS_ENDED_SESSION</B>
+</PRE>
+
+<DL><DD>
+Denotes that the session was terminated before the result
+of the statement was known. The service provider could have
+completed successfully, failed, may have never attempted to
+execute the statement, or may never receive the statement.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementSTATUS_FAILED"><HR><H4>vsessionStatementSTATUS_FAILED</H4></A>
+<PRE>
+        <B>vsessionStatementSTATUS_FAILED</B>
+</PRE>
+
+<DL><DD>
+Denotes that the service provider could not finish
+executing the statement. This might occur is because of an
+untrapped exception in a primitive.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementSTATUS_PENDING"><HR><H4>vsessionStatementSTATUS_PENDING</H4></A>
+<PRE>
+        <B>vsessionStatementSTATUS_PENDING</B>
+</PRE>
+
+<DL><DD>
+Denotes that a statement has been sent but the result is
+not yet known.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementSTATUS_UNSENT"><HR><H4>vsessionStatementSTATUS_UNSENT</H4></A>
+<PRE>
+        <B>vsessionStatementSTATUS_UNSENT</B>
+</PRE>
+
+<DL><DD>
+Denotes that a statement has not yet been sent.
+<CODE><A HREF="vsession-x.html#vsessionSendStatement"><CODE>vsessionSendStatement</CODE></A></CODE> is used to send the
+statement.
+</DD></DL>
+<P>
+<A NAME="vsession_Context"><HR><H4>vsession_Context</H4></A>
+<PRE>
+        <B>vsession_Context</B>
+</PRE>
+
+<DL><DD>
+Denotes the context in which a session operates. This attribute is
+currently reserved for future use.
+</DD></DL>
+<P>
+<A NAME="vsession_Location"><HR><H4>vsession_Location</H4></A>
+<PRE>
+        <B>vsession_Location</B>
+</PRE>
+
+<DL><DD>
+Denotes the location of a session endpoint. This attribute is used
+to set the desired local and remote locations of a session before
+the session is started. The value of the attribute is a string, and
+the contents of the string are dependent on the transport used by the
+session. For example, a session using the TCP/IP transport expects
+as a location attribute a fully-qualified Internet host name.
+</DD></DL>
+<P>
+<A NAME="vsession_Platform"><HR><H4>vsession_Platform</H4></A>
+<PRE>
+        <B>vsession_Platform</B>
+</PRE>
+
+<DL><DD>
+Denotes the platform from which a session originates. This attribute
+is used to indicate the platform from which a session was started; the
+Session class will set the value of this attribute for you. The value
+of the attribute is a string.
+</DD></DL>
+<P>
+<A NAME="vsession_Port"><HR><H4>vsession_Port</H4></A>
+<PRE>
+        <B>vsession_Port</B>
+</PRE>
+
+<DL><DD>
+Denotes the optional port of a session endpoint. This attribute is
+used to set the desired local and remote ports of a session before
+the session is started. The value of the attribute is a string, and
+the contents of the string are dependent on the transport used by the
+session. For example, a session using the TCP/IP transport expects
+as a port a valid Internet port number.
+</DD></DL>
+<P>
+<A NAME="vsession_Transport"><HR><H4>vsession_Transport</H4></A>
+<PRE>
+        <B>vsession_Transport</B>
+</PRE>
+
+<DL><DD>
+Denotes the transport type of a session endpoint. This attribute is
+used to set the desired transport type of a session before the session
+is started. The value of the attribute is a string, and the contents
+of the string are a valid transport name selected from the transports
+supported by a given platform. For example, a session using the
+TCP/IP transport expects the string "tcp" as it's transport attribute.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vsessionCLASS"><HR><H4>vsessionCLASS</H4></A>
+<PRE>
+        #define <B>vsessionCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for session classes.
+This macro expands to the contents of <CODE><A HREF="vsession-x.html#vsessionClass"><CODE>vsessionClass</CODE></A></CODE>.
+<SAMP>SUPER</SAMP> is the type identifier of the class being declared; for
+example, <CODE><A HREF="vsession-x.html#vsessionClass"><CODE>vsessionClass</CODE></A></CODE>. This type is used by the class's
+subclasses to refer to it. <SAMP>_SESSION</SAMP> is the type identifier of
+instances of the class being declared; for example, <CODE>vsession</CODE>.
+This macro should be used by session subclasses to declare the contents
+of the session class. This macro should come first in the subclass
+structure declaration.
+</DD></DL>
+<P>
+<A NAME="vsessionStatementCLASS"><HR><H4>vsessionStatementCLASS</H4></A>
+<PRE>
+        #define <B>vsessionStatementCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

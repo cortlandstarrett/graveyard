@@ -1,0 +1,1178 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vscribe prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vscribe prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vscribe-x.html#section_DataType">Types</A> [5]</TD>
+<TD><A HREF="vscribe-x.html#section_Function">Functions</A> [34]</TD>
+<TD></TD>
+<TD><A HREF="vscribe-x.html#section_Constant">Constants</A> [2]</TD>
+<TD></TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vscribe"><HR><H4>vscribe</H4></A>
+<PRE>
+        typedef ... <B>vscribe</B>;
+</PRE>
+
+<DL><DD>
+Object used to specify a string in any one of a number of
+formats. It is called a scribe because it does not actually
+represent a string, although it can write out a string.
+</DD></DL>
+<P>
+<A NAME="vscribeFreeDataFunc"><HR><H4>vscribeFreeDataFunc</H4></A>
+<PRE>
+        typedef ... <B>vscribeFreeDataFunc</B>;
+</PRE>
+
+<DL><DD>
+One of the three functions needed to create a new type of
+scribe. This function is optional and is used to dispose of
+any dynamic data stored in the <SAMP>string</SAMP> and/or
+<SAMP>data</SAMP> fields of <SAMP>scribe</SAMP> when it is
+destroyed.
+</DD></DL>
+<P>
+<A NAME="vscribeFuncs"><HR><H4>vscribeFuncs</H4></A>
+<PRE>
+        typedef ... <B>vscribeFuncs</B>;
+</PRE>
+
+<DL><DD>
+Similar to a ``class'' for scribes. It contains all of the
+static data that is common to scribes of the same type.
+This includes pointers to functions that do the work of the
+scribe and data indicating the size of characters written
+by the scribe. You need to use this only when you are
+creating your own scribe type.
+</DD></DL>
+<P>
+<A NAME="vscribeLengthFunc"><HR><H4>vscribeLengthFunc</H4></A>
+<PRE>
+        typedef ... <B>vscribeLengthFunc</B>;
+</PRE>
+
+<DL><DD>
+One of the three functions needed to create a new type of
+scribe. This function simply returns how many characters
+will be written by the <SAMP><A HREF="vscribe-x.html#vscribeScribbleFunc"><CODE>vscribeScribbleFunc</CODE></A></SAMP>,
+taking into account the given <SAMP>destMaxLength</SAMP>.
+  <P>
+When the scribe is told to write its string without any
+maximum bounds, <SAMP>vscribeMAX_LENGTH</SAMP> (a large
+number) will be passed for the <SAMP>destMaxLength</SAMP>
+parameter. The function can explicitly check for this value
+and, if it occurs, omit bounds checking from its scanning
+loop (if any) for extra speed.
+</DD></DL>
+<P>
+<A NAME="vscribeScribbleFunc"><HR><H4>vscribeScribbleFunc</H4></A>
+<PRE>
+        typedef ... <B>vscribeScribbleFunc</B>;
+</PRE>
+
+<DL><DD>
+One of the three functions needed to create a new type of
+scribe. This function is responsible for doing the actual
+work of the scribe, by writing the appropriate string into
+the <SAMP>dest</SAMP> buffer of size
+<SAMP>destMaxLength</SAMP>, and returning a pointer past
+the last character written. This function should <I>not</I>
+write a null-terminating character.
+  <P>
+When the scribe is told to write its string without any
+maximum bounds, <SAMP>vscribeMAX_LENGTH</SAMP> (a large
+number) will be passed for the <SAMP>destMaxLength</SAMP>
+parameter. The function can explicitly check for this value
+and, if it occurs, omit bounds checking from its copying
+loop for extra speed.
+  <P>
+The contents of the string written will depend on the type
+of scribe and typically will depend on the
+<SAMP>string</SAMP> and/or <SAMP>data</SAMP> fields of the
+given <SAMP>scribe</SAMP>.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vscribeClearCopy"><HR><H4>vscribeClearCopy</H4></A>
+<PRE>
+        void <B>vscribeClearCopy</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Clears the <SAMP>copy</SAMP> flag of a scribe. This flag
+should be set if and only if the string field of the scribe
+points to a null-terminated <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> string that
+is identical to the string that will be written out by the
+scribe. (That is, the flag is set if the scribe simply
+copies the string stored in the string field.)
+  <P>
+You should not modify this flag except when you are
+creating a custom type of scribe. This flag will be set up
+appropriately by the <SAMP>Scribe</SAMP> function that
+created the scribe.
+  <P>
+When you want to retrieve the string from a scribe, you can
+check this flag if you only want to look at the string (as
+opposed to storing it somewhere). If the flag is set, you
+can retrieve the contents of the string field (cast to a
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A> *</SAMP>), examine it directly, and then
+destroy the scribe when you are through. This avoids
+unnecessary copying of the string.
+  <P>
+Note that the <SAMP>copy</SAMP> flag may be set in scribes
+that do character set conversions; if it is, it indicates
+that the character set being translated to is the same as
+the original one. Thus, you can use this flag as a means to
+avoid unnecessary copying when exporting strings.
+</DD></DL>
+<P>
+<A NAME="vscribeClearCopySized"><HR><H4>vscribeClearCopySized</H4></A>
+<PRE>
+        void <B>vscribeClearCopySized</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Clears the <SAMP>copySized</SAMP> flag of a scribe. This
+flag should be set if and only if the string field of the
+scribe points to a <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> string (not
+necessarily null-terminated), and the scribe, if applied,
+writes out an identical copy of the string or a prefix
+thereof.
+  <P>
+You should not modify this flag except when you are
+creating a custom type of scribe. This flag will be set up
+appropriately by the <SAMP>Scribe</SAMP> function that
+created the scribe.
+  <P>
+When you want to retrieve the string from a scribe, you can
+check this flag if you only want to look at the string (as
+opposed to storing it somewhere). If the flag is set, you
+can retrieve the contents of the string field (cast to a
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A> *</SAMP>), examine it directly, and then
+destroy the scribe when you are through. This avoids
+unnecessary copying of the string.
+  <P>
+Note that the <SAMP>copySized</SAMP> flag may be set in
+scribes that do character set conversions; if it is, it
+indicates that the character set being translated to is the
+same as the original one. Thus, you can use this flag as a
+means to avoid unnecessary copying when exporting strings.
+</DD></DL>
+<P>
+<A NAME="vscribeClearDynamic"><HR><H4>vscribeClearDynamic</H4></A>
+<PRE>
+        void <B>vscribeClearDynamic</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Clears the <SAMP>dynamic</SAMP> flag of a scribe. This flag
+should be set if and only if the string field of the scribe
+points to a <SAMP><A HREF="vstr-x.html#vstr"><CODE>vstr</CODE></A></SAMP> dynamic string that is owned
+by the scribe and is identical to the string that will be
+written out by the scribe.
+  <P>
+You should not modify this flag except when you are
+creating a custom type of scribe. This flag will be set up
+appropriately by the <SAMP>Scribe</SAMP> function that
+created the scribe.
+  <P>
+This flag is used by <CODE><A HREF="vstr-x.html#vstrScribe"><CODE>vstrScribe</CODE></A></CODE> and
+<CODE><A HREF="vstr-x.html#vstrCloneScribed"><CODE>vstrCloneScribed</CODE></A></CODE> to avoid unnecessary cloning
+of dynamic strings when a scribe was both created from a
+dynamic string and then used to create a dynamic string.
+</DD></DL>
+<P>
+<A NAME="vscribeClearInterned"><HR><H4>vscribeClearInterned</H4></A>
+<PRE>
+        void <B>vscribeClearInterned</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Clears the <SAMP>interned</SAMP> flag of a scribe. This
+flag should be set if and only if the string field of the
+scribe points to a <SAMP><A HREF="vname-x.html#vname"><CODE>vname</CODE></A></SAMP> allocated in the
+global name table.
+  <P>
+You should not modify this flag except when you are
+creating a custom type of scribe. This flag will be set up
+appropriately by the <SAMP>Scribe</SAMP> function that
+created the scribe.
+  <P>
+This flag is used by <CODE><A HREF="vname-x.html#vnameScribeGlobal"><CODE>vnameScribeGlobal</CODE></A></CODE> and
+<CODE><A HREF="vname-x.html#vnameInternGlobalScribed"><CODE>vnameInternGlobalScribed</CODE></A></CODE> to avoid unnecessary
+interning of strings when a scribe was both created from a
+global <SAMP><A HREF="vname-x.html#vname"><CODE>vname</CODE></A></SAMP> and then used to create a global
+<SAMP><A HREF="vname-x.html#vname"><CODE>vname</CODE></A></SAMP>.
+</DD></DL>
+<P>
+<A NAME="vscribeClearShare"><HR><H4>vscribeClearShare</H4></A>
+<PRE>
+        void <B>vscribeClearShare</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Clears the <SAMP>share</SAMP> flag of a scribe. This flag
+should be set if and only if the string field of the scribe
+points to a permanently allocated null-terminated
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> string that is identical to the string
+that will be written out by the scribe.
+  <P>
+You should not modify this flag except when you are
+creating a custom type of scribe. This flag will be set up
+appropriately by the <SAMP>Scribe</SAMP> function that
+created the scribe.
+  <P>
+When you want to retrieve the string from a scribe and
+store it somewhere, you can check this flag to see if you
+need to make a private copy of the string. If the flag is
+set, you can call <CODE><A HREF="vscribe-x.html#vscribeGetUnscribed"><CODE>vscribeGetUnscribed</CODE></A></CODE> to get a
+pointer to the permanently allocated string. You can use
+this string directly without making a private copy. If the
+<SAMP>share</SAMP> flag is not set, you will need to make a
+private copy of the string (for example, with
+<CODE><A HREF="vstr-x.html#vstrCloneScribed"><CODE>vstrCloneScribed</CODE></A></CODE>).
+</DD></DL>
+<P>
+<A NAME="vscribeClearShareSized"><HR><H4>vscribeClearShareSized</H4></A>
+<PRE>
+        void <B>vscribeClearShareSized</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Clears the <SAMP>shareSized</SAMP> flag of a scribe. This
+flag should be set if and only if the string field of the
+scribe points to a permanently allocated <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP>
+string and the scribe, if applied, writes out an identical
+copy of the string or a prefix thereof.
+  <P>
+You should not modify this flag except when you are
+creating a custom type of scribe. This flag will be set up
+appropriately by the <SAMP>Scribe</SAMP> function that
+created the scribe.
+  <P>
+When you want to retrieve the string from a scribe and
+store it somewhere, you can check this flag to see if you
+need to make a private copy of the string. If the flag is
+set, you can call <CODE><A HREF="vscribe-x.html#vscribeGetUnscribed"><CODE>vscribeGetUnscribed</CODE></A></CODE> to get a
+pointer to the permanently allocated string. You can use
+this string directly without making a private copy.
+  <P>
+If the <SAMP>shareSized</SAMP> and <SAMP>share</SAMP> flags
+are not set, you will need to make a private copy of the
+string (for example, with <CODE><A HREF="vstr-x.html#vstrCloneScribed"><CODE>vstrCloneScribed</CODE></A></CODE>).
+</DD></DL>
+<P>
+<A NAME="vscribeConcatenate"><HR><H4>vscribeConcatenate</H4></A>
+<PRE>
+        vscribe * <B>vscribeConcatenate</B>(
+                vscribe * scribe1,
+                vscribe * scribe2);
+</PRE>
+
+<DL><DD>
+Returns a scribe which combines the two given scribes. The
+two scribes should write strings in the same character set.
+Note that left-recursive use of the following function is
+relatively efficient.
+  <P>
+<BLOCKQUOTE>
+<PRE>
+
+  vscribeConcatenate(vscribeConcatenate(s1, s2), s3) 
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vscribeCreate"><HR><H4>vscribeCreate</H4></A>
+<PRE>
+        vscribe * <B>vscribeCreate</B>(
+                const vscribeFuncs * funcs);
+</PRE>
+
+<DL><DD>
+Returns a new <SAMP>vscribe</SAMP>, which has the behavior
+indicated by the given <SAMP>funcs</SAMP>. Typically, the
+string and/or data fields, along with any applicable flags,
+will then need to be set so the <SAMP>funcs</SAMP> can
+access the data they need to make the scribe work
+correctly.
+  <P>
+You only need to call this function if you are creating a
+custom type of scribe. Ordinarily you will create scribes
+of a predefined type by using a <SAMP>Scribe</SAMP>
+function.
+</DD></DL>
+<P>
+<A NAME="vscribeDestroy"><HR><H4>vscribeDestroy</H4></A>
+<PRE>
+        void <B>vscribeDestroy</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Destroys a <SAMP>vscribe</SAMP>. This is done by calling
+the scribe's <SAMP>freeData</SAMP> function (specified in
+its <SAMP><A HREF="vscribe-x.html#vscribeFuncs"><CODE>vscribeFuncs</CODE></A></SAMP> structure) and then freeing
+the memory occupied by the scribe.
+  <P>
+This function is almost never called directly, because
+scribes are destroyed automatically when they are used. You
+will need to call this function only when you have a scribe
+that you do not want to use for some reason. For example:
+  <P>
+<BLOCKQUOTE>
+<PRE>
+
+vbool   useScribeForString = ... ;
+vscribe *scribe = ... ;
+<A HREF="vstr-x.html#vstr"><CODE>vstr</CODE></A>   *string;
+
+if (useScribeForString)
+string = <A HREF="vstr-x.html#vstrCloneScribed"><CODE>vstrCloneScribed</CODE></A>(scribe); /* destroys scribe automatically */
+else
+{
+     string = <A HREF="vstr-x.html#vstrCreate"><CODE>vstrCreate</CODE></A>();
+     vscribeDestroy(scribe); /* we didn't use the scribe */
+}
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vscribeFuncsDEC"><HR><H4>vscribeFuncsDEC</H4></A>
+<PRE>
+        vscribeFuncs <B>vscribeFuncsDEC</B>(
+                vscribeScribbleFunc scribble,
+                vscribeLengthFunc length,
+                vscribeFreeDataFunc freeData,
+                size_t unitSize);
+</PRE>
+
+<DL><DD>
+Static initialization macro for a <SAMP>vscribeFuncs</SAMP>
+structure. The <SAMP>vscribeFuncs</SAMP> can then be used
+to create custom scribes, via <CODE><A HREF="vscribe-x.html#vscribeCreate"><CODE>vscribeCreate</CODE></A></CODE>. A
+<SAMP>vscribeFuncs</SAMP> is somewhat like a ``class'' for
+scribes in that one such structure is shared by all scribes
+of a particular type.
+  <P>
+The <SAMP>scribble</SAMP> function is responsible for doing
+the actual work of the scribe, by writing the appropriate
+string into the specified destination buffer. This function
+should <I>not</I> write a null-terminating character. The
+<SAMP>scribble</SAMP> function can access the string and/or
+data fields of the scribe in determining what string to
+write into the destination buffer.
+  <P>
+The <SAMP>length</SAMP> function should return the number
+of characters the <SAMP>scribble</SAMP> function will write
+when it is called. Again, the string and/or data fields of
+the scribe can be accessed to determine what string is to
+be written.
+  <P>
+The <SAMP>freeData</SAMP> function should free any data
+stored in the string and/or data fields of the scribe. It
+is called when the scribe is destroyed.
+  <P>
+The <SAMP>unitSize</SAMP> parameter gives the size (in
+bytes) of the units used by the <SAMP>length</SAMP> and
+<SAMP>scribble</SAMP> functions.
+</DD></DL>
+<P>
+<A NAME="vscribeGetData"><HR><H4>vscribeGetData</H4></A>
+<PRE>
+        void * <B>vscribeGetData</B>(
+                const vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Accesses the data field in a <SAMP>vscribe</SAMP>. The data
+field is simply a <SAMP>void *</SAMP> field in the scribe
+(in addition to the string field) that can be used to store
+generic data for the <SAMP><A HREF="vscribe-x.html#vscribeFuncs"><CODE>vscribeFuncs</CODE></A></SAMP> functions.
+  <P>
+This function will only be useful when you are creating a
+custom type of scribe. Normally, the data field will be
+initialized appropriately by the <SAMP>Scribe</SAMP>
+function and will be accessed only by the functions stored
+in a scribe's <SAMP><A HREF="vscribe-x.html#vscribeFuncs"><CODE>vscribeFuncs</CODE></A></SAMP> structure.
+</DD></DL>
+<P>
+<A NAME="vscribeGetLength"><HR><H4>vscribeGetLength</H4></A>
+<PRE>
+        size_t <B>vscribeGetLength</B>(
+                const vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Figures out how many characters will be written out by a
+scribe, without actually writing the strings. Note that the
+scribe is <I>not</I> automatically destroyed when you call
+these functions. The length returned will be the number of
+characters the scribe will write, which does not include
+any null-terminating character (scribes should not write
+null-terminating characters).
+  <P>
+This function works by calling the <SAMP>length</SAMP>
+function in the scribe's <SAMP><A HREF="vscribe-x.html#vscribeFuncs"><CODE>vscribeFuncs</CODE></A></SAMP>
+structure.
+  <P>
+Use this function before you call
+<CODE><A HREF="vscribe-x.html#vscribeScribble"><CODE>vscribeScribble</CODE></A></CODE> if you need to allocate space
+to scribble into. Multiply the number returned by the size
+returned by <CODE><A HREF="vscribe-x.html#vscribeGetUnitSize"><CODE>vscribeGetUnitSize</CODE></A></CODE> (or by
+<SAMP>sizeof(<A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A>)</SAMP>, if you know the scribe writes
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP>s) to get the length in bytes.
+</DD></DL>
+<P>
+<A NAME="vscribeGetLengthBounded"><HR><H4>vscribeGetLengthBounded</H4></A>
+<PRE>
+        size_t <B>vscribeGetLengthBounded</B>(
+                const vscribe * scribe,
+                size_t maxLength);
+</PRE>
+
+<DL><DD>
+Figures out how many characters will be written out by a
+scribe, without actually writing the strings. Note that the
+scribe is <I>not</I> automatically destroyed when you call
+these functions. The length returned will be the number of
+characters the scribe will write, which does not include
+any null-terminating character (scribes should not write
+null-terminating characters).
+  <P>
+This routine will return the length of the string written
+by the scribe, or <SAMP>maxLength</SAMP>, whichever is
+less.
+  <P>
+This function works by calling the <SAMP>length</SAMP>
+function in the scribe's <SAMP><A HREF="vscribe-x.html#vscribeFuncs"><CODE>vscribeFuncs</CODE></A></SAMP>
+structure.
+  <P>
+Use this function before you call
+<CODE><A HREF="vscribe-x.html#vscribeScribble"><CODE>vscribeScribble</CODE></A></CODE> if you need to allocate space
+to scribble into. Multiply the number returned by the size
+returned by <CODE><A HREF="vscribe-x.html#vscribeGetUnitSize"><CODE>vscribeGetUnitSize</CODE></A></CODE> (or by
+<SAMP>sizeof(<A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A>)</SAMP>, if you know the scribe writes
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP>s) to get the length in bytes.
+</DD></DL>
+<P>
+<A NAME="vscribeGetString"><HR><H4>vscribeGetString</H4></A>
+<PRE>
+        void * <B>vscribeGetString</B>(
+                const vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Accesses the string field in a <SAMP>vscribe</SAMP>. The
+string field is simply a <SAMP>void *</SAMP> field in the
+scribe that can be used to store data for the
+<SAMP><A HREF="vscribe-x.html#vscribeFuncs"><CODE>vscribeFuncs</CODE></A></SAMP> functions. It is only called the
+string field, because it is typically used to store some
+sort of string pointer. However, this need not be the case.
+  <P>
+If any of a scribe's flags are set, you may use this
+function to get the contents of the string field, since the
+scribe's flags give you information about the contents of
+the string field. For example, you could use this function
+to get a <SAMP><A HREF="vstr-x.html#vstr"><CODE>vstr</CODE></A> *</SAMP> from a scribe which has the
+dynamic flag set. If you do, be sure to manually destroy
+the scribe with <CODE><A HREF="vscribe-x.html#vscribeDestroy"><CODE>vscribeDestroy</CODE></A></CODE> if applicable.
+  <P>
+Otherwise, this function will be useful only when you are
+creating a custom type of scribe. Normally, the string
+field will be initialized appropriately by the
+<SAMP>Scribe</SAMP> function and will be accessed only by
+the functions stored in a scribe's
+<SAMP><A HREF="vscribe-x.html#vscribeFuncs"><CODE>vscribeFuncs</CODE></A></SAMP> structure.
+</DD></DL>
+<P>
+<A NAME="vscribeGetUnitSize"><HR><H4>vscribeGetUnitSize</H4></A>
+<PRE>
+        size_t <B>vscribeGetUnitSize</B>(
+                const vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Returns the size of a single character as understood by the
+scribe. This value is normally the same as
+<SAMP>sizeof(<A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A>)</SAMP>, except in the case of export
+scribes, which write data to character sets different from
+the <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> set. For export scribes, the unit
+size is equal to the size of the smallest character in the
+appropriate character set.
+</DD></DL>
+<P>
+<A NAME="vscribeGetUnscribed"><HR><H4>vscribeGetUnscribed</H4></A>
+<PRE>
+        void * <B>vscribeGetUnscribed</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Gets the contents of the scribe's string field, sets the
+string field to be a null pointer, and destroys the scribe.
+The original contents of the string field is returned.
+  <P>
+Use this function to get the contents of a scribe when one
+of the flags of the scribe is set in such a way that you
+know the string used to create the scribe is suitable for
+your purposes, without any copying being necessary.
+  <P>
+Because <CODE><A HREF="vstr-x.html#vstrCloneScribed"><CODE>vstrCloneScribed</CODE></A></CODE> and
+<CODE><A HREF="vname-x.html#vnameInternGlobalScribed"><CODE>vnameInternGlobalScribed</CODE></A></CODE> already check the
+<SAMP>dynamic</SAMP> and <SAMP>interned</SAMP> flags for
+you, you typically need to use this function directly only
+when retrieving a <SAMP>shared</SAMP>,
+<SAMP>sharedSized</SAMP>, <SAMP>copy</SAMP>, or
+<SAMP>copySized</SAMP> string from a scribe.
+</DD></DL>
+<P>
+<A NAME="vscribeIsCopy"><HR><H4>vscribeIsCopy</H4></A>
+<PRE>
+        vbool <B>vscribeIsCopy</B>(
+                const vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Accesses the <SAMP>copy</SAMP> flag of a scribe. This flag
+will be set if and only if the string field of the scribe
+points to a null-terminated <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> string that
+is identical to the string that will be written out by the
+scribe. (That is, the flag is set if the scribe simply
+copies the string stored in the string field.)
+  <P>
+The <SAMP>copy</SAMP> flag is true automatically if the
+<SAMP>interned</SAMP>, <SAMP>share</SAMP>, or
+<SAMP>dynamic</SAMP> flag is set on a scribe.
+  <P>
+When you want to retrieve the string from a scribe, you can
+check this flag if you only want to look at the string (as
+opposed to storing it somewhere). If the flag is set, you
+can retrieve the contents of the string field (cast to a
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A> *</SAMP>), examine it directly, and then
+destroy the scribe when you are through. This avoids
+unnecessary copying of the string.
+  <P>
+Note that the <SAMP>copy</SAMP> flag may be set in scribes
+that do character set conversions; if it is, it indicates
+that the character set being translated to is the same as
+the original one. Thus, you can use this flag as a means to
+avoid unnecessary copying when exporting strings.
+</DD></DL>
+<P>
+<A NAME="vscribeIsCopySized"><HR><H4>vscribeIsCopySized</H4></A>
+<PRE>
+        vbool <B>vscribeIsCopySized</B>(
+                const vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Accesses the <SAMP>copySized</SAMP> flag of a scribe. This
+flag will be set if and only if the string field of the
+scribe points to a <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> string (not
+necessarily null-terminated) and the scribe, if applied,
+writes out an identical copy of the string or a prefix
+thereof.
+  <P>
+The <SAMP>copySized</SAMP> flag is true automatically if
+the <SAMP>copy</SAMP>, <SAMP>interned</SAMP>,
+<SAMP>share</SAMP>, <SAMP>shareSized</SAMP>, or
+<SAMP>dynamic</SAMP> flag is set on a scribe.
+  <P>
+You should not modify this flag except when you are
+creating a custom type of scribe. This flag will be set up
+appropriately by the <SAMP>Scribe</SAMP> function that
+created the scribe.
+  <P>
+When you want to retrieve the string from a scribe, you can
+check this flag if you only want to look at the string (as
+opposed to storing it somewhere). If the flag is set, you
+can retrieve the contents of the string field (cast to a
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A> *</SAMP>), examine it directly, and then
+destroy the scribe when you are through. This avoids
+unnecessary copying of the string.
+  <P>
+Note that the <SAMP>copySized</SAMP> flag may be set in
+scribes that do character set conversions; if it is, it
+indicates that the character set being translated to is the
+same as the original one. Thus, you can use this flag as a
+means to avoid unnecessary copying when exporting strings.
+</DD></DL>
+<P>
+<A NAME="vscribeIsDynamic"><HR><H4>vscribeIsDynamic</H4></A>
+<PRE>
+        vbool <B>vscribeIsDynamic</B>(
+                const vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Accesses the <SAMP>dynamic</SAMP> flag of a scribe. This
+flag will be set if and only if the string field of the
+scribe points to a <SAMP><A HREF="vstr-x.html#vstr"><CODE>vstr</CODE></A></SAMP> dynamic string that is
+owned by the scribe and is identical to the string that
+will be written out by the scribe. If this flag is set, the
+<SAMP>copy</SAMP> flag should be set as well.
+  <P>
+This flag is used by <CODE><A HREF="vstr-x.html#vstrScribe"><CODE>vstrScribe</CODE></A></CODE> and
+<CODE><A HREF="vstr-x.html#vstrCloneScribed"><CODE>vstrCloneScribed</CODE></A></CODE> to avoid unnecessary cloning
+of dynamic strings when a scribe was both created from a
+dynamic string and then used to create a dynamic string.
+</DD></DL>
+<P>
+<A NAME="vscribeIsInterned"><HR><H4>vscribeIsInterned</H4></A>
+<PRE>
+        vbool <B>vscribeIsInterned</B>(
+                const vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Accesses the <SAMP>interned</SAMP> flag of a scribe. This
+flag will be set if and only if the string field of the
+scribe points to a <SAMP><A HREF="vname-x.html#vname"><CODE>vname</CODE></A></SAMP> allocated in the
+global name table. If this string is set, the
+<SAMP>copy</SAMP> flag and the <SAMP>share</SAMP> flag
+should be set as well.
+  <P>
+This flag is used by <CODE><A HREF="vname-x.html#vnameScribeGlobal"><CODE>vnameScribeGlobal</CODE></A></CODE> and
+<CODE><A HREF="vname-x.html#vnameInternGlobalScribed"><CODE>vnameInternGlobalScribed</CODE></A></CODE> to avoid unnecessary
+interning of strings when a scribe was both created from a
+global <SAMP><A HREF="vname-x.html#vname"><CODE>vname</CODE></A></SAMP> and then used to create a global
+<SAMP><A HREF="vname-x.html#vname"><CODE>vname</CODE></A></SAMP>.
+</DD></DL>
+<P>
+<A NAME="vscribeIsShare"><HR><H4>vscribeIsShare</H4></A>
+<PRE>
+        vbool <B>vscribeIsShare</B>(
+                const vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Accesses the <SAMP>share</SAMP> flag of a scribe. This flag
+will be set if and only if the string field of the scribe
+points to a permanently allocated null-terminated
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> string that is identical to the string
+that will be written out by the scribe. If this flag is
+set, the <SAMP>copy</SAMP> flag will be set as well.
+  <P>
+The <SAMP>share</SAMP> flag is true automatically if the
+<SAMP>interned</SAMP> flag is set on a scribe.
+  <P>
+When you want to retrieve the string from a scribe and
+store it somewhere, you can check this flag to see if you
+need to make a private copy of the string. If the flag is
+set, you can call <CODE><A HREF="vscribe-x.html#vscribeGetUnscribed"><CODE>vscribeGetUnscribed</CODE></A></CODE> to get a
+pointer to the permanently allocated string. You can use
+this string directly without making a private copy.
+  <P>
+If the <SAMP>share</SAMP> and <SAMP>shareSized</SAMP> flags
+are not set, you will need to make a private copy of the
+string (for example, with <CODE><A HREF="vstr-x.html#vstrCloneScribed"><CODE>vstrCloneScribed</CODE></A></CODE>).
+</DD></DL>
+<P>
+<A NAME="vscribeIsShareSized"><HR><H4>vscribeIsShareSized</H4></A>
+<PRE>
+        vbool <B>vscribeIsShareSized</B>(
+                const vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Accesses the <SAMP>shareSized</SAMP> flag of a scribe. This
+flag will be set if only if the string field of the scribe
+points to a permanently allocated <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> string
+and the scribe, if applied, writes out an identical copy of
+the string or a prefix thereof. If this flag is set, the
+<SAMP>copySized</SAMP> flag will be set as well.
+  <P>
+The <SAMP>shareSized</SAMP> flag is true automatically if
+the <SAMP>share</SAMP> or <SAMP>interned</SAMP> flag is set
+on a scribe.
+  <P>
+When you want to retrieve the string from a scribe and
+store it somewhere, you can check this flag to see if you
+need to make a private copy of the string. If the flag is
+set, you can call <CODE><A HREF="vscribe-x.html#vscribeGetUnscribed"><CODE>vscribeGetUnscribed</CODE></A></CODE> to get a
+pointer to the permanently allocated string. You can use
+this string directly without making a private copy.
+  <P>
+If the <SAMP>shareSized</SAMP> and <SAMP>share</SAMP> flags
+are not set, you will need to make a private copy of the
+string (for example, with <CODE><A HREF="vstr-x.html#vstrCloneScribed"><CODE>vstrCloneScribed</CODE></A></CODE>).
+</DD></DL>
+<P>
+<A NAME="vscribeScribble"><HR><H4>vscribeScribble</H4></A>
+<PRE>
+        void * <B>vscribeScribble</B>(
+                vscribe * scribe,
+                void * dest);
+</PRE>
+
+<DL><DD>
+Writes out the string contained by the scribe into the
+given destination. The scribe is automatically destroyed
+after the string is written. A pointer is returned that
+points to the next character after the last one written in
+the destination. No null-terminating character is written
+after the string.
+  <P>
+This function works by calling the <SAMP>scribble</SAMP>
+function in the scribe's <SAMP><A HREF="vscribe-x.html#vscribeFuncs"><CODE>vscribeFuncs</CODE></A></SAMP>
+structure.
+  <P>
+You never need to call this function directly. Call the
+appropriate variation of <CODE><A HREF="vchar-x.html#vcharCopyScribed"><CODE>vcharCopyScribed</CODE></A></CODE> or
+<CODE><A HREF="vchar-x.html#vcharExport"><CODE>vcharExport</CODE></A></CODE> instead.
+</DD></DL>
+<P>
+<A NAME="vscribeScribbleBounded"><HR><H4>vscribeScribbleBounded</H4></A>
+<PRE>
+        void * <B>vscribeScribbleBounded</B>(
+                vscribe * scribe,
+                void * dest,
+                size_t destMaxLength);
+</PRE>
+
+<DL><DD>
+Writes out the string contained by the scribe into the
+given destination. The scribe is automatically destroyed
+after the string is written. A pointer is returned that
+points to the next character after the last one written in
+the destination. No null-terminating character is written
+after the string.
+  <P>
+This routine will write at most <SAMP>destMaxLength</SAMP>
+characters to the destination buffer, returning a pointer
+past the last character written.
+  <P>
+This function works by calling the <SAMP>scribble</SAMP>
+function in the scribe's <SAMP><A HREF="vscribe-x.html#vscribeFuncs"><CODE>vscribeFuncs</CODE></A></SAMP>
+structure.
+  <P>
+You never need to call this function directly. Call the
+appropriate variation of <CODE><A HREF="vchar-x.html#vcharCopyScribed"><CODE>vcharCopyScribed</CODE></A></CODE> or
+<CODE><A HREF="vchar-x.html#vcharExport"><CODE>vcharExport</CODE></A></CODE> instead.
+</DD></DL>
+<P>
+<A NAME="vscribeScribeMulti"><HR><H4>vscribeScribeMulti</H4></A>
+<PRE>
+        vscribe * <B>vscribeScribeMulti</B>(
+                vscribe * scribe1,
+                ... arg2);
+</PRE>
+
+<DL><DD>
+Returns a scribe that writes out many strings (specified by
+the scribes passed as arguments) concatenated together. The
+list of scribes passed as arguments should be followed by a
+null pointer. All scribes passed to this function should
+have the same unit size; that is, they should write
+characters in the same character set. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if this is not the
+case.
+  <P>
+Use this function when you want to use a combination of
+several other strings to specify a string to a scribed
+entry point. For example:
+  <P>
+<BLOCKQUOTE>
+<PRE>
+
+<A HREF="vdialog-x.html#vdialog"><CODE>vdialog</CODE></A> *dialog = <A HREF="vdialog-x.html#vdialogCreate"><CODE>vdialogCreate</CODE></A>();
+int    dialogNumber = 2;
+
+<A HREF="vdialog-x.html#vdialogSetTitleScribed"><CODE>vdialogSetTitleScribed</CODE></A>(dialog, 
+    vscribeScribeMulti(<A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>("Untitled "),
+                <A HREF="vnum-x.html#vnumScribeInt"><CODE>vnumScribeInt</CODE></A>(dialogNumber),
+                NULL));
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vscribeSetCopy"><HR><H4>vscribeSetCopy</H4></A>
+<PRE>
+        void <B>vscribeSetCopy</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Sets the <SAMP>copy</SAMP> flag of a scribe. This flag
+should be set if and only if the string field of the scribe
+points to a null-terminated <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> string that
+is identical to the string that will be written out by the
+scribe. (That is, the flag is set if the scribe simply
+copies the string stored in the string field.)
+  <P>
+You should not modify this flag except when you are
+creating a custom type of scribe. This flag will be set up
+appropriately by the <SAMP>Scribe</SAMP> function that
+created the scribe.
+  <P>
+When you want to retrieve the string from a scribe, you can
+check this flag if you only want to look at the string (as
+opposed to storing it somewhere). If the flag is set, you
+can retrieve the contents of the string field (cast to a
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A> *</SAMP>), examine it directly, and then
+destroy the scribe when you are through. This avoids
+unnecessary copying of the string.
+  <P>
+Note that the <SAMP>copy</SAMP> flag may be set in scribes
+that do character set conversions; if it is, it indicates
+that the character set being translated to is the same as
+the original one. Thus, you can use this flag as a means to
+avoid unnecessary copying when exporting strings.
+</DD></DL>
+<P>
+<A NAME="vscribeSetCopySized"><HR><H4>vscribeSetCopySized</H4></A>
+<PRE>
+        void <B>vscribeSetCopySized</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Sets the <SAMP>copySized</SAMP> flag of a scribe. This flag
+should be set if and only if the string field of the scribe
+points to a <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> string (not necessarily
+null-terminated) and the scribe, if applied, writes out an
+identical copy of the string or a prefix thereof.
+  <P>
+You should not modify this flag except when you are
+creating a custom type of scribe. This flag will be set up
+appropriately by the <SAMP>Scribe</SAMP> function that
+created the scribe.
+  <P>
+When you want to retrieve the string from a scribe, you can
+check this flag if you only want to look at the string (as
+opposed to storing it somewhere). If the flag is set, you
+can retrieve the contents of the string field (cast to a
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A> *</SAMP>), examine it directly, and then
+destroy the scribe when you are through. This avoids
+unnecessary copying of the string.
+  <P>
+Note that the <SAMP>copySized</SAMP> flag may be set in
+scribes that do character set conversions; if it is, it
+indicates that the character set being translated to is the
+same as the original one. Thus, you can use this flag as a
+means to avoid unnecessary copying when exporting strings.
+</DD></DL>
+<P>
+<A NAME="vscribeSetData"><HR><H4>vscribeSetData</H4></A>
+<PRE>
+        void <B>vscribeSetData</B>(
+                vscribe * scribe,
+                const void * data);
+</PRE>
+
+<DL><DD>
+Sets the data field in a <SAMP>vscribe</SAMP>. The data
+field is simply a <SAMP>void *</SAMP> field in the scribe
+(in addition to the string field) that can be used to store
+generic data for the <SAMP><A HREF="vscribe-x.html#vscribeFuncs"><CODE>vscribeFuncs</CODE></A></SAMP> functions.
+  <P>
+This function will only be useful when you are creating a
+custom type of scribe. Normally, the data field will be
+initialized appropriately by the <SAMP>Scribe</SAMP>
+function and will be accessed only by the functions stored
+in a scribe's <SAMP><A HREF="vscribe-x.html#vscribeFuncs"><CODE>vscribeFuncs</CODE></A></SAMP> structure.
+</DD></DL>
+<P>
+<A NAME="vscribeSetDynamic"><HR><H4>vscribeSetDynamic</H4></A>
+<PRE>
+        void <B>vscribeSetDynamic</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Sets the <SAMP>dynamic</SAMP> flag of a scribe. This flag
+should be set if and only if the string field of the scribe
+points to a <SAMP><A HREF="vstr-x.html#vstr"><CODE>vstr</CODE></A></SAMP> dynamic string that is owned
+by the scribe and is identical to the string that will be
+written out by the scribe.
+  <P>
+You should not modify this flag except when you are
+creating a custom type of scribe. This flag will be set up
+appropriately by the <SAMP>Scribe</SAMP> function that
+created the scribe.
+  <P>
+This flag is used by <CODE><A HREF="vstr-x.html#vstrScribe"><CODE>vstrScribe</CODE></A></CODE> and
+<CODE><A HREF="vstr-x.html#vstrCloneScribed"><CODE>vstrCloneScribed</CODE></A></CODE> to avoid unnecessary cloning
+of dynamic strings when a scribe was both created from a
+dynamic string and then used to create a dynamic string.
+</DD></DL>
+<P>
+<A NAME="vscribeSetInterned"><HR><H4>vscribeSetInterned</H4></A>
+<PRE>
+        void <B>vscribeSetInterned</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Sets the <SAMP>interned</SAMP> flag of a scribe. This flag
+should be set if and only if the string field of the scribe
+points to a <SAMP><A HREF="vname-x.html#vname"><CODE>vname</CODE></A></SAMP> allocated in the global name
+table.
+  <P>
+You should not modify this flag except when you are
+creating a custom type of scribe. This flag will be set up
+appropriately by the <SAMP>Scribe</SAMP> function that
+created the scribe.
+  <P>
+This flag is used by <CODE><A HREF="vname-x.html#vnameScribeGlobal"><CODE>vnameScribeGlobal</CODE></A></CODE> and
+<CODE><A HREF="vname-x.html#vnameInternGlobalScribed"><CODE>vnameInternGlobalScribed</CODE></A></CODE> to avoid unnecessary
+interning of strings when a scribe was both created from a
+global <SAMP><A HREF="vname-x.html#vname"><CODE>vname</CODE></A></SAMP> and then used to create a global
+<SAMP><A HREF="vname-x.html#vname"><CODE>vname</CODE></A></SAMP>.
+</DD></DL>
+<P>
+<A NAME="vscribeSetShare"><HR><H4>vscribeSetShare</H4></A>
+<PRE>
+        void <B>vscribeSetShare</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Sets the <SAMP>share</SAMP> flag of a scribe. This flag
+should be set if and only if the string field of the scribe
+points to a permanently allocated null-terminated
+<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> string that is identical to the string
+that will be written out by the scribe.
+  <P>
+You should not modify this flag except when you are
+creating a custom type of scribe. This flag will be set up
+appropriately by the <SAMP>Scribe</SAMP> function that
+created the scribe.
+  <P>
+When you want to retrieve the string from a scribe and
+store it somewhere, you can check this flag to see if you
+need to make a private copy of the string. If the flag is
+set, you can call <CODE><A HREF="vscribe-x.html#vscribeGetUnscribed"><CODE>vscribeGetUnscribed</CODE></A></CODE> to get a
+pointer to the permanently allocated string. You can use
+this string directly without making a private copy.
+  <P>
+If the <SAMP>share</SAMP> and <SAMP>shareSized</SAMP> flags
+are not set, you will need to make a private copy of the
+string (for example, with <CODE><A HREF="vstr-x.html#vstrCloneScribed"><CODE>vstrCloneScribed</CODE></A></CODE>).
+</DD></DL>
+<P>
+<A NAME="vscribeSetShareSized"><HR><H4>vscribeSetShareSized</H4></A>
+<PRE>
+        void <B>vscribeSetShareSized</B>(
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Sets the <SAMP>shareSized</SAMP> flag of a scribe. This
+flag should be set if and only if the string field of the
+scribe points to a permanently allocated <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP>
+string and the scribe, if applied, writes out an identical
+copy of the string or a prefix thereof.
+  <P>
+You should not modify this flag except when you are
+creating a custom type of scribe. This flag will be set up
+appropriately by the <SAMP>Scribe</SAMP> function that
+created the scribe.
+  <P>
+When you want to retrieve the string from a scribe and
+store it somewhere, you can check this flag to see if you
+need to make a private copy of the string. If the flag is
+set, you can call <CODE><A HREF="vscribe-x.html#vscribeGetUnscribed"><CODE>vscribeGetUnscribed</CODE></A></CODE> to get a
+pointer to the permanently allocated string. You can use
+this string directly without making a private copy.
+  <P>
+If the <SAMP>share</SAMP> and <SAMP>shareSized</SAMP> flags
+are not set, you will need to make a private copy of the
+string (for example, with <CODE><A HREF="vstr-x.html#vstrCloneScribed"><CODE>vstrCloneScribed</CODE></A></CODE>).
+</DD></DL>
+<P>
+<A NAME="vscribeSetString"><HR><H4>vscribeSetString</H4></A>
+<PRE>
+        void <B>vscribeSetString</B>(
+                vscribe * scribe,
+                const void * string);
+</PRE>
+
+<DL><DD>
+Sets the string field in a <SAMP>vscribe</SAMP>. The string
+field is simply a <SAMP>void *</SAMP> field in the scribe
+that can be used to store data for the
+<SAMP><A HREF="vscribe-x.html#vscribeFuncs"><CODE>vscribeFuncs</CODE></A></SAMP> functions. It is only called the
+string field, because it is typically used to store some
+sort of string pointer. However, this need not be the case.
+  <P>
+This function will be useful only when you are creating a
+custom type of scribe. Normally, the string field will be
+initialized appropriately by the <SAMP>Scribe</SAMP>
+function and will be accessed only by the functions stored
+in a scribe's <SAMP><A HREF="vscribe-x.html#vscribeFuncs"><CODE>vscribeFuncs</CODE></A></SAMP> structure.
+</DD></DL>
+<P>
+<A NAME="vscribeSetUnitSize"><HR><H4>vscribeSetUnitSize</H4></A>
+<PRE>
+        void <B>vscribeSetUnitSize</B>(
+                vscribe * scribe,
+                size_t size);
+</PRE>
+
+<DL><DD>
+Sets the size of a single character as understood by the
+scribe. This value is normally the same as
+<SAMP>sizeof(<A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A>)</SAMP>, except in the case of export
+scribes, which write data to character sets different from
+the <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> set. For export scribes, the unit
+size is equal to the size of the smallest character in the
+appropriate character set.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vscribeINCLUDED"><HR><H4>vscribeINCLUDED</H4></A>
+<PRE>
+        <B>vscribeINCLUDED</B>
+</PRE>
+
+<DL><DD>
+C pre-processor flag used to protect this header against
+multiple inclusion. By default,
+<CODE>vscribeINCLUDED</CODE> is undefined. When this header
+is included it first checks to see that
+<CODE>vscribeINCLUDED</CODE> is undefined and then defines
+it and includes the rest of the header. Thus, subsequent
+attempts to include this header will only get a check to
+see if <CODE>vscribeINCLUDED</CODE> is undefined, which
+will fail and the rest of the header will be skipped.
+  <P>
+This can also be used to avoid including this file in the
+first place. This will have no effect on correctness (this
+header will always make the check), but it can improve
+compilation time by avoiding the inclusion of header files
+that have already been included and are going to be skipped
+anyway. For example:
+  <P>
+<BLOCKQUOTE>
+<PRE>
+
+#ifndef vscribeINCLUDED
+#include vscribeHEADER
+#endif
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vscribeMAX_LENGTH"><HR><H4>vscribeMAX_LENGTH</H4></A>
+<PRE>
+        <B>vscribeMAX_LENGTH</B>
+</PRE>
+
+<DL><DD>
+Value passed to a scribe's <SAMP><A HREF="vscribe-x.html#vscribeLengthFunc"><CODE>vscribeLengthFunc</CODE></A></SAMP>
+and <SAMP><A HREF="vscribe-x.html#vscribeScribbleFunc"><CODE>vscribeScribbleFunc</CODE></A></SAMP> functions for the
+<SAMP>destMaxLength</SAMP> parameter when the parameter is
+not applicable because there is no maximum length. The
+value of this constant will be a very large number. If
+desired, the <SAMP><A HREF="vscribe-x.html#vscribeLengthFunc"><CODE>vscribeLengthFunc</CODE></A></SAMP> and
+<SAMP><A HREF="vscribe-x.html#vscribeScribbleFunc"><CODE>vscribeScribbleFunc</CODE></A></SAMP> functions can explicitly
+check for this value and omit bounds checking from copying
+loops (rather than checking against this large number) to
+gain extra speed.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

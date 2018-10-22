@@ -1,0 +1,790 @@
+<HTML>
+<HEAD>
+<TITLE>Preference</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Preference</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Plane_Geometry.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Print.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+<EM><B>Preferences</B></EM> are the aspects of an application that are designed to be flexible, ranging from background color and key bindings to font mappings and available paper sizes for printing. Preferences vary from application to application and even between instances of a given application.<P>
+Galaxy maintains a runtime database of user preferences. Preference values in the database are collected from preference resource dictionaries, command line arguments, environment variables and window system defaults. The default value for each preference is stored in a resource file or specified in application source code.<P>
+<A NAME="4561"><H2> Preference Organization</H2></A>
+The Preference Library defines several classes: preference values, preference dictionaries, preference dictionary observers, and preference iterators. Preference values use a Representation object (a <TT>vscrap</TT>) to hold the current value of a particular preference. Preference dictionaries contain preference values and/or other preference dictionaries. Preference dictionary observers monitor preference dictionaries and react to changes to particular preference objects. Preference iterators enumerate the contents of a preference dictionary.<P>
+The generic preference class, <TT>vpref</TT>, is really an abstract base class. Its function entry points (<TT><B>ReadEnvironment</B></TT>, for example) are useful, but its methods are not implemented. <TT>vpref</TT> must be subclassed to provide implementations for its methods. The preference value class (<TT>vprefValue</TT>) and the preference dictionary class (<TT>vprefDict</TT>) are subclasses of <TT>vpref</TT> and thus have useful methods (and function entry points).Preference dictionaries and preference values are both frequently referred to by the generic term, preferences.<P>
+The Preference runtime database is organized in a hierarchy similar to a file system. The "root" of the preference database hierarchy is a preference dictionary (subsequently referred to as the Root Preference Dictionary or simply the <EM><B>root dictionary</B></EM>). Other preference dictionaries are the interior nodes, and preference values are the leaf nodes. Preference dictionary observers are each associated with a particular preference dictionary in the hierarchy. When a new preference (either a dictionary or a single value) is added to a preference dictionary, all of its observers are notified.<P>
+<A NAME="4567"><H2> Initial Preference Values</H2></A>
+When an Application object (<TT>vapplication</TT>) is initialized, preference data is read into the Preference Database in the following order:<P>
+<OL>
+<LI>System default preferences (from the system resource file)
+<BR>
+<LI>Window system default preferences
+<BR>
+<LI>Application default preferences (from the application resource file)
+<BR>
+<LI>User global preferences (from the user resource file)
+<BR>
+<LI>User application preferences (from the user resource file)
+<BR>
+<LI>Environment variables
+<BR>
+<LI>Window system preferences
+<BR>
+<LI>Command line arguments
+<BR>
+</OL>
+If a preference value is defined more than once, new values replace old values. If a preference dictionary is defined more than once, the components of the dictionary are merged recursively (that is, the contents of child dictionaries are merged as well).<P>
+<UL><B><I>NOTE:</I></B> Environment variables, window system preferences, and command line 
+arguments can only change the value of existing preferences. A default value 
+must be stored in the preference database before any of these three are 
+loaded. If a corresponding default value does not exist, the environment 
+variable, window system preference, or command line argument will be 
+ignored.
+<P>
+</UL>In the preference database, several preferences are defined to be on/off switches (for example, the <TT>monochrome</TT> preference). By convention, if the preference is "active" (run in monochrome mode), the value of the preference is <TT>On</TT>. If the preference is not active (run in normal color mode), the value of the preference is the empty string. Preferences with default values of either <TT>On</TT> or the empty string are interpreted as on/off switches. (If the default value of a preference is listed as <TT>Off</TT> in the Root Preference Dictionary Defaults Table on <A HREF="Preference.html#5008">page 560</A>, the actual value of the preference is the empty string.) The convenience functions (<TT><B>Load</B></TT> and others) return <TT>NULL</TT> if the specified preference has the empty string as its value.<P>
+<A NAME="4587"><H3> Resource Files</H3></A>
+When the Application class is initialized, it reads the system, application, and user resource files. The Application class searches these files for resource dictionaries with the tag name "Preferences" and adds their contents to the Preference runtime database. If an application has any default preferences, create a dictionary named "Preferences" in the application resource file and store the application default preferences there.<P>
+The <EM><B>system resource file</B></EM> contains the default values for all preferences used by the Galaxy libraries. You should rarely modify this file directly. Instead, you can override system preference values: each application should store preference resources in its application resource file (<TT>appname.vr</TT>, where appname is the name of the application) for each custom preference used by the application, along with any system preferences the application wants to override.<P>
+Preference resources are read from the system resource file and the application resource file into the Preference database, with application preferences taking priority over system preferences. Additional preferences are read from other sources (command line options, environment variables) only if the preference key is already present in the database. This limits the search space to only those preferences that the application or Galaxy modules are interested in.<P>
+Galaxy also reads preferences defined in the user resource file. This file is created automatically by the Application class during startup. Preference tools write the user's global preferences (preferences that apply to all applications) into this file. Applications also write the user's application-specific preferences (preferences that apply to a single application) into this file.<P>
+The contents of all of these resource dictionaries are merged together in the preference database. For example, an individual preference, like the key binding for the Cut command under the Motif look-and-feel, can be modified in the preferences dictionary from the user's resource file. This change is merged into the preferences database along with the normal default key-bindings from the system preferences resource dictionary. If a preference value is defined more than once, the most recent value is used.<P>
+The preference dictionary class provides functions to write preference data out to a disk-based resource file. By default, preference data will be written to the application specific preferences dictionary in the user resource file.<P>
+<A NAME="4599"><H3> Window System Defaults</H3></A>
+Window System Default preferences are the preference values assumed to match the application's environment. For example, the default look-and-feel for Galaxy applications running under the Motif Window Manager is the Motif look-and-feel.<P>
+<A NAME="4602"><H3> Environment Variables</H3></A>
+Environment variables are a collection of key/value pairs associated with each process running on a given machine. The preference class provides a function, <TT><B>ReadEnvironment</B></TT>, to change the values of existing preferences in the root preference dictionary to the corresponding environment variable value. This function can be called by the user at any time. Environment variables may not be available on all platforms.<P>
+<A NAME="4614"><H3> Window System Preferences</H3></A>
+Window System Preferences are stored in a window-system-dependent manner. Users should consult individual window system documentation for details on Window System Preferences.<P>
+<A NAME="4618"><H3> Command Line Arguments</H3></A>
+Command line arguments are specified for each instance of an application. The interpretation of command line arguments depends on the current value of the corresponding preference. The name of a command line preference is preceded by a `+' or a `-'. <P>
+If the command line preference requires a boolean value (On/Off), any command line arguments following the preference name have no effect. The value is simply the empty string if the preference name is preceded by a `+' or "On" if the preference name is preceded by a `-'. For example, the command line:<P>
+<PRE><UL><TT>myapp -leftscrollbar
+</TT>
+</UL></PRE>changes the value of the <TT>leftscrollbar</TT> preference from "Off" (the empty string) to "On".<P>
+If the command line preference requires a single particular value, it is given a preference value containing the next command line argument. For example, the command line <TT>myapp -laf motif</TT> changes the value of the <TT>laf</TT> preference to the string "motif".<P>
+If the command line preference requires an array, it is given a preference value containing an array with values read from the command line. If there are not enough arguments left on the command line to fill the expected array, the remaining array elements are replaced with the empty string.<P>
+If a preference dictionary exists with the same name as the command line preference, the preference dictionary is replaced with a preference value containing the next command line argument.<P>
+<A NAME="4628"><H3> Root Preference Dictionary Defaults</H3></A>
+<A HREF="Preference.html#5008">Table 32</A> lists the Galaxy Preference Values stored in the root preference dictionary when the Application class starts up. These values can be changed using the command line, environment variables, or window system preferences interfaces. If the default value of a preference is listed as <TT>Off</TT> the actual value of the preference is the empty string.<P>
+
+<TABLE BORDER="3">
+
+<CAPTION><A NAME="4632"><I>Table 32.  Root preference dictionary defaults
+</I><P>
+</CAPTION>
+
+<tr><th><B>Preference
+</B></th><th><B>Default Value
+</B></th><th><B>Values
+</B></th><th><B>Summary
+</B></th>
+<tr><td><TT><B>background
+</B></TT><TT><B>bg
+</B></TT></td><td><TT>
+</TT><TT>none
+</TT></td><td><TT>
+</TT></td><td>In the X Window System, specifies a color (defined by X) for the 
+background color of an application's windows.
+</td></tr>
+<tr><td><TT><B>badcreatedibitmap
+</B></TT></td><td><TT>Off
+</TT></td><td><TT>
+</TT></td><td>Some Windows display drivers can't handle large images 
+correctly. Enabling this option allows Galaxy applications to 
+handle large images.
+</td></tr>
+<tr><td><TT><B>bordercolor
+</B></TT><TT><B>bd
+</B></TT></td><td><TT>none
+</TT></td><td><TT>
+</TT></td><td>In the X Window System, specifies a color (defined by X) for the 
+border color of an application's windows.
+</td></tr>
+<tr><td><TT><B>caretblinkinterval
+</B></TT></td><td><TT>0.75
+</TT></td><td><TT>
+</TT></td><td>Specifies the interval, in seconds, between blinks of a text caret 
+insertion point in a text item.
+</td></tr>
+<tr><td><TT><B>colorscheme
+</B></TT></td><td><TT>none
+</TT></td><td><TT>monochrome
+</TT><TT>standard
+</TT><TT>mac
+</TT><TT>hiliteblue
+</TT><TT>hilitewhite
+</TT></td><td>Specifies the color scheme to use as the application default color 
+scheme. If no color scheme is specified, the color scheme 
+preference is determined according to the host platform for the 
+application. The values for this preference are located in the 
+<TT>colorschemedict</TT> dictionary in the system resource file.
+</td></tr>
+<tr><td><TT><B>commandkey
+</B></TT></td><td>(Platform Dependent)
+<TT>
+</TT></td><td><TT>shift
+</TT><TT>control
+</TT><TT>alt
+</TT><TT>meta
+</TT><TT>command
+</TT></td><td>Specifies the keyboard key(s) to be used for the "command" key 
+modifier. To denote key combinations, separate each key name 
+with a colon. For example:
+<TT> appname -commandkey control:shift
+</TT></td></tr>
+<tr><td><TT><B><TT>display
+</TT></B></TT></td><td><TT>:0.0
+</TT></td><td><TT>
+</TT></td><td>In the X Window System, specifies the display name to use.
+</td></tr>
+<tr><td><TT><B>doubleclickinterval
+</B></TT></td><td><TT>0.333
+</TT></td><td><TT>
+</TT></td><td>Specifies the maximum time between clicks, in seconds, 
+necessary to recognize a double-click operation.
+</td></tr>
+<tr><td><TT><B>face
+</B></TT></td><td><TT>face:bold
+</TT></td><td><TT>medium
+</TT><TT>italic
+</TT><TT>bold
+</TT><TT>bold italic
+</TT></td><td>Specifies the typeface to use for displaying bold text in look-and-
+feels that use a bold font. Valid specifications for typeface depend 
+on those available for the specified font.
+</td></tr>
+<tr><td><TT><B>font
+</B></TT></td><td>(Platform Dependent)
+</td><td><TT>
+</TT></td><td>Specifies the font for an application. Does not specify the font 
+used to display window titles for the platform windowing system. 
+For more on specifying fonts, see the Font chapter.
+</td></tr>
+<tr><td><TT><B>foreground
+</B></TT><TT><B>fg
+</B></TT></td><td><TT>none
+</TT></td><td><TT>
+</TT></td><td>In the X Window System, specifies a color (defined by X) for the 
+foreground color of an application's windows.
+</td></tr>
+<tr><td><TT><B>globalmenubar
+</B></TT><TT><B>
+</B></TT><TT><B>noglobalmenubar
+</B></TT></td><td><TT>Off
+</TT><TT>
+</TT><TT>Off
+</TT></td><td><TT>
+</TT></td><td>These options are recognized by the Macintosh platform and the 
+Microsoft Windows Multiple Document Interface (MDI) 
+applications on the Windows platform. If globalmenubar is 
+specified, the menu bar is drawn outside the dialog. (For MDI 
+applications menu bars are drawn in the frame window.) If 
+noglobalmenubar is specified, menu bars are drawn on 
+individual dialogs. If no specification is made, the default value is 
+determined by the look-and-feel.
+</td></tr>
+<tr><td><TT><B>laf
+</B></TT></td><td>(Platform Dependent)
+</td><td><TT>cua
+</TT><TT>mac 
+</TT><TT>motif
+</TT><TT>windows
+</TT><TT>windows2d
+</TT><TT>windows3d
+</TT></td><td>Specifies the look-and-feel style used for an application. For 
+Windows, <TT>2d</TT> specifies 2d appearance; <TT>3d</TT> specifies 3d 
+appearance. If <TT>2d</TT> or <TT>3d</TT> is not specified, Galaxy sets <TT>2d</TT> or <TT>3d</TT> 
+according to the type of monitor it finds on startup.
+</td></tr>
+<tr><td><TT><B>leftscrollbar
+</B></TT></td><td><TT>Off
+</TT></td><td><TT>
+</TT></td><td>Specifies scroll bars to be drawn on the left side of a window. By 
+default, scroll bars are drawn on the right.
+</td></tr>
+<tr><td><TT><B>mdi
+</B></TT></td><td><TT>(Platform Dependent)
+</TT></td><td><TT>
+</TT></td><td>For the Microsoft Windows Multiple Document Interface (MDI), 
+specifies native Windows MDI functionality. When running the 
+Windows look-and-feel under Windows, the default value is <TT>On</TT>. 
+Otherwise the default value is <TT>Off</TT>.
+</td></tr>
+<tr><td><TT><B>menuflash
+</B></TT></td><td><TT>2
+</TT></td><td><TT>
+</TT></td><td>For the Macintosh look-and-feel, specifies the number of times a 
+menu "flashes" after it is selected.
+</td></tr>
+<tr><td><TT><B>mnemonickey
+</B></TT></td><td>(Platform Dependent)
+</td><td><TT>shift
+</TT><TT>control
+</TT><TT>alt
+</TT><TT>meta
+</TT><TT>command
+</TT></td><td>Specifies the keyboard key bound to the "mnemonic" key 
+modifier. To denote key combinations, separate each key name 
+with a colon. For example:
+<TT> appname -mnemonickey alt:shift
+</TT></td></tr>
+<tr><td><TT><B>modalgrab
+</B></TT></td><td><TT>Off
+</TT></td><td><TT>
+</TT></td><td>If <TT>modalgrab</TT> is specified, objects that are normally application 
+modal become system modal.
+</td></tr>
+<tr><td><TT><B>monochrome
+</B></TT></td><td><TT>Off
+</TT></td><td><TT>
+</TT></td><td>Applications are drawn in two color mode.
+</td></tr>
+<tr><td><TT><B>nograb
+</B></TT></td><td><TT>Off
+</TT></td><td><TT>
+</TT></td><td>If <TT>nograb</TT> is specified, the modal behavior for actions that grab 
+the display is disabled, preventing the server from being locked. 
+An example of an action that grabs the display is a drag 
+operation. Specifying <TT>nograb</TT> is useful for debugging.
+</td></tr>
+<tr><td><TT><B>nomdi
+</B></TT></td><td><TT>Off
+</TT></td><td><TT>
+</TT></td><td>For Microsoft Windows, disables native Windows Multiple 
+Document Interface functionality.
+</td></tr>
+<tr><td><TT><B>nonativechoosers
+</B></TT></td><td><TT>Off
+</TT></td><td><TT>
+</TT></td><td>Specifies that Galaxy versions of choosers are used instead of the 
+window system's native choosers. This preference applies to the 
+Galaxy File Chooser and the Galaxy Color Chooser.
+</td></tr>
+<tr><td><TT><B>nonativefilechooser
+</B></TT></td><td><TT>Off
+</TT></td><td><TT>
+</TT></td><td>Specifies that the Galaxy File Chooser is used instead of the 
+window system chooser for selecting files.
+</td></tr>
+<tr><td><TT><B>nonativecolorchooser
+</B></TT></td><td><TT>Off
+</TT></td><td><TT>
+</TT></td><td>Specifies that the Galaxy Color Chooser is used instead of the 
+window system chooser for selecting colors.
+</td></tr>
+<tr><td><TT><B>noxshm
+</B></TT></td><td><TT>Off
+</TT></td><td><TT>
+</TT></td><td>For the X Window System, disables the use of the shared memory 
+extension.
+</td></tr>
+<tr><td><TT><B>printclass
+</B></TT></td><td>(Platform Dependent)
+</td><td><TT>vprintPS
+</TT><TT>vprintColorPS
+</TT><TT>vprintsysNativ
+e
+</TT></td><td>Specifies the class of printers for printing output. For color 
+PostScript images, specify vprintColorPS. Specify 
+vprintsysNative to use a window system printer driver.
+</td></tr>
+<tr><td><TT><B>printcmd
+</B></TT></td><td><TT>lpr
+</TT></td><td><TT>
+</TT></td><td>Specifies the system command to issue when sending output to a 
+printer.
+</td></tr>
+<tr><td><TT><B>printeps
+</B></TT></td><td><TT>Off
+</TT></td><td><TT>
+</TT></td><td>Specifies that PostScript printing use the encapsulated PostScript 
+format. Use this specification if you are going to place your image 
+in another document. For example:
+<TT>	 appname -printeps -spool -printfile filename
+</TT></td></tr>
+<tr><td><TT><B>printfile
+</B></TT></td><td><TT>/tmp/vprint.out
+</TT></td><td><TT>
+</TT></td><td>Specifies the filename to spool to.
+</td></tr>
+<tr><td><TT><B>printpaper
+</B></TT></td><td><TT>letter
+</TT></td><td><TT>letter
+</TT><TT>lettersmall
+</TT><TT>legal
+</TT><TT>a4
+</TT><TT>a4small
+</TT><TT>b5
+</TT></td><td>Specifies the paper size for printing on platforms that do not have 
+print dialogs. 
+</td></tr>
+<tr><td><TT><B>sharedcolormax
+</B></TT></td><td><TT>1.0
+</TT></td><td><TT>
+</TT></td><td>Specifies the maximum number of colors allocated from a shared 
+color map (for example, the Windows or X Window System 
+default color maps). This is a floating point number between 
+zero and <TT>1</TT> that represents a fraction of the total mapsize.
+</td></tr>
+<tr><td><TT><B>spool
+</B></TT></td><td><TT>Off
+</TT></td><td><TT>
+</TT></td><td>Enables print spooling (send to a file, not to the printer).
+</td></tr>
+<tr><td><TT><B>standardcolormax
+</B></TT></td><td><TT>0.75
+</TT></td><td><TT>
+</TT></td><td>Specifies the maximum number of colors allocated in an evenly 
+distributed range for image dithering and drawing color 
+matching. This is a floating point number between zero and 1 
+that represents a fraction of the total colors available.
+</td></tr>
+<tr><td><TT><B>synchronous
+</B></TT><TT><B>
+</B></TT><TT><B>sync
+</B></TT></td><td><TT>Off
+</TT><TT>
+</TT><TT>Off
+</TT></td><td><TT>
+</TT></td><td>For the X Window System, specifies that all window system calls 
+are executed synchronously. Performance is slowed considerably 
+when this option is specified.
+</td></tr>
+<tr><td><TT><B>vdasservPort
+</B></TT></td><td><TT>vdasservUNDEFINED
+</TT></td><td><TT>
+</TT></td><td>Specifies the location of the Service Broker (vdasserv) to be used 
+by a DAS application. By default, the location is undefined 
+(meaning the broker is assumed to be running on the same 
+machine as the application).
+</td></tr>
+<tr><td><TT><B>vdasservPort
+</B></TT></td><td><TT>vdasservUNDEFINED
+</TT></td><td><TT>
+</TT></td><td>Specifies the port of the Service Broker (vdasserv) to be used by a 
+DAS application. By default, the port is undefined (meaning the 
+broker is assumed to be listening on the default port(s) for the 
+transports it is using).
+</td></tr>
+<tr><td><TT><B>vdasservTransport
+</B></TT></td><td><TT>vdasservUNDEFINED
+</TT></td><td><TT>
+</TT></td><td>Specifies the transport of the Service Broker (vdasserv) to be used 
+by a DAS application. By default, the transport is undefined 
+(meaning the application will use its default transport to contact 
+the broker).
+</td></tr>
+<tr><td><TT><B>vdebug
+</B></TT></td><td><TT>Off
+</TT></td><td><TT>
+</TT></td><td>Displays the preference options available for the vdebugLEVEL 
+and vdebugVARIABLES preferences. Debugging mode must be 
+on before the <TT>vdebug</TT> preference can be enabled.
+</td></tr>
+
+
+</TABLE>
+
+<TABLE>
+
+<TR><TD>
+
+</TABLE>
+<P>
+<A NAME="5010"><H2> Special Preferences</H2></A>
+<A NAME="5014"><H3> Environment Map Dictionary</H3></A>
+An <EM><B>Environment Map Dictionary</B></EM> can be used to prevent preference values from being affected by environment variables, or to cause preference values to be affected by environment variables. As mentioned previously, when the Application class is initialized, it reads preferences from many different locations to build the preference database. One of these places that is always consulted (if available on a particular platform) is the environment variables. If you want to explicitly prevent or cause preference data to be specified in environment variables, you should create an a dictionary having the tag <TT>Environment Map Dict</TT> as an element in your <TT>Preferences</TT> dictionary in your application resource file and place elements into that dictionary to specify which root dictionary preferences you want to come from environment variables and which you don't. The following paragraph gives more detail about how to do this.<P>
+An environment map dictionary is made up of preference values containing string data. Each entry in <TT>Environment Map Dict</TT> corresponds to an entry in the root preference dictionary. When the Preference class queries the environment variables (with<TT><B> ReadEnvironment</B></TT>), the name of each preference in the root dictionary is looked up in the environment map dictionary if one exists. If there is a preference with the same name in the environment map dictionary, the string contained in the corresponding preference value is used as a key to read a new value from the environment variables. If the preference value from the environment map dictionary contains the empty string, no value is read from the environment variables. If the preference name is not found in the environment map dictionary, the preference name itself is used as a key to read a new value from the environment variables.<P>
+For example, two applications, Stop Watch and Desk Clock, have a "digital" preference that controls the way they appear on the screen. To avoid collisions, Stop Watch stores a preference named "digital" containing the string preference value "STOP_WATCH_DIGITAL_DISPLAY" in its <TT>Environment Map Dict</TT> dictionary. When Stop Watch checks the environment variables for the "digital" preference, it looks under "STOP_WATCH_DIGITAL_DISPLAY," but it will still accept <TT>-digital</TT> as a command line argument.<P>
+<A NAME="5022"><H3> Keys Dictionary</H3></A>
+The <TT>Keys</TT> dictionary, located in the system resource file, contains the default key bindings available for the following Galaxy modules:<P>
+<DL>
+<DT><DD> vdialog
+<DT><DD> vdomainview
+<DT><DD> vmenu
+<DT><DD> vtextview
+<DT><DD> vwindow
+</DL>
+Each of these modules is located in a separate dictionary within the Keys dictionary. Each module dictionary contains a set of dictionaries for the available look-and-feels. The key bindings for each look-and-feel are defined in the look-and-feel dictionaries. Key bindings are defined for the following look-and-feels:<P>
+<DL>
+<DT><DD> CUA
+<DT><DD> Macintosh
+<DT><DD> Motif
+<DT><DD> Windows
+<DT><DD> Windows 95
+</DL>
+The tag names of each key binding corresponds to commands defined in the Commands section of the corresponding Galaxy class. For more on these commands, see the Commands section in the Galaxy Application Environment Reference Manual for each module. The contents, or value, of each key binding is either an integer or an array of integers. If the value of the key binding is stored as an array of integers then each integer in the array represents a separate key bound to the tag name; each key in the array can invoke the command.<P>
+<A NAME="5038"><H3> Named Colors Dictionary</H3></A>
+The <TT>namedcolordict</TT> dictionary, located in the system resource file, contains 136 named colors for use in an application. The Galaxy color chooser uses these named colors to specify colors in an application. Refer to the "<A HREF="Color_Chooser.html#3204">Color Chooser</A>" chapter for more information.<P>
+<A NAME="5045"><H3> Printing Font Dictionary</H3></A>
+The <TT>printfontdict</TT> dictionary, located in the system resource file, maps <TT>vfont</TT> names to PostScript font names.<P>
+<A NAME="5049"><H3> Printing Paper Dictionary</H3></A>
+The <TT>printpaperdict</TT> dictionary, located in the system resource file, contains definitions for paper sizes. Use these paper sizes as arguments to the <TT>printpaper</TT> preference.<P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+To define default preferences for an application, the user must create a resource dictionary in the application resource file and set its tag to "Preferences." This dictionary is read into the preferences database by the Application class when it starts up. The preferences in this resource dictionary can be any resource type, and a hierarchy can be built by adding new resource dictionaries inside the preferences resource dictionary.<P>
+Alternatively, the user can create preference values, assign values to them, and store them in the preferences database before passing the command line arguments to the Preference class (command line arguments are passed in with <TT><B>SetArgs</B></TT> or <TT><B>vstartup</B></TT>). This is particularly useful if the application does not have an application resource file and does not make use of the application class. Refer to <A HREF="Preference.html#5130">"Storing Preference Data"</A> for more information.<P>
+<A NAME="5065"><H2> Retrieving Preference Data</H2></A>
+Pieces of data like background color or the key bound to the Cut command are stored in preference values using a Representation object (a <TT>vscrap</TT>). To get the vscrap from a preference value, use <TT><B>ValueGetScrap</B></TT>. Refer to the Representation chapter for information on converting a vscrap to a particular data type (like integer or string).<P>
+<EM><B>Preference dictionaries</B></EM> contain groups of preferences (preference values and other preference dictionaries) organized by name. To retrieve a preference from a preference dictionary, call <TT><B>DictLoadPref </B></TT>with the preference dictionary to be searched and the name of the desired preference.<P>
+A preference dictionary can also be converted to a Representation object (a <TT>vscrap</TT>) by using <TT><B>DictGetScrap</B></TT>. The exact contents of the <TT>vscrap</TT> and its behavior depend on how the preference dictionary was used before <TT><B>DictGetScrap</B></TT> was called. See the Galaxy Application Environment Reference Manual entry for <TT><B>DictGetScrap</B></TT> for more information.<P>
+The scraps returned by the <TT><B>*GetScrap</B></TT> functions should be destroyed when they are no longer being used. See the documentation for <TT><B>vscrapCreateReference</B></TT> in the Galaxy Application Environment Reference Manual.<P>
+A <EM><B>preference iterator</B></EM> can be used to enumerate the preferences in a preference dictionary. Iterators are useful if the number of objects or the names of the objects in a preference dictionary are not known; for example, a preference dictionary containing a collection user defined key-bindings for a subset of a group of user defined commands. In this case, the application programmer knows neither the number of commands the user wishes to bind or their names.<P>
+The code in <A HREF="Preference.html#5085">Example 117</A> iterates over a preference dictionary and prints out the name and value (if possible) of each preference to the debug warning stream:<P>
+<A NAME="5085"><I>Example 117.  Using a preference iterator
+</I><P>
+<PRE><UL>void PrintPrefDict(vprefDict *dict)
+{
+   vprefIterator        iter;
+   vscrap       *scrap;
+   vpref       *pref;
+
+   vprefDictInitIterator(&amp;iter, dict);
+
+   while (vprefNextIterator(&amp;iter))
+   {
+      vcharDumpScribed(vcharScribe(vprefGetIteratorKey(&amp;iter)),
+                       vdebugGetWarningStream());
+      pref = (vpref *)vprefGetIteratorPref(&amp;iter);
+
+      scrap = vprefGetScrap(pref);
+
+      if (scrap != NULL &amp;&amp;
+          vscrapIsKindOf(scrap,vscrapGetStringClass(scrap)) ) {
+         vcharDumpScribed(vscrapScribeString(scrap),
+                          vdebugGetWarningStream());
+         vcharDumpScribed(vcharScribeLiteral("n"),
+                          vdebugGetWarningStream());
+      }
+      vscrapDestroy(scrap);
+      vprefRelease(pref);
+   }
+   vprefDestroyIterator(&amp;iter);
+}
+
+</UL></PRE>You should always release a preference when it is no longer being used. This provides a hint to the Preference class that indicates that a particular reference to a preference is no longer being used. These hints help the Preference class use memory more efficiently. The root dictionary is the exception to this rule. It should not be released.<P>
+When an application exits, the Preference class reports all of the unreleased references to preference objects in the preferences database. The report looks like this:<P>
+<PRE><UL>Preference Object Class with tag 'Preference Object Tag' child of 
+'Preference Object's Parent Preference Dictionary's Tag' has n unreleased 
+references.
+
+</UL></PRE>These reports are only displayed for preference objects in the preference database. Preferences that are "orphaned" (not stored in the preference database) are reported as normal memory leaks by the Memory classes.<P>
+<UL><B><I>NOTE:</I></B> The user should never destroy a preference. Use the various release functions 
+instead. The Preference class will destroy an orphaned preference (a 
+preference not in any preference dictionary) when all references to it have 
+been released.
+<P>
+</UL>The Preference class provides convenience functions to convert preferences to strings or resources. It is not necessary to release the string and resource values returned by these functions. Also, there are functions to retrieve a preference if and only if it is a preference dictionary. Refer to the <TT>vpref</TT> section of the Galaxy Application Environment Reference Manual for more information.<P>
+<A NAME="5130"><H2> Storing Preference Data</H2></A>
+To change the data contained in a preference value, the user must create a new preference value with the desired data and store it in the same preference dictionary under the same name as the old preference value.<P>
+<UL><B><I>NOTE:</I></B> The user should never modify the <TT>vscrap</TT> inside of a preference value. 
+Multiple references to a preference value may exist and changing the 
+contents of a preference's Representation object could have unpredictable 
+results.
+<P>
+</UL>The Representation object (<TT>vscrap</TT>) associated with a particular preference value is specified when the preference value is created. To create a preference value from a resource, pass <TT>NULL</TT> as the <TT>vscrap</TT> parameter to the creation function and call <TT><B>Read</B></TT> on the preference value, passing in the desired resource. Calling <TT><B>Read</B></TT> on a preference value that has a non-NULL <TT>vscrap</TT> generates an exception.<P>
+Use <TT><B>DictStorePref</B></TT> to store a preference in a preference dictionary. To get the root dictionary, use <TT><B>GetRootDict</B></TT>. Once a preference is put in a preference dictionary, it should be released. Use <TT><B>DictLoadPref</B></TT> to retrieve preferences from preference dictionaries.<P>
+The Preference class provides convenience functions to store resources and strings in the preferences database. See <A HREF="Preference.html#5147">Example 118</A> for an example of typical use of the Preference class. Refer to the Galaxy Application Environment Reference Manual for more information.<P>
+<A NAME="5147"><I>Example 118.  Typical use of the Preference class
+</I><P>
+<PRE><UL>int main(int argc, char **argv)
+{
+   vscrap     *scrap;
+   vprefValue *prefval;
+   vpref      *pref;
+   vprefDict  *dict;
+
+   /*
+    * The empty string is used to set
+    * the preferences "switch" to "off"
+    */
+   scrap = vscrapFromString(vnameInternGlobalLiteral(""));
+   prefval = vprefValueCreate(scrap);
+   dict = vprefGetRootDict();
+
+   /*
+    * In order to use vprefDictStorePref, the a Preference Value must
+    * be converted to a Preference Object (vpref)
+    */
+   pref = vprefValueGetPref(prefval);
+
+   /*
+    * Store the default value of the "digital" preference so it can
+    * be retrieved from the command line. NOTE: This is not necessary
+    * if a default value is supplied in the one of the resource files
+    * read by the Application class
+    */
+   vprefDictStorePref(dict, vnameInternGlobalLiteral("digital"),
+                      pref);
+   vprefValueRelease(prefval);
+
+   /*
+    * Read the Command Line Arguments and the Environment
+    * Variables into the Preferences Database.
+    */
+   vprefSetArgs(argc, argv);
+
+    /*
+     * If vstartup is used instead of vprefSetArgs, Window System
+     * Preferences would be included as well.  Also, vprefSetArgs
+     * doesn't initialize the Application class or load the
+     * preferences stored in resource files.
+     */
+   prefval =
+     (vprefValue *) vprefDictLoadPref(dict,
+                                      vnameInternGlobalLiteral("digital"));
+
+   scrap = vprefValueGetScrap(prefval);
+
+   vprefValueRelease(prefval);
+
+   if (vnameInternGlobalScribed(vscrapScribeString(scrap)) == vname_On)
+     UseDigitalOption();
+   else
+     UseAnalogOption();
+
+   vscrapDestroy(scrap);
+
+   veventProcess();
+
+   exit(EXIT_SUCCESS);
+   return EXIT_FAILURE;
+}
+
+</UL></PRE><A NAME="5248"><H2> Monitoring Changes in the Preference Database</H2></A>
+A preference dictionary observer is used to monitor changes in the preference database. However, the default observer class must be subclassed to be useful. New classes should override the <TT>Observe Load</TT> and <TT>Observe Store</TT> methods on the observer to specify desired behavior. When a preference dictionary stores a new preference (with either the "normal" API or the convenience functions), it calls the <TT>Observe Store</TT> method on all of its observers before the new preference is stored. Likewise, when a preference is retrieved from a preference dictionary, the dictionary calls the <TT>Observe Load</TT> method on all of its observers after the preference is found.<P>
+Both of these methods have the same parameters: the observer, the name of the preference being loaded or stored, and the preference itself. There is a generic data pointer in the observer object for the user to use as well.<P>
+Preference dictionary observers can be added to any preference dictionary using the <TT><B>DictAddObserver</B></TT> function. This function returns an index value that can be used to later remove the observer with <TT><B>DictRemoveObserver</B></TT>.<P>
+The user should not release the preference passed to the observer, it does not count as a new reference.<P>
+<A NAME="5258"><I>Example 119.  Monitoring changes in the Preference Database
+</I><P>
+<PRE><UL>void observeStore(vprefDictObserver *obsvr, const vname *tag,
+                  const vpref *pref)
+{
+   vscrap *scrap;
+
+   if (tag != vnameInternGlobalLiteral("user"))
+   {
+      return;
+   }
+
+   scrap = (vscrap *)vprefGetScrap((vpref *)pref);
+
+   ReadUserData(vscrapScribeString(scrap));
+
+   vscrapDestroy(scrap);
+}
+
+
+void observeLoad(vprefDictObserver *obsvr,const vname *tag,
+                 const vpref *pref)
+{
+#if vdebugDEBUG
+   vcharDumpScribed(vscribeScribeMulti
+                    (vnameScribeGlobal(tag),
+                     vcharScribeLiteral(" preference loadedn"),
+                     NULL), vdebugGetWarningStream());
+#endif
+}
+
+
+int main2 (int argc, char **argv)
+{
+   vprefDictObserverClass *clas;
+   vprefDictObserver *obsvr;
+   unsigned long obsvrIndex;
+
+   vstartup(argc,argv);
+
+   clas = vclassReproduce(vprefDictObserverGetDefaultClass());
+
+   vclassSet(clas, vprefDictObserverOBSERVE_LOAD, observeLoad);
+   vclassSet(clas, vprefDictObserverOBSERVE_STORE, observeStore);
+
+   obsvr = vprefDictObserverCreateOfClass(clas);
+
+   obsvrIndex = vprefDictAddObserver(vprefGetRootDict(), obsvr);
+
+   veventProcess();
+
+   vprefDictObserverDestroy(obsvr);
+
+   exit(EXIT_SUCCESS);
+   return EXIT_FAILURE;
+}
+
+</UL></PRE><A NAME="5955"><H2> OpenVMS Implementation</H2></A>
+The Preference classes on OpenVMS support the use of both DCL style command line qualifiers and parameters, and foreign (UNIX-style) command line options.<P>
+To support the use of DCL qualifiers/parameters in your application, you must first create a command language definition file (CLD) for your application. See the OpenVMS Command Definition Utility Manual for more information on creating a CLD file.<P>
+Galaxy defines various standard qualifiers for all Galaxy applications. We provide a template CLD file in <TT>GALAXY_ROOT:[HELP]GALAXY_DCL_CLD.TEMPLATE</TT> to give application developers a starting point.<P>
+The second part of supporting DCL for your application involves adding a dictionary under the Preference dictionary in the application's resource file. We provide a template resource file dictionary to aid in the support of DCL for applications in the file <TT>GALAXY_ROOT:[HELP]GALAXY_DCL_VR.TEMPLATE</TT>.<P>
+The dictionary under the Preference dictionary is called DCL Command Language Map. Inside it, you can create two other dictionaries: Parameters and Qualifiers. These dictionaries define the DCL parameters and qualifiers supported by the application. The Galaxy system resource file has a similar set of dictionaries in it that define all of the standard parameters and qualifiers for an application. If an application does not require any new qualifiers/parameters, or does not need to change the behavior of the ones which Galaxy defines, then no application level DCL command language map is required.<P>
+<A NAME="5961"><H2> Dictionaries</H2></A>
+The contents of the dictionaries (listed by parameter/qualifier tag name) are as follows.<P>
+<UL><EM><B>Flags</B></EM>	This dictionary of booleans provides the Preference class 
+with hints on how to treat the parameter/qualifier.
+<P><EM><B>ConcatenateValue</B></EM>	If TRUE, the value(s) for this parameter/qualifier get 
+concatenated into a single component (into a single 
+<TT>argv[x]</TT> component).
+<P><EM><B>Disabled</B></EM>	If TRUE, then this qualifier/parameter is ignored. Use this 
+flag to disable Galaxy predefined qualifiers/parameters.
+<P><EM><B>HasValue</B></EM>	Defines whether the parameter/qualifier has any values 
+associated with it.
+<P><EM><B>ListValue</B></EM>	Same as ConcatenateValue for this release.
+<P><EM><B>Negatable</B></EM>	If TRUE, then this qualifier has a "NO" form (only applies 
+to qualifiers).
+<P><EM><B>PreserveValueCase</B></EM>	If TRUE, the case of the value is not automatically mapped 
+to lowercase (as the C RTL would normally do to values).
+<P><EM><B>RestOfLine</B></EM>	Currently unimplemented.
+<P><EM><B>Label</B></EM>	This string defines the label of the parameter/qualifier 
+from the CLD file (if unspecified, the parameter/qualifier 
+tag name is used).
+<P><EM><B>Negated Preference Name</B></EM>	This string defines the preference to be used if this qualifier 
+was present and negated.
+<P><EM><B>Preference Name</B></EM>	This string defines the preference to be used if the qualifier 
+was present.
+<P></UL><A NAME="3372"><H2> Subclassing</H2></A>
+Subclassing preferences, preference values, or preference dictionaries presents many interesting possibilities. Refer to the section on <TT>vpref</TT> in the Galaxy Application Environment Reference Manual for additional subclassing information.<P>
+For example, the application Desk Clock draws an analog clock on the user's screen. The color of the second hand of this clock can be specified (in addition to specifying the foreground and background colors of the clock), but its default value is the complement of the background color. The code fragment in <A HREF="Preference.html#5335">Example 120</A> suggests one way to get this effect.<P>
+<A NAME="5335"><I>Example 120.  Subclassing Preferences
+</I><P>
+<PRE><UL>/*
+ * This code fragment shows how to define the default value of the
+ * "secondhandcolor" preference to be the complement of the background
+ * color.
+ */
+vprefClass *BGComplementPrefClass = NULL;
+
+vscrap *getBGComplementColor(vpref *pref)
+{
+   vscrap          *scrap;
+   vcolor          *bgcolor, *compColor;
+
+   scrap = vprefGetScrap((vpref *)vprefDictLoadPref(vprefGetRootDict(),
+                                                    vname_Background));
+
+    /*
+     * call a user defined function to convert a scrap to a color
+     */
+   bgcolor = scrapToColor(scrap);
+   vscrapDestroy(scrap);
+
+   /*
+    * call a user defined function to get the complement
+    */
+   compColor = getColorComplement(bgcolor);
+
+   /*
+    * call a user defined function to convert the color to a scrap
+    */
+   scrap = colorToScrap(compColor);
+
+   return scrap;
+}
+
+int main3 (int argc, char **argv)
+{
+   vpref *pref;
+
+   /*
+    * Create the Preference before calling vstartup in order to
+    * make this Preference the default
+    */
+   BGComplementPrefClass = vclassReproduce(vprefGetDefaultClass());
+
+   vclassSet(BGComplementPrefClass, vprefGET_SCRAP,
+             getBGComplementColor);
+
+   pref = vprefCreateOfClass(BGComplementPrefClass);
+
+   vprefDictStorePref(vprefGetRootDict(),
+                      vnameInternGlobalLiteral("secondhandcolor"),
+                      pref);
+
+   vstartup(argc, argv);
+   DeskClockStartUp();
+   veventProcess();
+   DeskClockShutDown();
+   exit(EXIT_SUCCESS);
+   return EXIT_FAILURE;
+}
+
+</UL></PRE><P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Plane_Geometry.html">Previous Chapter</A> | 
+		<A HREF="Print.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

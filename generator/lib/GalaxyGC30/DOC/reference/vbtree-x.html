@@ -1,0 +1,551 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vbtree prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vbtree prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vbtree-x.html#section_DataType">Types</A> [3]</TD>
+<TD><A HREF="vbtree-x.html#section_Function">Functions</A> [21]</TD>
+<TD></TD>
+<TD><A HREF="vbtree-x.html#section_Constant">Constants</A> [1]</TD>
+<TD></TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vbtree"><HR><H4>vbtree</H4></A>
+<PRE>
+        typedef ... <B>vbtree</B>;
+</PRE>
+
+<DL><DD>
+Denotes a currently open B-tree (either in memory or in a
+disk file).
+</DD></DL>
+<P>
+<A NAME="vbtreeException"><HR><H4>vbtreeException</H4></A>
+<PRE>
+        typedef ... <B>vbtreeException</B>;
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vbtreeNotClosedException"><HR><H4>vbtreeNotClosedException</H4></A>
+<PRE>
+        typedef ... <B>vbtreeNotClosedException</B>;
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vbtreeClose"><HR><H4>vbtreeClose</H4></A>
+<PRE>
+        void <B>vbtreeClose</B>(
+                vbtree tree);
+</PRE>
+
+<DL><DD>
+Closes the B-tree <SAMP>tree</SAMP> and releases all memory
+used. If <SAMP>tree</SAMP> is stored in a disk file, all
+buffers are flushed to disk using
+<CODE><A HREF="vfs-x.html#vfsFlushFileBuffer"><CODE>vfsFlushFileBuffer</CODE></A></CODE> before closing.
+</DD></DL>
+<P>
+<A NAME="vbtreeCopyCompact"><HR><H4>vbtreeCopyCompact</H4></A>
+<PRE>
+        void <B>vbtreeCopyCompact</B>(
+                vbtree fromTree,
+                vbtree toTree);
+</PRE>
+
+<DL><DD>
+Compactly copies B-tree <SAMP>fromTree</SAMP> into B-tree
+<SAMP>toTree</SAMP>. <SAMP>toTree</SAMP> will occupy less
+storage and afford faster retrieval, but subsequent
+<CODE><A HREF="vbtree-x.html#vbtreePut"><CODE>vbtreePut</CODE></A></CODE> operations will be more expensive
+than the same operation on a regular resource file.
+<SAMP>toTree</SAMP> must be an empty B-tree.
+</DD></DL>
+<P>
+<A NAME="vbtreeCreate"><HR><H4>vbtreeCreate</H4></A>
+<PRE>
+        vbtree <B>vbtreeCreate</B>(
+                size_t pageSize);
+</PRE>
+
+<DL><DD>
+Creates a B-tree that is stored completely in memory. The
+<SAMP>pageSize</SAMP> parameter denotes the number of bytes
+per page to be used for this B-tree. The page size affects
+performance in a number of ways. Data items that fit into a
+single page are stored more efficiently than items that
+must be stored in multiple pages. However, using very large
+page sizes slows down the search for small data items.
+Also, for memory B-trees, page sizes that are an integral
+factor or multiple of the page size of the native memory
+system are likely to maximize performance, especially in a
+virtual memory environment. Such page sizes are often
+integral powers of 2 (512, 1024, 2048, and so on).
+</DD></DL>
+<P>
+<A NAME="vbtreeCreateFile"><HR><H4>vbtreeCreateFile</H4></A>
+<PRE>
+        vbtree <B>vbtreeCreateFile</B>(
+                const vfsPath * fileName,
+                vfsMode mode,
+                size_t pageSize,
+                vbyte * magic);
+</PRE>
+
+<DL><DD>
+Creates a B-tree that is stored in a disk file whose
+location is denoted by the <SAMP>fileName</SAMP> parameter.
+The <SAMP>mode</SAMP> parameter denotes the permissions
+with which the file should be created. (Refer to the File
+System Manager chapter in the <I>Galaxy Programmer's Guide</I>
+for more information.)
+<P>
+The <SAMP>pageSize</SAMP> parameter denotes the number of
+bytes per page to be used for this B-tree. The page size
+affects performance in a number of ways. Data items that
+fit into a single page are stored more efficiently than
+items that must be stored in multiple pages. However, using
+very large page sizes slows down searching for small data
+items. Also, for disk-based B-trees, page sizes that are an
+integral factor or multiple of the block size of the native
+file system are likely to maximize performance. Such page
+sizes are often integral powers of 2 (512, 1024, 2048, and
+so on). 
+<P>
+The <SAMP>magic</SAMP> parameter should point to a
+24-byte block of memory. The contents of this block are
+placed at the beginning of the file to serve as a magic
+number or to store user-definable data that is associated
+with the B-tree file. 
+<P>
+Note that although the B-tree class
+manages byte-order differences in its own data structures,
+it performs no interpretation of the contents of
+<SAMP>magic</SAMP>. <SAMP>mode</SAMP> can contain one or
+more of the following values:
+
+<UL>
+<li><CODE>vfsOWNER_READ</CODE>
+<li><CODE>vfsOWNER_WRITE</CODE>
+<li><CODE>vfsOWNER_EXECUTE</CODE>
+<li><CODE>vfsGROUP_READ</CODE>
+<li><CODE>vfsGROUP_WRITE</CODE>
+<li><CODE>vfsGROUP_EXECUTE</CODE>
+<li><CODE>vfsOTHER_READ</CODE>
+<li><CODE>vfsOTHER_WRITE</CODE>
+<li><CODE>vfsOTHER_EXECUTE</CODE>
+</UL>
+
+Refer to the documentation for the <CODE><A HREF="vfs-x.html#vfsMode"><CODE>vfsMode</CODE></A></CODE>
+type for more information on access modes.
+</DD></DL>
+<P>
+<A NAME="vbtreeCreateFileFromMem"><HR><H4>vbtreeCreateFileFromMem</H4></A>
+<PRE>
+        vbtree <B>vbtreeCreateFileFromMem</B>(
+                vbtree tree,
+                const vfsPath * fileName,
+                vfsMode mode,
+                vbyte * magic);
+</PRE>
+
+<DL><DD>
+<SAMP>tree</SAMP> must be a memory B-tree. This function
+creates a disk-based, B-tree file with the same contents as
+the memory file referenced by <SAMP>tree</SAMP>. It returns
+the descriptor for the disk-based B-tree. The disk file
+location is denoted by <SAMP>fileName</SAMP>.
+<SAMP>magic</SAMP> must refer to 24 bytes of information to
+be written as the file's magic number information.
+<SAMP>mode</SAMP> can contain one or more of the following
+values:
+
+<UL>
+<li><CODE>vfsOWNER_READ</CODE>
+<li><CODE>vfsOWNER_WRITE</CODE>
+<li><CODE>vfsOWNER_EXECUTE</CODE>
+<li><CODE>vfsGROUP_READ</CODE>
+<li><CODE>vfsGROUP_WRITE</CODE>
+<li><CODE>vfsGROUP_EXECUTE</CODE>
+<li><CODE>vfsOTHER_READ</CODE>
+<li><CODE>vfsOTHER_WRITE</CODE>
+<li><CODE>vfsOTHER_EXECUTE</CODE>
+</UL>
+
+Refer to the documentation for the <CODE><A HREF="vfs-x.html#vfsMode"><CODE>vfsMode</CODE></A></CODE>
+type for more information on access modes.
+</DD></DL>
+<P>
+<A NAME="vbtreeCreateMem"><HR><H4>vbtreeCreateMem</H4></A>
+<PRE>
+        vbtree <B>vbtreeCreateMem</B>();
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vbtreeCreateMemFromFile"><HR><H4>vbtreeCreateMemFromFile</H4></A>
+<PRE>
+        vbtree <B>vbtreeCreateMemFromFile</B>(
+                const vfsPath * fileName,
+                vbyte * magic);
+</PRE>
+
+<DL><DD>
+<SAMP>fileName</SAMP> must refer to a disk-based B-tree.
+This function creates a memory B-tree file with the same
+contents as the disk-based B-tree referred to by
+<SAMP>fileName</SAMP>. <SAMP>magic</SAMP> must refer to 24
+bytes of space to receive the disk file's magic number
+information. Returns the memory B-tree.
+</DD></DL>
+<P>
+<A NAME="vbtreeDump"><HR><H4>vbtreeDump</H4></A>
+<PRE>
+        void <B>vbtreeDump</B>(
+                vbtree tree,
+                FILE * stream);
+</PRE>
+
+<DL><DD>
+Dumps the contents of the B-tree <SAMP>tree</SAMP> on the
+file stream <SAMP>stream</SAMP> in user-readable form. This
+function is intended for debugging and should not be used
+to store the contents of the application in recoverable
+form. This function is only available if debugging is
+enabled.
+</DD></DL>
+<P>
+<A NAME="vbtreeFlush"><HR><H4>vbtreeFlush</H4></A>
+<PRE>
+        void <B>vbtreeFlush</B>(
+                vbtree tree);
+</PRE>
+
+<DL><DD>
+If <SAMP>tree</SAMP> is stored in a disk file, all buffers
+are flushed to disk. No action is taken for memory B-trees.
+Before <CODE>vbtreeFlush</CODE> returns, all information is
+forced to disk using <CODE><A HREF="vfs-x.html#vfsFlushFileBuffer"><CODE>vfsFlushFileBuffer</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vbtreeGet"><HR><H4>vbtreeGet</H4></A>
+<PRE>
+        vbool <B>vbtreeGet</B>(
+                vbtree tree,
+                vbyte * key,
+                size_t keyLength,
+                vbyte ** data,
+                size_t * dataLength);
+</PRE>
+
+<DL><DD>
+Retrieves a record from the B-tree <SAMP>tree</SAMP>. The
+key of the record to be retrieved is pointed to by
+<SAMP>key</SAMP> with length <SAMP>keyLength</SAMP>. The
+address and length of a block containing the data
+associated with this key are returned in <SAMP>data</SAMP>
+and <SAMP>dataLength</SAMP>, respectively. 
+<P>
+This address is
+owned by the B-tree class and is only valid until the
+next B-tree class call. If you want to retain the data,
+you must make your own copy of it. If a record was found
+with the specified key, <CODE>vbtreeGet</CODE> returns
+<SAMP>TRUE</SAMP>. If not, it returns <SAMP>FALSE</SAMP>
+and does not modify the values of <SAMP>data</SAMP> or
+<SAMP>dataLength</SAMP>. 
+<P>
+The application should translate
+the key into machine-independent form before calling
+<CODE>vbtreeGet</CODE>. After a successful
+<CODE>vbtreeGet</CODE> call, the application should
+translate the data into machine-dependent form.
+</DD></DL>
+<P>
+<A NAME="vbtreeGetException"><HR><H4>vbtreeGetException</H4></A>
+<PRE>
+        vbtreeException * <B>vbtreeGetException</B>();
+</PRE>
+
+<DL><DD>
+This function is used by exception handlers to return a
+pointer to the highest exception of the type
+<SAMP><A HREF="vbtree-x.html#vbtreeException"><CODE>vbtreeException</CODE></A></SAMP> in the exception handling
+chain, or <SAMP>NULL</SAMP> if there were no such
+exceptions. Along with other exception handling functions,
+it is used mainly to determine which of a number of
+possible exceptions occurred during any given operation.
+</DD></DL>
+<P>
+<A NAME="vbtreeGetExceptionClass"><HR><H4>vbtreeGetExceptionClass</H4></A>
+<PRE>
+        const vexClass * <B>vbtreeGetExceptionClass</B>();
+</PRE>
+
+<DL><DD>
+This function returns a pointer to the exception class of
+the type <SAMP><A HREF="vbtree-x.html#vbtreeException"><CODE>vbtreeException</CODE></A></SAMP>. It is most often
+used as an argument to <CODE><A HREF="vex-x.html#vexGenerate"><CODE>vexGenerate</CODE></A></CODE> to generate
+exceptions.
+</DD></DL>
+<P>
+<A NAME="vbtreeGetFile"><HR><H4>vbtreeGetFile</H4></A>
+<PRE>
+        vfsFile * <B>vbtreeGetFile</B>(
+                vbtree tree);
+</PRE>
+
+<DL><DD>
+Returns the <SAMP><A HREF="vfs-x.html#vfsFile"><CODE>vfsFile</CODE></A></SAMP> descriptor that contains
+the B-tree <SAMP>tree</SAMP>. If the B-tree is a memory or
+internal B-tree, returns <SAMP>(<A HREF="vfs-x.html#vfsFile"><CODE>vfsFile</CODE></A> *) NULL</SAMP>. The
+descriptor is provided for informational purposes only;
+writing directly to the B-tree file is strongly
+discouraged.
+</DD></DL>
+<P>
+<A NAME="vbtreeGetNotClosedException"><HR><H4>vbtreeGetNotClosedException</H4></A>
+<PRE>
+        vbtreeNotClosedException * <B>vbtreeGetNotClosedException</B>();
+</PRE>
+
+<DL><DD>
+This function is used by exception handlers to return a
+pointer to the highest exception of the type
+<SAMP><A HREF="vbtree-x.html#vbtreeNotClosedException"><CODE>vbtreeNotClosedException</CODE></A></SAMP> in the exception
+handling chain, or <SAMP>NULL</SAMP> if there were no such
+exceptions. Along with other exception handling functions,
+it is used mainly to determine which of a number of
+possible exceptions occurred during any given operation.
+</DD></DL>
+<P>
+<A NAME="vbtreeGetNotClosedExceptionClass"><HR><H4>vbtreeGetNotClosedExceptionClass</H4></A>
+<PRE>
+        const vexClass * <B>vbtreeGetNotClosedExceptionClass</B>();
+</PRE>
+
+<DL><DD>
+This function returns a pointer to the exception class of
+the type <SAMP><A HREF="vbtree-x.html#vbtreeNotClosedException"><CODE>vbtreeNotClosedException</CODE></A></SAMP>. It is most
+often used as an argument to <CODE><A HREF="vex-x.html#vexGenerate"><CODE>vexGenerate</CODE></A></CODE> to
+generate exceptions.
+</DD></DL>
+<P>
+<A NAME="vbtreeIsWritable"><HR><H4>vbtreeIsWritable</H4></A>
+<PRE>
+        vbool <B>vbtreeIsWritable</B>(
+                vbtree tree);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the B-tree <SAMP>tree</SAMP>
+can be written to, or <SAMP>FALSE</SAMP> if it is
+read-only.
+</DD></DL>
+<P>
+<A NAME="vbtreeOpenFile"><HR><H4>vbtreeOpenFile</H4></A>
+<PRE>
+        vbtree <B>vbtreeOpenFile</B>(
+                const vfsPath * fileName,
+                int typeAccess,
+                vbyte * magic);
+</PRE>
+
+<DL><DD>
+Opens an existing B-tree that is stored in a disk file. The
+location of the file is denoted by the
+<SAMP>fileName</SAMP> parameter, and the
+<SAMP>typeAccess</SAMP> parameter denotes the access mode
+with which the file should be opened. (Refer to the File
+System Manager chapter in the <I>Galaxy Programmer's Guide</I>
+for more information.)
+<P>
+The <SAMP>magic</SAMP> parameter should point to a 24-byte
+block of memory. The contents of this block are filled in
+with the first 24 bytes of the file, which can serve as a
+magic number or store user-definable data that is
+associated with the B-tree file. 
+<P>
+Note that although the
+B-tree class manages byte-order differences in its own
+data structures, it performs no interpretation of the
+contents of <SAMP>magic.</SAMP>
+</DD></DL>
+<P>
+<A NAME="vbtreeOpenInternal"><HR><H4>vbtreeOpenInternal</H4></A>
+<PRE>
+        vbtree <B>vbtreeOpenInternal</B>(
+                const void * data);
+</PRE>
+
+<DL><DD>
+Opens for read-only access a B-tree that is the compiled
+form of data written by <CODE><A HREF="vbtree-x.html#vbtreeWriteDefinition"><CODE>vbtreeWriteDefinition</CODE></A></CODE>.
+Be sure to pass the address of the generated data, not the
+generated data itself.
+</DD></DL>
+<P>
+<A NAME="vbtreePut"><HR><H4>vbtreePut</H4></A>
+<PRE>
+        void <B>vbtreePut</B>(
+                vbtree tree,
+                vbyte * key,
+                size_t keyLength,
+                vbyte * data,
+                size_t dataLength);
+</PRE>
+
+<DL><DD>
+Stores a record into the B-tree <SAMP>tree</SAMP>. The key
+is a block of memory pointed to by <SAMP>key</SAMP> with
+length <SAMP>keyLength</SAMP>. The associated data is a
+block of memory pointed to by <SAMP>data</SAMP> with length
+<SAMP>dataLength</SAMP>. Any record already present with
+the same key is overwritten. The application should
+translate the key and the data into machine-independent
+form before calling <CODE>vbtreePut</CODE>.
+</DD></DL>
+<P>
+<A NAME="vbtreeRemove"><HR><H4>vbtreeRemove</H4></A>
+<PRE>
+        vbool <B>vbtreeRemove</B>(
+                vbtree tree,
+                vbyte * key,
+                size_t keyLength);
+</PRE>
+
+<DL><DD>
+Removes a record from the B-tree <SAMP>tree</SAMP>. The key
+of the record to be removed is pointed to by
+<SAMP>key</SAMP> with length <SAMP>keyLength</SAMP>. If
+such a record is found, it is removed and
+<CODE>vbtreeRemove</CODE> returns <SAMP>TRUE</SAMP>. If
+not, it returns <SAMP>FALSE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vbtreeWriteDefinition"><HR><H4>vbtreeWriteDefinition</H4></A>
+<PRE>
+        void <B>vbtreeWriteDefinition</B>(
+                vbtree tree,
+                vfsFile * stream,
+                const vchar * name);
+</PRE>
+
+<DL><DD>
+Writes the C language definition of B-tree
+<SAMP>tree</SAMP> to the stream, with a data structure
+named <SAMP>name</SAMP>. The resulting definition can then
+be compiled and the address of the data passed to
+<CODE><A HREF="vbtree-x.html#vbtreeOpenInternal"><CODE>vbtreeOpenInternal</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vbtreeINCLUDED"><HR><H4>vbtreeINCLUDED</H4></A>
+<PRE>
+        <B>vbtreeINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vbtree.h</SAMP> is
+included.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

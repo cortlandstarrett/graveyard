@@ -1,0 +1,2827 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vresource prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vresource prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vresource-x.html#section_DataType">Types</A> [2]</TD>
+<TD><A HREF="vresource-x.html#section_Function">Functions</A> [126]</TD>
+<TD></TD>
+<TD><A HREF="vresource-x.html#section_Constant">Constants</A> [9]</TD>
+<TD></TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vresource"><HR><H4>vresource</H4></A>
+<PRE>
+        typedef ... <B>vresource</B>;
+</PRE>
+
+<DL><DD>
+A reference to a particular resource. A
+<SAMP>vresource</SAMP> can be considered to be analogous to
+a pointer into a resource file, in that it is a
+<I>reference</I> to a resource but does not actually carry
+the data around with it. Like a pointer, however, a
+<SAMP>vresource</SAMP> does not necessarily maintain the
+same value between executions. The value of a particular
+<SAMP>vresource</SAMP> is only valid while the resource
+file containing the resource is open. If the file is closed
+and reopened, old <SAMP>vresource</SAMP> values do not
+remain valid.
+</DD></DL>
+<P>
+<A NAME="vresourceID"><HR><H4>vresourceID</H4></A>
+<PRE>
+        typedef ... <B>vresourceID</B>;
+</PRE>
+
+<DL><DD>
+A unique value that identifies a particular resource within
+a resource file. A <SAMP>vresourceID</SAMP> can be used to
+identify a particular resource across its entire lifetime.
+A <SAMP>vresourceID</SAMP> is unique to a particular
+resource file, although <SAMP>vresourceID</SAMP> values are
+duplicated between different resource files. Thus, to
+completely identify a particular resource, you would need
+to keep track of both the location of the resource file and
+the <SAMP>vresourceID</SAMP> within that file.
+<SAMP>vresourceID</SAMP>s should be used only when
+absolutely necessary---their efficiency is not guaranteed.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vresource"><HR><H4>vresource</H4></A>
+<PRE>
+        void <B>vresource</B>();
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vresourceArrayType"><HR><H4>vresourceArrayType</H4></A>
+<PRE>
+        int <B>vresourceArrayType</B>(
+                vresource res);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Returns the element type of the specified array resource,
+denoted by one of the following constants:
+    <P>
+<BLOCKQUOTE>
+
+<TABLE BORDER>
+<TR>
+<TD><CODE>vresourceUNTYPED</CODE></TD>
+<TD><CODE>vresourceSTRING</CODE></TD>
+<TD><CODE>vresourceDICT</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceFLOAT</CODE></TD>
+<TD><CODE>vresourceCHAR</CODE></TD>
+<TD><CODE>vresourceARRAY</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceBOOLEAN</CODE></TD>
+<TD><CODE>vresourceTAG</CODE></TD>
+<TD><CODE>vresourceOPAQUE</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceINTEGER</CODE></TD>
+<TD><CODE>vresourceFIXED</CODE></TD> <TD></TD> 
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+    <P>
+This function generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE>
+exception if <SAMP>res</SAMP> is not an array resource. 
+This deprecated entry point is included for backward
+compatibility. The recommended call is
+<CODE><A HREF="vresource-x.html#vresourceGetType"><CODE>vresourceGetType</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vresourceCloseFile"><HR><H4>vresourceCloseFile</H4></A>
+<PRE>
+        void <B>vresourceCloseFile</B>(
+                vresource res);
+</PRE>
+
+<DL><DD>
+Closes the resource file whose top-level dictionary is
+referred to by <SAMP>res</SAMP> and writes all internal
+information to permanent storage. Before
+<CODE>vresourceCloseFile</CODE> returns, all information is
+forced to permanent storage using
+<CODE><A HREF="vfs-x.html#vfsFlushFileBuffer"><CODE>vfsFlushFileBuffer</CODE></A></CODE>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+references a memory resource file, or if <SAMP>res</SAMP>
+is not the root of the resource file.
+</DD></DL>
+<P>
+<A NAME="vresourceCopy"><HR><H4>vresourceCopy</H4></A>
+<PRE>
+        void <B>vresourceCopy</B>(
+                vresource fromRes,
+                vresource toRes);
+</PRE>
+
+<DL><DD>
+Copies <SAMP>fromRes</SAMP>, and all components, to
+<SAMP>toRes</SAMP>, which should be an <I>untyped</I>
+resource.
+</DD></DL>
+<P>
+<A NAME="vresourceCopyCompact"><HR><H4>vresourceCopyCompact</H4></A>
+<PRE>
+        void <B>vresourceCopyCompact</B>(
+                vresource fromRes,
+                vresource toRes);
+</PRE>
+
+<DL><DD>
+Compactly copies resource file <SAMP>fromres</SAMP> into
+resource file <SAMP>tores</SAMP>. <SAMP>tores</SAMP>
+occupies less storage space and afford faster retrieval,
+but subsequent <SAMP>vresourceSet</SAMP> operations are
+more expensive than the same operation on a regular
+resource file. It generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE>
+exception if <SAMP>fromres</SAMP> is not an empty resource
+file, or if <SAMP>fromRes</SAMP> or <SAMP>toRes</SAMP> are
+not the root of their resource files.
+</DD></DL>
+<P>
+<A NAME="vresourceCountComponents"><HR><H4>vresourceCountComponents</H4></A>
+<PRE>
+        size_t <B>vresourceCountComponents</B>(
+                vresource res);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> is an array or dictionary resource,
+returns how many components it has. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an array or dictionary resource.
+</DD></DL>
+<P>
+<A NAME="vresourceCreate"><HR><H4>vresourceCreate</H4></A>
+<PRE>
+        vresource <B>vresourceCreate</B>(
+                vresource res,
+                const vname * tag,
+                int type);
+</PRE>
+
+<DL><DD>
+Creates a component of <SAMP>res</SAMP> and stores it under
+<SAMP>tag</SAMP>. If there is an existing component stored
+under <SAMP>tag</SAMP>, it is removed before the new
+component is created. <CODE>vresourceCreate</CODE> returns
+the component. Note that making a resource forces it to
+exist, and an existing resource is left as is. Creating a
+resource also forces it to exist, but an existing resource
+is removed. The type of the component is denoted by
+<SAMP>type</SAMP> and should be one of the following
+constants:
+    <P>
+<BLOCKQUOTE>
+
+<TABLE BORDER>
+<TR>
+<TD><CODE>vresourceUNTYPED</CODE></TD>
+<TD><CODE>vresourceSTRING</CODE></TD>
+<TD><CODE>vresourceDICT</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceFLOAT</CODE></TD>
+<TD><CODE>vresourceCHAR</CODE></TD>
+<TD><CODE>vresourceARRAY</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceBOOLEAN</CODE></TD>
+<TD><CODE>vresourceTAG</CODE></TD>
+<TD><CODE>vresourceOPAQUE</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceINTEGER</CODE></TD>
+<TD><CODE>vresourceFIXED</CODE></TD> <TD></TD> 
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+    <P>
+This function generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE>
+exception if <SAMP>res</SAMP> is not a dictionary resource
+when <SAMP>tag</SAMP> is not <SAMP>vresourceTAG_NULL</SAMP>
+(if <SAMP>tag</SAMP> is <SAMP>vresourceTAG_NULL</SAMP>,
+<CODE>vresourceCreate</CODE> re-creates <SAMP>res</SAMP>
+instead of a component of <SAMP>res</SAMP>).
+</DD></DL>
+<P>
+<A NAME="vresourceCreateArray"><HR><H4>vresourceCreateArray</H4></A>
+<PRE>
+        vresource <B>vresourceCreateArray</B>(
+                vresource res,
+                const vname * tag,
+                int componentType,
+                size_t initialSize);
+</PRE>
+
+<DL><DD>
+Creates an array resource component of <SAMP>res</SAMP> and
+stores it under <SAMP>tag</SAMP>. If there is an existing
+component stored under <SAMP>tag</SAMP>, it is removed
+before the new component is created.
+<CODE>vresourceCreateArray</CODE> returns the array. The
+number of elements in the array is denoted by
+<SAMP>initialSize</SAMP>. The type of the elements of the
+array is denoted by <SAMP>componentType</SAMP> and should
+be one of the following constants:
+    <P>
+<BLOCKQUOTE>
+
+<TABLE BORDER>
+<TR>
+<TD><CODE>vresourceUNTYPED</CODE></TD>
+<TD><CODE>vresourceSTRING</CODE></TD>
+<TD><CODE>vresourceDICT</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceFLOAT</CODE></TD>
+<TD><CODE>vresourceCHAR</CODE></TD>
+<TD><CODE>vresourceBOOLEAN</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceTAG</CODE></TD>
+<TD><CODE>vresourceOPAQUE</CODE></TD>
+<TD><CODE>vresourceINTEGER</CODE></TD> 
+</TR>
+</TABLE>
+<CODE>vresourceFIXED</CODE>
+</BLOCKQUOTE>
+
+    <P>
+Note that making a resource forces it to exist, and an
+existing resource is left as is. Creating a resource also
+forces it to exist, but an existing resource is removed.
+This function generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE>
+exception if <SAMP>res</SAMP> is not a dictionary resource
+when <SAMP>tag</SAMP> is not <SAMP>vresourceTAG_NULL</SAMP>
+(if <SAMP>tag</SAMP> is <SAMP>vresourceTAG_NULL</SAMP>,
+<CODE>vresourceCreateArray</CODE> re-creates
+<SAMP>res</SAMP> instead of a component of
+<SAMP>res</SAMP>).
+</DD></DL>
+<P>
+<A NAME="vresourceCreateAt"><HR><H4>vresourceCreateAt</H4></A>
+<PRE>
+        vresource <B>vresourceCreateAt</B>(
+                vresource res,
+                size_t idx,
+                int type);
+</PRE>
+
+<DL><DD>
+Creates an element of <SAMP>res</SAMP> and stores it at
+index <SAMP>idx</SAMP>. If there is an existing element
+stored at <SAMP>idx</SAMP>, it is removed before the new
+element is created. The type of the element is denoted by
+<SAMP>type</SAMP> and should be one of the following
+constants (matching the element type of <SAMP>res</SAMP>):
+    <P>
+<BLOCKQUOTE>
+
+<TABLE BORDER>
+<TR>
+<TD><CODE>vresourceUNTYPED</CODE></TD>
+<TD><CODE>vresourceSTRING</CODE></TD>
+<TD><CODE>vresourceDICT</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceFLOAT</CODE></TD>
+<TD><CODE>vresourceCHAR</CODE></TD>
+<TD><CODE>vresourceARRAY</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceBOOLEAN</CODE></TD>
+<TD><CODE>vresourceTAG</CODE></TD>
+<TD><CODE>vresourceOPAQUE</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceINTEGER</CODE></TD>
+<TD><CODE>vresourceFIXED</CODE></TD> <TD></TD> 
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+    <P>
+This function generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE>
+exception if <SAMP>res</SAMP> is not an array resource or
+if <SAMP>type</SAMP> does not match the type of the array,
+and a <CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+</DD></DL>
+<P>
+<A NAME="vresourceCreateFile"><HR><H4>vresourceCreateFile</H4></A>
+<PRE>
+        vresource <B>vresourceCreateFile</B>(
+                const vfsPath * fileName,
+                vfsMode mode);
+</PRE>
+
+<DL><DD>
+Creates the specified file (with access permissions denoted
+by <SAMP>mode</SAMP>), opens it, and returns the
+<SAMP>vresource</SAMP> referring to its top-level
+dictionary. Based on this identifier, the application can
+then create individual resources or dictionaries that
+contain other resources. The new resource file consists of
+a single empty dictionary. An existing resource file with
+the given name is truncated. <SAMP>mode</SAMP> is the
+access permission for the new resource file and can contain
+one or more of the following values:
+    <P>
+<BLOCKQUOTE>
+
+<TABLE BORDER>
+<TR>
+<TD><CODE>vfsOWNER_READ</CODE></TD>
+<TD><CODE>vfsOWNER_WRITE</CODE></TD>
+<TD><CODE>vfsOWNER_EXECUTE</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vfsGROUP_READ</CODE></TD>
+<TD><CODE>vfsGROUP_WRITE</CODE></TD>
+<TD><CODE>vfsGROUP_EXECUTE</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vfsOTHER_READ</CODE></TD>
+<TD><CODE>vfsOTHER_WRITE</CODE></TD>
+<TD><CODE>vfsOTHER_EXECUTE</CODE></TD> 
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+    <P>
+(Refer to the ``File System Manager'' chapter of the
+<I>Galaxy Application Environment Programmer's Guide</I>
+for more information on access modes.)
+    <P>
+This function generates file system exceptions if the
+resource file cannot be created or opened, a
+<CODE><A HREF="vex-x.html#vexReturnNullException"><CODE>vexReturnNullException</CODE></A></CODE> exception on B-Tree
+Manager problems, and a
+<CODE><A HREF="vex-x.html#vexModuleLimitException"><CODE>vexModuleLimitException</CODE></A></CODE> exception if the limit
+on the number of open resource files has been reached
+(refer to <CODE>vresourceMAX_FILES</CODE>).
+</DD></DL>
+<P>
+<A NAME="vresourceCreateFileFromMem"><HR><H4>vresourceCreateFileFromMem</H4></A>
+<PRE>
+        vresource <B>vresourceCreateFileFromMem</B>(
+                vresource res,
+                const vfsPath * pathname,
+                vfsMode mode);
+</PRE>
+
+<DL><DD>
+Creates a disk-based resource file with the name
+<SAMP>pathname</SAMP> with the same contents as the memory
+file referenced by <SAMP>res</SAMP>. <SAMP>res</SAMP> must
+be the root of a memory resource file. It returns the
+<SAMP>vresource</SAMP> of the root of the open disk-based
+resource file. Based on this identifier, the application
+can then ``get'' or ``put'' individual resources or
+dictionaries that contain other resources.
+<SAMP>mode</SAMP> is the access permission for the new
+resource file and can contain one or more of the following
+values:
+    <P>
+<BLOCKQUOTE>
+
+<TABLE BORDER>
+<TR>
+<TD><CODE>vfsOWNER_READ</CODE></TD>
+<TD><CODE>vfsOWNER_WRITE</CODE></TD>
+<TD><CODE>vfsOWNER_EXECUTE</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vfsGROUP_READ</CODE></TD>
+<TD><CODE>vfsGROUP_WRITE</CODE></TD>
+<TD><CODE>vfsGROUP_EXECUTE</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vfsOTHER_READ</CODE></TD>
+<TD><CODE>vfsOTHER_WRITE</CODE></TD>
+<TD><CODE>vfsOTHER_EXECUTE</CODE></TD> 
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+    <P>
+Refer to the ``File System Manager'' chapter of the
+<I>Galaxy Application Environment Programmer's Guide</I>
+for more information on access modes.
+    <P>
+File system exceptions are generated if the resource file
+cannot be created or opened, a
+<CODE><A HREF="vex-x.html#vexReturnNullException"><CODE>vexReturnNullException</CODE></A></CODE> exception on B-Tree
+Manager problems, a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception
+if <SAMP>res</SAMP> is not the root of a resource file, and
+a <CODE><A HREF="vex-x.html#vexModuleLimitException"><CODE>vexModuleLimitException</CODE></A></CODE> exception if the
+limit on the number of open resource files has been reached
+(refer to <SAMP>vresourceMAX_FILES</SAMP>).
+</DD></DL>
+<P>
+<A NAME="vresourceCreateMem"><HR><H4>vresourceCreateMem</H4></A>
+<PRE>
+        vresource <B>vresourceCreateMem</B>();
+</PRE>
+
+<DL><DD>
+Creates a read-write memory resource file, analogous to a
+resource file created by <CODE><A HREF="vresource-x.html#vresourceCreateFile"><CODE>vresourceCreateFile</CODE></A></CODE>
+but stored completely in memory. Returns the
+<SAMP>vresource</SAMP> referring to the newly created
+dictionary resource. Based on this identifier, the
+application can then create individual resources or
+dictionaries that contain other resources. The new resource
+file consists of a single empty dictionary. Note that
+memory resource files are transient; all traces of the
+resource file are lost after the application exits. The
+contents can be permanently saved by copying them to a
+resource file using <CODE><A HREF="vresource-x.html#vresourceCreateFileFromMem"><CODE>vresourceCreateFileFromMem</CODE></A></CODE>
+or <CODE><A HREF="vresource-x.html#vresourceCopyCompact"><CODE>vresourceCopyCompact</CODE></A></CODE>. This function
+generates a <CODE><A HREF="vex-x.html#vexReturnNullException"><CODE>vexReturnNullException</CODE></A></CODE> exception
+on B-Tree Manager problems and a
+<CODE><A HREF="vex-x.html#vexModuleLimitException"><CODE>vexModuleLimitException</CODE></A></CODE> exception if the limit
+on the number of open resource files has been reached
+(refer to <SAMP>vresourceMAX_FILES</SAMP>).
+</DD></DL>
+<P>
+<A NAME="vresourceCreateMemFromFile"><HR><H4>vresourceCreateMemFromFile</H4></A>
+<PRE>
+        vresource <B>vresourceCreateMemFromFile</B>(
+                const vfsPath * pathname);
+</PRE>
+
+<DL><DD>
+Creates a read-write memory resource file from the resource
+file contained in <SAMP>pathname</SAMP>.
+<SAMP>pathname</SAMP> must refer to a resource file. It
+returns the <SAMP>vresource</SAMP> of the root of the open
+memory resource file. Based on this identifier, the
+application can then ``get'' or ``put'' individual
+resources or dictionaries that contain other resources.
+<P>
+Note that memory resource files are transient; all traces
+of the resource file are lost after the application exits.
+This function generates a
+<CODE><A HREF="vex-x.html#vexReturnNullException"><CODE>vexReturnNullException</CODE></A></CODE> exception on B-Tree
+Manager problems and a <CODE><A HREF="vex-x.html#vexModuleLimitException"><CODE>vexModuleLimitException</CODE></A></CODE>
+exception if the limit on the number of open resource files
+has been reached (refer to
+<SAMP>vresourceMAX_FILES</SAMP>).
+</DD></DL>
+<P>
+<A NAME="vresourceDestroyMem"><HR><H4>vresourceDestroyMem</H4></A>
+<PRE>
+        void <B>vresourceDestroyMem</B>(
+                vresource res);
+</PRE>
+
+<DL><DD>
+Destroys the memory dictionary resource referred to by
+<SAMP>res</SAMP> and all of its components. All memory used
+by <SAMP>res</SAMP> is reclaimed. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+does not reference a memory resource file, or if
+<SAMP>res</SAMP> is not the root of the resource file.
+</DD></DL>
+<P>
+<A NAME="vresourceDump"><HR><H4>vresourceDump</H4></A>
+<PRE>
+        void <B>vresourceDump</B>(
+                vresource res,
+                FILE * stream);
+</PRE>
+
+<DL><DD>
+Dumps a description of the resource <SAMP>res</SAMP> to
+<SAMP>stream,</SAMP> for debugging purposes.
+</DD></DL>
+<P>
+<A NAME="vresourceFind"><HR><H4>vresourceFind</H4></A>
+<PRE>
+        void <B>vresourceFind</B>(
+                vresource res,
+                vresource * foundRes,
+                const vname ** foundTag);
+</PRE>
+
+<DL><DD>
+Given non-array resource <SAMP>res</SAMP>, returns the
+dictionary resource (in <SAMP>foundRes</SAMP>) and the tag
+(in <SAMP>foundTag</SAMP>) that reference <SAMP>res</SAMP>.
+It generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if
+<SAMP>res</SAMP> is the root of a resource file or if
+<SAMP>res</SAMP> is an array resource. To locate
+information on an array resource, use
+<CODE><A HREF="vresource-x.html#vresourceFindArray"><CODE>vresourceFindArray</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vresourceFindArray"><HR><H4>vresourceFindArray</H4></A>
+<PRE>
+        void <B>vresourceFindArray</B>(
+                vresource res,
+                vresource * foundRes,
+                const vname ** foundTag,
+                size_t * foundIdx);
+</PRE>
+
+<DL><DD>
+Given array resource <SAMP>res</SAMP>, returns the
+dictionary resource (in <SAMP>foundRes</SAMP>), the tag (in
+<SAMP>foundTag</SAMP>), and the array index (in
+<SAMP>foundIdx</SAMP>) that reference <SAMP>res</SAMP>. It
+generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if
+<SAMP>res</SAMP> is the root of a resource file or if
+<SAMP>res</SAMP> is not an array resource. To locate
+information on a non-array resource, use
+<CODE>vresourceFind</CODE>.
+</DD></DL>
+<P>
+<A NAME="vresourceFlush"><HR><H4>vresourceFlush</H4></A>
+<PRE>
+        void <B>vresourceFlush</B>(
+                vresource res);
+</PRE>
+
+<DL><DD>
+Syncs a resource file to disk. No action is taken for
+memory resource files. Before <CODE>vresourceFlush</CODE>
+returns, all information is forced to permanent storage
+using <CODE><A HREF="vfs-x.html#vfsFlushFileBuffer"><CODE>vfsFlushFileBuffer</CODE></A></CODE>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not the root of the resource file, or if
+<SAMP>res</SAMP> is an internal or read-only resource file.
+</DD></DL>
+<P>
+<A NAME="vresourceGet"><HR><H4>vresourceGet</H4></A>
+<PRE>
+        vresource <B>vresourceGet</B>(
+                vresource res,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> is a dictionary, returns the component
+stored under the specified tag. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a dictionary resource.
+</DD></DL>
+<P>
+<A NAME="vresourceGetArray"><HR><H4>vresourceGetArray</H4></A>
+<PRE>
+        void <B>vresourceGetArray</B>(
+                vresource res,
+                const vname * tag,
+                void ** value,
+                size_t * length);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Retrieves an entire array of a particular type.
+<SAMP>*value</SAMP> is set to a pointer to a dynamically
+allocated array which contains <SAMP>*length</SAMP> items
+from the array.
+</DD></DL>
+<P>
+<A NAME="vresourceGetArrayType"><HR><H4>vresourceGetArrayType</H4></A>
+<PRE>
+        int <B>vresourceGetArrayType</B>(
+                vresource res);
+</PRE>
+
+<DL><DD>
+Returns the element type of the specified array resource,
+denoted by one of the following constants:
+    <P>
+<BLOCKQUOTE>
+
+<TABLE BORDER>
+<TR>
+<TD><CODE>vresourceUNTYPED</CODE></TD>
+<TD><CODE>vresourceSTRING</CODE></TD>
+<TD><CODE>vresourceDICT</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceFLOAT</CODE></TD>
+<TD><CODE>vresourceCHAR</CODE></TD>
+<TD><CODE>vresourceARRAY</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceBOOLEAN</CODE></TD>
+<TD><CODE>vresourceTAG</CODE></TD>
+<TD><CODE>vresourceOPAQUE</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceINTEGER</CODE></TD>
+<TD><CODE>vresourceFIXED</CODE></TD> <TD></TD> 
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+<P>
+It generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if
+<SAMP>res</SAMP> is not an array resource.
+</DD></DL>
+<P>
+<A NAME="vresourceGetAt"><HR><H4>vresourceGetAt</H4></A>
+<PRE>
+        vresource <B>vresourceGetAt</B>(
+                vresource res,
+                size_t idx);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> is an array resource, returns the
+component at index <SAMP>idx</SAMP> in the array. It
+generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if
+<SAMP>res</SAMP> is not an array and a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+</DD></DL>
+<P>
+<A NAME="vresourceGetBoolean"><HR><H4>vresourceGetBoolean</H4></A>
+<PRE>
+        vbool <B>vresourceGetBoolean</B>(
+                vresource res,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Returns the value of the component of <SAMP>res</SAMP>
+stored under <SAMP>tag</SAMP>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if there is no such
+component, or if the component is not of type
+<SAMP>vresourceBOOLEAN</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceGetBooleanAt"><HR><H4>vresourceGetBooleanAt</H4></A>
+<PRE>
+        vbool <B>vresourceGetBooleanAt</B>(
+                vresource res,
+                size_t idx);
+</PRE>
+
+<DL><DD>
+Returns the value of the element of <SAMP>res</SAMP> stored
+at index <SAMP>idx</SAMP>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an array of type <SAMP>vresourceBOOLEAN</SAMP> and a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+</DD></DL>
+<P>
+<A NAME="vresourceGetByID"><HR><H4>vresourceGetByID</H4></A>
+<PRE>
+        vresource <B>vresourceGetByID</B>(
+                vresource resfile,
+                vresourceID id);
+</PRE>
+
+<DL><DD>
+Given a resource file and the ID of a resource within that
+file, returns the resource. Applications that need to
+permanently store references to particular resources should
+follow this procedure:
+<P>
+<OL>
+<LI>Use <CODE><A HREF="vresource-x.html#vresourceGetID"><CODE>vresourceGetID</CODE></A></CODE> to get the reference. 
+<LI>Store the reference. 
+<LI>Recall the reference. 
+<LI>Use <CODE>vresourceGetByID</CODE> to recover the
+resource reference. 
+</OL>
+</DD></DL>
+<P>
+<A NAME="vresourceGetChar"><HR><H4>vresourceGetChar</H4></A>
+<PRE>
+        vchar <B>vresourceGetChar</B>(
+                vresource res,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Returns the value of the component of <SAMP>res</SAMP>
+stored under <SAMP>tag</SAMP>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if there is no such
+component, or if the component is not of type
+<SAMP>vresourceCHAR</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceGetCharAt"><HR><H4>vresourceGetCharAt</H4></A>
+<PRE>
+        vchar <B>vresourceGetCharAt</B>(
+                vresource res,
+                size_t idx);
+</PRE>
+
+<DL><DD>
+Returns the value of the element of <SAMP>res</SAMP> stored
+at index <SAMP>idx</SAMP>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an array of type <SAMP>vresourceCHAR</SAMP> and a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+</DD></DL>
+<P>
+<A NAME="vresourceGetData"><HR><H4>vresourceGetData</H4></A>
+<PRE>
+        void <B>vresourceGetData</B>(
+                vresource res,
+                vbyte * buffer);
+</PRE>
+
+<DL><DD>
+Copies a snapshot of the data of a resource file into the given buffer. 
+The buffer should be at least big enough to hold the number of bytes 
+returned by <CODE><A HREF="vresource-x.html#vresourceGetDataSize"><CODE>vresourceGetDataSize</CODE></A></CODE>. Normally you will want to 
+be sure to flush the resource file with <CODE><A HREF="vresource-x.html#vresourceFlush"><CODE>vresourceFlush</CODE></A></CODE> before 
+making this call, if the file has been modified. The contents of the
+buffer can later be used by <CODE><A HREF="vresource-x.html#vresourceOpenBuffer"><CODE>vresourceOpenBuffer</CODE></A></CODE> to 
+reinstantiate the resource file.
+</DD></DL>
+<P>
+<A NAME="vresourceGetDataSize"><HR><H4>vresourceGetDataSize</H4></A>
+<PRE>
+        size_t <B>vresourceGetDataSize</B>(
+                vresource res);
+</PRE>
+
+<DL><DD>
+Returns the amount of data in the given resource file, in bytes.  The resource
+file may be any type of resource file (disk, memory, buffer, or internal.)
+</DD></DL>
+<P>
+<A NAME="vresourceGetException"><HR><H4>vresourceGetException</H4></A>
+<PRE>
+        void <B>vresourceGetException</B>();
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vresourceGetExceptionClass"><HR><H4>vresourceGetExceptionClass</H4></A>
+<PRE>
+        void <B>vresourceGetExceptionClass</B>();
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vresourceGetFile"><HR><H4>vresourceGetFile</H4></A>
+<PRE>
+        vfsFile * <B>vresourceGetFile</B>(
+                vresource res);
+</PRE>
+
+<DL><DD>
+Returns the <SAMP><A HREF="vfs-x.html#vfsFile"><CODE>vfsFile</CODE></A></SAMP> descriptor that contains
+the resource file rooted by <SAMP>res</SAMP>. If the
+resource file is a memory or internal resource file,
+<CODE>vresourceGetFile</CODE> returns <samp>NULL</samp>. 
+The descriptor is provided for informational purposes only; writing
+directly to the resource file is strongly discouraged.
+</DD></DL>
+<P>
+<A NAME="vresourceGetFixed"><HR><H4>vresourceGetFixed</H4></A>
+<PRE>
+        vfixed <B>vresourceGetFixed</B>(
+                vresource res,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Returns the value of the component of <SAMP>res</SAMP>
+stored under <SAMP>tag</SAMP>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if there is no such
+component, or if the component is not of type
+<SAMP>vresourceFIXED</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceGetFixedAt"><HR><H4>vresourceGetFixedAt</H4></A>
+<PRE>
+        vfixed <B>vresourceGetFixedAt</B>(
+                vresource res,
+                size_t idx);
+</PRE>
+
+<DL><DD>
+Returns the value of the element of <SAMP>res</SAMP> stored
+at index <SAMP>idx</SAMP>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an array of type <SAMP>vresourceFIXED</SAMP> and a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+</DD></DL>
+<P>
+<A NAME="vresourceGetFloat"><HR><H4>vresourceGetFloat</H4></A>
+<PRE>
+        double <B>vresourceGetFloat</B>(
+                vresource res,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Returns the value of the component of <SAMP>res</SAMP>
+stored under <SAMP>tag</SAMP>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if there is no such
+component, or if the component is not of type
+<SAMP>vresourceFLOAT</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceGetFloatAt"><HR><H4>vresourceGetFloatAt</H4></A>
+<PRE>
+        double <B>vresourceGetFloatAt</B>(
+                vresource res,
+                size_t idx);
+</PRE>
+
+<DL><DD>
+Returns the value of the element of <SAMP>res</SAMP> stored
+at index <SAMP>idx</SAMP>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an array of type <SAMP>vresourceFLOAT</SAMP> and a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+</DD></DL>
+<P>
+<A NAME="vresourceGetID"><HR><H4>vresourceGetID</H4></A>
+<PRE>
+        vresourceID <B>vresourceGetID</B>(
+                vresource res);
+</PRE>
+
+<DL><DD>
+Returns the resource ID for the specified resource. The
+resource ID of any resource is guaranteed to remain
+constant for the lifetime of the resource, unlike resource
+references (values of type <SAMP>vresource</SAMP>) that are
+subject to change each time a resource file is opened.
+</DD></DL>
+<P>
+<A NAME="vresourceGetInteger"><HR><H4>vresourceGetInteger</H4></A>
+<PRE>
+        int <B>vresourceGetInteger</B>(
+                vresource res,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Returns the value of the component of <SAMP>res</SAMP>
+stored under <SAMP>tag</SAMP>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if there is no such
+component, or if the component is not of type
+<SAMP>vresourceINTEGER</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceGetIntegerAt"><HR><H4>vresourceGetIntegerAt</H4></A>
+<PRE>
+        int <B>vresourceGetIntegerAt</B>(
+                vresource res,
+                size_t idx);
+</PRE>
+
+<DL><DD>
+Returns the value of the element of <SAMP>res</SAMP> stored
+at index <SAMP>idx</SAMP>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an array of type <SAMP>vresourceINTEGER</SAMP> and a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+</DD></DL>
+<P>
+<A NAME="vresourceGetLength"><HR><H4>vresourceGetLength</H4></A>
+<PRE>
+        size_t <B>vresourceGetLength</B>(
+                vresource res);
+</PRE>
+
+<DL><DD>
+Returns the number of characters stored in a string
+resource. Note that string resources should be retrieved
+into a buffer one character (<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP>) larger
+than the size of the string, to allow for the string
+termination character. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a string resource.
+</DD></DL>
+<P>
+<A NAME="vresourceGetNthComponent"><HR><H4>vresourceGetNthComponent</H4></A>
+<PRE>
+        vresource <B>vresourceGetNthComponent</B>(
+                vresource res,
+                size_t n,
+                const vname ** tag);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> If <SAMP>res</SAMP> is a dictionary resource, returns the
+<SAMP>n</SAMP>th component of the resource and its
+associated tag. It generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE>
+exception if <SAMP>res</SAMP> is not a dictionary resource
+and a <CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>n</SAMP> is out of range.
+    <P>
+<BLOCKQUOTE>
+NOTE:
+    <P>
+Dictionary resource components are not stored in a defined
+or constant order. This function is designed for use with
+<CODE><A HREF="vresource-x.html#vresourceCountComponents"><CODE>vresourceCountComponents</CODE></A></CODE> to allow iteration
+over the contents of a dictionary resource. Do not depend
+on the position of any given component, because it may
+change if the dictionary is modified.
+    <P>
+This deprecated entry point is included for backward
+compatibility. The recommended call is
+<CODE><A HREF="vresource-x.html#vresourceGetNthTag"><CODE>vresourceGetNthTag</CODE></A></CODE>.</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vresourceGetNthTag"><HR><H4>vresourceGetNthTag</H4></A>
+<PRE>
+        const vname * <B>vresourceGetNthTag</B>(
+                vresource res,
+                size_t idx);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> is a dictionary resource, returns the
+tag of the <SAMP>n</SAMP>th component of the resource,
+where <SAMP>idx</SAMP> specifies n. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a dictionary resource and a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+    <P>
+<BLOCKQUOTE>
+NOTE:
+    <P>
+Dictionary resource components are not stored in a defined
+or constant order. This function is designed for use with
+<CODE><A HREF="vresource-x.html#vresourceCountComponents"><CODE>vresourceCountComponents</CODE></A></CODE> to allow iteration
+over the contents of a dictionary resource. Do not depend
+on the position of any given component, because it may
+change if the dictionary is modified.</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vresourceGetOpaque"><HR><H4>vresourceGetOpaque</H4></A>
+<PRE>
+        vbyte * <B>vresourceGetOpaque</B>(
+                vresource res,
+                const vname * tag,
+                size_t * length);
+</PRE>
+
+<DL><DD>
+Returns the value of the component of <SAMP>res</SAMP>
+stored under <SAMP>tag</SAMP>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if there is no such
+component, or if the component is not of type
+<SAMP>vresourceOPAQUE</SAMP>. The return value points to a
+block of memory allocated with <CODE><A HREF="vmem-x.html#vmemAlloc"><CODE>vmemAlloc</CODE></A></CODE>,
+which must then be freed by the application. The size of
+this block is returned in <SAMP>length</SAMP>. Note that
+the client program is responsible for storing and
+retrieving the value of opaque resources in portable
+fashion.
+</DD></DL>
+<P>
+<A NAME="vresourceGetOpaqueAt"><HR><H4>vresourceGetOpaqueAt</H4></A>
+<PRE>
+        void <B>vresourceGetOpaqueAt</B>(
+                vresource res,
+                size_t idx,
+                size_t offset,
+                vbyte ** buffer,
+                size_t maxLength,
+                size_t * length);
+</PRE>
+
+<DL><DD>
+Returns a portion of the value of the element of
+<SAMP>res</SAMP> stored at index <SAMP>idx</SAMP>.
+<SAMP>offset</SAMP> is an offset into the stored opaque
+resource. A stored opaque resource can be longer than the
+application wants to process all at once; by using
+<CODE>vresourceGetOpaqueAt</CODE>, it can grab the opaque
+resource in smaller chunks. The portion requested is stored
+in a block of memory allocated using
+<CODE><A HREF="vmem-x.html#vmemAlloc"><CODE>vmemAlloc</CODE></A></CODE>, which must then be freed by the
+application. The size of this block is returned in
+<SAMP>length</SAMP>. Note that the client program is
+responsible for storing and retrieving the value of opaque
+resources in portable fashion. This function generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an array of type <SAMP>vresourceOPAQUE</SAMP> and a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+</DD></DL>
+<P>
+<A NAME="vresourceGetParent"><HR><H4>vresourceGetParent</H4></A>
+<PRE>
+        vresource <B>vresourceGetParent</B>(
+                vresource res);
+</PRE>
+
+<DL><DD>
+Returns the parent resource of the given resource. If
+<SAMP>res</SAMP> is the top-level dictionary of the
+resource file, returns <SAMP>0</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceGetRoot"><HR><H4>vresourceGetRoot</H4></A>
+<PRE>
+        vresource <B>vresourceGetRoot</B>(
+                vresource res);
+</PRE>
+
+<DL><DD>
+Given any resource from a given resource file, returns the
+<SAMP>vresource</SAMP> of the dictionary at the root of the
+resource file.
+</DD></DL>
+<P>
+<A NAME="vresourceGetScrap"><HR><H4>vresourceGetScrap</H4></A>
+<PRE>
+        vscrap * <B>vresourceGetScrap</B>(
+                vresource res,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Returns the <CODE><A HREF="vscrap-x.html#vscrap"><CODE>vscrap</CODE></A></CODE> equivalent to the component
+of <SAMP>res</SAMP> with tag <SAMP>tag</SAMP>. If
+<SAMP>tag</SAMP> is <SAMP>NULL</SAMP>, the
+<CODE><A HREF="vscrap-x.html#vscrap"><CODE>vscrap</CODE></A></CODE> returned corresponds to
+<SAMP>res</SAMP>. If <SAMP>res</SAMP> is not a
+<CODE>vresourceDICT</CODE>, <SAMP>tag</SAMP> must be
+<SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceGetScrapAt"><HR><H4>vresourceGetScrapAt</H4></A>
+<PRE>
+        vscrap * <B>vresourceGetScrapAt</B>(
+                vresource res,
+                size_t idx);
+</PRE>
+
+<DL><DD>
+Returns the <CODE><A HREF="vscrap-x.html#vscrap"><CODE>vscrap</CODE></A></CODE> equivalent to an element in
+a <CODE>vresourceARRAY</CODE>. It generates an
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> if <SAMP>res</SAMP> is not a
+<CODE>vresourceARRAY</CODE>. It generates a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> if <SAMP>idx</SAMP> is
+not a valid index into <SAMP>res</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceGetScrapResource"><HR><H4>vresourceGetScrapResource</H4></A>
+<PRE>
+        vresource <B>vresourceGetScrapResource</B>(
+                vscrap * scrap);
+</PRE>
+
+<DL><DD>
+Returns the resource used to create <SAMP>scrap</SAMP> with
+<CODE>vresourceGetScrap</CODE>. If <SAMP>scrap</SAMP> was
+not created with <CODE>vresourceGetScrap</CODE>, this
+function generates a
+<CODE><A HREF="vdelegator-x.html#vdelegatorClassNotFoundException"><CODE>vdelegatorClassNotFoundException</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vresourceGetSize"><HR><H4>vresourceGetSize</H4></A>
+<PRE>
+        size_t <B>vresourceGetSize</B>(
+                vresource res);
+</PRE>
+
+<DL><DD>
+Returns the number of bytes stored in a string or opaque
+resource. Note that string resources should be retrieved
+into a buffer one character (<SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP>) larger
+than the size of the string, to allow for the string
+termination character. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a string or opaque resource.
+</DD></DL>
+<P>
+<A NAME="vresourceGetString"><HR><H4>vresourceGetString</H4></A>
+<PRE>
+        vstr * <B>vresourceGetString</B>(
+                vresource res,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Returns the value of the component of <SAMP>res</SAMP>
+stored under <SAMP>tag</SAMP>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if there is no such
+component, or if the component is not of type
+<SAMP>vresourceSTRING</SAMP>. The return value points to a
+block of memory allocated with <CODE><A HREF="vstr-x.html#vstrCreate"><CODE>vstrCreate</CODE></A></CODE>,
+which must then be freed by the application.
+</DD></DL>
+<P>
+<A NAME="vresourceGetStringAt"><HR><H4>vresourceGetStringAt</H4></A>
+<PRE>
+        vstr * <B>vresourceGetStringAt</B>(
+                vresource res,
+                size_t idx);
+</PRE>
+
+<DL><DD>
+Returns the value of the element of <SAMP>res</SAMP> stored
+at index <SAMP>idx</SAMP>. The return value points to a
+block of memory allocated with <CODE><A HREF="vstr-x.html#vstrCreate"><CODE>vstrCreate</CODE></A></CODE>,
+which must then be freed by the application. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an array of type <SAMP>vresourceSTRING</SAMP> and a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+</DD></DL>
+<P>
+<A NAME="vresourceGetStringBuf"><HR><H4>vresourceGetStringBuf</H4></A>
+<PRE>
+        void <B>vresourceGetStringBuf</B>(
+                vresource res,
+                const vname * tag,
+                size_t offset,
+                vchar * buffer,
+                size_t maxLength,
+                size_t * length);
+</PRE>
+
+<DL><DD>
+Returns a portion of the contents of the component of
+<SAMP>res</SAMP> stored under <SAMP>tag</SAMP>. It
+generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if there
+is no such component, or if the component is not of type
+<SAMP>vresourceSTRING</SAMP>. <SAMP>offset</SAMP> is an
+offset into the stored string. A stored string can be
+longer than the application wants to process all at once;
+by using <CODE>vresourceGetStringBuf</CODE>, it can grab
+the string in smaller chunks. 
+<P>
+Note that <SAMP>buffer</SAMP>
+must point to a suitable block of memory allocated by the
+client program. The client can determine the size of the
+stored string by using <CODE><A HREF="vresource-x.html#vresourceGetSize"><CODE>vresourceGetSize</CODE></A></CODE>. The
+portion requested is stored into <SAMP>buffer</SAMP>, up to
+a maximum of <SAMP>maxLength</SAMP> characters. The actual
+number of characters retrieved is stored in
+<SAMP>length</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceGetStringBufAt"><HR><H4>vresourceGetStringBufAt</H4></A>
+<PRE>
+        void <B>vresourceGetStringBufAt</B>(
+                vresource res,
+                size_t idx,
+                size_t offset,
+                vchar * buffer,
+                size_t maxLength,
+                size_t * length);
+</PRE>
+
+<DL><DD>
+Returns a portion of the contents of the element of
+<SAMP>res</SAMP> stored at index <SAMP>idx</SAMP>.
+<SAMP>offset</SAMP> is an offset into the stored string. A
+stored string can be longer than the application wants to
+process all at once; by using
+<CODE>vresourceGetStringBufAt</CODE>, it can grab the
+string in smaller chunks. The portion requested is stored
+into <SAMP>buffer</SAMP>, up to a maximum of
+<SAMP>maxLength</SAMP> characters. The actual number of
+characters retrieved is stored in <SAMP>length</SAMP>. A
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception is generated if
+<SAMP>res</SAMP> is not an array of type
+<SAMP>vresourceSTRING</SAMP> and a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+</DD></DL>
+<P>
+<A NAME="vresourceGetTag"><HR><H4>vresourceGetTag</H4></A>
+<PRE>
+        const vname * <B>vresourceGetTag</B>(
+                vresource res,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Returns the value of the component of <SAMP>res</SAMP>
+stored under <SAMP>tag</SAMP>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if there is no such
+component, or if the component is not of type
+<SAMP>vresourceTAG</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceGetTagAt"><HR><H4>vresourceGetTagAt</H4></A>
+<PRE>
+        const vname * <B>vresourceGetTagAt</B>(
+                vresource res,
+                size_t idx);
+</PRE>
+
+<DL><DD>
+Returns the value of the element of <SAMP>res</SAMP> stored
+at index <SAMP>idx</SAMP>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an array of type <SAMP>vresourceTAG</SAMP> and a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+</DD></DL>
+<P>
+<A NAME="vresourceGetType"><HR><H4>vresourceGetType</H4></A>
+<PRE>
+        int <B>vresourceGetType</B>(
+                vresource res,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Returns the type of the specified resource, denoted by one
+of the following constants:
+    <P>
+<BLOCKQUOTE>
+
+<TABLE BORDER>
+<TR>
+<TD><CODE>vresourceUNTYPED</CODE></TD>
+<TD><CODE>vresourceSTRING</CODE></TD>
+<TD><CODE>vresourceDICT</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceFLOAT</CODE></TD>
+<TD><CODE>vresourceCHAR</CODE></TD>
+<TD><CODE>vresourceARRAY</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceBOOLEAN</CODE></TD>
+<TD><CODE>vresourceTAG</CODE></TD>
+<TD><CODE>vresourceOPAQUE</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceINTEGER</CODE></TD>
+<TD><CODE>vresourceFIXED</CODE></TD> <TD></TD> 
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+    <P>
+The root of any resource file is of type
+<SAMP>vresourceDICT</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceInsertAt"><HR><H4>vresourceInsertAt</H4></A>
+<PRE>
+        vresource <B>vresourceInsertAt</B>(
+                vresource res,
+                size_t idx,
+                int type);
+</PRE>
+
+<DL><DD>
+Creates a new array member resource at the given index and
+pushes all succeeding elements up. <SAMP>idx</SAMP> must
+reference an existing array element or the position
+immediately past the last array element. <SAMP>type</SAMP>
+must be one of the types accepted by
+<CODE><A HREF="vresource-x.html#vresourceCreateAt"><CODE>vresourceCreateAt</CODE></A></CODE>, namely:
+
+<P>
+<ul>
+<li><SAMP>vresourceUNTYPED</SAMP>
+<li><SAMP>vresourceSTRING</SAMP>
+<li><SAMP>vresourceDICT</SAMP>
+<li><SAMP>vresourceARRAY</SAMP>
+<li><SAMP>vresourceOPAQUE</SAMP>
+</ul>
+
+<P>
+A <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception is generated if
+<SAMP>res</SAMP> is not an array resource or if
+<SAMP>type</SAMP> does not match the type of the array and
+a <CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+</DD></DL>
+<P>
+<A NAME="vresourceInsertBooleanAt"><HR><H4>vresourceInsertBooleanAt</H4></A>
+<PRE>
+        void <B>vresourceInsertBooleanAt</B>(
+                vresource res,
+                size_t idx,
+                int value);
+</PRE>
+
+<DL><DD>
+Inserts a boolean with the given value at the indicated
+position and pushes all succeeding elements up.
+<SAMP>idx</SAMP> must reference an existing array element
+or the position immediately past the last array element. It
+generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if
+<SAMP>res</SAMP> is not a boolean array resource and a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+</DD></DL>
+<P>
+<A NAME="vresourceInsertCharAt"><HR><H4>vresourceInsertCharAt</H4></A>
+<PRE>
+        void <B>vresourceInsertCharAt</B>(
+                vresource res,
+                size_t idx,
+                int value);
+</PRE>
+
+<DL><DD>
+Inserts a character with the given value at the indicated
+position and pushes all succeeding elements up.
+<SAMP>idx</SAMP> must reference an existing array element
+or the position immediately past the last array element. It
+generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if
+<SAMP>res</SAMP> is not a character array resource and a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+</DD></DL>
+<P>
+<A NAME="vresourceInsertFixedAt"><HR><H4>vresourceInsertFixedAt</H4></A>
+<PRE>
+        void <B>vresourceInsertFixedAt</B>(
+                vresource res,
+                size_t idx,
+                vfixed value);
+</PRE>
+
+<DL><DD>
+Inserts the given fixed-point value at the indicated
+position and pushes all succeeding elements up.
+<SAMP>idx</SAMP> must reference an existing array element
+or the position immediately past the last array element. It
+generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if
+<SAMP>res</SAMP> is not a fixed-point array resource and a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+</DD></DL>
+<P>
+<A NAME="vresourceInsertFloatAt"><HR><H4>vresourceInsertFloatAt</H4></A>
+<PRE>
+        void <B>vresourceInsertFloatAt</B>(
+                vresource res,
+                size_t idx,
+                double value);
+</PRE>
+
+<DL><DD>
+Inserts a floating-point number with the given value at the
+indicated position and pushes all succeeding elements up.
+<SAMP>idx</SAMP> must reference an existing array element
+or the position immediately past the last array element. It
+generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if
+<SAMP>res</SAMP> is not a floating-point array resource and
+a <CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+</DD></DL>
+<P>
+<A NAME="vresourceInsertIntegerAt"><HR><H4>vresourceInsertIntegerAt</H4></A>
+<PRE>
+        void <B>vresourceInsertIntegerAt</B>(
+                vresource res,
+                size_t idx,
+                int value);
+</PRE>
+
+<DL><DD>
+Inserts an integer with the given value at the indicated
+position and pushes all succeeding elements up.
+<SAMP>idx</SAMP> must reference an existing array element
+or the position immediately past the last array element. It
+generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if
+<SAMP>res</SAMP> is not an integer array resource and a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+</DD></DL>
+<P>
+<A NAME="vresourceInsertTagAt"><HR><H4>vresourceInsertTagAt</H4></A>
+<PRE>
+        void <B>vresourceInsertTagAt</B>(
+                vresource res,
+                size_t idx,
+                const vname * value);
+</PRE>
+
+<DL><DD>
+Inserts the given tag at the indicated position and pushes
+all succeeding elements up. <SAMP>idx</SAMP> must reference
+an existing array element or the position immediately past
+the last array element. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a tag array resource and a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+</DD></DL>
+<P>
+<A NAME="vresourceLoadInitRect"><HR><H4>vresourceLoadInitRect</H4></A>
+<PRE>
+        void <B>vresourceLoadInitRect</B>(
+                vrect * rect,
+                vresource res);
+</PRE>
+
+<DL><DD>
+Fills in <SAMP>rect</SAMP> with elements from the array
+resource indicated by <SAMP>res</SAMP>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an integer array resource with at least four
+elements.
+</DD></DL>
+<P>
+<A NAME="vresourceLoadInitRectFloat"><HR><H4>vresourceLoadInitRectFloat</H4></A>
+<PRE>
+        void <B>vresourceLoadInitRectFloat</B>(
+                vrectFloat * rect,
+                vresource res);
+</PRE>
+
+<DL><DD>
+Fills in <SAMP>rect</SAMP> with elements from the array
+resource indicated by <SAMP>res</SAMP>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a float array resource with at least four elements.
+</DD></DL>
+<P>
+<A NAME="vresourceLoadLongRects"><HR><H4>vresourceLoadLongRects</H4></A>
+<PRE>
+        vrectLong * <B>vresourceLoadLongRects</B>(
+                vresource res,
+                int * count);
+</PRE>
+
+<DL><DD>
+Creates an array of long rectangles (using
+<CODE><A HREF="vrect-x.html#vrectCreateSetLong"><CODE>vrectCreateSetLong</CODE></A></CODE>) with contents from the array
+resource <SAMP>res</SAMP>. It returns the number of
+rectangles in <SAMP>count</SAMP>. The rectangle array must
+be destroyed using <CODE><A HREF="vrect-x.html#vrectDestroySetLong"><CODE>vrectDestroySetLong</CODE></A></CODE> when the
+client is finished with it. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an integer array resource with at least four
+<SAMP>count</SAMP> elements.
+</DD></DL>
+<P>
+<A NAME="vresourceLoadPath"><HR><H4>vresourceLoadPath</H4></A>
+<PRE>
+        vfsPath * <B>vresourceLoadPath</B>(
+                vresource res);
+</PRE>
+
+<DL><DD>
+This function loads a <SAMP><A HREF="vfs-x.html#vfsPath"><CODE>vfsPath</CODE></A></SAMP> object from a
+resource that has been stored with
+<CODE><A HREF="vresource-x.html#vresourceStorePath"><CODE>vresourceStorePath</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vresourceLoadRects"><HR><H4>vresourceLoadRects</H4></A>
+<PRE>
+        vrect * <B>vresourceLoadRects</B>(
+                vresource res,
+                int * count);
+</PRE>
+
+<DL><DD>
+Creates an array of rectangles (using
+<CODE><A HREF="vrect-x.html#vrectCreateSet"><CODE>vrectCreateSet</CODE></A></CODE>) with contents from the array
+resource <SAMP>res</SAMP>. It returns the number of
+rectangles in <SAMP>count</SAMP>. The rectangle array must
+be destroyed using <CODE><A HREF="vrect-x.html#vrectDestroySet"><CODE>vrectDestroySet</CODE></A></CODE> when the
+client is finished with it. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an integer array resource with at least four
+<SAMP>count</SAMP> elements.
+</DD></DL>
+<P>
+<A NAME="vresourceMake"><HR><H4>vresourceMake</H4></A>
+<PRE>
+        vresource <B>vresourceMake</B>(
+                vresource res,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component named
+<SAMP>tag</SAMP>, it is returned. If no such component
+exists, creates an untyped component of <SAMP>res</SAMP>
+and stores it under <SAMP>tag</SAMP>. This untyped resource
+is useful as a placeholder until a subsequent
+<SAMP>vresourceSet</SAMP> operation is used to establish
+the type and value of the component. Note that making a
+resource forces it to exist, and an existing resource is
+left as is. Creating a resource also forces it to exist,
+but an existing resource is removed. This function
+generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if
+<SAMP>res</SAMP> is not a dictionary resource.
+</DD></DL>
+<P>
+<A NAME="vresourceMakeArray"><HR><H4>vresourceMakeArray</H4></A>
+<PRE>
+        vresource <B>vresourceMakeArray</B>(
+                vresource res,
+                const vname * tag,
+                int componentType,
+                size_t initialSize);
+</PRE>
+
+<DL><DD>
+Creates an array of the given type if one does not already
+exist. Leaves the old one there if it already exists. It
+returns the <SAMP>vresource</SAMP> of the array in either
+case. Note that making a resource forces it to exist, and
+an existing resource is left as is. Creating a resource
+also forces it to exist, but an existing resource is
+removed. This function generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a dictionary resource.
+</DD></DL>
+<P>
+<A NAME="vresourceOpenBuffer"><HR><H4>vresourceOpenBuffer</H4></A>
+<PRE>
+        vresource <B>vresourceOpenBuffer</B>(
+                const vbyte * data,
+                size_t size);
+</PRE>
+
+<DL><DD>
+Opens a memory resource file whose data is represented by the given buffer.
+The data is copied internally by the Resource class, so the data buffer 
+can be discarded after the call is made.
+</DD></DL>
+<P>
+<A NAME="vresourceOpenFile"><HR><H4>vresourceOpenFile</H4></A>
+<PRE>
+        vresource <B>vresourceOpenFile</B>(
+                const vfsPath * fileName,
+                int typeAccess);
+</PRE>
+
+<DL><DD>
+
+Opens the specified file and returns the
+<SAMP>vresource</SAMP> referring to its top-level
+dictionary. Based on this identifier, the application can
+then ``get'' or ``put'' individual resources or
+dictionaries that contain other resources.
+<SAMP>typeAccess</SAMP> is either
+<SAMP>vfsOPEN_READ_ONLY</SAMP> or
+<SAMP>vfsOPEN_READ_WRITE</SAMP>. File system exceptions are
+generated if the resource file cannot be opened, a
+<CODE><A HREF="vex-x.html#vexReturnNullException"><CODE>vexReturnNullException</CODE></A></CODE> exception on B-Tree
+Manager problems, a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception
+if the given file is not a B-Tree, and a
+<CODE><A HREF="vex-x.html#vexModuleLimitException"><CODE>vexModuleLimitException</CODE></A></CODE> exception if the limit
+on the number of open resource files has been reached
+Refer to the section <SAMP>vresourceMAX_FILES</SAMP> for 
+more information.
+</DD></DL>
+<P>
+<A NAME="vresourceOpenInternal"><HR><H4>vresourceOpenInternal</H4></A>
+<PRE>
+        vresource <B>vresourceOpenInternal</B>(
+                const void * data);
+</PRE>
+
+<DL><DD>
+Opens for read-only access a resource file that is the
+compiled form of data written by
+<CODE><A HREF="vresource-x.html#vresourceWriteDefinition"><CODE>vresourceWriteDefinition</CODE></A></CODE>. Based on this
+identifier, the application can then ``get'' individual
+resources or dictionaries that contain other resources. Be
+sure to pass the address of the generated data, not the
+generated data itself. A
+<CODE><A HREF="vex-x.html#vexModuleLimitException"><CODE>vexModuleLimitException</CODE></A></CODE> exception is generated
+if the limit on the number of open resource files has been
+reached (refer to <SAMP>vresourceMAX_FILES</SAMP>).
+</DD></DL>
+<P>
+<A NAME="vresourceRelocateAt"><HR><H4>vresourceRelocateAt</H4></A>
+<PRE>
+        void <B>vresourceRelocateAt</B>(
+                vresource res,
+                size_t fromIndex,
+                size_t toIndex);
+</PRE>
+
+<DL><DD>
+Moves an element of an array resource from one index to another. Intervening
+elements are moved either up or down to take up the empty space.  
+The result is as if the resource was removed from the first index, and then 
+inserted at the second index.
+</DD></DL>
+<P>
+<A NAME="vresourceRemove"><HR><H4>vresourceRemove</H4></A>
+<PRE>
+        void <B>vresourceRemove</B>(
+                vresource res,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Removes the component <SAMP>res</SAMP> stored under
+<SAMP>tag</SAMP> and all of its components, if any.
+Dictionaries and arrays of dictionaries are recursively
+removed. If <SAMP>tag</SAMP> is
+<SAMP>vresourceTAG_NULL</SAMP>, then <SAMP>res</SAMP>
+itself is removed. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a dictionary resource.
+</DD></DL>
+<P>
+<A NAME="vresourceRemoveAt"><HR><H4>vresourceRemoveAt</H4></A>
+<PRE>
+        void <B>vresourceRemoveAt</B>(
+                vresource res,
+                size_t idx);
+</PRE>
+
+<DL><DD>
+Removes an element from an array. All items following
+<SAMP>idx</SAMP> are moved one position down in the array.
+It generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if
+<SAMP>res</SAMP> is not an array resource, or if
+<SAMP>idx</SAMP> is an invalid array index.
+</DD></DL>
+<P>
+<A NAME="vresourceRemoveIfExists"><HR><H4>vresourceRemoveIfExists</H4></A>
+<PRE>
+        void <B>vresourceRemoveIfExists</B>(
+                vresource res,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Removes the specified resource if it exists. Removes the
+component <SAMP>res</SAMP> stored under <SAMP>tag</SAMP>
+and all of its components, if any. Dictionaries and arrays
+of dictionaries are recursively removed. If
+<SAMP>tag</SAMP> is <SAMP>vresourceTAG_NULL</SAMP>, then
+<SAMP>res</SAMP> itself is removed. No action is taken if
+the specified resource does not exist. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a dictionary resource.
+</DD></DL>
+<P>
+<A NAME="vresourceRename"><HR><H4>vresourceRename</H4></A>
+<PRE>
+        void <B>vresourceRename</B>(
+                vresource res,
+                const vname * oldtag,
+                const vname * newtag);
+</PRE>
+
+<DL><DD>
+Changes the tag on a resource. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if
+<SAMP>oldtag</SAMP> does not exist or if
+<SAMP>newtag</SAMP> already tags another element of
+<SAMP>res</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceScribeString"><HR><H4>vresourceScribeString</H4></A>
+<PRE>
+        vscribe * <B>vresourceScribeString</B>(
+                vresource res,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Returns a scribe that writes out the component of
+<SAMP>res</SAMP> stored under <SAMP>tag</SAMP>. It
+generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if there
+is no such component, or if the component is not of type
+<SAMP>vresourceSTRING</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceScribeStringAt"><HR><H4>vresourceScribeStringAt</H4></A>
+<PRE>
+        vscribe * <B>vresourceScribeStringAt</B>(
+                vresource res,
+                size_t idx);
+</PRE>
+
+<DL><DD>
+Returns a scribe that writes out the element of
+<SAMP>res</SAMP> stored at index <SAMP>idx</SAMP>. It
+generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if
+<SAMP>res</SAMP> is not an array of type
+<SAMP>vresourceSTRING</SAMP> and a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range.
+</DD></DL>
+<P>
+<A NAME="vresourceSetArraySize"><HR><H4>vresourceSetArraySize</H4></A>
+<PRE>
+        void <B>vresourceSetArraySize</B>(
+                vresource res,
+                size_t newSize);
+</PRE>
+
+<DL><DD>
+Sets the array to have the given number of elements. Excess
+elements are removed by <CODE><A HREF="vresource-x.html#vresourceRemoveAt"><CODE>vresourceRemoveAt</CODE></A></CODE>. It
+generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if
+<SAMP>res</SAMP> is not an array resource.
+</DD></DL>
+<P>
+<A NAME="vresourceSetBoolean"><HR><H4>vresourceSetBoolean</H4></A>
+<PRE>
+        void <B>vresourceSetBoolean</B>(
+                vresource res,
+                const vname * tag,
+                int value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceBOOLEAN</SAMP> stored under
+<SAMP>tag</SAMP>, its value is set to <SAMP>value</SAMP>.
+If there is no such component, one is created. It generates
+a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if
+<SAMP>res</SAMP> is not a dictionary resource.
+</DD></DL>
+<P>
+<A NAME="vresourceSetBooleanAt"><HR><H4>vresourceSetBooleanAt</H4></A>
+<PRE>
+        void <B>vresourceSetBooleanAt</B>(
+                vresource res,
+                size_t idx,
+                int value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> is an array of type
+<SAMP>vresourceBOOLEAN</SAMP>, the item at index
+<SAMP>idx</SAMP> is set to <SAMP>value</SAMP>. It generates
+a <CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range and a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an array resource with elements of type
+<SAMP>vresourceBOOLEAN</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceSetChar"><HR><H4>vresourceSetChar</H4></A>
+<PRE>
+        void <B>vresourceSetChar</B>(
+                vresource res,
+                const vname * tag,
+                int value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceCHAR</SAMP> stored under <SAMP>tag</SAMP>,
+its value is set to <SAMP>value</SAMP>. If there is no such
+component, one is created. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a dictionary resource.
+</DD></DL>
+<P>
+<A NAME="vresourceSetCharAt"><HR><H4>vresourceSetCharAt</H4></A>
+<PRE>
+        void <B>vresourceSetCharAt</B>(
+                vresource res,
+                size_t idx,
+                int value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> is an array of type
+<SAMP>vresourceCHAR</SAMP>, the item at index
+<SAMP>idx</SAMP> is set to <SAMP>value</SAMP>. It generates
+a <CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range and a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an array resource with elements of type
+<SAMP>vresourceCHAR</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceSetFixed"><HR><H4>vresourceSetFixed</H4></A>
+<PRE>
+        void <B>vresourceSetFixed</B>(
+                vresource res,
+                const vname * tag,
+                vfixed value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceFIXED</SAMP> stored under <SAMP>tag</SAMP>,
+its value is set to <SAMP>value</SAMP>. If there is no such
+component, one is created. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a dictionary resource.
+</DD></DL>
+<P>
+<A NAME="vresourceSetFixedAt"><HR><H4>vresourceSetFixedAt</H4></A>
+<PRE>
+        void <B>vresourceSetFixedAt</B>(
+                vresource res,
+                size_t idx,
+                vfixed value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> is an array of type
+<SAMP>vresourceFIXED</SAMP>, the item at index
+<SAMP>idx</SAMP> is set to <SAMP>value</SAMP>. It generates
+a <CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range and a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an array resource with elements of type
+<SAMP>vresourceFIXED</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceSetFloat"><HR><H4>vresourceSetFloat</H4></A>
+<PRE>
+        void <B>vresourceSetFloat</B>(
+                vresource res,
+                const vname * tag,
+                double value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceFLOAT</SAMP> stored under <SAMP>tag</SAMP>,
+its value is set to <SAMP>value</SAMP>. If there is no such
+component, one is created. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a dictionary resource.
+</DD></DL>
+<P>
+<A NAME="vresourceSetFloatAt"><HR><H4>vresourceSetFloatAt</H4></A>
+<PRE>
+        void <B>vresourceSetFloatAt</B>(
+                vresource res,
+                size_t idx,
+                double value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> is an array of type
+<SAMP>vresourceFLOAT</SAMP>, the item at index
+<SAMP>idx</SAMP> is set to <SAMP>value</SAMP>. It generates
+a <CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range and a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an array resource with elements of type
+<SAMP>vresourceFLOAT</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceSetInteger"><HR><H4>vresourceSetInteger</H4></A>
+<PRE>
+        void <B>vresourceSetInteger</B>(
+                vresource res,
+                const vname * tag,
+                int value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceINTEGER</SAMP> stored under
+<SAMP>tag</SAMP>, its value is set to <SAMP>value</SAMP>.
+If there is no such component, one is created. It generates
+a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if
+<SAMP>res</SAMP> is not a dictionary resource.
+</DD></DL>
+<P>
+<A NAME="vresourceSetIntegerAt"><HR><H4>vresourceSetIntegerAt</H4></A>
+<PRE>
+        void <B>vresourceSetIntegerAt</B>(
+                vresource res,
+                size_t idx,
+                int value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> is an array of type
+<SAMP>vresourceINTEGER</SAMP>, the item at index
+<SAMP>idx</SAMP> is set to <SAMP>value</SAMP>. It generates
+a <CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range and a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an array resource with elements of type
+<SAMP>vresourceINTEGER</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceSetOpaque"><HR><H4>vresourceSetOpaque</H4></A>
+<PRE>
+        void <B>vresourceSetOpaque</B>(
+                vresource res,
+                const vname * tag,
+                const vbyte * value,
+                size_t length);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceOPAQUE</SAMP> stored under <SAMP>tag</SAMP>,
+its value is set to the contents of <SAMP>value</SAMP>, for
+<SAMP>length</SAMP> bytes. If there is no such component,
+one is created. Note that the client program is responsible
+for storing and retrieving the value of opaque resources in
+portable fashion. This function generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a dictionary resource.
+</DD></DL>
+<P>
+<A NAME="vresourceSetOpaqueAt"><HR><H4>vresourceSetOpaqueAt</H4></A>
+<PRE>
+        void <B>vresourceSetOpaqueAt</B>(
+                vresource res,
+                size_t idx,
+                const vbyte * value,
+                size_t length);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> is an array of type
+<SAMP>vresourceOPAQUE</SAMP>, the item at index
+<SAMP>idx</SAMP> is set to the contents of
+<SAMP>value</SAMP>, for <SAMP>length</SAMP> bytes. Note
+that the client program is responsible for storing and
+retrieving the value of opaque resources in portable
+fashion. This function generates a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range and a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an array resource with elements of type
+<SAMP>vresourceOPAQUE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceSetScrap"><HR><H4>vresourceSetScrap</H4></A>
+<PRE>
+        void <B>vresourceSetScrap</B>(
+                vresource res,
+                const vname * tag,
+                vscrap * scrap);
+</PRE>
+
+<DL><DD>
+Sets the component of <SAMP>res</SAMP> with tag
+<SAMP>tag</SAMP> to <SAMP>scrap</SAMP>. If <SAMP>tag</SAMP>
+is <SAMP>NULL</SAMP>, <SAMP>res</SAMP> is set to
+<SAMP>scrap</SAMP>. If <SAMP>res</SAMP> has no component
+with tag <SAMP>tag</SAMP>, this function generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE>. If <SAMP>scrap</SAMP> cannot
+be converted to a resource, this function generates a
+<CODE><A HREF="vscrap-x.html#vscrapCannotConvertException"><CODE>vscrapCannotConvertException</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vresourceSetScrapAt"><HR><H4>vresourceSetScrapAt</H4></A>
+<PRE>
+        void <B>vresourceSetScrapAt</B>(
+                vresource res,
+                size_t idx,
+                vscrap * value);
+</PRE>
+
+<DL><DD>
+Sets the component of <SAMP>res</SAMP> with index
+<SAMP>idx</SAMP> to <SAMP>value</SAMP>. If <SAMP>res</SAMP>
+has no component with index <SAMP>idx</SAMP>, this function
+generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE>. If
+<SAMP>scrap</SAMP> cannot be converted to a resource, this
+function generates a
+<CODE><A HREF="vscrap-x.html#vscrapCannotConvertException"><CODE>vscrapCannotConvertException</CODE></A></CODE>. If
+<SAMP>res</SAMP> is not a <CODE>vresourceARRAY</CODE>, this
+function generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vresourceSetString"><HR><H4>vresourceSetString</H4></A>
+<PRE>
+        void <B>vresourceSetString</B>(
+                vresource res,
+                const vname * tag,
+                const vchar * value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceSTRING</SAMP> stored under <SAMP>tag</SAMP>,
+its value is set to <SAMP>value</SAMP>. If there is no such
+component, one is created. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a dictionary resource.
+</DD></DL>
+<P>
+<A NAME="vresourceSetStringAt"><HR><H4>vresourceSetStringAt</H4></A>
+<PRE>
+        void <B>vresourceSetStringAt</B>(
+                vresource res,
+                size_t idx,
+                const vchar * value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> is an array of type
+<SAMP>vresourceSTRING</SAMP>, the item at index
+<SAMP>idx</SAMP> is set to <SAMP>value</SAMP>. It generates
+a <CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range and a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an array resource with elements of type
+<SAMP>vresourceSTRING</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceSetStringAtScribed"><HR><H4>vresourceSetStringAtScribed</H4></A>
+<PRE>
+        void <B>vresourceSetStringAtScribed</B>(
+                vresource res,
+                size_t idx,
+                vscribe * value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> is an array of type
+<SAMP>vresourceSTRING</SAMP>, the item at index
+<SAMP>idx</SAMP> is set to the string provided by
+<SAMP>value</SAMP>. It generates a
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range and a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an array resource with elements of type
+<SAMP>vresourceSTRING</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceSetStringBuf"><HR><H4>vresourceSetStringBuf</H4></A>
+<PRE>
+        void <B>vresourceSetStringBuf</B>(
+                vresource res,
+                const vname * tag,
+                const vchar * buffer,
+                size_t length);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceSTRING</SAMP> stored under <SAMP>tag</SAMP>,
+its value is set to the contents of <SAMP>buffer</SAMP>,
+for <SAMP>length</SAMP> characters. If there is no such
+component, one is created. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a dictionary resource.
+</DD></DL>
+<P>
+<A NAME="vresourceSetStringBufAt"><HR><H4>vresourceSetStringBufAt</H4></A>
+<PRE>
+        void <B>vresourceSetStringBufAt</B>(
+                vresource res,
+                size_t idx,
+                const vchar * buffer,
+                size_t length);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> is an array of type
+<SAMP>vresourceSTRING</SAMP>, the item at index
+<SAMP>idx</SAMP> is set to the contents of
+<SAMP>buffer</SAMP>, for <SAMP>length</SAMP> characters. It
+generates a <CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range and a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an array resource with elements of type
+<SAMP>vresourceTAG</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceSetStringScribed"><HR><H4>vresourceSetStringScribed</H4></A>
+<PRE>
+        void <B>vresourceSetStringScribed</B>(
+                vresource res,
+                const vname * tag,
+                vscribe * value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceSTRING</SAMP> stored under <SAMP>tag</SAMP>,
+its value is set to the string provided by
+<SAMP>value</SAMP>. If there is no such component, one is
+created. It generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE>
+exception if <SAMP>res</SAMP> is not a dictionary resource.
+</DD></DL>
+<P>
+<A NAME="vresourceSetTag"><HR><H4>vresourceSetTag</H4></A>
+<PRE>
+        void <B>vresourceSetTag</B>(
+                vresource res,
+                const vname * tag,
+                const vname * value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceTAG</SAMP> stored under <SAMP>tag</SAMP>,
+its value is set to <SAMP>value</SAMP>. If there is no such
+component, one is created. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a dictionary resource.
+</DD></DL>
+<P>
+<A NAME="vresourceSetTagAt"><HR><H4>vresourceSetTagAt</H4></A>
+<PRE>
+        void <B>vresourceSetTagAt</B>(
+                vresource res,
+                size_t idx,
+                const vname * value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> is an array of type
+<SAMP>vresourceTAG</SAMP>, the item at index
+<SAMP>idx</SAMP> is set to <SAMP>value</SAMP>. It generates
+a <CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> exception if
+<SAMP>idx</SAMP> is out of range and a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not an array resource with elements of type
+<SAMP>vresourceTAG</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceStartup"><HR><H4>vresourceStartup</H4></A>
+<PRE>
+        void <B>vresourceStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the Resource class. Has no effect if the
+Resource class is already initialized.
+</DD></DL>
+<P>
+<A NAME="vresourceStoreLongRects"><HR><H4>vresourceStoreLongRects</H4></A>
+<PRE>
+        void <B>vresourceStoreLongRects</B>(
+                const vrectLong * rects,
+                int count,
+                vresource res);
+</PRE>
+
+<DL><DD>
+Creates an array resource (if necessary) and stores the
+given set of long rectangles in the array. <SAMP>rects</SAMP>
+points to the array of long rectangles. <SAMP>count</SAMP> is
+the number of rectangles in the array.
+</DD></DL>
+<P>
+<A NAME="vresourceStorePath"><HR><H4>vresourceStorePath</H4></A>
+<PRE>
+        void <B>vresourceStorePath</B>(
+                vfsPath * path,
+                vresource res);
+</PRE>
+
+<DL><DD>
+This function stores a <SAMP><A HREF="vfs-x.html#vfsPath"><CODE>vfsPath</CODE></A></SAMP> object into a
+resource in a machine portable format. It makes an attempt
+to achieve machine independence in trying to deal with
+differences in paths and volumes across platforms. Thus if
+a particular operating system has no concept of volumes or
+volume reference numbers, this information in the resource
+is not used, but is stored in the in-core
+<SAMP><A HREF="vfs-x.html#vfsPath"><CODE>vfsPath</CODE></A></SAMP> structure to the extent that this is
+possible. It assumes the resource passed in is an untyped
+resource created with <CODE><A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vresourceStoreRect"><HR><H4>vresourceStoreRect</H4></A>
+<PRE>
+        void <B>vresourceStoreRect</B>(
+                const vrect * rect,
+                vresource res);
+</PRE>
+
+<DL><DD>
+Creates integer array resource <SAMP>res</SAMP> (if
+necessary) and then writes the rectangle into the resource.
+</DD></DL>
+<P>
+<A NAME="vresourceStoreRectFloat"><HR><H4>vresourceStoreRectFloat</H4></A>
+<PRE>
+        void <B>vresourceStoreRectFloat</B>(
+                const vrectFloat * rect,
+                vresource res);
+</PRE>
+
+<DL><DD>
+Creates float array resource <SAMP>res</SAMP> (if
+necessary) and then writes the rectangle into the resource.
+</DD></DL>
+<P>
+<A NAME="vresourceStoreRects"><HR><H4>vresourceStoreRects</H4></A>
+<PRE>
+        void <B>vresourceStoreRects</B>(
+                const vrect * rects,
+                int count,
+                vresource res);
+</PRE>
+
+<DL><DD>
+Creates an array resource (if necessary) and stores the
+given set of rectangles in the array. <SAMP>rects</SAMP>
+points to the array of rectangles. <SAMP>count</SAMP> is
+the number of rectangles in the array.
+</DD></DL>
+<P>
+<A NAME="vresourceTestFile"><HR><H4>vresourceTestFile</H4></A>
+<PRE>
+        int <B>vresourceTestFile</B>(
+                const vfsPath * fileName);
+</PRE>
+
+<DL><DD>
+Tests whether the file pointed to by <SAMP>fileName</SAMP>
+is a resource file or not.
+    <P>
+Returns <CODE>vresourceNO_FILE</CODE> if the file is not a
+resource file. Returns <CODE>vresourceBTREE_FILE</CODE> or
+<CODE>vresourceCHUNK_FILE</CODE> if the file is a resource
+file.
+    <P>
+Note that <CODE>vresourceNO_FILE</CODE> is equivalent to
+<CODE>FALSE</CODE>
+</DD></DL>
+<P>
+<A NAME="vresourceTestGet"><HR><H4>vresourceTestGet</H4></A>
+<PRE>
+        vbool <B>vresourceTestGet</B>(
+                vresource res,
+                const vname * tag,
+                vresource * value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component stored under
+<SAMP>tag</SAMP>, it is placed into <SAMP>value</SAMP> and
+<SAMP>TRUE</SAMP> is returned. If there is no such
+component, <SAMP>FALSE</SAMP> is returned and
+<SAMP>value</SAMP> is not modified. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a dictionary resource.
+</DD></DL>
+<P>
+<A NAME="vresourceTestGetArray"><HR><H4>vresourceTestGetArray</H4></A>
+<PRE>
+        vbool <B>vresourceTestGetArray</B>(
+                vresource res,
+                const vname * tag,
+                void ** value,
+                size_t * length);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> If <SAMP>res</SAMP> contains an array under
+<SAMP>tag</SAMP>, it is placed in memory allocated by
+<CODE><A HREF="vmem-x.html#vmemAlloc"><CODE>vmemAlloc</CODE></A></CODE> under <SAMP>value</SAMP>, the number
+of elements is stored in <SAMP>length</SAMP>, and
+<SAMP>TRUE</SAMP> is returned. If <SAMP>tag</SAMP> does not
+exist or is not an array, <SAMP>FALSE</SAMP> is returned
+and <SAMP>value</SAMP> and <SAMP>length</SAMP> are not
+modified. It generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE>
+exception if <SAMP>res</SAMP> is not a dictionary resource.
+</DD></DL>
+<P>
+<A NAME="vresourceTestGetBoolean"><HR><H4>vresourceTestGetBoolean</H4></A>
+<PRE>
+        vbool <B>vresourceTestGetBoolean</B>(
+                vresource res,
+                const vname * tag,
+                vbool * value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceBOOLEAN</SAMP> stored under
+<SAMP>tag</SAMP>, it is placed into <SAMP>value</SAMP> and
+<SAMP>TRUE</SAMP> is returned. If there is no such
+component, <SAMP>FALSE</SAMP> is returned and
+<SAMP>value</SAMP> is not modified. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a dictionary resource, or if there is such a
+component but of a different type.
+</DD></DL>
+<P>
+<A NAME="vresourceTestGetChar"><HR><H4>vresourceTestGetChar</H4></A>
+<PRE>
+        vbool <B>vresourceTestGetChar</B>(
+                vresource res,
+                const vname * tag,
+                vchar * value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceCHAR</SAMP> stored under <SAMP>tag</SAMP>,
+it is placed into <SAMP>value</SAMP> and <SAMP>TRUE</SAMP>
+is returned. If there is no such component,
+<SAMP>FALSE</SAMP> is returned and <SAMP>value</SAMP> is
+not modified. It generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE>
+exception if <SAMP>res</SAMP> is not a dictionary resource,
+or if there is such a component but of a different type.
+</DD></DL>
+<P>
+<A NAME="vresourceTestGetFixed"><HR><H4>vresourceTestGetFixed</H4></A>
+<PRE>
+        vbool <B>vresourceTestGetFixed</B>(
+                vresource res,
+                const vname * tag,
+                vfixed * value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceFIXED</SAMP> stored under <SAMP>tag</SAMP>,
+it is placed into <SAMP>value</SAMP> and <SAMP>TRUE</SAMP>
+is returned. If there is no such component,
+<SAMP>FALSE</SAMP> is returned and <SAMP>value</SAMP> is
+not modified. It generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE>
+exception if <SAMP>res</SAMP> is not a dictionary resource,
+or if there is such a component but of a different type.
+</DD></DL>
+<P>
+<A NAME="vresourceTestGetFloat"><HR><H4>vresourceTestGetFloat</H4></A>
+<PRE>
+        vbool <B>vresourceTestGetFloat</B>(
+                vresource res,
+                const vname * tag,
+                double * value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceFLOAT</SAMP> stored under <SAMP>tag</SAMP>,
+it is placed into <SAMP>value</SAMP> and <SAMP>TRUE</SAMP>
+is returned. If there is no such component,
+<SAMP>FALSE</SAMP> is returned and <SAMP>value</SAMP> is
+not modified. It generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE>
+exception if <SAMP>res</SAMP> is not a dictionary resource,
+or if there is such a component but of a different type.
+</DD></DL>
+<P>
+<A NAME="vresourceTestGetInteger"><HR><H4>vresourceTestGetInteger</H4></A>
+<PRE>
+        vbool <B>vresourceTestGetInteger</B>(
+                vresource res,
+                const vname * tag,
+                int * value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceINTEGER</SAMP> stored under
+<SAMP>tag</SAMP>, it is placed into <SAMP>value</SAMP> and
+<SAMP>TRUE</SAMP> is returned. If there is no such
+component, <SAMP>FALSE</SAMP> is returned and
+<SAMP>value</SAMP> is not modified. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a dictionary resource, or if there is such a
+component but of a different type.
+</DD></DL>
+<P>
+<A NAME="vresourceTestGetOpaque"><HR><H4>vresourceTestGetOpaque</H4></A>
+<PRE>
+        vbool <B>vresourceTestGetOpaque</B>(
+                vresource res,
+                const vname * tag,
+                vbyte ** buffer,
+                size_t * length);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceOPAQUE</SAMP> stored under <SAMP>tag</SAMP>,
+it is placed into <SAMP>buffer</SAMP> and <SAMP>TRUE</SAMP>
+is returned. If there is no such component,
+<SAMP>FALSE</SAMP> is returned and <SAMP>buffer</SAMP> is
+not modified. The value placed into <SAMP>value</SAMP>
+points to a block of memory allocated with
+<CODE><A HREF="vmem-x.html#vmemAlloc"><CODE>vmemAlloc</CODE></A></CODE>, which must then be freed by the
+application. The size of this block is returned in
+<SAMP>length</SAMP>. Note that the client program is
+responsible for storing and retrieving the value of opaque
+resources in portable fashion. This function generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a dictionary resource, or if there is such a
+component but of a different type.
+</DD></DL>
+<P>
+<A NAME="vresourceTestGetScrap"><HR><H4>vresourceTestGetScrap</H4></A>
+<PRE>
+        vbool <B>vresourceTestGetScrap</B>(
+                vresource res,
+                const vname * tag,
+                vscrap ** scrap);
+</PRE>
+
+<DL><DD>
+Attempts to store the <CODE><A HREF="vscrap-x.html#vscrap"><CODE>vscrap</CODE></A></CODE> equivalent to the
+component of <SAMP>res</SAMP> with tag <SAMP>tag</SAMP> in
+<SAMP>scrap</SAMP>. If <SAMP>tag</SAMP> is
+<SAMP>NULL</SAMP>, this function attempts to convert
+<SAMP>res</SAMP> to a <CODE><A HREF="vscrap-x.html#vscrap"><CODE>vscrap</CODE></A></CODE> and store it in
+<SAMP>scrap</SAMP>. If there is no component with tag
+<SAMP>tag</SAMP> in <SAMP>res</SAMP>, this function returns
+<SAMP>FALSE</SAMP> and <SAMP>scrap</SAMP> is not changed,
+otherwise this function returns <SAMP>TRUE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vresourceTestGetString"><HR><H4>vresourceTestGetString</H4></A>
+<PRE>
+        vbool <B>vresourceTestGetString</B>(
+                vresource res,
+                const vname * tag,
+                vstr ** value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceSTRING</SAMP> stored under <SAMP>tag</SAMP>,
+it is placed into <SAMP>value</SAMP> and <SAMP>TRUE</SAMP>
+is returned. If there is no such component,
+<SAMP>FALSE</SAMP> is returned and <SAMP>value</SAMP> is
+not modified. The return value points to a block of memory
+allocated with <CODE><A HREF="vstr-x.html#vstrCreate"><CODE>vstrCreate</CODE></A></CODE>, which must then be
+freed by the application. A <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE>
+exception is generated if <SAMP>res</SAMP> is not a
+dictionary resource, or if there is such a component but of
+a different type.
+</DD></DL>
+<P>
+<A NAME="vresourceTestGetStringBuf"><HR><H4>vresourceTestGetStringBuf</H4></A>
+<PRE>
+        vbool <B>vresourceTestGetStringBuf</B>(
+                vresource res,
+                const vname * tag,
+                size_t offset,
+                vchar * buffer,
+                size_t maxLength,
+                size_t * length);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceSTRING</SAMP> stored under <SAMP>tag</SAMP>,
+the portion requested is stored into <SAMP>buffer</SAMP>,
+up to a maximum of <SAMP>maxLength</SAMP> characters.
+<SAMP>offset</SAMP> is an offset into the stored string. A
+stored string can be longer than the application wants to
+process all at once; by using
+<CODE><A HREF="vresource-x.html#vresourceGetStringBuf"><CODE>vresourceGetStringBuf</CODE></A></CODE>, it can grab the string
+in smaller chunks. Note that <SAMP>buffer</SAMP> must point
+to a suitable block of memory allocated by the client
+program. The client can determine the size of the stored
+string by using <CODE><A HREF="vresource-x.html#vresourceGetSize"><CODE>vresourceGetSize</CODE></A></CODE>. The actual
+number of characters retrieved is placed into
+<SAMP>length</SAMP>, and <SAMP>TRUE</SAMP> is returned. If
+there is no such component, <SAMP>FALSE</SAMP> is returned
+and the contents of <SAMP>buffer</SAMP> are not modified.
+This function generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE>
+exception if <SAMP>res</SAMP> is not a dictionary resource,
+or if there is such a component but of a different type.
+</DD></DL>
+<P>
+<A NAME="vresourceTestGetTag"><HR><H4>vresourceTestGetTag</H4></A>
+<PRE>
+        vbool <B>vresourceTestGetTag</B>(
+                vresource res,
+                const vname * tag,
+                const vname ** value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceTAG</SAMP> stored under <SAMP>tag</SAMP>, it
+is placed into <SAMP>value</SAMP> and <SAMP>TRUE</SAMP> is
+returned. If there is no such component, <SAMP>FALSE</SAMP>
+is returned and <SAMP>value</SAMP> is not modified. It
+generates a <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if
+<SAMP>res</SAMP> is not a dictionary resource, or if there
+is such a component but of a different type.
+</DD></DL>
+<P>
+<A NAME="vresourceTestScribeString"><HR><H4>vresourceTestScribeString</H4></A>
+<PRE>
+        vbool <B>vresourceTestScribeString</B>(
+                vresource res,
+                const vname * tag,
+                vscribe ** value);
+</PRE>
+
+<DL><DD>
+If <SAMP>res</SAMP> contains a component of type
+<SAMP>vresourceSTRING</SAMP> stored under <SAMP>tag</SAMP>,
+a scribe that writes it out is placed in <SAMP>value</SAMP>
+and <SAMP>TRUE</SAMP> is returned. If there is no such
+component, <SAMP>FALSE</SAMP> is returned and
+<SAMP>value</SAMP> is not modified. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not a dictionary resource, or if there is such a
+component but of a different type.
+</DD></DL>
+<P>
+<A NAME="vresourceType"><HR><H4>vresourceType</H4></A>
+<PRE>
+        int <B>vresourceType</B>(
+                vresource res);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Returns the type of the specified resource, denoted by one
+of the following constants:
+    <P>
+<BLOCKQUOTE>
+
+<TABLE BORDER>
+<TR>
+<TD><CODE>vresourceUNTYPED</CODE></TD>
+<TD><CODE>vresourceSTRING</CODE></TD>
+<TD><CODE>vresourceDICT</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceFLOAT</CODE></TD>
+<TD><CODE>vresourceCHAR</CODE></TD>
+<TD><CODE>vresourceARRAY</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceBOOLEAN</CODE></TD>
+<TD><CODE>vresourceTAG</CODE></TD>
+<TD><CODE>vresourceOPAQUE</CODE></TD> 
+</TR>
+<TR>
+<TD><CODE>vresourceINTEGER</CODE></TD>
+<TD><CODE>vresourceFIXED</CODE></TD> <TD></TD> 
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+    <P>
+The root of any resource file is of type
+<SAMP>vresourceDICT</SAMP>.
+    <P>
+This deprecated funtion is included for backward
+compatibility. The recommended call is
+<CODE><A HREF="vresource-x.html#vresourceGetType"><CODE>vresourceGetType</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vresourceWriteDefinition"><HR><H4>vresourceWriteDefinition</H4></A>
+<PRE>
+        void <B>vresourceWriteDefinition</B>(
+                vresource res,
+                vfsFile * stream,
+                const vchar * prefix);
+</PRE>
+
+<DL><DD>
+Writes the ``C-language'' definition of resource file
+<SAMP>res</SAMP> (which must be the root dictionary of the
+resource file) to the stream, with a data structure named
+<SAMP>prefix</SAMP>. The resulting definition can then be
+compiled and the address of the data passed to
+<CODE><A HREF="vresource-x.html#vresourceOpenInternal"><CODE>vresourceOpenInternal</CODE></A></CODE>. It generates a
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> exception if <SAMP>res</SAMP>
+is not the root of a resource file.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vresourceARRAY"><HR><H4>vresourceARRAY</H4></A>
+<PRE>
+        <B>vresourceARRAY</B>
+</PRE>
+<A NAME="vresourceBOOLEAN"><PRE>
+        <B>vresourceBOOLEAN</B>
+</PRE>
+</A>
+<A NAME="vresourceCHAR"><PRE>
+        <B>vresourceCHAR</B>
+</PRE>
+</A>
+<A NAME="vresourceINTEGER"><PRE>
+        <B>vresourceINTEGER</B>
+</PRE>
+</A>
+<A NAME="vresourceDICT"><PRE>
+        <B>vresourceDICT</B>
+</PRE>
+</A>
+<A NAME="vresourceFIXED"><PRE>
+        <B>vresourceFIXED</B>
+</PRE>
+</A>
+<A NAME="vresourceFLOAT"><PRE>
+        <B>vresourceFLOAT</B>
+</PRE>
+</A>
+<A NAME="vresourceSTRING"><PRE>
+        <B>vresourceSTRING</B>
+</PRE>
+</A>
+<A NAME="vresourceTAG"><PRE>
+        <B>vresourceTAG</B>
+</PRE>
+</A>
+<A NAME="vresourceUNTYPED"><PRE>
+        <B>vresourceUNTYPED</B>
+</PRE>
+</A>
+<A NAME="vresourceOPAQUE"><PRE>
+        <B>vresourceOPAQUE</B>
+</PRE>
+</A>
+
+<DL><DD>
+These values denote the various fundamental resource types.
+Note that untyped resources are simply placeholders that
+can be set to any resource type using a
+<SAMP>vresourceSet</SAMP> operation.
+</DD></DL>
+<P>
+<A NAME="vresourceBTREE_FILE"><HR><H4>vresourceBTREE_FILE</H4></A>
+<PRE>
+        <B>vresourceBTREE_FILE</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vresourceCHUNK_FILE"><HR><H4>vresourceCHUNK_FILE</H4></A>
+<PRE>
+        <B>vresourceCHUNK_FILE</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vresourceCREATE_CURRENT"><HR><H4>vresourceCREATE_CURRENT</H4></A>
+<PRE>
+        <B>vresourceCREATE_CURRENT</B>
+</PRE>
+
+<DL><DD>
+All subsequent <CODE><A HREF="vresource-x.html#vresourceCreateFile"><CODE>vresourceCreateFile</CODE></A></CODE> operations
+create resource files which are compatible with Release 2
+of Galaxy only.
+</DD></DL>
+<P>
+<A NAME="vresourceINCLUDED"><HR><H4>vresourceINCLUDED</H4></A>
+<PRE>
+        <B>vresourceINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vresource.h</SAMP> is
+included.
+</DD></DL>
+<P>
+<A NAME="vresourceMAX_FILES"><HR><H4>vresourceMAX_FILES</H4></A>
+<PRE>
+        <B>vresourceMAX_FILES</B>
+</PRE>
+
+<DL><DD>
+Denotes the maximum number of resource files that can be
+held open by the application at a single time. If no such
+limit exists, the largest positive integer representable on
+the platform is returned.
+</DD></DL>
+<P>
+<A NAME="vresourceNO_FILE"><HR><H4>vresourceNO_FILE</H4></A>
+<PRE>
+        <B>vresourceNO_FILE</B>
+</PRE>
+
+<DL><DD>
+Constants returned by <CODE><A HREF="vresource-x.html#vresourceTestFile"><CODE>vresourceTestFile</CODE></A> </CODE>to
+indicate what kind of resource file is present.
+<CODE>vresourceNO_FILE</CODE> is equivalent to
+<CODE>FALSE</CODE>.
+</DD></DL>
+<P>
+<A NAME="vresourceNULL"><HR><H4>vresourceNULL</H4></A>
+<PRE>
+        <B>vresourceNULL</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vresourceTAG_NULL"><HR><H4>vresourceTAG_NULL</H4></A>
+<PRE>
+        <B>vresourceTAG_NULL</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

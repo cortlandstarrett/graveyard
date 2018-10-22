@@ -1,0 +1,411 @@
+<HTML>
+<HEAD>
+<TITLE>Session</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Session</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Service_Chooser.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Signature.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3352"></A>
+The <EM><B>Session</B></EM> class (<TT>vsession</TT>) provides abstractions for service consumers and service providers to communicate with one another within the framework of the Galaxy Distributed Application Services (DAS). A service provider is the part of an application that exports a service that can be used by one or more other applications. A service consumer is an application that uses a service. (Service providers do not use the Session class to define services; they use the Service class. For more on defining services, refer to the Service chapter.)<P>
+This document focuses more on the Session class from the perspective of the service consumer rather than the service provider. For more information on the service provider's perspective of the Session class, refer to the Service chapter.)<P>
+<A NAME="3598"><H3> Sessions</H3></A>
+A session is a unique conversation between a service consumer and a service provider. Sessions are denoted by the type <TT>vsession</TT>. A session involves two applications communicating with one another, so the actual session is abstracted with two <TT>vsession</TT> instances, one private to the consumer and one private to the provider. The <TT>vsession</TT> is used directly by the service consumer to send statements to the service provider. The service provider uses the <TT>vsession</TT> to send return results and status information back to the consumer. More complex services can also send statements back to the consumer. <P>
+<A NAME="3600"><H3> Statements</H3></A>
+Service consumers make requests of service providers by sending them statements. A statement is an encapsulated request denoted by <TT>vsessionStatement</TT>. The major components of a statement are a <TT>vsession</TT>, a <TT>vsignature</TT>, an argument list, and a <TT>vsessionStatementNoteProc</TT>.<P>
+The <TT>vsession</TT> is the session that the statement is sent to (which is also the session that the return result comes from.)<P>
+The <TT>vsignature</TT> is a signature specifying the primitive that the statement invokes. A primitive is an entry point to service consumers that is implemented by the service provider. Primitives are unique to service providers. (For more information about primitives, refer to the Service chapter . For more information about signatures, refer to the Signature chapter. <P>
+The argument list is a scrap containing the values of the arguments for the particular statement instance, as specified by the signature. The Session class uses the Signature class to provide a convenient API for setting these argument lists and accessing return results.<P>
+The <TT>vsessionStatementNoteProc</TT> specifies the notification function for the statement. The notification function is called when an event occurs on the statement. For example, the notification function is called if the statement completes, fails, or could not be sent.<P>
+By default, the consumer receives an event when the outcome of the request is known. An application can be a consumer of multiple providers concurrently, and have multiple statements pending with each of the providers. In the meantime, it can continue processing other events (such as DAS or GUI events) from the event loop. Alternatively, the application can choose to block the application on a particular statement and not continue until the outcome is known or a specified amount of time has expired.<P>
+<A NAME="3607"><H3> Attributes</H3></A>
+Attributes are {name, type, value} 3-tuples that describe the configuration for a session. Typically these attributes are specified by the service provider. Often service consumers get these attributes from the Service Broker. An attribute name is an arbitrary <TT>vname</TT> that uniquely specifies the name of an attribute. Although a session cannot have two attributes with the same name, multiple sessions can, and do, have common attribute names. The attribute type is specified through a <TT>vdatatag</TT>. The attribute value is a value consistent with its type.<P>
+<A NAME="3358"><H2> Key Functionality</H2></A>
+A consumer can create a session with vsessionCreate, or initialize a session with vsessionInit. The consumer must destroy the session with vsessionDestroy when it is no longer needed. (However, the consumer can pass ownership of the session to the Session class by calling <TT>vsessionSetDestroyWhenInactive</TT> with <TT>TRUE</TT>. This causes the Session class to destroy the session when the session terminates.)<P>
+The Service class automatically creates sessions for service providers, and passes ownership of these sessions to the Session class. Refer to Service chapter for more information on how the Service class creates and initializes sessions.<P>
+<A NAME="3612"><H3> Establishing Sessions with Service Providers</H3></A>
+The Session class uses the session's attributes when establishing a session with a service. The attributes are used to specify which service is desired, where the service is located, and any other relevant information concerning how a consumer talks to the service.<P>
+Once the attributes are set, the session is started by calling <TT>vsessionBegin</TT>. If the session notification function is set before calling <TT>vsessionBegin</TT>, the session starts asynchronously and the notification function is notified when the session has actually started (or fails). If the notification function is not set, the session starts synchronously and generates an exception if it cannot be started. Regardless of whether or not the session has a notification function, all communication with the service provider is asynchronous.<P>
+There are two basic ways for the service consumer to obtain its attributes: using prior knowledge, or by querying the Service Broker.<P>
+If the consumer has prior knowledge of the attributes, the attributes are either constants, or can be learned from an independent source. The advantage of this technique is that it does not require the Service Broker to be present, or the service provider to have registered itself. However, this technique is very inflexible.<P>
+<A HREF="Session.html#3622">Example 133</A> shows how to set individual attributes to specify a session.<P>
+<A NAME="3622"><I>Example 133.  Specifying provider location (from a consumer)
+</I><P>
+<PRE><UL>void _exampleUsingASession (void)
+{
+   vsession      *session;
+   vchar      *sPort, *sLocation;
+
+   // ...
+   /* assume sPort, sLocation set */
+   session = vsessionCreate();
+   vsessionSetNotify(session, _exampleSessionNotify);
+   vsessionSetAttributeTag(session,
+                           vsession_Transport,
+                           vcommGetTcpTransportName());
+   vsessionSetAttributeScribed(session,
+                               vsession_Port,
+                               vcharScribe(sPort));
+   vsessionSetAttributeScribed(session,
+                               vsession_Location,
+                               vcharScribe(sLocation));
+
+   vsessionBegin(session);
+   //  ...
+   vsessionEnd(session);
+   vsessionDestroy(session);
+}
+
+</UL></PRE>The Service Broker itself implements a variation of Example 107. The Service Broker class provides an API, <TT>vdasservCreateAttributeScrap</TT>, that returns a scrap specifying a collection of attributes. These are passed by the application back to the Service class as illustrated in <A HREF="Session.html#3676">Example 134</A>.<P>
+<A NAME="3676"><I>Example 134.  Specifying the default Service Broker (with notification)
+</I><P>
+<PRE><UL>static void  _exampleBrokerNotify(vsession      *session,
+                                  vsessionEvent *event)
+{
+   vsessionEventCode   code = vsessionGetEventCode(event);
+   if (code == vsessionEVENT_CANNOT_BEGIN)
+     exampleAlert(vcharScribeLiteral("Service Broker is not 
+accessiblen"));
+}  /*  end  _exampleBrokerNotify  */
+
+
+void _exampleSession (void)
+{
+   vsession      *sessionBroker;
+
+   sessionBroker = vsessionCreate();
+   vsessionSetAttributesFromScrap(sessionBroker,
+                                  vdasservCreateAttributeScrap());
+   vsessionSetNotify(sessionBroker, _exampleBrokerNotify);
+   vsessionBegin(sessionBroker);
+
+   // ...
+}
+
+</UL></PRE>If an application gets its attributes by querying the Service Broker, it uses the statement returned by <TT>vdasservMakeMatchStatement</TT>, and passes one of the scraps in the return result to <TT>vsessionSetAttributesFromScrap</TT>. This is the most common and versatile technique. It is similar to <A HREF="Session.html#3676">Example 134</A> (with the Service Broker class) except that the scrap is found dynamically. The advantage of this technique is that it allows the service consumer to make a runtime decision about which service to use. It also gives the service providers more flexibility in choosing how to configure themselves. The disadvantage of this technique is that it requires the Service Broker to be running and the service provider to have registered itself. (Refer to "Constructing and Managing Statements" for more information about using <TT>vsessionStatements</TT>.)<P>
+<A HREF="Session.html#3729">Example 135</A> shows how to use the Service Broker to locate a service provider.<P>
+<A NAME="3729"><I>Example 135.  Locating a service provider
+</I><P>
+<PRE><UL>static void  _exampleMatchNotify(vsessionStatement      *statement,
+                                 vsessionStatementEvent *event)
+{
+   vscribe *scribe;
+
+   vsession      **volatile psession =
+     vsessionGetStatementData(statement);
+   int             code =
+     vsessionGetStatementEventCode(event);
+
+   if (code == vsessionStatementEVENT_COMPLETED) {
+      int     nMatches;
+      int     i;
+      vscrap   **arrayMatches;
+      vsessionGetStatementReturnValue(statement, &amp;nMatches,
+                                      &amp;arrayMatches);
+
+      /* try connecting to something
+       */
+      for (i = 0; i &lt; nMatches; i++) {
+         *psession = vsessionCreate();
+         vsessionSetAttributesFromScrap(*psession,
+                                        arrayMatches[i]);
+
+         vscrapDestroy(arrayMatches[i]);
+
+         vexWITH_HANDLING {
+            vsessionBegin(*psession);
+            vsessionSetNotify(*psession,
+                              _exampleSessionNotify);
+         } vexON_EXCEPTION {
+            vsessionDestroy(*psession);
+            *psession = NULL;
+         }
+         vexEND_HANDLING;
+
+         if (*psession != NULL)
+           break;
+      }  /*  end iterating over potential matches */
+
+
+      /* cleanup rest of arguments */
+      while (--nMatches &gt; i)
+        vscrapDestroy(arrayMatches[nMatches]);
+      if (arrayMatches != NULL)
+        vmemFree(arrayMatches);
+   } else {
+      if (code == vsessionStatementEVENT_CANNOT_SEND) {
+         scribe =
+           vcharScribeLiteral("Cannot send statement to Service 
+Broker.n");
+      } else if (code == vsessionStatementEVENT_FAILED) {
+         scribe =
+           vcharScribeLiteral("Error encountered in Service Broker.n");
+      } else {
+         scribe =
+           vcharScribeFormatLiteral("Unknown return result code %d "
+                                    "from Service Broker.n", code);
+      }
+      exampleAlertScribed(scribe);
+   }
+}  /*  end  _exampleMatchNotify  */
+
+void _exampleStatement (vsession *session)
+{
+   vsessionStatement *statement;
+   vdatatag          *datatagValues;
+   vdict              dictValues;
+
+   /*
+    * Create statement to find "Example Provider"
+    */
+   datatagValues = vdatatagCreateDict();
+   vdictInit(&amp;dictValues, vnameHash);
+
+   vdatatagSetDictElementDatatag(datatagValues,
+                                 vname_Title, vdatatagGetTag());
+   vdictStore(&amp;dictValues,
+              vname_Title, vnameInternGlobalLiteral("Example Provider"));
+
+   statement =
+     vdasservMakeMatchStatement(_sessionBroker,
+                                vdatatagScrapFromValue(datatagValues,
+                                                       &amp;dictValues));
+
+   /*
+    * Finish initializing statement
+    */
+   vsessionSetStatementNotify(statement, _exampleMatchNotify);
+   vsessionSetDestroyStatementWhenFinished(statement, TRUE);
+
+   /*
+    * The notification function is going to update the session.
+    * We are storing a pointer to it because this particular
+    * notification function might re-allocate the session,
+    * and will set the session to NULL if it fails.
+    *
+    * This technique is not applicable in general, but
+    * illustrates one way of updating the session.
+    */
+   vsessionSetStatementData(statement, &amp;session);
+
+   /*
+    * These were only needed to form the argument scrap
+    */
+   vdatatagDestroy(datatagValues);
+   vdictDestroy(&amp;dictValues);
+
+   /* send the statement
+    */
+   vsessionSendStatement(statement);
+}
+
+</UL></PRE>An alternative to querying the service broker is to use the service chooser. The service chooser is a standard dialog providing a graphical interface for the application user to select a service provider from the set returned by the service broker. (For more information, refer to "The Service Chooser".)<P>
+<A NAME="3938"><H3> Establishing Sessions with Service Consumers</H3></A>
+The Service class automatically establishes sessions with service consumers in response to the consumer initiating the session with <TT>vsessionBegin</TT>. These sessions become visible to the application with the <TT>vsessionBEGIN</TT> notification. For more information, refer to "Service Manager".<P>
+<A NAME="3940"><H3> Constructing and Managing Statements</H3></A>
+A statement can be created with vsessionCreateStatement or initialized with <TT>vsessionInitStatement</TT>. A statement must be bound to a session and have a signature before it can be sent. <TT>vsessionSetStatementSession</TT> is used to set the session, but the session must be active when the statement is bound. The signature is set with <TT>vsessionSetStatementSignature</TT>. The session and signature cannot be changed once they are set. <A HREF="Session.html#3946">Example 136</A> shows how to construct and send a statement.<P>
+<A NAME="3946"><I>Example 136.  Constructing and sending a sample statement
+</I><P>
+<PRE><UL>void _exampleSessionStatement (vsession *session)
+{
+   vsessionStatement  *statement;
+   vsignature         *sig;
+   vstr               *str;
+
+   str = vstrCloneScribed(vcharScribeLiteral("2.2"));
+   sig = exampleGetDoSomethingSignature();
+   statement = vsessionCreateStatement();
+   vsessionSetDestroyStatementWhenFinished(statement, TRUE);
+   vsessionSetStatementSession(statement, session);
+   vsessionSetStatementSignature(statement, sig);
+   vsessionSetStatementArgs(statement, 1.1, str,
+                            vscrapFromFloat(3.3));
+   vsessionSetStatementNotify(statement,
+                              _exampleDoSomethingNotify);
+   vsessionSendStatement(statement);
+
+   vstrDestroy(str);
+}
+
+</UL></PRE><A NAME="3987"><H3> Setting Arguments</H3></A>
+If a statement has any arguments, they must be set after the session and signature are set but before the statement is sent. All the arguments are set at once using <TT>vsessionSetStatementArgs</TT>. Once arguments are set they cannot be modified.<P>
+The arguments passed to <TT>vsessionSetStatementArgs</TT> must match the signature. Compound types and dictionaries should be passed as pointers (the address is passed). Pointers to these types are also passed as pointers, however <TT>NULL</TT> is also valid as a pointer value. (Refer to the Datatag chapter for more information on using various datatags.)<P>
+<TT>vsessionSetStatementArgs</TT> copies all necessary data. Therefore, arguments may be modified or destroyed once they are set without affecting the statements constructed from their data.<P>
+<A NAME="3991"><H3> Sending Statements</H3></A>
+The notification function should be set before the statement is sent. The notification function can be modified at any time, but the statement notification function might be called before <TT>vsessionSendStatement</TT> completes.<P>
+Statements are sent to a service provider by means of a session with that service when <TT>vsessionSendStatement</TT> is called. The statement is sent and processed concurrently with the application. The notification function is called asynchronously after the application returns to the event loop. If necessary, the application can call <TT>vsessionBlockStatement</TT> to block the application until an event occurs on a particular statement, but this is typically undesirable for users of graphical, event-driven applications.<P>
+<A NAME="3994"><H3> Destroying Statements</H3></A>
+The application must destroy the statement when it is no longer needed. Typically, this is done by calling <TT>vsessionSetDestroyWhenFinished</TT> with <TT>TRUE</TT> to pass ownership of the statement to the Session class. When the Session class owns a statement, it destroys it after the notification function completes handling a message that implies the statement is finished. Currently all notifications sent to the statement make this implication. If the application blocks on the statement, or refers to the statement after calling <TT>vsessionSendStatement</TT>, it should not pass ownership unless it is prepared for the statement to be destroyed.<P>
+The application can destroy a statement it owns at anytime. If the statement is destroyed before its outcome is known, the provider still handles the statement, but the consumer ignores the return results and outcome status when they are made known. An application should use <TT>vsessionSetDestroyWhenFinished</TT> to destroy a statement from within a notification function.<P>
+<A NAME="3997"><H3> Writing a Statement Notification Function</H3></A>
+The statement notification function is called when an event occurs on a statement. Currently, only one event can occur on a statement once it is sent. A statement never receives an event before it is sent.<P>
+The event code <TT>vsessionStatementEventCOMPLETED</TT> denotes that the statement has successfully completed and the return result is known. Statements get this event code even when they do not have a return result. To get the return result, the address of uninitialized storage is passed to <TT>vsessionGetStatementReturnValue</TT>. If the expected result is a pointer, the address of the pointer is passed and the memory is allocated. Ownership of the storage is passed back to the application. Receiving the return result is similar to receiving arguments in the primitive handler, but no more than one result can be returned.<P>
+<TT>vsessionStatementEventCANNOT_SEND</TT> is received when the statement could not be sent. Usually this is because the session terminated while the statement was being constructed. The session must appear to be active (or activating) when <TT>vsessionSetStatementSession</TT> is called. However, the Session class may not know that a session has terminated until it attempts to send the statement.<P>
+<TT>vsessionStatementEventEND_SESSION</TT> is received when the session terminates before the result is known. Usually, this is because the application terminated abnormally, or the statement was sent while the session was in the process of terminating.<P>
+<TT>vsessionStatementEventFAILED</TT> is received when an exception was generated in the service provider while executing the statement. A common cause of this is sending the wrong parameters, or requesting a primitive that does not exist.<P>
+<A HREF="Session.html#4008">Example 137</A> illustrates a sample notification function.<P>
+<A NAME="4008"><I>Example 137.  Sample notification function
+</I><P>
+<PRE><UL>static void  _exampleDoSomethingNotify(vsessionStatement *statement,
+                                       vsessionEvent     *event)
+{
+   int      code = vsessionGetStatementEventCode(event);
+   int      result;
+
+   if (code == vsessionStatementEVENT_COMPLETED) {
+      vsessionGetStatementReturnValue(statement, &amp;result);
+      /* do something with result */
+      // ...
+   }  /*  end handling return result  */
+   else {
+      vscribe      *scribe;
+      const vname      *name;
+
+      name = vsignatureGetTag(vsessionGetStatementSignature(statement));
+
+      if (code == vsessionStatementEVENT_CANNOT_SEND) {
+         scribe =
+           vcharScribeFormatLiteral("Cannot send statement "%s"n", 
+name);
+      } else if (code == vsessionStatementEVENT_FAILED) {
+         scribe =
+           vcharScribeFormatLiteral("Statement "%s" failed.n", name);
+      } else if (code == vsessionStatementEVENT_END_SESSION) {
+         scribe =
+           vcharScribeFormatLiteral("Session ended before "%s""%s""
+                                    "completed.n", name);
+      } else {
+         scribe = vcharScribeFormatLiteral("Unknown event code %d"
+                                           "for "%s"n", code, name);
+      }
+      exampleAlertScribed(scribe);
+   }  /*  end handling events  */
+} /* end _exampleDoSomethingNotify */
+
+</UL></PRE><A NAME="3365"><H2> Additional Functionality</H2></A>
+<A NAME="4114"><H3> Debugging Sessions</H3></A>
+The Session class debugging API is only enabled when <TT>vdebugDEBUG</TT> is <TT>TRUE</TT>. When the debugging API is not enabled, the operations have no effect. Debugging is currently in the form of trace messages to a debugging stream.<P>
+Each session carries three sets of flags which can be enabled for the session when debugging is enabled in the Session class. The first set applies to activities directly on the session. The second set applies to network-related activities that would otherwise be hidden by the Session class. The third set applies to statements that are bound to the session.<P>
+The first set of flags is set with <TT>vsessionSetGeneralDebugFlags</TT> and inspected with <TT>vsessionGetGeneralDebugFlags</TT>. The default set is empty. The following is the list of general debug flags with a description of the debugging output on which they report:<P>
+<UL><TT>vsessionFLAG_DEBUG<br>
+</TT>Miscellaneous activity.
+<P><TT>vsessionFLAG_DEBUG_NOTIFY<br>
+</TT>Session notification.
+<P><TT>vsessionFLAG_DEBUG_ALL<br>
+</TT>All of the above.
+<P></UL>The second set of flags is set with <TT>vsessionSetIODebugFlags</TT> and inspected with <TT>vsessionGetIODebugFlags</TT>. The default set is empty. The following is the list of network-related debug flags with a description of the debugging output on which they report:<P>
+<UL>vsessionFLAG_DEBUG_IO_BLOCKING<br>
+Blocking on the session.
+<P>vsessionFLAG_DEBUG_IO_INPUT<br>
+Processing network input.
+<P>vsessionFLAG_DEBUG_IO_OUTPUT<br>
+Sending network output.
+<P>vsessionFLAG_DEBUG_IO_ALL<br>
+All of the above.
+<P></UL>The third set of flags is set with <TT>vsessionSetStatementDebugFlags</TT> and inspected with <TT>vsessionGetStatementDebugFlags</TT>. The default set is empty. The following is the list of statement debug flags with a description of the debugging output on which they report:<P>
+<UL>vsessionStatementFLAG_DEBUG<br>
+Miscellaneous activity.
+<P>vsessionStatementFLAG_DEBUG_SEND<br>
+Sending statements.
+<P>vsessionStatementFLAG_DEBUG_NOTIFY<br>
+Statement notification.
+<P>vsessionStatementFLAG_DEBUG_ARG<br>
+Parameter lists sent.
+<P>vsessionStatementFLAG_DEBUG_RESULT<br>
+Return results received.
+<P>vsessionStatementFLAG_DEBUG_ALL<br>
+All of the above.
+<P></UL>The Service class also documents debug flags that can be set for each service. These can be set on the service owning the session (if any). By default, no flags are set.<P>
+<A NAME="3372"><H2> Subclassing</H2></A>
+<A NAME="4143"><H3> Creating Peer-to-Peer Sessions</H3></A>
+A session must have a service to receive a statement. Therefore, if a service consumer is to allow a provider to send statements back to it, then it must create a service and set the service using <TT>vsessionSetService</TT>. The application should set the service before beginning the session. The Service class in the service provider automatically initializes sessions that it generates with the service that generated the session. The service set by the consumer does not need to be registered or enabled.<P>
+When the service provider sends a statement back to the consumer, the provider can be considered a consumer. The consumer becomes a service provider (providing the service that it set on the session). In this scenario, both applications are service consumers and service providers to one another. The services do not have to be symmetric. They may contain different sets of primitives.<P>
+By default the consumer session does not have a service.<P>
+<A NAME="4147"><H3> Standard Attributes</H3></A>
+The Session class uses some attributes when beginning a session. These attributes depend on internal implementation details. (Since these details are beyond the scope of this release, no explanation is given here.) These attributes are present in the attribute scraps registered by service providers and should not be modified. The following attributes are available on all platforms in this release:<P>
+<UL><TT>vsession_Location</TT>	The host name of the current machine providing the 
+service. This is either a string or tag attribute.
+<P><TT>vsession_Transport</TT>	The transport protocol being used. This is a tag attribute, 
+such as a Communication class transfer name.
+<P><TT>vsession_Port</TT>	The port name or number. This is any scribable type and is 
+dependent on the transport.
+<P></UL><P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Service_Chooser.html">Previous Chapter</A> | 
+		<A HREF="Signature.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

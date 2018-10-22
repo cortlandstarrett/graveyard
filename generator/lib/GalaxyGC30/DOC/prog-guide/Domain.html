@@ -1,0 +1,394 @@
+<HTML>
+<HEAD>
+<TITLE>Domain</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Domain</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Dockers.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Drag.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The <EM><B>Domain</B></EM> class is a general graphics object handler that manages objects in a two and one-half dimensional plane. (The two and one-half dimensions are height, width, and layering.) The Domain classes deal with a set of <EM><B>objects</B></EM>, which are graphical representations in the domain that may or may not be visible. The Domain class stores the objects' positions, dimensions, and client-definable data and is then able to manipulate the objects, return various information about the objects, and manage the display and scrolling of the objects. For example, you may want to know what objects lie within a given rectangle, what objects are completely enclosed within a rectangle, what object is closest to a given point, or what objects intersect. Common uses for the Domain class include managing icons on a user's workspace or managing objects in a drawing program. Anywhere groups of graphical objects need to be stored and organized, the Domain class can be used.<P>
+<A HREF="Domain.html#9348">Figure 19</A> shows the overall view of a domain. The <EM><B>domain</B></EM> is the complete bounding rectangle where any domain objects are or can be. The bounding rectangle can have defined boundaries; or it can be an infinite sheet where objects can be placed anywhere, and the size of the domain is dynamic.<P>
+Only part of the sheet is visible at one time. The <EM><B>domain view</B></EM> is the visible area and can be thought of as a window placed within a dialog from which you see the domain. You can move (scroll) the dialog underneath the view rectangle to view any part of the domain. The view rectangle is sized in dialog coordinates and can be moved and resized at any time. (Refer to <A HREF="Domain.html#5475">"Domain Coordinate System"</A> for more information on dialog coordinates.)<P>
+The<EM><B> limit rectangle</B></EM> represents the smallest rectangle that completely encompasses all objects in the domain. It is used primarily for calculating dynamic domain bounds and for dragging objects.<P>
+A domain can be scrolled so that any part of the domain can be viewed. The scroll offset is represented by the offset from the origin of the domain.<P>
+<UL><B><I>NOTE:</I></B> The origin of a domain is not necessarily (0,0).
+<P>
+</UL>The Domain class automatically handles placement and control of scroll bars if they are desired. You can have horizontal and/or vertical scroll bars that let you scroll a domain, or you can choose to have neither. You can also scroll a domain by using <TT><B>Scroll</B></TT> or by grabbing the domain via the "Grabbing Hand."<P>
+<A NAME="9348"><I>Figure 19.  The domain
+</I><P>
+<IMG SRC="Domain.anc.gif"><P>
+<A NAME="4779"><H2> Domain Views</H2></A>
+A domain view is a dialog item that handles the display and editing of a domain. The domain view is an observer of a domain, providing an interface to the domain that displays the domain, selects objects, edits the domain, and so on. A domain view uses domain routines to obtain information about objects such as their location, whether or not they are hidden, where the domain bounds are, and so on. This information is then used to display and edit the domain accordingly. Multiple domain views can observe the same domain, and each updates its display appropriately when the domain changes.<P>
+Domain objects are never added or removed from a domain view; rather, they are added and removed from the domain, which notifies all observers of the domain change. The observers then update their view of the domain.<P>
+<A NAME="4786"><H2> Selections</H2></A>
+Each domain view has a <EM><B>selection</B></EM> that is registered with the domain object; selections belong to the domain. Domain views that observe the same domain can either share the same selection or can each have their own unique selection. The selection can also be indicated in several ways; it is completely up to the creator of the domain view.<P>
+Any number of selections can be created for a domain object, which is what happens when multiple domain views of the same domain are created. Each domain view creates a selection for the domain it is displaying. When a selection changes via <TT><B>SelectObjects</B></TT> or <TT><B>SelectAll</B></TT>, then all observers are called with the observer select operation. Only observers that own the selection being changed should acknowledge the selection change.<P>
+<A NAME="4895"><H2> Domain Bounds</H2></A>
+<EM><B>Domain bounds</B></EM> comprise the rectangle (in domain coordinates) that encompasses all objects in a domain. There are two types of domain bounds that a domain handles: fixed bounds and virtual bounds.<P>
+<EM><B>Fixed bounds</B></EM>	 are straightforward. The domain occupies a fixed rectangular area, and only objects within the rectangular area are visible. Objects can, however, be moved outside the domain bounds. Fixed domain bounds can be resized, but the resize must be done explicitly.<P>
+<EM><B>Virtual bounds</B></EM> are bounds that are determined by the objects in the domain. Virtual bounds allow the bounds to continuously adjust to the domain's contents. By definition, the bounds of the domain are at all times the bounding rectangle of all objects in the domain. For example, the icons in a window would typically use virtual bounds. If an icon is moved outside the current domain bounds, the domain bounds are recalculated, and the scroll bars are visually adjusted.<P>
+A domain can also have a <EM><B>virtual buffer</B></EM>, which is simply the amount to extend the rectangle bounding all objects when calculating the virtual domain bounds. The virtual buffer is an attribute of a domain. It can be specified when creating a domain or changed at any time by changing the virtual buffer attribute.<P>
+<A NAME="9343"><I>Figure 20.  Domain with virtual buffer
+</I><P>
+<IMG SRC="Domain.anc1.gif"><P>
+The virtual buffer allows a certain amount of space to be present between an extreme-most object and the edge of the domain. If there is no virtual buffer (values set to zero), then you cannot scroll past the edge of the extreme-most object when scrolling to the edge of the domain.<P>
+<A NAME="9339"><I>Figure 21.  Domain with and without a virtual buffer
+</I><P>
+<IMG SRC="Domain.anc2.gif"><P>
+<A NAME="4918"><H2> Domain Objects</H2></A>
+The core of the Domain class is how it handles domain objects. This section describes some of the attributes of domain objects and then discusses object layering, object connectivity, and object sets.<P>
+The vdomainObject holds all of the information associated with an object. This includes the object's location, object type, state, layering position, and client-defined data. There is a vdomainObject for every object in the domain.<P>
+All objects have bounds and a type, which are attributes of the object. Other attributes, such as selected, hidden, opaque, and so on, can also apply to objects. The bounds for an object consist of the complete bounding rectangle for the object in domain coordinates. (Refer to <A HREF="Domain.html#5475">"Domain Coordinate System"</A> for more information.) The bounding rectangle should include any areas that will be used to draw the object, including any area needed to draw the selection indicator.<P>
+The object type is a client-defined constant that indicates the "type" of object. How this field is used is completely up to the client program. The type field is often used to distinguish between different objects, such as polygons, curves, text fields, and so on, so that drawing functions and intersect functions know what to draw or select.<P>
+There are many operations that can be performed on objects. Objects can be hidden, anchored, connected to other objects, selected, unselected, moved, resized, and so on.<P>
+<A NAME="4933"><H2> Object Layering</H2></A>
+Every object in the domain resides on a unique layer. All objects are in front of or behind all other objects regardless of whether they actually overlap. Layering affects how objects are drawn and which object is returned for the spatial operations <TT><B>ObjectsInArea</B></TT> and <TT><B>ObjectsAtPoint</B></TT>. In all cases, frontmost objects take precedence; that is, frontmost objects are drawn over all other objects, and spatial operations return frontmost objects first. <TT><B>LayerObjects</B></TT> and <TT><B>ShuffleObjects</B></TT> allow you to move an object or set of objects to the front, to the back, behind, or in front of other objects.<P>
+<A NAME="4942"><H2> Object Connectivity</H2></A>
+Objects in a domain can be connected arbitrarily in any manner desired. Connectivity applies only to selecting objects. When you select an object, all connected objects are selected as well, including connected objects that are hidden. For example, if you select a visible object that is connected to objects that are hidden, the hidden objects are selected as well.<P>
+Connectivity allows you to manipulate a group of objects as one object. If you select and move an object, all connected objects are also moved. An example of this is icons with text labels. You can create two objects, a text object and an icon object, and then connect them.<P>
+When two objects are connected that are already connected to other objects, all objects become connected to each other.<P>
+<A NAME="4950"><H2> Object Sets</H2></A>
+Most Domain class routines that manipulate objects take an object set as a parameter. The operation is then performed on every object in the set. Also, some Domain class routines return a set of objects.<P>
+<A NAME="5475"><H2> Domain Coordinate System</H2></A>
+There are three coordinate spaces of interest when using domain views:<P>
+<OL>
+<LI>The domain coordinate space:<br>
+The bounds of the domain specify the location of the origin.
+<BR>
+<LI>The dialog coordinate space:<br>
+This coordinate space is based on the domain view's parent (usually either a dialog, 
+or a container).
+<BR>
+<LI>The user-translated coordinate space:<br>
+The domain coordinate space after being transformed through the user matrix (see 
+<TT><B>vdomainviewSetMatrix</B></TT>). It can be thought of as halfway between the other two 
+spaces. The scale and rotation are the same as the dialog coordinate space, yet there 
+exists some translation between user space and dialog space. In the case where no 
+user matrix has been applied to the domain view, the user space is the exact same as 
+the domain's coordinate space.
+<BR>
+</OL>
+<UL><B><I>NOTE:</I></B> When translating from domain space to either user or dialog space when 
+there is a rotation applied to the user matrix, the two <TT>TranslateRect</TT> 
+functions will supply you with the bounding rectangle of the transformed 
+rectangle.
+<P>
+</UL>All of these functions take a <TT>direction</TT> parameter. Galaxy versions prior to release 2.1 used the directions <TT>vdomainviewTO_DIALOG</TT> and <TT>vdomainviewTO_DOMAIN</TT>. These values have been deprecated in favor of the following (self descriptive) values:<P>
+<DL>
+<DT><DD> <TT>vdomainviewDIALOG_TO_DOMAIN<br>vdomainviewDOMAIN_TO_DIALOG<br>vdomainviewDOMAIN_TO_USER<br>vdomainviewUSER_TO_DOMAIN</TT>
+</DL>
+<A HREF="Domain.html#9335">Figure 22</A> provides an example of both the domain and dialog coordinate space. (The user-translated coordinate space is shown in <A HREF="Domain.html#9330">Figure 23</A>.)<P>
+<A NAME="9335"><I>Figure 22.  Domain and dialog coordinate space
+</I><P>
+<IMG SRC="Domain.anc3.gif"><P>
+This example shows the domain coordinate system with a top left orientation and no user matrix. The orientation is the starting point for calculating further coordinates. You can change the coordinate system to have a bottom left orientation with the <TT><B>SetOrientation</B></TT> routine.<P>
+The scroll offset of a domain view is the amount the view area has been scrolled. The translation and the view area can be obtained via <TT><B>vdomainviewGetScrollTranslation</B></TT> and <TT><B>vdomainviewGetViewArea</B></TT>. All object bounds are in domain coordinates. In customized drawing methods, the drawing coordinate system is already set up for you. All you need to do is draw the objects or rectangles at their given positions.<P>
+In this example, the domain origin (top left corner) is -80, 20. The X translation is given as 100. This means that the x-coordinate of the view area is 20 (-80 + 100). The Y translation is also given as 100. This means that the y-coordinate of the view area is 120 (20 + 100). The coordinates of the square object partially in the right-hand corner of the view area are given as 200, 100, 40, 40. The last two digits indicate the width and height of the object. Given the coordinates of the view area and the dimensions of the square object, you can see how its x- and y-coordinates of 200 and 100 were derived.<P>
+<A HREF="Domain.html#9330">Figure 23</A> shows a domain and domain view very similar to the previous example shown in <A HREF="Domain.html#9335">Figure 22</A>, but with a user-specified translation matrix with some rotation and scaling applied. As with the previous example, the orientation for the domain has been set to top left. This example is also showing a situation where the <EM><B>scroll offset</B></EM> (which is in domain coordinate space) has a negative component, and the <EM><B>domain rect</B></EM> of the domain view is viewing a region of space outside of the actual domain's bounds, but within the <EM><B>viewable area</B></EM>.<P>
+<A NAME="9330"><I>Figure 23.  User-translated coordinate space
+</I><P>
+<IMG SRC="Domain.anc4.gif"><P>
+<A NAME="5551"><H2> Domain Grid</H2></A>
+Every domain has a notion of a grid, which determines the spacing interval within the domain. The grid is used when "snap-to-grid" dragging is active and when objects are being aligned to the grid. <TT><B>vdomainGrid</B></TT> is a primary data type and contains:<P>
+<PRE><UL>typedef struct {
+   int      xSpacing;
+   int      ySpacing;
+   int      xSkew;
+   int      ySkew;
+} vdomainGrid;
+
+</UL></PRE>The xSpacing and ySpacing fields are the amount of space between grid locations in the X and Y directions, respectively. The xSkew and ySkew fields allow for greater grid control by letting you offset every other grid location by the skew amount. xSkew is the amount to skew in the X direction and ySkew is the amount to skew in the Y direction.<P>
+<A NAME="9352"><I>Figure 24.  The domain grid
+</I><P>
+<IMG SRC="Domain.anc5.gif"><P>
+<A NAME="5567"><H2> Domain View Events</H2></A>
+Domain view events are domain view actions, such as dragging, moving, selecting, and so on. The Domain class provides domain event handlers for all Domain class events. These handlers are called whenever the event occurs in a domain view. Most events notify you after the event has taken place. Some, however, notify you before the event occurs and let you cancel the event if desired.<P>
+The event handler for each event is sent a specific structure (given below) that describes the particular event. Some events allow you to cancel the event by returning the value <TT>vFALSE</TT> from the event handler. Normally, you return <TT>vTRUE</TT> to indicate successful handling of the event.<P>
+<A NAME="5598"><H2> Observers</H2></A>
+A domain can have <EM><B>observers</B></EM>, which are objects that monitor the operations performed on the domain. An observer receives notify events from the domain any time it changes. Observers can perform tasks as simple as waiting for a specific object to be added to the domain or as complex as displaying and editing the domain. A domain can have multiple observers, which allow multiple dynamic views of the same domain. For example, a domain editing window can create split views by creating a view for each editing pane that monitors the same domain. A domain view is an example of an observer, because it monitors the domain and updates and displays the domain in its own way.<P>
+An observer is created via <TT><B>vdomainCreateObserver </B></TT>or <TT><B>vdomainCreateObserverOfClass</B></TT>, where the latter takes as a parameter an observer class that contains monitoring methods for domain operations.Domain and a domain views both provide a default observer class that handles displaying the domain. You can override the methods in the class to provide new or additional functionality.<P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+The number of objects in an object set is obtained by <TT><B>GetObjectSetCount</B></TT>. The objects in an object set are retrieved by using the object set iterator routines. For example, to create an array of rectangles containing the bounds of all objects in an object set:<P>
+<PRE><UL>   vrect                    *rectArray, *rptr;
+   vdomainObject            *object;
+   vdomainObjectSetIterator  iterator;
+
+   rptr = rectArray =
+     (vrect *) vmemAlloc(sizeof(vrect) *
+                         vdomainGetObjectSetCount(objectSet));
+
+   vdomainInitObjectSetIterator(&amp;iterator, objectSet);
+
+   while (vdomainNextObjectSetIterator(&amp;iterator)) {
+      object =
+        vdomainGetObjectSetIteratorObject(&amp;iterator);
+      *(rptr++) = *vdomainGetObjectBounds(domain, object);
+   }
+
+   vdomainDestroyObjectSetIterator(&amp;iterator);
+
+</UL></PRE>There are many times when you have just one object to operate on. In these cases, use <TT><B>ObjectToSet</B></TT> to convert the object to an object set. This routine returns a pointer to the object set. <TT><B>ObjectToSet</B></TT> is actually a macro and is extremely fast.<P>
+You can also create, modify, and delete object sets manually. You can search object sets to determine if a specific object exists in the object set.<P>
+<P>
+Coordinates may be transformed from one space to another via the functions:<P>
+<DL>
+<DT><DD> <TT><B>vdomainviewTranslatePoint<br>vdomainviewTranslatePointLong<br>vdomainviewTranslateRect<br>vdomainviewTranslateRectLong</B></TT>
+</DL>
+<P>
+Here is a rundown on all of the values representing various aspects of domains and domain views in the different coordinate spaces:<P>
+<DL>
+<DT><DD> <TT><B>vdomainGetBounds</B></TT> and <TT><B>vdomainGetBoundsLong</B></TT>
+<DL>
+<DT><DD> Return the bounds of the domain in domain coordinates.
+
+</DL>
+<DT><DD> <TT><B>vdomainviewGetViewableArea</B></TT>
+<DL>
+<DT><DD> Returns the bounds of the domain in user-translated coordinates. This is the 
+region of space which a domain view can possibly view. If there is no user matrix 
+applied to the domain view, this is the same as the observed domain's bounds.
+
+</DL>
+<DT><DD> <TT><B>vdomainviewGetDomainRect</B></TT>
+<DL>
+<DT><DD> Returns the rectangle in dialog coordinates which is actually displaying the 
+domain. This is the domain view's dialog item rect minus any decorations or 
+scroll bars.
+
+</DL>
+<DT><DD> <TT><B>vdomainviewGetViewArea</B></TT> and <TT><B>vdomainviewGetViewAreaLong</B></TT>
+<DL>
+<DT><DD> Return the area of the domain currently being viewed by the domain view in 
+domain coordinates.
+
+</DL>
+<DT><DD> <TT><B>vdomainviewGetScrollTranslation</B></TT>
+<DL>
+<DT><DD> Returns the offset in user-translated space from the origin of the viewable area 
+to the origin of the domain rect. This is the same as the <TT>ScrollOffset</TT> if there 
+is no user matrix applied to the domain view.
+
+</DL>
+<DT><DD> <TT><B>vdomainviewGetScrollOffset</B></TT> and <TT><B>vdomainviewGetScrollOffsetLong</B></TT>
+<DL>
+<DT><DD> Return the offset in domain coordinates from the origin of the domain to the 
+origin of the view area.
+
+</DL>
+</DL>
+There are two different ways to do programmatic scrolling. The first is by using <TT><B>vdomainviewScroll</B></TT>. The <TT>xPos</TT> and <TT>yPos</TT> parameters should be specified in the domain's coordinate space. Scrolling may also be done using <TT><B>vdomainviewSetScrollTranslation</B></TT>. In that case, the <TT>xPos</TT> and <TT>yPos</TT> parameters should be expressed in user translated coordinate space. Since the position parameters are always expressed either relative to the current scroll translation, or relative to the origin of the viewable area, they may be thought of as being in the dialog's coordinate space.<P>
+The default <TT><B>vdomainviewSCROLL</B></TT> method in the default <TT>vdomainview</TT> class is implemented using <TT><B>vdomainviewSetScrollTranslation</B></TT>, so subclasses which need to affect scrolls should override <TT><B>vdomainviewSET_SCROLL_TRANSLATION</B></TT> rather than <TT><B>vdomainviewSCROLL</B></TT>. In addition, all scrolls performed by the domain class (as a result of user interaction, or other entry points) make use of <TT><B>vdomainviewSetScrollTranslation</B></TT> rather than <TT><B>vdomainviewScroll</B></TT>.<P>
+A drawing application using domain views to display and edit a domain of drawing objects can override the observer move operation to keep track of the position of annotations for each domain object. The new method is illustrated in <A HREF="Domain.html#5628">Example 44</A>.<P>
+<A NAME="5628"><I>Example 44.  Overriding the observer move operation
+</I><P>
+<PRE><UL>void observerMove(vdomainObserver *observer, vdomainObjectSet
+                  *objectSet, vpoint *newPosition,
+                  int positioning, int before)
+{
+   // The user-defined class "annotation" is a vdialog subclass
+   // used as a pop-up annotation window.
+   annotation  *aNotes;
+   vdomainview *domainView;
+
+   domainView = vdomainGetObserverData(observer);
+   vclassSendSuper(myDomainObserverClass, vdomainObserverMOVE,
+                   (observer, objectSet, newPosition,
+                    positioning, before));
+   if (!before) {
+      aNotes = (annotation *)
+        vdomainGetData(vdomainGetObserverOwner(observer));
+
+      while (aNotes != NULL) {
+         if (vdomainFoundInObjectSet(objectSet,
+                                     aNotes-&gt;object)) {
+            if (positioning &amp; vdomainX_RELATIVE)
+              aNotes-&gt;position.x += newPosition-&gt;x;
+            else
+              aNotes-&gt;position.x = newPosition-&gt;x;
+
+            if (positioning &amp; vdomainY_RELATIVE)
+              aNotes-&gt;position.y += newPosition-&gt;y;
+            else
+              aNotes-&gt;position.y = newPosition-&gt;y;
+         }
+         aNotes = aNotes-&gt;next;
+      }
+   }
+}
+
+</UL></PRE><A NAME="3372"><H2> Subclassing</H2></A>
+Although the Domain class handles most of the basic domain functions, it does require some help from the client in order to draw objects and determine object intersection properly. The domain class and domain view class provide methods that you can override to provide the desired behavior. These methods are described in the following paragraphs.<P>
+<UL><TT>vdomainviewDrawObjectProc</TT><P>
+<UL><TT><B></B></TT>The draw object procedure is called when an application needs to draw the object 
+selected or unselected, based on the selected state of the object. However, you can 
+override the <TT>DrawSelection</TT> method (described below) if you want to draw the 
+selection indicator after the objects have been drawn. The default draw function 
+does nothing, so unless you install your own draw function, objects will not be 
+visible. 
+<P>
+</UL><B></B><TT>vdomainviewDrawSelectionProc</TT><P>
+<UL><TT><B></B></TT>The draw selection method is called to draw the selection indicator for objects that 
+are selected. It is called after all objects are drawn. You should override this method 
+if you want the selection indicator to be drawn after all objects are drawn. For 
+example, in a drawing program where two rectangles overlap and the backmost 
+rectangle is selected via inverting its corners, you want to be able to see any 
+corners that are obscured by the frontmost object:
+<P>
+</UL></UL><A NAME="9360"><I>Figure 25.  Selection indicator in overlapping objects
+</I><P>
+<UL><IMG SRC="Domain.anc6.gif">
+<P>
+This method allows you to handle more complete selection indicators. The default 
+<TT><B>DrawSelection</B></TT> member function does nothing; you must override it to provide 
+application-specific functionality. You do not need to override this method if you 
+show selection by redrawing the object in a different fashion. Use the <TT><B>DrawObject</B></TT> 
+method and check the selected state of the object before you draw it.
+<P>
+</UL><UL><TT>vdomainviewBACKGROUND</TT><P>
+<UL><TT><B></B></TT>The background method allows you to draw a background in a domain view. For 
+example, you may want to draw a grid, draw guidelines, or draw a digitized picture 
+in the background of domains. The default DrawBackground member function 
+fills the domain view with its background color; you must override it to provide 
+application-specific functionality.
+<P>
+</UL><TT>vdomainviewDRAW_MARQUEE</TT><P>
+<UL><TT><B></B></TT>The draw marquee procedure method is called when the marquee needs to be 
+drawn. The marquee rectangle is passed in as a parameter. The default marquee 
+drawing function highlights the marquee rectangle with a line width of zero:
+<P>
+</UL></UL><PRE><UL>void vdomainviewDrawMarquee(vdomainview *domainView,
+                            vrect       *marqueeRect)
+{
+   int  saveLineWidth;
+
+   saveLineWidth = vdrawGetLineWidth();
+   vdrawSetLineWidth(0);
+   vdrawSetFunction(vdrawFUNC_HILITE);
+
+   vdrawRectsStroke(marqueeRect, 1);
+   vdrawSetLineWidth(saveLineWidth);
+   vdrawSetFunction(vdrawFUNC_COPY);
+}
+
+<UL>Be sure to restore any changes to the graphics context that you make.
+<P>
+</UL></UL></PRE><UL><TT>vdomainviewDRAG_OUTLINE</TT><P>
+<UL><TT><B></B></TT>The drag outline method is called when objects in a domain view are dragged, and 
+their outline needs to be drawn. Based on the <TT>DRAG_OUTLINE</TT> domain attribute 
+selected, the rects parameter contains a list of bounding rectangles to use to draw 
+the outline for the objects being dragged. (Refer to the section "Constants" in the 
+<TT>vdomainview</TT> module of the Reference Manual for a list of the DRAG_OUTLINE 
+attributes.) numRects contains the number of rectangles in the list. The 
+limitRect parameter contains the bounding rectangle of all objects being 
+dragged.
+<P>
+The <TT>pinAmount</TT> parameter allows you to return the amount of <EM><B>pinning</B></EM>, if any, that 
+occurred. As <A HREF="Domain.html#9367">Figure 26</A> shows, pinning usually occurs when the limitRect 
+exceeds the bounds of the domain. When handling pinning, you should offset the 
+outline drawing by the pinning amount. If your application uses external dragging 
+(refer to the dragMethod parameter in the Constants section of the Galaxy 
+Application Environment Reference Manual), then the drag outline procedure needs 
+to handle this case as well.
+<P>
+</UL></UL><A NAME="9367"><I>Figure 26.  Pinning
+</I><P>
+<UL><IMG SRC="Domain.anc7.gif">
+<P>
+The default drag outline method inverts the list of rectangles with a line width of 
+zero and pins when limitRect exceeds the bounds of the domain.
+<P>
+</UL><UL><TT>vdomainIntersectFunc</TT><P>
+<UL><TT><B></B></TT>The intersect<TT><B> </B></TT>function is called when the domain needs to determine if two 
+objects overlap each other. The default intersect function compares the two 
+bounding rectangles of the objects. Override this method if you want to provide a 
+more intelligent intersection function.
+<P>
+</UL><TT>vdomainRectIntersectFunc</TT><P>
+<UL><TT><B></B></TT>The rectangle intersect method is called when the domain needs to determine if a 
+rectangle intersects an object. The default rectangle intersect function compares 
+the rectangle with the bounding rectangle of the object. Override this method if 
+you want to provide a more intelligent rectangle intersection function.
+<P>
+</UL></UL><A NAME="5785"><H2> Sample Code</H2></A>
+Complete source code demonstrating some of the concepts presented in this chapter is available in your Galaxy distribution in the <TT>samples/docsamps</TT> directory. Refer to the <TT>domain2</TT> sample for a complete listing of a subclasses domainview.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Dockers.html">Previous Chapter</A> | 
+		<A HREF="Drag.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

@@ -1,0 +1,414 @@
+<HTML>
+<HEAD>
+<TITLE>Representation</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Representation</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="RegExp.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Resource.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The <EM><B>Representation</B></EM> concept in Galaxy allows you to create and manipulate generic data objects referred to as <EM><B>scraps</B></EM>. A scrap is an object which encapsulates a piece of data and the knowledge required to access and interpret that data. Scraps are typed, in that each scrap can implement one or more sets of methods that determine how data referenced by the scrap is accessed. Scraps are used for exchanging data between Galaxy subsystems in a generic yet type-safe manner.<P>
+For example, generic preference data can be passed to the Galaxy Preference class using scraps, providing an alternative to manipulating preference data directly. Scraps can also be used to access resources and resource files using the Representation API rather than the Resource API. The power of the Representation concept comes from being able to refer to data that are of the same abstract "type" but which are stored in widely differing formats, using a common API. Galaxy allows native integers, resource integers, preference integers, and eventually network integers to all be accessed and converted using a single API.<P>
+As Representation support is propagated through the Galaxy Programming Environment, there will be scrap classes and abstract types defined for more complex data types such as images, color specifications, and eventually user-interface items like windows, dialogs, buttons, and sliders. Having a Representation scrap class defined for a these datatypes will allow them to be exchanged with other Galaxy subsystems in a generic way. For example, an image scrap created by the Image class could be passed to the Resource class for explicit storage in a resource file, or passed to the Service Manager for transmittal to another application on another machine on a network.<P>
+Galaxy provides a set of primitive scrap classes covering common Galaxy and C data types such as boolean, integer, float, and string. Complex scraps can be constructed using scrap classes that implement arrays, dictionaries, and compound data types. These classes both identify the type of data referenced by the scrap and provide the logic needed to access and convert the data from one representation to another.<P>
+Scraps use the dynamic inheritance facilities provided by the delegator module. This allows a single scrap class to be implemented as a collection of other scrap classes; this makes complex scrap construction much simpler and also enables sharing of complex scraps between representations. Most applications will use the primitive class definitions exclusively; only those applications with special data representation requirements will need to access the delegator facilities directly.<P>
+<A NAME="4274"><H2> Scrap Inheritance</H2></A>
+Scrap classes inherit from <TT>vinstance</TT>, whose base class is <TT>vkindTyped</TT>. The <TT>vkindTyped</TT> class provides basic Init and Destroy methods. The <TT>vdelegator</TT> class provides the capabilities that enable much of the layering and construction functionality of scrap classes. As stated previously, the inner workings of the <TT>vdelegator</TT> class are not relevant to most applications that use the Representation API; only those applications that create special subclasses of scraps for application-specific data representations need concern themselves with the <TT>vdelegator</TT> class.<P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+Galaxy provides a set of simple implementations of the primitive type classes it defines; these scraps are referred to as "native" scraps. Native scraps are implemented such that the data they refer to is included in the scraps themselves. Note that not all scraps must own the data they refer to; as we will see later, Resource scraps refer to resource data but do not contain that data.<P>
+A native scrap can be created in several ways. The following code fragment demonstrates how to create a native scrap when the initial value of the data referred to by the scrap is known:<P>
+<PRE><UL>   vscrap *scrap0, *scrap1, *scrap2;
+
+   // ...
+
+   scrap0 = vscrapFromInteger(42);
+   scrap1 = vscrapFromFloat(3.1415926);
+   scrap2 = vscrapFromStringScribed(vcharScribeLiteral("foo"));
+
+   // ...
+
+   vscrapDestroy(scrap0);
+   vscrapDestroy(scrap1);
+   vscrapDestroy(scrap2);
+
+</UL></PRE>Scraps that do not need an initial value to create the native scrap can be created as follows:<P>
+<PRE><UL>   vscrap *arrayScrap;
+
+   // ...
+
+   arrayScrap = vscrapCreateArray();
+   vscrapSetArrayCount(arrayScrap, 3);
+
+   vscrapSetElementAt(arrayScrap, 0, vscrapFromInteger(42));
+   vscrapSetElementAt(arrayScrap, 1, vscrapFromFloat(3.1415926));
+   vscrapSetElementAt(arrayScrap, 2, vscrapFromBoolean(TRUE));
+
+   // ...
+
+   /*
+   * Notice that passing a scrap to an array scrap also passes
+   * ownership of that scrap to the array scrap.
+   */
+
+   // ...
+
+   vscrapDestroy(arrayScrap);
+
+</UL></PRE>Scraps can also be created from other sources. The Resource class provides calls that can be used to access data stored in resources using the Representation API. As stated above, scraps created from resources are an example of a scrap class implementation that references data rather than containing it. The following example creates a scrap that can be used to access all the resources in the named resource file:<P>
+<PRE><UL>   const vname *name;
+   vresource    res;
+   vfsPath     *path;
+   vscrap      *scrap;
+
+   // ...
+
+   path = vfsPathFromStrScribed(vcharScribeLiteral("stuff.vr"));
+   res = vresourceOpenFile(path, vfsOPEN_READ_ONLY);
+   name = vnameInternGlobalLiteral("stuffResource");
+   scrap = vresourceGetScrap(res, name);
+
+</UL></PRE>The example above creates a scrap that can be used to access all the resources in the named resource file.<P>
+As Representation is more closely integrated with the rest of Galaxy, it will be possible to create scraps that refer to other Galaxy data types besides resources, such as vimage and vcursor.<P>
+Once a scrap has been created it can be examined and modified using the Representation API. The following example illustrates how to modify an existing scrap:<P>
+<PRE><UL>void changeScrap(vscrapDictionary *scrap)
+{
+   const vname *key;
+   vscrap      *element;
+
+   key     = vnameInternGlobalLiteral("stuffKey");
+   element = vscrapLoadElement(scrap,key);
+
+   if (vscrapGetInteger(element) == 42)
+     vscrapSetInteger(element,11);
+
+   vscrapStoreElement(scrap,key,element);
+   vscrapDestroy(element);
+}
+
+</UL></PRE>Galaxy also provides a native typeable scrap; this is a scrap whose abstract type is not set initially and can be set on the fly during scrap conversion or by calling the <TT><B>Entype</B></TT> function. A native typeable scrap can be assigned any native type that has been registered using the <TT><B>RegisterNativeClass</B></TT> function.<P>
+The Representation API also provides means for converting data referenced by scraps from one representation to another. For example, values can be stored in a resource file by constructing a scrap that references the desired values and then converting the native scrap into a resource scrap. The following code fragment demonstrates this by creating a dictionary type scrap, filling it with elements, and storing it in a resource:<P>
+<PRE><UL>void storeDeliItems(vresource res)
+{
+   const vname *name;
+   vscrap      *src, *dst;
+
+   src = vscrapCreateDictionary();
+
+   name = vnameInternGlobalLiteral("bologna");
+   vscrapStoreElement(src, name, vscrapFromInteger(11));
+
+   name = vnameInternGlobalLiteral("salami");
+   vscrapStoreElement(src, name, vscrapFromFloat(14.141414));
+
+   name = vnameInternGlobalLiteral("DeliFare");
+   dst  = vresourceGetScrap(res, name);
+   vscrapConvert(src,dst);
+
+   vscrapDestroy(src);
+   vscrapDestroy(dst);
+}
+
+</UL></PRE><A NAME="3372"><H2> Subclassing</H2></A>
+This section describes how to create new Representation classes and to implement new data representations for existing scrap classes. Most applications will not need to be concerned with the issues discussed here; only those applications that need to create new data representations and/or classes will need the information contained in this section.<P>
+This section first illustrates a brief example of the use of delegators by Galaxy, followed by a discussion of convertible and typeable scraps.<P>
+<A NAME="4448"><H2> About the Delegator Class</H2></A>
+The <EM><B>delegator class</B></EM> implements a general model for dynamic inheritance among a collection of Galaxy class objects. A delegator is an object that either implements a method itself or `delegates' the method to an object that it references; in this way, delegator objects can be constructed dynamically that inherit methods from other objects. Throughout this section we will refer to delegator objects and delegate objects. It is important to note that a delegator can also be a delegate, that is, a delegator object can delegate a method to another object that can turn around and delegate the method to a third object, and so on. Thus, objects can be set up in tree fashion, with a finite depth.<P>
+Delegate objects can be shared among delegators. For example, a delegate class that only knows how to read and write raw byte data could be shared by both a delegator that reads and writes integers and a delegator that reads and writes strings. In the integer case, the delegator method that implements reading integers would use the raw data delegate object to read the bytes necessary to construct the integer; likewise the string object would use the raw data delegate object to read the bytes necessary to construct the string.<P>
+When a method is sent to a delegator object and the delegator object does not implement the method itself, the delegator object will perform a depth-first search on its tree of delegates for an object that implements the desired method; the method will be "resent" to the first object found that implements the method. If no object is found that implements the method an exception is generated. The structure of the delegate tree is determined determined by the way the delegator objects implement the one method introduced by this class, the <TT>vdelegatorNEXT_DELEGATE</TT> method.<P>
+<A NAME="4461"><H3> Delegator Inheritance</H3></A>
+Delegator classes inherit from <TT>vinstance</TT>. The <TT>vinstance</TT> class provides basic Init/Destroy methods. Refer to "<A HREF="Class.html#31938">Using the Instance Class</A>" for more information on <TT>vinstance</TT>.<P>
+<A NAME="4468"><H3> Using the Delegator Class</H3></A>
+The <TT>vdelegator</TT> class implements a form of dynamic inheritance on top of the static inheritance capabilities provided by the Galaxy Class Manager. Dynamic inheritance in the case of delegators means that an vdelegator either implements a method directly, or "delegates" the method to one or more other objects. Thus, when a method is dispatched to an object built on the vdelegator class the object will either handle the method itself or will "re-send" the method to another object.<P>
+The objects that a delegator can resend a method to are organized in a "delegate tree" which is associated with the <TT>vdelegator</TT> itself; this tree determines which objects are delegated to and in what order. Re-sending a method in the delegator form of dynamic inheritance is similar in spirit to the "SendSuper" function in the Galaxy Class Manager's static inheritance. Finally, a method can be specified as "<TT>private</TT>," in which case it is only dispatched to in a resend, and only if the sender is a delegate of the object defining the method.<P>
+A delegator and all of its delegates conceptually form a tree, in which the children of an object are the objects it delegates to. The objects in this tree can be owned by the delegator exclusively or can be shared with other delegators. Each child object in the tree is given a precedence order to determine which delegate to dispatch to in what order. Methods are then dispatched by a depth-first search of the tree to find an object which implements the method.<P>
+The actual delegate tree structure of a delegator is defined by implementing the <TT>vdelegatorNEXT_DELEGATE</TT> method. This method returns each delegate of the delegator, in precedent order; the previous delegate returned is passed as an argument each time the method is called. This method is also passed a flag that is used to control whether certain methods are visible to the parent delegate object or are treated as "private" methods. A private method is a method that is only visible and accessible to those objects that are delegates of the current delegate object.<P>
+In the context of <TT>vdelegator</TT>, methods are grouped by the classes which first introduce the method. An object is assumed to implement all methods which are defined by its class, and delegate all others to its delegate objects. For example, the <TT>vscrapIntegerClass</TT> introduces two methods, <TT>vscrapGET_INTEGER</TT> and <TT>vscrapSET_INTEGER</TT>.<TT></TT>. Thus, when we want to send the <TT>vscrapGET_INTEGER</TT> method to a delegator, we find the first delegate which is a subclass of <TT>vscrapIntegerClass</TT>, and then dispatch the <TT>vscrapGET_INTEGER</TT> method to that object with <TT><B>vclassSend</B></TT>.<P>
+While dispatching the message, the state of progress through the delegation tree is kept in a <TT>vdelegatorStack</TT> structure. This structure is referred to in terms of a stack because it tracks the progress of the <TT>vdelegatorNEXT_DELEGATE</TT> method through the delegate tree. Each step down the tree "pushes" a delegate object reference on the stack; each step back up the tree "pops" a delegate object reference off the stack. This structure is passed to each dynamically dispatched method in place of the single object pointer that would be passed to statically dispatched methods handled by the Galaxy Class Manager. Note that this means you can only dynamically dispatch to a method which is declared to have a <TT>vdelegatorStack</TT> pointer as the first argument.<P>
+The main reason for passing a stack of object references to a method is to be able to implement re-sends. (A secondary reason is to allow delegate objects to access their parent objects' data members directly.) To actually dynamically dispatch a method to an object requires three steps:<P>
+<OL>
+<LI>Initialize the delegator stack to contain the "root" object to dispatch to.
+<BR>
+<LI>Search for an object of the target method's class using the stack as the iteration state. 
+This is called "directing the stack" to the appropriate object.
+<BR>
+<LI>Send the method, using <TT><B>vclassSend</B></TT>, to the top object on the stack.
+<BR>
+</OL>
+Re-sending is similar, except that instead of initializing the stack with a single object, the stack is initialized by the current delegator stack. Note that if you are sending multiple messages of the same type (or multiple messages which are defined by the same class), you can optimize the above steps by only initializing and directing the stack once, and re-using the same stack each time a message is sent.<P>
+To facilitate sending these dynamic methods, a function called the <TT>Stack</TT> function is supplied for each dynamic method. This function takes a stack for an argument rather than an object pointer. This stack will usually be constructed using vdelegator API calls; various functions are provided to create stacks suitable for simple method dispatch, method resends, parent object references, etc.<P>
+A macro is then defined for the simple sending to an object case. For example, the <TT>vscrapIntegerClass</TT> method <TT>vscrapGET_INTEGER</TT> is defined as follows:<P>
+<PRE><UL>#define vscrapSendInteger(s, m, a) 
+  vclassSend(vscrapGetIntegerClass((vscrapInteger*) 
+  vdelegatorGetStackTop(s)), m, a)
+
+long vscrapGetIntegerStack(vdelegatorStack stack) {
+   vdelegatorDirectStack(&amp;stack, vscrapGetDefaultIntegerClass());
+
+   return (vscrapSendInteger(&amp;stack, vscrapGET_INTEGER, (&amp;stack)));
+}
+
+#define vscrapGetInteger(s) 
+  vscrapGetIntegerStack(vdelegatorMakeObjectStack(s))
+
+</UL></PRE>We can then call<TT><B> GetIntegerStack</B></TT> to do a resend, or simply <TT><B>GetInteger</B></TT> to send the <TT>GET_INTEGER</TT> method to another delegator. Note that having the <TT>Stack()</TT> function take a structure rather than a pointer to a structure as an argument is just a trick to get a <TT>vdelegatorStack</TT> allocated without having to explicitly declare a temporary variable. The same trick is used by having the<TT><B> vdelegatorMakeStack</B></TT> functions return a structure rather than a pointer to a structure.<P>
+The current principal use of the delegator class is to support the classes defined by the Galaxy. The classes defined in the Representation API use the dynamic inheritance capabilities provided by the delegator class to enable conversion of data of the same abstract class from one physical representation to another.<P>
+<A NAME="4518"><H2> Delegators (vdelegator)</H2></A>
+The Representation classes are implemented on top of the delegator object (<TT>vdelegator</TT>) class API. To see how delegator objects are used to implement scrap objects, consider the following example. Three objects are grouped together to form a delegator cluster: <TT>MyInteger</TT> is a subclass of Integer, <TT>MyBlock</TT> is a subclass of Data Block, and <TT>MyDelegator</TT> is an object which delegates to <TT>MyInteger</TT> and <TT>MyBlock</TT> (in that order).<P>
+The object <TT>myDelegator</TT> implements <TT>vdelegatorNEXT_DELEGATE</TT> to return <TT>myInteger</TT> and then <TT>myBlock</TT>. This sets up the delegation tree.<P>
+<PRE><UL>struct myDelegator
+{
+   vdelegator        super;
+   struct myInteger *integerDelegate;
+   struct myBlock   *blockDelegate;
+};
+
+static void *_myNextDelegate(struct myDelegator *myDel, void *prev,
+                             int seePrivates)
+{
+   if (prev == NULL)
+     return (void *)myDel-&gt;integerDelegate;
+   else if (prev == (void *)myDel-&gt;integerDelegate)
+     return (void *)myDel-&gt;blockDelegate;
+   return NULL;
+
+}
+
+</UL></PRE>The objects of class <TT>MyBlock</TT> point to blocks of memory. The class implements the Data Block API as defined by the Representation Block class by manipulating a block of locally-allocated memory. In this example, allocating and freeing the actual memory block is omitted; these functions would normally occur in the <TT>INIT</TT> and <TT>DESTROY</TT> methods inherited from the <TT>vinstance</TT> class.<P>
+<PRE><UL>struct myBlock
+{
+   vscrapBlock super;
+   vbyte      *memory;
+   size_t      size;
+};
+
+static size_t _myGetSize(vdelegatorStack *stack)
+{
+   struct myBlock  *block;
+
+   block = (struct myBlock *)vdelegatorGetStackTop(stack);
+   return block-&gt;size;
+}
+
+
+static void _mySetSize(vdelegatorStack *stack, size_t size)
+{
+   struct myBlock  *block;
+
+   block = (struct myBlock *)vdelegatorGetStackTop(stack);
+   block-&gt;memory = vmemRealloc(block-&gt;memory, size);
+}
+
+
+static void _myRead(vdelegatorStack *stack, size_t offset,
+                    size_t size, void *buffer)
+{
+   struct myBlock  *block;
+
+   block = (struct myBlock *)vdelegatorGetStackTop(stack);
+   vmemCopy(block-&gt;memory+offset, buffer, size);
+}
+
+
+static void _myWrite(vdelegatorStack *stack, size_t offset,
+                     size_t size, void *buffer)
+{
+   struct myBlock  *block;
+
+   block = (struct myBlock *)vdelegatorGetStackTop(stack);
+   vmemCopy(buffer, block-&gt;memory+offset, size);
+}
+
+</UL></PRE>The class <TT>MyInteger</TT> implements the integer API by sending reads and writes to the block API implemented by <TT>MyBlock</TT>. It assumes that the block contains a long.<P>
+<PRE><UL>static long _myGetInteger(vdelegatorStack *stack)
+{
+   long integer;
+
+   vscrapReadBlockStack(vdelegatorMakeResendStack(stack),
+                        0, sizeof(long), &amp;integer);
+   return integer;
+}
+
+
+static void _mySetInteger(vdelegatorStack *stack, long integer)
+{
+   vscrapWriteBlockStack(vdelegatorMakeResendStack(stack),
+                         0, sizeof(long), &amp;integer);
+}
+
+</UL></PRE>When <TT>GetInteger</TT> is called for an instance of <TT>MyDelegator</TT>, the following takes place:<P>
+<UL><LI>A delegator stack is made which contains myDelegator, and is passed to <TT><B>GetIntegerStack</B></TT>.
+<LI>The stack is directed so the top element is <TT>myInteger</TT> (which is the first object which is a subclass of <TT>vscrapIntegerClass</TT>) and the next element is   <TT>myDelegator</TT>.
+<LI>The method is dispatched with <TT><B>vclassSend</B></TT>, which calls <TT>_myGetInteger</TT>.
+<LI>A new stack is made with <TT><B>vdelegatorResend</B></TT>. This stack points to the next object in the delegation tree (<TT>myBlock</TT>, with <TT>myDelegator</TT> still the bottom element). This stack is passed to <TT><B>ReadBlockStack</B></TT>. 
+<LI>The call to <TT><B>ReadBlockStack</B></TT> directs the stack to <TT>vscrapBlockClass</TT>. This has no effect since the object already points there. 
+<LI>The <TT>vscrapREAD_BLOCK</TT> method is dispatched to <TT>myBlock</TT>, calling <TT>_myRead</TT>. 
+<LI>The data is read into the integer variable, and the integer is returned.
+</UL>Note that the <TT>MyInteger</TT> contains no per-object data, so it can be shared across many instances of <TT>MyDelegator</TT> and <TT>MyBlock</TT>. Scraps that implement one API by resending to another are generally referred to as <EM><B>encodings</B></EM>.<P>
+<A NAME="4716"><H2> Convertible Scraps</H2></A>
+The <TT>vscrap</TT> layer introduces the <TT>vscrapConvertible</TT> class, which allows the contents of one scrap to be copied to another scrap of similar type. The <TT>vscrap</TT> layer also defines the following set of "native" type classes for scrap objects:<P>
+<DL>
+<DT><DD> integer	tag
+<DT><DD> float	block
+<DT><DD> fixed point	compound
+<DT><DD> character	array
+<DT><DD> string	dictionary
+</DL>
+Other classes can be added, either by the Representation classes, or by a class above it such as the Resource class. Also introduced is the <TT>vscrapIterator</TT> class, a simple object class, which allows scraps to implement various iteration operations as part of their API.<P>
+A <TT>vscrap</TT> can be considered to be a <TT>vdelegator</TT> which implements a type class. The simplest scraps will be single objects which are subclasses of one of the basic type classes, while the more complex will be delegator trees which layer several type classes on top of each other. All of the type classes are layered on top of the <TT>vscrapConvertible</TT> class. Most scraps are therefore converted by commonality of their type classes and the methods they implement. The <TT>vscrapConvertible</TT> class introduces three methods and a single class variable:<P>
+<UL><LI><TT>vscrapDUMP</TT>, which is the standard Galaxy dump function for dumping the contents of a scrap
+<LI><TT>vscrapEXPORT</TT>, which is responsible for converting the data referenced by the scrap class implementing this method into a new scrap, possibly of a different representation
+<LI><TT>vscrapIMPORT</TT>, which is responsible for converting a given scrap into the representation defined by the class implementing this method
+<LI>vscrapEXPORT_CLASS, whose value specifies the class that scrap containing this variable will export to.
+</UL>The <TT>vscrapEXPORT</TT> method does most of the work for conversion. It takes a pair of <TT>vdelegatorStacks</TT>: the first is the source scrap to export from and the second is the destination scrap to export to. The first stack will of course be directed to the <TT>vscrapConvertible</TT> object which implements export. The second stack will always be directed to an object which the same class as the <TT>vscrap</TT><TT>EXPORT_CLASS</TT> of the exporting object. The export method generates an exception if the export cannot be performed. For example, the <TT>vscrapEXPORT</TT> method of <TT>vscrapIntegerClass</TT> looks like this:<P>
+<PRE><UL>static void _vscrapExportInteger(const vdelegatorStack *from,
+                                 const vdelegatorStack *to)
+{
+   vscrapSendInteger(to,
+                     vscrapSET_INTEGER,
+                     (to,
+                      vscrapSendInteger(from,
+                                        vscrapGET_INTEGER,
+                                        (from))));
+}
+
+</UL></PRE>Note that both source and destination scrap stacks are directed to <TT>vscrapInteger</TT> subclass objects, because the <TT>vscrap</TT><TT>EXPORT_CLASS</TT> class variable of <TT>vscrapIntegerClass</TT> is <TT>vscrapIntegerClass</TT> itself.<P>
+The <TT>vscrapEXPORT</TT> method is usually called from the destination object's <TT>vscrapIMPORT</TT> method. The <TT>vscrapIMPORT</TT> method also takes two delegator stacks as arguments. The first is the stack for the destination object being imported to, and the second is a stack which points to a <TT>vscrapConvertible</TT> object of the source scrap being converted from. The default <TT>vscrapIMPORT</TT> method directs the destination object's stack to the source object's <TT>vscrap</TT><TT>EXPORT_CLASS</TT>, and calls the source object's export. Like the <TT>vscrapEXPORT</TT> method, the <TT>vscrapIMPORT</TT> method generates an exception if it cannot succeed; for instance, if the <TT>vscrap</TT><TT>EXPORT_CLASS</TT> is not present in the destination scrap. The default import method looks like this:<P>
+<PRE><UL>static void _vscrapImport(const vdelegatorStack *to,
+                          const vdelegatorStack *from)
+{
+   vdelegatorStack  stack;
+
+   vdelegatorCopyStack(to, &amp;stack);
+   vdelegatorDirectStack(&amp;stack,
+             vscrapGetConvertibleExportClass((vscrapConvertible*)
+                                             vdelegatorGetStackTop(from)));
+   vscrapSendConvertible(from, vscrapEXPORT, (from, &amp;stack));
+}
+
+</UL></PRE>The <TT>vscrapIMPORT</TT> method exists so that the destination object has a subclassing hook for converting to its representation. Actual conversion is performed by the <TT><B>Convert</B></TT> function. It loops over all of the source scrap's <TT>vscrapConvertible</TT> objects, and calling <TT>vscrapIMPORT</TT> on the destination object with the stack pointing to the source object, until an import successfully completes. In this way, each convertible class of the source is attempted to be used as a conversion class.<P>
+<A NAME="4774"><H2> Typeable Scraps</H2></A>
+The <TT>vscrap</TT> layer also introduces the <TT>vscrapTypeable</TT> class, which is a convertible scrap class whose abstract type is not initially set. Typeable scraps are a convenient means for accessing data whose type can be specified on the fly, such as resource data. Typeable scraps are a subclass of convertible scraps; the difference comes in the behavior of their respective <TT>vscrapIMPORT</TT> methods. If, during conversion, the delegator stack of a plain convertible scrap is directed to a scrap class that is not implemented by the convertible scrap, the conversion will fail and a <TT>vdelegatorClassNotFoundException</TT> will be generated.<P>
+Typeable scraps, on the other hand, provide a means for recovering from a conversion error of the type described above by adding the <TT>vscrapENTYPE</TT> method. This method is called from the default typeable scrap <TT>vscrapIMPORT</TT> method when an initial attempt at conversion fails. The default typeable <TT>vscrapIMPORT</TT> method looks like this:<P>
+<PRE><UL>static void _vscrapImportTypeable(const vdelegatorStack *stack,
+                                  const vdelegatorStack *source)
+{
+   void          *c;
+   volatile vbool imported = FALSE;
+
+   vexWITH_HANDLING
+     _vscrapImport(stack, source);
+   imported = TRUE;
+   vexON_EXCEPTION
+   {
+      c = vscrapGetConvertibleExportClass((vscrapConvertible *)
+                                          vdelegatorGetStackTop(source));
+
+      if (!vscrapSendTypeable(stack, vscrapENTYPE, (stack, c)))
+        vexPropagate(vexGetRootClass(), NULL);
+   }
+vexEND_HANDLING;
+
+   if (!imported)
+     _vscrapImport(stack, source);
+}
+
+</UL></PRE>The purpose of the <TT>vscrapENTYPE</TT> method is to allow the scrap implementor to assign an abstract type to a typeable scrap such that a future attempt to import from the given scrap class will succeed. Note that <TT>vscrapENTYPE</TT> returns a boolean that signifies if the entyping process was successful or not; in most cases, once a typeable scrap has been entyped it cannot be later entyped to a new abstract class.<P>
+<A NAME="4829"><H2> Abstract Classes</H2></A>
+Galaxy defines the following set of abstract classes that provide methods for accessing basic C and Galaxy datatypes:<P>
+<DL>
+<DT><DD> vscrapBoolean			vscrapTag<br>vscrapCharacter			vscrapBlock<br>vscrapInteger			vscrapCompound<br>vscrapFixed			vscrapArray<br>vscrapFloat			vscrapDictionary<br>vscrapString
+</DL>
+These are abstract classes, meaning that while they define methods for accessing abstract data, they must be subclassed to access and manipulate a specific representation of physical data.<P>
+The <TT>vscrapBoolean</TT>, <TT>vscrapCharacter</TT>, <TT>vscrapInteger</TT>, <TT>vscrapFloat</TT>, <TT>vscrapFixed</TT>, <TT>vscrapString</TT>, and <TT>vscrapTag</TT> classes are all defined similarly. They each have two methods (<TT><B>GET_*</B></TT> and <TT><B>SET_*</B></TT>) which operate on a <TT>vbool</TT>, <TT>vchar</TT>, <TT>long</TT>, <TT>double</TT>, <TT>vfixed</TT>, <TT>vscribe *</TT>, or <TT>const vname *</TT>, respectively. For <TT>vscrapString</TT>, the methods are actually <TT>vscrapSCRIBE_STRING</TT> and <TT>vscrapSET_STRING_SCRIBED</TT>. The <TT>vscrapEXPORT</TT> methods of these classes work by getting the value of the source, and setting the value of the destination scrap. The <TT>vscrapDUMP</TT> methods of these classes are also implemented to get the contents and dump it.<P>
+The <TT>vscrapBlock</TT> class is used to represent a block of opaque data which is randomly accessible. It defines <TT>vscrapGET_BLOCK_SIZE</TT> and <TT>vscrapSET_BLOCK_SIZE</TT> for manipulating the size of the block, and <TT>vscrapREAD_BLOCK</TT> and <TT>vscrapWRITE_BLOCK</TT> for reading and writing the contents of the block. The <TT>vscrapEXPORT</TT> method for the <TT>vscrapBlock</TT> class works by getting the size of the source block, setting the size of the destination block, and then reading data in medium-sized chunks from the source scrap and writing it to the destination scrap. The <TT>vscrapDUMP</TT> method works similarly, by getting the size of the scrap, and then reading chunks and dumping the results.<P>
+The <TT>vscrapCompound</TT> class is used to represent collections of scraps. It introduces two methods, <TT>vscrapEMPTY_ELEMENTS</TT> and <TT>vscrapADD_ELEMENT</TT>. <TT>vscrapEMPTY_ELEMENTS</TT> removes all elements from a collection, while <TT>vscrapADD_ELEMENT</TT> adds a single scrap element to the collection. Whether or not the collection is ordered is undefined. Note that when a scrap is passed to <TT>vscrapADD_ELEMENT</TT>, ownership of the scrap is passed as well. Also note that passing ownership of the scrap does not necessarily imply passing ownership of the data the scrap references; the scrap passed may not itself own the data it references.<P>
+A <TT>vscrapIterator</TT> subclass, <TT>vscrapCompoundIterator</TT>, is also defined to go with <TT>vscrapCompound</TT>. This subclass adds the <TT>vscrapGET_ITERATOR_ELEMENT</TT> method to return the current element in an iteration. <TT>vscrapCompound</TT> defines a class variable, <TT>vscrap</TT><TT>COMPOUND_ITERATOR_CLASS</TT>, which points to a subclass of <TT>vscrapCompoundIterator</TT> which implements iterating over the elements in a <TT>vscrapCompound</TT>. Thus, a subclass of <TT>vscrapCompound</TT> should also define a subclass of <TT>vscrapCompoundIterator</TT>, and store a pointer to it in the <TT>vscrap</TT><TT>COMPOUND_ITERATOR_CLASS</TT> class variable of <TT>vscrapCompound</TT>.<P>
+The <TT>vscrapCompound</TT> class implements <TT>vscrapEXPORT</TT> by emptying the destination scrap, creating an element iterator from the source scrap, and then adding the elements one by one to the destination scrap as they are iterated by the source scrap. <TT>vscrapDUMP</TT> is implemented by iterating through the elements and dumping each one, with some punctuation in between.<P>
+Two subclasses of <TT>vscrapCompound</TT> are defined by Galaxy: <TT>vscrapArray</TT> and <TT>vscrapDictionary</TT>. Both of these also provide corresponding iterator subclasses: <TT>vscrapArrayIterator</TT> and <TT>vscrapDictionaryIterator</TT>.<P>
+The <TT>vscrapArray</TT> class represents an indexed collection of scrap elements. The methods <TT>vscrapGET_ARRAY_COUNT</TT>, <TT>vscrapSET_ARRAY_COUNT</TT>, <TT>vscrapGET_ELEMENT_AT</TT>, and <TT>vscrapSET_ELEMENT_AT</TT> are defined to manipulate the array elements. Note that as with <TT>vscrapADD_ELEMENT</TT>, the ownership of the vscrap is transferred when it is passed. Also, the ownership of the scrap returned by <TT>vscrapGET_ELEMENT_AT</TT> is passed as well. The <TT>vscrapEMPTY_ELEMENTS</TT> and <TT>vscrapADD_ELEMENT</TT> methods inherited from <TT>vscrapCompound</TT> are implemented by calling the <TT>vscrapSET_ARRAY_COUNT</TT> and <TT>vscrapSET_ELEMENT_AT</TT> methods, so these need not be overridden in subclasses of <TT>vscrapArray</TT>.<P>
+The <TT>vscrapArray</TT> defines the <TT>vscrapArrayIterator</TT> class for iterating through the elements of the array. The default <TT>vscrapArrayIterator</TT> class is implemented by simply calling <TT>vscrapGET_ARRAY_COUNT</TT> and <TT>vscrapGET_ELEMENT_AT</TT>, so subclasses of <TT>vscrapArray</TT> need not define their own <TT>vscrapArrayIterator</TT> class in order to have iterator functionality. The <TT>vscrapArrayIterator</TT> class also introduces a new method <TT>vscrapGET_ITERATOR_INDEX</TT>, which returns the index of the current element in the iteration.<P>
+The <TT>vscrapEXPORT</TT> method is implemented by setting the size of the destination scrap to the size of the source, and then setting the individual elements of the destination scrap. <TT>vscrapDUMP</TT> is implemented by indexing through the array and dumping the individual elements, separated by appropriate punctuation.<P>
+The <TT>vscrapDictionary</TT> class is used to represent a collection of elements each of which is tagged by a key string. The methods <TT>vscrapLOAD_ELEMENT</TT>, <TT>vscrapSTORE_ELEMENT</TT>, and <TT>vscrapREMOVE_ELEMENT</TT> are provided to access elements in the dictionary. <TT>vscrapLOAD_ELEMENT</TT> passes ownership of the scrap it returns, while <TT>vscrapSTORE_ELEMENT</TT> takes ownership of the scrap passed to it. <TT>vscrapEMPTY_ELEMENTS</TT> and <TT>vscrapADD_ELEMENT</TT> (inherited from <TT>vscrapCompound</TT>) are not implemented; a subclass must implement them if desired.<P>
+The <TT>vscrapDictionaryIterator</TT> class provides an interface for iterating over dictionary elements. It adds the method <TT>vscrapGET_ITERATOR_KEY</TT> to return the key of the current element. Note that unlike the <TT>vscrapArrayIterator</TT> class, the default class does not work; a subclass of <TT>vscrapDictionary</TT> has to implement its own <TT>vscrapDictionaryIterator</TT> class.<P>
+The <TT>vscrapEXPORT</TT> method is implemented as follows: first, the destination scrap is emptied. Then the source scrap is iterated through, storing the resulting elements in the destination scrap under the appropriate key. The <TT>vscrapDUMP</TT> method is implemented by iterating through the elements, dumping each element, along with its key and some punctuation.<P>
+Note that a given scrap need not implement all of the methods for a given class; for instance, it might implement <TT>vstackGET*</TT> but not <TT>vstackSET*</TT> if the scrap is write-only. However, if this is done, the usefulness of the scrap will be limited. Certain operations may fail, and care must be taken that the behavior resulting is acceptable.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="RegExp.html">Previous Chapter</A> | 
+		<A HREF="Resource.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

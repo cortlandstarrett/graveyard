@@ -1,0 +1,2223 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vliststr prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vliststr prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vliststr-x.html#section_DataType">Types</A> [2]</TD>
+<TD><A HREF="vliststr-x.html#section_Function">Functions</A> [96]</TD>
+<TD><A HREF="vliststr-x.html#section_Message">Messages</A> [2]</TD>
+<TD><A HREF="vliststr-x.html#section_Constant">Constants</A> [1]</TD>
+<TD><A HREF="vliststr-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vliststr"><HR><H4>vliststr</H4></A>
+<PRE>
+        typedef ... <B>vliststr</B>;
+</PRE>
+
+<DL><DD>
+Denotes an instance of the class derived from
+<CODE><A HREF="vliststr-x.html#vliststrClass"><CODE>vliststrClass</CODE></A></CODE>. This type is useful for making
+any two dimensional data type which hold string data.
+<SAMP>vliststr</SAMP> simplifies many memory management
+details regarding string creating, copying, and deletion.
+You can also use this type as the basis for new types of
+lists tailored to custom needs.
+</DD></DL>
+<P>
+<A NAME="vliststrClass"><HR><H4>vliststrClass</H4></A>
+<PRE>
+        typedef ... <B>vliststrClass</B>;
+</PRE>
+
+<DL><DD>
+The class definition for the string list object, it is
+derived from <CODE><A HREF="vlist-x.html#vlistClass"><CODE>vlistClass</CODE></A></CODE>. It contains the
+<CODE><A HREF="vlist-x.html#vlistClass"><CODE>vlistClass</CODE></A></CODE> members plus the message
+definitions for list manipulation.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vliststrClone"><HR><H4>vliststrClone</H4></A>
+<PRE>
+        vliststr * <B>vliststrClone</B>(
+                vliststr * list);
+</PRE>
+
+<DL><DD>
+Creates a new list object, and makes it a copy of the list
+object <SAMP>list</SAMP>. The List Manager allocates the
+memory for the new list object, and returns a pointer to
+it. This function is essentially a combination of
+<CODE><A HREF="vliststr-x.html#vliststrCreate"><CODE>vliststrCreate</CODE></A></CODE> and <CODE><A HREF="vliststr-x.html#vliststrCopy"><CODE>vliststrCopy</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vliststrCloneSelection"><HR><H4>vliststrCloneSelection</H4></A>
+<PRE>
+        vlistSelection * <B>vliststrCloneSelection</B>(
+                vliststr * list,
+                vlistSelection * selection);
+</PRE>
+
+<DL><DD>
+Creates a new list selection, and makes it a copy of the
+selection <SAMP>selection</SAMP> from the list object
+<SAMP>list</SAMP>. The newly created selection is returned.
+This new selection belongs to the list in the same way that
+the original selection does. Observers are notified about
+changes made to the cloned selection. This is basically
+just a combination of <CODE><A HREF="vliststr-x.html#vliststrCreateSelection"><CODE>vliststrCreateSelection</CODE></A></CODE>
+and <CODE><A HREF="vliststr-x.html#vliststrCopySelection"><CODE>vliststrCopySelection</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vliststrCopy"><HR><H4>vliststrCopy</H4></A>
+<PRE>
+        void <B>vliststrCopy</B>(
+                vliststr * list,
+                vliststr * target);
+</PRE>
+
+<DL><DD>
+Copies the information from the list object
+<SAMP>list</SAMP> into the list object <SAMP>target</SAMP>,
+so that the two list objects represent equivalent list
+objects but separate storage. Any objects which exist in
+<SAMP>list</SAMP> are duplicated in <SAMP>target</SAMP>.
+The cell values are also copied by calling
+<CODE><A HREF="vliststr-x.html#vliststrGetCellValue"><CODE>vliststrGetCellValue</CODE></A></CODE> and
+<CODE><A HREF="vliststr-x.html#vliststrSetCellValue"><CODE>vliststrSetCellValue</CODE></A></CODE> over the contents of the
+list (this means the pointers are duplicated, not the
+memory they point to, unless the cell value was set with
+<CODE><A HREF="vliststr-x.html#vliststrSetCellValueScribed"><CODE>vliststrSetCellValueScribed</CODE></A></CODE>).
+    <P>
+<BLOCKQUOTE>
+NOTE:
+    <P>
+Selections and observers are not copied. The pointers in
+the object's dataset and data pointer field are copied, but
+the memory they point to is <I>not</I> duplicated. This
+function is implemented by sending the message
+<CODE>vobjectCOPY</CODE> to list.</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vliststrCopyInit"><HR><H4>vliststrCopyInit</H4></A>
+<PRE>
+        void <B>vliststrCopyInit</B>(
+                vliststr * list,
+                vliststr * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>list</SAMP> into
+<SAMP>target</SAMP> so the memory addressed by
+<SAMP>target</SAMP> is a list equivalent to
+<SAMP>list</SAMP>. <SAMP>target</SAMP> should be a pointer
+to uninitialized memory---the List Manager will initialize
+it as part of the copy. This function copies all the
+attributes of the list, and it will clone the list contents
+by calling <CODE><A HREF="vlist-x.html#vlistGetCellValue"><CODE>vlistGetCellValue</CODE></A></CODE> for every cell in
+<SAMP>list</SAMP> and subsequently calling
+<CODE><A HREF="vlist-x.html#vlistSetCellValue"><CODE>vlistSetCellValue</CODE></A></CODE> using <SAMP>target</SAMP>.
+This function is implemented by sending the message
+<CODE>vobjectCOPY_INIT</CODE> to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrCopySelection"><HR><H4>vliststrCopySelection</H4></A>
+<PRE>
+        void <B>vliststrCopySelection</B>(
+                vliststr * list,
+                vlistSelection * source,
+                vlistSelection * destination);
+</PRE>
+
+<DL><DD>
+Copies the list selection <SAMP>source</SAMP> into the
+existing list selection <SAMP>destination</SAMP>. Both
+selections must be defined on the same list. They will
+contain the same cells, and have the same selection method
+afterward.
+</DD></DL>
+<P>
+<A NAME="vliststrCountSelectedCells"><HR><H4>vliststrCountSelectedCells</H4></A>
+<PRE>
+        long <B>vliststrCountSelectedCells</B>(
+                vliststr * list,
+                vlistSelection * selection);
+</PRE>
+
+<DL><DD>
+Returns the number of cells that are in the selection
+<SAMP>selection</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrCreate"><HR><H4>vliststrCreate</H4></A>
+<PRE>
+        vliststr * <B>vliststrCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new list object of the default list class and
+returns a pointer to the new list object, which the List
+Manager allocated (same as calling
+<CODE><A HREF="vliststr-x.html#vliststrCreateOfClass"><CODE>vliststrCreateOfClass</CODE></A></CODE><SAMP>(<CODE><A HREF="vliststr-x.html#vliststrGetDefaultClass"><CODE>vliststrGetDefaultClass</CODE></A></CODE>())</SAMP>).
+</DD></DL>
+<P>
+<A NAME="vliststrCreateOfClass"><HR><H4>vliststrCreateOfClass</H4></A>
+<PRE>
+        vliststr * <B>vliststrCreateOfClass</B>(
+                vliststrClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new list object of class <SAMP>clas</SAMP> and
+returns a pointer to the new list object, the memory for
+the new object is allocated by the List Manager. The new
+list object is created with a set of default attributes
+determined by the class.
+</DD></DL>
+<P>
+<A NAME="vliststrCreateSelection"><HR><H4>vliststrCreateSelection</H4></A>
+<PRE>
+        vlistSelection * <B>vliststrCreateSelection</B>(
+                vliststr * list);
+</PRE>
+
+<DL><DD>
+Creates a new selection for the list object
+<SAMP>list</SAMP> and returns the selection identifier. A
+list object can have multiple selections associated with
+it. Observers are notified of changes made to the
+selection.
+</DD></DL>
+<P>
+<A NAME="vliststrDestroy"><HR><H4>vliststrDestroy</H4></A>
+<PRE>
+        void <B>vliststrDestroy</B>(
+                vliststr * list);
+</PRE>
+
+<DL><DD>
+Destroys the list object pointed to by <SAMP>list</SAMP>
+and all of its sub-objects allocated by the List Manager.
+This function attempts to free the storage directly
+occupied by the list object <I>only</I> if it was allocated
+by the List Manager (<CODE><A HREF="vliststr-x.html#vliststrCreate"><CODE>vliststrCreate</CODE></A></CODE> or
+<CODE><A HREF="vliststr-x.html#vliststrCreateOfClass"><CODE>vliststrCreateOfClass</CODE></A></CODE>). This function is
+implemented by sending the message
+<CODE><A HREF="vinstance-x.html#vinstanceDESTROY"><CODE>vinstanceDESTROY</CODE></A></CODE> to <SAMP>list</SAMP>. The
+only cell contents destroyed are those cells whose value
+was set with <CODE><A HREF="vliststr-x.html#vliststrSetCellValueScribed"><CODE>vliststrSetCellValueScribed</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vliststrDestroyIterator"><HR><H4>vliststrDestroyIterator</H4></A>
+<PRE>
+        void <B>vliststrDestroyIterator</B>(
+                vlistIterator * iterator);
+</PRE>
+
+<DL><DD>
+Frees any memory used by the iterator
+<SAMP>iterator</SAMP>.
+    <P>
+<BLOCKQUOTE>
+Sample Code: Using an iterator on a list's
+selection</BLOCKQUOTE>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+void spamSelectionReport(<A HREF="vlistview-x.html#vlistview"><CODE>vlistview</CODE></A> *listview)
+{
+
+<A HREF="vlist-x.html#vlistIterator"><CODE>vlistIterator</CODE></A>        iterator;
+int                  row, column;
+
+<A HREF="vlist-x.html#vlistInitSelectionIterator"><CODE>vlistInitSelectionIterator</CODE></A>(&iterator, <A HREF="vlistview-x.html#vlistviewGetSelection"><CODE>vlistviewGetSelection</CODE></A>(listview));
+while (<A HREF="vlist-x.html#vlistNextIterator"><CODE>vlistNextIterator</CODE></A>(&iterator)) 
+   {
+        row = <A HREF="vlist-x.html#vlistGetIteratorRow"><CODE>vlistGetIteratorRow</CODE></A>(&iterator);
+        column = <A HREF="vlist-x.html#vlistGetIteratorColumn"><CODE>vlistGetIteratorColumn</CODE></A>(&iterator);
+        <A HREF="vdebug-x.html#vdebugInform"><CODE>vdebugInform</CODE></A>("Cell (%d,%d) = %x\n", row, column,
+        <A HREF="vlist-x.html#vlistGetCellValue"><CODE>vlistGetCellValue</CODE></A>(<A HREF="vlistview-x.html#vlistviewGetList"><CODE>vlistviewGetList</CODE></A>(listview), row, column))
+   }
+
+<A HREF="vlist-x.html#vlistDestroyIterator"><CODE>vlistDestroyIterator</CODE></A>(&iterator);
+
+} /* spamSelectionReport */
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vliststrDestroySelection"><HR><H4>vliststrDestroySelection</H4></A>
+<PRE>
+        void <B>vliststrDestroySelection</B>(
+                vliststr * list,
+                vlistSelection * selection);
+</PRE>
+
+<DL><DD>
+Destroys the selection <SAMP>selection</SAMP> that belongs
+to the list object <SAMP>list</SAMP>. Selections should be
+destroyed as soon as the client's finished with them.
+Selections are automatically destroyed when the list object
+is destroyed.
+</DD></DL>
+<P>
+<A NAME="vliststrDetermineCellName"><HR><H4>vliststrDetermineCellName</H4></A>
+<PRE>
+        const vchar * <B>vliststrDetermineCellName</B>(
+                vliststr * list,
+                int row,
+                int column);
+</PRE>
+
+<DL><DD>
+Returns the name of the cell located at <SAMP>row</SAMP>,
+<SAMP>column</SAMP>. <SAMP>list</SAMP> is the list object
+containing the cell. The cell names are used for the
+<SAMP>CellFinder</SAMP> procedure; this is used heavily
+within list views for keyboard selection. This function is
+implemented by sending the message
+<CODE><A HREF="vlist-x.html#vlistDETERMINE_CELL_NAME"><CODE>vlistDETERMINE_CELL_NAME</CODE></A></CODE> to list. The default
+implementation of <CODE><A HREF="vlist-x.html#vlistDETERMINE_CELL_NAME"><CODE>vlistDETERMINE_CELL_NAME</CODE></A></CODE> is
+to call the cell namer procedure set by
+<CODE><A HREF="vliststr-x.html#vliststrSetCellNamer"><CODE>vliststrSetCellNamer</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vliststrDetermineSelectionBounds"><HR><H4>vliststrDetermineSelectionBounds</H4></A>
+<PRE>
+        void <B>vliststrDetermineSelectionBounds</B>(
+                vliststr * list,
+                vlistSelection * selection,
+                int * row,
+                int * column,
+                int * numDown,
+                int * numAcross);
+</PRE>
+
+<DL><DD>
+Calculates the smallest area that encompasses all selected
+cells in the selection <SAMP>selection</SAMP>.
+<SAMP>row</SAMP> and <SAMP>column</SAMP> contain the anchor
+point for the bounds. <SAMP>numDown</SAMP> contains the
+number of rows in the bounds, and <SAMP>numAcross</SAMP>
+contains the number of columns in the bounds.
+<SAMP>list</SAMP> is the list object for the selection.
+</DD></DL>
+<P>
+<A NAME="vliststrDump"><HR><H4>vliststrDump</H4></A>
+<PRE>
+        void <B>vliststrDump</B>(
+                vliststr * list,
+                FILE * stream);
+</PRE>
+
+<DL><DD>
+Prints the contents of the list object <SAMP>list</SAMP>
+(excluding the actual cell values) on the file
+<SAMP>stream</SAMP> in user-readable form. This function is
+intended for debugging and should not be used to store the
+content of the list in recoverable form. This function has
+effect only if debugging is enabled. If stream is
+<SAMP>NULL</SAMP>, the contents will be written to the
+stream returned by <CODE><A HREF="vdebug-x.html#vdebugGetInfoStream"><CODE>vdebugGetInfoStream</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vliststrFindCell"><HR><H4>vliststrFindCell</H4></A>
+<PRE>
+        int <B>vliststrFindCell</B>(
+                vliststr * list,
+                vchar * name,
+                int * row,
+                int * column,
+                int startRow,
+                int startColumn,
+                int directionHint);
+</PRE>
+
+<DL><DD>
+Searches the list object <SAMP>list</SAMP> starting at the
+cell identified by <SAMP>startRow</SAMP>,
+<SAMP>startColumn</SAMP>. A match is found when
+<SAMP>name</SAMP> matches the cell's name
+(<CODE><A HREF="vliststr-x.html#vliststrDetermineCellName"><CODE>vliststrDetermineCellName</CODE></A></CODE>) for the length of
+<SAMP>name</SAMP>, the comparison is case insensitive. The
+search works in the direction specified by
+<SAMP>directionHint</SAMP>, <SAMP>directionHint</SAMP> can
+be <SAMP>vlistFIND_COLUMN_MAJOR</SAMP> or
+<SAMP>vlistFIND_ROW_MAJOR</SAMP>.
+<SAMP>vlistFIND_COLUMN_MAJOR</SAMP> means that all columns
+in a row will be searched before moving to the next row,
+and <SAMP>vlistFIND_ROW_MAJOR </SAMP> means all rows will
+be checked before moving to the next column (refer to
+Figure). If the list has been sorted, then the find
+operation can be achieved more quickly by bitwise ORing
+(<SAMP>|</SAMP>) <SAMP>vlistFIND_LIST_IS_SORTED</SAMP> into
+the <SAMP>directionHint</SAMP>.
+    <P>
+A match is defined to be when <SAMP>name</SAMP> matches
+(<CODE><A HREF="vchar-x.html#vcharCompare"><CODE>vcharCompare</CODE></A></CODE>) with a cell name (retrieved
+with <CODE><A HREF="vliststr-x.html#vliststrDetermineCellName"><CODE>vliststrDetermineCellName</CODE></A></CODE>).
+    <P>
+When the match is found, its location is returned through
+<SAMP>row</SAMP> and <SAMP>column and TRUE is
+returned.</SAMP> If no match is found then <SAMP>0</SAMP>
+is placed in <SAMP>row</SAMP> and <SAMP>column</SAMP>, and
+<SAMP>FALSE</SAMP> is returned.
+    <P>
+The search is carried out by the
+<CODE><A HREF="vlist-x.html#vlistFIND_CELL"><CODE>vlistFIND_CELL</CODE></A></CODE> method of the list. When a
+custom data representation is being used that allows for
+better searching, this method may also be worth overriding.
+</DD></DL>
+<P>
+<A NAME="vliststrFindMinorResource"><HR><H4>vliststrFindMinorResource</H4></A>
+<PRE>
+        vresource <B>vliststrFindMinorResource</B>(
+                vliststr * list,
+                vresource resource,
+                int index);
+</PRE>
+
+<DL><DD>
+Returns a minor-axis resource from a major-axis resource
+repository. <SAMP>resource</SAMP> is a resource that has
+been created by <CODE><A HREF="vliststr-x.html#vliststrMakeMinorResource"><CODE>vliststrMakeMinorResource</CODE></A></CODE>
+during storage of the list object <SAMP>list</SAMP>.
+<SAMP>index</SAMP> is the index along the major axis that
+is being loaded. For example, if the list data orientation
+is <CODE>vlistCOLUMN_MAJOR</CODE>,
+<CODE>vliststrFindMinorResource</CODE> will be called once
+for each column, with <SAMP>index</SAMP> ranging from zero
+to
+<CODE><A HREF="vliststr-x.html#vliststrGetColumnCount"><CODE>vliststrGetColumnCount</CODE></A></CODE><SAMP>(list)-1</SAMP>.
+The resource returned by
+<CODE>vliststrFindMinorResource</CODE> will be given to
+<CODE><A HREF="vliststr-x.html#vliststrLoadCell"><CODE>vliststrLoadCell</CODE></A></CODE> to populate
+<SAMP>list</SAMP>.
+    <P>
+The default implementation of
+<CODE>vliststrFindMinorResource</CODE> returns
+<CODE>vresourceNULL</CODE>. See <CODE><A HREF="vliststr-x.html#vliststrLoad"><CODE>vliststrLoad</CODE></A></CODE>
+for more information on the list resource loading model.
+This function is implemented by sending the message
+<CODE><A HREF="vlist-x.html#vlistFIND_MINOR_RESOURCE"><CODE>vlistFIND_MINOR_RESOURCE</CODE></A></CODE> to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrGetCellNamer"><HR><H4>vliststrGetCellNamer</H4></A>
+<PRE>
+        vlistNameCellProc <B>vliststrGetCellNamer</B>(
+                vliststr * list);
+</PRE>
+
+<DL><DD>
+Returns the procedure that associates names to cells for
+the list object <SAMP>list</SAMP>. The default
+<SAMP>CellNamer</SAMP> uses the cell's value as its name.
+</DD></DL>
+<P>
+<A NAME="vliststrGetCellValue"><HR><H4>vliststrGetCellValue</H4></A>
+<PRE>
+        const void * <B>vliststrGetCellValue</B>(
+                vliststr * list,
+                int row,
+                int column);
+</PRE>
+
+<DL><DD>
+Returns the value assigned to the cell identified by
+<SAMP>row</SAMP>, <SAMP>column</SAMP>. <SAMP>list</SAMP> is
+the list object containing the cell. Note that the value is
+actually retrieved by calling the
+<SAMP>CellValueGetter</SAMP> procedure for the list. If the
+specified cell is outside of the list's bounds, then the
+exception <SAMP>/Arg/Range</SAMP> is generated. This
+function is implemented by sending the message
+<CODE><A HREF="vlist-x.html#vlistGET_CELL_VALUE"><CODE>vlistGET_CELL_VALUE</CODE></A></CODE> to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrGetCellValueScribed"><HR><H4>vliststrGetCellValueScribed</H4></A>
+<PRE>
+        vscribe * <B>vliststrGetCellValueScribed</B>(
+                vliststr * list,
+                int row,
+                int column);
+</PRE>
+
+<DL><DD>
+Returns the value assigned to the cell identified by
+<SAMP>row</SAMP>, <SAMP>column</SAMP> as a scribe. Note
+that the value is actually retrieved by calling the
+<SAMP>CellValueGetter</SAMP> procedure for the list, and
+then packaged into a scribe. If the specified cell is
+outside of the list's bounds, then the exception
+<SAMP>/Arg/Range</SAMP> is generated. This function is
+implemented by sending the message
+<CODE><A HREF="vliststr-x.html#vliststrGET_CELL_VALUE_SCRIBED"><CODE>vliststrGET_CELL_VALUE_SCRIBED</CODE></A></CODE> to
+<SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrGetClass"><HR><H4>vliststrGetClass</H4></A>
+<PRE>
+        vliststrClass * <B>vliststrGetClass</B>(
+                vliststr * list);
+</PRE>
+
+<DL><DD>
+Returns the class of the list object <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrGetColumnCount"><HR><H4>vliststrGetColumnCount</H4></A>
+<PRE>
+        int <B>vliststrGetColumnCount</B>(
+                vliststr * list);
+</PRE>
+
+<DL><DD>
+Returns the number of columns currently in the list object
+<SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrGetData"><HR><H4>vliststrGetData</H4></A>
+<PRE>
+        void * <B>vliststrGetData</B>(
+                vliststr * list);
+</PRE>
+
+<DL><DD>
+Returns the generic data pointer attached to the list
+object <SAMP>list</SAMP>. (If you are using this to hold
+your own data representation, you should use the Dataset
+operations instead.)
+</DD></DL>
+<P>
+<A NAME="vliststrGetDataset"><HR><H4>vliststrGetDataset</H4></A>
+<PRE>
+        void * <B>vliststrGetDataset</B>(
+                vliststr * list);
+</PRE>
+
+<DL><DD>
+Returns a pointer to the current data set for the list
+object <SAMP>list</SAMP>. If you are using your own data
+representation, call this to get at the representation you
+have given to the list.
+</DD></DL>
+<P>
+<A NAME="vliststrGetDefaultClass"><HR><H4>vliststrGetDefaultClass</H4></A>
+<PRE>
+        vliststrClass * <B>vliststrGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the class used to create list data objects by the
+<CODE><A HREF="vliststr-x.html#vliststrCreate"><CODE>vliststrCreate</CODE></A></CODE> and <CODE><A HREF="vliststr-x.html#vliststrInit"><CODE>vliststrInit</CODE></A></CODE>
+functions. This class can be modified to alter the behavior
+of all list objects subsequently created by these
+functions. This is normally called to <I>spawn</I> or
+<I>reproduce</I> a class to make a new subclass.
+</DD></DL>
+<P>
+<A NAME="vliststrGetIteratorColumn"><HR><H4>vliststrGetIteratorColumn</H4></A>
+<PRE>
+        int <B>vliststrGetIteratorColumn</B>(
+                vlistIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the column number of the cell currently being
+pointed to by iterator <SAMP>iterator</SAMP>. If
+<SAMP>iterator</SAMP> is a selection range iterator, the
+column number returned is the lowest-numbered column in the
+selection range. This function should be called only if
+<CODE><A HREF="vliststr-x.html#vliststrNextIterator"><CODE>vliststrNextIterator</CODE></A></CODE> returned
+<SAMP>TRUE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrGetIteratorRange"><HR><H4>vliststrGetIteratorRange</H4></A>
+<PRE>
+        void <B>vliststrGetIteratorRange</B>(
+                vlistIterator * iterator,
+                vrectLong * rect);
+</PRE>
+
+<DL><DD>
+Returns the range being pointed to by a selection iterator.
+<SAMP>iterator</SAMP> must have been initialized with
+<CODE><A HREF="vliststr-x.html#vliststrInitSelectionRangeIterator"><CODE>vliststrInitSelectionRangeIterator</CODE></A></CODE>.
+<SAMP>rect</SAMP> contains the location and size of the
+selection range pointed to by the iterator.
+<SAMP>rect->x</SAMP> is the lowest column number,
+<SAMP>rect->y</SAMP> is the lowest row number,
+<SAMP>rect->w</SAMP> is the number of columns of the range,
+and <SAMP>rect->h</SAMP> is the number of rows of the
+range.
+</DD></DL>
+<P>
+<A NAME="vliststrGetIteratorRangeColumnCount"><HR><H4>vliststrGetIteratorRangeColumnCount</H4></A>
+<PRE>
+        int <B>vliststrGetIteratorRangeColumnCount</B>(
+                vlistIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the number of columns in a selection range pointed
+to by <SAMP>iterator</SAMP>. <SAMP>iterator</SAMP> must
+have been initialized with
+<CODE><A HREF="vliststr-x.html#vliststrInitSelectionRangeIterator"><CODE>vliststrInitSelectionRangeIterator</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vliststrGetIteratorRangeRowCount"><HR><H4>vliststrGetIteratorRangeRowCount</H4></A>
+<PRE>
+        int <B>vliststrGetIteratorRangeRowCount</B>(
+                vlistIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the number of rows in a selection range pointed to
+by <SAMP>iterator</SAMP>. <SAMP>iterator</SAMP> must have
+been initialized with
+<CODE><A HREF="vliststr-x.html#vliststrInitSelectionRangeIterator"><CODE>vliststrInitSelectionRangeIterator</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vliststrGetIteratorRow"><HR><H4>vliststrGetIteratorRow</H4></A>
+<PRE>
+        int <B>vliststrGetIteratorRow</B>(
+                vlistIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the row number of the cell currently being pointed
+to by the iterator <SAMP>iterator</SAMP>. This function
+should be called only if <CODE><A HREF="vliststr-x.html#vliststrNextIterator"><CODE>vliststrNextIterator</CODE></A></CODE>
+returned <SAMP>TRUE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrGetIteratorValue"><HR><H4>vliststrGetIteratorValue</H4></A>
+<PRE>
+        const void * <B>vliststrGetIteratorValue</B>(
+                vlistIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns the value of the cell currently being pointed to by
+the iterator <SAMP>iterator</SAMP>. This function should be
+called only if <CODE><A HREF="vliststr-x.html#vliststrNextIterator"><CODE>vliststrNextIterator</CODE></A></CODE> returned
+<SAMP>TRUE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrGetList"><HR><H4>vliststrGetList</H4></A>
+<PRE>
+        vlist * <B>vliststrGetList</B>(
+                vliststr * list);
+</PRE>
+
+<DL><DD>
+Returns the list upon which the string list
+<SAMP>list</SAMP> is built.
+</DD></DL>
+<P>
+<A NAME="vliststrGetObject"><HR><H4>vliststrGetObject</H4></A>
+<PRE>
+        vobject * <B>vliststrGetObject</B>(
+                vliststr * list);
+</PRE>
+
+<DL><DD>
+Returns the object upon which the list <SAMP>list</SAMP> is
+built.
+</DD></DL>
+<P>
+<A NAME="vliststrGetOrientation"><HR><H4>vliststrGetOrientation</H4></A>
+<PRE>
+        int <B>vliststrGetOrientation</B>(
+                vliststr * list);
+</PRE>
+
+<DL><DD>
+Returns the orientation of the data storage in the list
+object.
+</DD></DL>
+<P>
+<A NAME="vliststrGetRowCount"><HR><H4>vliststrGetRowCount</H4></A>
+<PRE>
+        int <B>vliststrGetRowCount</B>(
+                vliststr * list);
+</PRE>
+
+<DL><DD>
+Returns the number of rows that are currently in the list
+object.
+</DD></DL>
+<P>
+<A NAME="vliststrGetSelectMethod"><HR><H4>vliststrGetSelectMethod</H4></A>
+<PRE>
+        int <B>vliststrGetSelectMethod</B>(
+                vliststr * list,
+                vlistSelection * selection);
+</PRE>
+
+<DL><DD>
+Returns the select method for the selection
+<SAMP>selection</SAMP>. <SAMP>list</SAMP> is the list
+object containing the selection.
+</DD></DL>
+<P>
+<A NAME="vliststrGetSelectedCell"><HR><H4>vliststrGetSelectedCell</H4></A>
+<PRE>
+        void <B>vliststrGetSelectedCell</B>(
+                vliststr * list,
+                vlistSelection * selection,
+                int * row,
+                int * column);
+</PRE>
+
+<DL><DD>
+Returns the row and column number of a currently selected
+cell in the selection <SAMP>selection</SAMP>.
+<SAMP>list</SAMP> is the list object containing the
+selection. If the selection method for
+<SAMP>selection</SAMP> is <SAMP>vlistONE_CELL_ONLY</SAMP>,
+this call returns the only selected cell. If the selection
+has more than one cell, the cell returned by this procedure
+is an arbitrary cell in the selection. If the selection is
+empty, then the constant
+<CODE>vlistNO_CELLS_SELECTED</CODE> is returned in both
+<SAMP>row</SAMP> and <SAMP>column</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrHasAtLeastOneSelection"><HR><H4>vliststrHasAtLeastOneSelection</H4></A>
+<PRE>
+        int <B>vliststrHasAtLeastOneSelection</B>(
+                vliststr * list,
+                vlistSelection * selection);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the <SAMP>AtLeastOne</SAMP>
+attribute for the specified selection is on,
+<SAMP>FALSE</SAMP> if not. When on the selection always has
+at least one cell in it at the end of every selection
+change. <SAMP>list</SAMP> is the list object containing the
+selection.
+</DD></DL>
+<P>
+<A NAME="vliststrHasExtendColumnSelection"><HR><H4>vliststrHasExtendColumnSelection</H4></A>
+<PRE>
+        int <B>vliststrHasExtendColumnSelection</B>(
+                vliststr * list,
+                vlistSelection * selection);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the <SAMP>ExtendColumn</SAMP>
+attribute for the specified selection is on,
+<SAMP>FALSE</SAMP> if not. When on the selection always
+extends to include complete columns. <SAMP>list</SAMP> is
+the list object containing the selection.
+</DD></DL>
+<P>
+<A NAME="vliststrHasExtendRowSelection"><HR><H4>vliststrHasExtendRowSelection</H4></A>
+<PRE>
+        int <B>vliststrHasExtendRowSelection</B>(
+                vliststr * list,
+                vlistSelection * selection);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the <SAMP>ExtendRow</SAMP>
+attribute for the specified selection is on,
+<SAMP>FALSE</SAMP> if not. When on the selection always
+extends to include complete rows. <SAMP>list</SAMP> is the
+list object containing the selection.
+</DD></DL>
+<P>
+<A NAME="vliststrInit"><HR><H4>vliststrInit</H4></A>
+<PRE>
+        void <B>vliststrInit</B>(
+                vliststr * list);
+</PRE>
+
+<DL><DD>
+Initializes the list object addressed by <SAMP>list</SAMP>
+into a valid list object of the default list class in the
+same manner as <CODE><A HREF="vliststr-x.html#vliststrInitOfClass"><CODE>vliststrInitOfClass</CODE></A></CODE><SAMP>(list,
+<CODE><A HREF="vliststr-x.html#vliststrGetDefaultClass"><CODE>vliststrGetDefaultClass</CODE></A></CODE>())</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrInitIterator"><HR><H4>vliststrInitIterator</H4></A>
+<PRE>
+        void <B>vliststrInitIterator</B>(
+                vlistIterator * iterator,
+                vliststr * list);
+</PRE>
+
+<DL><DD>
+Initializes the iterator <SAMP>iterator</SAMP> to begin
+iteration over all the cells in the list object
+<SAMP>list</SAMP>. <CODE><A HREF="vliststr-x.html#vliststrNextIterator"><CODE>vliststrNextIterator</CODE></A></CODE> needs
+to be called to advance it onto the first cell.
+</DD></DL>
+<P>
+<A NAME="vliststrInitOfClass"><HR><H4>vliststrInitOfClass</H4></A>
+<PRE>
+        void <B>vliststrInitOfClass</B>(
+                vliststr * list,
+                vliststrClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes the list object addressed by <SAMP>list</SAMP>
+into a valid list object of class <SAMP>clas</SAMP>. A call
+to <CODE><A HREF="vliststr-x.html#vliststrDestroy"><CODE>vliststrDestroy</CODE></A></CODE> frees any internal objects
+allocated by the List Manager, but does not attempt to free
+the structure itself.
+</DD></DL>
+<P>
+<A NAME="vliststrInitSelectionIterator"><HR><H4>vliststrInitSelectionIterator</H4></A>
+<PRE>
+        void <B>vliststrInitSelectionIterator</B>(
+                vlistIterator * iterator,
+                vlistSelection * selection);
+</PRE>
+
+<DL><DD>
+Initializes the iterator <SAMP>iterator</SAMP> to begin
+iteration over the cells in the list selection
+<SAMP>selection</SAMP>. <SAMP>selection</SAMP> is copied
+into the iterator; this allows <SAMP>selection</SAMP> to be
+altered during iteration without changing the domain of the
+iterator. <CODE><A HREF="vliststr-x.html#vliststrNextIterator"><CODE>vliststrNextIterator</CODE></A></CODE> needs to be
+called to advance the iterator onto the first cell.
+</DD></DL>
+<P>
+<A NAME="vliststrInitSelectionRangeIterator"><HR><H4>vliststrInitSelectionRangeIterator</H4></A>
+<PRE>
+        void <B>vliststrInitSelectionRangeIterator</B>(
+                vlistIterator * iterator,
+                vlistSelection * selection);
+</PRE>
+
+<DL><DD>
+Initializes the iterator <SAMP>iterator</SAMP> to begin
+iteration over the ranges contained in
+<SAMP>selection</SAMP>. Ranges are contiguous rectangular
+groupings of cells in the selection. <SAMP>selection</SAMP>
+is copied into the iterator, allowing selection to be
+altered during iteration without changing the domain of the
+iterator. <CODE><A HREF="vliststr-x.html#vliststrNextIterator"><CODE>vliststrNextIterator</CODE></A></CODE> needs to be
+called to advance the iterator onto the first range. The
+value of the range can be extracted by calling
+<CODE><A HREF="vliststr-x.html#vliststrGetIteratorRange"><CODE>vliststrGetIteratorRange</CODE></A></CODE>,
+<CODE><A HREF="vliststr-x.html#vliststrGetIteratorRow"><CODE>vliststrGetIteratorRow</CODE></A></CODE>,
+<CODE><A HREF="vliststr-x.html#vliststrGetIteratorColumn"><CODE>vliststrGetIteratorColumn</CODE></A></CODE>,
+<CODE><A HREF="vliststr-x.html#vliststrGetIteratorRangeRowCount"><CODE>vliststrGetIteratorRangeRowCount</CODE></A></CODE>, or
+<CODE><A HREF="vliststr-x.html#vliststrGetIteratorRangeColumnCount"><CODE>vliststrGetIteratorRangeColumnCount</CODE></A></CODE>. Ranges
+returned by the range iterator are not guaranteed to be
+minimal, that is, it could be possible that two ranges
+returned by the iterator could have been combined into one
+range. This behavior, as well as the ordering of ranges
+returned, is implementation-dependent.
+</DD></DL>
+<P>
+<A NAME="vliststrInsertColumn"><HR><H4>vliststrInsertColumn</H4></A>
+<PRE>
+        void <B>vliststrInsertColumn</B>(
+                vliststr * list,
+                int beforeColumn);
+</PRE>
+
+<DL><DD>
+Inserts a new empty column before
+<SAMP>beforeColumn</SAMP>, pushing all subsequent columns,
+starting with <SAMP>beforeColumn</SAMP>, over by one
+position. <SAMP>list</SAMP> is the list object for the
+operation. If <SAMP>beforeColumn</SAMP> is past the end of
+the list, then columns are inserted up to the requested
+position. All observers are notified of the change. All
+selections that are not immutable
+(<CODE><A HREF="vliststr-x.html#vliststrSetSelectionImmutable"><CODE>vliststrSetSelectionImmutable</CODE></A></CODE>) are adjusted
+to have the same cells selected after the insertion. This
+function is implemented by sending the message
+<CODE><A HREF="vlist-x.html#vlistINSERT_ROW_COLUMN"><CODE>vlistINSERT_ROW_COLUMN</CODE></A></CODE> to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrInsertRange"><HR><H4>vliststrInsertRange</H4></A>
+<PRE>
+        void <B>vliststrInsertRange</B>(
+                vliststr * list,
+                int before,
+                int count,
+                int type);
+</PRE>
+
+<DL><DD>
+Inserts a range of empty rows or columns into the list
+object <SAMP>list</SAMP>. <SAMP>before</SAMP> indicates the
+row or column to insert before. <SAMP>count</SAMP> is the
+number of rows or columns to insert, and type is
+<CODE>vlistROW</CODE> or <CODE>vlistCOLUMN</CODE> to denote
+if this is a row or column operation. All observers are
+notified of the change, and all selections that are not
+immutable (<CODE><A HREF="vliststr-x.html#vliststrSetSelectionImmutable"><CODE>vliststrSetSelectionImmutable</CODE></A></CODE>) are
+adjusted to have the same cells selected after the
+insertion. This function is implemented by sending the
+message <CODE><A HREF="vlist-x.html#vlistINSERT_RANGE"><CODE>vlistINSERT_RANGE</CODE></A></CODE> to
+<SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrInsertRow"><HR><H4>vliststrInsertRow</H4></A>
+<PRE>
+        void <B>vliststrInsertRow</B>(
+                vliststr * list,
+                int beforeRow);
+</PRE>
+
+<DL><DD>
+Inserts a new empty row before <SAMP>beforeRow</SAMP>,
+pushing all subsequent rows, starting with
+<SAMP>beforeRow</SAMP>, down by one position.
+<SAMP>list</SAMP> is the list object for the operation. If
+<SAMP>beforeRow</SAMP> is past the end of the list, then
+rows are inserted up to the requested position. All
+observers are notified of the change. All selections that
+are not immutable
+(<CODE><A HREF="vliststr-x.html#vliststrSetSelectionImmutable"><CODE>vliststrSetSelectionImmutable</CODE></A></CODE>) are adjusted
+to have the same cells selected after the insertion. This
+function is implemented by sending the message
+<CODE><A HREF="vlist-x.html#vlistINSERT_ROW_COLUMN"><CODE>vlistINSERT_ROW_COLUMN</CODE></A></CODE> to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrIsCellSelected"><HR><H4>vliststrIsCellSelected</H4></A>
+<PRE>
+        int <B>vliststrIsCellSelected</B>(
+                vliststr * list,
+                vlistSelection * selection,
+                int row,
+                int column);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the cell specified by
+<SAMP>row</SAMP> and <SAMP>column</SAMP> is in the
+selection <SAMP>selection</SAMP>, <SAMP>FALSE</SAMP> if it
+is not. <SAMP>list</SAMP> is the list object for the
+selection.
+</DD></DL>
+<P>
+<A NAME="vliststrIsSelectionEmpty"><HR><H4>vliststrIsSelectionEmpty</H4></A>
+<PRE>
+        int <B>vliststrIsSelectionEmpty</B>(
+                vliststr * list,
+                vlistSelection * selection);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the selection
+<SAMP>selection</SAMP> contains no cells. <SAMP>list</SAMP>
+is the list object for the selection.
+</DD></DL>
+<P>
+<A NAME="vliststrIsSelectionImmutable"><HR><H4>vliststrIsSelectionImmutable</H4></A>
+<PRE>
+        int <B>vliststrIsSelectionImmutable</B>(
+                vliststr * list,
+                vlistSelection * selection);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the selection
+<SAMP>selection</SAMP> is immutable and <SAMP>FALSE</SAMP>
+if not. When a selection is immutable, then if rows or
+columns are removed/inserted/rearranged the selection will
+not change in any attempt to track the originally selected
+cells. <SAMP>list</SAMP> is the list object for the
+selection.
+</DD></DL>
+<P>
+<A NAME="vliststrLoad"><HR><H4>vliststrLoad</H4></A>
+<PRE>
+        vliststr * <B>vliststrLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a list data object from the resource
+<SAMP>resource</SAMP> and returns a pointer to the newly
+created object, space for the list is allocated by the List
+Manager. An exception is generated if the resource has not
+been constructed properly, or if the class in the resource
+is not defined .
+    <P>
+<CODE>vliststrLoad</CODE> retrieves values from
+<SAMP>resource</SAMP> and sets the row count, the column
+count, and data storage orientation.
+    <P>
+If the list is not empty (that is, the row count and column
+count are greater than zero) the List Manager retrieves
+from resource the resource that was created by
+<CODE><A HREF="vliststr-x.html#vliststrMakeMajorResource"><CODE>vliststrMakeMajorResource</CODE></A></CODE> during list storage.
+The major list storage axis (defined by
+<CODE><A HREF="vliststr-x.html#vliststrSetOrientation"><CODE>vliststrSetOrientation</CODE></A></CODE>) is iterated over.
+<CODE><A HREF="vliststr-x.html#vliststrFindMinorResource"><CODE>vliststrFindMinorResource</CODE></A></CODE> is called to find
+the resource that actually contain the list cell storage.
+<CODE><A HREF="vliststr-x.html#vliststrLoadCell"><CODE>vliststrLoadCell</CODE></A></CODE> is finally called to actually
+get the value from the resource and set the cell value. If
+<CODE><A HREF="vliststr-x.html#vliststrFindMinorResource"><CODE>vliststrFindMinorResource</CODE></A></CODE> returns
+<SAMP>vresourceNULL</SAMP>, then the loading for that
+particular row or column is skipped.
+    <P>
+More concretely, suppose that the list's orientation is
+<SAMP>vlistCOLUMN_MAJOR</SAMP>, <CODE>vliststrLoad</CODE>
+will do this:
+    <P>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+<A HREF="vresource-x.html#vresource"><CODE>vresource</CODE></A> minorResource;
+/* majorResource has already been determined */
+for (column = 0; column < <A HREF="vlist-x.html#vlistGetColumnCount"><CODE>vlistGetColumnCount</CODE></A>(list); column++) 
+{ 
+ minorResource = <A HREF="vlist-x.html#vlistFindMinorResource"><CODE>vlistFindMinorResource</CODE></A> (list, majorResource, column);
+ if (minorResource != vresourceNULL)
+ {
+  for (row = 0; row < <A HREF="vlist-x.html#vlistGetRowCount"><CODE>vlistGetRowCount</CODE></A>(list); row++)
+  {
+   <A HREF="vlist-x.html#vlistLoadCell"><CODE>vlistLoadCell</CODE></A> (list, row, column, minorResource);
+  }
+ }
+}
+
+</PRE>
+</BLOCKQUOTE>
+
+    <P>
+By default, <CODE><A HREF="vliststr-x.html#vliststrFindMinorResource"><CODE>vliststrFindMinorResource</CODE></A></CODE> returns
+<SAMP>vresourceNULL</SAMP>, and
+<CODE><A HREF="vliststr-x.html#vliststrLoadCell"><CODE>vliststrLoadCell</CODE></A></CODE> does nothing.
+</DD></DL>
+<P>
+<A NAME="vliststrLoadCell"><HR><H4>vliststrLoadCell</H4></A>
+<PRE>
+        void <B>vliststrLoadCell</B>(
+                vliststr * list,
+                int row,
+                int column,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a value from <SAMP>resource</SAMP> and sets the value
+of cell (<SAMP>row</SAMP>, <SAMP>column</SAMP>)
+appropriately. <SAMP>resource</SAMP> is a resource that was
+returned by <CODE><A HREF="vliststr-x.html#vliststrFindMinorResource"><CODE>vliststrFindMinorResource</CODE></A></CODE>.
+<SAMP>list</SAMP> is the list for which the indicated cell
+will be loaded from <SAMP>resource</SAMP>. See
+<CODE>vliststrLoad</CODE> and <CODE><A HREF="vliststr-x.html#vliststrStore"><CODE>vliststrStore</CODE></A></CODE>
+for details on the list load/store model.
+</DD></DL>
+<P>
+<A NAME="vliststrLoadInit"><HR><H4>vliststrLoadInit</H4></A>
+<PRE>
+        void <B>vliststrLoadInit</B>(
+                vliststr * list,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a list data object from the resource
+<SAMP>resource</SAMP> and stores it in the structure
+addressed by <SAMP>list</SAMP>. An exception is generated
+if the resource has not been constructed properly, or if
+the class in the resource is not defined.
+</DD></DL>
+<P>
+<A NAME="vliststrMakeMajorResource"><HR><H4>vliststrMakeMajorResource</H4></A>
+<PRE>
+        vresource <B>vliststrMakeMajorResource</B>(
+                vliststr * list,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Creates a major-axis resource for list cell value storage.
+This resource will become the repository for cell value
+resources, and will be passed to
+<CODE><A HREF="vliststr-x.html#vliststrMakeMinorResource"><CODE>vliststrMakeMinorResource</CODE></A></CODE> for creating the
+final storage places for cell values. <SAMP>resource</SAMP>
+is an untyped resource created by the List Manager which
+should be changed to reflect the type of storage to be
+used. For example, if the list contents will be stored as a
+single array of strings,
+<CODE>vliststrMakeMajorResource</CODE> would be overridden
+with something like this:
+    <P>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+<A HREF="vresource-x.html#vresource"><CODE>vresource</CODE></A> _myMakeMajorResource (vlist *list, <A HREF="vresource-x.html#vresource"><CODE>vresource</CODE></A> resource) 
+{
+     <A HREF="vresource-x.html#vresource"><CODE>vresource</CODE></A> ret;
+     ret = <A HREF="vresource-x.html#vresourceCreateArray"><CODE>vresourceCreateArray</CODE></A> (resource, NULL, 
+                                 vresourceSTRING, 
+                                 <A HREF="vlist-x.html#vlistGetRowCount"><CODE>vlistGetRowCount</CODE></A>(list) *
+                                 <A HREF="vlist-x.html#vlistGetColumnCount"><CODE>vlistGetColumnCount</CODE></A>(list));
+     return (ret); 
+} /* myMakeMajorResource */
+
+</PRE>
+</BLOCKQUOTE>
+
+    <P>
+The default implementation of
+<CODE>vliststrMakeMajorResource</CODE> returns
+<SAMP>vresourceNULL</SAMP>. See <CODE><A HREF="vliststr-x.html#vliststrStore"><CODE>vliststrStore</CODE></A></CODE>
+for more information on the list storage model. This
+function is implemented by sending the message
+<CODE><A HREF="vlist-x.html#vlistMAKE_MAJOR_RESOURCE"><CODE>vlistMAKE_MAJOR_RESOURCE</CODE></A></CODE> to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrMakeMinorResource"><HR><H4>vliststrMakeMinorResource</H4></A>
+<PRE>
+        vresource <B>vliststrMakeMinorResource</B>(
+                vliststr * list,
+                vresource resource,
+                int index);
+</PRE>
+
+<DL><DD>
+Creates a minor-axis resource for list cell value storage.
+This resource will become the final resting place for cell
+values. <SAMP>resource</SAMP> is a resource created by
+<CODE><A HREF="vliststr-x.html#vliststrMakeMajorResource"><CODE>vliststrMakeMajorResource</CODE></A></CODE>. The minor resource
+will either be <SAMP>resource</SAMP>, or another resource
+type created inside of <SAMP>resource</SAMP>, or
+<CODE>vresourceNULL</CODE> if the minor axis should not be
+stored. The resource returned by this function will be
+given to <CODE><A HREF="vliststr-x.html#vliststrStoreCell"><CODE>vliststrStoreCell</CODE></A></CODE> to store the cell
+contents. <SAMP>index</SAMP> is the index along the major
+axis that will be stored. For example, if the list data
+orientation is <CODE>vlistCOLUMN_MAJOR</CODE>,
+<CODE>vliststrMakeMinorResource</CODE> would be called once
+for each column, with <SAMP>index</SAMP> ranging from zero
+to <CODE><A HREF="vliststr-x.html#vliststrGetColumnCount"><CODE>vliststrGetColumnCount</CODE></A></CODE><SAMP>(list)-1</SAMP>
+    <P>
+The default implementation of
+<CODE>vliststrMakeMinorResource</CODE> returns
+<CODE>vresourceNULL</CODE>. See <CODE><A HREF="vliststr-x.html#vliststrStore"><CODE>vliststrStore</CODE></A></CODE>
+for more information on the list storage model. This
+function is implemented by sending the message
+<CODE><A HREF="vlist-x.html#vlistMAKE_MINOR_RESOURCE"><CODE>vlistMAKE_MINOR_RESOURCE</CODE></A></CODE> to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrMoveColumn"><HR><H4>vliststrMoveColumn</H4></A>
+<PRE>
+        void <B>vliststrMoveColumn</B>(
+                vliststr * list,
+                int from,
+                int to);
+</PRE>
+
+<DL><DD>
+Moves the column <SAMP>from</SAMP> and places it before
+column <SAMP>to</SAMP>. The columns between
+<SAMP>from</SAMP> and <SAMP>to</SAMP> are shifted to
+accomplish the move. <SAMP>list</SAMP> is the list object
+containing the columns. If column <SAMP>from</SAMP> or
+<SAMP>to</SAMP> does not exist, an exception is generated.
+All observers are notified of the change. All selections
+that are not immutable
+(<CODE><A HREF="vliststr-x.html#vliststrSetSelectionImmutable"><CODE>vliststrSetSelectionImmutable</CODE></A></CODE>) are adjusted
+to have the same cells selected after the move. This
+function is implemented by sending the message
+<CODE><A HREF="vlist-x.html#vlistMOVE_ROW_COLUMN"><CODE>vlistMOVE_ROW_COLUMN</CODE></A></CODE> to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrMoveRange"><HR><H4>vliststrMoveRange</H4></A>
+<PRE>
+        void <B>vliststrMoveRange</B>(
+                vliststr * list,
+                int moveFrom,
+                int moveTo,
+                int count,
+                int type);
+</PRE>
+
+<DL><DD>
+Moves a range of rows or columns from location
+<SAMP>moveFrom</SAMP> and places it before location
+<SAMP>moveTo</SAMP>. <SAMP>count</SAMP> rows are moved. The
+rows between <SAMP>moveFrom</SAMP> and <SAMP>moveTo</SAMP>
+are shifted to accomplish the move. <SAMP>list</SAMP> is
+the list object for the operation. If <SAMP>moveFrom</SAMP>
+or <SAMP>moveTo</SAMP> do not exist, an exception is
+generated. <SAMP>type</SAMP> is <CODE>vlistROW</CODE> or
+<CODE>vlistCOLUMN</CODE> to indicate if this is a row or
+column operation. All observers are notified of the change.
+All selections that are not immutable
+(<CODE><A HREF="vliststr-x.html#vliststrSetSelectionImmutable"><CODE>vliststrSetSelectionImmutable</CODE></A></CODE>) are adjusted
+to have the same cells selected after the move. This
+function is implemented by sending the message
+<CODE><A HREF="vlist-x.html#vlistMOVE_RANGE"><CODE>vlistMOVE_RANGE</CODE></A></CODE> to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrMoveRow"><HR><H4>vliststrMoveRow</H4></A>
+<PRE>
+        void <B>vliststrMoveRow</B>(
+                vliststr * list,
+                int from,
+                int to);
+</PRE>
+
+<DL><DD>
+Moves the row <SAMP>from</SAMP> and places it before row
+<SAMP>to</SAMP>. The rows between <SAMP>from</SAMP> and
+<SAMP>to</SAMP> are shifted to accomplish the move.
+<SAMP>list</SAMP> is the list object for the operation. If
+row <SAMP>from</SAMP> or <SAMP>to</SAMP> does not exist, an
+exception is generated. All observers are notified of the
+change. All selections that are not immutable
+(<CODE><A HREF="vliststr-x.html#vliststrSetSelectionImmutable"><CODE>vliststrSetSelectionImmutable</CODE></A></CODE>) are adjusted
+to have the same cells selected after the move. This
+function is implemented by sending the message
+<CODE><A HREF="vlist-x.html#vlistMOVE_ROW_COLUMN"><CODE>vlistMOVE_ROW_COLUMN</CODE></A></CODE> to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrNextIterator"><HR><H4>vliststrNextIterator</H4></A>
+<PRE>
+        int <B>vliststrNextIterator</B>(
+                vlistIterator * iterator);
+</PRE>
+
+<DL><DD>
+Advances the iterator <SAMP>iterator</SAMP> to the next
+cell in the iteration. The function returns
+<SAMP>FALSE</SAMP> if there are no more cells to iterate
+over, <SAMP>TRUE</SAMP> if the iterator is pointing to a
+valid cell. There is no guaranteed order that the cell will
+be iterated over, just that each cell will be iterated
+exactly once.
+</DD></DL>
+<P>
+<A NAME="vliststrRemoveColumn"><HR><H4>vliststrRemoveColumn</H4></A>
+<PRE>
+        void <B>vliststrRemoveColumn</B>(
+                vliststr * list,
+                int column);
+</PRE>
+
+<DL><DD>
+Removes the specified column from the list object
+<SAMP>list</SAMP>. All columns after the target one are
+moved over one position to close up the empty space. If the
+target column does not exist, an exception is generated.
+All observers are notified of the change. All selections
+that are not immutable
+(<CODE><A HREF="vliststr-x.html#vliststrSetSelectionImmutable"><CODE>vliststrSetSelectionImmutable</CODE></A></CODE>) are adjusted
+to have the same cells selected after the removal. This
+function is implemented by sending the message
+<CODE><A HREF="vlist-x.html#vlistREMOVE_ROW_COLUMN"><CODE>vlistREMOVE_ROW_COLUMN</CODE></A></CODE> to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrRemoveRange"><HR><H4>vliststrRemoveRange</H4></A>
+<PRE>
+        void <B>vliststrRemoveRange</B>(
+                vliststr * list,
+                int victim,
+                int count,
+                int type);
+</PRE>
+
+<DL><DD>
+Removes a range of rows or columns from the list object
+<SAMP>list</SAMP>. All rows after the removed range are
+moved up to close up the empty space. If the target row
+does not exist, or if insufficient rows exist to be
+removed, and exception is raised. All observers are
+notified of the change. All selections that are not
+immutable (<CODE><A HREF="vliststr-x.html#vliststrSetSelectionImmutable"><CODE>vliststrSetSelectionImmutable</CODE></A></CODE>) are
+adjusted to have the same cells selected after the removal.
+<SAMP>victim</SAMP> is the row or column to start the
+removal from, and <SAMP>count</SAMP> is the number of rows
+or columns to remove. <SAMP>type</SAMP> is
+<CODE>vlistROW</CODE> or <CODE>vlistCOLUMN</CODE> to
+indicate if this is a row or column operation. This
+function is implemented by sending the message
+<CODE><A HREF="vlist-x.html#vlistREMOVE_RANGE"><CODE>vlistREMOVE_RANGE</CODE></A></CODE> to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrRemoveRow"><HR><H4>vliststrRemoveRow</H4></A>
+<PRE>
+        void <B>vliststrRemoveRow</B>(
+                vliststr * list,
+                int row);
+</PRE>
+
+<DL><DD>
+Removes the specified row from the list object
+<SAMP>list</SAMP>. All rows after the target one are moved
+up one position to close up the empty space. If the target
+row does not exist, an exception is raised. All observers
+are notified of the change. All selections that are not
+immutable (<CODE><A HREF="vliststr-x.html#vliststrSetSelectionImmutable"><CODE>vliststrSetSelectionImmutable</CODE></A></CODE>) are
+adjusted to have the same cells selected after the removal.
+This function is implemented by sending the message
+<CODE><A HREF="vlist-x.html#vlistREMOVE_ROW_COLUMN"><CODE>vlistREMOVE_ROW_COLUMN</CODE></A></CODE> to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrSelectAll"><HR><H4>vliststrSelectAll</H4></A>
+<PRE>
+        void <B>vliststrSelectAll</B>(
+                vliststr * list,
+                vlistSelection * selection);
+</PRE>
+
+<DL><DD>
+Adds all the cells in the listobject <SAMP>list</SAMP> to
+the selection <SAMP>selection</SAMP>. The constraints
+imposed by the current select method are enforced when
+everything is selected. The observers are notified of the
+change to the selection.
+</DD></DL>
+<P>
+<A NAME="vliststrSelectCell"><HR><H4>vliststrSelectCell</H4></A>
+<PRE>
+        void <B>vliststrSelectCell</B>(
+                vliststr * list,
+                vlistSelection * selection,
+                int row,
+                int column);
+</PRE>
+
+<DL><DD>
+Adds the cell designated by <SAMP>row,column</SAMP> to the
+selection <SAMP>selection</SAMP>. <SAMP>list</SAMP> is the
+list object for the selection. The constraints imposed by
+the current select method are enforced when the cell is
+selected. The observers are notified of the change to the
+selection.
+</DD></DL>
+<P>
+<A NAME="vliststrSelectColumn"><HR><H4>vliststrSelectColumn</H4></A>
+<PRE>
+        void <B>vliststrSelectColumn</B>(
+                vliststr * list,
+                vlistSelection * selection,
+                int column);
+</PRE>
+
+<DL><DD>
+Adds all the cells in the specified column to the selection
+<SAMP>selection</SAMP>. <SAMP>list</SAMP> is the list
+object for the selection. The constraints imposed by the
+current selection method are enforced when the column is
+selected. The observers are notified of the change to the
+selection.
+</DD></DL>
+<P>
+<A NAME="vliststrSelectRange"><HR><H4>vliststrSelectRange</H4></A>
+<PRE>
+        void <B>vliststrSelectRange</B>(
+                vliststr * list,
+                vlistSelection * selection,
+                int row,
+                int column,
+                int numDown,
+                int numAcross);
+</PRE>
+
+<DL><DD>
+Adds a rectangular range of cells, anchored at
+<SAMP>row</SAMP>, <SAMP>column</SAMP>, going across
+<SAMP>numAcross</SAMP> columns and down
+<SAMP>numDown</SAMP> rows, to the selection
+<SAMP>selection</SAMP>. <SAMP>numDown</SAMP> and
+<SAMP>numAcross</SAMP> must be non-negative.
+<SAMP>list</SAMP> is the list object for the selection. The
+constraints imposed by the current selection method are
+enforced when the range is selected. The observers are
+notified of the change to the selection.
+</DD></DL>
+<P>
+<A NAME="vliststrSelectRow"><HR><H4>vliststrSelectRow</H4></A>
+<PRE>
+        void <B>vliststrSelectRow</B>(
+                vliststr * list,
+                vlistSelection * selection,
+                int row);
+</PRE>
+
+<DL><DD>
+Adds all the cells in the specified row to the selection
+<SAMP>selection</SAMP>. <SAMP>list</SAMP> is the list
+object for the selection. The constraints imposed by the
+current selection method are enforced when the row is
+selected. The observers are notified of the change to the
+selection.
+</DD></DL>
+<P>
+<A NAME="vliststrSetAtLeastOneSelection"><HR><H4>vliststrSetAtLeastOneSelection</H4></A>
+<PRE>
+        void <B>vliststrSetAtLeastOneSelection</B>(
+                vliststr * list,
+                vlistSelection * selection,
+                int onOff);
+</PRE>
+
+<DL><DD>
+Sets the state of the <SAMP>AtLeastOne</SAMP> attribute of
+the given selection to <SAMP>onOff</SAMP>. When turned on,
+this property causes the selection to have at least one
+cell selected at the end of each selection change. If the
+selection is not immutable, and the list becomes empty
+(number of rows is zero or number of columns is zero), then
+the selection is empty no matter what the value of
+<SAMP>onOff</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrSetCellNamer"><HR><H4>vliststrSetCellNamer</H4></A>
+<PRE>
+        void <B>vliststrSetCellNamer</B>(
+                vliststr * list,
+                vlistNameCellProc proc);
+</PRE>
+
+<DL><DD>
+Sets the procedure that associates names to cells for the
+list <SAMP>list</SAMP>. The default <SAMP>CellNamer</SAMP>
+uses the cell's value as its name. The cell names are used
+for find operations on the list.
+</DD></DL>
+<P>
+<A NAME="vliststrSetCellValue"><HR><H4>vliststrSetCellValue</H4></A>
+<PRE>
+        void <B>vliststrSetCellValue</B>(
+                vliststr * list,
+                int row,
+                int column,
+                const void * value);
+</PRE>
+
+<DL><DD>
+Changes the value assigned to the cell located at
+<SAMP>row</SAMP>, <SAMP>column</SAMP> to
+<SAMP>value</SAMP>. The change is made by calling the
+<SAMP>CellValueSetter</SAMP> procedure for the list. All
+the list's observers are notified of the change.
+    <P>
+If <SAMP>row</SAMP> and/or <SAMP>column</SAMP> are past the
+end of the list, the list is expanded to include the
+specified cell.
+    <P>
+If value is a pointer to dynamically allocated memory, it
+is the client's responsibility to free that memory when
+that memory is no longer needed (such as cell value change
+or list destroyed). This function is implemented by sending
+the <CODE><A HREF="vlist-x.html#vlistSET_CELL_VALUE"><CODE>vlistSET_CELL_VALUE</CODE></A></CODE> message to
+<SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrSetCellValueGetter"><HR><H4>vliststrSetCellValueGetter</H4></A>
+<PRE>
+        void <B>vliststrSetCellValueGetter</B>(
+                vliststr * list,
+                vlistCellValueGetterProc func);
+</PRE>
+
+<DL><DD>
+Sets the function used to retrieve cell values for the list
+object <SAMP>list</SAMP>. If you supply your own data
+representation, you should also provide your own cell value
+getter function and cell value setter function. (Refer to
+the section titled ``About the List Manager'' earlier in
+this chapter.) If your application does not set cell values
+through the List Manager, then you need only set the cell
+value getter function, and the list will be usable for list
+views that do not try to modify the list. Note that you
+will have to set the row and column counts manually
+(<CODE><A HREF="vliststr-x.html#vliststrSetRowCount"><CODE>vliststrSetRowCount</CODE></A></CODE>,
+<CODE><A HREF="vliststr-x.html#vliststrSetColumnCount"><CODE>vliststrSetColumnCount</CODE></A></CODE>) so the observers will
+be able to follow changes to the list.
+    <P>
+Note also that the <CODE><A HREF="vlist-x.html#vlistSET_CELL_VALUE"><CODE>vlistSET_CELL_VALUE</CODE></A></CODE> (sent
+by <CODE>vliststrSetCellValue</CODE>) and
+<CODE><A HREF="vlist-x.html#vlistGET_CELL_VALUE"><CODE>vlistGET_CELL_VALUE</CODE></A></CODE> (sent by
+<CODE><A HREF="vliststr-x.html#vliststrGetCellValue"><CODE>vliststrGetCellValue</CODE></A></CODE>) messages are provided to
+call the setter and getter procedures, as well as notify
+the observers of the change. It is possible to use your own
+data without overriding these class methods and just
+replacing the <SAMP>CellValueSetter</SAMP> and/or
+CellValueGetter. When a custom data representation is used,
+make sure that <CODE><A HREF="vliststr-x.html#vliststrSetDataset"><CODE>vliststrSetDataset</CODE></A></CODE>,
+<CODE><A HREF="vliststr-x.html#vliststrSetCellValueSetter"><CODE>vliststrSetCellValueSetter</CODE></A></CODE>, or
+<CODE>vliststrSetCellValueGetter</CODE> is called, so the
+List Manager will know a custom representation is being
+used, and will not allocate unnecessary memory to maintain
+its own version of the data that is never used.
+</DD></DL>
+<P>
+<A NAME="vliststrSetCellValueScribed"><HR><H4>vliststrSetCellValueScribed</H4></A>
+<PRE>
+        void <B>vliststrSetCellValueScribed</B>(
+                vliststr * list,
+                int row,
+                int column,
+                vscribe * scribe);
+</PRE>
+
+<DL><DD>
+Changes the value assigned to the cell located at
+<SAMP>row</SAMP>, <SAMP>column</SAMP> to the value of the
+string described by <SAMP>scribe</SAMP>. If necessary, the
+string inside of <SAMP>scribe</SAMP> is duplicated, then
+the change is made by calling the
+<SAMP>CellValueSetter</SAMP> procedure for the list. All
+the list's observers are notified of the change.
+    <P>
+If <SAMP>row</SAMP> and/or <SAMP>column</SAMP> are past the
+end of the list, the list is expanded to include the
+specified cell.
+    <P>
+This function is implemented by sending the
+<CODE>vlistSET_CELL_VALUE_SCRIBED</CODE> message to
+<SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrSetCellValueSetter"><HR><H4>vliststrSetCellValueSetter</H4></A>
+<PRE>
+        void <B>vliststrSetCellValueSetter</B>(
+                vliststr * list,
+                vlistCellValueSetterProc func);
+</PRE>
+
+<DL><DD>
+Sets the function used to store cell values for the list
+object <SAMP>list</SAMP>. If you supply your own data
+representation, you should also provide your own cell value
+getter function and cell value setter function (refer to
+``List Manager'' in the <I>Galaxy Application Environment
+Programmer's Guide</I>). If your application does not set
+cell values through the List Manager, then you need only
+set the cell value getter function, and the list will be
+usable for list views that do not try to modify the list.
+Note that you will have to set the row and column counts
+manually (<CODE><A HREF="vliststr-x.html#vliststrSetRowCount"><CODE>vliststrSetRowCount</CODE></A></CODE>,
+<CODE><A HREF="vliststr-x.html#vliststrSetColumnCount"><CODE>vliststrSetColumnCount</CODE></A></CODE>) so the observers will
+be able to follow changes to the list.
+    <P>
+Note also that the <CODE><A HREF="vlist-x.html#vlistSET_CELL_VALUE"><CODE>vlistSET_CELL_VALUE</CODE></A></CODE> (sent
+by <CODE>vliststrSetCellValue</CODE>) and
+<CODE><A HREF="vlist-x.html#vlistGET_CELL_VALUE"><CODE>vlistGET_CELL_VALUE</CODE></A></CODE> (sent by
+<CODE><A HREF="vliststr-x.html#vliststrGetCellValue"><CODE>vliststrGetCellValue</CODE></A></CODE>) messages are provided to
+call the setter and getter procedures, as well as notify
+the observers of the change. It is possible to use your own
+data without overriding these class methods and just
+replacing the <SAMP>CellValueSetter</SAMP> and/or
+CellValueGetter. When a custom data representation is used,
+make sure that <CODE><A HREF="vliststr-x.html#vliststrSetDataset"><CODE>vliststrSetDataset</CODE></A></CODE> ,
+<CODE>vliststrSetCellValueSetter</CODE>, or
+<CODE><A HREF="vliststr-x.html#vliststrSetCellValueGetter"><CODE>vliststrSetCellValueGetter</CODE></A></CODE> is called, so the
+List Manager will know a custom representation is being
+used, and will not allocate unnecessary memory to maintain
+its own version of the data that is never used.
+</DD></DL>
+<P>
+<A NAME="vliststrSetColumnCount"><HR><H4>vliststrSetColumnCount</H4></A>
+<PRE>
+        void <B>vliststrSetColumnCount</B>(
+                vliststr * list,
+                int columnCount);
+</PRE>
+
+<DL><DD>
+The number of columns in list <SAMP>list</SAMP> is reset to
+be <SAMP>columnCount</SAMP>; columns are inserted to or
+removed from the end of the list as needed. The contents of
+any deleted columns is lost. If the cell values for these
+columns were dynamically allocated, then it is the client's
+responsibility to free them. All observers are notified of
+the change. If the list is getting smaller, selections that
+are not immutable
+(<CODE><A HREF="vliststr-x.html#vliststrSetSelectionImmutable"><CODE>vliststrSetSelectionImmutable</CODE></A></CODE>) are truncated
+if they contain selected cells that lie beyond
+<SAMP>columnCount</SAMP>. This function is implemented by
+sending the <CODE><A HREF="vlist-x.html#vlistSET_ROW_COLUMN_COUNT"><CODE>vlistSET_ROW_COLUMN_COUNT</CODE></A></CODE> message
+to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrSetData"><HR><H4>vliststrSetData</H4></A>
+<PRE>
+        void <B>vliststrSetData</B>(
+                vliststr * list,
+                void * data);
+</PRE>
+
+<DL><DD>
+Sets a list object's generic data pointer to
+<SAMP>data</SAMP>. This can be a pointer to whatever
+information you want to attach to the list object; it is
+not used by the List Manager. <SAMP>data</SAMP> can be
+<SAMP>NULL</SAMP> (if you are using this to hold your own
+data representation, you should use the Dataset operations
+instead). This function is implemented by sending the
+message <CODE><A HREF="vlist-x.html#vlistSET_DATA"><CODE>vlistSET_DATA</CODE></A></CODE> to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrSetDataset"><HR><H4>vliststrSetDataset</H4></A>
+<PRE>
+        void <B>vliststrSetDataset</B>(
+                vliststr * list,
+                void * dataset,
+                int size);
+</PRE>
+
+<DL><DD>
+Changes the entire data set that is overseen by the list
+object. If you want to use your own data representation and
+not have the List Manager maintain its own information,
+register it with the List Manager using this call.
+<SAMP>dataset</SAMP> is a pointer to the client data
+representation. This function is implemented by sending the
+<CODE><A HREF="vlist-x.html#vlistSET_DATASET"><CODE>vlistSET_DATASET</CODE></A></CODE> message to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrSetExtendColumnSelection"><HR><H4>vliststrSetExtendColumnSelection</H4></A>
+<PRE>
+        void <B>vliststrSetExtendColumnSelection</B>(
+                vliststr * list,
+                vlistSelection * selection,
+                int onOff);
+</PRE>
+
+<DL><DD>
+Sets the state of the <SAMP>ExtendColumn</SAMP> attribute
+of the given selection to <SAMP>onOff</SAMP>. When turned
+on, this property will cause the selection to always have
+whole columns selected. These attributes are checked after
+any operation is done that would change the selection. That
+is, after a selection is changed, the select method is
+enforced on the new selection. Then if the
+<SAMP>ExtendedColumn</SAMP> selection property is on, the
+selection would be extended to cause the entire column to
+be selected (that is, selecting or unselecting a cell
+effects the whole column, not just the specified cell).
+</DD></DL>
+<P>
+<A NAME="vliststrSetExtendRowSelection"><HR><H4>vliststrSetExtendRowSelection</H4></A>
+<PRE>
+        void <B>vliststrSetExtendRowSelection</B>(
+                vliststr * list,
+                vlistSelection * selection,
+                int onOff);
+</PRE>
+
+<DL><DD>
+Sets the state of the <SAMP>ExtendRow</SAMP> attribute of
+the given selection to <SAMP>onOff</SAMP>. When turned on,
+this property will cause the selection to always have whole
+row selected. These attributes are checked after any
+operation is done that would change the selection. That is,
+after a selection is changed, the select method is enforced
+on the new selection. Then if <SAMP>ExtendedRow</SAMP>
+selection property is on, the selection would be extended
+to cause the entire row to be selected. (Selecting or
+unselecting a cell effects the whole row, not just the
+specified cell.)
+</DD></DL>
+<P>
+<A NAME="vliststrSetOrientation"><HR><H4>vliststrSetOrientation</H4></A>
+<PRE>
+        void <B>vliststrSetOrientation</B>(
+                vliststr * list,
+                int direction);
+</PRE>
+
+<DL><DD>
+Changes the data storage orientation for <SAMP>list</SAMP>
+to be <SAMP>direction</SAMP>. Values for
+<SAMP>direction</SAMP> can be <CODE>vlistROW_MAJOR</CODE>
+or <CODE>vlistCOLUMN_MAJOR</CODE>.
+    <P>
+The orientation is a hint to the List Manager that
+manipulation operations in a particular dimension are more
+prevalent than in the other. For example, a tabular
+database could have row operations (moving, inserting,
+sorting) occur more frequently than the same operations on
+the columns. In this case, the list orientation should be
+set to <CODE>vlistROW_MAJOR</CODE>. The default orientation
+is <CODE>vlistCOLUMN_MAJOR</CODE>.
+    <P>
+Note, for one-dimensional lists (one row or one column)
+that it is unwise to set the orientation to be larger
+dimension (<CODE>vlistROW_MAJOR</CODE> for a one-column
+list). This will not increase performance and will double
+the list storage overhead.
+    <P>
+List orientation also affects how <SAMP>list</SAMP> will
+store itself in a resource. Refer to
+<CODE><A HREF="vliststr-x.html#vliststrStore"><CODE>vliststrStore</CODE></A></CODE> for more details on this. This
+function is implemented by sending the message
+<CODE><A HREF="vlist-x.html#vlistSET_ORIENTATION"><CODE>vlistSET_ORIENTATION</CODE></A></CODE> to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrSetRowCount"><HR><H4>vliststrSetRowCount</H4></A>
+<PRE>
+        void <B>vliststrSetRowCount</B>(
+                vliststr * list,
+                int rowCount);
+</PRE>
+
+<DL><DD>
+Sets the number of rows in the list object. If
+<CODE>rowCount</CODE> is greater than the current size of
+the list, then rows are added to the list object; if it is
+less than the current value, cells are removed from the end
+of the list object. All observers are notified of the
+change. This function is implemented by sending the
+<CODE><A HREF="vlist-x.html#vlistSET_ROW_COLUMN_COUNT"><CODE>vlistSET_ROW_COLUMN_COUNT</CODE></A></CODE> message to
+<SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrSetSelectMethod"><HR><H4>vliststrSetSelectMethod</H4></A>
+<PRE>
+        void <B>vliststrSetSelectMethod</B>(
+                vliststr * list,
+                vlistSelection * selection,
+                int method);
+</PRE>
+
+<DL><DD>
+Changes the selection method for the selection
+<SAMP>selection</SAMP> to be <SAMP>selectMethod</SAMP>
+(refer to Figure). Values for <SAMP>selectMethod</SAMP> can
+be:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><CODE>vlistFREE_SELECTION</CODE>
+<DD>Any cells can be in the selection at any time.
+<DT><CODE>vlistONE_ONLY_SELECTION</CODE>
+<DD>Zero or one cell can be in the selection at any time.
+<DT><CODE>vlistRECTANGULAR_SELECTION</CODE>
+<DD>The selection is limited to a single rectangle.
+<DT><CODE>vlistNO_SELECTION</CODE>
+<DD>No cells can be in the selection.
+</DL>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vliststrSetSelectionImmutable"><HR><H4>vliststrSetSelectionImmutable</H4></A>
+<PRE>
+        void <B>vliststrSetSelectionImmutable</B>(
+                vliststr * list,
+                vlistSelection * selection,
+                int onOff);
+</PRE>
+
+<DL><DD>
+This sets the immutable state of the selection
+<SAMP>selection</SAMP> to be <SAMP>onOff</SAMP>. When a
+selection is immutable, then if rows or columns are
+removed/inserted/rearranged the selection will not change
+in any attempt to track the originally selected cells. This
+can result in selection containing cells that are no longer
+in the list after a remove row/column operation.
+</DD></DL>
+<P>
+<A NAME="vliststrSort"><HR><H4>vliststrSort</H4></A>
+<PRE>
+        void <B>vliststrSort</B>(
+                vliststr * list,
+                int axis,
+                int key,
+                vlistCellValueSorterFunc compar);
+</PRE>
+
+<DL><DD>
+Sorts the list <SAMP>list</SAMP>. <SAMP>axis</SAMP> denotes
+the part of the list to exchange during sorting, if
+<SAMP>axis</SAMP> is <SAMP>vlistROW</SAMP>, then rows are
+exchanged. If <SAMP>axis</SAMP> is
+<SAMP>vlistCOLUMN</SAMP>, then columns are exchanged.
+<SAMP>key</SAMP> is the index of the row or column to be
+used as the key for comparing the rows or columns. If
+<SAMP>axis</SAMP> is <SAMP>vlistROW</SAMP>, then
+<SAMP>key</SAMP> denotes the <I>column</I> that contains
+the keys; if <SAMP>axis</SAMP> is <SAMP>vlistCOLUMN</SAMP>,
+then <SAMP>key</SAMP> denotes the <I>row</I> that contains
+the sort keys.
+    <P>
+The <SAMP>compare</SAMP> function is called with the two
+values returned by the <SAMP>CellValueGetter</SAMP> for the
+cells being compared, it should return a value less than
+zero if <SAMP>val1 &lt; val2</SAMP>, a value greater than zero
+if <SAMP>val1 &gt; val2</SAMP>, and zero if <SAMP>val1 ==
+val2</SAMP>. The values passed to the sort function are the
+cell contents of the key field. Passing <SAMP>NULL</SAMP>
+for <SAMP>compare</SAMP> calls a default comparison
+function (<CODE><A HREF="vchar-x.html#vcharCompareBase"><CODE>vcharCompareBase</CODE></A></CODE>).
+    <P>
+For maximal performance, the list data storage orientation
+should be the same as <SAMP>axis</SAMP>. If
+<SAMP>axis</SAMP> is <SAMP>vlistCOLUMN</SAMP>, then the
+list orientation should be <SAMP>vlistCOLUMN_MAJOR</SAMP>.
+    <P>
+The sort used by <CODE>vliststrSort</CODE> is a merge sort,
+which is a stable sort with good performance
+characteristics for sorted and unsorted data. This function
+is implemented by sending the message
+<CODE>vliststrSORT</CODE> to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrSortByName"><HR><H4>vliststrSortByName</H4></A>
+<PRE>
+        void <B>vliststrSortByName</B>(
+                vliststr * list,
+                int axis,
+                int key,
+                vlistCellValueSorterFunc compar);
+</PRE>
+
+<DL><DD>
+Sorts the list using the cell names rather than the cell
+contents. <SAMP>axis</SAMP> denotes the part of the list to
+exchange during sorting, if <SAMP>axis</SAMP> is
+<SAMP>vlistROW</SAMP>, then rows are exchanged. If
+<SAMP>axis</SAMP> is <SAMP>vlistCOLUMN</SAMP>, then columns
+are exchanged. <SAMP>key</SAMP> is the index of the row or
+column to be used as the key for comparing the rows or
+columns. If <SAMP>axis</SAMP> is <SAMP>vlistROW</SAMP> then
+<SAMP>key</SAMP> denotes the <I>column</I> that contains
+the keys; if <SAMP>axis</SAMP> is <SAMP>vlistCOLUMN</SAMP>,
+then <SAMP>key</SAMP> denotes the row that contains the
+sort keys.
+    <P>
+The <SAMP>compare</SAMP> function is called with the two
+values returned by the <SAMP>CellValueNamer</SAMP> for the
+cells being compared, it should return a value less than
+zero if <SAMP>val1 &lt; val2</SAMP>, a value greater than zero
+if <SAMP>val1 &gt; val2</SAMP>, and zero if <SAMP>val1 ==
+val2</SAMP>. The values passed to the sort function are the
+cell names of the key field. Passing <SAMP>NULL</SAMP> for
+<SAMP>compare</SAMP> calls a default comparison function
+(<CODE><A HREF="vchar-x.html#vcharCompareBase"><CODE>vcharCompareBase</CODE></A></CODE>).
+    <P>
+For maximal performance, the list data storage orientation
+should be the same as <SAMP>axis</SAMP>. If
+<SAMP>axis</SAMP> is <SAMP>vlistCOLUMN</SAMP>, then the
+list orientation should be <SAMP>vlistCOLUMN_MAJOR</SAMP>.
+    <P>
+The sort used by <CODE>vliststrSortByName</CODE> is a merge
+sort, which is a stable sort with good performance
+characteristics for sorted and unsorted data. This function
+is implemented by sending the message
+<CODE><A HREF="vlist-x.html#vlistSORT_BY_NAME"><CODE>vlistSORT_BY_NAME</CODE></A></CODE> to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrStartup"><HR><H4>vliststrStartup</H4></A>
+<PRE>
+        void <B>vliststrStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the <CODE>vliststr</CODE> class of the List
+manager.
+</DD></DL>
+<P>
+<A NAME="vliststrStore"><HR><H4>vliststrStore</H4></A>
+<PRE>
+        void <B>vliststrStore</B>(
+                vliststr * list,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Writes the contents of the list object <SAMP>list</SAMP>
+into the resource <SAMP>resource</SAMP>. The resource
+<SAMP>resource</SAMP> should be an untyped resource created
+with <CODE><A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A></CODE>. The list object can be
+recovered from the resource at a later time with
+<CODE><A HREF="vliststr-x.html#vliststrLoad"><CODE>vliststrLoad</CODE></A></CODE> or <CODE><A HREF="vliststr-x.html#vliststrLoadInit"><CODE>vliststrLoadInit</CODE></A></CODE>.
+    <P>
+<CODE>vliststrStore</CODE> stores values such as the row
+count, column count, and orientation.
+    <P>
+If the list is not empty (that is, the row count and column
+count are greater than zero) the List Manager calls
+<CODE><A HREF="vliststr-x.html#vliststrMakeMajorResource"><CODE>vliststrMakeMajorResource</CODE></A></CODE> so that a resource
+repository can be created inside of <SAMP>resource</SAMP>.
+The cell contents are iterated over along the major storage
+axis as set by <CODE><A HREF="vliststr-x.html#vliststrSetOrientation"><CODE>vliststrSetOrientation</CODE></A></CODE>. For
+each unit along the major axis (for each column in a list
+with an orientation of <SAMP>vlistCOLUMN_MAJOR</SAMP>),
+<CODE><A HREF="vliststr-x.html#vliststrMakeMinorResource"><CODE>vliststrMakeMinorResource</CODE></A></CODE> is called. Each cell
+along this axis is iterated over, having
+<CODE><A HREF="vliststr-x.html#vliststrStoreCell"><CODE>vliststrStoreCell</CODE></A></CODE> called on it. If
+<CODE><A HREF="vliststr-x.html#vliststrMakeMajorResource"><CODE>vliststrMakeMajorResource</CODE></A></CODE> returns
+<SAMP>vresourceNULL</SAMP>, the list contents are not
+stored. If <CODE><A HREF="vliststr-x.html#vliststrMakeMinorResource"><CODE>vliststrMakeMinorResource</CODE></A></CODE> returns
+<SAMP>vresourceNULL</SAMP>, that particular unit's contents
+are not stored.
+    <P>
+More concretely, suppose the list's orientation is
+<SAMP>vlistCOLUMN_MAJOR</SAMP>, <CODE>vliststrStore</CODE>
+will do this:
+    <P>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+<A HREF="vresource-x.html#vresource"><CODE>vresource</CODE></A> majorResource, minorResource;
+majorResource = <A HREF="vlist-x.html#vlistMakeMajorResource"><CODE>vlistMakeMajorResource</CODE></A> (list, storageResource);
+
+if (majorResource != vresourceNULL) 
+ {
+  for (column = 0; column < <A HREF="vlist-x.html#vlistGetColumnCount"><CODE>vlistGetColumnCount</CODE></A>(list); column++)
+   {
+    minorResource = <A HREF="vlist-x.html#vlistMakeMinorResource"><CODE>vlistMakeMinorResource</CODE></A> (list, majorResource,
+column);
+    if (minorResource != vresourceNULL)
+     {
+      for (row = 0; row < <A HREF="vlist-x.html#vlistGetRowCount"><CODE>vlistGetRowCount</CODE></A>(list); row++)
+       {
+        <A HREF="vlist-x.html#vlistStoreCell"><CODE>vlistStoreCell</CODE></A> (list, row, column, minorResource);
+       }
+     }
+  }
+}
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vliststrStoreCell"><HR><H4>vliststrStoreCell</H4></A>
+<PRE>
+        void <B>vliststrStoreCell</B>(
+                vliststr * list,
+                int row,
+                int column,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Writes the contents of the cell (<SAMP>row</SAMP>,
+<SAMP>column</SAMP>) of <SAMP>list</SAMP> into the resource
+<SAMP>resource</SAMP>. resource should be a resource
+created by <CODE><A HREF="vliststr-x.html#vliststrMakeMinorResource"><CODE>vliststrMakeMinorResource</CODE></A></CODE>. The cell
+value can be recovered from the resource at a later time
+with <CODE><A HREF="vliststr-x.html#vliststrLoadCell"><CODE>vliststrLoadCell</CODE></A></CODE>. The default
+implementation of <CODE>vliststrStoreCell</CODE> does
+nothing, but exists as a placeholder for subclasses to add
+storage features. See <CODE>vliststrStore</CODE> and
+<CODE><A HREF="vliststr-x.html#vliststrLoad"><CODE>vliststrLoad</CODE></A></CODE> for more detail on the list
+load/store model.
+</DD></DL>
+<P>
+<A NAME="vliststrSwapColumns"><HR><H4>vliststrSwapColumns</H4></A>
+<PRE>
+        void <B>vliststrSwapColumns</B>(
+                vliststr * list,
+                int column1,
+                int column2);
+</PRE>
+
+<DL><DD>
+Exchanges the cell contents of <SAMP>column1</SAMP> and
+<SAMP>column2</SAMP>. If either of the columns do not
+exist, an exception is raised. All observers are notified
+of the change. All selections that are not immutable
+(<CODE><A HREF="vlist-x.html#vlistSetSelectionImmutable"><CODE>vlistSetSelectionImmutable</CODE></A></CODE>) are adjusted to
+have the same cells selected after the swap.
+</DD></DL>
+<P>
+<A NAME="vliststrSwapRange"><HR><H4>vliststrSwapRange</H4></A>
+<PRE>
+        void <B>vliststrSwapRange</B>(
+                vliststr * list,
+                int swap1,
+                int swap2,
+                int count,
+                int type);
+</PRE>
+
+<DL><DD>
+Exchanges the cell contents of two ranges of rows or
+columns. One range starts with row/column
+<SAMP>swap1</SAMP>, and the second range starts with
+row/column <SAMP>swap2</SAMP>. <SAMP>count</SAMP> indicates
+the number of rows or columns in each range, and
+<SAMP>type</SAMP> is <CODE>vlistROW</CODE> or
+<CODE>vlistCOLUMN</CODE> to indicate a row or column
+operation. All observers are notified of the change. All
+selections that are not immutable
+(<CODE><A HREF="vlist-x.html#vlistSetSelectionImmutable"><CODE>vlistSetSelectionImmutable</CODE></A></CODE>) are adjust to
+have the same cells selected after the swap. Swapping
+behavior is undefined if the two ranges overlap. This
+function is implemented by sending the message
+<CODE><A HREF="vlist-x.html#vlistSWAP_RANGE"><CODE>vlistSWAP_RANGE</CODE></A></CODE> to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrSwapRows"><HR><H4>vliststrSwapRows</H4></A>
+<PRE>
+        void <B>vliststrSwapRows</B>(
+                vliststr * list,
+                int row1,
+                int row2);
+</PRE>
+
+<DL><DD>
+Exchanges the cell contents of <SAMP>row1</SAMP> and
+<SAMP>row2</SAMP>. If either of the rows do not exist, an
+exception is raised. All observers are notified of the
+change. All selections that are not immutable
+(<CODE><A HREF="vlist-x.html#vlistSetSelectionImmutable"><CODE>vlistSetSelectionImmutable</CODE></A></CODE>) are adjusted to
+have the same cells selected after the swap. This function
+is implemented by sending the message
+<CODE><A HREF="vlist-x.html#vlistSWAP_ROW_COLUMN"><CODE>vlistSWAP_ROW_COLUMN</CODE></A></CODE> to <SAMP>list</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vliststrUnselectAll"><HR><H4>vliststrUnselectAll</H4></A>
+<PRE>
+        void <B>vliststrUnselectAll</B>(
+                vliststr * list,
+                vlistSelection * selection);
+</PRE>
+
+<DL><DD>
+Empties all the cells in the list <SAMP>list</SAMP> out of
+the selection <SAMP>selection</SAMP>. The constraints
+imposed by the current select method are enforced when the
+selection is emptied. The observers are notified of the
+change to the selection.
+</DD></DL>
+<P>
+<A NAME="vliststrUnselectCell"><HR><H4>vliststrUnselectCell</H4></A>
+<PRE>
+        void <B>vliststrUnselectCell</B>(
+                vliststr * list,
+                vlistSelection * selection,
+                int row,
+                int column);
+</PRE>
+
+<DL><DD>
+Removes the cell designated by <SAMP>row,column</SAMP> from
+the selection <SAMP>selection</SAMP>. The constraints
+imposed by the current select method are enforced when the
+cell is unselected. The observers are notified of the
+change to the selection.
+</DD></DL>
+<P>
+<A NAME="vliststrUnselectColumn"><HR><H4>vliststrUnselectColumn</H4></A>
+<PRE>
+        void <B>vliststrUnselectColumn</B>(
+                vliststr * list,
+                vlistSelection * selection,
+                int column);
+</PRE>
+
+<DL><DD>
+Removes all the cells in the specified column from the
+selection <SAMP>selection</SAMP>. The constraints imposed
+by the current select method are enforced when the column
+is unselected. The observers are notified of the change to
+the selection.
+</DD></DL>
+<P>
+<A NAME="vliststrUnselectRange"><HR><H4>vliststrUnselectRange</H4></A>
+<PRE>
+        void <B>vliststrUnselectRange</B>(
+                vliststr * list,
+                vlistSelection * selection,
+                int row,
+                int column,
+                int numDown,
+                int numAcross);
+</PRE>
+
+<DL><DD>
+Removes a rectangular range of cells, anchored at
+<SAMP>row</SAMP>, <SAMP>column</SAMP>, going across
+<SAMP>numAcross</SAMP> columns and down
+<SAMP>numDown</SAMP> rows, from the selection
+<SAMP>selection</SAMP>. <SAMP>numDown</SAMP> and
+<SAMP>numAcross</SAMP> must be non-negative. The
+constraints imposed by the current select method are
+enforced when the range is unselected. The observers are
+notified of the change to the selection.
+</DD></DL>
+<P>
+<A NAME="vliststrUnselectRow"><HR><H4>vliststrUnselectRow</H4></A>
+<PRE>
+        void <B>vliststrUnselectRow</B>(
+                vliststr * list,
+                vlistSelection * selection,
+                int row);
+</PRE>
+
+<DL><DD>
+Removes all the cells in the specified row from the
+selection <SAMP>selection</SAMP>. The constraints imposed
+by the current select method are enforced when the row is
+unselected. The observers are notified of the change to the
+selection.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vliststrGET_CELL_VALUE_SCRIBED"><HR><H4>vliststrGET_CELL_VALUE_SCRIBED</H4></A>
+<PRE>
+        &lt;<B>vliststrGET_CELL_VALUE_SCRIBED</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns the value assigned to the cell identified by
+<SAMP>row</SAMP>, <SAMP>column</SAMP> as a scribe.
+<SAMP>list</SAMP> is the list object containing the cell.
+Note that the value is actually retrieved by calling the
+<SAMP>CellValueGetter</SAMP> procedure for the list, and
+then packaged into a scribe. If the specified cell is
+outside of the list's bounds, then the exception
+<SAMP>/Arg/Range</SAMP> is generated.
+</DD></DL>
+<P>
+<A NAME="vliststrSET_CELL_VALUE_SCRIBED"><HR><H4>vliststrSET_CELL_VALUE_SCRIBED</H4></A>
+<PRE>
+        &lt;<B>vliststrSET_CELL_VALUE_SCRIBED</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the value assigned to the cell located at
+<SAMP>row</SAMP>, <SAMP>column</SAMP> to the value of the
+string described by <SAMP>scribe</SAMP>. If necessary, the
+string inside of <SAMP>scribe</SAMP> is duplicated, then
+the change is made by calling the
+<SAMP>CellValueSetter</SAMP> procedure for the list. All
+the list's observers are notified of the change.
+    <P>
+If <SAMP>row</SAMP> and/or <SAMP>column</SAMP> are past the
+end of the list, the list is expanded to include the
+specified cell.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vliststrINCLUDED"><HR><H4>vliststrINCLUDED</H4></A>
+<PRE>
+        <B>vliststrINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vliststr.h</SAMP> is
+included.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vliststrCLASS"><HR><H4>vliststrCLASS</H4></A>
+<PRE>
+        #define <B>vliststrCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

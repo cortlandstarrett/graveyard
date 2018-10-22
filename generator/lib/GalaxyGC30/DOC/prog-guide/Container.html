@@ -1,0 +1,460 @@
+<HTML>
+<HEAD>
+<TITLE>Container</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Container</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Confirm.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Control.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="2187"></A>
+The <EM><B>Container class</B></EM> provides services for manipulating <EM><B>containers</B></EM>, dialog items that contain other dialog items. A container can hold any number of dialog items, including other containers. In many ways, a container is similar to a dialog because it manages and displays a collection of dialog items.<P>
+The rectangle used to display a container can show either the container's entire contents, or only a portion of it. You can add scroll bars to a container for scrolling through the contents. The Container class provides the ability to enable or disable the entire contents of a container. It also defines how pressing the tab key changes the focus of the items in a container.<P>
+<A NAME="6133"><I>Figure 14.  Containers and container items
+</I><P>
+<IMG SRC="Container.anc.gif"><P>
+<A NAME="3443"><H2> Relationship to Other Classes</H2></A>
+All container classes are subclasses of dialog items. Refer to the Dialog Item chapter for information on dialog items.<P>
+Containers use "spring solutions" to arrange their contents. For information on creating and manipulating spring solutions, refer to the Spring chapter.<P>
+Groups and exclusive groups use control items to display their information. Refer to the Control chapter for more information on control items.<P>
+<A NAME="2200"><H2> Containers, Groups, and Exclusive Groups</H2></A>
+A <EM><B>container</B></EM> is a dialog item that behaves, in many ways, like a dialog; it has both a spring solution and a collection of dialog items. A container can also have optional scroll bars. The Container class additionally defines <EM><B>groups</B></EM> (or "grouped containers") as collections of items that can be automatically arranged. You can also create <EM><B>exclusive groups</B></EM>, groups where the end-user can select only one control item at any given time.<P>
+Like any other dialog item, a container can be placed inside another container. This allows you to define a GUI with an arbitrarily deeply nested hierarchy of coordinate systems.<P>
+The Visual Resource Builder represents each of these types of containers as unique dialog items ("Containers," "Grouped Containers," and "Exclusive Groups") that can be added to a dialog.<P>
+<A NAME="4705"><H4> Containers</H4></A>
+Containers use a spring solution to dynamically position their contents. You can define spring solutions interactively in the Visual Resource Builder, or programmatically using the Spring class.<P>
+A container has the following three associated rectangles, as shown in <A HREF="Container.html#6145">Figure 15</A>:<P>
+<UL><LI><EM><B>bounding rectangle</B></EM> 
+<UL>Encloses a container's entire contents, defining the boundaries of the container. 
+Position (0, 0) in the container coordinate system is at the lower left corner of the 
+bounding rectangle. The spring solution of the container's items determines the 
+size of the bounding rectangle.
+<P>
+</UL><LI><EM><B>content rectangle</B></EM> 
+<UL>Encloses the <EM>visible</EM> portion of a container's contents. If the content rectangle is 
+smaller than the bounding rectangle, you must provide scroll bars for horizontal 
+and vertical scrolling. The Container class only draws the portion of the bounding 
+rectangle encompassed by the content rectangle.
+<P>
+</UL><LI><EM><B>item rectangle</B></EM> 
+<UL>Encloses the content rectangle plus any border and scroll bars surrounding the 
+content rectangle. If you add or remove a border or scroll bar to a container, the 
+Container class recomputes the size of the content rectangle.
+<P>
+</UL></UL><A NAME="6145"><I>Figure 15.  Container coordinate system
+</I><P>
+<IMG SRC="Container.anc1.gif"><P>
+If you do not assign scroll bars to a container, the content rectangle expands to the size of the bounding rectangle. If you do assign scroll bars, the size of the container itself controls the size of the content rectangle.<P>
+If you do not specify a spring solution, a default arrangement occurs for grouped containers and exclusive groups.<P>
+<A NAME="3379"><H4> Grouped Containers</H4></A>
+A <EM><B>grouped container</B></EM> (refer to <A HREF="Container.html#6153">Figure 16</A>) is a container that generates notification events whenever the end-user selects an item in the group. The Container class allows you to determine what item is selected at any given time, and react appropriately.<P>
+A grouped container can have a spring solution, although the Container class automatically arranges items if you do not specify a solution. This automatic arrangement places the items in a left-to-right, top-to-bottom order, according to the size of the grouped container.<P>
+<A NAME="3501"><H4> Exclusive Groups</H4></A>
+An <EM><B>exclusive group</B></EM> (refer to <A HREF="Container.html#6153">Figure 16</A>) is a grouped container that accepts only control items. An exclusive group monitors the control values of its items so only one control is non-zero at any time. Like a grouped container, an exclusive group can have a spring solution. There is an automatic arrangement of control items if you do not specify a spring solution.<P>
+<A NAME="6153"><I>Figure 16.  Grouped containers
+</I><P>
+<IMG SRC="Container.anc2.gif"><P>
+<A NAME="2204"><H2> Creating and Adding Items to Containers</H2></A>
+You usually use the Visual Resource Builder for creating containers and their contents. The Container class also provides <TT><B>Create</B></TT> and <TT><B>Copy</B></TT> to create containers programmatically.<P>
+Note that you specify the type of container when it is created. You can specify a regular container, a group, or an exclusive group. You cannot later change a regular container into a group, or a group into a regular container. Instead, use <TT><B>CreateGroup</B></TT> or <TT><B>CreateExclusiveGroup</B></TT> to create groups or exclusive groups.<P>
+Use <TT><B>AppendItem</B></TT> to add an item to a container. The Container class draws the new item behind all other items in the container, and destroys it at the moment of the container's destruction.<P>
+Use<TT><B> DeleteItem</B></TT> to remove an item from a container.<P>
+<A NAME="3554"><H3> Locating Items In a Container</H3></A>
+You can get a reference to an item in a container in a number of different ways, depending on what information you require. Note that locating items in a container is similar to locating items in a dialog. Like dialogs, containers have an associated dialog item list for referencing its items. Refer to the Dialog class chapter for additional information on item lists.<P>
+<A NAME="4534"><H4> Tag Name</H4></A>
+Use <TT><B>FindItem</B></TT> to search for an item with a particular tag name. For example, the following code fragment finds a button in a container with the tag name of "OK." Note the use of the type cast, since <TT><B>FindItem</B></TT> returns a generic <TT>vdialogItem</TT> pointer.<P>
+<PRE><UL>vbutton *bOK = (vbutton *)vcontainerFindItem(container,
+                              vnameInternGlobalLiteral("OK"));
+
+</UL></PRE><A NAME="4722"><H4> Item List</H4></A>
+Since a container uses a dialog item list to maintain the order and location of each item it contains, the dialog item list can be used to obtain references to items. Use <TT><B>GetItemList</B></TT> to obtain the dialog item list.<P>
+Refer to <A HREF="Container.html#3584">Example 11</A> for a demonstration of using dialog item lists to locate container items.<P>
+<A NAME="4561"><H4> Index Number</H4></A>
+The Container class assigns an index number to all items in a container. The index number describes an item's particular order in the container. The indexing of container items proceeds from zero to n-1, where n is the number of container items. Use <TT><B>GetItemCount</B></TT> to determine the number of items in a container. <P>
+To obtain a reference to an item with a known index number, use <TT><B>GetItemAt</B></TT>. Similarly, use <TT><B>GetItemIndex</B></TT> to determine the index number for a known container item.<P>
+<A HREF="Container.html#3584">Example 11</A> uses these functions to loop through the items in a container in order to find a dialog item by its title.<P>
+<A NAME="3584"><I>Example 11.  Finding an item in a container by title
+</I><P>
+<PRE><UL>vdialogItem *FindItemByTitle (vcontainer *container,
+                              const vchar *title)
+{
+   vdialogItem *diTemp;
+   int num;
+   const vchar *temp;
+
+   for (num = vcontainerGetItemCount(container) - 1;
+        num &gt;= 0; num--) {
+      /*
+       * Get the dialog item at the current index. No need
+       * to typecast since you just need the generic dialog item
+       * at this point.
+       */
+      diTemp = vcontainerGetItemAt(container, num);
+      
+      /* 
+       * Does title of dialog item match passed in title?
+       */
+      if (!vcharCompare(title, vdialogGetItemTitle(diTemp)) ) {
+         /* Found it! */
+         return (diTemp);
+      }
+   }
+
+   /*
+    * If we got here, we did not find the item, so return NULL.
+    */
+   return (NULL);
+}
+
+</UL></PRE><A NAME="3640"><H4> Focused Items</H4></A>
+A container can also assign a default focus item (an item that is automatically focused when the container obtains the focus from the dialog). Use <TT><B>GetDefFocus</B></TT> to obtain a reference to the item with the default focus. You can programmatically assign the default focus item by using <TT><B>SetDefFocus</B></TT>. <P>
+Similarly, use <TT><B>GetFocus</B></TT> to find the dialog item that is currently focused, which returns<TT> NULL</TT> if there is no focused item.<P>
+<A NAME="4818"><H4> Selected Items</H4></A>
+Use <TT><B>GetSelection </B></TT>to obtain a reference to the currently selected dialog item. If there is no current selection, it returns <TT>NULL</TT>. <A HREF="Container.html#3657">Example 12</A> finds the current selection in a container, and determines the tag name of the selected dialog item.<P>
+<A NAME="3657"><I>Example 12.  Finding the current selection in a container
+</I><P>
+<PRE><UL>   /*
+    * Get the selected item in the container.
+    */
+   vdialogItem *diSelected = vcontainerGetSelection(container);
+   
+   /*
+    * Find the tag name of the selected item
+    */
+   const vname *tag =  vdialogGetItemTag(diSelected);
+   
+   if (tag == vnameInternGlobalLiteral("Item1")) {
+      //Do something with Item1...
+   } else if (tag == vnameInternGlobalLiteral("Item2")) {
+      //Do something with Item2...
+   } else if (tag == vnameInternGlobalLiteral("Item3")) {
+      //Do something with Item3...
+   } else {
+      // Did not find it...
+   }
+
+</UL></PRE>Finally, use <TT><B>SetSelection </B></TT>to programmatically select a specific dialog item in a container.<P>
+<A NAME="10495"><H3> Special Items Within a Container</H3></A>
+You can also use the container's item list to designate special items within the container. For example, you can specify default focus items, confirm items, and abandon items. Refer to the Dialog chapter for additional information on item lists.<P>
+<A NAME="3555"><H3> Spring Solutions, Boundaries, and Automatic Arrangements</H3></A>
+You have the option of assigning a spring solution to containers, groups, and exclusive groups. Usually you create a spring solution in the Visual Resource Builder, although you can programmatically create one and use <TT><B>SetSolution</B></TT> to assign it to a container. In either case, use <TT><B>GetSolution</B></TT> to retrieve the spring solution currently assigned to a container. This returns<TT> NULL</TT> if no spring solution is assigned. Refer to the Spring class for additional information on programmatically creating and manipulating spring solutions.<P>
+Groups and exclusive groups initially attempt to arrange their contents by using a spring solution. If no spring solution is assigned, the Container class automatically arranges the contents in a left-to-right, top-to-bottom order. The group size in relation to the individual item's size determines the row and column location of each item. Refer to <A HREF="Container.html#6164">Figure 17</A> for an illustration of automatic arranging.<P>
+<A NAME="6164"><I>Figure 17.  Automatic group arrangements
+</I><P>
+<IMG SRC="Container.anc3.gif"><P>
+Use <TT><B>GetBounds</B></TT> to get the bounding rectangle of a container, and use <TT><B>GetContent</B></TT> to get the content rectangle of a container. <P>
+Note that if the container is a group or exclusive group, or if a regular container does not have scroll bars, both of these functions return the same rectangle size. <P>
+Use <TT><B>SetBounds</B></TT> to set the bounding rectangle of a container. If you want to find the minimum size of the container (according to its spring solution), use <TT><B>CalcMinSize</B></TT>.<P>
+If you want to rearrange the contents of a container or group to fit within a specified rectangle, use <TT><B>Arrange</B></TT>. This arranges the contents in the given rectangle according to the current spring solution. If no spring solution is assigned to a group, the contents are automatically arranged.<P>
+<A HREF="Container.html#3747">Example 13</A> illustrates how to change the bounds of a container to be the size of the current dialog.<P>
+<A NAME="3747"><I>Example 13.  Changing the bounds of a container
+</I><P>
+<PRE><UL>void FillDialogWithContainer (vdialog *dialog,
+                              vcontainer *container)
+{
+   /*
+    * Get the size of the dialog from the dialog window
+    */
+   const vrect *rect = vwindowGetRect(vdialogGetWindow(dialog));
+   
+   /*
+    * Assign the size of the container to be equal to rectangle.
+    * This also tells the container to re-draw itself in the new
+    * rectangle according to the assigned spring solution.
+    */
+   vcontainerArrange(container, rect);
+}
+
+</UL></PRE><A NAME="3557"><H3> Container Attributes</H3></A>
+You can assign several optional attributes to a group or container. Refer to the<EM> Galaxy Reference Manual</EM> for a complete list of attribute options for a container.<P>
+Some container attributes stand out because of their non-typical behavior.<P>
+<A NAME="6523"><H4> Enabling and Disabling a Container</H4></A>
+Disabling and enabling a container also disables and enables all of a container's contents, not just the container itself. Use <TT><B>Disable</B></TT> to disable an entire container with all of its items. Use <TT><B>Enable</B></TT> to make the entire container responsive to user event. Use <TT><B>IsEnabled</B></TT> to determine whether a container is currently enabled or disabled.<P>
+<A NAME="4847"><H4> Borders</H4></A>
+The border attribute plays a significant role with containers; the border style indicates the type of keyboard traversal used by the container. Like any other dialog item, you have the option as to whether or not to draw a border. <P>
+The <EM><B>flat keyboard traversal</B></EM> style causes the container to behave as if the container's items are part of the dialog. This means that pressing the "Tab" key focuses on a dialog's items until you reach the container. Focus is then transferred to the container, allowing the end-user to "Tab" through the container's items. When you focus the last item in the container, and the "Tab" key is pressed, the keyboard focus moves out of the container to the parent dialog. A <EM><B>flat border</B></EM> style indicates that the container uses flat keyboard traversal. <P>
+The <EM><B>inset keyboard traversal</B></EM> style causes the container to behave as if the container is its own dialog. This means that once an inset container gains keyboard focus from the parent dialog, the keyboard focus then circulates through the container and its items, never leaving the container. An <EM><B>inset border</B></EM> style indicates that the container uses inset keyboard traversal. <A HREF="Container.html#6173">Figure 18</A> illustrates the different border options.<P>
+<A NAME="6173"><I>Figure 18.  Container borders
+</I><P>
+<IMG SRC="Container.anc4.gif"><P>
+You set keyboard traversal in the Visual Resource Builder, or by using <TT><B>SetFlat</B></TT>, passing<TT> TRUE</TT> to specify a flat border, and<TT> FALSE</TT> to specify an inset border. Use <TT><B>IsFlat</B></TT> to determine the type of keyboard traversal style assigned to a container.<P>
+Use <TT><B>SetBorder</B></TT> to specify whether a border should be drawn around the container, and use <TT><B>HasBorder</B></TT> to determine whether borders are drawn for the container.<P>
+<A NAME="3737"><H4> Scroll Bars</H4></A>
+You can also assign scroll bars to containers (but not groups or exclusive groups), allowing the end-user to scroll through the contents of a container. You can set scroll bars by using<TT><B> SetScrollX</B></TT> (horizontal) and <TT><B>SetScrollY</B></TT> (vertical). Use<TT><B> HasScrollX</B></TT> and<TT><B> HasScrollY</B></TT> to determine if a container has horizontal or vertical scroll bars, respectively.<P>
+<A NAME="3794"><H2> Recursive Searching</H2></A>
+When searching for items in a dialog, a dialog will only find those items contained in the dialog itself. It will not find any items inside a container. For example, if you place a button called "OK" in a container, the following call fails to find the "OK" button in the dialog:<P>
+<PRE><UL>   /* This does *not* find button "OK"
+    * if it is located in a container */
+   vbutton *bOK =
+     (vbutton *)vdialogFindItem(dialog,
+                                vnameInternGlobalLiteral("OK"));
+
+</UL></PRE>This call returns<TT> NULL</TT>, since the dialog find operation only references the container and <EM>not</EM> its contents.<P>
+Instead, you should use the container find operation. Assuming the container has the tag name of "Common Buttons" the code fragment to find the button "OK" looks like this:<P>
+<PRE><UL>   /*
+    * First find the container
+    */
+   vcontainer *cCommonButtons =
+     (vcontainer *)vdialogFindItem(dialog, 
+        vnameInternGlobalLiteral("Common Buttons"));
+   /*
+    * Now find the button in the container
+    */
+   vbutton *bOK = 
+     (vbutton *)vcontainerFindItem(cCommonButtons, 
+        vnameInternGlobalLiteral("OK"));
+
+</UL></PRE>Although this is usually sufficient in most cases, sometimes you may not be certain if an item is in the dialog or a container in that dialog. As a result, you may want to perform a recursive find on the dialog, searching in all containers for an item with the specified tag name. <A HREF="Container.html#16152">Example 14</A> demonstrates a function that performs a recursive search.<P>
+<A NAME="16152"><I>Example 14.  Finding an item in a dialog or a container
+</I><P>
+<PRE><UL>/* 
+ * objectFindItemRecursive finds an item in dialog regardless of
+ * whether it is in the dialog or a container in the dialog.
+ *
+ * The functions is passed a generic vobject pointer, which should
+ * be either a dialog or container (it returns NULL if it is not).
+ * It is passed the tag name (const vname pointer) of the dialog
+ * item you want to find.
+ *
+ * It will return NULL if the item is not found.
+ *
+ */
+
+vdialogItem *objectFindItemRecursive(vobject *object,
+                                     const vname *tag)
+{
+   vdialogItem     *item;
+   vdialogItemList *list;
+   int              i = 0;
+   
+   /*
+    * First we need to determine if the object passed is dialog,
+    * and if it is, get the dialog item list.
+    */
+   if(vobjectIsKindOf(object, vdialogGetDefaultClass())) {
+      list = vdialogGetItemList((vdialog *) object);
+      
+      /*
+       * ...perhaps it is a container?
+       * If so, get the container's item list.
+       */
+   } else if(vobjectIsKindOf(object, vcontainerGetDefaultClass())){
+      list = vcontainerGetItemList((vcontainer *) object);
+   } else {
+      /*
+       * This is not a container or a dialog, so just return NULL
+       */
+      return NULL;
+   }
+   
+   /*
+    * Get the number of items in the item list
+    */
+   i = vdialogGetItemListItemCount(list);
+   
+   /*
+    * Now loop through the list, getting each item by index number,
+    * and checking to see if tag name matches requested tag.
+    */
+   while(i--) {
+      item = vdialogGetItemListItemAt(list, i);
+      
+      if(tag == vdialogGetItemTag(item)) {
+         return item;
+      }
+      
+      /*
+       * Didn't find it, but perhaps this is a container that
+       * needs to be searched? If it is a container, 
+       * call this function again with the container as the
+       * object. If it returns anything, it must be the
+       * item we are looking for, so return it.
+       */
+      else if(vobjectIsKindOf((vobject *)item,
+                              vcontainerGetDefaultClass())) {
+         vdialogItem *ret = NULL;
+         ret = objectFindItemRecursive((vobject *)item, tag);
+         if(ret) {
+            return ret;
+         }
+      }
+   }
+   
+   /*
+    * If we got here, our search failed, so return NULL
+    */
+   return NULL;
+}
+
+</UL></PRE><A NAME="18580"><H2> Methods and Subclassing</H2></A>
+Like all dialog items, a container has a notify method. By default, a regular container's notify method does very little, and is only called when handling minor events such as gaining and losing focus.<P>
+However, the Container class calls a group's and exclusive group's notification procedure whenever the end-user selects any item in the group or exclusive group. The Container class allows you to create and assign your own notification procedure (of the type <TT>vcontainerNoteProcNnotify</TT>) to a subclassed container by using <TT><B>SetNotify</B></TT>.<TT></TT><P>
+<A HREF="Container.html#18610">Example 15</A> demonstrates the use of a group notify method. It dynamically modifies the state and attributes of a dialog item called "Palette" (located in the same dialog as the container).<P>
+<A NAME="18610"><I>Example 15.  Using a notify method
+</I><P>
+<PRE><UL>   /*
+    * Assign "MyContainerNotify" as group notification routine.
+    */
+   vcontainerSetNotify(container, MyContainerNotify);
+   // ...
+   
+}
+
+/*
+ * This routine sets the visibility, border, and enabled state
+ * of a dialog item (with the tag name of "Sample")
+ * depending on what controls
+ * ("Visible," "Border," and "Enabled") are turned on in the
+ * container. Every time the end-user clicks on one of the
+ * controls, this notification routine is called.
+ */
+void MyContainerNotify (vcontainer *container, vevent *event)
+{
+   vcontrol *control;
+   
+   /*
+    * Find the dialog that the container is residing in
+    */
+   vdialog  *dialog =
+     vdialogDetermineItemDialog(vcontainerGetItem(container));
+   
+   /*
+    * Now find the dialog item with the tag name "Sample"
+    */
+   vdialogItem *diSample =
+     vdialogFindItem(dialog, vnameInternGlobalLiteral("Sample"));
+   
+   /*
+    * Get the control item called "Visible" and check to see
+    * if it is On or Off. Depending on the control value,
+    * set the dialog item's display state if the state is not
+    * already set that way.
+    */
+   control =
+     (vcontrol *)vcontainerFindItem(container,
+        vnameInternGlobalLiteral("Visible"));
+   
+   if (vcontrolGetValue(control) == 1) {
+      if (vdialogDetermineItemShown(diSample) == FALSE)
+        vdialogShowItem(diSample);
+   } else {
+      if (vdialogDetermineItemShown(diSample))
+        vdialogHideItem(diSample);
+   }
+   
+   /*
+    * Get the control item called "Border" and check to see
+    * if it is On or Off. Depending on the control value,
+    * set the dialog item's border if the border is not
+    * already set that way.
+    */
+   control =
+     (vcontrol *)vcontainerFindItem(container,
+        vnameInternGlobalLiteral("Border"));
+   
+   if (vcontrolGetValue(control) == 1) {
+      if (vdialogItemHasBorder(diSample) == FALSE)
+        vdialogSetItemBorder(diSample, TRUE);
+   } else {
+      if (vdialogItemHasBorder(diSample))
+        vdialogSetItemBorder(diSample, FALSE);
+   }
+   
+   /*
+    * Get the control item called "Enable" and check to see
+    * if it is On or Off. Depending on the control value,
+    * set the dialog item's enabled state if the state is not
+    * already set that way.
+    */
+   control =
+     (vcontrol *)vcontainerFindItem(container,
+        vnameInternGlobalLiteral("Enable"));
+   
+   if (vcontrolGetValue(control) == 1) {
+      if (vdialogDetermineItemEnabled(diSample) == FALSE)
+        vdialogEnableItem(diSample);
+   } else {
+      if (vdialogDetermineItemEnabled(diSample))
+        vdialogDisableItem(diSample);
+   }
+}
+
+</UL></PRE><A NAME="2216"><H1> </H1></A>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Confirm.html">Previous Chapter</A> | 
+		<A HREF="Control.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

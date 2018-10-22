@@ -1,0 +1,223 @@
+<HTML>
+<HEAD>
+<TITLE>Debugging</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Debugging</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Date.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Dialog.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The <EM><B>Debugging Manager</B></EM> provides a way to incorporate debugging code in application code. The inclusion of the debug code is dependent on a global MACRO symbol (<TT>vdebugDEBUG</TT>) that allows for the exclusion of the code at the developer's discretion. The Debugging Manager supports multiple levels of debugging activity as well as four different output streams that let debugging activity be sent to different locations, depending on the action. There is also support for run-time modification of the debugging activity and debugging level.<P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+The Debugging Manager allows you to replace code like this:<P>
+<PRE><UL>#define DEBUG 1
+
+   // ...
+
+#if (DEBUG == 1)
+   printf("the value of foo is: %dn",foo);
+#endif
+
+</UL></PRE>with code like this:<P>
+<PRE><UL>   vdebugMInform(("the value of foo is: %dn",foo));
+
+</UL></PRE>When a production copy of the application needs to be created, <TT>vdebugDEBUG</TT> is set to 0 and the <TT>vdebugMInform</TT> statement is skipped at compile time. Otherwise the <TT>vdebugDEBUG</TT> default value of <TT>TRUE</TT> is used and all debugging code is compiled in. Note this does not mean it will cause output to occur, just that the code will be compiled in for further checking at run-time.<P>
+<A NAME="3779"><H2> Inclusion of Debugging Code</H2></A>
+The inclusion of Debugging Manager code is dependent on the preprocessor symbol <TT>vdebugDEBUG</TT>, which is either <TT>FALSE</TT> or not <TT>FALSE</TT> (usually <TT>TRUE</TT>, but could be anything non-zero). If <TT>vdebugDEBUG</TT> is <TT>TRUE</TT>, the Debugging Manager calls are included in the compile. Conversely, if <TT>vdebugDEBUG</TT> is <TT>FALSE</TT>, the Debugging Manager calls are not compiled in.<P>
+<A NAME="3782"><H2> Module Tags</H2></A>
+Debug routines called from a particular source file belong to the module corresponding to that file. The module that a file is part of is set by defining the symbol <TT>vdebugTAG</TT> to the name of the module. The default value for <TT>vdebugTAG</TT> is "<TT>undefined_tag</TT>." In the following example, <TT>vdebugTAG</TT> is set to "<TT>sample</TT>," specifying that the source code to follow belongs to the module with that name.<P>
+For example:<P>
+<PRE><UL>#ifndef vportINCLUDED
+# include &lt;vport.h&gt; /* for v*HEADER */
+#endif
+
+#ifndef  vstdlibINCLUDED
+# include vstdlibHEADER               /* for exit */
+#endif
+
+#ifndef  vdebugINCLUDED
+# include vdebugHEADER
+#endif
+
+#if (vdebugDEBUG)
+
+static const char * const    _sampleTag = "sample";
+# define vdebugTAG       _sampleTag
+#endif
+
+static void _sampleCheckArgs( int argc )
+{
+   vdebugTraceEnter( _sampleCheckArgs );
+
+   vdebugIF(argc != 1,
+     vdebugMWarn(( "about to test assertions by failing:n" )));
+   vdebugAssert( argc == 1 );
+
+   vdebugTraceLeave();
+}
+
+
+int main( int argc, char *argv[] )
+{
+   vdebugTraceEnter( main );
+
+   vdebugMInform(( "macro informingn" ));
+   vdebugMInformAt(( vdebugLEVEL_LOW,
+                    "macro informing at vdebugLEVEL_LOWn"));
+
+   vdebugMWarn(( "macro warningn" ));
+   vdebugMWarnAt(( vdebugLEVEL_LOW,
+                  "macro warning at vdebugLEVEL_LOWn"));
+
+   vdebugMTrace(( "macro tracingn" ));
+   vdebugMTraceAt(( vdebugLEVEL_LOW,
+                   "macro tracing at vdebugLEVEL_LOWn"));
+
+   vdebugMAdvise(( "macro advisingn" ));
+   vdebugMAdviseAt(( vdebugLEVEL_LOW,
+                    "macro advising at vdebugLEVEL_LOWn"));
+
+   _sampleCheckArgs( argc );
+
+   vdebugTraceLeave();
+
+   exit(EXIT_SUCCESS);
+   return EXIT_FAILURE;
+}
+
+</UL></PRE><A NAME="3839"><H2> Run-Time Control</H2></A>
+The run-time debugging characteristics of any application compiled using the Debugging Manager are controllable with three environment variables: <TT>vdebugVARIABLES</TT>, <TT>vdebugMODULE</TT>, and <TT>vdebugLEVEL</TT>. Debugging levels can be set on a per-module basis using <TT>vdebugVARIABLES</TT>. For example:<P>
+<PRE><UL>% setenv vdebugVARIABLES 
+vinst:vdebugLEVEL_MAX:sample:vdebugLEVEL_MAX
+
+</UL></PRE>The environment variable <TT>vdebugLEVEL</TT> initializes all modules to a given level. Unless specified by setting <TT>vdebugLEVEL</TT> to another value, the initial value for all modules is set to <TT>vdebugLEVEL_NORMAL</TT>.<P>
+Debugging can be limited to a certain module by setting the <TT>vdebugMODULE</TT> environment variable to that module. If debugging was to be limited to the module in the above example then <TT>vdebugMODULE</TT> would be set to sample. The default for <TT>vdebugMODULE</TT> allows debugging for all modules. Note that <TT>vdebugMODULE</TT> has been deprecated in favor of <TT>vdebugVARIABLES</TT>.<P>
+<A NAME="3845"><H2> Debug Actions</H2></A>
+The Galaxy Debugging Manager supports four different verbs that send output to their own output streams: Advise, Inform, Trace, and Warn. Each of the actions serves to provide information in the debugging stage of application development. The Advise action is used to advise developers that what they have done is not necessarily wrong but a better, more efficient method is available. The Inform action is used to provide informative messages about what is going on during execution of the application. The Trace action is used to print tracing information to illustrate flow of control. The Warn action is used to inform developers that a major error has occurred.<P>
+Each action has two routines that generate output: <TT>vdebugMAction</TT> and <TT>vdebugMActionAt</TT>. The first of these compares the debug level of the current module to the debug level of that action. If the local module's debugging level is greater than or equal to that action's threshold then the given message is generated as debugging output. The second of these compares the debug level of the current module to a passed in debug threshold. If the local module's debugging level is greater than or equal to the given threshold then the given message is generated as debugging output.<P>
+The following example code would print the string "I got this far in the code" to the Information stream if the local debug module's level is greater than or equal to the Information debug threshold:<P>
+<PRE><UL>   vdebugMInform(("I got this far in the code"));
+
+</UL></PRE>The other output routine available for an activity prints the given message if the debug level is equal to or greater than the level passed as the first parameter in the call. The following example would output the given string to the Inform stream if the Inform debug level was equal to or greater than <TT>vdebugLEVEL_NORMAL</TT>.<P>
+<PRE><UL>   vdebugMInformAt((vdebugLEVEL_NORMAL,
+                    "I got this far in the code"));
+
+</UL></PRE><A NAME="3856"><H2> Debug Levels</H2></A>
+Each module has a debug level and each action (Advice, Inform, Trace, Warn) has a threshold level that control display of debugging information for an action in a certain module. There are six predefined constants that represent different levels of debug activity. <TT>vdebugLEVEL_NORMAL</TT> is the initial setting for all of the debug actions unless specified otherwise by setting the environment variable <TT>vdebugLEVEL</TT>. The six levels are:<P>
+<OL>
+<LI><TT>vdebugLEVEL_OFF
+</TT><BR>
+<LI><TT>vdebugLEVEL_MIN
+</TT><BR>
+<LI><TT>vdebugLEVEL_LOW
+</TT><BR>
+<LI><TT>vdebugLEVEL_NORMAL
+</TT><BR>
+<LI><TT>vdebugLEVEL_HIGH
+</TT><BR>
+<LI><TT>vdebugLEVEL_MAX
+</TT><BR>
+</OL>
+<TT>vdebugLEVEL_LOW</TT> represents low level for debugging activity and, conversely, <TT>vdebugLEVEL_HIGH</TT> represents high level for debugging activity. <TT>vdebugLEVEL_MIN</TT> is the lowest level of debugging activity that is currently supported by the Debugging Manager and <TT>vdebugLEVEL_MAX</TT> is the highest level currently supported. <TT>vdebugLEVEL_OFF</TT> represents debugging being turned off. Each of these constants is provided for ease of use and the actual value they contain is subject to change in future releases.<P>
+<A NAME="3867"><H2> Debug Streams</H2></A>
+Each of the four debug actions has its own stream where any output is sent. The initial value for each of the streams is <TT>stderr</TT>. The current stream can be retrieved with <TT>vdebugGetACTIONStream</TT> where <TT>ACTION</TT> is the stream in question. The stream for each of the debug actions can also be set using the <TT>vdebugSetACTIONStream(stream)</TT> function where <TT>ACTION</TT> is the requested debug stream and <TT>stream</TT> is a <TT>FILE</TT> pointer. The following example shows the temporary redirection of the Inform stream:<P>
+<A NAME="3870"><I>Example 35.  Redirecting a debug stream
+</I><P>
+<PRE><UL>void SendOutputToFile(FILE *where)
+{
+   FILE *temp;
+
+   /* retrieve the current output stream */
+   temp = vdebugGetInfoStream();
+
+   /* set the stream to the desired location */
+   vdebugSetInfoStream(where);
+
+   vdebugMInform(("global variables contents are as follows:"));
+
+   // ...
+
+   /* return the output to the original location */
+   vdebugSetInfoStream(temp);
+}
+
+</UL></PRE><P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Date.html">Previous Chapter</A> | 
+		<A HREF="Dialog.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

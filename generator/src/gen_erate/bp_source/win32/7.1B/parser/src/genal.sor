@@ -1,0 +1,2205 @@
+/*========================================================================
+ *
+ * File:      $RCSfile: genal.sor,v $
+ * Version:   $Revision: 1.9 $
+ * Modified:  $Date: 2013/01/10 23:41:20 $
+ *
+ * (c) Copyright 1992-2013 by Mentor Graphics Corp. All rights reserved.
+ *
+ *========================================================================
+ * This document contains information proprietary and confidential to
+ * Mentor Graphics Corp., and is not for external distribution.
+ *======================================================================== 
+ */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/*| Title:               BP Action Language Generator Back End      |*/
+/*| File Name:           genal.sor                                  |*/
+/*| Owner:               Gregory Rochford                           |*/
+/*|                                                                 |*/
+/*| Abstract -                                                      |*/
+/*|   This is the Sorcerer source file for the BP action language   |*/
+/*|   tree walker back end for code generation.                     |*/
+/*|                                                                 |*/
+/*| Notes -                                                         |*/
+/* _________________________________________________________________ */
+
+
+#header <<
+#include "p_symtbl.hh"
+#include "tokens.h"
+#include "myAST.h"
+#include "p_check.hh"
+#include "p_error.hh"
+#include "P.h"
+#include <fstream.h>
+typedef char script_var_name[6]; 
+typedef AST SORAST;
+class Special_Where;
+>>
+
+<<
+#include "p_types.hh"
+#include "p_swhere.hh"
+#include "myAST.h"
+#include "GEN_SOR.h"
+#include "u_string.hh"
+#include "u_desc.hh"
+
+extern Special_Where* G_Special_Where_table;
+>>
+
+
+class GEN_SOR
+{
+<<
+public:
+  GEN_SOR( P *p_parser, ofstream &p_out_file ):
+    parser(p_parser),
+    trace(FALSE),
+    dumpflag(FALSE),
+    actn_inst_num(1), blck_inst_num(1), stmt_inst_num(1),
+    rval_inst_num(1), chain_inst_num(1), param_inst_num(1),
+    var_inst_num(1), where_inst_num(1), out_file(&p_out_file),
+    C_instance_sm(FALSE),
+    C_actn_var_name(0),
+    C_obj_kl(0),
+    C_last_resort_key_letters(0)
+    {}
+  ~GEN_SOR()
+    {     
+      if ( C_actn_var_name != 0 )
+        delete [] C_actn_var_name;
+      if ( C_obj_kl != 0 )
+        delete [] C_obj_kl;
+    }
+  void init ( bool p_instance_sm,
+              const char *p_actn_var_name,
+              const vchar *p_obj_kl )
+    { 
+      C_instance_sm = p_instance_sm;
+
+      if ( C_actn_var_name != 0 )
+        delete [] C_actn_var_name;
+      C_actn_var_name = new char [ strlen(p_actn_var_name) + 1 ];
+      strcpy ( C_actn_var_name, p_actn_var_name );
+
+      if ( C_obj_kl != 0 )
+        delete [] C_obj_kl;
+      C_obj_kl = new vchar [ vcharLength(p_obj_kl) + 1 ];
+      vcharCopy ( p_obj_kl, C_obj_kl );
+
+    }
+  void next_actn_var_name( script_var_name var_name )
+    {
+      sprintf (var_name, "a%03d", actn_inst_num);
+      actn_inst_num++;
+    }
+  void next_blck_var_name( script_var_name var_name )
+    {
+      sprintf (var_name, "b%03d", blck_inst_num);
+      blck_inst_num++;
+    }
+  void next_chain_var_name( script_var_name var_name )
+    {
+      sprintf (var_name, "c%03d", chain_inst_num);
+      chain_inst_num++;
+    }
+  void next_param_var_name( script_var_name var_name )
+    {
+      sprintf (var_name, "p%03d", param_inst_num);
+      param_inst_num++;
+    }
+  void next_rval_var_name( script_var_name var_name )
+    {
+      sprintf (var_name, "r%03d", rval_inst_num);
+      rval_inst_num++;
+    }
+  void next_stmt_var_name( script_var_name var_name )
+    {
+      sprintf (var_name, "s%03d", stmt_inst_num);
+      stmt_inst_num++;
+    }
+  void next_var_var_name( script_var_name var_name )
+    {
+      sprintf (var_name, "v%03d", var_inst_num);
+      var_inst_num++;
+    }
+  void next_where_var_name( script_var_name var_name )
+    {
+      sprintf (var_name, "w%03d", where_inst_num);
+      where_inst_num++;
+    }
+
+  void new_scope();
+  void get_previous_block(script_var_name);
+  void get_previous_where(script_var_name);
+  void get_previous_param(script_var_name);
+  void drop_scope();
+  void add_var_to_scope(const vchar *, const vchar *, script_var_name);
+  void delete_all_var_from_scope();
+  bool is_var_in_scope(const vchar *);
+  bool is_var_declared_in_scope(const vchar *);
+  bool is_selected (script_var_name);
+  void set_var_declared_in_scope(const vchar *);
+  void get_gen_name(const vchar *, script_var_name);
+  void add_valid_statement(script_var_name);
+  vchar* get_key_letters(const vchar *);
+  void declare_oir(script_var_name, const vchar *var, const vchar *kl);
+  void declare_oirs(script_var_name, const vchar *var, const vchar *kl);
+  void declare_ei(script_var_name, const vchar *var);
+  void special_where_invokes( Special_Where *sw );
+
+  void panic ( char *msg )
+    { throw msg; }
+
+  void mismatched_range(int looking_for, int upper_token, SORASTBase *found);
+  void missing_wildcard();
+  void mismatched_token(int looking_for, SORASTBase *found);
+  void no_viable_alt(char *rulename, SORASTBase *root);
+
+protected:
+  P *parser;
+  bool trace;
+  bool dumpflag;
+private:
+  int actn_inst_num;
+  int blck_inst_num;
+  int chain_inst_num;
+  int param_inst_num;
+  int rval_inst_num;
+  int stmt_inst_num;
+  int var_inst_num;
+  int where_inst_num;
+  char *C_actn_var_name;
+  vchar *C_obj_kl;
+  bool C_instance_sm;
+  ofstream *out_file;
+  vchar *C_last_resort_key_letters;
+>>
+
+statement[bool tracex, bool dumpflagx, int actn_type]
+  : << trace = tracex;
+       dumpflag = dumpflagx;
+    >>
+  TOK_STATEMENTS
+    <<
+    script_var_name actn1;
+    next_actn_var_name ( actn1 );
+    switch ( actn_type )
+    {
+    case 0:
+ 		*out_file << ".Invoke " << actn1 << " = actn_begin (" 
+    	    << C_actn_var_name << ")" << endl;
+        break;
+    case 1:
+   		*out_file << ".Invoke " << actn1 << " = actn_bridge_begin (" 
+    	    << C_actn_var_name << ")" << endl;
+        break;
+    case 2:
+  		*out_file << ".Invoke " << actn1 << " = actn_trans_begin (" 
+	  	    << C_actn_var_name << ")" << endl;
+        break;
+    case 3:
+  		*out_file << ".Invoke " << actn1 << " = actn_synch_service_begin (" 
+	  	    << C_actn_var_name << ")" << endl;
+        break;
+    case 4:
+  		*out_file << ".Invoke " << actn1 << " = actn_ib_trans_begin (" 
+	  	    << C_actn_var_name << ")" << endl;
+        break;
+    case 5:
+  		*out_file << ".Invoke " << actn1 << " = actn_attribute_begin (" 
+	  	    << C_actn_var_name << ")" << endl;
+        break;
+    default:
+    	*out_file << ".print \"ERROR - unknown action specification type = " << actn_type << "\"";
+        return;
+    }
+
+    new_scope();
+
+    if ( C_instance_sm )
+    {
+      script_var_name var1;
+      next_var_var_name ( var1 );
+      *out_file << ".Invoke " << var1 << " = var_declare_self_obj_inst_ref ("
+               << C_actn_var_name << ")" << endl;
+      vchar self_str[5];
+      vcharCopyFromLiteral( "self", self_str );
+      add_var_to_scope( self_str, C_obj_kl, var1 );
+      vcharCopyFromLiteral( "Self", self_str );
+      add_var_to_scope( self_str, C_obj_kl, var1 );
+      vcharCopyFromLiteral( "SELF", self_str );
+      add_var_to_scope( self_str, C_obj_kl, var1 );
+      set_var_declared_in_scope( self_str );
+    }
+    >>
+  ( vs:valid_statement 
+    << add_valid_statement( vs->getGenVarName() ); >>
+  )*
+  Eof
+    <<
+    delete_all_var_from_scope();
+    drop_scope();
+
+    script_var_name actn2;
+    next_actn_var_name ( actn2 );
+    script_var_name last_blck;   
+    get_previous_block ( last_blck ); 
+    *out_file << ".Invoke " << actn2 << " = actn_append_blck (" 
+             << actn1 << ", " << last_blck << ")" << endl;
+
+    script_var_name actn3;
+    next_actn_var_name ( actn3 );
+    *out_file << ".Invoke " << actn3 << " = actn_end (" << actn2 << ")" << endl;
+    *out_file << "${" << actn3 << ".body}" << endl;
+    >>
+  ;
+
+valid_statement
+  :
+    assignment_statement
+  | break_statement
+  | bridge_statement
+  | control_statement
+  | continue_statement
+  | create_event_statement
+  | create_object_statement
+  | delete_statement
+  | empty_statement
+  | for_statement
+  | generate_statement
+  | if_statement
+  | relate_statement
+  | return_statement
+  | select_statement
+  | synch_svc_statement
+  | transform_statement
+  | unrelate_statement
+  | while_statement
+  ;
+
+assignment_statement
+  :
+    #( a:TOK_STMT_ASSIGN
+       (
+         lv:TOK_LOCAL_VAR
+         e1:expr
+         <<
+         script_var_name gen_name;
+         if ( is_var_in_scope(lv->getVcharText()) )
+         {
+           get_gen_name( lv->getVcharText(), gen_name );
+           lv->setGenVarName( gen_name );
+         }
+         else
+         {
+           next_var_var_name ( gen_name );
+           if ( lv->getDatatype() == OBJECT_INST_REF_DATATYPE )
+           {
+             vchar *obj_kl = C_last_resort_key_letters;
+             declare_oir( gen_name, lv->getVcharText(), obj_kl);
+             add_var_to_scope( lv->getVcharText(), obj_kl, gen_name );
+           }
+           else if ( lv->getDatatype() == OBJECT_INST_REF_SET_DATATYPE )
+           {
+             vchar *obj_kl = C_last_resort_key_letters;
+             declare_oirs( gen_name, lv->getVcharText(), obj_kl);
+             add_var_to_scope( lv->getVcharText(), obj_kl, gen_name );
+           }
+           else
+           {
+             *out_file << ".Invoke " << gen_name << " = var_declare (\""
+                       << lv->getVcharText()  << "\")" << endl;
+             add_var_to_scope( lv->getVcharText(), vcharGetEmptyString(), gen_name );
+           }
+           lv->setGenVarName( gen_name );
+         }
+
+         script_var_name var_name;
+         next_stmt_var_name ( var_name );
+         *out_file << ".Invoke " << var_name
+                  << " = stmt_assign_transient_var (" << lv->getGenVarName();
+         if ( is_var_declared_in_scope(lv->getVcharText()) )
+           *out_file << ", FALSE, ";
+         else
+           *out_file << ", TRUE, ";
+         *out_file << e1->getGenVarName() << ")" << endl;
+         set_var_declared_in_scope(lv->getVcharText());
+         a->setGenVarName( var_name );
+         >>
+       |
+         aa:attribute_access
+         e2:expr
+         <<
+         script_var_name var_name;
+         next_stmt_var_name ( var_name );
+         *out_file << ".Invoke " << var_name
+                  << " = stmt_assign_obj_attr (" << aa->getGenVarName()
+                  << ", \"" << aa->child()->getVcharText() << "\", "
+                  << e2->getGenVarName() << ")" << endl;
+         a->setGenVarName( var_name );
+         >>
+       |
+         pda:param_data_access[ FALSE ]
+         e2:expr
+         <<
+         script_var_name var_name;
+         next_stmt_var_name ( var_name );
+         *out_file << ".Invoke " << var_name;
+         if ( pda->getType() == TOK_SYNCH_SVC_PARAM )
+         {
+             *out_file << " = stmt_assign_synch_service_param (";
+         }
+         else if ( pda->getType() == TOK_BRIDGE_PARAM )
+         {
+             *out_file << " = stmt_assign_bridge_param (";
+         }
+         else if ( pda->getType() == TOK_TRANSFORMER_PARAM )
+         {
+             *out_file << " = stmt_assign_transform_param (";
+         }
+	     *out_file << C_actn_var_name << ", \""
+                  << pda->child()->getVcharText() << "\", "
+                  << e2->getGenVarName() << ")" << endl;
+         a->setGenVarName( var_name );
+         >>
+       )
+     )
+  ;
+
+break_statement
+  :
+    b:TOK_STMT_BREAK
+    <<
+    script_var_name var_name;
+    next_stmt_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = stmt_break ()" << endl ;
+    b->setGenVarName( var_name );
+    >>
+  ;
+
+bridge_statement
+  :
+  <<
+  vchar *kl;
+  vchar *method;
+  >>
+    #( s:TOK_STMT_BRIDGE
+       be:bridge_expr[&kl, &method]
+     )
+    <<
+    script_var_name var_name;
+    next_stmt_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = stmt_bridge_void (\""
+             << kl << "\", \""
+             << method << "\", "
+             << be->getGenVarName() << ")" << endl;
+    s->setGenVarName( var_name );
+    >>
+  ;
+
+continue_statement
+  :
+    c:TOK_STMT_CONTINUE
+    <<
+    script_var_name var_name;
+    next_stmt_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = stmt_continue ()" << endl ;
+    c->setGenVarName( var_name );
+    >>
+  ;
+
+control_statement
+  :
+    #( stmt: TOK_STMT_CONTROL
+       TOK_STOP
+     )
+    <<
+    script_var_name var_name;
+    next_stmt_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = stmt_control (\"STOP\")" << endl ;
+    stmt->setGenVarName( var_name );
+    >>
+  ;
+
+create_event_statement
+  :
+    #( s:TOK_STMT_CREATE_EVENT
+       erv:TOK_EVENT_REF_VAR
+       es:event_spec[erv->getVcharText() ]
+     )
+     << s->setGenVarName( es->getGenVarName() ); >>
+  ;
+
+create_object_statement
+  :
+    #( s:TOK_STMT_CREATE_OBJECT
+       kl:TOK_KL_OBJECT
+       { irv:TOK_INST_REF_VAR }
+     )
+     <<
+     script_var_name var_name;
+     if ( irv == 0 )
+     {
+       next_stmt_var_name ( var_name );
+       *out_file << ".Invoke " << var_name
+                << " = stmt_create_obj_inst_no_var (\"" 
+                << kl->getVcharText() << "\")" << endl;
+       s->setGenVarName( var_name );
+     }
+     else
+     {
+       script_var_name gen_name;
+       if ( is_var_in_scope(irv->getVcharText()) )
+       {
+         get_gen_name( irv->getVcharText(), gen_name );
+         irv->setGenVarName( gen_name );
+       }
+       else
+       {
+         next_var_var_name ( gen_name );
+         declare_oir ( gen_name, irv->getVcharText(), kl->getVcharText() );
+         add_var_to_scope( irv->getVcharText(), kl->getVcharText(), gen_name );
+         irv->setGenVarName( gen_name );
+       }
+
+       next_stmt_var_name ( var_name );
+       *out_file << ".Invoke " << var_name
+                << " = stmt_create_obj_inst (" << irv->getGenVarName();
+       if ( is_var_declared_in_scope(irv->getVcharText()) )
+         *out_file << ", FALSE, \"";
+       else
+         *out_file << ", TRUE, \"";
+       *out_file << kl->getVcharText() << "\")" << endl;
+       set_var_declared_in_scope(irv->getVcharText());
+       s->setGenVarName( var_name );
+     }
+     >>
+  ;
+
+delete_statement
+  :
+    #( s:TOK_STMT_DELETE
+       irv:TOK_INST_REF_VAR
+     )
+     <<
+     script_var_name var_name;
+     next_stmt_var_name ( var_name );
+     script_var_name gen_name;
+     get_gen_name( irv->getVcharText(), gen_name );
+     *out_file << ".Invoke " << var_name
+              << " = stmt_delete_obj_inst (" << gen_name
+              << ")" << endl;
+     s->setGenVarName( var_name );
+     >>
+  ;
+
+empty_statement
+  :
+    s:TOK_STMT_EMPTY
+     << s->setGenVarName( "DONT" ); >>
+  ;
+
+for_statement
+  :
+    <<
+    script_var_name gen_name1;
+    script_var_name prev_blck;   
+    get_previous_block ( prev_blck ); 
+    >>
+    #( s:TOK_STMT_FOR
+       irv1:TOK_INST_REF_VAR
+       irv2:TOK_INST_REF_SET_VAR
+       #( TOK_CLAUSE_FOR
+             <<
+             if ( is_var_in_scope(irv1->getVcharText()) )
+             {
+               get_gen_name( irv1->getVcharText(), gen_name1 );
+               irv1->setGenVarName( gen_name1 );
+             }
+             else
+             {
+               next_var_var_name ( gen_name1 );
+               vchar *iter_kl = get_key_letters ( irv2->getVcharText() );
+               declare_oir ( gen_name1, irv1->getVcharText(), iter_kl );
+               add_var_to_scope( irv1->getVcharText(), iter_kl, gen_name1 );
+               irv1->setGenVarName( gen_name1 );
+             }
+             >>
+          TOK_CONTEXT_PUSH
+             << new_scope(); >>
+          ( vs:valid_statement
+             << add_valid_statement( vs->getGenVarName() ); >>
+          )*
+          TOK_CONTEXT_POP
+          <<
+          delete_all_var_from_scope();
+          drop_scope();
+          >>
+        )
+     )
+     <<
+     script_var_name var_name;
+     next_stmt_var_name ( var_name );
+     script_var_name gen_name2;
+     get_gen_name( irv2->getVcharText(), gen_name2 );
+     script_var_name last_blck;   
+     get_previous_block ( last_blck ); 
+     *out_file << ".Invoke " << var_name
+              << " = stmt_for (" << gen_name1;
+     if ( is_var_declared_in_scope(irv1->getVcharText()) )
+       *out_file << ", FALSE, ";
+     else
+       *out_file << ", TRUE, ";
+     *out_file << gen_name2 << ", "
+              << last_blck << ")" << endl;
+     set_var_declared_in_scope(irv1->getVcharText());
+     s->setGenVarName( "DONT" );
+     script_var_name blckn;
+     next_blck_var_name ( blckn );
+     *out_file << ".Invoke " << blckn << " = blck_append_stmt ("
+              << prev_blck << ", "
+              << var_name << ")" << endl;
+     >>
+  ;
+
+generate_statement
+  :
+    #( s:TOK_STMT_GENERATE
+       (
+         es:event_spec[vcharGetEmptyString()]
+         << s->setGenVarName( es->getGenVarName() ); >>
+       |
+         eiv:TOK_EVENT_REF_VAR
+         <<
+         script_var_name var_name;
+         script_var_name gen_name;
+         get_gen_name ( eiv->getVcharText(), gen_name );
+         next_stmt_var_name ( var_name );
+         *out_file << ".Invoke " << var_name
+                  << " = stmt_generate_evt_inst (" << gen_name
+                  << ")" << endl;
+         s->setGenVarName( var_name );
+         >>
+       |
+         aa:attribute_access
+         <<
+         script_var_name var_name1;
+		 next_rval_var_name ( var_name1 );
+    	 *out_file << ".Invoke " << var_name1
+	    	<< " = rval_read_obj_attr (" << aa->getGenVarName() << ", \""
+			<< aa->child()->getVcharText() << "\")" << endl;
+		 aa->setGenVarName( var_name1 );
+
+         script_var_name var_name;
+         next_stmt_var_name ( var_name );
+         *out_file << ".Invoke " << var_name
+                  << " = stmt_generate_evt_inst_rval (" << aa->getGenVarName()
+                  << ")" << endl;
+         s->setGenVarName( var_name );
+         >>
+       )
+    )
+  ;
+
+if_statement
+  :
+    <<
+    script_var_name prev_blck;   
+    get_previous_block ( prev_blck ); 
+    >>
+    #( s:TOK_STMT_IF
+       #( TOK_CLAUSE_IF
+          e1:expr
+          TOK_CONTEXT_PUSH
+             << new_scope(); >>
+          ( vs:valid_statement
+             << add_valid_statement( vs->getGenVarName() ); >>
+          )*
+          TOK_CONTEXT_POP
+          <<
+          delete_all_var_from_scope();
+          drop_scope();
+          >>
+        )
+        <<
+        script_var_name var_name;
+        next_stmt_var_name ( var_name );
+        script_var_name last_blck;   
+        get_previous_block ( last_blck ); 
+        *out_file << ".Invoke " << var_name
+                 << " = stmt_if (" << e1->getGenVarName() << ", "
+                 << last_blck << ")" << endl;
+        s->setGenVarName( "DONT" );
+        script_var_name blckn;
+        next_blck_var_name ( blckn );
+        *out_file << ".Invoke " << blckn << " = blck_append_stmt ("
+                 << prev_blck << ", "
+                 << var_name << ")" << endl;
+        strcpy ( prev_blck, blckn );
+        >>
+       (
+         #( TOK_CLAUSE_ELIF
+            e2:expr
+            TOK_CONTEXT_PUSH
+             << new_scope(); >>
+            ( vs:valid_statement
+               << add_valid_statement( vs->getGenVarName() ); >>
+            )*
+            TOK_CONTEXT_POP
+            <<
+            delete_all_var_from_scope();
+            drop_scope();
+            >>
+          )
+          <<
+          script_var_name var_name;
+          next_stmt_var_name ( var_name );
+          script_var_name last_blck;   
+          get_previous_block ( last_blck ); 
+          *out_file << ".Invoke " << var_name
+                   << " = stmt_elif (" << e2->getGenVarName() << ", "
+                   << last_blck << ")" << endl;
+          script_var_name blckn;
+          next_blck_var_name ( blckn );
+          *out_file << ".Invoke " << blckn << " = blck_append_stmt ("
+                   << prev_blck << ", "
+                   << var_name << ")" << endl;
+          strcpy ( prev_blck, blckn );
+          >>
+       )*
+       {
+         #( TOK_CLAUSE_ELSE
+            TOK_CONTEXT_PUSH
+             << new_scope(); >>
+            ( vs:valid_statement 
+               << add_valid_statement( vs->getGenVarName() ); >>
+            )*
+            TOK_CONTEXT_POP
+            <<
+            delete_all_var_from_scope();
+            drop_scope();
+           >>
+          )
+          <<
+          script_var_name var_name;
+          next_stmt_var_name ( var_name );
+          script_var_name last_blck;   
+          get_previous_block ( last_blck ); 
+          *out_file << ".Invoke " << var_name
+                   << " = stmt_else ("
+                   << last_blck << ")" << endl;
+          script_var_name blckn;
+          next_blck_var_name ( blckn );
+          *out_file << ".Invoke " << blckn << " = blck_append_stmt ("
+                   << prev_blck << ", "
+                   << var_name << ")" << endl;
+          >>
+        }
+     )
+  ;
+          
+relate_statement
+  :  
+    #( s:TOK_STMT_RELATE
+       irv1:TOK_INST_REF_VAR      // 1st inst_ref variable
+       irv2:TOK_INST_REF_VAR      // 2nd inst_ref variable
+       rn:TOK_RELID
+       { ph:TOK_PHRASE }
+       { irv3:TOK_INST_REF_VAR }  // using inst_ref variable
+     )
+     <<
+     script_var_name var_name;
+     next_stmt_var_name ( var_name );
+     script_var_name gen_name1;
+     get_gen_name( irv1->getVcharText(), gen_name1 );
+     script_var_name gen_name2;
+     get_gen_name( irv2->getVcharText(), gen_name2 );
+     const vchar *rel_num = rn->getVcharText();
+     rel_num += 1;   // skip over the 'R'
+     if ( irv3 == 0 )
+     {
+       *out_file << ".Invoke " << var_name
+                << " = stmt_relate (" << gen_name1
+                << ", " << gen_name2
+                << ", " << rel_num << ", \"";
+       if ( ph != 0 )
+       {
+         Description ticked_str(ph->getVcharText());
+         t_uint ticked_str_cursor = 0;
+         Description unticked_str;
+		 ticked_str.parse_token__ticked_str(ticked_str_cursor, unticked_str);
+         *out_file << unticked_str.char_ptr();
+       }
+       *out_file << "\")" << endl ;
+     }
+     else
+     {
+       script_var_name gen_name3;
+       get_gen_name( irv3->getVcharText(), gen_name3 );
+       *out_file << ".Invoke " << var_name
+                << " = stmt_relate_using (" << gen_name1
+                << ", " << gen_name2
+                << ", " << rel_num
+                << ", " << gen_name3 << ", \"";
+       if ( ph != 0 )
+       {
+         Description ticked_str(ph->getVcharText());
+         t_uint ticked_str_cursor = 0;
+         Description unticked_str;
+		 ticked_str.parse_token__ticked_str(ticked_str_cursor, unticked_str);
+         *out_file << unticked_str.char_ptr();
+       }
+       *out_file << "\")" << endl ;
+     }
+     s->setGenVarName( var_name );
+     >>
+  ;
+
+return_statement
+  :
+    #( s:TOK_STMT_RETURN
+	   { e:expr }
+	 )
+     <<
+     script_var_name var_name;
+     next_stmt_var_name ( var_name );
+	 if ( e == 0 )
+	 {
+	     *out_file << ".Invoke " << var_name
+		           << " = stmt_return_void()" << endl;
+     }
+	 else
+	 {
+         *out_file << ".Invoke " << var_name
+                   << " = stmt_return_rval(" << e->getGenVarName() << ")" << endl;
+	 }
+     s->setGenVarName( var_name );
+     >>
+  ;
+
+select_statement
+  :
+    #( s:TOK_STMT_SELECT_ONE
+       irv:TOK_INST_REF_VAR
+       os:object_spec["ONE", irv]
+     )
+     << s->setGenVarName( os->getGenVarName() ); >>
+  |
+    #( s:TOK_STMT_SELECT_ANY
+       irv:TOK_INST_REF_VAR
+       os:object_spec["ANY", irv]
+     )
+     << s->setGenVarName( os->getGenVarName() ); >>
+  |
+    #( s:TOK_STMT_SELECT_MANY
+       irv:TOK_INST_REF_SET_VAR
+       os:object_spec["MANY", irv]
+     )
+     << s->setGenVarName( os->getGenVarName() ); >>
+  ;
+
+synch_svc_statement
+  :
+  <<
+  vchar *method;
+  >>
+    #( s:TOK_STMT_SYNCH_SVC
+       sse:synch_svc_expr[&method]
+    <<
+    script_var_name var_name;
+    next_stmt_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = stmt_synch_service_void (\""
+             << method << "\", "
+             << sse->getGenVarName() << ")" << endl;
+    s->setGenVarName( var_name );
+    >>
+     )
+  ;
+
+transform_statement
+  :
+  <<
+  vchar *kl;
+  vchar *method;
+  bool instance_based;
+  script_var_name irv_gen_name;   // i2946.2.3 changed
+  >>
+    #( s:TOK_STMT_TRANSFORM
+       te:transformer_expr[&kl, &method, &instance_based, irv_gen_name]  // i2946.2.3 changed
+    <<
+    script_var_name var_name;
+    next_stmt_var_name ( var_name );
+	if ( instance_based )
+	{
+    *out_file << ".Invoke " << var_name
+             << " = stmt_transform_instance_void ("
+             << irv_gen_name << ", \""
+             << method << "\", "
+             << te->getGenVarName() << ")" << endl;
+	}
+	else
+	{
+    *out_file << ".Invoke " << var_name
+             << " = stmt_transform_void (\""
+             << kl << "\", \""
+             << method << "\", "
+             << te->getGenVarName() << ")" << endl;
+	}
+    s->setGenVarName( var_name );
+    >>
+     )
+  ;
+
+unrelate_statement
+  :
+    #( s:TOK_STMT_UNRELATE
+       irv1:TOK_INST_REF_VAR      // 1st inst_ref variable
+       irv2:TOK_INST_REF_VAR      // 2nd inst_ref variable
+       rn:TOK_RELID
+       { ph:TOK_PHRASE }
+       { irv3:TOK_INST_REF_VAR }  // using inst_ref variable
+     )
+     <<
+     script_var_name var_name;
+     next_stmt_var_name ( var_name );
+     script_var_name gen_name1;
+     get_gen_name( irv1->getVcharText(), gen_name1 );
+     script_var_name gen_name2;
+     get_gen_name( irv2->getVcharText(), gen_name2 );
+     const vchar *rel_num = rn->getVcharText();
+     rel_num += 1;   // skip over the 'R'
+     if ( irv3 == 0 )
+     {
+       *out_file << ".Invoke " << var_name
+                << " = stmt_unrelate (" << gen_name1
+                << ", " << gen_name2
+                << ", " << rel_num << ", \"";
+       if ( ph != 0 )
+       {
+         Description ticked_str(ph->getVcharText());
+         t_uint ticked_str_cursor = 0;
+         Description unticked_str;
+		 ticked_str.parse_token__ticked_str(ticked_str_cursor, unticked_str);
+         *out_file << unticked_str.char_ptr();
+       }
+       *out_file << "\")" << endl ;
+     }
+     else
+     {
+       script_var_name gen_name3;
+       get_gen_name( irv3->getVcharText(), gen_name3 );
+       *out_file << ".Invoke " << var_name
+                << " = stmt_unrelate_using (" << gen_name1
+                << ", " << gen_name2
+                << ", " << rel_num
+                << ", " << gen_name3 << ", \"";
+       if ( ph != 0 )
+       {
+         Description ticked_str(ph->getVcharText());
+         t_uint ticked_str_cursor = 0;
+         Description unticked_str;
+		 ticked_str.parse_token__ticked_str(ticked_str_cursor, unticked_str);
+         *out_file << unticked_str.char_ptr();
+       }
+       *out_file << "\")" << endl ;
+     }
+     s->setGenVarName( var_name );
+     >>
+  ;
+
+while_statement
+  :
+    <<
+    script_var_name prev_blck;   
+    get_previous_block ( prev_blck ); 
+    >>
+    #( s:TOK_STMT_WHILE
+       e:expr
+       #( TOK_CLAUSE_WHILE
+          TOK_CONTEXT_PUSH
+             << new_scope(); >>
+          ( vs:valid_statement
+             << add_valid_statement( vs->getGenVarName() ); >>
+          )*
+          TOK_CONTEXT_POP
+          <<
+          delete_all_var_from_scope();
+          drop_scope();
+          >>
+        )
+        <<
+        script_var_name var_name;
+        next_stmt_var_name ( var_name );
+        script_var_name last_blck;   
+        get_previous_block ( last_blck ); 
+        *out_file << ".Invoke " << var_name
+                 << " = stmt_while (" << e->getGenVarName() << ", "
+                 << last_blck << ")" << endl;
+        script_var_name blckn;
+        next_blck_var_name ( blckn );
+        *out_file << ".Invoke " << blckn << " = blck_append_stmt("
+                 << prev_blck << ", "
+                 << var_name << ")" << endl;
+        s->setGenVarName( "DONT" );
+        >>
+     )
+  ;
+
+event_spec[ const vchar *event_ref_var ]
+  : 
+    <<
+    script_var_name var_name1;
+    script_var_name var_name2;
+    >>
+    #( event:TOK_EVENT_LABEL
+       { TOK_TIMES }
+       { em:TOK_PHRASE }
+     )
+     (
+       kla:TOK_KL_OBJECT_ASSIGNER
+       <<
+       next_param_var_name ( var_name1 );
+       *out_file << ".Invoke " << var_name1
+                << " = param_begin_evt_assigner (\""
+                << event->getVcharText() << "\")" << endl;
+       >>
+     | klc:TOK_KL_OBJECT_CREATOR
+       <<
+       next_param_var_name ( var_name1 );
+       *out_file << ".Invoke " << var_name1
+                << " = param_begin_evt_creation (\""
+                << event->getVcharText() << "\")" << endl;
+       >>
+     | irv:TOK_INST_REF_VAR
+       <<
+       next_param_var_name ( var_name1 );
+       *out_file << ".Invoke " << var_name1
+                << " = param_begin_evt_obj_inst (\""
+                << event->getVcharText() << "\")" << endl;
+       >>
+     | klee:TOK_KL_EXTERNAL_ENTITY
+       <<
+       next_param_var_name ( var_name1 );
+       *out_file << ".Invoke " << var_name1
+                << " = param_begin_evt_ext_entity (\""
+                << event->getVcharText() << "\")" << endl;
+       >>
+     )
+     (
+       #(
+         nm:TOK_SUPP_DATA_NAME
+         ex:expr
+        )
+       <<
+       next_param_var_name ( var_name2 );
+       *out_file << ".Invoke " << var_name2
+                << " = param_add (" << var_name1 << ", \""
+                << nm->getVcharText() << "\", "
+                << ex->getGenVarName() << ")" << endl ;
+       strcpy ( var_name1, var_name2 );
+       >>
+     )*
+    <<
+    next_param_var_name ( var_name2 );
+    *out_file << ".Invoke " << var_name2
+             << " = param_end (" << var_name1
+             << ")" << endl ;
+    strcpy ( var_name1, var_name2 );
+
+    next_stmt_var_name ( var_name2 );
+    if ( vcharCompare( event_ref_var, vcharGetEmptyString() ) == 0 )
+    {
+      if ( irv != 0 )
+      {
+        script_var_name irv_gen_name;
+        get_gen_name ( irv->getVcharText(), irv_gen_name );
+        *out_file << ".Invoke " << var_name2
+                 << " = stmt_generate_obj_inst (\""
+                 << event->getVcharText() << "\", "
+                 << var_name1 << ", "
+                 << irv_gen_name << ")" << endl;
+      }
+      else if ( kla != 0 )
+      {
+        *out_file << ".Invoke " << var_name2
+                 << " = stmt_generate_assigner (\""
+                 << event->getVcharText() << "\", "
+                 << var_name1 << ", \""
+                 << kla->getVcharText() << "\")" << endl;
+      }
+      else if ( klc != 0 )
+      {
+        *out_file << ".Invoke " << var_name2
+                 << " = stmt_generate_creation (\""
+                 << event->getVcharText() << "\", "
+                 << var_name1 << ", \""
+                 << klc->getVcharText() << "\")" << endl;
+      }
+      else if ( klee != 0 )
+      {
+        *out_file << ".Invoke " << var_name2
+                 << " = stmt_generate_ext_entity (\""
+                 << event->getVcharText() << "\", "
+                 << var_name1 << ", \""
+                 << klee->getVcharText() << "\")" << endl;
+      }
+    }
+    else
+    {
+      script_var_name erv_gen_name;
+      if ( is_var_in_scope(event_ref_var) )
+      {
+         get_gen_name( event_ref_var, erv_gen_name );
+      }
+      else
+      {
+        next_var_var_name ( erv_gen_name );
+        if ( irv != 0 )
+        {
+          declare_ei ( erv_gen_name, event_ref_var );
+          vchar *evt_kl = get_key_letters ( irv->getVcharText() );
+          add_var_to_scope( event_ref_var, evt_kl, erv_gen_name );
+        }
+        else if ( kla != 0 )
+        {
+          declare_ei ( erv_gen_name, event_ref_var );
+          add_var_to_scope( event_ref_var, kla->getVcharText(), erv_gen_name );
+        }
+        else if ( klc != 0 )
+        {
+          declare_ei ( erv_gen_name, event_ref_var );
+          add_var_to_scope( event_ref_var, klc->getVcharText(), erv_gen_name );
+        }
+        else if ( klee != 0 )
+        {
+          declare_ei ( erv_gen_name, event_ref_var );
+          add_var_to_scope( event_ref_var, klee->getVcharText(), erv_gen_name );
+        }
+      }
+
+      if ( irv != 0 )
+      {
+        script_var_name irv_gen_name;
+        get_gen_name ( irv->getVcharText(), irv_gen_name );
+        *out_file << ".Invoke " << var_name2
+                 << " = stmt_create_evt_obj_inst ("
+                 << erv_gen_name << ", ";
+        if ( is_var_declared_in_scope(event_ref_var) )
+          *out_file << "FALSE, \"";
+        else
+          *out_file << "TRUE, \"";
+        *out_file << event->getVcharText() << "\", "
+                 << var_name1 << ", "
+                 << irv_gen_name << ")" << endl;
+        set_var_declared_in_scope(event_ref_var);
+      }
+      else if ( kla != 0 )
+      {
+        *out_file << ".Invoke " << var_name2
+                 << " = stmt_create_evt_assigner ("
+                 << erv_gen_name << ", ";
+        if ( is_var_declared_in_scope(event_ref_var) )
+          *out_file << "FALSE, \"";
+        else
+          *out_file << "TRUE, \"";
+        *out_file << event->getVcharText() << "\", "
+                 << var_name1 << ", \""
+                 << kla->getVcharText() << "\")" << endl;
+        set_var_declared_in_scope(event_ref_var);
+      }
+      else if ( klc != 0 )
+      {
+        *out_file << ".Invoke " << var_name2
+                 << " = stmt_create_evt_creation ("
+                 << erv_gen_name << ", ";
+        if ( is_var_declared_in_scope(event_ref_var) )
+          *out_file << "FALSE, \"";
+        else
+          *out_file << "TRUE, \"";
+        *out_file << event->getVcharText() << "\", "
+                 << var_name1 << ", \""
+                 << klc->getVcharText() << "\")" << endl;
+        set_var_declared_in_scope(event_ref_var);
+      }
+      else if ( klee != 0 )
+      {
+        *out_file << ".Invoke " << var_name2
+                 << " = stmt_create_evt_ext_entity ("
+                 << erv_gen_name << ", ";
+        if ( is_var_declared_in_scope(event_ref_var) )
+          *out_file << "FALSE, \"";
+        else
+          *out_file << "TRUE, \"";
+        *out_file << event->getVcharText() << "\", "
+                 << var_name1 << ", \""
+                 << klee->getVcharText() << "\")" << endl;
+        set_var_declared_in_scope(event_ref_var);
+      }
+    }
+
+    event->setGenVarName( var_name2 );
+    >>
+  ;
+
+instance_chain[ char *card, bool wc ]
+  :
+    ic:TOK_INST_REF
+    (
+      irv:TOK_INST_REF_VAR
+    |
+      irsv:TOK_INST_REF_SET_VAR
+    )
+    <<
+    script_var_name var_name1;
+    script_var_name var_name2;
+    next_chain_var_name ( var_name1 );
+    script_var_name inst_gen_name;
+    if ( irv != 0 )
+    {
+      get_gen_name( irv->getVcharText(), inst_gen_name );
+    }
+    else if ( irsv != 0 )
+    {
+      get_gen_name( irsv->getVcharText(), inst_gen_name );
+    }
+
+    *out_file << ".Invoke " << var_name1
+             << " = chain_begin (\"" << card << "\", "
+             << inst_gen_name << ", "; 
+    if ( wc )             
+      *out_file << "TRUE)" << endl ;
+    else
+      *out_file << "FALSE)" << endl ;
+
+    >>
+    ( #( kl:TOK_KL_OBJECT
+         rn:TOK_RELID
+         {
+           ph:TOK_PHRASE
+         }
+       )
+       <<
+       next_chain_var_name ( var_name2 );
+
+       const vchar *rel_num = rn->getVcharText();
+       rel_num += 1;   // skip over the 'R'
+
+       *out_file << ".Invoke " << var_name2
+                << " = chain_add_link (" << var_name1 << ", \""
+                << kl->getVcharText() << "\", "
+                << rel_num << ", \"";
+       if ( ph != 0 )
+       {
+         Description ticked_str(ph->getVcharText());
+         t_uint ticked_str_cursor = 0;
+         Description unticked_str;
+		 ticked_str.parse_token__ticked_str(ticked_str_cursor, unticked_str);
+         *out_file << unticked_str.char_ptr();
+       }
+       *out_file << "\")" << endl ;
+       strcpy ( var_name1, var_name2 );
+       >>
+    )+
+    <<
+    next_chain_var_name ( var_name2 );
+    *out_file << ".Invoke " << var_name2
+             << " = chain_end (" << var_name1
+             << ")" << endl ;
+    ic->setGenVarName( var_name2 );
+    >>
+  ;    
+
+object_spec[char *card, SORAST *irv]  
+  :
+    select_nowhere[card, irv]
+    | select_where[card, irv]
+    | select_from[card, irv]
+  ;
+
+select_nowhere[char *card, SORAST *irv ]
+  :
+      #( s:TOK_RELATED
+         kl:instance_chain[card, FALSE]
+       )
+       <<
+       script_var_name gen_name;
+       if ( is_var_in_scope(irv->getVcharText()) )
+       {
+         get_gen_name( irv->getVcharText(), gen_name );
+         irv->setGenVarName( gen_name );
+       }
+       else
+       {
+         next_var_var_name ( gen_name );
+         if ( strcmp ( card, "MANY" ) != 0 )
+         {
+           declare_oir( gen_name, irv->getVcharText(), kl->getVcharText() );
+         }
+         else
+         {
+           declare_oirs( gen_name, irv->getVcharText(), kl->getVcharText() );
+         }
+         add_var_to_scope( irv->getVcharText(), kl->getVcharText(), gen_name );
+
+         irv->setGenVarName( gen_name );
+       }
+
+       script_var_name var_name;
+       next_stmt_var_name ( var_name );
+       *out_file << ".Invoke " << var_name
+                << " = stmt_select_related_by (\""
+                << card << "\", "
+                << irv->getGenVarName();
+       if ( is_var_declared_in_scope(irv->getVcharText()) )
+         *out_file << ", FALSE, ";
+       else
+         *out_file << ", TRUE, ";
+       *out_file << kl->getGenVarName() << ")" << endl;
+   
+       set_var_declared_in_scope(irv->getVcharText());
+       s->setGenVarName( var_name );
+       >>
+  ;
+
+select_where[char *card, SORAST *irv ]
+  :
+      <<
+         script_var_name where1;
+         script_var_name where2;
+         Special_Where *sw = 0;
+      >>
+      #( s:TOK_RELATED_WHERE
+         kl:instance_chain[card, TRUE]
+       )
+       tw:TOK_WHERE
+          << 
+          next_where_var_name ( where1 );
+          *out_file << ".Invoke " << where1
+                   << " = where_begin (\""
+                   << kl->getVcharText() << "\")" << endl;
+
+          SORAST *ex = tw->sibling();
+          sw = Special_Where::match ( 
+               G_Special_Where_table, kl->getVcharText(),ex );
+
+          if ( sw )
+          {
+            ex->setType(TOK_SPECIAL_WHERE);
+            special_where_invokes ( sw );
+          }         
+          >>
+     (
+       wc:expr
+       <<
+       next_where_var_name ( where2 );
+       *out_file << ".Invoke " << where2
+                << " = where_add_normal (" << where1 << ", "
+                << wc->getGenVarName() << ")" << endl;
+       >>
+     |
+       TOK_SPECIAL_WHERE
+       <<
+       next_where_var_name ( where2 );
+       script_var_name param_var_name;
+       get_previous_param(param_var_name);
+       *out_file << ".Invoke " << where2
+                 << " = where_add_special (" << where1 << ", \""
+                 << sw->key << "\", " 
+                 << param_var_name << ")" << endl;
+       >>
+
+     )
+       <<
+       script_var_name where3;
+       next_where_var_name ( where3 );
+       *out_file << ".Invoke " << where3
+                << " = where_end (" << where2 << ")" << endl;
+
+       script_var_name gen_name;
+       if ( is_var_in_scope(irv->getVcharText()) )
+       {
+         get_gen_name( irv->getVcharText(), gen_name );
+         irv->setGenVarName( gen_name );
+       }
+       else
+       {
+         next_var_var_name ( gen_name );
+         if ( strcmp ( card, "MANY" ) != 0 )
+         {
+           declare_oir( gen_name, irv->getVcharText(), kl->getVcharText() );
+         }
+         else
+         {
+           declare_oirs( gen_name, irv->getVcharText(), kl->getVcharText() );
+         }
+         add_var_to_scope( irv->getVcharText(), kl->getVcharText(), gen_name );
+
+         irv->setGenVarName( gen_name );
+       }
+
+       script_var_name var_name;
+       next_stmt_var_name ( var_name );
+       *out_file << ".Invoke " << var_name
+                << " = stmt_select_related_by_where (\""
+                << card << "\", "
+                << irv->getGenVarName();
+       if ( is_var_declared_in_scope(irv->getVcharText()) )
+         *out_file << ", FALSE, ";
+       else
+         *out_file << ", TRUE, ";
+       *out_file << kl->getGenVarName() << ", "
+                << where3 << ")" << endl;
+   
+       set_var_declared_in_scope(irv->getVcharText());
+       s->setGenVarName( var_name );
+       >>
+  ;
+
+select_from[char *card, SORAST *irv ]
+  :
+       << 
+         script_var_name where1;
+         Special_Where *sw = 0;
+       >>
+      #( s:TOK_FROM
+         kl:TOK_KL_OBJECT
+       )
+       {
+         tw:TOK_WHERE
+         << 
+         next_where_var_name ( where1 );
+         *out_file << ".Invoke " << where1
+                   << " = where_begin (\""
+                   << kl->getVcharText() << "\")" << endl;
+
+         SORAST *ex = tw->sibling();
+         sw = Special_Where::match ( 
+              G_Special_Where_table, kl->getVcharText(), ex );
+
+         if ( sw )
+         {
+           ex->setType(TOK_SPECIAL_WHERE);
+           special_where_invokes ( sw );
+         }         
+         >>
+         (
+           wc:expr
+         |
+           TOK_SPECIAL_WHERE
+         )
+       }
+       <<
+       script_var_name gen_name;
+       if ( is_var_in_scope(irv->getVcharText()) )
+       {
+         get_gen_name( irv->getVcharText(), gen_name );
+         irv->setGenVarName( gen_name );
+       }
+       else
+       {
+         next_var_var_name ( gen_name );
+         if ( strcmp ( card, "MANY" ) != 0 )
+         {
+           declare_oir( gen_name, irv->getVcharText(), kl->getVcharText() );
+         }
+         else
+         {
+           declare_oirs( gen_name, irv->getVcharText(), kl->getVcharText() );
+         }
+         add_var_to_scope( irv->getVcharText(), kl->getVcharText(), gen_name );
+
+         irv->setGenVarName( gen_name );
+       }
+
+       script_var_name var_name;
+       next_stmt_var_name ( var_name );
+       if ( wc == 0 && sw == 0 )
+       {
+         *out_file << ".Invoke " << var_name
+                  << " = stmt_select_from_instances_of (\""
+                  << card << "\", "
+                  << irv->getGenVarName();
+         if ( is_var_declared_in_scope(irv->getVcharText()) )
+           *out_file << ", FALSE, \"";
+         else
+           *out_file << ", TRUE, \"";
+         *out_file << kl->getVcharText() << "\")" << endl;
+       }
+       else
+       {
+         script_var_name where2;
+         next_where_var_name ( where2 );
+         if ( wc != 0 )
+         {
+           *out_file << ".Invoke " << where2
+                    << " = where_add_normal (" << where1 << ", "
+                    << wc->getGenVarName() << ")" << endl;
+         }
+         else
+         {
+           script_var_name param_var_name;
+           get_previous_param(param_var_name);
+           *out_file << ".Invoke " << where2
+                     << " = where_add_special (" << where1 << ", \""
+                     << sw->key << "\", " 
+                     << param_var_name << ")" << endl;
+         }
+
+         script_var_name where3;
+         next_where_var_name ( where3 );
+         *out_file << ".Invoke " << where3
+                  << " = where_end (" << where2 << ")" << endl;
+
+         *out_file << ".Invoke " << var_name
+                  << " = stmt_select_from_instances_of_where (\""
+                  << card << "\", "
+                  << irv->getGenVarName();
+         if ( is_var_declared_in_scope(irv->getVcharText()) )
+           *out_file << ", FALSE, \"";
+         else
+           *out_file << ", TRUE, \"";
+         *out_file << kl->getVcharText() << "\", "
+                  << where3 << ")" << endl;
+       }
+       set_var_declared_in_scope(irv->getVcharText());
+       s->setGenVarName( var_name );
+       >>
+  ;
+
+expr
+  :
+  #( e:TOK_EXPRESSION
+     se:sub_expr
+   )
+    <<
+    e->setGenVarName( se->getGenVarName() );
+    >>
+  ;
+
+sub_expr
+  :
+    term
+  | op_and
+  | op_or
+  | op_relational
+  | op_addition
+  | op_boolean_negation
+  | op_multiplication
+  ;
+
+op_and
+  :
+  #( a:TOK_AND
+     s1:sub_expr
+     s2:sub_expr
+   )
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_binary_op ("
+             << s1->getGenVarName() << ", \"AND\", "
+             << s2->getGenVarName() << ")" << endl;
+    a->setGenVarName( var_name );
+    >>
+  ;
+
+op_or
+  :
+  #( o:TOK_OR
+     s1:sub_expr
+     s2:sub_expr
+   )
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_binary_op ("
+             << s1->getGenVarName() << ", \"OR\", "
+             << s2->getGenVarName() << ")" << endl;
+    o->setGenVarName( var_name );
+    >>
+  ;
+
+op_relational
+  :
+    #( a:TOK_DOUBLEEQUAL
+       s1:sub_expr
+       s2:sub_expr
+     )
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_binary_op ("
+             << s1->getGenVarName() << ", \"==\", "
+             << s2->getGenVarName() << ")" << endl;
+    a->setGenVarName( var_name );
+    >>
+  | #( a:TOK_NOTEQUAL
+       s1:sub_expr
+       s2:sub_expr
+     )
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_binary_op ("
+             << s1->getGenVarName() << ", \"!=\", "
+             << s2->getGenVarName() << ")" << endl;
+    a->setGenVarName( var_name );
+    >>
+  | #( a:TOK_LESSTHAN
+       s1:sub_expr
+       s2:sub_expr
+     )
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_binary_op ("
+             << s1->getGenVarName() << ", \"<\", "
+             << s2->getGenVarName() << ")" << endl;
+    a->setGenVarName( var_name );
+    >>
+  | #( a:TOK_LE
+       s1:sub_expr
+       s2:sub_expr
+     )
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_binary_op ("
+             << s1->getGenVarName() << ", \"<=\", "
+             << s2->getGenVarName() << ")" << endl;
+    a->setGenVarName( var_name );
+    >>
+  | #( a:TOK_GT
+       s1:sub_expr
+       s2:sub_expr
+     )
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_binary_op ("
+             << s1->getGenVarName() << ", \">\", "
+             << s2->getGenVarName() << ")" << endl;
+    a->setGenVarName( var_name );
+    >>
+  | #( a:TOK_GE
+       s1:sub_expr
+       s2:sub_expr
+     )
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_binary_op ("
+             << s1->getGenVarName() << ", \">=\", "
+             << s2->getGenVarName() << ")" << endl;
+    a->setGenVarName( var_name );
+    >>
+  ;
+
+op_addition
+  :
+    #( p:TOK_PLUS
+       s1:sub_expr
+       s2:sub_expr
+     )
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_binary_op ("
+             << s1->getGenVarName() << ", \"+\", "
+             << s2->getGenVarName() << ")" << endl;
+    p->setGenVarName( var_name );
+    >>
+  | #( m:TOK_MINUS
+       s1:sub_expr
+       s2:sub_expr
+     )
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_binary_op ("
+             << s1->getGenVarName() << ", \"-\", "
+             << s2->getGenVarName() << ")" << endl;
+    m->setGenVarName( var_name );
+    >>
+  ;
+
+op_boolean_negation
+  :
+  #( a:TOK_NOT
+     s1: sub_expr
+   )
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_unary_op (\"NOT\", "
+             << s1->getGenVarName() << ")" << endl;
+    a->setGenVarName( var_name );
+    >>
+  ;
+
+op_multiplication
+  :
+    #( a:TOK_TIMES
+       s1:sub_expr
+       s2:sub_expr
+     )
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_binary_op ("
+             << s1->getGenVarName() << ", \"*\", "
+             << s2->getGenVarName() << ")" << endl;
+    a->setGenVarName( var_name );
+    >>
+  | #( a:TOK_DIV
+       s1:sub_expr
+       s2:sub_expr
+     )
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_binary_op ("
+             << s1->getGenVarName() << ", \"/\", "
+             << s2->getGenVarName() << ")" << endl;
+    a->setGenVarName( var_name );
+    >>
+  | #( a:TOK_MOD
+       s1:sub_expr
+       s2:sub_expr
+     )
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_binary_op ("
+             << s1->getGenVarName() << ", \"%\", "
+             << s2->getGenVarName() << ")" << endl;
+    a->setGenVarName( var_name );
+    >>
+  ;
+
+term
+  :
+    #( a:TOK_UNARY_PLUS
+       s1:term
+     )
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_unary_op (\"+\", "
+             << s1->getGenVarName() << ")" << endl;
+    a->setGenVarName( var_name );
+    >>
+  | #( a:TOK_UNARY_MINUS
+       s1:term
+     )
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_unary_op (\"-\", "
+             << s1->getGenVarName() << ")" << endl;
+    a->setGenVarName( var_name );
+    >>
+  | #( a:TOK_PAREN_EXPR
+       s1:expr
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_add_parens ("
+             << s1->getGenVarName() << ")" << endl;
+    a->setGenVarName( var_name );
+    >>
+     )
+  | #( a:TOK_CARDINALITY
+       s1:TOK_LOCAL_VAR
+     )
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    script_var_name gen_name;
+    get_gen_name( s1->getVcharText(), gen_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_unary_op (\"CARDINALITY\", "
+             << gen_name << ")" << endl;
+    a->setGenVarName( var_name );
+    >>
+  | #( a:TOK_EMPTY
+       s1:TOK_LOCAL_VAR
+     )
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    script_var_name gen_name;
+    get_gen_name( s1->getVcharText(), gen_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_unary_op (\"EMPTY\", "
+             << gen_name << ")" << endl;
+    a->setGenVarName( var_name );
+    >>
+  | #( a:TOK_NOTEMPTY
+       s1:TOK_LOCAL_VAR
+     )
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    script_var_name gen_name;
+    get_gen_name( s1->getVcharText(), gen_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_unary_op (\"NOT_EMPTY\", "
+             << gen_name << ")" << endl;
+    a->setGenVarName( var_name );
+    >>
+  | rval
+  ;
+
+rval
+  :
+    event_data_access
+  | param_data_access[ TRUE ]
+  | aa:attribute_access
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    if ( is_selected (aa->getGenVarName()) )
+    {
+      *out_file << ".Invoke " << var_name
+               << " = rval_read_selected_attr (" << aa->getGenVarName() << ", \""
+               << aa->child()->getVcharText() << "\")" << endl;
+    }
+    else
+    {
+      *out_file << ".Invoke " << var_name
+               << " = rval_read_obj_attr (" << aa->getGenVarName() << ", \""
+               << aa->child()->getVcharText() << "\")" << endl;
+    }
+    aa->setGenVarName( var_name );
+    >>
+  | 
+    <<
+    vchar *kl;
+    vchar *method;
+    >>
+    be:bridge_expr[&kl, &method]
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_bridge (\""
+             << kl << "\", \""
+             << method << "\", "
+             << be->getGenVarName() << ")" << endl;
+    be->setGenVarName( var_name );
+    >>
+  | 
+    <<
+    vchar *kl;
+    vchar *method;
+	bool instance_based;
+    script_var_name irv_gen_name;   // i2946.2.3 changed
+    >>
+    te:transformer_expr[&kl, &method, &instance_based, irv_gen_name]  // i2946.2.3 changed
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+	if ( instance_based )
+	{
+      *out_file << ".Invoke " << var_name
+               << " = rval_transform_instance ("
+               << irv_gen_name << ", \""
+               << method << "\", "
+               << te->getGenVarName() << ")" << endl;
+	}
+	else
+	{
+      *out_file << ".Invoke " << var_name
+               << " = rval_transform (\""
+               << kl << "\", \""
+               << method << "\", "
+               << te->getGenVarName() << ")" << endl;
+    }
+    te->setGenVarName( var_name );
+    >>
+  | 
+    <<
+    vchar *method;
+    >>
+    sse:synch_svc_expr[&method]
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_synch_service (\""
+             << method << "\", "
+             << sse->getGenVarName() << ")" << endl;
+    sse->setGenVarName( var_name );
+    >>
+  | constant_value
+  | enumerator_literal
+  | v:TOK_LOCAL_VAR
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    script_var_name gen_name;
+    get_gen_name( v->getVcharText(), gen_name );
+    if ( v->getDatatype() == OBJECT_INST_REF_DATATYPE )
+    {
+      C_last_resort_key_letters = get_key_letters( v->getVcharText() );
+    }
+    if ( v->getDatatype() == OBJECT_INST_REF_SET_DATATYPE )
+    {
+      C_last_resort_key_letters = get_key_letters( v->getVcharText() );
+    }
+    *out_file << ".Invoke " << var_name
+             << " = rval_read_transient_var (" << gen_name
+             << ")" << endl;
+    v->setGenVarName( var_name );
+    >>
+  ;
+
+constant_value
+  :
+    f:TOK_FRACTION
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_literal_real (\"" << f->getVcharText()
+             << "\")" << endl;
+    f->setGenVarName( var_name );
+    >>
+  | n:TOK_NUMBER
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_literal_integer (\"" << n->getVcharText()
+             << "\")" << endl;
+    n->setGenVarName( var_name );
+    >>
+  | s:TOK_STRING
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_literal_string (\"" << s->getVcharText()
+             << "\")" << endl;
+    s->setGenVarName( var_name );
+    >>
+  | t:TOK_TRUETOKEN
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_literal_boolean (\"TRUE\")" << endl;
+    t->setGenVarName( var_name );
+    >>
+  | f:TOK_FALSETOKEN
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_literal_boolean (\"FALSE\")" << endl;
+    f->setGenVarName( var_name );
+    >>
+  ;
+
+enumerator_literal
+  :
+    edt: TOK_ENUMERATION
+	enum_value: TOK_ENUMERATOR
+	<<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_literal_enum (\"" << edt->getVcharText()
+             << "\", \"" << enum_value->getVcharText()
+             << "\")" << endl;
+    edt->setGenVarName( var_name );
+	>>
+  ;
+
+attribute_access
+   :
+    #( irv:TOK_INST_REF_VAR
+       a:TOK_OBJ_ATTR
+     )
+    <<
+      vchar selected_str1[9];
+      vchar selected_str2[9];
+      vchar selected_str3[9];
+      vcharCopyFromLiteral( "selected", selected_str1 );
+      vcharCopyFromLiteral( "Selected", selected_str2 );
+      vcharCopyFromLiteral( "SELECTED", selected_str3 );
+      if ( vcharCompare( irv->getVcharText(), selected_str1 ) == 0)
+      {
+        script_var_name var_name;
+        get_previous_where ( var_name );
+        irv->setGenVarName( var_name );
+      }
+      else if ( vcharCompare( irv->getVcharText(), selected_str2 ) == 0)
+      {
+        script_var_name var_name;
+        get_previous_where ( var_name );
+        irv->setGenVarName( var_name );
+      }
+      else if ( vcharCompare( irv->getVcharText(), selected_str3 ) == 0)
+      {
+        script_var_name var_name;
+        get_previous_where ( var_name );
+        irv->setGenVarName( var_name );
+      }
+      else
+      {
+        script_var_name gen_name;
+        get_gen_name( irv->getVcharText(), gen_name );
+        irv->setGenVarName( gen_name );
+      }
+    >>
+  ;
+
+event_data_access
+  :
+    re:TOK_RCVD_EVT
+    di:TOK_SUPP_DATA_NAME
+    <<
+    script_var_name var_name;
+    next_rval_var_name ( var_name );
+    *out_file << ".Invoke " << var_name
+             << " = rval_read_rcvd_evt_di (" << C_actn_var_name << ", \""
+             << di->getVcharText() << "\")" << endl;
+    re->setGenVarName( var_name );
+    >>
+  ;
+
+param_data_access[ t_boolean is_rval ]
+  :
+    #( p:TOK_BRIDGE_PARAM
+	   di:TOK_DATA_ITEM_NAME
+	)
+    <<
+        if ( is_rval )
+        {
+		    script_var_name var_name;
+		    next_rval_var_name ( var_name );
+            *out_file << ".Invoke " << var_name
+	                  << " = rval_read_bridge_param (" << C_actn_var_name << ", \""
+				      << di->getVcharText() << "\")" << endl;
+		    p->setGenVarName( var_name );
+        }
+    >>
+	|
+    #( p:TOK_TRANSFORMER_PARAM
+       di:TOK_DATA_ITEM_NAME
+	)
+    <<
+        if ( is_rval )
+        {
+	    	script_var_name var_name;
+    		next_rval_var_name ( var_name );
+            *out_file << ".Invoke " << var_name
+		              << " = rval_read_transform_param (" << C_actn_var_name << ", \""
+			    	  << di->getVcharText() << "\")" << endl;
+    		p->setGenVarName( var_name );
+        }
+    >>
+	|
+    #( p:TOK_SYNCH_SVC_PARAM
+       di:TOK_DATA_ITEM_NAME
+	)
+    <<
+        if ( is_rval )
+        {
+		    script_var_name var_name;
+		    next_rval_var_name ( var_name );
+            *out_file << ".Invoke " << var_name
+		              << " = rval_read_synch_service_param (" << C_actn_var_name << ", \""
+				      << di->getVcharText() << "\")" << endl;
+		    p->setGenVarName( var_name );
+        }
+    >>
+
+  ;
+
+transformer_expr[ vchar **key_lett, vchar **method, bool *instance_based, script_var_name irv_gen_name ]  // i2946.2.1 changed
+  :
+    <<
+    script_var_name var_name1;
+    script_var_name var_name2;
+    >>
+	(
+    #( 
+	   s:TOK_TRANSFORMER_EXPR
+       kl:TOK_KL_OBJECT
+       meth:TOK_FUNCTION_NAME
+       <<
+       *key_lett = (vchar*) kl->getVcharText();
+       *method = (vchar *) meth->getVcharText();
+	   *instance_based = FALSE;
+
+       next_param_var_name ( var_name1 );
+       *out_file << ".Invoke " << var_name1
+                << " = param_begin_transform (\"" << kl->getVcharText() << "\", \""
+                << meth->getVcharText() << "\")" << endl ;
+       >>
+       (
+         #( di:TOK_DATA_ITEM_NAME
+            e:expr
+          )
+       <<
+       next_param_var_name ( var_name2 );
+       *out_file << ".Invoke " << var_name2
+                << " = param_add (" << var_name1 << ", \""
+                << di->getVcharText() << "\", "
+                << e->getGenVarName() << ")" << endl ;
+       strcpy ( var_name1, var_name2 );
+       >>
+       )*
+     )	   
+    |
+    #(
+	   s:TOK_TRANSFORMER_IB_EXPR
+       irv:TOK_INST_REF_VAR
+       meth:TOK_FUNCTION_NAME
+       <<
+       *method = (vchar *) meth->getVcharText();
+	   *instance_based = TRUE;
+       // i2946.1 deleted
+       get_gen_name( irv->getVcharText(), irv_gen_name );  // i2946.2.2 changed
+       // i2946.1 deleted
+
+       next_param_var_name ( var_name1 );
+       *out_file << ".Invoke " << var_name1
+                << " = param_begin_ib_transform (" << irv_gen_name << ", \""  // i2946.1 changed
+                << meth->getVcharText() << "\")" << endl ;
+       >>
+       (
+         #( di:TOK_DATA_ITEM_NAME
+            e:expr
+          )
+       <<
+       next_param_var_name ( var_name2 );
+       *out_file << ".Invoke " << var_name2
+                << " = param_add (" << var_name1 << ", \""
+                << di->getVcharText() << "\", "
+                << e->getGenVarName() << ")" << endl ;
+       strcpy ( var_name1, var_name2 );
+       >>
+       )*
+     )
+    )
+
+    <<
+    next_param_var_name ( var_name2 );
+    *out_file << ".Invoke " << var_name2
+             << " = param_end (" << var_name1
+             << ")" << endl ;
+    s->setGenVarName( var_name2 );
+    >>
+  ;
+
+
+bridge_expr[ vchar **key_lett, vchar **method ]
+  :
+    <<
+    script_var_name var_name1;
+    script_var_name var_name2;
+    >>
+    #( s:TOK_BRIDGE_EXPR
+       kl:TOK_KL_EXTERNAL_ENTITY
+       meth:TOK_FUNCTION_NAME
+       <<
+       *key_lett = (vchar *) kl->getVcharText();
+       *method = (vchar *) meth->getVcharText();
+
+       next_param_var_name ( var_name1 );
+       *out_file << ".Invoke " << var_name1
+                << " = param_begin_bridge (\"" << kl->getVcharText() << "\", \""
+                << meth->getVcharText() << "\")" << endl ;
+       >>
+       (
+         #( di:TOK_DATA_ITEM_NAME
+            e:expr
+          )
+       <<
+       next_param_var_name ( var_name2 );
+       *out_file << ".Invoke " << var_name2
+                << " = param_add (" << var_name1 << ", \""
+                << di->getVcharText() << "\", "
+                << e->getGenVarName() << ")" << endl ;
+       strcpy ( var_name1, var_name2 );
+       >>
+       )*
+     )
+    <<
+    next_param_var_name ( var_name2 );
+    *out_file << ".Invoke " << var_name2
+             << " = param_end (" << var_name1
+             << ")" << endl ;
+    s->setGenVarName( var_name2 );
+    >>
+  ;
+
+
+synch_svc_expr[ vchar **method ]
+  :
+    <<
+    script_var_name var_name1;
+    script_var_name var_name2;
+    >>
+    #( s:TOK_SYNCH_SVC_EXPR
+       meth:TOK_FUNCTION_NAME
+       <<
+       *method = (vchar *) meth->getVcharText();
+
+       next_param_var_name ( var_name1 );
+       *out_file << ".Invoke " << var_name1
+                << " = param_begin_synch_service (\"" 
+                << meth->getVcharText() << "\")" << endl ;
+       >>
+       (
+         #( di:TOK_DATA_ITEM_NAME
+            e:expr
+          )
+       <<
+       next_param_var_name ( var_name2 );
+       *out_file << ".Invoke " << var_name2
+                << " = param_add (" << var_name1 << ", \""
+                << di->getVcharText() << "\", "
+                << e->getGenVarName() << ")" << endl ;
+       strcpy ( var_name1, var_name2 );
+       >>
+       )*
+    )
+    <<
+    next_param_var_name ( var_name2 );
+    *out_file << ".Invoke " << var_name2
+             << " = param_end (" << var_name1
+             << ")" << endl ;
+    s->setGenVarName( var_name2 );
+    >>
+  ;
+
+}

@@ -1,0 +1,343 @@
+<HTML>
+<HEAD>
+<TITLE>Exception</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Exception</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Event.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Field.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The <EM><B>Exception Manager </B></EM>provides methods for cleanly handling exceptional conditions in a complex routine or set of nested routines and can be used to assure orderly cleanup. This service is based on two central concepts: the exception and the handler.<P>
+An <EM><B>exception</B></EM> is a condition that could lead to an interruption in the normal flow of control. Such conditions include stack overflows, writing to a non-open or non-existent file, dividing by zero, and so on. When an exception is encountered, the <TT><B>vexGenerate</B></TT> function should be called with arguments describing the condition. Control flow is then transferred to the last installed handler.<P>
+<EM><B>Handlers</B></EM> are sections of code written to deal with exceptions; they are maintained in a stack that is synchronized with the call stack. There may be more than one handler per procedure call, or there may be no handlers at all.<P>
+The statement after the <TT><B>vexGenerate</B></TT> function call is never executed. Instead, call stack frames are unrolled to the point where the last handler is installed and control flow enters that handler. The handler may handle the exception and then be finished, or it may handle it and then propagate it further for more handling.<P>
+This sequence of events constitutes the <EM><B>exception chain</B></EM>, the ordered list of exceptions generated from the initial interruption. If, after exhausting the handler stack, the Exception Manager finds no handler to completely handle the exception, it is dumped to the Debug Manager's warning stream, and the process is terminated by <TT>abort</TT> if compiled for debugging and by <TT>exit</TT> if not (refer to the Debugging Manager for further details).<P>
+Any single exception in a chain is of a given type. The types are defined in an <EM><B>inheritance tree</B></EM>, which shows the hierarchical relationship among the exceptions. The level immediately above a given exception's level in the hierarchy indicates the <EM><B>parent type</B></EM> for that exception type. For example, in <A HREF="Exception.html#4961">Figure 33</A>, <TT>/Arg</TT> is the parent type for both <TT>/Arg/Range</TT> and <TT>/Arg/Null</TT>.<P>
+<A NAME="4961"><I>Figure 33.  Inheritance tree
+</I><P>
+<IMG SRC="Exception.anc.gif"><P>
+<A NAME="4007"><H2> Exceptions</H2></A>
+The exceptions listed here are the generic exceptions defined in the Galaxy Application Environment and dealt with in this document. Exceptions specific to a particular manager are defined in the documentation for that manager and can be referenced there.<P>
+<UL><TT>/Abandon	</TT>An <TT>/Abandon</TT> exception is used whenever you want to 
+abandon the current, normal flow of control for any 
+reason. It is a catch-all exception type that can be used 
+with very little effort.
+<P><TT>/App	</TT>An <TT>/App</TT> exception is an application-specific exception. 
+This type is generally used with a subclass so that 
+exceptions are both generated and handled by the 
+application itself.
+<P><TT>/Arg	</TT>An <TT>/Arg</TT> exception is used when an exceptional or 
+improper argument is caught on entry to a function.
+<P><TT>/Arg/Null	</TT>An <TT>/Arg/Null</TT> exception is a more specific version of the 
+<TT>/Arg</TT> exception. It is used when an argument's value is 
+NULL but should not be.
+<P><TT>/Arg/Range	</TT>An <TT>/Arg/Range</TT> exception is a more specific version of the 
+<TT>/Arg</TT> exception. It is used when an argument's value is 
+outside of the allowable range.
+<P><TT>/Math	</TT>A <TT>/Math</TT> exception is used for any exceptions involving 
+either built-in or library-based mathematical operations.
+<P><TT>/Math/DivByZero	</TT>A <TT>/Math/DivByZero</TT> exception is a more specific version 
+of the <TT>/Math</TT> exception. It is used whenever there is an 
+attempt to divide by zero.
+<P><TT>/Math/Domain	</TT>A <TT>/Math/Domain</TT> exception is a more specific version of 
+the <TT>/Math</TT> exception. It is used whenever the 
+mathematical input is outside the legal input range.
+<P><TT>/Math/Range	</TT>A <TT>/Math/Range</TT> exception is a more specific version of the 
+<TT>/Math</TT> exception. It is used whenever the mathematical 
+result is outside the legal result range.
+<P><TT>/Module	</TT>A <TT>/Module</TT> exception is used for exceptions specific to a 
+particular module.
+<P><TT>/Module/Limit	</TT>A <TT>/Module/Limit</TT> exception is a more specific version of 
+the <TT>/Module</TT> exception. It is used when a limit on a 
+module-specific resource is exceeded.
+<P><TT>/Module/Startup	</TT>A <TT>/Module/Startup</TT> exception is a more specific version 
+of the <TT>/Module</TT> exception. It is used whenever the module 
+does not start up correctly. This is an internal error.
+<P><TT>/Module/State	</TT>A <TT>/Module/State</TT> exception is a more specific version of 
+the <TT>/Module</TT> exception. It is used whenever the module 
+gets into an internal state from which it cannot recover.
+<P><TT>/Module/Unimplemented	</TT>A <TT>/Module/Unimplemented</TT> exception is a more specific 
+version of the <TT>/Module</TT> exception. It is used whenever the 
+module has not been implemented.
+<P><TT>/Return	</TT>A <TT>/Return</TT> exception is used whenever there is an 
+exception involving the return value from a system call.
+<P><TT>/Return/Null	</TT>A <TT>/Return/Null</TT> exception is a more specific version of 
+the <TT>/Return</TT> exception. It is used whenever the return 
+value from a system call is <TT>NULL</TT> but should not be.
+<P><TT>/Return/Range	</TT>A <TT>/Return/Range</TT> exception is a more specific version of 
+the <TT>/Return</TT> exception. It is used whenever the return 
+value from a system call is out of range.
+<P><TT>/Value	</TT>A <TT>/Value</TT> exception is used whenever there is an 
+exception in a value returned during an intermediate 
+computation.
+<P><TT>/Value/Null	</TT>A <TT>/Value/Null</TT> exception is a more specific version of the 
+<TT>/Value</TT> exception. It is used whenever the value returned 
+during an intermediate computation is NULL but should 
+not be.
+<P><TT>/Value/Range	</TT>A <TT>/Value/Range</TT> exception is a more specific version of 
+the <TT>/Value</TT> exception and is used whenever the value 
+returned during an intermediate computation is out of 
+range.
+<P></UL><A NAME="4219"><H1> Explanation of Constants</H1></A>
+The constants listed here are tags to build key:value pair lists used in calls to <TT><B>vexGenerate</B></TT> or <TT><B>vexPropagate</B></TT>.<P>
+<UL><TT>const vexTag vexArgPOSITION;<br>
+</TT>Indicates that the next argument is an int representing the 
+position in the arg list of the argument that caused the 
+exception.
+<P><TT>const vexTag vexERRNO;<br>
+</TT>Indicates that the next argument is an int representing the 
+value of errno when the exception was generated or 
+propagated.
+<P><TT>const vexTag vexFILE;<br>
+</TT>Indicates that the next argument is a string containing the 
+name of the file where the exception was generated or 
+propagated.
+<P><TT>const vexTag vexLINE;<br>
+</TT>Indicates that the next argument is an int representing the 
+line number where the exception was generated or 
+propagated. This can be used to override the default value 
+of <TT>_LINE_</TT>, which is a C preprocessor defined by ANSI.
+<P><TT>const vexTag vexMESSAGE;<br>
+</TT>Indicates that the next argument is a string containing a 
+message describing the cause of the exception. This string 
+is intended to be read by users.
+<P><TT>const vexTag vexModuleNAME;<br>
+</TT>Indicates that the next argument is a string naming the 
+module that the exception occurred in.
+<P><TT>const vexTag vexPROC_NAME;<br>
+</TT>Indicates that the next argument is a string containing the 
+name of the procedure where the exception was generated 
+or propagated.
+<P></UL><A NAME="3358"><H2>  Key Functionality</H2></A>
+There are three major aspects to the Exception Manager: generating exceptions, handling exceptions, and extending the exception type hierarchy. Normally, you have to deal with only the first two.<P>
+<A NAME="4061"><H2> Generating Exceptions</H2></A>
+<A NAME="4062"><I>Example 62.  Generating exceptions
+</I><P>
+<PRE><UL>void exampleMakeWeirdNoises( int number )
+{
+   if (number &lt; 0) {
+      vexGenerate( vexGetArgClass(), vexMESSAGE,
+                  "negative number of noises requested",
+                  vexNULL );
+   }
+   /* ... rest of procedure ... */
+}
+
+</UL></PRE>When an exceptional condition is detected (number &lt; 0) an exception can be generated by calling <TT><B>vexGenerate</B></TT>. This constructs an exception chain with one exception in it and passes that chain up to the most recently registered handler it can find. If there is a statement after the <TT><B>vexGenerate</B></TT> call, it is never reached, because <TT><B>vexGenerate</B></TT> aborts the normal flow of control and pops C stack frames until it finds a handler. Each exception in the chain must be of a particular class, as defined in the inheritance tree. Here, an <TT>/Arg</TT> (obtained using the <TT><B>vexGetArgClass</B></TT> function) exception is being generated with a message telling us what went wrong. <TT><B>vexGenerate</B></TT> is a call with a variable number of arguments, so a <TT>vexNULL</TT> is required to end the argument list.<P>
+<A NAME="4077"><H2> Handling Exceptions</H2></A>
+<A NAME="4078"><I>Example 63.  Handling exceptions
+</I><P>
+<PRE><UL>vthing *vthingCreate( void )
+{
+   vthing *thing = NULL;
+//   vthing   * volatile thing = vexNULL;
+
+   vexWITH_HANDLING {
+      /* ... preceding code goes here ... */
+      thing = (vthing *) vmemAlloc( sizeof(vthing) );
+      exampleMakeWeirdNoises( -2 );
+
+      /* ... additional code goes here ... */
+
+   } vexON_EXCEPTION {
+      if (thing != NULL)
+        vmemFree( thing );
+      vexPropagate( vexGetRootClass(), vexMESSAGE,
+                   "Create thing failed due to exception",
+                   vexNULL );
+   } vexEND_HANDLING;
+   return thing;
+}
+
+</UL></PRE>A <TT>vexWITH_HANDLING</TT> construct normally executes the code between the vexWITH_HANDLING and the <TT>vexON_EXCEPTION</TT>. If there is an exception within this scope or within any functions called within this scope, control flow is passed to the handler section between the vexON_EXCEPTION and the <TT>vexEND_HANDLING</TT>. In this example, it is important to make sure that no memory is leaked. A memory leak would occur if an exception was generated inside the <TT>exampleMakeWeirdNoises</TT> function call or in the code following it. A generated exception is handled inside <TT>vthingCreate</TT> by inserting a handler onto the handler stack using the <TT>vexWITH_HANDLING</TT> construct. The handler section begins with <TT>vexON_EXCEPTION</TT> and is concluded with <TT>vexEND_HANDLING</TT>. Inside the handler section a check is made to see if thing has been assigned dynamic memory and if so, the memory is freed. <TT><B>vexPropagate</B></TT> prepends a new exception (of the root class, "/") onto the chain to indicate the intermediate handling just performed and then passes the chain upwards to the next registered handler.<P>
+<UL><B><I>NOTE:</I></B> thing has to be volatile because registers are reset by an exception, and it is 
+important to make sure that the value of thing is preserved through the 
+exception.
+<P>
+</UL><A NAME="4104"><I>Example 64.  Guaranteed cleanup via exception handling
+</I><P>
+<PRE><UL>void exampleTalkToSomeone(vbyte *data, size_t dataSize)
+{
+   vcommChannel   * volatile conn = NULL;
+
+   vexUNWIND_PROTECT {
+      conn = vcommCreate();
+      vcommOpen( conn );
+      vcommWrite( conn, data, dataSize );
+      /* ...code that might generate exceptions... */
+   } vexON_UNWIND {
+      if (conn != NULL) {
+         vcommClose( conn );
+      }
+   } vexEND_UNWIND
+}
+
+</UL></PRE>Cleanup can be guaranteed when using exceptions by employing a <TT>vexUNWIND_PROTECT</TT> construct that first executes the code between the <TT>vexUNWIND_PROTECT</TT> and the <TT>vexON_UNWIND</TT> and then executes the code between the <TT>vexON_UNWIND</TT> and the <TT>vexEND_UNWIND</TT>. If an exception occurs in the first scope (<TT>vexUNWIND_PROTECT</TT>), flow of control branches to the beginning of the second scope (<TT>vexON_UNWIND</TT>), similar to a <TT>vexWITH_HANDLING</TT> construct. The only difference between the two is that the second scope on a <TT>vexUNWIND_PROTECT</TT> is executed whether or not an exception occurs inside the first scope.<P>
+<UL><B><I>NOTE:</I></B> Never perform a <TT>return</TT>, <TT>break</TT>, <TT>goto</TT>, or <TT>continue</TT> that would jump from 
+either internal scope to the other internal scope or the enclosing scope.
+<P>
+</UL><A NAME="4143"><I>Example 65.  Handling exceptions by type
+</I><P>
+<PRE><UL>void putIcingOnCake( vcake *cake )
+{
+   vexWITH_HANDLING {
+      // attempt something that may fail due to lack of resources
+   } vexON_EXCEPTION {
+      // If the exception was not due to lack of resources,
+      // then we do not know what caused it and we cannot handle
+      // it, so we pass the buck.
+      if (!vexGetModuleLimitException())
+        vexPropagate(vexGetRootClass(),
+                     vexNULL);
+      // else the exception was non-critical so we
+      // continue
+   } vexEND_HANDLING;
+   // ... more code ...
+}
+
+</UL></PRE>Here the <TT><B>vexGetModuleLimitException</B></TT> call was used to search the current exception chain for a /Module/Limit exception. Note that if one is found, flow of control will continue normally after the vexEND_HANDLING.<P>
+<A NAME="4250"><H1> Implementation</H1></A>
+For those who are interested in the exception handling technology, a brief outline of how it is implemented is given next. It is not necessary to read this section in order to use the Exception Manager.<P>
+<UL><TT>#define vexWITH_HANDLING<br>
+</TT>Defines a local exception handler, pushes it on to the 
+handler stack, and saves the program state using the 
+<TT>setjmp</TT> ANSI library call.
+<P><TT>#define vexON_EXCEPTION<br>
+</TT>Pops the local exception handler off the handler stack if no 
+exception occurred and skip the exception handling code, 
+else the exception handling code is executed.
+<P><TT>#define vexEND_HANDLING<br>
+</TT>Closes the internal scope(s) created by 
+<TT>vexWITH_HANDLING</TT> and <TT>vexON_EXCEPTION</TT>.
+<P><TT>#define vexUNWIND_PROTECT<br>
+</TT>The same as <TT>vexWITH_HANDLING</TT>.
+<P><TT>#define vexON_UNWIND<br>
+</TT>Pops the local exception handler off the handler stack and 
+then execute the code following it.
+<P><TT>#define vexEND_UNWIND<br>
+</TT>The same as <TT>vexEND_HANDLING</TT>.
+<P></UL><A NAME="4166"><H2> Extending the Exception Class Hierarchy</H2></A>
+To extend the exception class hierarchy beyond what is already defined (refer to <A HREF="Exception.html#4007">"Exceptions"</A>), you must do several things. You need to create a type for this exception and build a class entry for this type of exception. You then have to export basic primitives for getting the value of any field needed to handle this new exception.<P>
+For example, suppose module vfoo is going to add a <TT>/Foo</TT> exception type that also has an extra field named bar. <A HREF="Exception.html#4176">Example 66</A> shows what the code to implement this extension to the exception class hierarchy might look like.<P>
+<A NAME="4176"><I>Example 66.  Extending the exception class hierarchy
+</I><P>
+<PRE><UL>typedef struct
+{
+   vexException parent;
+   int bar;
+} vfooException;
+
+vfooException *vfooGetException( void );
+int            vfooGetExceptionBar( vfooException * );
+vexClass      *vfooGetExceptionClass( void );
+void           vfooBAR( void *exception, va_list *ap );
+
+extern const vexClass _vfooExceptionClass;
+
+#define vfooGetException() 
+((vfooException *)vexGetExceptionOfClass(&amp;_vfooExceptionClass ))
+#define vfooGetExceptionBar( foo ) ((foo)-&gt;bar)
+#define vfooGetExceptionClass() (&amp;_vfooExceptionClass)
+
+// Source Code
+void vfooBAR( void *exception, va_list *ap )
+{
+   ((vfooException *)exception)-&gt;bar = va_arg( *ap, int );
+}
+
+static void _vfooDumpException( void *exception, FILE *fp )
+{
+   fprintf(fp,
+           "        bar: %d",
+           ((vfooException *)exception)-&gt;bar );
+}
+
+const vexClass _vfooExceptionClass =
+   vexConstructClassLiteral(vexGetRootClass(),
+                            "Foo",
+                            vfooException,
+                            _vfooDumpException );
+
+</UL></PRE>A fine point worth noting here is that the first field of every exception type must be the parent exception, not a pointer to the parent exception. This way you can cast an exception type into its parent type.<P>
+The first step in defining a new exception type is to define a struct to hold an instance of this exception, vfooException here. vfooGetException is defined to allow the client to find a vfooException in the current exception chain (if any). vfooGetExceptionBar is defined to allow access to the bar field of a vfooException. vfooGetExceptionClass will return a pointer to the class structure for a vfooException. vfooBAR is a procedure designed to eat one argument from a varargs list and put it into a <TT>vfooException</TT>. <TT>vfooBAR</TT> is used as an extern const vexTag argument to <TT><B>vexGenerate</B></TT> when a /Foo exception is generated, for example, <TT><B>vexGenerate</B></TT><TT>(vexGetFooClass(), vfooBAR, 32, vexNULL)</TT> will cause the generated exception to be type <TT>/Foo</TT> with the bar attribute set to 32.<P>
+In the source code, the <TT><B>vexConstructClassLiteral</B></TT> is the heart of the extension. This function is passed the class being subclassed from, the name of the new subclass, the type of an instance of the new subclass, and a dump procedure that prints out any new fields of this subclass.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Event.html">Previous Chapter</A> | 
+		<A HREF="Field.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

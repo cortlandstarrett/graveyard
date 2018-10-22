@@ -1,0 +1,146 @@
+#!/bin/ksh
+#==========================================================================
+#
+# File:      $RCSfile: compile,v $
+# Version:   $Revision: 1.10 $
+# Modified:  $Date: 2013/01/10 23:42:20 $
+#
+# (c) Copyright 1992-2013 by Mentor Graphics Corp. All rights reserved.
+#
+#==========================================================================
+# This document contains information proprietary and confidential to
+# Mentor Graphics Corp., and is not for external distribution.
+#==========================================================================
+#
+# Description:
+#
+# Compiles for the release and version.  Uses comp_project
+#
+# $1 - release version
+# $2 - Solaris MIV
+# $3 - Windows MIV
+#
+# The script determines which host it is running on and performs 
+# compiles for the correct MIV.
+#=======================================================================
+set -e
+set -u
+
+if [ $# -lt 3 ]; then
+  echo "Usage:
+   `basename $0` <version> <solmiv> <winmiv>
+    i.e., `basename $0` 6.0 A B
+"
+  exit 1
+fi
+
+# check if the user is build
+requser=build
+user="`who am i | awk '{print $1}'`"
+case $user in
+# SKB -  build* )
+  * )
+    ;;
+  * )
+    echo "Error: User '$user' not allowed."
+    echo "Please log in as user '$requser' to run this script"
+    exit 1
+    ;;
+esac
+
+VERSION=$1
+SOL_MIV=$2
+WIN_MIV=$3
+PLATFORM=
+BUILD_BASE_DIR=
+RELEASE=
+
+_host="`hostname`"
+case $_host in
+  avocet )
+    PLATFORM=sol2
+    BUILD_BASE_DIR=/export/home/releasebuild
+    RELEASE=${VERSION}${SOL_MIV}
+    ;;
+  shrike )
+    PLATFORM=win32
+    BUILD_BASE_DIR=Z:
+    RELEASE=${VERSION}${WIN_MIV}
+    ;;
+  * )
+    PLATFORM=win32
+    BUILD_BASE_DIR=/cygdrive/c/workspace/model_compilers/generator/gen_erate
+    RELEASE=${VERSION}${WIN_MIV}
+#    echo "Error: Please log into one of the following machines to run this script:"
+#    echo "  avocet - Solaris"
+#    echo "  shrike - Windows"
+#    exit 1
+    ;;
+esac
+
+
+PROD_DIR=bp_prod
+SRC_DIR=bp_source
+SCRIPT_DIR=$BUILD_BASE_DIR/$PROD_DIR/$PLATFORM/$RELEASE/build_scripts
+
+echo "Compiling for platform '$PLATFORM', release '$RELEASE'"
+
+# check to make sure the comp_project script is there
+compscript=$SCRIPT_DIR/comp_project
+if [ ! -r $compscript ]; then
+  echo "Error: script file '$compscript' not found" 
+  exit 1
+fi
+
+# some things have to be done on Solaris for both platforms
+if [ "$PLATFORM" == "sol2" ]; then
+  # compile pccts code on Solaris only
+  # this will take care of sol2 and win32 since they share source
+  SRCDIR=$BUILD_BASE_DIR/$SRC_DIR/$PLATFORM/$RELEASE/parser/src
+  echo "cd $SRCDIR"
+  cd $SRCDIR
+  make="make -f mf.pccts"
+  echo "$make"
+  $make
+  rc=$?
+  if [ "$rc" -ne "0" ]; then
+    echo "Error: $make failed in $SRCDIR"
+    exit 1
+  fi
+
+  # also, do links for both platforms
+  cd $SCRIPT_DIR
+  echo "cd $SCRIPT_DIR"
+
+  command="./comp_project sol2 ${VERSION}${SOL_MIV} links"
+  echo "$command"
+  $command
+  if [ "$rc" -ne "0" ]; then
+    echo "Error: $command failed in $SCRIPT_DIR"
+    exit 1
+  fi
+  command="./comp_project win32 ${VERSION}${WIN_MIV} links"
+  echo "$command"
+  $command
+  if [ "$rc" -ne "0" ]; then
+    echo "Error: $command failed in $SCRIPT_DIR"
+    exit 1
+  fi
+fi
+
+cd $SCRIPT_DIR
+echo "cd $SCRIPT_DIR"
+
+options="compile"
+for option in $options
+do
+  command="./comp_project $PLATFORM $RELEASE $option"
+  echo "$command"
+  $command
+  if [ "$rc" -ne "0" ]; then
+    echo "Error: $command failed in $SCRIPT_DIR"
+    exit 1
+  fi
+done
+
+exit 0

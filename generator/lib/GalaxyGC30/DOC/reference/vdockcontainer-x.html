@@ -1,0 +1,764 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vdockcontainer prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vdockcontainer prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vdockcontainer-x.html#section_DataType">Types</A> [2]</TD>
+<TD><A HREF="vdockcontainer-x.html#section_Function">Functions</A> [22]</TD>
+<TD><A HREF="vdockcontainer-x.html#section_Message">Messages</A> [2]</TD>
+<TD><A HREF="vdockcontainer-x.html#section_Constant">Constants</A> [5]</TD>
+<TD><A HREF="vdockcontainer-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vdockcontainer"><HR><H4>vdockcontainer</H4></A>
+<PRE>
+        typedef ... <B>vdockcontainer</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to represent a single dock container.
+Objects of this type have classes derived from
+<CODE><A HREF="vdockcontainer-x.html#vdockcontainerClass"><CODE>vdockcontainerClass</CODE></A></CODE>. 
+<P>
+A dock container is a kind of <CODE><A HREF="vcontainer-x.html#vcontainer"><CODE>vcontainer</CODE></A></CODE> that also
+manages up to four <CODE><A HREF="vdockitem-x.html#vdockitem"><CODE>vdockitem</CODE></A></CODE>s.  
+A dock container can hold any combination of items in its item list
+with any spring solution that the standard container allows.
+The main advantage of using a dock container rather than simply
+placing dock items in a standard container is that the dock container
+automatically builds the optimal spring solution that incorporates
+the dock items that are "on" and the contents of the item list,
+without fundamentally affecting the spring solution of the contents.
+<P>
+The four possible dock items are located along the extreme right,
+left, top, and bottom of the dock container's rectangle, and can be
+turned on and off by <CODE>SetDock</CODE>. Any dock items that are
+"on" are actually stored in the dock container's item list, so care
+should be taken when using methods that deal with item list indices
+directly. The four docks can be distinguished by their item tags:
+
+<UL>
+<li>Dock Left
+<li>Dock Right
+<li>Dock Top
+<li>Dock Bottom
+</UL>
+</DD></DL>
+<P>
+<A NAME="vdockcontainerClass"><HR><H4>vdockcontainerClass</H4></A>
+<PRE>
+        typedef ... <B>vdockcontainerClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variables bindings for objects of type
+<CODE>vdockcontainer</CODE>. Classes declared with this type
+contain the same set of methods and variables as the
+default dock container class, but the behavior of methods and
+the contents of variables may vary. This class type is
+derived from <CODE><A HREF="vcontainer-x.html#vcontainerClass"><CODE>vcontainerClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vdockcontainerClone"><HR><H4>vdockcontainerClone</H4></A>
+<PRE>
+        vdockcontainer * <B>vdockcontainerClone</B>(
+                vdockcontainer * dockcont);
+</PRE>
+
+<DL><DD>
+Creates a copy of the dock container <SAMP>dockcont</SAMP> and
+returns a pointer to its contents. Storage for the dock container
+object is allocated by the Docker class. The Docker class
+reclaims the storage occupied by the dock container when it
+is destroyed with <CODE><A HREF="vdockcontainer-x.html#vdockcontainerDestroy"><CODE>vdockcontainerDestroy</CODE></A></CODE>. This
+function copies all the copyable attributes of the dock container and
+clones any attribute objects that are owned by the dock container. 
+The dock container to be cloned can 
+be dynamic or static. This function essentially allocates
+space for a new dock container and calls
+<CODE><A HREF="vdockcontainer-x.html#vdockcontainerCopyInit"><CODE>vdockcontainerCopyInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerCopy"><HR><H4>vdockcontainerCopy</H4></A>
+<PRE>
+        void <B>vdockcontainerCopy</B>(
+                vdockcontainer * dockcont,
+                vdockcontainer * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>dockcont</SAMP> into
+<SAMP>target</SAMP> so that the two dock containers represent
+equivalent objects. <SAMP>target</SAMP> must have been
+created or initialized by a Docker class function.
+<SAMP>dockcont</SAMP> and <SAMP>target</SAMP> must have
+compatible classes for this to work correctly. This
+function copies all the copyable attributes of the dock container
+and clones any attribute objects that are owned by the dock container. 
+This function destroys any objects allocated internally by
+<SAMP>target</SAMP> (including its owned attributes), but
+does <I>not</I> destroy <SAMP>target</SAMP> itself. The
+dock containers to be copied can be dynamic or static. This
+function is implemented by sending the message
+<CODE>vobjectCOPY</CODE> to <SAMP>dockcont</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerCopyInit"><HR><H4>vdockcontainerCopyInit</H4></A>
+<PRE>
+        void <B>vdockcontainerCopyInit</B>(
+                vdockcontainer * dockcont,
+                vdockcontainer * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>dockcont</SAMP> into
+<SAMP>target</SAMP> so that the two dock containers represent
+equivalent objects. <SAMP>target</SAMP> should be a pointer to 
+uninitialized memory; the Docker class initializes it as part
+of the copy.
+This function copies all the copyable attributes of the dock container
+and clones any attribute objects that are owned by the dock container. 
+This function destroys any objects allocated internally by
+<SAMP>target</SAMP> (including its owned attributes), but
+does <I>not</I> destroy <SAMP>target</SAMP> itself. The
+dock containers to be copied can be dynamic or static. 
+This
+function simply stores the class of <SAMP>dockcont</SAMP> in
+<SAMP>target</SAMP> and sends the message
+<CODE>vobjectCOPY_INIT</CODE> to <SAMP>dockcont</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerCreate"><HR><H4>vdockcontainerCreate</H4></A>
+<PRE>
+        vdockcontainer * <B>vdockcontainerCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new dock container of the default dock container class and
+returns a pointer to its contents. Storage for the dock container
+object is allocated by the Docker class. The Docker class
+reclaims the storage occupied by the dock container when it
+is destroyed with <CODE><A HREF="vdockcontainer-x.html#vdockcontainerDestroy"><CODE>vdockcontainerDestroy</CODE></A></CODE>. The new
+dock container is created with a set of default attributes, as
+determined by the default dock container class. The default
+attributes of the default dock container class are documented in
+the Docker chapter of the <I>Galaxy
+Programmer's Guide</I>. This function
+essentially allocates space for a new dock container and calls
+<CODE><A HREF="vdockcontainer-x.html#vdockcontainerInit"><CODE>vdockcontainerInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerCreateOfClass"><HR><H4>vdockcontainerCreateOfClass</H4></A>
+<PRE>
+        vdockcontainer * <B>vdockcontainerCreateOfClass</B>(
+                vdockcontainerClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new dock container of class <SAMP>clas</SAMP> and returns
+a pointer to its contents. Storage for the dock container object is
+allocated by the Docker class. The Docker class
+reclaims the storage occupied by the dock container when it is
+destroyed with <CODE><A HREF="vdockcontainer-x.html#vdockcontainerDestroy"><CODE>vdockcontainerDestroy</CODE></A></CODE>. 
+The new dock container 
+is created with a set of default attributes, determined by
+the class. The default attributes of the default dock container
+class are documented in the Docker chapter of
+the <I>Galaxy Programmer's
+Guide</I>. This function essentially allocates space for a
+new dock container and calls <CODE><A HREF="vdockcontainer-x.html#vdockcontainerInitOfClass"><CODE>vdockcontainerInitOfClass</CODE></A></CODE> 
+on it.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerDestroy"><HR><H4>vdockcontainerDestroy</H4></A>
+<PRE>
+        void <B>vdockcontainerDestroy</B>(
+                vdockcontainer * dockcont);
+</PRE>
+
+<DL><DD>
+Destroys the dock container represented by <SAMP>dockcont</SAMP>,
+which must have been created or initialized by a 
+Docker class function. Use this function to reclaim the storage
+occupied by a dock container. The dock container should not be referenced
+by any other object when it is destroyed. This function
+only attempts to free the storage occupied by the
+dock container if it was allocated by <CODE><A HREF="vdockcontainer-x.html#vdockcontainerCreate"><CODE>vdockcontainerCreate</CODE></A></CODE>,
+<CODE><A HREF="vdockcontainer-x.html#vdockcontainerCreateOfClass"><CODE>vdockcontainerCreateOfClass</CODE></A></CODE>,
+<CODE><A HREF="vdockcontainer-x.html#vdockcontainerClone"><CODE>vdockcontainerClone</CODE></A></CODE>, or
+<CODE><A HREF="vdockcontainer-x.html#vdockcontainerLoad"><CODE>vdockcontainerLoad</CODE></A></CODE>.
+This function will also destroy any attribute objects that
+are owned by the dock container. This function is implemented by
+sending the message <CODE>vobjectDESTROY</CODE> to
+the dock container.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerGetClass"><HR><H4>vdockcontainerGetClass</H4></A>
+<PRE>
+        vdockcontainerClass * <B>vdockcontainerGetClass</B>(
+                vdockcontainer * dockcont);
+</PRE>
+
+<DL><DD>
+Returns the class of the dock container.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerGetContainer"><HR><H4>vdockcontainerGetContainer</H4></A>
+<PRE>
+        vcontainer * <B>vdockcontainerGetContainer</B>(
+                vdockcontainer * dockcont);
+</PRE>
+
+<DL><DD>
+Returns the container on which this dock container was constructed.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerGetDefaultClass"><HR><H4>vdockcontainerGetDefaultClass</H4></A>
+<PRE>
+        vdockcontainerClass * <B>vdockcontainerGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default dock container class.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerGetDock"><HR><H4>vdockcontainerGetDock</H4></A>
+<PRE>
+        vdock * <B>vdockcontainerGetDock</B>(
+                vdockcontainer * dockcont,
+                int whichDock);
+</PRE>
+
+<DL><DD>
+Returns the dock specified or <SAMP>NULL</SAMP> if the dock is not
+on. Possible values for <SAMP>whichDock</SAMP> are:
+
+<UL>
+<LI><CODE>vdockcontainerDOCK_RIGHT</CODE>
+<LI><CODE>vdockcontainerDOCK_LEFT</CODE>
+<LI><CODE>vdockcontainerDOCK_TOP</CODE>
+<LI><CODE>vdockcontainerDOCK_BOTTOM</CODE>
+<LI>
+</UL>
+</DD></DL>
+<P>
+<A NAME="vdockcontainerGetEmptyPadding"><HR><H4>vdockcontainerGetEmptyPadding</H4></A>
+<PRE>
+        short <B>vdockcontainerGetEmptyPadding</B>(
+                vdockcontainer * dockcont);
+</PRE>
+
+<DL><DD>
+Returns the amount of empty padding used by the dock container's built-in
+dock items. Empty padding refers to the width of the
+<CODE>vdock</CODE> associated with a dock item when the dock item is
+empty. Normally, a dock item keeps the width of its dock in sync with
+its own width, but a dock of zero width would not accept any dockers
+that were dragged over it, so this "empty padding" value is used
+instead.
+<P>
+Dock containers do not actually use the empty padding value
+directly, instead it is used by the dock items in the dock container's
+item list to set their own empty padding value. Refer to the section
+<CODE><A HREF="vdockitem-x.html#vdockitemSetEmptyPadding"><CODE>vdockitemSetEmptyPadding</CODE></A></CODE> for further information.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerGetItem"><HR><H4>vdockcontainerGetItem</H4></A>
+<PRE>
+        vdialogItem * <B>vdockcontainerGetItem</B>(
+                vdockcontainer * dockcont);
+</PRE>
+
+<DL><DD>
+Returns the dialog item on which this dock container was constructed.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerGetObject"><HR><H4>vdockcontainerGetObject</H4></A>
+<PRE>
+        vobjectAttributed * <B>vdockcontainerGetObject</B>(
+                vdockcontainer * dockcont);
+</PRE>
+
+<DL><DD>
+Returns the object on which this dock container was constructed.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerHasDock"><HR><H4>vdockcontainerHasDock</H4></A>
+<PRE>
+        vbool <B>vdockcontainerHasDock</B>(
+                vdockcontainer * dockcont,
+                int whichDock);
+</PRE>
+
+<DL><DD>
+Tests if the specified dock is "on" in the dock container.
+Returns <SAMP>TRUE</SAMP> if the specified dock is "on",
+<SAMP>FALSE</SAMP> otherwise. Possible values for
+<SAMP>whichDock</SAMP> are:
+
+<UL>
+<LI><CODE>vdockcontainerDOCK_RIGHT</CODE>
+<LI><CODE>vdockcontainerDOCK_LEFT</CODE>
+<LI><CODE>vdockcontainerDOCK_TOP</CODE>
+<LI><CODE>vdockcontainerDOCK_BOTTOM</CODE>
+<LI>
+</UL>
+</DD></DL>
+<P>
+<A NAME="vdockcontainerInit"><HR><H4>vdockcontainerInit</H4></A>
+<PRE>
+        void <B>vdockcontainerInit</B>(
+                vdockcontainer * dockcont);
+</PRE>
+
+<DL><DD>
+Initializes a dock container of the default dock container class in the
+memory addressed by <SAMP>dockcont</SAMP>. The attributes of
+the dock container are set to their default values, according to
+the default dock container class. The default attributes of the
+default dock container class are documented in the Docker 
+chapter of the <I>Galaxy
+Programmer's Guide</I>. The address can be used in other
+calls to the Docker class as if it were created with
+<CODE><A HREF="vdockcontainer-x.html#vdockcontainerCreate"><CODE>vdockcontainerCreate</CODE></A></CODE>. A call to
+<CODE><A HREF="vdockcontainer-x.html#vdockcontainerDestroy"><CODE>vdockcontainerDestroy</CODE></A></CODE> frees any internal
+objects allocated by the Docker class but does <I>not</I> free
+the structure itself. This function simply stores the
+default class in the class field of the dock container and sends it
+the message <CODE>vobjectINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerInitOfClass"><HR><H4>vdockcontainerInitOfClass</H4></A>
+<PRE>
+        void <B>vdockcontainerInitOfClass</B>(
+                vdockcontainer * dockcont,
+                vdockcontainerClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a dock container of class <SAMP>clas</SAMP> in the memory
+addressed by <SAMP>dockcont</SAMP>. The attributes of
+the dock container are set to their default values, according to
+the class. The default attributes of the
+default dock container class are documented in the Docker 
+chapter of the <I>Galaxy
+Programmer's Guide</I>. The address can be used in other
+calls to the Docker class as if it were created with
+<CODE><A HREF="vdockcontainer-x.html#vdockcontainerCreateOfClass"><CODE>vdockcontainerCreateOfClass</CODE></A></CODE>. A call to
+<CODE><A HREF="vdockcontainer-x.html#vdockcontainerDestroy"><CODE>vdockcontainerDestroy</CODE></A></CODE> frees any internal
+objects allocated by the Docker class but does <I>not</I> free
+the structure itself. This function simply stores the
+class in the class field of the dock container and sends it
+the message <CODE>vobjectINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerLoad"><HR><H4>vdockcontainerLoad</H4></A>
+<PRE>
+        vdockcontainer * <B>vdockcontainerLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a dock container from the resource <SAMP>resource</SAMP> and
+returns a pointer to its contents. Storage for the dock container
+object is allocated by the Docker class. The dock container's
+class is determined by the value of the ``Class'' tag. It
+generates <CODE><A HREF="vobject-x.html#vobjectUndefinedClassException"><CODE>vobjectUndefinedClassException</CODE></A></CODE> if
+the name does not denote a class in the Class Manager
+registry. Note that this function creates an object based
+on the class of the resource, even if this class is not a
+dock container class. The object pointer is cast to a dock container
+pointer, even if the object represents a different data
+type. Attributes may be initialized based on the contents
+of the resource, or they may be set to default values,
+depending on the class. The attributes of the default
+dock container class that are stored in resources are documented
+in the Docker chapter of the <I>Galaxy
+Programmer's Guide</I>. This
+function essentially allocates space for a new instance and
+calls <CODE><A HREF="vdockcontainer-x.html#vdockcontainerLoadInit"><CODE>vdockcontainerLoadInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerLoadInit"><HR><H4>vdockcontainerLoadInit</H4></A>
+<PRE>
+        void <B>vdockcontainerLoadInit</B>(
+                vdockcontainer * dockcont,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a dock container from the resource <SAMP>resource</SAMP> and
+stores it in the uninitialized memory addressed by
+<SAMP>dockcont</SAMP>. The dock container's class is determined by
+the value of the ``Class'' tag. It generates
+<CODE><A HREF="vobject-x.html#vobjectUndefinedClassException"><CODE>vobjectUndefinedClassException</CODE></A></CODE> if the name
+does not denote a class in the Class Manager registry. Note
+that this function initializes an object based on the class
+of the resource, even if this class is not a dock container class.
+The object attempts to initialize itself in the dock container
+structure provided, even if it is not of the correct size.
+Attributes may be initialized based on the contents of the
+resource, or they may be set to default values, depending
+on the class. The attribute table in the Docker
+chapter of the <I>Galaxy
+Programmer's Guide</I> documents the attributes of the
+default dock container class that are stored in resources. This
+function stores the class specified by the resource in the
+class field of the dock container structure and sends it the
+message <CODE>vobjectLOAD_INIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerSetDock"><HR><H4>vdockcontainerSetDock</H4></A>
+<PRE>
+        void <B>vdockcontainerSetDock</B>(
+                vdockcontainer * dockcont,
+                int whichDock,
+                vbool onOff);
+</PRE>
+
+<DL><DD>
+Turns the dock containers built in dock items on and off.
+The <SAMP>whichDock</SAMP> parameter can be one of the following:
+
+<UL>
+<LI><CODE>vdockcontainerDOCK_RIGHT</CODE>
+<LI><CODE>vdockcontainerDOCK_LEFT</CODE>
+<LI><CODE>vdockcontainerDOCK_TOP</CODE>
+<LI><CODE>vdockcontainerDOCK_BOTTOM</CODE>
+<LI>
+</UL>
+
+If <SAMP>onOff</SAMP> is <SAMP>TRUE</SAMP> the specified dock is
+turned on, if <SAMP>FALSE</SAMP> it is turned off.
+<P>
+This method is implemented by sending the message
+<CODE><A HREF="vdockcontainer-x.html#vdockcontainerSET_DOCK"><CODE>vdockcontainerSET_DOCK</CODE></A></CODE> to the dock container.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerSetEmptyPadding"><HR><H4>vdockcontainerSetEmptyPadding</H4></A>
+<PRE>
+        void <B>vdockcontainerSetEmptyPadding</B>(
+                vdockcontainer * dockcont,
+                short padding);
+</PRE>
+
+<DL><DD>
+Sets the amount of empty padding used by the dock container's built-in
+dock items.  Empty padding refers to the width of the
+<CODE>vdock</CODE> associated with a dock item when the dock item is
+empty. Normally, a dock item keeps the width of its dock in sync with
+its own width, but a dock of zero width would not accept any dockers
+that were dragged over it, so this "empty padding" value is used
+instead.
+<P>
+Dock containers do not actually use the empty padding value
+directly, instead it is used by the dock items in the dock container's
+item list to set their own empty padding value. Refer to the section
+<CODE><A HREF="vdockitem-x.html#vdockitemSetEmptyPadding"><CODE>vdockitemSetEmptyPadding</CODE></A></CODE>for more information.  
+<P>
+This method is implemented by sending the message
+<CODE><A HREF="vdockcontainer-x.html#vdockcontainerSET_EMPTY_PADDING"><CODE>vdockcontainerSET_EMPTY_PADDING</CODE></A></CODE> to the dock container.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerStartup"><HR><H4>vdockcontainerStartup</H4></A>
+<PRE>
+        void <B>vdockcontainerStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the dock container module.
+It has no effect if the dock container module is already initialized.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerStore"><HR><H4>vdockcontainerStore</H4></A>
+<PRE>
+        void <B>vdockcontainerStore</B>(
+                vdockcontainer * dockcont,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Writes the contents of the dock container into
+the resource. The dock container can be
+recovered from the resource at a later time (perhaps by
+another program) with <CODE><A HREF="vdockcontainer-x.html#vdockcontainerLoad"><CODE>vdockcontainerLoad</CODE></A></CODE> or
+<CODE>_typeprefixLoadInit</CODE>. Note that not all of the
+dock container's attributes are stored in the resource; the
+attributes of the default dock container class that are stored in
+resources are documented in the Docker chapter
+of the <I>Galaxy Programmer's
+Guide</I>. It generates
+<CODE><A HREF="vobject-x.html#vobjectUnnamedClassException"><CODE>vobjectUnnamedClassException</CODE></A></CODE> if the dock container's
+class is not named. This function is implemented by sending
+the message <CODE>vobjectSTORE</CODE> to the dock container.
+
+    <P>
+To store a dock container in a resource, first call
+<CODE><A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A></CODE> to create an untyped resource in
+the desired location, then call <CODE>vdockcontainerStore</CODE>
+to write the dock container into the resource. For example:
+    <P>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+vdockcontainer  *dockcont;    /* contains a dock container */
+<A HREF="vresource-x.html#vresource"><CODE>vresource</CODE></A> fileResource, dockcontResource;
+
+fileResource   = <A HREF="vresource-x.html#vresourceOpenFile"><CODE>vresourceOpenFile</CODE></A>( ... );
+dockcontResource = <A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A>(fileResource, 
+			       <A HREF="vname-x.html#vnameInternGlobalLiteral"><CODE>vnameInternGlobalLiteral</CODE></A>("Mydockcont"));
+
+vdockcontainerStore(dockcont, dockcontResource);
+<A HREF="vresource-x.html#vresourceCloseFile"><CODE>vresourceCloseFile</CODE></A>(fileResource);
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vdockcontainerSET_DOCK"><HR><H4>vdockcontainerSET_DOCK</H4></A>
+<PRE>
+        &lt;<B>vdockcontainerSET_DOCK</B>&gt;
+</PRE>
+
+<DL><DD>
+Turns the dock containers built-in dock items on and off.
+The <SAMP>whichDock</SAMP> parameter can be one of the following:
+
+<UL>
+<LI><CODE>vdockcontainerDOCK_RIGHT</CODE>
+<LI><CODE>vdockcontainerDOCK_LEFT</CODE>
+<LI><CODE>vdockcontainerDOCK_TOP</CODE>
+<LI><CODE>vdockcontainerDOCK_BOTTOM</CODE>
+<LI>
+</UL>
+
+If <SAMP>onOff</SAMP> is <SAMP>TRUE</SAMP> the specified dock is
+turned on, if <SAMP>FALSE</SAMP> it is turned off.
+<P>
+The method <CODE><A HREF="vdockcontainer-x.html#vdockcontainerSetDock"><CODE>vdockcontainerSetDock</CODE></A></CODE> is implemented by
+sending this message to the dock container.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerSET_EMPTY_PADDING"><HR><H4>vdockcontainerSET_EMPTY_PADDING</H4></A>
+<PRE>
+        &lt;<B>vdockcontainerSET_EMPTY_PADDING</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the amount of empty padding used by the dock container's built-in
+dock items. Empty padding refers to the width of the
+<CODE>vdock</CODE> associated with a dock item when the dock item is
+empty. Normally, a dock item keeps the width of its dock in sync with
+its own width, but a dock of zero width would not accept any dockers
+that were dragged over it, so this "empty padding" value is used
+instead.
+<P>
+Dock containers do not actually use the empty padding value
+directly, instead it is used by the dock items in the dock container's
+item list to set their own empty padding value. Refer to the section
+<CODE><A HREF="vdockitem-x.html#vdockitemSetEmptyPadding"><CODE>vdockitemSetEmptyPadding</CODE></A></CODE> for more information.
+<P>
+The method <CODE><A HREF="vdockcontainer-x.html#vdockcontainerSetEmptyPadding"><CODE>vdockcontainerSetEmptyPadding</CODE></A></CODE> is implemented
+by sending this message to the dock container.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vdockcontainerDOCK_LEFT"><HR><H4>vdockcontainerDOCK_LEFT</H4></A>
+<PRE>
+        <B>vdockcontainerDOCK_LEFT</B>
+</PRE>
+<A NAME="vdockcontainerDOCK_RIGHT"><PRE>
+        <B>vdockcontainerDOCK_RIGHT</B>
+</PRE>
+</A>
+<A NAME="vdockcontainerDOCK_TOP"><PRE>
+        <B>vdockcontainerDOCK_TOP</B>
+</PRE>
+</A>
+<A NAME="vdockcontainerDOCK_BOTTOM"><PRE>
+        <B>vdockcontainerDOCK_BOTTOM</B>
+</PRE>
+</A>
+
+<DL><DD>
+Denote the four docks of a dock container.
+These constants are used by the methods
+<CODE><A HREF="vdockcontainer-x.html#vdockcontainerGetDock"><CODE>vdockcontainerGetDock</CODE></A></CODE> and
+<CODE><A HREF="vdockcontainer-x.html#vdockcontainerSetDock"><CODE>vdockcontainerSetDock</CODE></A></CODE>. 
+</DD></DL>
+<P>
+<A NAME="vdockcontainerID_ATTRIBUTE_DOCK_LEFT"><HR><H4>vdockcontainerID_ATTRIBUTE_DOCK_LEFT</H4></A>
+<PRE>
+        <B>vdockcontainerID_ATTRIBUTE_DOCK_LEFT</B>
+</PRE>
+<A NAME="vdockcontainerID_ATTRIBUTE_DOCK_RIGHT"><PRE>
+        <B>vdockcontainerID_ATTRIBUTE_DOCK_RIGHT</B>
+</PRE>
+</A>
+<A NAME="vdockcontainerID_ATTRIBUTE_DOCK_TOP"><PRE>
+        <B>vdockcontainerID_ATTRIBUTE_DOCK_TOP</B>
+</PRE>
+</A>
+<A NAME="vdockcontainerID_ATTRIBUTE_DOCK_BOTTOM"><PRE>
+        <B>vdockcontainerID_ATTRIBUTE_DOCK_BOTTOM</B>
+</PRE>
+</A>
+<A NAME="vdockcontainerID_ATTRIBUTE_EMPTY_PADDING"><PRE>
+        <B>vdockcontainerID_ATTRIBUTE_EMPTY_PADDING</B>
+</PRE>
+</A>
+
+<DL><DD>
+Denote attribute IDs corresponding to the named attributes of a dock container.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerINCLUDED"><HR><H4>vdockcontainerINCLUDED</H4></A>
+<PRE>
+        <B>vdockcontainerINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the <SAMP>vdockcont.h<SAMP> header file is included.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerNEXT_ID_ATTRIBUTE"><HR><H4>vdockcontainerNEXT_ID_ATTRIBUTE</H4></A>
+<PRE>
+        <B>vdockcontainerNEXT_ID_ATTRIBUTE</B>
+</PRE>
+
+<DL><DD>
+The next value available for the attribute IDs of subclasses.
+Subclasses that add attributes to those provided should start
+numbering their new attribute ID values with this constant.
+</DD></DL>
+<P>
+<A NAME="vdockcontainerNEXT_SELECT"><HR><H4>vdockcontainerNEXT_SELECT</H4></A>
+<PRE>
+        <B>vdockcontainerNEXT_SELECT</B>
+</PRE>
+
+<DL><DD>
+The next value available for the selector commands of subclasses.
+Subclasses that add new selector commands to those provided should
+start numbering the new selectors with this constant.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vdockcontainerCLASS"><HR><H4>vdockcontainerCLASS</H4></A>
+<PRE>
+        #define <B>vdockcontainerCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for dock container
+classes. This macro expands to the contents of
+<CODE><A HREF="vdockcontainer-x.html#vdockcontainerClass"><CODE>vdockcontainerClass</CODE></A></CODE>. <SAMP>SUPER</SAMP> is the type
+identifier of the class being declared (for example,
+<CODE><A HREF="vdockcontainer-x.html#vdockcontainerClass"><CODE>vdockcontainerClass</CODE></A></CODE>). This type is used by the class's 
+subclasses to refer to it. 
+<SAMP>DOCKCONT</SAMP> is the type identifier of instances of the class
+being declared (for example, <CODE>vdockcontainer</CODE>). 
+<SAMP>NOTIFY</SAMP> is the type identifier of the instance
+notification function (for example, <CODE><A HREF="vcontainer-x.html#vcontainerNoteProc"><CODE>vcontainerNoteProc</CODE></A></CODE>). 
+This macro should be used by dock container subclasses to
+declare the contents of the dock container class. This macro should
+come first in the subclass structure declaration.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

@@ -1,0 +1,560 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vservicechsr prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vservicechsr prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vservicechsr-x.html#section_DataType">Types</A> [3]</TD>
+<TD><A HREF="vservicechsr-x.html#section_Function">Functions</A> [17]</TD>
+<TD><A HREF="vservicechsr-x.html#section_Message">Messages</A> [4]</TD>
+<TD><A HREF="vservicechsr-x.html#section_Constant">Constants</A> [8]</TD>
+<TD><A HREF="vservicechsr-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vservicechsr"><HR><H4>vservicechsr</H4></A>
+<PRE>
+        typedef ... <B>vservicechsr</B>;
+</PRE>
+
+<DL><DD>
+A service chooser is a DAS component that displays a list
+of all services of which the local broker is aware. A
+configurable list of service attributes is also displayed
+for information purposes.
+</DD></DL>
+<P>
+<A NAME="vservicechsrApplyFunc"><HR><H4>vservicechsrApplyFunc</H4></A>
+<PRE>
+        typedef ... <B>vservicechsrApplyFunc</B>;
+</PRE>
+
+<DL><DD>
+Denotes an apply function that is called when a service has
+been chosen from the service chooser <SAMP>serviceChooser</SAMP>. 
+<SAMP>scrap</SAMP> is a dictionary scrap that 
+contains the attribute name and value
+pairs for each named attribute of the service. The apply
+function returns <SAMP>TRUE</SAMP> if the service was
+accepted and the chooser can close its dialog, or
+<SAMP>FALSE</SAMP> if the service was rejected and the
+chooser dialog should remain open.
+</DD></DL>
+<P>
+<A NAME="vservicechsrClass"><HR><H4>vservicechsrClass</H4></A>
+<PRE>
+        typedef ... <B>vservicechsrClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variable bindings for objects of type
+<CODE>vservicechsr</CODE>. The service chooser class
+controls service display and filtering by attribute.
+Classes declared with this type contain the same set of
+methods and variables as the default service chooser class,
+but the behavior of methods and the contents of variables
+may vary. This class is derived from <CODE><A HREF="vconfirm-x.html#vconfirmClass"><CODE>vconfirmClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vservicechsrClose"><HR><H4>vservicechsrClose</H4></A>
+<PRE>
+        void <B>vservicechsrClose</B>(
+                vservicechsr * serviceChooser);
+</PRE>
+
+<DL><DD>
+Closes the service chooser <SAMP>serviceChooser</SAMP> so
+it is no longer visible. This function has no effect on a
+service chooser that is already closed. This function is
+implemented by sending the message
+<CODE><A HREF="vwindow-x.html#vwindowCLOSE"><CODE>vwindowCLOSE</CODE></A></CODE> to <SAMP>serviceChooser</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vservicechsrCreate"><HR><H4>vservicechsrCreate</H4></A>
+<PRE>
+        vservicechsr * <B>vservicechsrCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new service chooser of the default service
+chooser class and returns a pointer to the new service
+chooser. Storage allocated for the new chooser is reclaimed
+by calling <CODE><A HREF="vservicechsr-x.html#vservicechsrDestroy"><CODE>vservicechsrDestroy</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vservicechsrCreateOfClass"><HR><H4>vservicechsrCreateOfClass</H4></A>
+<PRE>
+        vservicechsr * <B>vservicechsrCreateOfClass</B>(
+                vservicechsrClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new service chooser of class <SAMP>clas</SAMP>
+and returns a pointer to the new service chooser. Storage
+allocated for the new chooser is reclaimed by calling
+<CODE><A HREF="vservicechsr-x.html#vservicechsrDestroy"><CODE>vservicechsrDestroy</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vservicechsrDestroy"><HR><H4>vservicechsrDestroy</H4></A>
+<PRE>
+        void <B>vservicechsrDestroy</B>(
+                vservicechsr * serviceChooser);
+</PRE>
+
+<DL><DD>
+Destroys the service chooser <SAMP>serviceChooser</SAMP>
+and reclaims any storage allocated internally to the
+service chooser. If the service chooser was dynamically
+allocated, the storage for the chooser is reclaimed as
+well. This function is implemented by sending the message
+<CODE>vobjectDESTROY</CODE> to <SAMP>serviceChooser</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vservicechsrGetApply"><HR><H4>vservicechsrGetApply</H4></A>
+<PRE>
+        vservicechsrApplyFunc <B>vservicechsrGetApply</B>(
+                vservicechsr * serviceChooser);
+</PRE>
+
+<DL><DD>
+Returns the apply function registered with the service
+chooser <SAMP>serviceChooser</SAMP> or <SAMP>NULL</SAMP> if
+no apply function was registered.
+</DD></DL>
+<P>
+<A NAME="vservicechsrGetClass"><HR><H4>vservicechsrGetClass</H4></A>
+<PRE>
+        vservicechsrClass * <B>vservicechsrGetClass</B>(
+                vservicechsr * serviceChooser);
+</PRE>
+
+<DL><DD>
+Returns the service chooser class of the service chooser
+<SAMP>serviceChooser</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vservicechsrGetConfirm"><HR><H4>vservicechsrGetConfirm</H4></A>
+<PRE>
+        vconfirm * <B>vservicechsrGetConfirm</B>(
+                vservicechsr * serviceChooser);
+</PRE>
+
+<DL><DD>
+Returns the <A HREF="vconfirm-x.html#vconfirm"><CODE>vconfirm</CODE></A> object that the service chooser
+<SAMP>serviceChooser</SAMP> is based on.
+</DD></DL>
+<P>
+<A NAME="vservicechsrGetDefaultClass"><HR><H4>vservicechsrGetDefaultClass</H4></A>
+<PRE>
+        vservicechsrClass * <B>vservicechsrGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the default service chooser class. This class forms
+the basis for creating subclasses of a service chooser that
+add functionality to the service chooser.
+</DD></DL>
+<P>
+<A NAME="vservicechsrGetDialog"><HR><H4>vservicechsrGetDialog</H4></A>
+<PRE>
+        vdialog * <B>vservicechsrGetDialog</B>(
+                vservicechsr * serviceChooser);
+</PRE>
+
+<DL><DD>
+Returns the <A HREF="vdialog-x.html#vdialog"><CODE>vdialog</CODE></A> object on which the service chooser
+<SAMP>serviceChooser</SAMP> is built.
+</DD></DL>
+<P>
+<A NAME="vservicechsrGetMatchScrap"><HR><H4>vservicechsrGetMatchScrap</H4></A>
+<PRE>
+        vscrap * <B>vservicechsrGetMatchScrap</B>(
+                vservicechsr * serviceChooser);
+</PRE>
+
+<DL><DD>
+Returns the dictionary scrap sent to the local service
+broker during match requests by the service chooser
+<SAMP>serviceChooser</SAMP>. The default is a dictionary
+scrap with no elements in it; this matches every service
+currently registered with the broker. Ownership of the
+scrap is retained by the chooser; the scrap should not be
+destroyed by the application. To change the attributes to
+be matched against, use
+<CODE><A HREF="vservicechsr-x.html#vservicechsrSetMatchScrap"><CODE>vservicechsrSetMatchScrap</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vservicechsrGetObject"><HR><H4>vservicechsrGetObject</H4></A>
+<PRE>
+        vobject * <B>vservicechsrGetObject</B>(
+                vservicechsr * serviceChooser);
+</PRE>
+
+<DL><DD>
+Returns the <SAMP><A HREF="vobject-x.html#vobject"><CODE>vobject</CODE></A></SAMP> instance on which the
+service chooser <SAMP>serviceChooser</SAMP> is built.
+</DD></DL>
+<P>
+<A NAME="vservicechsrGetWindow"><HR><H4>vservicechsrGetWindow</H4></A>
+<PRE>
+        vwindow * <B>vservicechsrGetWindow</B>(
+                vservicechsr * serviceChooser);
+</PRE>
+
+<DL><DD>
+Returns the <SAMP><A HREF="vwindow-x.html#vwindow"><CODE>vwindow</CODE></A></SAMP> object on which the
+service chooser <SAMP>serviceChooser</SAMP> is built.
+</DD></DL>
+<P>
+<A NAME="vservicechsrOpen"><HR><H4>vservicechsrOpen</H4></A>
+<PRE>
+        void <B>vservicechsrOpen</B>(
+                vservicechsr * serviceChooser);
+</PRE>
+
+<DL><DD>
+Opens the service chooser <SAMP>serviceChooser</SAMP> so
+its dialog is visible at its current position and size on
+the screen. This function has no effect if
+<SAMP>serviceChooser</SAMP> is already open.
+</DD></DL>
+<P>
+<A NAME="vservicechsrRescan"><HR><H4>vservicechsrRescan</H4></A>
+<PRE>
+        void <B>vservicechsrRescan</B>(
+                vservicechsr * serviceChooser);
+</PRE>
+
+<DL><DD>
+Queries the local service broker for a new list of
+registered services. This function is implemented by
+sending the message <CODE><A HREF="vservicechsr-x.html#vservicechsrRESCAN"><CODE>vservicechsrRESCAN</CODE></A></CODE> to
+<SAMP>serviceChooser</SAMP>.  The query sends a statement
+to the local service broker and displays the results of the
+query when they are sent back to the application. 
+<P>
+Note that a rescan operation may take a noticeable amount of time,
+due to network loading and routing delays.
+</DD></DL>
+<P>
+<A NAME="vservicechsrSetApply"><HR><H4>vservicechsrSetApply</H4></A>
+<PRE>
+        void <B>vservicechsrSetApply</B>(
+                vservicechsr * serviceChooser,
+                vservicechsrApplyFunc applyFunc);
+</PRE>
+
+<DL><DD>
+Sets the apply function <SAMP>applyFunc</SAMP> on the
+service chooser <SAMP>serviceChooser</SAMP>. This function
+is implemented by sending the message
+<CODE><A HREF="vservicechsr-x.html#vservicechsrSET_APPLY"><CODE>vservicechsrSET_APPLY</CODE></A></CODE> to
+<SAMP>serviceChooser</SAMP>. The apply function is called
+by <CODE>vservicechsrCallApply</CODE> when the service
+chooser's Apply button is pressed.
+<P>
+See the <CODE>vservicechsrCallApplyFunc</CODE> 
+section for more information.
+</DD></DL>
+<P>
+<A NAME="vservicechsrSetMatchScrap"><HR><H4>vservicechsrSetMatchScrap</H4></A>
+<PRE>
+        void <B>vservicechsrSetMatchScrap</B>(
+                vservicechsr * serviceChooser,
+                vscrap * scrap);
+</PRE>
+
+<DL><DD>
+Sets the dictionary scrap sent to the local broker during
+match requests by the service chooser <SAMP>serviceChooser</SAMP> 
+to the scrap <SAMP>scrap</SAMP>. The default matching scrap is an empty
+dictionary scrap; this matches all services registered with
+the broker. Ownership of the scrap is passed to the chooser
+by this function. The scrap should be a dictionary scrap
+with zero or more elements in it. The elements are sent to
+the local broker at the next rescan operation, and only
+those services that match the specified attributes are
+returned by the broker to the chooser for display. 
+<p>
+A service is said to match a set of attributes when the
+service has each of the attributes specified in the scrap;
+however, the service may have additional attributes that
+were not part of the match request.
+</DD></DL>
+<P>
+<A NAME="vservicechsrStartup"><HR><H4>vservicechsrStartup</H4></A>
+<PRE>
+        void <B>vservicechsrStartup</B>();
+</PRE>
+
+<DL><DD>
+This function explicitly initializes the entire Service
+Chooser class. Most applications need not call this
+function, as the Service Chooser class is
+self-initializing. Only those applications with strict
+concerns about module startup ordering and resource usage
+need be concerned with this function.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vservicechsrHOOK_APPLY_SERVICE"><HR><H4>vservicechsrHOOK_APPLY_SERVICE</H4></A>
+<PRE>
+        &lt;<B>vservicechsrHOOK_APPLY_SERVICE</B>&gt;
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vservicechsrRESCAN"><HR><H4>vservicechsrRESCAN</H4></A>
+<PRE>
+        &lt;<B>vservicechsrRESCAN</B>&gt;
+</PRE>
+
+<DL><DD>
+Causes the service chooser <SAMP>chooser</SAMP> to query
+the local service broker for a new list of registered
+services. This method is triggered by either selecting the
+Rescan option from the Control menu or by a call to
+<CODE><A HREF="vservicechsr-x.html#vservicechsrRescan"><CODE>vservicechsrRescan</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vservicechsrSET_APPLY"><HR><H4>vservicechsrSET_APPLY</H4></A>
+<PRE>
+        &lt;<B>vservicechsrSET_APPLY</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the apply function on the service chooser
+<SAMP>chooser</SAMP> to <SAMP>applyFunc</SAMP>. The apply
+function is called when the Apply button in the service
+chooser dialog is pressed.
+</DD></DL>
+<P>
+<A NAME="vservicechsrSET_MATCH"><HR><H4>vservicechsrSET_MATCH</H4></A>
+<PRE>
+        &lt;<B>vservicechsrSET_MATCH</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the dictionary scrap sent to the local broker during
+match requests by the service chooser <SAMP>chooser</SAMP>
+to the scrap <SAMP>scrap</SAMP>. The default matching scrap
+is an empty dictionary scrap; this matches all services
+registered with the broker. Ownership of the scrap is
+passed to the chooser through this method. The scrap should
+be a dictionary scrap with zero or more elements in it. The
+elements are sent to the local broker at the next rescan
+operation, and only those services that match the specified
+attributes are returned by the broker to the chooser for
+display. 
+<P>
+A service is said to match a set of attributes
+when the service has each of the attributes specified in
+the scrap; however, the service may have additional
+attributes that were not part of the match request.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vservicechsrALL_OFF"><HR><H4>vservicechsrALL_OFF</H4></A>
+<PRE>
+        <B>vservicechsrALL_OFF</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vservicechsrALL_ON"><HR><H4>vservicechsrALL_ON</H4></A>
+<PRE>
+        <B>vservicechsrALL_ON</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vservicechsrGET_INFO"><HR><H4>vservicechsrGET_INFO</H4></A>
+<PRE>
+        <B>vservicechsrGET_INFO</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vservicechsrINCLUDED"><HR><H4>vservicechsrINCLUDED</H4></A>
+<PRE>
+        <B>vservicechsrINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Preprocessor symbol that is defined when the service
+chooser header file has already been included. This symbol
+is used to prevent multiple inclusion of the same header
+file, and can be used in an application source file to skip
+an explicit inclusion if the header file has already been
+included.
+</DD></DL>
+<P>
+<A NAME="vservicechsrNEXT_SELECT"><HR><H4>vservicechsrNEXT_SELECT</H4></A>
+<PRE>
+        <B>vservicechsrNEXT_SELECT</B>
+</PRE>
+
+<DL><DD>
+This constant is provided so that selector values 
+defined by subclasses do not conflict with those 
+defined by their superclasses. Only
+class-level commands (defined by overriding the
+<CODE>IssueSelector</CODE> or <CODE>QuerySelector
+</CODE>methods) need be concerned with the selector values
+of their superclasses. Subclasses of <CODE>vservicechsr</CODE> should begin 
+their command selectors with this constant 
+and increment by one for each new command.
+<p> 
+In other words, if you add commands to the
+class-level command space of <CODE>vservicechsr</CODE>, you
+put their implementations in your
+<CODE>IssueSelector</CODE> override and start with the
+value of <SAMP>vservicechsrNEXT_SELECT</SAMP> as the first
+selector value you handle. 
+<P>
+Subclasses should also provide
+their own NEXT_SELECT constant for use by their subclasses.
+This constant has integral type.
+</DD></DL>
+<P>
+<A NAME="vservicechsrQUERY"><HR><H4>vservicechsrQUERY</H4></A>
+<PRE>
+        <B>vservicechsrQUERY</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vservicechsrSET_FILTER"><HR><H4>vservicechsrSET_FILTER</H4></A>
+<PRE>
+        <B>vservicechsrSET_FILTER</B>
+</PRE>
+
+<DL><DD>
+These constants correspond to the command selector values
+used to connect the desired action with a given interface
+component. These command selector values can be used to
+issue commands to the service chooser without manipulating
+the graphical interface.
+</DD></DL>
+<P>
+<A NAME="vservicechsrSHOW_ATTRIBUTE"><HR><H4>vservicechsrSHOW_ATTRIBUTE</H4></A>
+<PRE>
+        <B>vservicechsrSHOW_ATTRIBUTE</B>
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vservicechsrCLASS"><HR><H4>vservicechsrCLASS</H4></A>
+<PRE>
+        #define <B>vservicechsrCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

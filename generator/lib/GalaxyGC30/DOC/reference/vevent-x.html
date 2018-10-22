@@ -1,0 +1,3591 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vevent prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vevent prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vevent-x.html#section_DataType">Types</A> [37]</TD>
+<TD><A HREF="vevent-x.html#section_Function">Functions</A> [187]</TD>
+<TD></TD>
+<TD><A HREF="vevent-x.html#section_Constant">Constants</A> [10]</TD>
+<TD><A HREF="vevent-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vevent"><HR><H4>vevent</H4></A>
+<PRE>
+        typedef ... <B>vevent</B>;
+</PRE>
+
+<DL><DD>
+Notification of some operating system or window system event of
+interest. A <CODE>vevent</CODE> can also be created and posted by the
+application itself.
+<P>
+A <CODE>vevent</CODE> contains information about the event that it is
+reporting. A <CODE>vevent</CODE> is assigned a time when the event is to
+be dispatched, an event type, an optional event binding (a
+<CODE><A HREF="vname-x.html#vname"><CODE>vname</CODE></A></CODE><SAMP> *</SAMP>), an event priority, an optional
+target handler  procedure (a <CODE><A HREF="vevent-x.html#veventHandlerProc"><CODE>veventHandlerProc</CODE></A>)</CODE>, a
+synchronization flag, and information specific to the event type. 
+<P>
+Events from the operating system and the windowing system are
+automatically created and queued by the Galaxy event  loop
+(<CODE><A HREF="vevent-x.html#veventProcess"><CODE>veventProcess</CODE></A></CODE>). In addition, events can be created by the
+client and posted to the queue immediately or into the future.
+</DD></DL>
+<P>
+<A NAME="veventCancelWaitProc"><HR><H4>veventCancelWaitProc</H4></A>
+<PRE>
+        typedef ... <B>veventCancelWaitProc</B>;
+</PRE>
+
+<DL><DD>
+A procedure designed to be called from interrupt code or from code in a
+thread separate from the event loop. The purpose of this procedure is to
+unblock a blocked event loop. The current
+<CODE>veventCancelWaitProc</CODE> is called by the various
+<CODE><A HREF="vevent-x.html#veventPostAtInterrupt"><CODE>veventPostAtInterrupt</CODE></A></CODE>
+calls.
+</DD></DL>
+<P>
+<A NAME="veventClientEvent"><HR><H4>veventClientEvent</H4></A>
+<PRE>
+        typedef ... <B>veventClientEvent</B>;
+</PRE>
+
+<DL><DD>
+The client event class allows you to create and dispatch events for your
+own use.  You should set the Target callback attribute (with
+<CODE><A HREF="vevent-x.html#veventSetTarget"><CODE>veventSetTarget</CODE></A></CODE> to tell the Event Manager what to do with
+the event when it is dispatched. You can also set the
+<SAMP>ClientData</SAMP> and <SAMP>ClientType</SAMP> attributes to
+identify particular events.
+</DD></DL>
+<P>
+<A NAME="veventClientQueueFlushProc"><HR><H4>veventClientQueueFlushProc</H4></A>
+<PRE>
+        typedef ... <B>veventClientQueueFlushProc</B>;
+</PRE>
+
+<DL><DD>
+Reads events from the window system event queue and converts them to
+type <SAMP>vevent</SAMP>. This function is necessary for window systems
+that bypass the normal file stream of event data, but rarely needs to be
+used by a client. One possible use is when the client is receiving
+events from two or more different sources.
+</DD></DL>
+<P>
+<A NAME="veventClientWaitIndefinitelyProc"><HR><H4>veventClientWaitIndefinitelyProc</H4></A>
+<PRE>
+        typedef ... <B>veventClientWaitIndefinitelyProc</B>;
+</PRE>
+
+<DL><DD>
+This procedure gets called by the event loop to block for an indefinite
+amount of time. This happens when there is not a future
+<SAMP>vevent</SAMP>, and when there are no pending messages in the
+operating system or window system event queues. An indefinite wait is
+cancelled by either the receipt of an operating system or window system
+event or by having called the current
+<CODE><A HREF="vevent-x.html#veventCancelWaitProc"><CODE>veventCancelWaitProc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventClientWaitProc"><HR><H4>veventClientWaitProc</H4></A>
+<PRE>
+        typedef ... <B>veventClientWaitProc</B>;
+</PRE>
+
+<DL><DD>
+This procedure gets called when the event loop is about to block for a
+finite amount of time. This happens when there is a future
+<SAMP>vevent</SAMP> in the Galaxy queue, and when there are no pending
+messages in the Galaxy, oeprating system, or window system queues. An
+indefinite wait is cancelled by either the receipt of an operating
+system or window system event or by having called the current
+<CODE><A HREF="vevent-x.html#veventCancelWaitProc"><CODE>veventCancelWaitProc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventDispatcherProc"><HR><H4>veventDispatcherProc</H4></A>
+<PRE>
+        typedef ... <B>veventDispatcherProc</B>;
+</PRE>
+
+<DL><DD>
+A procedure used to dispatch events to the appropriate
+<CODE><A HREF="vevent-x.html#veventHandlerProc"><CODE>veventHandlerProc</CODE></A></CODE>.  A new dispatcher procedure could be
+used for journaling. All events are dispatched through the current
+<CODE>veventDispatcherProc</CODE>.  Events with a target (see
+<CODE><A HREF="vevent-x.html#veventSetTarget"><CODE>veventSetTarget</CODE></A></CODE>) are usually sent directly to the targeted
+<SAMP><A HREF="vevent-x.html#veventHandlerProc"><CODE>veventHandlerProc</CODE></A></SAMP>. All other events are usually sent to the
+current <SAMP><A HREF="vevent-x.html#veventHandler"><CODE>veventHandler</CODE></A></SAMP> (compare with
+<CODE><A HREF="vevent-x.html#veventGetHandler"><CODE>veventGetHandler</CODE></A></CODE>).
+<P>
+Example: change the dispatcher to enable event journaling.
+<P>
+<BLOCKQUOTE>
+<PRE>
+static FILE *recorderFile;
+veventDispatcherProc oldDispatcher;
+
+int newDispatcher(vevent *event, const <A HREF="vevent-x.html#veventHandler"><CODE>veventHandler</CODE></A> *handler)
+{
+    <A HREF="vevent-x.html#veventDump"><CODE>veventDump</CODE></A>(event, recorderFile);
+    return (*oldDispatcher) (event, handler);
+}
+
+int main (int argc, char *argv[])
+{
+    recorderFile = fopen("recorder", "w");
+
+    ...
+
+    oldDispatcher = <A HREF="vevent-x.html#veventRegisterDispatcher"><CODE>veventRegisterDispatcher</CODE></A>(newDispatcher);
+    <A HREF="vevent-x.html#veventProcess"><CODE>veventProcess</CODE></A>();
+
+    fclose(recorderFile);
+}
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="veventFD"><HR><H4>veventFD</H4></A>
+<PRE>
+        typedef ... <B>veventFD</B>;
+</PRE>
+
+<DL><DD>
+A <CODE>veventFD</CODE> holds information used by the file descriptor
+translation procedures. You can obtain a <CODE>veventFD</CODE> pointer
+from a file descriptor (such as returned from the system call
+<SAMP>open</SAMP>) by calling <CODE><A HREF="vevent-x.html#veventRegisterFD"><CODE>veventRegisterFD</CODE></A></CODE>. You can
+then set read, write, or exception notification on the
+<CODE>veventFD</CODE>.
+<P>
+<CODE>veventFD</CODE> only works on UNIX platforms.
+</DD></DL>
+<P>
+<A NAME="veventFDIterator"><HR><H4>veventFDIterator</H4></A>
+<PRE>
+        typedef ... <B>veventFDIterator</B>;
+</PRE>
+
+<DL><DD>
+Denotes an abstract index variable used for iterating over
+all existing <CODE>veventFD</CODE> objects. See also
+<CODE><A HREF="vevent-x.html#veventInitFDIterator"><CODE>veventInitFDIterator</CODE></A></CODE>,
+<CODE><A HREF="vevent-x.html#veventNextFDIterator"><CODE>veventNextFDIterator</CODE></A></CODE>,
+<CODE><A HREF="vevent-x.html#veventGetFDIteratorFD"><CODE>veventGetFDIteratorFD</CODE></A></CODE>, and
+<CODE><A HREF="vevent-x.html#veventDestroyFDIterator"><CODE>veventDestroyFDIterator</CODE></A></CODE>.
+<P>
+<CODE>veventFDIterator</CODE> only works on UNIX platforms.
+</DD></DL>
+<P>
+<A NAME="veventFDNoteProc"><HR><H4>veventFDNoteProc</H4></A>
+<PRE>
+        typedef ... <B>veventFDNoteProc</B>;
+</PRE>
+
+<DL><DD>
+The notify callback of a <CODE>veventFD</CODE> that
+indicates activity on that <CODE>veventFD</CODE>. See also
+<CODE><A HREF="vevent-x.html#veventSetFDReadNotify"><CODE>veventSetFDReadNotify</CODE></A></CODE>,
+<CODE><A HREF="vevent-x.html#veventSetFDWriteNotify"><CODE>veventSetFDWriteNotify</CODE></A></CODE>, and
+<CODE><A HREF="vevent-x.html#veventSetFDExceptNotify"><CODE>veventSetFDExceptNotify</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventHandler"><HR><H4>veventHandler</H4></A>
+<PRE>
+        typedef ... <B>veventHandler</B>;
+</PRE>
+
+<DL><DD>
+An object used by the dispatcher in the event loop to
+direct events of particular types to their associated
+<SAMP><A HREF="vevent-x.html#veventHandlerProc"><CODE>veventHandlerProc</CODE></A></SAMP> handler functions. A
+<SAMP>veventHandler</SAMP> is a group of
+<SAMP><A HREF="vevent-x.html#veventHandlerProc"><CODE>veventHandlerProc</CODE></A></SAMP> functions, one for each
+<CODE><A HREF="vevent-x.html#veventType"><CODE>veventType</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventHandlerClass"><HR><H4>veventHandlerClass</H4></A>
+<PRE>
+        typedef ... <B>veventHandlerClass</B>;
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="veventHandlerProc"><HR><H4>veventHandlerProc</H4></A>
+<PRE>
+        typedef ... <B>veventHandlerProc</B>;
+</PRE>
+
+<DL><DD>
+A procedure used to handle an event. The handler procedure must return
+<CODE>vTRUE</CODE> if the event was handled and <CODE>vFALSE</CODE> if
+it was not. An event's target handler procedure is set through
+<CODE><A HREF="vevent-x.html#veventSetTarget"><CODE>veventSetTarget</CODE></A>.</CODE> An event handler's handler procedure for a
+certain event type can be set through <CODE><A HREF="vevent-x.html#veventSetHandlerProc"><CODE>veventSetHandlerProc</CODE></A></CODE>.
+The handler does not get ownership of the event and should not destroy
+the event. It may, however, repost the event using
+<CODE><A HREF="vevent-x.html#veventPost"><CODE>veventPost</CODE></A></CODE> or any of the other post calls.
+</DD></DL>
+<P>
+<A NAME="veventPreBlockHandlerProc"><HR><H4>veventPreBlockHandlerProc</H4></A>
+<PRE>
+        typedef ... <B>veventPreBlockHandlerProc</B>;
+</PRE>
+
+<DL><DD>
+A procedure that is called just before the event loop is about to block
+for a non-zero amount of time.  The vevent module will call the current
+preblock handler (gotten via <CODE><A HREF="vevent-x.html#veventGetPreBlockHandlerProc"><CODE>veventGetPreBlockHandlerProc</CODE></A></CODE>)
+just before it blocks. Client code should also call the current
+<CODE>veventPreBlockHandlerProc</CODE> (via
+<CODE><A HREF="vevent-x.html#veventGetPreBlockHandlerProc"><CODE>veventGetPreBlockHandlerProc</CODE></A></CODE>) just before any blocking call
+or even any long calculation  (greater than a second).
+<P>
+This may not be used to cancel the pending blockage or stop this program
+from being blocked. This is also not useful for a program that wants to
+perform idle time processing.  Use a <CODE><A HREF="vevent-x.html#veventClientWaitProc"><CODE>veventClientWaitProc</CODE></A></CODE> or
+<CODE><A HREF="vevent-x.html#veventClientWaitIndefinitelyProc"><CODE>veventClientWaitIndefinitelyProc</CODE></A></CODE> for that.
+</DD></DL>
+<P>
+<A NAME="veventPriority"><HR><H4>veventPriority</H4></A>
+<PRE>
+        typedef ... <B>veventPriority</B>;
+</PRE>
+
+<DL><DD>
+An integral type representing the importance of the event.
+Events in the queue with a higher priority are dispatched
+before events with a lower priority. Values should be
+between <CODE>veventPRIORITY_MIN</CODE> and
+<CODE>veventPRIORITY_MAX</CODE>, inclusive. The priority of
+an event does not often need to be set or referenced.
+</DD></DL>
+<P>
+<A NAME="veventQuitProc"><HR><H4>veventQuitProc</H4></A>
+<PRE>
+        typedef ... <B>veventQuitProc</B>;
+</PRE>
+
+<DL><DD>
+Called during <CODE>veventQuit</CODE> to either prepare for app
+termination and return <CODE>vTRUE</CODE> or indicate unreadiness by
+returning <CODE>vFALSE</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventTranslatorProc"><HR><H4>veventTranslatorProc</H4></A>
+<PRE>
+        typedef ... <B>veventTranslatorProc</B>;
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Responsible for translating events from a stream <SAMP>(FILE *)</SAMP>
+into Event Manager events. Functions of this type should read pending
+events from the stream and post them to the event queue with
+<CODE><A HREF="vevent-x.html#veventPost"><CODE>veventPost</CODE></A></CODE> or one of its variants. <SAMP>flags</SAMP>
+provides additional information about the stream. It is the bitwise OR
+(<SAMP>|</SAMP>) of zero or more of the following flags:
+<P><CODE>veventSTREAM_READ_AVAIL</CODE>
+<P><CODE>veventSTREAM_WRITE_AVAIL</CODE>
+<P><CODE>veventSTREAM_EXCEPTION_AVAIL</CODE>
+<P>
+This type has been deprecated in favor of the file descriptor mechanism
+(see <CODE><A HREF="vevent-x.html#veventRegisterFD"><CODE>veventRegisterFD</CODE></A></CODE>).
+</DD></DL>
+<P>
+<A NAME="veventType"><HR><H4>veventType</H4></A>
+<PRE>
+        typedef ... <B>veventType</B>;
+</PRE>
+
+<DL><DD>
+An integral type indicating the type of an event. It can be
+one of <CODE>veventBUTTON_DOWN</CODE>,
+<CODE>veventBUTTON_UP</CODE>, <CODE>veventCLIENT</CODE>,
+<CODE>veventFOCUS_ACQUIRE</CODE>,
+<CODE>veventFOCUS_LOSE</CODE>, <CODE>veventKEY_DOWN</CODE>,
+<CODE>veventKEY_UP</CODE>,
+<CODE>veventPOINTER_DETAIL</CODE>,
+<CODE>veventPOINTER_DRAG</CODE>,
+<CODE>veventPOINTER_MOTION</CODE>,
+<CODE>veventPOINTER_ENTER</CODE>,
+<CODE>veventPOINTER_LEAVE</CODE>,
+<CODE>veventWINDOW_CONFIGURE</CODE>,
+<CODE>veventWINDOW_STATE</CODE>, or
+<CODE>veventWINDOW_UPDATE</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventWindowConfigureEvent"><HR><H4>veventWindowConfigureEvent</H4></A>
+<PRE>
+        typedef ... <B>veventWindowConfigureEvent</B>;
+</PRE>
+
+<DL><DD>
+A subclass of <A HREF="vevent-x.html#veventWindowEvent"><CODE>veventWindowEvent</CODE></A> indicating that the window's size,
+position and/or stacking order has changed.
+</DD></DL>
+<P>
+<A NAME="veventWindowEvent"><HR><H4>veventWindowEvent</H4></A>
+<PRE>
+        typedef ... <B>veventWindowEvent</B>;
+</PRE>
+
+<DL><DD>
+A subclass of vevent indicating that something has happened inside or to
+a window.
+</DD></DL>
+<P>
+<A NAME="veventWindowFocusAcquireEvent"><HR><H4>veventWindowFocusAcquireEvent</H4></A>
+<PRE>
+        typedef ... <B>veventWindowFocusAcquireEvent</B>;
+</PRE>
+
+<DL><DD>
+A subclass of <A HREF="vevent-x.html#veventWindowFocusEvent"><CODE>veventWindowFocusEvent</CODE></A> indicating that the window has
+acquired the keyboard focus.
+</DD></DL>
+<P>
+<A NAME="veventWindowFocusEvent"><HR><H4>veventWindowFocusEvent</H4></A>
+<PRE>
+        typedef ... <B>veventWindowFocusEvent</B>;
+</PRE>
+
+<DL><DD>
+A subclass of <A HREF="vevent-x.html#veventWindowEvent"><CODE>veventWindowEvent</CODE></A> indicating that the window has been
+involved in a keyboard focus change.  See also
+<CODE><A HREF="vevent-x.html#veventWindowFocusAcquireEvent"><CODE>veventWindowFocusAcquireEvent</CODE></A></CODE> and
+<CODE><A HREF="vevent-x.html#veventWindowFocusLoseEvent"><CODE>veventWindowFocusLoseEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventWindowFocusLoseEvent"><HR><H4>veventWindowFocusLoseEvent</H4></A>
+<PRE>
+        typedef ... <B>veventWindowFocusLoseEvent</B>;
+</PRE>
+
+<DL><DD>
+A subclass of <CODE><A HREF="vevent-x.html#veventWindowFocusEvent"><CODE>veventWindowFocusEvent</CODE></A></CODE> indicating that the
+window has lost the keyboard focus.
+</DD></DL>
+<P>
+<A NAME="veventWindowKeyDownEvent"><HR><H4>veventWindowKeyDownEvent</H4></A>
+<PRE>
+        typedef ... <B>veventWindowKeyDownEvent</B>;
+</PRE>
+
+<DL><DD>
+A subclass of <CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE> indicating that a key
+has been pressed while the window has the keyboard focus.
+</DD></DL>
+<P>
+<A NAME="veventWindowKeyEvent"><HR><H4>veventWindowKeyEvent</H4></A>
+<PRE>
+        typedef ... <B>veventWindowKeyEvent</B>;
+</PRE>
+
+<DL><DD>
+A subclass of <CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE> indicating that a
+key has been pressed or released while the window has the keyboard
+focus.  This class is a subclass of
+<CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE> and not
+<CODE><A HREF="vevent-x.html#veventWindowEvent"><CODE>veventWindowEvent</CODE></A></CODE> in order to make the pointer's position
+at the time of the keyboard action available to applications.
+</DD></DL>
+<P>
+<A NAME="veventWindowKeyUpEvent"><HR><H4>veventWindowKeyUpEvent</H4></A>
+<PRE>
+        typedef ... <B>veventWindowKeyUpEvent</B>;
+</PRE>
+
+<DL><DD>
+A subclass of <CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE> indicating that a key
+has been released while the window has the keyboard focus.  Note that
+not all platforms are guaranteed to provide key-up events to the
+application.  (In particular, the X-Windows specification gives X server
+implementors the option to provide or not provide these events.)
+</DD></DL>
+<P>
+<A NAME="veventWindowPointerButtonDownEvent"><HR><H4>veventWindowPointerButtonDownEvent</H4></A>
+<PRE>
+        typedef ... <B>veventWindowPointerButtonDownEvent</B>;
+</PRE>
+
+<DL><DD>
+A subclass of <CODE><A HREF="vevent-x.html#veventWindowPointerButtonEvent"><CODE>veventWindowPointerButtonEvent</CODE></A></CODE> indicating
+that a pointer button has been pressed.  Generally, the window
+associated with the event will be the window the pointer is over at the
+time of the button-press, although it could be some other window if
+input is grabbed.  See also <CODE><A HREF="vwindow-x.html#vwindowGrabInput"><CODE>vwindowGrabInput</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventWindowPointerButtonEvent"><HR><H4>veventWindowPointerButtonEvent</H4></A>
+<PRE>
+        typedef ... <B>veventWindowPointerButtonEvent</B>;
+</PRE>
+
+<DL><DD>
+A subclass of <CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE> indicating that a
+pointer button has been pressed or released.  Generally, the window
+associated with the event will be the window the pointer is over at the
+time of the event, although it could be some other window if input is
+grabbed.  See also <CODE><A HREF="vwindow-x.html#vwindowGrabInput"><CODE>vwindowGrabInput</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventWindowPointerButtonUpEvent"><HR><H4>veventWindowPointerButtonUpEvent</H4></A>
+<PRE>
+        typedef ... <B>veventWindowPointerButtonUpEvent</B>;
+</PRE>
+
+<DL><DD>
+A subclass of <CODE><A HREF="vevent-x.html#veventWindowPointerButtonEvent"><CODE>veventWindowPointerButtonEvent</CODE></A></CODE> indicating
+that a pointer button has been released.  Generally, the window
+associated with the event will be the window the pointer is over at the
+time of the button-release, although it could be some other window if
+input is grabbed.  See also <CODE><A HREF="vwindow-x.html#vwindowGrabInput"><CODE>vwindowGrabInput</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventWindowPointerDetailEvent"><HR><H4>veventWindowPointerDetailEvent</H4></A>
+<PRE>
+        typedef ... <B>veventWindowPointerDetailEvent</B>;
+</PRE>
+
+<DL><DD>
+See <CODE><A HREF="vevent-x.html#veventWindowPointerDragEvent"><CODE>veventWindowPointerDragEvent</CODE></A></CODE>.
+<P>
+Another name for a <CODE>veventWindowPoitnerDragEvent</CODE>.
+It is assumed that the event type for a detail event is
+<CODE>veventPOINTER_DETAIL</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventWindowPointerDragEvent"><HR><H4>veventWindowPointerDragEvent</H4></A>
+<PRE>
+        typedef ... <B>veventWindowPointerDragEvent</B>;
+</PRE>
+
+<DL><DD>
+A subclass of <CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE> indicating that the
+pointer has moved.  Not all pointer motion will create events.  Pointer
+motion while a button is depressed will usually create drag and detail
+events.  Pointer motion when no button is depressed will create motion
+events only if the window has motion events enabled.  See also
+<CODE><A HREF="vwindow-x.html#vwindowSetMotion"><CODE>vwindowSetMotion</CODE></A></CODE>.
+<P>
+Generally, the window associated with the event will be the window the
+pointer is over at the time of the event, although it could be some
+other window if input is grabbed.  See also
+<CODE><A HREF="vwindow-x.html#vwindowGrabInput"><CODE>vwindowGrabInput</CODE></A></CODE.
+<P>
+Instances of <CODE>veventWindowPointerDragEvent</CODE> may be either
+drag, detail or motion events.  The event's type (Accessed with
+<CODE>vevent::GetType</CODE> and <CODE>vevent::SetType</CODE>) will be
+either <CODE>veventPOINTER_DRAG</CODE>,
+<CODE>veventPOINTER_DETAIL</CODE>, or
+<CODE>veventPOINTER_MOTION</CODE>.
+<P>
+Drag and motion events always reflect the current position of the
+pointer.  Detail events reflect every place the pointer has been.  If
+your application needs to know every place the pointer has been (for
+instance, in a paint program,) it should handle detail events.  If your
+application is only concerned with the current position of the pointer
+(for instance, when dragging an object), it should handle drag and/or
+motion events.  See also <CODE>vwindowHANDLE_DETAIL</CODE>,
+<CODE>vwindowHANDLE_DRAG</CODE>, and <CODE>vwindowHANDLE_MOTION</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventWindowPointerEnterEvent"><HR><H4>veventWindowPointerEnterEvent</H4></A>
+<PRE>
+        typedef ... <B>veventWindowPointerEnterEvent</B>;
+</PRE>
+
+<DL><DD>
+A subclass of <CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE> indicating that the
+pointer has entered the window associated with the event.  Note that not
+all platforms will reliably provide pointer enter events to applications.
+</DD></DL>
+<P>
+<A NAME="veventWindowPointerEvent"><HR><H4>veventWindowPointerEvent</H4></A>
+<PRE>
+        typedef ... <B>veventWindowPointerEvent</B>;
+</PRE>
+
+<DL><DD>
+A subclass of <CODE><A HREF="vevent-x.html#veventWindowEvent"><CODE>veventWindowEvent</CODE></A></CODE> indicating that some event
+involving the pointer has taken place.  Generally, the window associated
+with the event will be the window the pointer is over at the time of the
+event, although it could be some other window if input is grabbed.  See
+also <CODE><A HREF="vwindow-x.html#vwindow"><CODE>vwindow</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventWindowPointerLeaveEvent"><HR><H4>veventWindowPointerLeaveEvent</H4></A>
+<PRE>
+        typedef ... <B>veventWindowPointerLeaveEvent</B>;
+</PRE>
+
+<DL><DD>
+A subclass of <CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE> indicating that the
+pointer has left the window associated with the event.  Note that not
+all platforms will reliably provide pointer leave events to the
+application.
+</DD></DL>
+<P>
+<A NAME="veventWindowPointerMotionEvent"><HR><H4>veventWindowPointerMotionEvent</H4></A>
+<PRE>
+        typedef ... <B>veventWindowPointerMotionEvent</B>;
+</PRE>
+
+<DL><DD>
+See <CODE><A HREF="vevent-x.html#veventWindowPointerDragEvent"><CODE>veventWindowPointerDragEvent</CODE></A></CODE>.
+<P>
+Another name for a <CODE>veventWindowPoitnerDragEvent</CODE>.
+It is assumed that the event type for a detail event is
+<CODE>veventPOINTER_MOTION</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventWindowStateEvent"><HR><H4>veventWindowStateEvent</H4></A>
+<PRE>
+        typedef ... <B>veventWindowStateEvent</B>;
+</PRE>
+
+<DL><DD>
+A subclass of <CODE><A HREF="vevent-x.html#veventWindowEvent"><CODE>veventWindowEvent</CODE></A></CODE> indicating a change in the
+state attribute of the window associated with the event.  (For example,
+whether the window is open, closed, iconified, or maximized.)
+</DD></DL>
+<P>
+<A NAME="veventWindowUpdateEvent"><HR><H4>veventWindowUpdateEvent</H4></A>
+<PRE>
+        typedef ... <B>veventWindowUpdateEvent</B>;
+</PRE>
+
+<DL><DD>
+A subclass of <CODE><A HREF="vevent-x.html#veventWindowEvent"><CODE>veventWindowEvent</CODE></A></CODE> indicating that all or some
+of the associated window is displaying invalid information, and it
+should redraw its contents.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="veventWindowKeyEvent::GetKey"><HR><H4>veventWindowKeyEvent::GetKey</H4></A>
+<PRE>
+        void <B>veventWindowKeyEvent::GetKey</B>();
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="veventWindowKeyEvent::SetKey"><HR><H4>veventWindowKeyEvent::SetKey</H4></A>
+<PRE>
+        void <B>veventWindowKeyEvent::SetKey</B>();
+</PRE>
+
+<DL><DD>
+Sets the <CODE><A HREF="vkey-x.html#vkey"><CODE>vkey</CODE></A></CODE> of the event.  <CODE>vkeyNULL</CODE> is a
+valid value, indicating the absence of any key in the event.
+</DD></DL>
+<P>
+<A NAME="veventAddQuitProc"><HR><H4>veventAddQuitProc</H4></A>
+<PRE>
+        void <B>veventAddQuitProc</B>(
+                veventQuitProc proc);
+</PRE>
+
+<DL><DD>
+Adds the <CODE><A HREF="vevent-x.html#veventQuitProc"><CODE>veventQuitProc</CODE></A></CODE> to the list of
+shutdown handlers called during <CODE><A HREF="vevent-x.html#veventQuit"><CODE>veventQuit</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventAssert"><HR><H4>veventAssert</H4></A>
+<PRE>
+        void <B>veventAssert</B>(
+                const vevent * event);
+</PRE>
+
+<DL><DD>
+Asserts that the <CODE>vevent</CODE> <SAMP>event</SAMP> is valid.  If it
+is not, the program will be terminated by calling
+<CODE><A HREF="vdebug-x.html#vdebugAbort"><CODE>vdebugAbort</CODE></A></CODE> with an appropriate message.  See also
+<CODE><A HREF="vevent-x.html#veventHandledAssert"><CODE>veventHandledAssert</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventCancelQuit"><HR><H4>veventCancelQuit</H4></A>
+<PRE>
+        void <B>veventCancelQuit</B>();
+</PRE>
+
+<DL><DD>
+When responding to a command issued in the scope of the application and
+bound to <CODE>vname_Quit</CODE>, the application should do only one of
+two things. When the <I>logical</I> shutdown sequence is finished (when
+all open files have been saved or discarded, or the sequence has been
+cancelled) either one or the other of two procedures should be
+called. Call <CODE><A HREF="vevent-x.html#veventStopProcessing"><CODE>veventStopProcessing</CODE></A></CODE> if the application is
+ready to quit, or call <CODE>veventCancelQuit</CODE> if the application
+is not yet ready to quit. (Call one or the other of these procedures
+after the <I>logical</I> shutdown sequence has been completed or
+cancelled, not necessarily just when a value is returned to the command
+issuer.)
+<P>
+For example:
+<P>
+<BLOCKQUOTE>
+<PRE>
+
+switch(selector) { 
+case commandQUIT: 
+    if (closedAllFiles())
+          <A HREF="vevent-x.html#veventStopProcessing"><CODE>veventStopProcessing</CODE></A>();
+    else
+          veventCancelQuit(); 
+    return TRUE;
+}
+</PRE>
+</BLOCKQUOTE>
+<P>
+The procedure handling the issue of the command should always return
+<CODE>vTRUE</CODE>, indicating that the command was understood.  This
+procedure is useful in implementing correct session management under the
+various window managers. See also <CODE><A HREF="vobject-x.html#vobjectIssueCommand"><CODE>vobjectIssueCommand</CODE></A></CODE>,
+<CODE><A HREF="vapplication-x.html#vapplicationSetSpace"><CODE>vapplicationSetSpace</CODE></A></CODE>, and <CODE><A HREF="vcommand-x.html#vcommandSpace"><CODE>vcommandSpace</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventClone"><HR><H4>veventClone</H4></A>
+<PRE>
+        vevent * <B>veventClone</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Creates a copy of the event <SAMP>event</SAMP> and returns a pointer to
+it.  The event is not posted to any event queue, even if
+<SAMP>event</SAMP> is already enqueued.
+</DD></DL>
+<P>
+<A NAME="veventCloneHandler"><HR><H4>veventCloneHandler</H4></A>
+<PRE>
+        veventHandler * <B>veventCloneHandler</B>(
+                veventHandler * handler);
+</PRE>
+
+<DL><DD>
+Allocates and returns a copy of the <CODE><A HREF="vevent-x.html#veventHandler"><CODE>veventHandler</CODE></A></CODE>
+<SAMP>handler</SAMP>.
+</DD></DL>
+<P>
+<A NAME="veventCopyHandler"><HR><H4>veventCopyHandler</H4></A>
+<PRE>
+        void <B>veventCopyHandler</B>(
+                const veventHandler * from,
+                veventHandler * to);
+</PRE>
+
+<DL><DD>
+Copies the handler contents from <CODE><A HREF="vevent-x.html#veventHandler"><CODE>veventHandler</CODE></A></CODE>
+<SAMP>from</SAMP> to the <CODE><A HREF="vevent-x.html#veventHandler"><CODE>veventHandler</CODE></A></CODE> <SAMP>to</SAMP>.
+<SAMP>to</SAMP> must be initialized.
+</DD></DL>
+<P>
+<A NAME="veventCopyInitHandler"><HR><H4>veventCopyInitHandler</H4></A>
+<PRE>
+        void <B>veventCopyInitHandler</B>(
+                const veventHandler * from,
+                veventHandler * to);
+</PRE>
+
+<DL><DD>
+Initializes the <CODE><A HREF="vevent-x.html#veventHandler"><CODE>veventHandler</CODE></A></CODE> <SAMP>to</SAMP> based on the
+contents of the <CODE><A HREF="vevent-x.html#veventHandler"><CODE>veventHandler</CODE></A></CODE> <SAMP>from</SAMP>..
+</DD></DL>
+<P>
+<A NAME="veventCreateApplication"><HR><H4>veventCreateApplication</H4></A>
+<PRE>
+        vevent * <B>veventCreateApplication</B>();
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> See <CODE><A HREF="vevent-x.html#veventCreateClient"><CODE>veventCreateClient</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventCreateButtonDown"><HR><H4>veventCreateButtonDown</H4></A>
+<PRE>
+        vevent * <B>veventCreateButtonDown</B>();
+</PRE>
+
+<DL><DD>
+Creates and returns a button down event, which is an instance of the
+<CODE>veventWindowButtonDown</CODE> class.
+</DD></DL>
+<P>
+<A NAME="veventCreateButtonUp"><HR><H4>veventCreateButtonUp</H4></A>
+<PRE>
+        vevent * <B>veventCreateButtonUp</B>();
+</PRE>
+
+<DL><DD>
+Creates and returns a button up event, which is an instance of the
+<CODE>veventWindowButtonUpEvent</CODE> class.
+</DD></DL>
+<P>
+<A NAME="veventCreateClient"><HR><H4>veventCreateClient</H4></A>
+<PRE>
+        vevent * <B>veventCreateClient</B>();
+</PRE>
+
+<DL><DD>
+Creates and returns a client event, which is a <CODE>vevent</CODE> class
+reserved for application use.
+</DD></DL>
+<P>
+<A NAME="veventCreateFocusAcquire"><HR><H4>veventCreateFocusAcquire</H4></A>
+<PRE>
+        vevent * <B>veventCreateFocusAcquire</B>();
+</PRE>
+
+<DL><DD>
+Creates and returns a focus acquire event, which is an instance of the
+<CODE><A HREF="vevent-x.html#veventWindowFocusAcquireEvent"><CODE>veventWindowFocusAcquireEvent</CODE></A></CODE> class.
+</DD></DL>
+<P>
+<A NAME="veventCreateFocusLose"><HR><H4>veventCreateFocusLose</H4></A>
+<PRE>
+        vevent * <B>veventCreateFocusLose</B>();
+</PRE>
+
+<DL><DD>
+Creates and returns a focus lose event which is an instance of the
+<CODE><A HREF="vevent-x.html#veventWindowFocusLoseEvent"><CODE>veventWindowFocusLoseEvent</CODE></A></CODE> class.
+</DD></DL>
+<P>
+<A NAME="veventCreateHandler"><HR><H4>veventCreateHandler</H4></A>
+<PRE>
+        veventHandler * <B>veventCreateHandler</B>();
+</PRE>
+
+<DL><DD>
+Allocates and initializes a <SAMP><A HREF="vevent-x.html#veventHandler"><CODE>veventHandler</CODE></A></SAMP>. The handler
+returned does not handle any of the event types.  Handler procedures for
+this handler can be set using <CODE><A HREF="vevent-x.html#veventSetHandlerProc"><CODE>veventSetHandlerProc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventCreateKeyDown"><HR><H4>veventCreateKeyDown</H4></A>
+<PRE>
+        vevent * <B>veventCreateKeyDown</B>();
+</PRE>
+
+<DL><DD>
+Creates and returns a key down event, which is an instance of the
+<CODE><A HREF="vevent-x.html#veventWindowKeyDownEvent"><CODE>veventWindowKeyDownEvent</CODE></A></CODE> class.
+</DD></DL>
+<P>
+<A NAME="veventCreateKeyUp"><HR><H4>veventCreateKeyUp</H4></A>
+<PRE>
+        vevent * <B>veventCreateKeyUp</B>();
+</PRE>
+
+<DL><DD>
+Creates and returns a key up event, which is an instance of the
+<CODE><A HREF="vevent-x.html#veventWindowKeyUpEvent"><CODE>veventWindowKeyUpEvent</CODE></A></CODE> class.
+</DD></DL>
+<P>
+<A NAME="veventCreatePointerDetail"><HR><H4>veventCreatePointerDetail</H4></A>
+<PRE>
+        vevent * <B>veventCreatePointerDetail</B>();
+</PRE>
+
+<DL><DD>
+Creates and returns a pointer detail event, which is an instance of the
+<CODE><A HREF="vevent-x.html#veventWindowPointerDragEvent"><CODE>veventWindowPointerDragEvent</CODE></A></CODE> class with its type set to
+<CODE>veventPOINTER_DETAIL</CODE> .
+<P>
+See <CODE><A HREF="vevent-x.html#veventWindowPointerDragEvent"><CODE>veventWindowPointerDragEvent</CODE></A></CODE> for information on drag
+and detail events.
+</DD></DL>
+<P>
+<A NAME="veventCreatePointerDrag"><HR><H4>veventCreatePointerDrag</H4></A>
+<PRE>
+        vevent * <B>veventCreatePointerDrag</B>();
+</PRE>
+
+<DL><DD>
+Creates and returns a pointer drag event, which is an instance of the
+<CODE><A HREF="vevent-x.html#veventWindowPointerDragEvent"><CODE>veventWindowPointerDragEvent</CODE></A></CODE> class with its type set to
+<CODE>veventPOINTER_DRAG</CODE> .
+<P>
+See <CODE><A HREF="vevent-x.html#veventWindowPointerDragEvent"><CODE>veventWindowPointerDragEvent</CODE></A></CODE> for information on drag
+and detail events.
+</DD></DL>
+<P>
+<A NAME="veventCreatePointerEnter"><HR><H4>veventCreatePointerEnter</H4></A>
+<PRE>
+        vevent * <B>veventCreatePointerEnter</B>();
+</PRE>
+
+<DL><DD>
+Creates and returns a pointer enter event, which is an instance of the
+<CODE><A HREF="vevent-x.html#veventWindowPointerEnterEvent"><CODE>veventWindowPointerEnterEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventCreatePointerLeave"><HR><H4>veventCreatePointerLeave</H4></A>
+<PRE>
+        vevent * <B>veventCreatePointerLeave</B>();
+</PRE>
+
+<DL><DD>
+Creates and returns a pointer leave event, which is an instance of the
+<CODE><A HREF="vevent-x.html#veventWindowPointerLeaveEvent"><CODE>veventWindowPointerLeaveEvent</CODE></A></CODE> class.
+</DD></DL>
+<P>
+<A NAME="veventCreatePointerMotion"><HR><H4>veventCreatePointerMotion</H4></A>
+<PRE>
+        vevent * <B>veventCreatePointerMotion</B>();
+</PRE>
+
+<DL><DD>
+Creates and returns a pointer motion event, which is an instance of the
+<CODE><A HREF="vevent-x.html#veventWindowPointerDragEvent"><CODE>veventWindowPointerDragEvent</CODE></A></CODE> class with its type set to
+<CODE>veventPOINTER_MOTION</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventCreateWindowConfigure"><HR><H4>veventCreateWindowConfigure</H4></A>
+<PRE>
+        vevent * <B>veventCreateWindowConfigure</B>();
+</PRE>
+
+<DL><DD>
+Creates and returns a configure event, which is an instance of the
+<CODE><A HREF="vevent-x.html#veventWindowConfigureEvent"><CODE>veventWindowConfigureEvent</CODE></A></CODE> class.
+</DD></DL>
+<P>
+<A NAME="veventCreateWindowState"><HR><H4>veventCreateWindowState</H4></A>
+<PRE>
+        vevent * <B>veventCreateWindowState</B>();
+</PRE>
+
+<DL><DD>
+Creates and returns a state event, which is an instance of the
+<CODE><A HREF="vevent-x.html#veventWindowStateEvent"><CODE>veventWindowStateEvent</CODE></A></CODE> class.
+</DD></DL>
+<P>
+<A NAME="veventCreateWindowUpdate"><HR><H4>veventCreateWindowUpdate</H4></A>
+<PRE>
+        vevent * <B>veventCreateWindowUpdate</B>();
+</PRE>
+
+<DL><DD>
+Creates and returns an update event, which is an instance of the
+<CODE><A HREF="vevent-x.html#veventWindowUpdateEvent"><CODE>veventWindowUpdateEvent</CODE></A></CODE> class.
+</DD></DL>
+<P>
+<A NAME="veventDestroy"><HR><H4>veventDestroy</H4></A>
+<PRE>
+        void <B>veventDestroy</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Reclaims the storage occupied by the <CODE>vevent</CODE>
+<SAMP>event</SAMP>.
+</DD></DL>
+<P>
+<A NAME="veventDestroyFDIterator"><HR><H4>veventDestroyFDIterator</H4></A>
+<PRE>
+        void <B>veventDestroyFDIterator</B>(
+                veventFDIterator * iterator);
+</PRE>
+
+<DL><DD>
+Destroys the given <SAMP><A HREF="vevent-x.html#veventFDIterator"><CODE>veventFDIterator</CODE></A></SAMP>. This
+iterator must have been initialized with
+<CODE><A HREF="vevent-x.html#veventInitFDIterator"><CODE>veventInitFDIterator</CODE></A></CODE> first. See also
+<CODE><A HREF="vevent-x.html#veventNextFDIterator"><CODE>veventNextFDIterator</CODE></A></CODE> and
+<CODE><A HREF="vevent-x.html#veventGetFDIteratorFD"><CODE>veventGetFDIteratorFD</CODE></A></CODE>.
+<P>
+For example:
+<P>
+<BLOCKQUOTE>
+<PRE>
+
+void sample( void )
+{
+    <A HREF="vevent-x.html#veventFDIterator"><CODE>veventFDIterator</CODE></A>         iterator;
+    <A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A>                *pFD;
+
+    <A HREF="vevent-x.html#veventInitFDIterator"><CODE>veventInitFDIterator</CODE></A>( &iterator );
+
+    while (<A HREF="vevent-x.html#veventNextFDIterator"><CODE>veventNextFDIterator</CODE></A>( &iterator ))
+    {
+        pFD = <A HREF="vevent-x.html#veventGetFDIteratorFD"><CODE>veventGetFDIteratorFD</CODE></A>( &iterator );
+
+        /* lots of code here */
+    }
+
+    veventDestroyFDIterator( &iterator );
+}
+</PRE>
+</BLOCKQUOTE>
+<P>
+<CODE>veventDestroyFDIterator</CODE> only works on UNIX platforms.
+</DD></DL>
+<P>
+<A NAME="veventDestroyHandler"><HR><H4>veventDestroyHandler</H4></A>
+<PRE>
+        void <B>veventDestroyHandler</B>(
+                veventHandler * handler);
+</PRE>
+
+<DL><DD>
+Destroys the <CODE><A HREF="vevent-x.html#veventHandler"><CODE>veventHandler</CODE></A></CODE> <SAMP>handler</SAMP>, freeing up
+any allocated resources.
+</DD></DL>
+<P>
+<A NAME="veventDispatch"><HR><H4>veventDispatch</H4></A>
+<PRE>
+        int <B>veventDispatch</B>(
+                vevent * event,
+                const veventHandler * target);
+</PRE>
+
+<DL><DD>
+Calls the current dispatcher to dispatch the given event.
+</DD></DL>
+<P>
+<A NAME="veventDump"><HR><H4>veventDump</H4></A>
+<PRE>
+        void <B>veventDump</B>(
+                vevent * event,
+                FILE * stream);
+</PRE>
+
+<DL><DD>
+Dumps (prints) a debugging representation of the event
+<SAMP>event</SAMP> to the given file stream.
+</DD></DL>
+<P>
+<A NAME="veventFlushProcessing"><HR><H4>veventFlushProcessing</H4></A>
+<PRE>
+        void <B>veventFlushProcessing</B>();
+</PRE>
+
+<DL><DD>
+Flushes any events in the current thread's event queue that can be
+dispatched immediately.  This is accomplished by starting a sub-event
+loop.  Events are processed in their normal manner until no events are
+left queued that can be dispatched immediately.  FlushProcessing will
+then return.
+</DD></DL>
+<P>
+<A NAME="veventGetApplicationData"><HR><H4>veventGetApplicationData</H4></A>
+<PRE>
+        const void * <B>veventGetApplicationData</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> See <CODE><A HREF="vevent-x.html#veventGetClientData"><CODE>veventGetClientData</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetApplicationType"><HR><H4>veventGetApplicationType</H4></A>
+<PRE>
+        int <B>veventGetApplicationType</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> See <CODE><A HREF="vevent-x.html#veventGetClientType"><CODE>veventGetClientType</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetBinding"><HR><H4>veventGetBinding</H4></A>
+<PRE>
+        const vname * <B>veventGetBinding</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the binding of an event. The binding is an application specific
+label used to indicate the translation of physical event to logical
+function. If a binding for an event is not set, <SAMP>(<A HREF="vname-x.html#vname"><CODE>vname</CODE></A> *)0</SAMP>
+is returned.
+</DD></DL>
+<P>
+<A NAME="veventGetCancelWaitProc"><HR><H4>veventGetCancelWaitProc</H4></A>
+<PRE>
+        veventCancelWaitProc <B>veventGetCancelWaitProc</B>();
+</PRE>
+
+<DL><DD>
+Gets the currently installed <CODE><A HREF="vevent-x.html#veventCancelWaitProc"><CODE>veventCancelWaitProc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetClientData"><HR><H4>veventGetClientData</H4></A>
+<PRE>
+        const void * <B>veventGetClientData</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the client data pointer of the event.
+</DD></DL>
+<P>
+<A NAME="veventGetClientQueueFlushProc"><HR><H4>veventGetClientQueueFlushProc</H4></A>
+<PRE>
+        veventClientQueueFlushProc <B>veventGetClientQueueFlushProc</B>();
+</PRE>
+
+<DL><DD>
+Returns the current client queue flush procedure.
+</DD></DL>
+<P>
+<A NAME="veventGetClientType"><HR><H4>veventGetClientType</H4></A>
+<PRE>
+        int <B>veventGetClientType</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the client type of the given event. The client type is an
+integer defined by the client. This is basically a catch-all event type
+for client-defined use.
+</DD></DL>
+<P>
+<A NAME="veventGetClientWaitIndefinitelyProc"><HR><H4>veventGetClientWaitIndefinitelyProc</H4></A>
+<PRE>
+        veventClientWaitIndefinitelyProc <B>veventGetClientWaitIndefinitelyProc</B>();
+</PRE>
+
+<DL><DD>
+Gets the currently installed <CODE><A HREF="vevent-x.html#veventClientWaitIndefinitelyProc"><CODE>veventClientWaitIndefinitelyProc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetClientWaitProc"><HR><H4>veventGetClientWaitProc</H4></A>
+<PRE>
+        veventClientWaitProc <B>veventGetClientWaitProc</B>();
+</PRE>
+
+<DL><DD>
+Gets the currently installed <CODE><A HREF="vevent-x.html#veventClientWaitProc"><CODE>veventClientWaitProc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetConfigureFlags"><HR><H4>veventGetConfigureFlags</H4></A>
+<PRE>
+        int <B>veventGetConfigureFlags</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the configure flags of the event.  Refer to
+<CODE><A HREF="vevent-x.html#veventSetConfigureFlags"><CODE>veventSetConfigureFlags</CODE></A></CODE> for flag values.
+Generates an exception if the event is not a
+<CODE><A HREF="vevent-x.html#veventWindowConfigureEvent"><CODE>veventWindowConfigureEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetConfigureHeight"><HR><H4>veventGetConfigureHeight</H4></A>
+<PRE>
+        int <B>veventGetConfigureHeight</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the height of the configure event. The value
+returned is the height of the window associated with the
+event.
+Generates an exception if the event is not a
+<CODE><A HREF="vevent-x.html#veventWindowConfigureEvent"><CODE>veventWindowConfigureEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetConfigureWidth"><HR><H4>veventGetConfigureWidth</H4></A>
+<PRE>
+        int <B>veventGetConfigureWidth</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the width of the window (in screen pixels)
+associated with the event.  Generates an exception if the event is not a
+<CODE><A HREF="vevent-x.html#veventWindowConfigureEvent"><CODE>veventWindowConfigureEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetConfigureX"><HR><H4>veventGetConfigureX</H4></A>
+<PRE>
+        int <B>veventGetConfigureX</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Returns the x coordinate of the event (in screen pixels.)  This is the
+upper left hand corner of the window.  Deprecated in favor of
+<CODE><A HREF="vevent-x.html#veventGetX"><CODE>veventGetX</CODE></A></CODE>. Generates an exception if the event is not a
+<CODE><A HREF="vevent-x.html#veventWindowConfigureEvent"><CODE>veventWindowConfigureEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetConfigureY"><HR><H4>veventGetConfigureY</H4></A>
+<PRE>
+        int <B>veventGetConfigureY</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Returns the y coordinate of the event (in screen pixels.)  This is the
+upper left hand corner of the window.  Deprecated in favor of
+<CODE><A HREF="vevent-x.html#veventGetY"><CODE>veventGetY</CODE></A></CODE>. Generates an exception if the event is not a
+<CODE><A HREF="vevent-x.html#veventWindowConfigureEvent"><CODE>veventWindowConfigureEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetData"><HR><H4>veventGetData</H4></A>
+<PRE>
+        const void * <B>veventGetData</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the event's data pointer. A data pointer is a pointer location
+that you can use to store a single value and later retrieve it from.
+<CODE><A HREF="vevent-x.html#veventSetData"><CODE>veventSetData</CODE></A></CODE> stores values in this location.  If you
+need to store multiple items in this location, create a structure and
+store a pointer to an instance of this structure in the data pointer.
+</DD></DL>
+<P>
+<A NAME="veventGetDispatcher"><HR><H4>veventGetDispatcher</H4></A>
+<PRE>
+        veventDispatcherProc <B>veventGetDispatcher</B>();
+</PRE>
+
+<DL><DD>
+Returns the current dispatcher procedure. See also
+<CODE><A HREF="vevent-x.html#veventDispatcherProc"><CODE>veventDispatcherProc</CODE></A></CODE>, <CODE><A HREF="vevent-x.html#veventSetDispatcher"><CODE>veventSetDispatcher</CODE></A></CODE>, and
+<CODE><A HREF="vevent-x.html#veventRegisterDispatcher"><CODE>veventRegisterDispatcher</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetDoubleClickInterval"><HR><H4>veventGetDoubleClickInterval</H4></A>
+<PRE>
+        unsigned long <B>veventGetDoubleClickInterval</B>();
+</PRE>
+
+<DL><DD>
+Returns the interval (in nanoseconds) at which two successive clicks are
+classified as a double-click.  When two clicks happen within this
+interval, the event for the second button-down event will have a click-
+count greater than one.  See also <CODE>veventGetClickCount</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetFDData"><HR><H4>veventGetFDData</H4></A>
+<PRE>
+        void * <B>veventGetFDData</B>(
+                veventFD * file);
+</PRE>
+
+<DL><DD>
+Returns the user data pointer of the <SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP>.  The user
+data pointer is a pointer location that you can use to store a single
+value and later retrieve it from.  If you need to store multiple items
+in this location, create a structure and stroe a pointer to an instance
+of this structure in the user data pointer.
+<P>
+The user data pointer is set using <CODE><A HREF="vevent-x.html#veventSetFDData"><CODE>veventSetFDData</CODE></A></CODE>.
+<P>
+<CODE>veventGetFDData</CODE> only works on UNIX platforms.
+</DD></DL>
+<P>
+<A NAME="veventGetFDExceptNotify"><HR><H4>veventGetFDExceptNotify</H4></A>
+<PRE>
+        veventFDNoteProc * <B>veventGetFDExceptNotify</B>(
+                veventFD * file);
+</PRE>
+
+<DL><DD>
+Returns the current exception notify procedure of the given
+<SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP>. This notify procedure is called whenever an
+asynchronous exception is detected on the given
+<SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP>. <SAMP>NULL</SAMP> is returned if there is no
+notify procedure set for exception activity.  Exception activity notify
+can be set with <CODE><A HREF="vevent-x.html#veventSetFDExceptNotify"><CODE>veventSetFDExceptNotify</CODE></A></CODE>.
+<P>
+<CODE>veventGetFDExceptNotify</CODE> only works on UNIX platforms.
+</DD></DL>
+<P>
+<A NAME="veventGetFDFileDescriptor"><HR><H4>veventGetFDFileDescriptor</H4></A>
+<PRE>
+        int <B>veventGetFDFileDescriptor</B>(
+                veventFD * file);
+</PRE>
+
+<DL><DD>
+Returns the file descriptor being used by the given
+<SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP>. This is the file descriptor passed to
+<CODE><A HREF="vevent-x.html#veventRegisterFD"><CODE>veventRegisterFD</CODE></A></CODE> when the <SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP> was
+created.
+<P>
+<CODE>veventGetFDFileDescriptor</CODE> only works on UNIX platforms.
+</DD></DL>
+<P>
+<A NAME="veventGetFDIteratorFD"><HR><H4>veventGetFDIteratorFD</H4></A>
+<PRE>
+        veventFD * <B>veventGetFDIteratorFD</B>(
+                veventFDIterator * iterator);
+</PRE>
+
+<DL><DD>
+Returns this iteration's <SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP>. This is
+normally called in a loop after calling
+<CODE><A HREF="vevent-x.html#veventNextFDIterator"><CODE>veventNextFDIterator</CODE></A></CODE> as the loop condition.
+The given <SAMP><A HREF="vevent-x.html#veventFDIterator"><CODE>veventFDIterator</CODE></A></SAMP> must have been
+initialized using <CODE><A HREF="vevent-x.html#veventInitFDIterator"><CODE>veventInitFDIterator</CODE></A></CODE> and
+must have had <CODE><A HREF="vevent-x.html#veventNextFDIterator"><CODE>veventNextFDIterator</CODE></A></CODE> called on
+it at least once before <CODE>veventGetFDIteratorFD</CODE>
+can be called.
+<P>
+For example:
+<P>
+<BLOCKQUOTE>
+<PRE>
+void sample( void )
+{
+    <A HREF="vevent-x.html#veventFDIterator"><CODE>veventFDIterator</CODE></A>         iterator;
+    <A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A>                *pFD;
+
+    <A HREF="vevent-x.html#veventInitFDIterator"><CODE>veventInitFDIterator</CODE></A>( &iterator );
+
+    while (<A HREF="vevent-x.html#veventNextFDIterator"><CODE>veventNextFDIterator</CODE></A>( &iterator ))
+    {
+        pFD = veventGetFDIteratorFD( &iterator );
+
+        /* lots of code here */
+    }
+
+    <A HREF="vevent-x.html#veventDestroyFDIterator"><CODE>veventDestroyFDIterator</CODE></A>( &iterator );
+}
+</PRE>
+</BLOCKQUOTE>
+<P>
+<CODE>veventGetFDIteratorFD</CODE> only works on UNIX platforms.
+</DD></DL>
+<P>
+<A NAME="veventGetFDReadNotify"><HR><H4>veventGetFDReadNotify</H4></A>
+<PRE>
+        veventFDNoteProc * <B>veventGetFDReadNotify</B>(
+                veventFD * file);
+</PRE>
+
+<DL><DD>
+Returns the current read availability notify procedure of
+the given <SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP>. This notify procedure is
+called whenever the system detects that a read is available
+on the given <SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP>. <SAMP>NULL</SAMP> is
+returned if there is no notify procedure set for read
+availability. Read availability notification can be set
+with <CODE><A HREF="vevent-x.html#veventSetFDReadNotify"><CODE>veventSetFDReadNotify</CODE></A></CODE>.
+<P>
+<CODE>veventGetFDReadNotify</CODE> only works on UNIX platforms.
+</DD></DL>
+<P>
+<A NAME="veventGetFDWriteNotify"><HR><H4>veventGetFDWriteNotify</H4></A>
+<PRE>
+        veventFDNoteProc * <B>veventGetFDWriteNotify</B>(
+                veventFD * file);
+</PRE>
+
+<DL><DD>
+Returns the current write-avail notify procedure of the
+given <SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP>. This notify procedure is
+called whenever the system detects that room for writing is
+available on the given <SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP>.
+<SAMP>NULL</SAMP> is returned if there is no notify
+procedure set for write availability. Write availability
+notification can be set with
+<CODE><A HREF="vevent-x.html#veventSetFDWriteNotify"><CODE>veventSetFDWriteNotify</CODE></A></CODE>.
+<P>
+<CODE>veventGetFDWriteNotify</CODE> only works on UNIX platforms.
+</DD></DL>
+<P>
+<A NAME="veventGetHandler"><HR><H4>veventGetHandler</H4></A>
+<PRE>
+        const veventHandler * <B>veventGetHandler</B>();
+</PRE>
+
+<DL><DD>
+Returns the current top-level <CODE><A HREF="vevent-x.html#veventHandler"><CODE>veventHandler</CODE></A></CODE>.  This is the
+handler that gets first shot at all events coming from the current
+<CODE><A HREF="vevent-x.html#veventDispatcherProc"><CODE>veventDispatcherProc</CODE></A></CODE>.  See also
+<CODE><A HREF="vevent-x.html#veventRegisterHandler"><CODE>veventRegisterHandler</CODE></A></CODE> and <CODE><A HREF="vevent-x.html#veventSetHandler"><CODE>veventSetHandler</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetHandlerProc"><HR><H4>veventGetHandlerProc</H4></A>
+<PRE>
+        veventHandlerProc <B>veventGetHandlerProc</B>(
+                veventHandler * handler,
+                int type);
+</PRE>
+
+<DL><DD>
+Returns the <SAMP><A HREF="vevent-x.html#veventHandlerProc"><CODE>veventHandlerProc</CODE></A></SAMP> associated with
+the event type <SAMP>type</SAMP> from the event handler
+<SAMP>handler</SAMP>.
+</DD></DL>
+<P>
+<A NAME="veventGetKey"><HR><H4>veventGetKey</H4></A>
+<PRE>
+        vkey <B>veventGetKey</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the <CODE><A HREF="vkey-x.html#vkey"><CODE>vkey</CODE></A></CODE> of the event.  Could be
+<CODE>vkeyNULL</CODE> (indicating no key.) Generates an exception if the
+event is not a <CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>
+</DD></DL>
+<P>
+<A NAME="veventGetKeyChar"><HR><H4>veventGetKeyChar</H4></A>
+<PRE>
+        vchar <B>veventGetKeyChar</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> corresponding to the
+<SAMP><A HREF="vkey-x.html#vkeyStroke"><CODE>vkeyStroke</CODE></A></SAMP> of the given key event. Some
+<SAMP>vkeyStrokes</SAMP> are not representable as a <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP>,
+in which case the return value is <SAMP>vkeyNULL_CHAR</SAMP> (indicating
+an invalid <SAMP><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></SAMP> value).  Generates an exception if the
+event is not a <CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetKeyCode"><HR><H4>veventGetKeyCode</H4></A>
+<PRE>
+        unsigned int <B>veventGetKeyCode</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the key code of the key event.  Key codes are platform-specific
+and may even be incompatible on two different computers running the same
+operating system.  Generates an exception if the event is not a
+<CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetKeyModifiers"><HR><H4>veventGetKeyModifiers</H4></A>
+<PRE>
+        vkeyModifiers <B>veventGetKeyModifiers</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the keyboard modifiers of the event.  Generates an exception if
+the event is not a <CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE> or a
+<CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetKeyStroke"><HR><H4>veventGetKeyStroke</H4></A>
+<PRE>
+        vkeyStroke <B>veventGetKeyStroke</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the <CODE><A HREF="vkey-x.html#vkeyStroke"><CODE>vkeyStroke</CODE></A></CODE> of the event.  The
+<CODE><A HREF="vkey-x.html#vkeyStroke"><CODE>vkeyStroke</CODE></A></CODE> is computed from the event's key and modifiers.
+Generates an exception if the event is not a
+<CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>.
+<P>
+It is more efficient to use <CODE><A HREF="vevent-x.html#vevent"><CODE>vevent</CODE></A></CODE> or
+<CODE><A HREF="vevent-x.html#vevent"><CODE>vevent</CODE></A></CODE> if you only require one component
+of the event's <CODE><A HREF="vkey-x.html#vkeyStroke"><CODE>vkeyStroke</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetKeyX"><HR><H4>veventGetKeyX</H4></A>
+<PRE>
+        int <B>veventGetKeyX</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> See <CODE><A HREF="vevent-x.html#veventGetX"><CODE>veventGetX</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetKeyY"><HR><H4>veventGetKeyY</H4></A>
+<PRE>
+        int <B>veventGetKeyY</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> See <CODE><A HREF="vevent-x.html#veventGetY"><CODE>veventGetY</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetMonitorStreamException"><HR><H4>veventGetMonitorStreamException</H4></A>
+<PRE>
+        vbool <B>veventGetMonitorStreamException</B>(
+                FILE * file);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Returns whether or not the file stream is being monitored for
+exceptions. This is part of the deprecated stream translator
+mechanism. Refer to <CODE><A HREF="vevent-x.html#veventRegisterStreamTranslator"><CODE>veventRegisterStreamTranslator</CODE></A></CODE> for
+information on the old mechanism. Refer to <CODE><A HREF="vevent-x.html#veventRegisterFD"><CODE>veventRegisterFD</CODE></A></CODE>
+for information on the new file descriptor mechanism.
+</DD></DL>
+<P>
+<A NAME="veventGetMonitorStreamRead"><HR><H4>veventGetMonitorStreamRead</H4></A>
+<PRE>
+        vbool <B>veventGetMonitorStreamRead</B>(
+                FILE * file);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Returns whether or not the file stream is being monitored for read
+availability. This is part of the deprecated stream translator
+mechanism. Refer to <CODE><A HREF="vevent-x.html#veventRegisterStreamTranslator"><CODE>veventRegisterStreamTranslator</CODE></A></CODE> for
+information on the old mechanism. Refer to <CODE><A HREF="vevent-x.html#veventRegisterFD"><CODE>veventRegisterFD</CODE></A></CODE>
+for information on the new file descriptor mechanism.
+</DD></DL>
+<P>
+<A NAME="veventGetMonitorStreamWrite"><HR><H4>veventGetMonitorStreamWrite</H4></A>
+<PRE>
+        vbool <B>veventGetMonitorStreamWrite</B>(
+                FILE * file);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Returns whether or not the file stream is being monitored for write
+availability. This is part of the deprecated stream translator
+mechanism. Refer to <CODE><A HREF="vevent-x.html#veventRegisterStreamTranslator"><CODE>veventRegisterStreamTranslator</CODE></A></CODE> for
+information on the old mechanism. Refer to <CODE><A HREF="vevent-x.html#veventRegisterFD"><CODE>veventRegisterFD</CODE></A></CODE>
+for information on the new file descriptor mechanism.
+</DD></DL>
+<P>
+<A NAME="veventGetPointerButton"><HR><H4>veventGetPointerButton</H4></A>
+<PRE>
+        int <B>veventGetPointerButton</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the mouse button (0-4) that was just used to cause the event.
+Generates an exception if the event is not a
+<CODE>veventPointerButtonEvent</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetPointerButtonCount"><HR><H4>veventGetPointerButtonCount</H4></A>
+<PRE>
+        vbyte <B>veventGetPointerButtonCount</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the number of mouse buttons which were down when the event was
+received from the system.  Generates an exception if the event is not a
+<CODE>vwindowPointerEvent</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetPointerClickCount"><HR><H4>veventGetPointerClickCount</H4></A>
+<PRE>
+        vbyte <B>veventGetPointerClickCount</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the click count of the event.  The click count represents the
+number of successive clicks that have occurred.  
+<P>
+Generates an exception if the event is not a
+<CODE>veventPointerEvent</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetPointerModifiers"><HR><H4>veventGetPointerModifiers</H4></A>
+<PRE>
+        vkeyModifiers <B>veventGetPointerModifiers</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the keyboard modifiers of the event.  Generates an exception if
+the event is not a <CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE> or a
+<CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetPointerX"><HR><H4>veventGetPointerX</H4></A>
+<PRE>
+        int <B>veventGetPointerX</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Returns the x coordinate of the event (in screen pixels) relative to the
+window associated with the event.  Throws an exception if the event is
+not a <CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE> or
+<CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetPointerY"><HR><H4>veventGetPointerY</H4></A>
+<PRE>
+        int <B>veventGetPointerY</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Returns the y coordinate of the event (in screen pixels) relative to the
+window associated with the event.  Throws an exception if the event is
+not a <CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE> or
+<CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetPreBlockHandlerProc"><HR><H4>veventGetPreBlockHandlerProc</H4></A>
+<PRE>
+        veventPreBlockHandlerProc <B>veventGetPreBlockHandlerProc</B>();
+</PRE>
+
+<DL><DD>
+Returns the current pre-block handler procedure. The pre-block handler
+procedure is called whenever the Galaxy event loop is about to block for
+a non-zero amount of time.  The Galaxy event loop blocks when there are
+no events on the queue ready to be dispatched and there is no pending
+input.
+</DD></DL>
+<P>
+<A NAME="veventGetPriority"><HR><H4>veventGetPriority</H4></A>
+<PRE>
+        veventPriority <B>veventGetPriority</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the priority of an event. The priority is used to determine
+which event gets dispatched first if several events have already been
+scheduled.
+</DD></DL>
+<P>
+<A NAME="veventGetStreamTranslator"><HR><H4>veventGetStreamTranslator</H4></A>
+<PRE>
+        veventTranslatorProc <B>veventGetStreamTranslator</B>(
+                FILE * file);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Returns the current translation procedure for the file stream
+<SAMP>File</SAMP>. Note that <CODE>veventGetStreamTranslator</CODE> only
+works under UNIX.
+</DD></DL>
+<P>
+<A NAME="veventGetTarget"><HR><H4>veventGetTarget</H4></A>
+<PRE>
+        veventHandlerProc <B>veventGetTarget</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the target handler procedure, if any, of an event and returns
+<SAMP>NULL</SAMP> if there is no handler procedure. The target is used
+to override the normal top-level handler and dispatch this event
+straight to a target procedure.
+</DD></DL>
+<P>
+<A NAME="veventGetTime"><HR><H4>veventGetTime</H4></A>
+<PRE>
+        vtimestamp <B>veventGetTime</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the timestamp of an event. The timestamp indicates
+when the event is scheduled to be dispatched.
+</DD></DL>
+<P>
+<A NAME="veventGetType"><HR><H4>veventGetType</H4></A>
+<PRE>
+        veventType <B>veventGetType</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the integral type of an event.
+</DD></DL>
+<P>
+<A NAME="veventGetWindow"><HR><H4>veventGetWindow</H4></A>
+<PRE>
+        _veventSTRUCT vwindow * <B>veventGetWindow</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns a pointer to the <CODE><A HREF="vwindow-x.html#vwindow"><CODE>vwindow</CODE></A></CODE> associated with the
+event.  Generates an exception if the event is not a
+<CODE><A HREF="vevent-x.html#veventWindowEvent"><CODE>veventWindowEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetWindowStateType"><HR><H4>veventGetWindowStateType</H4></A>
+<PRE>
+        int <B>veventGetWindowStateType</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the state-type of the event. The possible types are:
+<P>CODE>veventWINDOW_STATE_OPEN</CODE>
+<P><CODE>veventWINDOW_STATE_CLOSE</CODE>
+<P><CODE>veventWINDOW_STATE_MAXIMIZE</CODE>
+<P><CODE>veventWINDOW_STATE_UNMAXIMIZE</CODE>
+<P><CODE>veventWINDOW_STATE_ICONIFY</CODE>
+<P><CODE>veventWINDOW_STATE_UNICONIFY</CODE>
+<P><CODE>veventWINDOW_STATE_PIN</CODE>
+<P><CODE>veventWINDOW_STATE_UNPIN</CODE>
+<P>
+Generates an exception if the event is not a
+<CODE><A HREF="vevent-x.html#veventWindowStateEvent"><CODE>veventWindowStateEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetX"><HR><H4>veventGetX</H4></A>
+<PRE>
+        int <B>veventGetX</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the x coordinate of the event (in screen pixels.)  For pointer
+and key events, this is relative to the window associated with the
+event.  Throws an exception if the event is not a
+<CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE>, <CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>
+or <CODE><A HREF="vevent-x.html#veventWindowConfigureEvent"><CODE>veventWindowConfigureEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventGetY"><HR><H4>veventGetY</H4></A>
+<PRE>
+        int <B>veventGetY</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns the y coordinate of the event (in screen pixels.)  For pointer
+and key events, this is relative to the window associated with the
+event.  Throws an exception if the event is not a
+<CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE>, <CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>
+or <CODE><A HREF="vevent-x.html#veventWindowConfigureEvent"><CODE>veventWindowConfigureEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventHandle"><HR><H4>veventHandle</H4></A>
+<PRE>
+        int <B>veventHandle</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Dispatches the event (via <CODE><A HREF="vevent-x.html#veventDispatch"><CODE>veventDispatch</CODE></A></CODE>) to the current
+handler (gotten via <CODE><A HREF="vevent-x.html#veventGetHandler"><CODE>veventGetHandler</CODE></A></CODE>).  Returns
+<CODE>vTRUE</CODE> if the event was handled (and therefore taken
+ownership of and possibly even destroyed) or <CODE>vFALSE</CODE> if the
+handler did not know what to do with the event (in which case ownership
+is not transferred and the event is gauranteed to still be valid). If
+<CODE>veventHandle</CODE> returns <CODE>vTRUE</CODE> then the event may
+not be used or even examined again as it may have been destroyed. This
+entry point is deprecated in favor of <CODE><A HREF="vevent-x.html#veventHandleOwned"><CODE>veventHandleOwned</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventHandleOwned"><HR><H4>veventHandleOwned</H4></A>
+<PRE>
+        int <B>veventHandleOwned</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Same as <CODE>veventHandle</CODE> except that ownership of the event is
+always transferred so the caller does not need to check the return
+value. After a call to <CODE>veventHandleOwned</CODE>, the event may not
+be used or even examined as it may have been destroyed. If you really
+need to retain a reference to the event, use
+<CODE><A HREF="vevent-x.html#veventReference"><CODE>veventReference</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventHandledAssert"><HR><H4>veventHandledAssert</H4></A>
+<PRE>
+        void <B>veventHandledAssert</B>(
+                const vevent * event,
+                vdebugAssertionHandler handler,
+                void * data);
+</PRE>
+
+<DL><DD>
+Asserts that the <CODE>vevent</CODE> <SAMP>event</SAMP> is valid.  If it
+is not, the <CODE><A HREF="vdebug-x.html#vdebugAssertionHandler"><CODE>vdebugAssertionHandler</CODE></A></CODE> <SAMP>handler</SAMP>
+will be called.  See also <CODE><A HREF="vevent-x.html#veventAssert"><CODE>veventAssert</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventInitFDIterator"><HR><H4>veventInitFDIterator</H4></A>
+<PRE>
+        void <B>veventInitFDIterator</B>(
+                veventFDIterator * iterator);
+</PRE>
+
+<DL><DD>
+Initializes the passed in <SAMP><A HREF="vevent-x.html#veventFDIterator"><CODE>veventFDIterator</CODE></A></SAMP> for
+use in iterating over all currently existing
+<SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP>s. The <SAMP><A HREF="vevent-x.html#veventFDIterator"><CODE>veventFDIterator</CODE></A></SAMP>
+that is passed in must be a pointer to enough memory to
+hold a <SAMP><A HREF="vevent-x.html#veventFDIterator"><CODE>veventFDIterator</CODE></A></SAMP>. This is usually a
+local variable of type <SAMP><A HREF="vevent-x.html#veventFDIterator"><CODE>veventFDIterator</CODE></A></SAMP>. Once
+initialized, the iterator can be incremented with
+<CODE><A HREF="vevent-x.html#veventNextFDIterator"><CODE>veventNextFDIterator</CODE></A></CODE>. Each iteration's
+<SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP> can be had with
+<CODE><A HREF="vevent-x.html#veventGetFDIteratorFD"><CODE>veventGetFDIteratorFD</CODE></A></CODE>, and once the iteration
+is finished, the iterator can be destroyed with
+<CODE><A HREF="vevent-x.html#veventDestroyFDIterator"><CODE>veventDestroyFDIterator</CODE></A></CODE>.
+<P>
+For example:
+<P>
+<BLOCKQUOTE>
+<PRE>
+void sample( void )
+{
+    <A HREF="vevent-x.html#veventFDIterator"><CODE>veventFDIterator</CODE></A>         iterator;
+    <A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A>                *pFD;
+
+    veventInitFDIterator( &iterator );
+
+    while (<A HREF="vevent-x.html#veventNextFDIterator"><CODE>veventNextFDIterator</CODE></A>( &iterator ))
+    {
+        pFD = <A HREF="vevent-x.html#veventGetFDIteratorFD"><CODE>veventGetFDIteratorFD</CODE></A>( &iterator );
+
+        /* lots of code here */
+    }
+
+    <A HREF="vevent-x.html#veventDestroyFDIterator"><CODE>veventDestroyFDIterator</CODE></A>( &iterator );
+} 
+</PRE>
+</BLOCKQUOTE>
+<P>
+<CODE>veventInitFDIterator</CODE> only works on UNIX platforms.
+</DD></DL>
+<P>
+<A NAME="veventInitHandler"><HR><H4>veventInitHandler</H4></A>
+<PRE>
+        void <B>veventInitHandler</B>(
+                veventHandler * handler);
+</PRE>
+
+<DL><DD>
+Initializes the given handler.  This handler will not handle any of the
+event types until the appropriate handler procedures have been set using
+<CODE><A HREF="vevent-x.html#veventSetHandlerProc"><CODE>veventSetHandlerProc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventInitPostedIterator"><HR><H4>veventInitPostedIterator</H4></A>
+<PRE>
+        void <B>veventInitPostedIterator</B>(
+                veventPostedIterator * iterator);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="veventIsClose"><HR><H4>veventIsClose</H4></A>
+<PRE>
+        vbool <B>veventIsClose</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns <CODE>vTRUE</CODE> if the  event is a
+<CODE><A HREF="vevent-x.html#veventWindowStateEvent"><CODE>veventWindowStateEvent</CODE></A></CODE> of the
+<CODE>veventWINDOW_STATE_CLOSE</CODE> type, <CODE>vFALSE</CODE> if it is
+not.
+</DD></DL>
+<P>
+<A NAME="veventIsIconify"><HR><H4>veventIsIconify</H4></A>
+<PRE>
+        vbool <B>veventIsIconify</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns <CODE>vTRUE</CODE> if the  event is a
+<CODE><A HREF="vevent-x.html#veventWindowStateEvent"><CODE>veventWindowStateEvent</CODE></A></CODE> of the
+<CODE>veventWINDOW_STATE_ICONIFY</CODE> type, <CODE>vFALSE</CODE> if it
+is not.
+</DD></DL>
+<P>
+<A NAME="veventIsKeyModifierOn"><HR><H4>veventIsKeyModifierOn</H4></A>
+<PRE>
+        vbool <B>veventIsKeyModifierOn</B>(
+                vevent * event,
+                vkeyModifiers modifier);
+</PRE>
+
+<DL><DD>
+Returns <CODE>vTRUE</CODE> if the modifier <SAMP>modifier</SAMP> is set
+for the event.  Returns <CODE>vFALSE</CODE> if it is not.  Generates an
+exception if the event is not a <CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE> or
+a <CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventIsMaximize"><HR><H4>veventIsMaximize</H4></A>
+<PRE>
+        vbool <B>veventIsMaximize</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns <CODE>vTRUE</CODE> if the  event is a
+<CODE><A HREF="vevent-x.html#veventWindowStateEvent"><CODE>veventWindowStateEvent</CODE></A></CODE> of the
+<CODE>veventWINDOW_STATE_MAXIMIZE</CODE> type, <CODE>vFALSE</CODE> if it
+is not.
+</DD></DL>
+<P>
+<A NAME="veventIsMove"><HR><H4>veventIsMove</H4></A>
+<PRE>
+        vbool <B>veventIsMove</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns <CODE>vTRUE</CODE> if the  event is a
+<CODE><A HREF="vevent-x.html#veventWindowConfigureEvent"><CODE>veventWindowConfigureEvent</CODE></A></CODE> of the
+<CODE>veventWINDOW_CONFIGURE_MOVE</CODE> type, <CODE>vFALSE</CODE> if it
+is not.
+</DD></DL>
+<P>
+<A NAME="veventIsOpen"><HR><H4>veventIsOpen</H4></A>
+<PRE>
+        vbool <B>veventIsOpen</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns <CODE>vTRUE</CODE> if the  event is a
+<CODE><A HREF="vevent-x.html#veventWindowStateEvent"><CODE>veventWindowStateEvent</CODE></A></CODE> of the
+<CODE>veventWINDOW_STATE_OPEN</CODE> type, <CODE>vFALSE</CODE> if it
+is not.
+</DD></DL>
+<P>
+<A NAME="veventIsPin"><HR><H4>veventIsPin</H4></A>
+<PRE>
+        vbool <B>veventIsPin</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns <CODE>vTRUE</CODE> if the  event is a
+<CODE><A HREF="vevent-x.html#veventWindowStateEvent"><CODE>veventWindowStateEvent</CODE></A></CODE> of the
+<CODE>veventWINDOW_STATE_PIN</CODE> type, <CODE>vFALSE</CODE> if it
+is not.
+<P>
+Pin events are only valid under look-and-feels that support pinned
+windows.
+</DD></DL>
+<P>
+<A NAME="veventIsPointerModifierOn"><HR><H4>veventIsPointerModifierOn</H4></A>
+<PRE>
+        vbool <B>veventIsPointerModifierOn</B>(
+                vevent * event,
+                vkeyModifiers modifier);
+</PRE>
+
+<DL><DD>
+Returns <CODE>vTRUE</CODE> if the modifier <SAMP>mod</SAMP> is set for
+the event.  Returns <CODE>vFALSE</CODE> if it is not.  Generates an
+exception if the event is not a <CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE> or
+a <CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventIsReferenced"><HR><H4>veventIsReferenced</H4></A>
+<PRE>
+        int <B>veventIsReferenced</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns <CODE>vTRUE</CODE> if there are two or more references to an
+event.  If the only reference to the event is the creator's original
+reference then <CODE>veventIsReferenced</CODE> will return
+<CODE>vFALSE</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventIsSize"><HR><H4>veventIsSize</H4></A>
+<PRE>
+        vbool <B>veventIsSize</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns <CODE>vTRUE</CODE> if the  event is a
+<CODE><A HREF="vevent-x.html#veventWindowConfigureEvent"><CODE>veventWindowConfigureEvent</CODE></A></CODE> of the
+<CODE>veventWINDOW_CONFIGURE_SIZE</CODE> type, <CODE>vFALSE</CODE> if it
+is not.
+</DD></DL>
+<P>
+<A NAME="veventIsStack"><HR><H4>veventIsStack</H4></A>
+<PRE>
+        vbool <B>veventIsStack</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns <CODE>vTRUE</CODE> if the  event is a
+<CODE><A HREF="vevent-x.html#veventWindowConfigureEvent"><CODE>veventWindowConfigureEvent</CODE></A></CODE> of the
+<CODE>veventWINDOW_CONFIGURE_STACK</CODE> type, <CODE>vFALSE</CODE> if it
+is not.
+</DD></DL>
+<P>
+<A NAME="veventIsSynchronizationRequested"><HR><H4>veventIsSynchronizationRequested</H4></A>
+<PRE>
+        vbool <B>veventIsSynchronizationRequested</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns <CODE>vTRUE</CODE> if the synchronization flag has been set on
+this event, <CODE>vFALSE</CODE> if it has not.  The synchronization flag
+can be used to flag events that must be processed synchronously. This is
+not currently used by the Event Manager.
+</DD></DL>
+<P>
+<A NAME="veventIsUniconify"><HR><H4>veventIsUniconify</H4></A>
+<PRE>
+        vbool <B>veventIsUniconify</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns <CODE>vTRUE</CODE> if the  event is a
+<CODE><A HREF="vevent-x.html#veventWindowStateEvent"><CODE>veventWindowStateEvent</CODE></A></CODE> of the
+<CODE>veventWINDOW_STATE_UNICONIFY</CODE> type, <CODE>vFALSE</CODE> if it
+is not.
+</DD></DL>
+<P>
+<A NAME="veventIsUnmaximize"><HR><H4>veventIsUnmaximize</H4></A>
+<PRE>
+        vbool <B>veventIsUnmaximize</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns <CODE>vTRUE</CODE> if the  event is a
+<CODE><A HREF="vevent-x.html#veventWindowStateEvent"><CODE>veventWindowStateEvent</CODE></A></CODE> of the
+<CODE>veventWINDOW_STATE_UNMAXIMIZE</CODE> type, <CODE>vFALSE</CODE> if
+it is not.
+</DD></DL>
+<P>
+<A NAME="veventIsUnpin"><HR><H4>veventIsUnpin</H4></A>
+<PRE>
+        vbool <B>veventIsUnpin</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Returns <CODE>vTRUE</CODE> if the  event is a
+<CODE><A HREF="vevent-x.html#veventWindowStateEvent"><CODE>veventWindowStateEvent</CODE></A></CODE> of the
+<CODE>veventWINDOW_STATE_UNPIN</CODE> type, <CODE>vFALSE</CODE> if
+it is not.
+<P>
+Unpin events are only valid under look-and-feels that support pinned
+windows.
+</DD></DL>
+<P>
+<A NAME="veventNextFDIterator"><HR><H4>veventNextFDIterator</H4></A>
+<PRE>
+        int <B>veventNextFDIterator</B>(
+                veventFDIterator * iterator);
+</PRE>
+
+<DL><DD>
+Increments the iteration and returns <CODE>vTRUE</CODE> if
+there is another <SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP> to iterate,
+otherwise it returns <CODE>vFALSE</CODE>.
+<P>
+For example:
+<P>
+<BLOCKQUOTE>
+<PRE>
+void sample( void )
+{
+    <A HREF="vevent-x.html#veventFDIterator"><CODE>veventFDIterator</CODE></A>         iterator;
+    <A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A>                *pFD;
+
+    <A HREF="vevent-x.html#veventInitFDIterator"><CODE>veventInitFDIterator</CODE></A>( &iterator );
+
+    while (veventNextFDIterator( &iterator ))
+    {
+        pFD = <A HREF="vevent-x.html#veventGetFDIteratorFD"><CODE>veventGetFDIteratorFD</CODE></A>( &iterator );
+
+        /* lots of code here */
+    }
+
+    <A HREF="vevent-x.html#veventDestroyFDIterator"><CODE>veventDestroyFDIterator</CODE></A>( &iterator );
+}
+</PRE>
+</BLOCKQUOTE>
+<P>
+<CODE>veventNextFDIterator</CODE> only works on UNIX platforms.
+</DD></DL>
+<P>
+<A NAME="veventPost"><HR><H4>veventPost</H4></A>
+<PRE>
+        void <B>veventPost</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Posts the event to the current thread's event queue to be dispatched
+immediately. The event's current timestamp is overwritten with the
+equivalent of <CODE><A HREF="vtimestamp-x.html#vtimestampGetRecent"><CODE>vtimestampGetRecent</CODE></A></CODE>.
+<CODE><A HREF="vevent-x.html#veventPostAtInterrupt"><CODE>veventPostAtInterrupt</CODE></A></CODE> may be used to post an event during a
+hardware interrupt or from a non-Galaxy thread.   (For posting
+events from one Galaxy <CODE><A HREF="vthread-x.html#vthread"><CODE>vthread</CODE></A></CODE> to another, see
+<CODE><A HREF="vwindow-x.html#vwindowPostEvent"><CODE>vwindowPostEvent</CODE></A></CODE>.)
+<P>
+Once an event has been posted you may not refer to it again as it may
+get handled and then destroyed by a sub-eventloop. If you need to retain
+a reference to an event after calling <CODE>veventPost</CODE> use
+<CODE><A HREF="vevent-x.html#veventReference"><CODE>veventReference</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventPostAtEventTime"><HR><H4>veventPostAtEventTime</H4></A>
+<PRE>
+        void <B>veventPostAtEventTime</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Posts the given event to the current thread's event queue, scheduled to
+be dispatched at the time already specified by the event's timestamp.
+See also <CODE><A HREF="vevent-x.html#veventPostAtEventTimeAtInterrupt"><CODE>veventPostAtEventTimeAtInterrupt</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventPostAtEventTimeAtInterrupt"><HR><H4>veventPostAtEventTimeAtInterrupt</H4></A>
+<PRE>
+        void <B>veventPostAtEventTimeAtInterrupt</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Use this call instead of <CODE>veventPostAtEventTime</CODE>
+when posting an event from an interrupt or from a non-Galaxy thread.
+For posting events from one Galaxy <CODE><A HREF="vthread-x.html#vthread"><CODE>vthread</CODE></A></CODE> to another, use
+<CODE><A HREF="vwindow-x.html#vwindowPostEvent"><CODE>vwindowPostEvent</CODE></A></CODE>.
+<P>
+The event queue that will dispatch the interrupt-posted event is the one
+corresponding to the thread that created the event.
+<P>
+See also <CODE>veventPostAtEventTime</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventPostAtInterrupt"><HR><H4>veventPostAtInterrupt</H4></A>
+<PRE>
+        void <B>veventPostAtInterrupt</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Use this call instead of <CODE>veventPost</CODE> when posting an event
+from an interrupt or from a non-Galaxy thread.  For posting events from
+one Galaxy <CODE><A HREF="vthread-x.html#vthread"><CODE>vthread</CODE></A></CODE> to another, use
+<CODE><A HREF="vwindow-x.html#vwindowPostEvent"><CODE>vwindowPostEvent</CODE></A></CODE>.
+<P>
+The event queue that will dispatch the interrupt-posted event is the one
+corresponding to the thread that created the event.
+<P>
+See also <CODE>veventPost</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventPostFuture"><HR><H4>veventPostFuture</H4></A>
+<PRE>
+        void <B>veventPostFuture</B>(
+                vevent * event,
+                unsigned long seconds,
+                unsigned long nanoseconds);
+</PRE>
+
+<DL><DD>
+Posts the given event to the current thread's event queue, scheduled to
+be dispatched the given <SAMP>seconds</SAMP> and
+<SAMP>nanoseconds</SAMP> from the present time. The event's current
+timestamp is overwritten. See also
+<CODE><A HREF="vevent-x.html#veventPostFutureAtInterrupt"><CODE>veventPostFutureAtInterrupt</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventPostFutureAtInterrupt"><HR><H4>veventPostFutureAtInterrupt</H4></A>
+<PRE>
+        void <B>veventPostFutureAtInterrupt</B>(
+                vevent * event,
+                unsigned long seconds,
+                unsigned long nanoseconds);
+</PRE>
+
+<DL><DD>
+Use this call instead of <CODE>veventPostFuture</CODE> when
+posting an event from an interrupt or from a non-Galaxy thread.
+For posting events from one Galaxy <CODE><A HREF="vthread-x.html#vthread"><CODE>vthread</CODE></A></CODE> to another, use
+<CODE><A HREF="vwindow-x.html#vwindowPostEvent"><CODE>vwindowPostEvent</CODE></A></CODE>.
+<P>
+The event queue that will dispatch the interrupt-posted event is the one
+corresponding to the thread that created the event.
+<P>
+See also <CODE>veventPostFuture</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventProcess"><HR><H4>veventProcess</H4></A>
+<PRE>
+        void <B>veventProcess</B>();
+</PRE>
+
+<DL><DD>
+Initiates the Galaxy event loop. This loop does not terminate until
+<CODE><A HREF="vevent-x.html#veventStopProcessing"><CODE>veventStopProcessing</CODE></A></CODE> is called from the same thread. The
+event loop then finishes dispatching current events and then returns
+control back to whatever called <CODE>veventProcess</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventQuit"><HR><H4>veventQuit</H4></A>
+<PRE>
+        void <B>veventQuit</B>();
+</PRE>
+
+<DL><DD>
+Begins a non-blocking shutdown of the current thread's event loop and
+returns immediately.  Will begin calling all
+<CODE><A HREF="vevent-x.html#veventQuitProc"><CODE>veventQuitProc</CODE></A></CODE>s registered via
+<CODE><A HREF="vevent-x.html#veventAddQuitProc"><CODE>veventAddQuitProc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventReference"><HR><H4>veventReference</H4></A>
+<PRE>
+        void <B>veventReference</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Increases the reference count of an event.  Opposite of
+<CODE><A HREF="vevent-x.html#veventUnreference"><CODE>veventUnreference</CODE></A></CODE>.  Used to share an event with something
+else by making a reference for yourself and passing the old reference
+away.  Sometimes used with <CODE><A HREF="vevent-x.html#veventPost"><CODE>veventPost</CODE></A></CODE> or
+<CODE><A HREF="vevent-x.html#veventHandleOwned"><CODE>veventHandleOwned</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventRegisterDispatcher"><HR><H4>veventRegisterDispatcher</H4></A>
+<PRE>
+        veventDispatcherProc <B>veventRegisterDispatcher</B>(
+                veventDispatcherProc dispatcher);
+</PRE>
+
+<DL><DD>
+Registers the function <SAMP>dispatcher</SAMP> as the new event dispatch
+function. This function will be called with each new event as it is
+removed from the event queue. This function returns the old dispatch
+function, which defaults to a function that simply dispatches events to
+the registered handler. The standard dispatcher can be overridden for
+journaling or filtering purposes. See also
+<CODE><A HREF="vevent-x.html#veventDispatcherProc"><CODE>veventDispatcherProc</CODE></A></CODE>, <CODE><A HREF="vevent-x.html#veventSetDispatcher"><CODE>veventSetDispatcher</CODE></A></CODE>,
+<CODE><A HREF="vevent-x.html#veventGetDispatcher"><CODE>veventGetDispatcher</CODE></A></CODE>, and <CODE><A HREF="vevent-x.html#veventHandler"><CODE>veventHandler</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventRegisterFD"><HR><H4>veventRegisterFD</H4></A>
+<PRE>
+        veventFD * <B>veventRegisterFD</B>(
+                int fd);
+</PRE>
+
+<DL><DD>
+Registers the given file descriptor <SAMP>fd</SAMP> to be
+watched by the event system. For each <SAMP>fd</SAMP> that
+is registered, a <SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP> is created and
+returned. This <SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP> serves as a way to
+reference the <SAMP>fd</SAMP> in the future to modify what
+is being watched or to unregister it. See also
+<CODE><A HREF="vevent-x.html#veventSetFDReadNotify"><CODE>veventSetFDReadNotify</CODE></A></CODE>,
+<CODE><A HREF="vevent-x.html#veventSetFDData"><CODE>veventSetFDData</CODE></A></CODE>, and
+<CODE><A HREF="vevent-x.html#veventUnregisterFD"><CODE>veventUnregisterFD</CODE></A></CODE>.
+<P>
+<CODE>veventRegisterFD</CODE> only works on UNIX platforms.
+</DD></DL>
+<P>
+<A NAME="veventRegisterHandler"><HR><H4>veventRegisterHandler</H4></A>
+<PRE>
+        const veventHandler * <B>veventRegisterHandler</B>(
+                const veventHandler * newHandler);
+</PRE>
+
+<DL><DD>
+Registers <SAMP>newHandler</SAMP> as the event handler for
+the Event Manager. The default dispatcher now receives this
+handler for use when dispatching events. It returns the
+currently registered handler.
+</DD></DL>
+<P>
+<A NAME="veventRegisterStreamTranslator"><HR><H4>veventRegisterStreamTranslator</H4></A>
+<PRE>
+        void <B>veventRegisterStreamTranslator</B>(
+                FILE * file,
+                veventTranslatorProc translator);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Registers the procedure <SAMP>translator</SAMP> as the stream
+translation procedure for the file stream <SAMP>file</SAMP>. This
+procedure is responsible for translating events in the native event
+format into Event Manager events and posting them to the event
+queue. Note that <CODE>veventRegisterStreamTranslator</CODE> only works
+under UNIX.
+<P>
+The following code could be used to monitor whether or not there is
+pending input on <SAMP>stdin</SAMP>: 
+<P>
+<BLOCKQUOTE>
+<PRE>
+#include <stdio.h>
+
+void stdinMonitor(FILE *, int)
+{
+    puts("stdin has pending input");
+}
+
+...
+
+int main(int argc, char *argv[])
+{
+    ...
+    veventRegisterStreamTranslator(stdin, stdinMonitor);
+    <A HREF="vevent-x.html#veventSetMonitorStreamReadOn"><CODE>veventSetMonitorStreamReadOn</CODE></A>(stdin);
+    ...
+    <A HREF="vevent-x.html#veventProcess"><CODE>veventProcess</CODE></A>();
+    ...
+}
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="veventSetApplicationData"><HR><H4>veventSetApplicationData</H4></A>
+<PRE>
+        void <B>veventSetApplicationData</B>(
+                vevent * event,
+                void * data);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> See <CODE><A HREF="vevent-x.html#veventSetClientData"><CODE>veventSetClientData</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetApplicationType"><HR><H4>veventSetApplicationType</H4></A>
+<PRE>
+        void <B>veventSetApplicationType</B>(
+                vevent * event,
+                int type);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> See <CODE><A HREF="vevent-x.html#veventSetClientType"><CODE>veventSetClientType</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetBinding"><HR><H4>veventSetBinding</H4></A>
+<PRE>
+        void <B>veventSetBinding</B>(
+                vevent * event,
+                const vname * binding);
+</PRE>
+
+<DL><DD>
+Sets the binding of the event to the <CODE><A HREF="vname-x.html#vname"><CODE>vname</CODE></A></CODE> specified
+by <SAMP>binding</SAMP>. It is used when creating events by
+hand.
+</DD></DL>
+<P>
+<A NAME="veventSetCancelWaitProc"><HR><H4>veventSetCancelWaitProc</H4></A>
+<PRE>
+        void <B>veventSetCancelWaitProc</B>(
+                veventCancelWaitProc proc);
+</PRE>
+
+<DL><DD>
+Sets the current <SAMP><A HREF="vevent-x.html#veventCancelWaitProc"><CODE>veventCancelWaitProc</CODE></A></SAMP>.
+</DD></DL>
+<P>
+<A NAME="veventSetClientData"><HR><H4>veventSetClientData</H4></A>
+<PRE>
+        void <B>veventSetClientData</B>(
+                vevent * event,
+                void * data);
+</PRE>
+
+<DL><DD>
+Sets the data pointer of the client event to <SAMP>data</SAMP>.
+<SAMP>data</SAMP> may be <SAMP>NULL</SAMP>. 
+</DD></DL>
+<P>
+<A NAME="veventSetClientQueueFlushProc"><HR><H4>veventSetClientQueueFlushProc</H4></A>
+<PRE>
+        void <B>veventSetClientQueueFlushProc</B>(
+                veventClientQueueFlushProc proc);
+</PRE>
+
+<DL><DD>
+Sets the current client queue flush procedure to <SAMP>proc</SAMP>.  This
+procedure is responsible for removing accumulated events from the window
+system event queue during event processing.  <SAMP>NULL</SAMP> is not a
+valid procedure.
+</DD></DL>
+<P>
+<A NAME="veventSetClientType"><HR><H4>veventSetClientType</H4></A>
+<PRE>
+        void <B>veventSetClientType</B>(
+                vevent * event,
+                int type);
+</PRE>
+
+<DL><DD>
+Sets the client type of the event to <SAMP>type</SAMP>.  The client type
+of a client event is a user defined value.  Generates an exception if
+the event is not a <CODE><A HREF="vevent-x.html#veventClientEvent"><CODE>veventClientEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetClientWaitIndefinitelyProc"><HR><H4>veventSetClientWaitIndefinitelyProc</H4></A>
+<PRE>
+        void <B>veventSetClientWaitIndefinitelyProc</B>(
+                veventClientWaitIndefinitelyProc proc);
+</PRE>
+
+<DL><DD>
+Sets the current <SAMP><A HREF="vevent-x.html#veventClientWaitIndefinitelyProc"><CODE>veventClientWaitIndefinitelyProc</CODE></A></SAMP>.
+</DD></DL>
+<P>
+<A NAME="veventSetClientWaitProc"><HR><H4>veventSetClientWaitProc</H4></A>
+<PRE>
+        void <B>veventSetClientWaitProc</B>(
+                veventClientWaitProc proc);
+</PRE>
+
+<DL><DD>
+Sets the current <SAMP><A HREF="vevent-x.html#veventClientWaitProc"><CODE>veventClientWaitProc</CODE></A></SAMP>.
+</DD></DL>
+<P>
+<A NAME="veventSetConfigureFlags"><HR><H4>veventSetConfigureFlags</H4></A>
+<PRE>
+        void <B>veventSetConfigureFlags</B>(
+                vevent * event,
+                int flags);
+</PRE>
+
+<DL><DD>
+Sets the configure flags of the event. Useful when creating a configure
+event by hand. The flags are a result of bitwise ORing (<SAMP>|</SAMP>)
+together one or more of the following configure event types:
+<P><CODE>veventWINDOW_CONFIGURE_MOVE</CODE>
+<P><CODE>veventWINDOW_CONFIGURE_SIZE</CODE>
+<P><CODE>veventWINDOW_CONFIGURE_STACK</CODE>
+<P>
+Generates an exception if the event is not a
+<CODE><A HREF="vevent-x.html#veventWindowConfigureEvent"><CODE>veventWindowConfigureEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetConfigureHeight"><HR><H4>veventSetConfigureHeight</H4></A>
+<PRE>
+        void <B>veventSetConfigureHeight</B>(
+                vevent * event,
+                int height);
+</PRE>
+
+<DL><DD>
+Sets the height indicated in the event.  This should be the height of
+the window associated with the event.  Generates an exception if the
+event is not a <CODE><A HREF="vevent-x.html#veventWindowConfigureEvent"><CODE>veventWindowConfigureEvent</CODE></A></CODE>
+</DD></DL>
+<P>
+<A NAME="veventSetConfigureWidth"><HR><H4>veventSetConfigureWidth</H4></A>
+<PRE>
+        void <B>veventSetConfigureWidth</B>(
+                vevent * event,
+                int width);
+</PRE>
+
+<DL><DD>
+Sets the width indicated in the event.  This should be the width of
+the window associated with the event.  Generates an exception if the
+event is not a <CODE><A HREF="vevent-x.html#veventWindowConfigureEvent"><CODE>veventWindowConfigureEvent</CODE></A></CODE>
+</DD></DL>
+<P>
+<A NAME="veventSetConfigureX"><HR><H4>veventSetConfigureX</H4></A>
+<PRE>
+        void <B>veventSetConfigureX</B>(
+                vevent * event,
+                int x);
+</PRE>
+
+<DL><DD>
+Sets the x coordinate of the configure event. This should be the x
+coordinate of the window associated with the event.
+</DD></DL>
+<P>
+<A NAME="veventSetConfigureY"><HR><H4>veventSetConfigureY</H4></A>
+<PRE>
+        void <B>veventSetConfigureY</B>(
+                vevent * event,
+                int y);
+</PRE>
+
+<DL><DD>
+Sets the y coordinate of the configure event. This should be the y
+coordinate of the window associated with the event.
+</DD></DL>
+<P>
+<A NAME="veventSetData"><HR><H4>veventSetData</H4></A>
+<PRE>
+        void <B>veventSetData</B>(
+                vevent * event,
+                const void * data);
+</PRE>
+
+<DL><DD>
+Sets the event's data pointer to <SAMP>data</SAMP>.  A data pointer is
+a pointer location that you can use to store a single value and later
+retrieve it from.  <CODE><A HREF="vevent-x.html#veventGetData"><CODE>veventGetData</CODE></A></CODE> is used to retrieve this
+value.  If you need to store multiple items in this location, create a
+structure and store a pointer to an instance of this structure in the
+data pointer.
+</DD></DL>
+<P>
+<A NAME="veventSetDispatcher"><HR><H4>veventSetDispatcher</H4></A>
+<PRE>
+        void <B>veventSetDispatcher</B>(
+                veventDispatcherProc dispatcher);
+</PRE>
+
+<DL><DD>
+Sets the current <SAMP><A HREF="vevent-x.html#veventDispatcherProc"><CODE>veventDispatcherProc</CODE></A></SAMP>. See
+also <CODE><A HREF="vevent-x.html#veventGetDispatcher"><CODE>veventGetDispatcher</CODE></A></CODE> and
+<CODE><A HREF="vevent-x.html#veventRegisterDispatcher"><CODE>veventRegisterDispatcher</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetDoubleClickInterval"><HR><H4>veventSetDoubleClickInterval</H4></A>
+<PRE>
+        void <B>veventSetDoubleClickInterval</B>(
+                unsigned long interval);
+</PRE>
+
+<DL><DD>
+Sets the intervale (in nanoseconds) at which two successive clicks are
+classified as a double-click.  When two clicks happen within this
+interval, the event for the second button-down event will have a
+click-count greater than one.  See alco <CODE>veventGetClickCount</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetFDData"><HR><H4>veventSetFDData</H4></A>
+<PRE>
+        void <B>veventSetFDData</B>(
+                veventFD * file,
+                const void * data);
+</PRE>
+
+<DL><DD>
+Sets the user data pointer of the given
+<SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP> to the given void pointer. The user
+data pointer is basically a means to hide something and
+later retrieve it. The user data pointer is never used
+directly by Galaxy and is provided entirely for your use.
+It can be examined using <CODE><A HREF="vevent-x.html#veventGetFDData"><CODE>veventGetFDData</CODE></A></CODE>.
+<P>
+<CODE>veventSetFDData</CODE> only works on UNIX platforms.
+</DD></DL>
+<P>
+<A NAME="veventSetFDExceptNotify"><HR><H4>veventSetFDExceptNotify</H4></A>
+<PRE>
+        void <B>veventSetFDExceptNotify</B>(
+                veventFD * file,
+                veventFDNoteProc * noteProc);
+</PRE>
+
+<DL><DD>
+Sets the exception notify procedure of the given
+<SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP> to the given
+<SAMP><A HREF="vevent-x.html#veventFDNoteProc"><CODE>veventFDNoteProc</CODE></A></SAMP>. This notify procedure is
+called whenever an asynchronous exception is detected on
+the given <SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP>. It can be set to
+<SAMP>NULL</SAMP> to disable notification of exceptional
+conditions. The current notify procedure of a given
+<SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP> can be obtained using
+<CODE><A HREF="vevent-x.html#veventGetFDExceptNotify"><CODE>veventGetFDExceptNotify</CODE></A></CODE>.
+<P>
+<CODE>veventSetFDExceptNotify</CODE> only works on UNIX platforms.
+</DD></DL>
+<P>
+<A NAME="veventSetFDReadNotify"><HR><H4>veventSetFDReadNotify</H4></A>
+<PRE>
+        void <B>veventSetFDReadNotify</B>(
+                veventFD * file,
+                veventFDNoteProc * noteProc);
+</PRE>
+
+<DL><DD>
+Sets the read-avail notify procedure of the given
+<SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP> to the given
+<SAMP><A HREF="vevent-x.html#veventFDNoteProc"><CODE>veventFDNoteProc</CODE></A></SAMP>. This notify procedure is
+called whenever the system detects that a read is available
+on the given <SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP>. It can be set to
+<SAMP>NULL</SAMP> to disable read-avail notification.  See also
+<CODE><A HREF="vevent-x.html#veventGetFDReadNotify"><CODE>veventGetFDReadNotify</CODE></A></CODE>.
+<P>
+<CODE>veventSetFDReadNotify</CODE> only works on UNIX platforms.
+</DD></DL>
+<P>
+<A NAME="veventSetFDWriteNotify"><HR><H4>veventSetFDWriteNotify</H4></A>
+<PRE>
+        void <B>veventSetFDWriteNotify</B>(
+                veventFD * file,
+                veventFDNoteProc * noteProc);
+</PRE>
+
+<DL><DD>
+Sets the write-avail notify procedure of the given
+<SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP> to the given
+<SAMP><A HREF="vevent-x.html#veventFDNoteProc"><CODE>veventFDNoteProc</CODE></A></SAMP>. This notify procedure is
+called whenever the system detects that room for writing is
+available on the given <SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP>. It can be set
+to <SAMP>NULL</SAMP> to disable write-avail notification.
+See also <CODE><A HREF="vevent-x.html#veventGetFDWriteNotify"><CODE>veventGetFDWriteNotify</CODE></A></CODE>.
+<P>
+<CODE>veventSetFDWriteNotify</CODE> only works on UNIX platforms.
+</DD></DL>
+<P>
+<A NAME="veventSetHandler"><HR><H4>veventSetHandler</H4></A>
+<PRE>
+        void <B>veventSetHandler</B>(
+                const veventHandler * handler);
+</PRE>
+
+<DL><DD>
+Sets the current top-level <SAMP><A HREF="vevent-x.html#veventHandler"><CODE>veventHandler</CODE></A></SAMP>. See
+also <CODE><A HREF="vevent-x.html#veventGetHandler"><CODE>veventGetHandler</CODE></A></CODE> and
+<CODE><A HREF="vevent-x.html#veventRegisterHandler"><CODE>veventRegisterHandler</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetHandlerProc"><HR><H4>veventSetHandlerProc</H4></A>
+<PRE>
+        void <B>veventSetHandlerProc</B>(
+                veventHandler * handler,
+                int type,
+                veventHandlerProc handlerProc);
+</PRE>
+
+<DL><DD>
+Sets the <SAMP><A HREF="vevent-x.html#veventHandlerProc"><CODE>veventHandlerProc</CODE></A></SAMP> for the event type
+<SAMP>type</SAMP> in the given event handler
+<SAMP>handler</SAMP>.
+</DD></DL>
+<P>
+<A NAME="veventSetKey"><HR><H4>veventSetKey</H4></A>
+<PRE>
+        void <B>veventSetKey</B>(
+                vevent * event,
+                vkey key);
+</PRE>
+
+<DL><DD>
+Sets the <CODE><A HREF="vkey-x.html#vkey"><CODE>vkey</CODE></A></CODE> of the event.  <CODE>vkeyNULL</CODE> is a
+valid value, indicating the absence of any key in the event.  Generates
+an exception if the event is not a <CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetKeyChar"><HR><H4>veventSetKeyChar</H4></A>
+<PRE>
+        void <B>veventSetKeyChar</B>(
+                vevent * event,
+                unsigned int keyChar);
+</PRE>
+
+<DL><DD>
+Sets the <CODE><A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A></CODE> of the event.  This character is usually the
+character generated when the event's <CODE><A HREF="vkey-x.html#vkeyStroke"><CODE>vkeyStroke</CODE></A></CODE> (it's
+<CODE><A HREF="vkey-x.html#vkey"><CODE>vkey</CODE></A></CODE> and <CODE><A HREF="vkey-x.html#vkeyModifiers"><CODE>vkeyModifiers</CODE></A></CODE> combined) is typed from
+the keyboard, although it can be any character.
+<CODE>vkeyNULL_CHAR</CODE> is a valid value, indicating the absence of
+any character in the event.  Generates an exception if the event is not
+a <CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetKeyCode"><HR><H4>veventSetKeyCode</H4></A>
+<PRE>
+        void <B>veventSetKeyCode</B>(
+                vevent * event,
+                unsigned int keyCode);
+</PRE>
+
+<DL><DD>
+Sets the key code of the event.  Key codes are platform-specific and may
+even be incompatible on two different computers running the same
+operating system.  The key code should correspond to the event's
+<CODE><A HREF="vkey-x.html#vkey"><CODE>vkey</CODE></A></CODE>, although it does not have to.  Generates an exception
+if the event is not a <CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>
+</DD></DL>
+<P>
+<A NAME="veventSetKeyModifierOff"><HR><H4>veventSetKeyModifierOff</H4></A>
+<PRE>
+        void <B>veventSetKeyModifierOff</B>(
+                vevent * event,
+                vkeyModifiers modifier);
+</PRE>
+
+<DL><DD>
+Removes the modifiers <SAMP>modifier</SAMP> from the event.  Generates an
+exception if the event is not a <CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE> or a
+<CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetKeyModifierOn"><HR><H4>veventSetKeyModifierOn</H4></A>
+<PRE>
+        void <B>veventSetKeyModifierOn</B>(
+                vevent * event,
+                vkeyModifiers modifier);
+</PRE>
+
+<DL><DD>
+Adds the modifiers <SAMP>modifier</SAMP> to the event.  Generates an
+exception if the event is not a <CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE> or a
+<CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetKeyModifiers"><HR><H4>veventSetKeyModifiers</H4></A>
+<PRE>
+        void <B>veventSetKeyModifiers</B>(
+                vevent * event,
+                vkeyModifiers modifiers);
+</PRE>
+
+<DL><DD>
+Sets the keyboard modifiers of the event.  Generates an exception if the
+event is not a <CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE> or a
+<CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetKeyStroke"><HR><H4>veventSetKeyStroke</H4></A>
+<PRE>
+        void <B>veventSetKeyStroke</B>(
+                vevent * event,
+                vkeyStroke keyStroke);
+</PRE>
+
+<DL><DD>
+Sets the <CODE><A HREF="vkey-x.html#vkeyStroke"><CODE>vkeyStroke</CODE></A></CODE> of the event.  The
+<CODE><A HREF="vkey-x.html#vkeyStroke"><CODE>vkeyStroke</CODE></A></CODE> is deconstructed and stored as the event's key
+and modifiers.  Generates an exception if the event is not a
+<CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>.
+<P>
+It is more efficient to use <CODE>veventSetKey</CODE> or
+<CODE>veventSetModifiers</CODE> if you only want to change one
+component of the event's <CODE><A HREF="vkey-x.html#vkeyStroke"><CODE>vkeyStroke</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetKeyX"><HR><H4>veventSetKeyX</H4></A>
+<PRE>
+        void <B>veventSetKeyX</B>(
+                vevent * event,
+                int x);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Sets the x coordinate of the event (in screen pixels) relative to the
+window associated with the event.  Throws an exception if the event is
+not a <CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE> or
+<CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>.  Deprecated in favor of
+<CODE><A HREF="vevent-x.html#veventSetX"><CODE>veventSetX</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetKeyY"><HR><H4>veventSetKeyY</H4></A>
+<PRE>
+        void <B>veventSetKeyY</B>(
+                vevent * event,
+                int y);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Sets the y coordinate of the event (in screen pixels) relative to the
+window associated with the event.  Throws an exception if the event is
+not a <CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE> or
+<CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>.  Deprecated in favor of
+<CODE><A HREF="vevent-x.html#veventSetY"><CODE>veventSetY</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetMonitorStreamException"><HR><H4>veventSetMonitorStreamException</H4></A>
+<PRE>
+        void <B>veventSetMonitorStreamException</B>(
+                FILE * file,
+                int value);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Sets whether or not the file stream <SAMP>file</SAMP> is being monitored
+for exceptions. If <CODE>vFALSE</CODE> then exception monitoring is
+turned off, otherwise it is turned on. This entry point exists only for
+backward compatibility.
+</DD></DL>
+<P>
+<A NAME="veventSetMonitorStreamExceptionOff"><HR><H4>veventSetMonitorStreamExceptionOff</H4></A>
+<PRE>
+        void <B>veventSetMonitorStreamExceptionOff</B>(
+                FILE * file);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Turns off monitoring for exceptions on <SAMP>file</SAMP>.  This is part
+of the deprecated stream translator mechanism.  Refer to
+<CODE><A HREF="vevent-x.html#veventRegisterStreamTranslator"><CODE>veventRegisterStreamTranslator</CODE></A></CODE> for information on the old
+mechanism. Refer to <CODE><A HREF="vevent-x.html#veventRegisterFD"><CODE>veventRegisterFD</CODE></A></CODE>  for information on
+the new file descriptor mechanism.
+</DD></DL>
+<P>
+<A NAME="veventSetMonitorStreamExceptionOn"><HR><H4>veventSetMonitorStreamExceptionOn</H4></A>
+<PRE>
+        void <B>veventSetMonitorStreamExceptionOn</B>(
+                FILE * file);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Turns on monitoring for exceptions on <SAMP>file</SAMP>.  This is part
+of the deprecated stream translator mechanism.  Refer to
+<CODE><A HREF="vevent-x.html#veventRegisterStreamTranslator"><CODE>veventRegisterStreamTranslator</CODE></A></CODE> for information on the old
+mechanism. Refer to <CODE><A HREF="vevent-x.html#veventRegisterFD"><CODE>veventRegisterFD</CODE></A></CODE>  for information on
+the new file descriptor mechanism.
+</DD></DL>
+<P>
+<A NAME="veventSetMonitorStreamRead"><HR><H4>veventSetMonitorStreamRead</H4></A>
+<PRE>
+        void <B>veventSetMonitorStreamRead</B>(
+                FILE * file,
+                int value);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Sets whether or not the file stream <SAMP>file</SAMP> is being monitored
+for reading. If <CODE>vFALSE</CODE>, then read monitoring is turned off,
+otherwise it is turned on. This entry point exists only for backward
+compatibility. 
+</DD></DL>
+<P>
+<A NAME="veventSetMonitorStreamReadOff"><HR><H4>veventSetMonitorStreamReadOff</H4></A>
+<PRE>
+        void <B>veventSetMonitorStreamReadOff</B>(
+                FILE * file);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Turns off monitoring for reading on <SAMP>file</SAMP>.
+</DD></DL>
+<P>
+<A NAME="veventSetMonitorStreamReadOn"><HR><H4>veventSetMonitorStreamReadOn</H4></A>
+<PRE>
+        void <B>veventSetMonitorStreamReadOn</B>(
+                FILE * file);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Turns on monitoring for reading on <SAMP>file</SAMP>.
+</DD></DL>
+<P>
+<A NAME="veventSetMonitorStreamWrite"><HR><H4>veventSetMonitorStreamWrite</H4></A>
+<PRE>
+        void <B>veventSetMonitorStreamWrite</B>(
+                FILE * file,
+                int value);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Sets whether or not the file stream <SAMP>file</SAMP> is being monitored
+for writing. If <CODE>vFALSE</CODE>, then write monitoring is turned
+off, otherwise it is turned on. This entry point exists only for
+backward compatibility. 
+</DD></DL>
+<P>
+<A NAME="veventSetMonitorStreamWriteOff"><HR><H4>veventSetMonitorStreamWriteOff</H4></A>
+<PRE>
+        void <B>veventSetMonitorStreamWriteOff</B>(
+                FILE * file);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Turns off monitoring for reading on <SAMP>file</SAMP>.
+</DD></DL>
+<P>
+<A NAME="veventSetMonitorStreamWriteOn"><HR><H4>veventSetMonitorStreamWriteOn</H4></A>
+<PRE>
+        void <B>veventSetMonitorStreamWriteOn</B>(
+                FILE * file);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Turns on monitoring for writing on <SAMP>file</SAMP>.
+</DD></DL>
+<P>
+<A NAME="veventSetPointerButton"><HR><H4>veventSetPointerButton</H4></A>
+<PRE>
+        void <B>veventSetPointerButton</B>(
+                vevent * event,
+                int button);
+</PRE>
+
+<DL><DD>
+Sets the button of the event.  Only one button can be set at a time.
+Generates an exception if the event is not a
+<CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetPointerButtonCount"><HR><H4>veventSetPointerButtonCount</H4></A>
+<PRE>
+        void <B>veventSetPointerButtonCount</B>(
+                vevent * event,
+                int count);
+</PRE>
+
+<DL><DD>
+Sets the button count of the event.  This is useful when creating
+pointer events by hand.  Generates an exception if the event is not a
+<CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetPointerClickCount"><HR><H4>veventSetPointerClickCount</H4></A>
+<PRE>
+        void <B>veventSetPointerClickCount</B>(
+                vevent * event,
+                int count);
+</PRE>
+
+<DL><DD>
+Sets the click count of the event.  This is useful when creating pointer
+events by hand.  Generates an exception if the event is not a
+<CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetPointerModifierOff"><HR><H4>veventSetPointerModifierOff</H4></A>
+<PRE>
+        void <B>veventSetPointerModifierOff</B>(
+                vevent * event,
+                vkeyModifiers modifier);
+</PRE>
+
+<DL><DD>
+Removes the modifiers <SAMP>modifier</CODE> from the event.  Generates
+an exception if the event is not a <CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE> or
+a <CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetPointerModifierOn"><HR><H4>veventSetPointerModifierOn</H4></A>
+<PRE>
+        void <B>veventSetPointerModifierOn</B>(
+                vevent * event,
+                vkeyModifiers modifier);
+</PRE>
+
+<DL><DD>
+Adds the modifiers <SAMP>modifier</CODE> to the event.  Generates an
+exception if the event is not a <CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE> or a
+<CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetPointerModifiers"><HR><H4>veventSetPointerModifiers</H4></A>
+<PRE>
+        void <B>veventSetPointerModifiers</B>(
+                vevent * event,
+                vkeyModifiers modifiers);
+</PRE>
+
+<DL><DD>
+Sets the keyboard modifiers of the event.  Generates an exception if the
+event is not a <CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE> or a
+<CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetPointerX"><HR><H4>veventSetPointerX</H4></A>
+<PRE>
+        void <B>veventSetPointerX</B>(
+                vevent * event,
+                int x);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Sets the x coordinate of the event (in screen pixels) relative to the
+window associated with the event.  Throws an exception if the event is
+not a <CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE> or
+<CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>.  Deprecated in favor of
+<CODE><A HREF="vevent-x.html#veventSetX"><CODE>veventSetX</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetPointerY"><HR><H4>veventSetPointerY</H4></A>
+<PRE>
+        void <B>veventSetPointerY</B>(
+                vevent * event,
+                int y);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Sets the y coordinate of the event (in screen pixels) relative to the
+window associated with the event.  Throws an exception if the event is
+not a <CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE> or
+<CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>.  Deprecated in favor of
+<CODE><A HREF="vevent-x.html#veventSetY"><CODE>veventSetY</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetPreBlockHandlerProc"><HR><H4>veventSetPreBlockHandlerProc</H4></A>
+<PRE>
+        void <B>veventSetPreBlockHandlerProc</B>(
+                veventPreBlockHandlerProc proc);
+</PRE>
+
+<DL><DD>
+Sets the current pre-block handler procedure to the given procedure. The
+pre-block handler procedure is called whenever the Event Manager is
+about to block for a non-zero amount of time. The Galaxy event loop
+blocks when there are no events on the queue ready to be dispatched and
+there is no pending input. <SAMP>NULL</SAMP> is not a valid procedure.
+</DD></DL>
+<P>
+<A NAME="veventSetPriority"><HR><H4>veventSetPriority</H4></A>
+<PRE>
+        void <B>veventSetPriority</B>(
+                vevent * event,
+                veventPriority priority);
+</PRE>
+
+<DL><DD>
+Sets the dispatch priority of the given event to
+<SAMP>priority</SAMP>. Valid defined values for <SAMP>priority</SAMP>
+are:
+<P><CODE>veventPRIORITY_MIN</CODE>
+<P><CODE>veventPRIORITY_LOW</CODE>
+<P><CODE>veventPRIORITY_DEFAULT</CODE>
+<P><CODE>veventPRIORITY_HIGH</CODE>
+<P><CODE>veventPRIORITY_MAX</CODE>
+</DD></DL>
+<P>
+<A NAME="veventSetStreamTranslator"><HR><H4>veventSetStreamTranslator</H4></A>
+<PRE>
+        void <B>veventSetStreamTranslator</B>(
+                FILE * file,
+                veventTranslatorProc translator);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Changes the stream translation procedure for the file stream
+<SAMP>file</SAMP> to the procedure <SAMP>translator</SAMP>. Note that 
+<CODE>veventSetStreamTranslator</CODE> only works under UNIX.
+</DD></DL>
+<P>
+<A NAME="veventSetSyncFlagOff"><HR><H4>veventSetSyncFlagOff</H4></A>
+<PRE>
+        void <B>veventSetSyncFlagOff</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Clears the request synchronization flag on the given event.  The
+synchronization flag can be used to flag events that must be processed
+synchronously. This is not currently used by the Event Manager.
+</DD></DL>
+<P>
+<A NAME="veventSetSyncFlagOn"><HR><H4>veventSetSyncFlagOn</H4></A>
+<PRE>
+        void <B>veventSetSyncFlagOn</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Sets the request synchronization flag on the given event.
+The synchronization flag can be used to flag events that
+must be processed synchronously. This is not currently used
+by the Event Manager.
+</DD></DL>
+<P>
+<A NAME="veventSetSynchronizationRequested"><HR><H4>veventSetSynchronizationRequested</H4></A>
+<PRE>
+        void <B>veventSetSynchronizationRequested</B>(
+                vevent * event,
+                int requested);
+</PRE>
+
+<DL><DD>
+Sets or clears the request synchronization flag on the
+<CODE>vevent</CODE> <SAMP>event</SAMP>.  The synchronization flag can be
+used to flag events that must be processed synchronously.  This is not
+currently used by the Event Manager.
+</DD></DL>
+<P>
+<A NAME="veventSetTarget"><HR><H4>veventSetTarget</H4></A>
+<PRE>
+        void <B>veventSetTarget</B>(
+                vevent * event,
+                veventHandlerProc target);
+</PRE>
+
+<DL><DD>
+Sets the handler procedure for the given event to be
+<SAMP>target</SAMP>. Handler procedures should return <CODE>vTRUE</CODE>
+if the event was handled and return <CODE>vFALSE</CODE> otherwise.
+</DD></DL>
+<P>
+<A NAME="veventSetTime"><HR><H4>veventSetTime</H4></A>
+<PRE>
+        void <B>veventSetTime</B>(
+                vevent * event,
+                vtimestamp time);
+</PRE>
+
+<DL><DD>
+Sets the time at which the event is supposed to be dispatched. This does
+not schedule the event to be dispatched. The event must be put onto the
+queue with <CODE><A HREF="vevent-x.html#veventPost"><CODE>veventPost</CODE></A></CODE>, <CODE><A HREF="vevent-x.html#veventPostAtEventTime"><CODE>veventPostAtEventTime</CODE></A></CODE>,
+or <CODE><A HREF="vevent-x.html#veventPostFuture"><CODE>veventPostFuture</CODE></A></CODE>.  Note that <CODE><A HREF="vevent-x.html#veventPost"><CODE>veventPost</CODE></A></CODE> and
+<CODE><A HREF="vevent-x.html#veventPostFuture"><CODE>veventPostFuture</CODE></A></CODE> will overwrite the event's dispatch-time
+with a new value.
+</DD></DL>
+<P>
+<A NAME="veventSetType"><HR><H4>veventSetType</H4></A>
+<PRE>
+        void <B>veventSetType</B>(
+                vevent * event,
+                veventType type);
+</PRE>
+
+<DL><DD>
+Changes the integral type of the event <SAMP>event</SAMP>
+to <SAMP>type</SAMP>. This is used when creating events by
+hand.
+</DD></DL>
+<P>
+<A NAME="veventSetWindow"><HR><H4>veventSetWindow</H4></A>
+<PRE>
+        void <B>veventSetWindow</B>(
+                vevent * event,
+                _veventSTRUCT vwindow * window);
+</PRE>
+
+<DL><DD>
+Sets the <CODE><A HREF="vwindow-x.html#vwindow"><CODE>vwindow</CODE></A></CODE> associated with the event to
+<SAMP>window</SAMP>. This is used when creating window events by hand.
+Generates an exception if the event is not a
+<CODE><A HREF="vevent-x.html#veventWindowEvent"><CODE>veventWindowEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetWindowStateType"><HR><H4>veventSetWindowStateType</H4></A>
+<PRE>
+        void <B>veventSetWindowStateType</B>(
+                vevent * event,
+                int type);
+</PRE>
+
+<DL><DD>
+Sets the state-type of the event.  The possible types are:
+<P><CODE>veventWINDOW_STATE_OPEN</CODE>
+<P><CODE>veventWINDOW_STATE_CLOSE</CODE>
+<P><CODE>veventWINDOW_STATE_MAXIMIZE</CODE>
+<P><CODE>veventWINDOW_STATE_UNMAXIMIZE</CODE>
+<P><CODE>veventWINDOW_STATE_ICONIFY</CODE>
+<P><CODE>veventWINDOW_STATE_UNICONIFY</CODE>
+<P><CODE>veventWINDOW_STATE_PIN</CODE>
+<P><CODE>veventWINDOW_STATE_UNPIN</CODE>
+<P>
+Generates an exception if the event is not a
+<CODE><A HREF="vevent-x.html#veventWindowStateEvent"><CODE>veventWindowStateEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetX"><HR><H4>veventSetX</H4></A>
+<PRE>
+        void <B>veventSetX</B>(
+                vevent * event,
+                int x);
+</PRE>
+
+<DL><DD>
+Sets the x coordinate of the event (in screen pixels) relative to the
+window associated with the event.  Throws an exception if the event is
+not a <CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE> or
+<CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSetY"><HR><H4>veventSetY</H4></A>
+<PRE>
+        void <B>veventSetY</B>(
+                vevent * event,
+                int y);
+</PRE>
+
+<DL><DD>
+Sets the y coordinate of the event (in screen pixels) relative to the
+window associated with the event.  Throws an exception if the event is
+not a <CODE><A HREF="vevent-x.html#veventWindowPointerEvent"><CODE>veventWindowPointerEvent</CODE></A></CODE> or
+<CODE><A HREF="vevent-x.html#veventWindowKeyEvent"><CODE>veventWindowKeyEvent</CODE></A></CODE>
+</DD></DL>
+<P>
+<A NAME="veventStartup"><HR><H4>veventStartup</H4></A>
+<PRE>
+        void <B>veventStartup</B>();
+</PRE>
+
+<DL><DD>
+Starts the <CODE>vevent</CODE> module.  Has no effect if the module is
+already started.
+</DD></DL>
+<P>
+<A NAME="veventStopProcessing"><HR><H4>veventStopProcessing</H4></A>
+<PRE>
+        void <B>veventStopProcessing</B>();
+</PRE>
+
+<DL><DD>
+Marks the currently running event loop as done. After dispatching all
+currently queued events, <CODE><A HREF="vevent-x.html#veventProcess"><CODE>veventProcess</CODE></A></CODE> returns control to
+the procedure that started it (with <CODE><A HREF="vevent-x.html#veventProcess"><CODE>veventProcess</CODE></A></CODE>).
+</DD></DL>
+<P>
+<A NAME="veventUnpost"><HR><H4>veventUnpost</H4></A>
+<PRE>
+        vbool <B>veventUnpost</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Attempts to remove the event from the current thread's event queue.
+Returns <CODE>vTRUE</CODE> if it succeeded.
+<P>
+Opposite of <CODE><A HREF="vevent-x.html#veventPost"><CODE>veventPost</CODE></A></CODE> and its many deriviatives. This
+does not destroy the event, nor is a <CODE><A HREF="vevent-x.html#veventUnreference"><CODE>veventUnreference</CODE></A></CODE>
+performed.  Ownership of the event is presumed to have passed from the
+event queue to the caller.
+</DD></DL>
+<P>
+<A NAME="veventUnreference"><HR><H4>veventUnreference</H4></A>
+<PRE>
+        void <B>veventUnreference</B>(
+                vevent * event);
+</PRE>
+
+<DL><DD>
+Releases a reference to an event.  If the event has no more references
+to it, it may be destroyed.  Opposite of <CODE><A HREF="vevent-x.html#veventReference"><CODE>veventReference</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventUnregisterFD"><HR><H4>veventUnregisterFD</H4></A>
+<PRE>
+        void <B>veventUnregisterFD</B>(
+                veventFD * file);
+</PRE>
+
+<DL><DD>
+Unregisters the given <SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP> from the event
+system. The passed in <SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP> is implicitly
+destroyed by <CODE>veventUnregisterFD</CODE> and cannot be
+used after this call is made. Any notify procedures set on
+the given <SAMP><A HREF="vevent-x.html#veventFD"><CODE>veventFD</CODE></A></SAMP> will be dismissed. See also
+<CODE><A HREF="vevent-x.html#veventRegisterFD"><CODE>veventRegisterFD</CODE></A></CODE>.
+<P>
+<CODE>veventUnRegisterFD</CODE> only works on UNIX platforms.
+</DD></DL>
+<P>
+<A NAME="veventUnregisterStreamTranslator"><HR><H4>veventUnregisterStreamTranslator</H4></A>
+<PRE>
+        void <B>veventUnregisterStreamTranslator</B>(
+                FILE * file);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Removes the current translation procedure for the file stream
+<SAMP>file</SAMP>. Note that
+<CODE>veventUnregisterStreamTranslator</CODE> only works
+under UNIX.
+</DD></DL>
+<P>
+<A NAME="veventValidate"><HR><H4>veventValidate</H4></A>
+<PRE>
+        vbool <B>veventValidate</B>(
+                const vevent * event);
+</PRE>
+
+<DL><DD>
+Returns <CODE>vTRUE</CODE> if the event is a valid event.  If the event
+is not valid it may return <CODE>vFALSE</CODE> or it may not return at
+all.  The process might even crash if the pointer is bad.  See also
+<CODE><A HREF="vevent-x.html#veventAssert"><CODE>veventAssert</CODE></A></CODE> and <CODE><A HREF="vevent-x.html#veventHandledAssert"><CODE>veventHandledAssert</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="veventBUTTON_DOWN"><HR><H4>veventBUTTON_DOWN</H4></A>
+<PRE>
+        <B>veventBUTTON_DOWN</B>
+</PRE>
+<A NAME="veventBUTTON_UP"><PRE>
+        <B>veventBUTTON_UP</B>
+</PRE>
+</A>
+<A NAME="veventCLIENT"><PRE>
+        <B>veventCLIENT</B>
+</PRE>
+</A>
+<A NAME="veventFOCUS_ACQUIRE"><PRE>
+        <B>veventFOCUS_ACQUIRE</B>
+</PRE>
+</A>
+<A NAME="veventFOCUS_LOSE"><PRE>
+        <B>veventFOCUS_LOSE</B>
+</PRE>
+</A>
+<A NAME="veventKEY_DOWN"><PRE>
+        <B>veventKEY_DOWN</B>
+</PRE>
+</A>
+<A NAME="veventKEY_UP"><PRE>
+        <B>veventKEY_UP</B>
+</PRE>
+</A>
+<A NAME="veventPOINTER_DETAIL"><PRE>
+        <B>veventPOINTER_DETAIL</B>
+</PRE>
+</A>
+<A NAME="veventPOINTER_DRAG"><PRE>
+        <B>veventPOINTER_DRAG</B>
+</PRE>
+</A>
+<A NAME="veventPOINTER_MOTION"><PRE>
+        <B>veventPOINTER_MOTION</B>
+</PRE>
+</A>
+<A NAME="veventPOINTER_ENTER"><PRE>
+        <B>veventPOINTER_ENTER</B>
+</PRE>
+</A>
+<A NAME="veventPOINTER_LEAVE"><PRE>
+        <B>veventPOINTER_LEAVE</B>
+</PRE>
+</A>
+<A NAME="veventWINDOW_CONFIGURE"><PRE>
+        <B>veventWINDOW_CONFIGURE</B>
+</PRE>
+</A>
+<A NAME="veventWINDOW_STATE"><PRE>
+        <B>veventWINDOW_STATE</B>
+</PRE>
+</A>
+<A NAME="veventWINDOW_UPDATE"><PRE>
+        <B>veventWINDOW_UPDATE</B>
+</PRE>
+</A>
+
+<DL><DD>
+The valid types for an event. Refer to
+<CODE><A HREF="vevent-x.html#veventSetType"><CODE>veventSetType</CODE></A></CODE> and <CODE><A HREF="vevent-x.html#veventGetType"><CODE>veventGetType</CODE></A></CODE>.
+<CODE>veventPOINTER_ENTER</CODE> and
+<CODE>veventPOINTER_LEAVE</CODE> events rarely need to be
+handled by clients. In most cases it is preferable to
+handle <CODE>veventFOCUS_ACQUIRE</CODE> and
+<CODE>veventFOCUS_LOSE</CODE> events.
+</DD></DL>
+<P>
+<A NAME="veventINCLUDED"><HR><H4>veventINCLUDED</H4></A>
+<PRE>
+        <B>veventINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>veventHEADER</SAMP is included.
+</DD></DL>
+<P>
+<A NAME="veventPOINTER_BUTTON_DOWN"><HR><H4>veventPOINTER_BUTTON_DOWN</H4></A>
+<PRE>
+        <B>veventPOINTER_BUTTON_DOWN</B>
+</PRE>
+<A NAME="veventPOINTER_BUTTON_UP"><PRE>
+        <B>veventPOINTER_BUTTON_UP</B>
+</PRE>
+</A>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> These event type constants have been deprecated. See
+<CODE>veventBUTTON_DOWN</CODE> and
+<CODE>veventBUTTON_UP</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventPRIORITY_MIN"><HR><H4>veventPRIORITY_MIN</H4></A>
+<PRE>
+        <B>veventPRIORITY_MIN</B>
+</PRE>
+<A NAME="veventPRIORITY_LOW"><PRE>
+        <B>veventPRIORITY_LOW</B>
+</PRE>
+</A>
+<A NAME="veventLOW_PRIORITY"><PRE>
+        <B>veventLOW_PRIORITY</B>
+</PRE>
+</A>
+<A NAME="veventPRIORITY_DEFAULT"><PRE>
+        <B>veventPRIORITY_DEFAULT</B>
+</PRE>
+</A>
+<A NAME="veventDEFAULT_PRIORITY"><PRE>
+        <B>veventDEFAULT_PRIORITY</B>
+</PRE>
+</A>
+<A NAME="veventPRIORITY_HIGH"><PRE>
+        <B>veventPRIORITY_HIGH</B>
+</PRE>
+</A>
+<A NAME="veventHIGH_PRIORITY"><PRE>
+        <B>veventHIGH_PRIORITY</B>
+</PRE>
+</A>
+<A NAME="veventPRIORITY_MAX"><PRE>
+        <B>veventPRIORITY_MAX</B>
+</PRE>
+</A>
+
+<DL><DD>
+Possible values of something of type
+<CODE><A HREF="vevent-x.html#veventPriority"><CODE>veventPriority</CODE></A></CODE>. Refer to
+<CODE><A HREF="vevent-x.html#veventGetPriority"><CODE>veventGetPriority</CODE></A></CODE> and
+<CODE><A HREF="vevent-x.html#veventSetPriority"><CODE>veventSetPriority</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventSTREAM_READ_AVAIL"><HR><H4>veventSTREAM_READ_AVAIL</H4></A>
+<PRE>
+        <B>veventSTREAM_READ_AVAIL</B>
+</PRE>
+<A NAME="veventSTREAM_EXCEPTION_AVAIL"><PRE>
+        <B>veventSTREAM_EXCEPTION_AVAIL</B>
+</PRE>
+</A>
+<A NAME="veventSTREAM_WRITE_AVAIL"><PRE>
+        <B>veventSTREAM_WRITE_AVAIL</B>
+</PRE>
+</A>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> <CODE>veventSTREAM_READ_AVAIL</CODE>,
+<CODE>veventSTREAM_WRITE_AVAIL</CODE>, or
+<CODE>veventSTREAM_EXCEPTION_AVAIL</CODE> is the second
+argument to a stream translator (type
+<CODE><A HREF="vevent-x.html#veventTranslatorProc"><CODE>veventTranslatorProc</CODE></A></CODE>). They indicate what type
+of condition is available on the stream. Stream translators
+have been deprecated in favor of the file descriptor
+mechanism. For the stream translator mechanism, see also
+<CODE><A HREF="vevent-x.html#veventRegisterStreamTranslator"><CODE>veventRegisterStreamTranslator</CODE></A></CODE>. For more
+information on the file descriptor mechanism, see
+<CODE><A HREF="vevent-x.html#veventRegisterFD"><CODE>veventRegisterFD</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventWINDOW_CONFIGURE_MOVE"><HR><H4>veventWINDOW_CONFIGURE_MOVE</H4></A>
+<PRE>
+        <B>veventWINDOW_CONFIGURE_MOVE</B>
+</PRE>
+<A NAME="veventWINDOW_CONFIGURE_SIZE"><PRE>
+        <B>veventWINDOW_CONFIGURE_SIZE</B>
+</PRE>
+</A>
+<A NAME="veventWINDOW_CONFIGURE_STACK"><PRE>
+        <B>veventWINDOW_CONFIGURE_STACK</B>
+</PRE>
+</A>
+
+<DL><DD>
+The return value of <CODE><A HREF="vevent-x.html#veventGetConfigureFlags"><CODE>veventGetConfigureFlags</CODE></A></CODE> is
+the bitwise OR (<SAMP>|</SAMP>) of one or more of
+<CODE>veventWINDOW_CONFIGURE_MOVE</CODE>,
+<CODE>veventWINDOW_CONFIGURE_SIZE</CODE>, or
+<CODE>veventWINDOW_CONFIGURE_STACK</CODE>. These flags
+determine whether an event of type
+<CODE>veventWINDOW_CONFIGURE</CODE> represents a move
+event, a size event, or a stacking change event. See also
+<CODE><A HREF="vevent-x.html#veventSetConfigureFlags"><CODE>veventSetConfigureFlags</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="veventWINDOW_FOCUS_ACQUIRE"><HR><H4>veventWINDOW_FOCUS_ACQUIRE</H4></A>
+<PRE>
+        <B>veventWINDOW_FOCUS_ACQUIRE</B>
+</PRE>
+<A NAME="veventWINDOW_FOCUS_LOSE"><PRE>
+        <B>veventWINDOW_FOCUS_LOSE</B>
+</PRE>
+</A>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> These event type constants are deprecated. See
+<CODE>veventFOCUS_ACQUIRE</CODE> and
+<CODE>veventFOCUS_LOSE</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventWINDOW_KEY_DOWN"><HR><H4>veventWINDOW_KEY_DOWN</H4></A>
+<PRE>
+        <B>veventWINDOW_KEY_DOWN</B>
+</PRE>
+<A NAME="veventWINDOW_KEY_UP"><PRE>
+        <B>veventWINDOW_KEY_UP</B>
+</PRE>
+</A>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> These event type constants are deprecated. See
+<CODE>veventKEY_DOWN</CODE> and <CODE>veventKEY_UP</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventWINDOW_POINTER_ENTER"><HR><H4>veventWINDOW_POINTER_ENTER</H4></A>
+<PRE>
+        <B>veventWINDOW_POINTER_ENTER</B>
+</PRE>
+<A NAME="veventWINDOW_POINTER_LEAVE"><PRE>
+        <B>veventWINDOW_POINTER_LEAVE</B>
+</PRE>
+</A>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> These event types are deprecated. See
+<CODE>veventPOINTER_ENTER</CODE> and
+<CODE>veventPOINTER_LEAVE</CODE>.
+</DD></DL>
+<P>
+<A NAME="veventWINDOW_STATE_CLOSE"><HR><H4>veventWINDOW_STATE_CLOSE</H4></A>
+<PRE>
+        <B>veventWINDOW_STATE_CLOSE</B>
+</PRE>
+<A NAME="veventWINDOW_STATE_ICONIFY"><PRE>
+        <B>veventWINDOW_STATE_ICONIFY</B>
+</PRE>
+</A>
+<A NAME="veventWINDOW_STATE_MAXIMIZE"><PRE>
+        <B>veventWINDOW_STATE_MAXIMIZE</B>
+</PRE>
+</A>
+<A NAME="veventWINDOW_STATE_OPEN"><PRE>
+        <B>veventWINDOW_STATE_OPEN</B>
+</PRE>
+</A>
+<A NAME="veventWINDOW_STATE_PIN"><PRE>
+        <B>veventWINDOW_STATE_PIN</B>
+</PRE>
+</A>
+<A NAME="veventWINDOW_STATE_UNICONIFY"><PRE>
+        <B>veventWINDOW_STATE_UNICONIFY</B>
+</PRE>
+</A>
+<A NAME="veventWINDOW_STATE_UNMAXIMIZE"><PRE>
+        <B>veventWINDOW_STATE_UNMAXIMIZE</B>
+</PRE>
+</A>
+<A NAME="veventWINDOW_STATE_UNPIN"><PRE>
+        <B>veventWINDOW_STATE_UNPIN</B>
+</PRE>
+</A>
+
+<DL><DD>
+Legal types for a state event. State events of these types
+are received when a window is opened/closed,
+maximized/unmaximized, iconified/uniconified, or
+pinned/unpinned (pinning available under OPEN LOOK
+look-and-feel).
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="veventHandlerCLASS"><HR><H4>veventHandlerCLASS</H4></A>
+<PRE>
+        #define <B>veventHandlerCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for
+<CODE>veventHandler</CODE> classes. This macro expands to the contents
+of <CODE><A HREF="vevent-x.html#veventHandlerClass"><CODE>veventHandlerClass</CODE></A></CODE>. <SAMP>CLASS</SAMP> is the type
+identifier of the class being declared; for examples,
+<CODE><A HREF="vevent-x.html#veventHandlerClass"><CODE>veventHandlerClass</CODE></A></CODE>.  This type is used by the class's
+subclasses.  <SAMP>HANDLER</SAMP> is the type identifier of instances of
+the class being declared; for example, <CODE>veventHandler</CODE>.
+
+
+
+##########
+
+<A HREF="vevent-x.html#veventInitPostedIterator"><CODE>veventInitPostedIterator</CODE></A> : Function
+  : status prerelease
+  : declaration
+--begin--
+void <A HREF="vevent-x.html#veventInitPostedIterator"><CODE>veventInitPostedIterator</CODE></A>(<A HREF="vevent-x.html#veventPostedIterator"><CODE>veventPostedIterator</CODE></A> * iterator)
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

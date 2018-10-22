@@ -1,0 +1,2288 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vfilechsr prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vfilechsr prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vfilechsr-x.html#section_DataType">Types</A> [6]</TD>
+<TD><A HREF="vfilechsr-x.html#section_Function">Functions</A> [77]</TD>
+<TD><A HREF="vfilechsr-x.html#section_Message">Messages</A> [9]</TD>
+<TD><A HREF="vfilechsr-x.html#section_Constant">Constants</A> [31]</TD>
+<TD><A HREF="vfilechsr-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vfilechsr"><HR><H4>vfilechsr</H4></A>
+<PRE>
+        typedef ... <B>vfilechsr</B>;
+</PRE>
+
+<DL><DD>
+A file chooser provides a common interface to the user for
+choosing files and directories. A file chooser can be
+created by any Galaxy application and is the recommended
+method for requesting a file or directory from the user. A
+file chooser can be customized by the application program
+to provide file filtering and custom sorting methods.
+</DD></DL>
+<P>
+<A NAME="vfilechsrApplyFunc"><HR><H4>vfilechsrApplyFunc</H4></A>
+<PRE>
+        typedef ... <B>vfilechsrApplyFunc</B>;
+</PRE>
+
+<DL><DD>
+Denotes an apply function that is called when a file or
+directory has been chosen from the file chooser.
+<SAMP>path</SAMP> specifies the file or directory to be
+operated on (opened, saved, and so on). The apply function
+should return <SAMP>TRUE</SAMP> if the file or directory
+was acceptable, in which case the file chooser closes if
+appropriate, or <SAMP>FALSE</SAMP> if the file or directory
+is not acceptable, in which case the file chooser does not
+close under any circumstances.
+    <P>
+</DD></DL>
+<P>
+<A NAME="vfilechsrClass"><HR><H4>vfilechsrClass</H4></A>
+<PRE>
+        typedef ... <B>vfilechsrClass</B>;
+</PRE>
+
+<DL><DD>
+Describes the behavior of a class of file choosers. The
+file chooser class controls file filtering. File chooser
+classes are referenced by a pointer to this type.
+</DD></DL>
+<P>
+<A NAME="vfilechsrCompareFunc"><HR><H4>vfilechsrCompareFunc</H4></A>
+<PRE>
+        typedef ... <B>vfilechsrCompareFunc</B>;
+</PRE>
+
+<DL><DD>
+Comparison function passed to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrAddViewBy"><CODE>vfilechsrAddViewBy</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrEntry"><HR><H4>vfilechsrEntry</H4></A>
+<PRE>
+        typedef ... <B>vfilechsrEntry</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to represent a
+file/directory entry. A file/directory entry consists of
+the file/directory name, the file/directory information,
+and the file/directory readability and writability.
+File/directory entries are referenced by a pointer to this
+type.
+</DD></DL>
+<P>
+<A NAME="vfilechsrFilterFunc"><HR><H4>vfilechsrFilterFunc</H4></A>
+<PRE>
+        typedef ... <B>vfilechsrFilterFunc</B>;
+</PRE>
+
+<DL><DD>
+Filter function passed to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrAddFilterByProc"><CODE>vfilechsrAddFilterByProc</CODE></A></CODE> and
+<CODE><A HREF="vfilechsr-x.html#vfilechsrAddFilterByProcScribed"><CODE>vfilechsrAddFilterByProcScribed</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vfilechsrAddFilterByPattern"><HR><H4>vfilechsrAddFilterByPattern</H4></A>
+<PRE>
+        void <B>vfilechsrAddFilterByPattern</B>(
+                vfilechsr * fileChooser,
+                const vname * id,
+                const vchar * title,
+                const vchar * pattern,
+                int makeDefaultSelection);
+</PRE>
+
+<DL><DD>
+Adds a filter menu item with the title <SAMP>title</SAMP>
+to the file chooser <SAMP>fileChooser</SAMP>'s Filter menu.
+When the filter menu item is activated, only items whose
+name match the associated pattern will be displayed.
+<SAMP>pattern</SAMP> can be any expression accepted by the
+Galaxy <CODE><A HREF="vregexp-x.html#vregexp"><CODE>vregexp</CODE></A></CODE> class. <SAMP>title</SAMP>
+should be a natural description of the filter and should
+not contain filesystem specific syntax. Pass
+<SAMP>TRUE</SAMP> in <SAMP>makeDefaultSelection</SAMP> to
+make the <SAMP>pattern</SAMP> the active filter for the
+chooser. <SAMP>id</SAMP> is any identifier you want to
+attach to the filter. Note <CODE><A HREF="vregexp-x.html#vregexp"><CODE>vregexp</CODE></A></CODE> pattern
+filters may not be supported by all native file choosers.
+    <P>
+For example, to add a filter that allows only files with a
+``.txt'' extension, do something like the following:
+    <P>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+.
+.
+#define TAG(l) <A HREF="vname-x.html#vnameInternGlobalLiteral"><CODE>vnameInternGlobalLiteral</CODE></A>(l)
+
+/*
+ * Create new chooser from scratch; set the apply function to
+ * do whatever your application needs... 
+ */ 
+
+aChooser = <A HREF="vfilechsr-x.html#vfilechsrCreate"><CODE>vfilechsrCreate</CODE></A>();
+<A HREF="vfilechsr-x.html#vfilechsrSetType"><CODE>vfilechsrSetType</CODE></A>(aChooser, vfilechsrGET);  /* like "open" */
+<A HREF="vfilechsr-x.html#vfilechsrSetApply"><CODE>vfilechsrSetApply</CODE></A>(aChooser, DoYourThing);
+
+/* 
+ * Add filter to show all files; make it the default selection
+ */
+
+pattern = <A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>(".+"); 
+description = <A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>("All Files");
+<A HREF="vfilechsr-x.html#vfilechsrAddFilterByPatternScribed"><CODE>vfilechsrAddFilterByPatternScribed</CODE></A>
+     (aChooser, vname_Default, description, 
+      pattern, vTRUE);
+
+/* 
+ * Add filter to show only text files 
+ */ 
+
+pattern = <A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>(".+\.txt$");
+description = <A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>("Text Files"); 
+<A HREF="vfilechsr-x.html#vfilechsrAddFilterByPatternScribed"><CODE>vfilechsrAddFilterByPatternScribed</CODE></A>(aChooser, TAG("Text"), description, 
+                                                   pattern, vFALSE);
+
+/* 
+ * Open the chooser window 
+ */ 
+
+<A HREF="vfilechsr-x.html#vfilechsrPlace"><CODE>vfilechsrPlace</CODE></A>(aChooser, NULL, vrectPLACE_CENTER, vrectPLACE_CENTER);
+<A HREF="vfilechsr-x.html#vfilechsrOpen"><CODE>vfilechsrOpen</CODE></A>(aChooser);
+.
+.
+.
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vfilechsrAddFilterByPatternScribed"><HR><H4>vfilechsrAddFilterByPatternScribed</H4></A>
+<PRE>
+        void <B>vfilechsrAddFilterByPatternScribed</B>(
+                vfilechsr * fileChooser,
+                const vname * id,
+                vscribe * title,
+                vscribe * pattern,
+                int makeDefaultSelection);
+</PRE>
+
+<DL><DD>
+Adds a filter menu item with the title represented by the
+scribe <SAMP>title</SAMP> to the file chooser
+<SAMP>fileChooser</SAMP>'s Filter menu. When the filter
+menu item is activated, only items whose name match the
+given pattern will be displayed. <SAMP>pattern</SAMP> can
+be a scribe that represents any expression accepted by the
+Galaxy <CODE><A HREF="vregexp-x.html#vregexp"><CODE>vregexp</CODE></A></CODE> class. <SAMP>title</SAMP>
+should be a natural description of the filter; it should
+not contain system specific syntax. Pass <SAMP>TRUE</SAMP>
+in <SAMP>makeDefaultSelection</SAMP> to make the
+<SAMP>pattern</SAMP> the active filter for the chooser.
+<SAMP>id</SAMP> is any identifier you want to attach to the
+filter. Note <CODE><A HREF="vregexp-x.html#vregexp"><CODE>vregexp</CODE></A></CODE> pattern filters may not
+be supported by all platforms native file choosers.
+</DD></DL>
+<P>
+<A NAME="vfilechsrAddFilterByProc"><HR><H4>vfilechsrAddFilterByProc</H4></A>
+<PRE>
+        void <B>vfilechsrAddFilterByProc</B>(
+                vfilechsr * fileChooser,
+                const vname * id,
+                const vchar * title,
+                vfilechsrFilterFunc proc,
+                int makeDefaultSelection);
+</PRE>
+
+<DL><DD>
+Add a filter item with title string <SAMP>title</SAMP> to
+the file chooser <SAMP>fileChooser</SAMP>'s Filter menu.
+When the filter item is activated, the filter procedure
+<SAMP>proc</SAMP> must return <SAMP>TRUE</SAMP> for each
+item it wants displayed. <SAMP>title</SAMP> should be a
+natural description of the filter and it should not contain
+filesystem specific syntax. Pass <SAMP>TRUE</SAMP> in
+<SAMP>makeDefaultSelection</SAMP> to make <SAMP>proc</SAMP>
+the active filter for the chooser. <SAMP>id</SAMP> is any
+identifier you want to attach to the filter and can be
+<SAMP>NULL</SAMP>. Notify procedure filters may not be
+supported by all native file choosers.
+    <P>
+For example, to only show files modified after a specific
+time, do something like the following:
+    <P>
+<BLOCKQUOTE>
+
+<PRE>
+
+/*
+ * The threshold timestamp (value set someplace else). We want to onl
+ * show files modified after this time 
+ */ 
+
+<A HREF="vtimestamp-x.html#vtimestamp"><CODE>vtimestamp</CODE></A> thresholdTime;
+ .
+ .  
+ .
+/*
+ * Our filter function
+ */ 
+
+static int checkModificationFilter( <A HREF="vfs-x.html#vfsPath"><CODE>vfsPath</CODE></A> *dirPath, <A HREF="vfilechsr-x.html#vfilechsrEntry"><CODE>vfilechsrEntry</CODE></A> *entry)
+{
+   <A HREF="vtimestamp-x.html#vtimestamp"><CODE>vtimestamp</CODE></A> modtime;
+   modtime = <A HREF="vfs-x.html#vfsGetModificationTime"><CODE>vfsGetModificationTime</CODE></A>(<A HREF="vfilechsr-x.html#vfilechsrGetEntryInfo"><CODE>vfilechsrGetEntryInfo</CODE></A>(entry));
+}
+ .
+ . 
+ .
+/*
+ * Create a new file chooser; set the apply function to do whatever
+ * your application wants...
+ */
+
+aChooser = <A HREF="vfilechsr-x.html#vfilechsrCreate"><CODE>vfilechsrCreate</CODE></A>();
+<A HREF="vfilechsr-x.html#vfilechsrSetType"><CODE>vfilechsrSetType</CODE></A>(aChooser, vfilechsrGET);
+<A HREF="vfilechsr-x.html#vfilechsrSetApply"><CODE>vfilechsrSetApply</CODE></A>(aChooser, DoYourThing);
+
+/*
+ * Create a description containing the threshold timestamp
+ */
+
+date = <A HREF="vdate-x.html#vdateCreate"><CODE>vdateCreate</CODE></A>();
+<A HREF="vdate-x.html#vdateSetTimestamp"><CODE>vdateSetTimestamp</CODE></A>(date, thresholdTime);
+dateScribe = <A HREF="vdate-x.html#vdateScribeFormatted"><CODE>vdateScribeFormatted</CODE></A>(date, <A HREF="vdate-x.html#vdateGetTerseTimeFormat"><CODE>vdateGetTerseTimeFormat</CODE></A>());
+descriptionScribe = <A HREF="vscribe-x.html#vscribeScribeMulti"><CODE>vscribeScribeMulti</CODE></A>
+                (<A HREF="vchar-x.html#vcharScribeLiteral"><CODE>vcharScribeLiteral</CODE></A>("Modified After "), dateScribe, NULL);
+
+/*
+ * Attach the proc filter to the file chooser (uses the scribes).
+ * Make it the active filter.
+ */
+
+<A HREF="vfilechsr-x.html#vfilechsrAddFilterByProcScribed"><CODE>vfilechsrAddFilterByProcScribed</CODE></A>(aChooser, vname_Default,
+                   descriptionScribe, checkModificationFilter, vTRUE);
+
+/*
+ * Zap the transient date
+ */
+
+<A HREF="vdate-x.html#vdateDestroy"><CODE>vdateDestroy</CODE></A>(date);
+ .
+ . 
+ .
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vfilechsrAddFilterByProcScribed"><HR><H4>vfilechsrAddFilterByProcScribed</H4></A>
+<PRE>
+        void <B>vfilechsrAddFilterByProcScribed</B>(
+                vfilechsr * fileChooser,
+                const vname * id,
+                vscribe * title,
+                vfilechsrFilterFunc proc,
+                int makeDefaultSelection);
+</PRE>
+
+<DL><DD>
+Add a filter item with title string represented by scribe
+<SAMP>title</SAMP> to the file chooser
+<SAMP>fileChooser</SAMP>'s Filter menu. When the filter
+item is activated, the filter proc <SAMP>proc</SAMP> must
+return <SAMP>TRUE</SAMP> for each item it wants displayed.
+<SAMP>title</SAMP> should be a natural description of the
+filter; it should not contain system specific syntax. Pass
+<SAMP>TRUE</SAMP> in <SAMP>makeDefaultSelection</SAMP> to
+make <SAMP>proc</SAMP> the active filter for the chooser.
+<SAMP>id</SAMP> is any identifier you want to attach to the
+filter. Note proc filters may not be supported by all
+platforms native file choosers.
+</DD></DL>
+<P>
+<A NAME="vfilechsrAddFilterBySystemType"><HR><H4>vfilechsrAddFilterBySystemType</H4></A>
+<PRE>
+        void <B>vfilechsrAddFilterBySystemType</B>(
+                vfilechsr * fileChooser,
+                vresource filterTypes,
+                const vname * addFilter,
+                const vname * defaultFilter);
+</PRE>
+
+<DL><DD>
+Add zero or more filter items to the chooser
+<SAMP>fileChooser</SAMP>'s Filter menu. The filter
+information is stored in a filesystem dependent format in
+the dictionary resource <SAMP>filterTypes</SAMP>. Since the
+<SAMP>filterTypes</SAMP> resource can contain any number of
+filters, use <SAMP>addFilter</SAMP> as the name of the
+specific filter to be added or pass <SAMP>NULL</SAMP> if
+all of the filters should be installed. If all of the
+filters will be installed, use <SAMP>defaultFilter</SAMP>
+to make a specific filter the active filter for the chooser
+or pass <SAMP>NULL</SAMP> to let the file chooser select a
+default filter. The file chooser sorts the filter items in
+ascending order based on their titles.
+    <P>
+If your application will be ported to different platforms
+(UNIX, Windows/NT, Macintosh, etc.) and needs to support
+native file choosers on all platforms,
+<CODE>vfilechsrAddFilterBySystemType</CODE> is the
+preferred method for attaching filters to a file chooser.
+The developer need only update the filter types dictionary
+resource for each new platform without any modification to
+the source code. Use
+<CODE><A HREF="vfilechsr-x.html#vfilechsrMakeFilterSpecRootResource"><CODE>vfilechsrMakeFilterSpecRootResource</CODE></A></CODE> to create
+a skeleton filter types dictionary for all the platforms
+the file chooser understands; then use the Visual Resource
+Builder to add your filter information.
+    <P>
+To better understand what a filter type dictionary can
+contain, the following example describes a filter type
+resource dictionary for ASCII text files on the Apple
+Macintosh, Microsoft Windows/NT, and UNIX platforms.
+    <P>
+The top-level dictionary in this example is called <SAMP>My
+Filter Types</SAMP>. <SAMP>My Filter Types</SAMP> contains
+three dictionaries for the platforms supported. Each of
+these platform-specific dictionaries contains a
+<SAMP>Default</SAMP> dictionary and a <SAMP>Text</SAMP>
+dictionary. The contents of the <SAMP>Default</SAMP> and
+<SAMP>Text</SAMP> dictionary vary for each platform. The
+<SAMP>Default</SAMP> dictionary usually shows all items in
+a directory. While this item is not required, it is usually
+included for completeness.
+    <P>
+The boolean field <SAMP>Case Insensitive</SAMP>, when set
+to <SAMP>TRUE</SAMP>, tells the file chooser that file name
+comparisions should be case insensitive. This flag is only
+used by the Galaxy file chooser and should only be included
+if you want to bypass the platform file system's default
+setting.
+    <P>
+The string <SAMP>Title</SAMP> contains the actual string
+displayed in the chooser. This string indicates to the user
+the filters for text files.
+    <P>
+The string <SAMP>Value</SAMP> contains the
+platform-specific filters for text files.
+    <P>
+Note that the Macintosh Text dictionary also contains a
+delimiter character. This is because the Macintosh platform
+does not have a default delimiter. The delimiter is used in
+the string <SAMP>Value</SAMP> to separate specifications
+for this field.
+    <P>
+<BLOCKQUOTE>
+</BLOCKQUOTE>
+
+    <P>
+For a more complete example of specifying filter
+information in a file chooser, refer to your Galaxy system
+resource file. The <SAMP>File Types</SAMP> dictionary,
+located in the the <SAMP>vfilechsr</SAMP> dictionary of the
+system resource file, contains filters for all platforms
+supported by Galaxy. It also includes a default
+<SAMP>Galaxy</SAMP> dictionary that can be used in cases
+where the File Chooser Manager can't find a
+platform-specific dictionary.
+</DD></DL>
+<P>
+<A NAME="vfilechsrAddViewBy"><HR><H4>vfilechsrAddViewBy</H4></A>
+<PRE>
+        void <B>vfilechsrAddViewBy</B>(
+                vfilechsr * fileChooser,
+                const vchar * viewByName,
+                vfilechsrCompareFunc compareFunc);
+</PRE>
+
+<DL><DD>
+Adds a view by method to the view menu of the file chooser
+<SAMP>fileChooser</SAMP>, using the name
+<SAMP>viewByName</SAMP>. A view by method sorts the list of
+files and directories in a specified manner. When this view
+is used, the function <SAMP>compareFunc</SAMP> is called to
+sort the list of files and directories.
+    <P>
+For example, to add a view that displays the list of files
+and directories so that the C source files are listed
+first, you first need to write the <SAMP>compare</SAMP>
+function:
+    <P>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+vbool cSourceCompare(const <A HREF="vfilechsr-x.html#vfilechsrEntry"><CODE>vfilechsrEntry</CODE></A> *entry1,
+		       const <A HREF="vfilechsr-x.html#vfilechsrEntry"><CODE>vfilechsrEntry</CODE></A> *entry2)
+{
+    vbool	isCFile1, isCFile2;
+    <A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A>	*ptr;
+    size_t	length;
+
+    length = <A HREF="vchar-x.html#vcharLength"><CODE>vcharLength</CODE></A>(entry1->name);
+    ptr = entry1->name + length - 2;
+    isCFile1 = (length > 1 && *(ptr++) == "." &&
+                (*ptr == 'c' || *ptr == 'h'))
+
+    length = <A HREF="vchar-x.html#vcharLength"><CODE>vcharLength</CODE></A>(entry2->name);
+    ptr = entry2->name + length - 2;
+    isCFile2 = (length > 1 && *(ptr++) == "." &&
+                (*ptr == 'c' || *ptr == 'h'))
+
+    if (isCFile1 && !isCFile2)
+        return(1);
+    else if (!isCFile1 && isCFile2)
+        return(-1);
+    return(0);
+}
+
+</PRE>
+</BLOCKQUOTE>
+
+    <P>
+Then install it into the file chooser by adding a view:
+    <P>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+vfilechsrAddViewBy(fileChooser, <A HREF="vname-x.html#vnameInternLiteral"><CODE>vnameInternLiteral</CODE></A>("C Files"), cSourceCompare);
+
+</PRE>
+</BLOCKQUOTE>
+
+    <P>
+This adds the menu item titled ``by C Files'' to the view
+menu. When this menu item is selected, the file/directory
+list is resorted using the <SAMP>cSourceCompare</SAMP> sort
+function.
+</DD></DL>
+<P>
+<A NAME="vfilechsrClearHistory"><HR><H4>vfilechsrClearHistory</H4></A>
+<PRE>
+        void <B>vfilechsrClearHistory</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Removes all history entries for the file chooser
+<SAMP>fileChooser</SAMP>. Normally the file chooser keeps
+adding items until the maximum is reached; then it removes
+the oldest item to make room for the new entry. Use
+<CODE>vfilechsrClearHistory</CODE> to programmatically
+remove all history entries.
+</DD></DL>
+<P>
+<A NAME="vfilechsrClose"><HR><H4>vfilechsrClose</H4></A>
+<PRE>
+        void <B>vfilechsrClose</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Closes the file chooser <SAMP>fileChooser</SAMP> so that it
+is no longer visible. This function has no effect on a file
+chooser that is already closed.
+</DD></DL>
+<P>
+<A NAME="vfilechsrComplete"><HR><H4>vfilechsrComplete</H4></A>
+<PRE>
+        void <B>vfilechsrComplete</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Completes the text appearing in the path text item of the
+chooser. The file name appearing there is completed if
+possible. If there is no possible completion, the file
+chooser beeps. If there is more than one possible
+completion, the file is completed up to the first ambiguous
+character and then beeps. Note file name completion may not
+work with all native file choosers.
+</DD></DL>
+<P>
+<A NAME="vfilechsrCreate"><HR><H4>vfilechsrCreate</H4></A>
+<PRE>
+        vfilechsr * <B>vfilechsrCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new file chooser of the default file chooser
+class and returns a pointer to the new file chooser.
+(Memory is allocated by the File Chooser.)
+</DD></DL>
+<P>
+<A NAME="vfilechsrCreateOfClass"><HR><H4>vfilechsrCreateOfClass</H4></A>
+<PRE>
+        vfilechsr * <B>vfilechsrCreateOfClass</B>(
+                vfilechsrClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new file chooser of class <SAMP>clas</SAMP> and
+returns a pointer to the new file chooser. (Memory is
+allocated by the File Chooser.) The new file chooser is
+created with a set of default attributes determined by the
+class.
+</DD></DL>
+<P>
+<A NAME="vfilechsrDestroy"><HR><H4>vfilechsrDestroy</H4></A>
+<PRE>
+        void <B>vfilechsrDestroy</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Destroys the file chooser represented by
+<SAMP>fileChooser</SAMP> and all of its sub-objects that
+were allocated by the File Chooser. This function attempts
+to free the storage directly occupied by file chooser only
+if it was allocated by <CODE><A HREF="vfilechsr-x.html#vfilechsrCreate"><CODE>vfilechsrCreate</CODE></A></CODE> or
+<CODE><A HREF="vfilechsr-x.html#vfilechsrCreateOfClass"><CODE>vfilechsrCreateOfClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetActiveFilter"><HR><H4>vfilechsrGetActiveFilter</H4></A>
+<PRE>
+        const vname * <B>vfilechsrGetActiveFilter</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns the currently active filter item in the file
+chooser <SAMP>fileChooser</SAMP>'s Filter menu. It returns
+<SAMP>NULL</SAMP> if there is no active filter or if
+<SAMP>fileChooser</SAMP> has no Filter menu.
+    <P>
+Note if a native file chooser is being used, the value
+returned by this function may not reflect the current
+active filter in the native chooser. Refer to the
+``Standard Dialogs'' chapter of the <I>Galaxy Application
+Environment Programmer's Guide</I> for a list of guidelines
+for supporting native file choosers.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetActiveFilterExtension"><HR><H4>vfilechsrGetActiveFilterExtension</H4></A>
+<PRE>
+        const vchar * <B>vfilechsrGetActiveFilterExtension</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns the file chooser <SAMP>fileChooser</SAMP>'s active
+filter's filename extension. Refer to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrSetDefaultExtension"><CODE>vfilechsrSetDefaultExtension</CODE></A></CODE> for an
+explanation on when default extensions are used. Returns
+<SAMP>NULL</SAMP> if the file chooser has no active file
+filter.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetActiveViewBy"><HR><H4>vfilechsrGetActiveViewBy</H4></A>
+<PRE>
+        const vname * <B>vfilechsrGetActiveViewBy</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns the file chooser's active view by method. Refer to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrAddViewBy"><CODE>vfilechsrAddViewBy</CODE></A></CODE> for an explanation of how view by
+methods are used.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetApply"><HR><H4>vfilechsrGetApply</H4></A>
+<PRE>
+        vfilechsrApplyFunc <B>vfilechsrGetApply</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns the apply function for the file chooser
+<SAMP>fileChooser</SAMP>, or <SAMP>NULL</SAMP> if there is
+no apply procedure.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetChoiceOptions"><HR><H4>vfilechsrGetChoiceOptions</H4></A>
+<PRE>
+        unsigned int <B>vfilechsrGetChoiceOptions</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns the options associated with the choice passed to
+the file chooser's apply function or <SAMP>0</SAMP> if the
+apply function is not currently being called. The returned
+value will be bitwise OR (<SAMP>|</SAMP>) of zero or more
+of the following constants:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><CODE>vfilechsrOPTION_READONLY</CODE>
+<DD>The ``Read Only'' item has been turned on 
+<DT><CODE>vfilechsrOPTION_OVERWRITE</CODE>
+<DD>The item already exists on the filesystem 
+<DT><CODE>vfilechsrOPTION_DIR</CODE>
+<DD>The item is a directory 
+</DL>
+</BLOCKQUOTE>
+
+    <P>
+Note the options should be interpreted relative to the
+options that where requested with
+<CODE><A HREF="vfilechsr-x.html#vfilechsrSetOptions"><CODE>vfilechsrSetOptions</CODE></A></CODE>. For instance, the
+<CODE>vfilechsrOPTION_READONLY</CODE> option is only
+meaningful if <CODE><A HREF="vfilechsr-x.html#vfilechsrSetOptions"><CODE>vfilechsrSetOptions</CODE></A></CODE> was called
+with the <CODE>vfilechsrOPTION_SHOW_READONLY</CODE> option
+turned on.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetClass"><HR><H4>vfilechsrGetClass</H4></A>
+<PRE>
+        vfilechsrClass * <B>vfilechsrGetClass</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns the file chooser class of the file chooser
+<SAMP>chooser</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetConfirm"><HR><H4>vfilechsrGetConfirm</H4></A>
+<PRE>
+        vconfirm * <B>vfilechsrGetConfirm</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns the <SAMP><A HREF="vconfirm-x.html#vconfirm"><CODE>vconfirm</CODE></A></SAMP> upon which the file
+chooser <SAMP>fileChooser</SAMP> is built. Confirmation
+Manager operations on this confirm also affect the file
+chooser.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetData"><HR><H4>vfilechsrGetData</H4></A>
+<PRE>
+        void * <B>vfilechsrGetData</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns the generic data pointer attached to the file
+chooser <SAMP>fileChooser</SAMP>, which can be
+<SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetDefaultClass"><HR><H4>vfilechsrGetDefaultClass</H4></A>
+<PRE>
+        vfilechsrClass * <B>vfilechsrGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the class used to create a file chooser by the
+<CODE><A HREF="vfilechsr-x.html#vfilechsrCreate"><CODE>vfilechsrCreate</CODE></A></CODE> function. This class can be
+modified to alter the behavior of all file choosers
+subsequently created by these functions.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetDefaultExtension"><HR><H4>vfilechsrGetDefaultExtension</H4></A>
+<PRE>
+        const vchar * <B>vfilechsrGetDefaultExtension</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns the file chooser <SAMP>fileChooser</SAMP>'s default
+filename extension. Refer to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrSetDefaultExtension"><CODE>vfilechsrSetDefaultExtension</CODE></A></CODE> for an
+explanation on when default extensions are used.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetDefaultPatternListDelimiter"><HR><H4>vfilechsrGetDefaultPatternListDelimiter</H4></A>
+<PRE>
+        vchar <B>vfilechsrGetDefaultPatternListDelimiter</B>();
+</PRE>
+
+<DL><DD>
+Returns the default character the File Chooser Manager uses
+to separate filter patterns in filter type lists. So if,
+for example,
+<CODE>vfilechsrGetDefaultPatternListDelimiter</CODE>
+returns `;' you could store following value for a Apple
+Macintosh file type list ``STUP;PICT;RTFT'' to specify
+three different file types for a single pattern.
+    <P>
+Refer to <CODE><A HREF="vfilechsr-x.html#vfilechsrAddFilterBySystemType"><CODE>vfilechsrAddFilterBySystemType</CODE></A></CODE> for a
+description of specifying file chooser filter information
+in terms of system dependent file types.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetDialog"><HR><H4>vfilechsrGetDialog</H4></A>
+<PRE>
+        vdialog * <B>vfilechsrGetDialog</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns the dialog upon which the file chooser
+<SAMP>fileChooser</SAMP> is built. Dialog Manager
+operations on this dialog affect the file chooser it came
+from. All Dialog Manager operations have effect, but some
+may interfere with the file chooser's behavior.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetDirectory"><HR><H4>vfilechsrGetDirectory</H4></A>
+<PRE>
+        vfsPath * <B>vfilechsrGetDirectory</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns the directory the file chooser
+<SAMP>fileChooser</SAMP> is currently displaying. This is
+always the directory displayed in the leftmost
+file/directory list.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetEntryCanRead"><HR><H4>vfilechsrGetEntryCanRead</H4></A>
+<PRE>
+        vbool <B>vfilechsrGetEntryCanRead</B>(
+                vfilechsrEntry * entry);
+</PRE>
+
+<DL><DD>
+Returns whether the user has read access privileges for the
+specified file chooser entry <SAMP>entry</SAMP>. File
+chooser entries are passed to file chooser filter
+functions.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetEntryCanWrite"><HR><H4>vfilechsrGetEntryCanWrite</H4></A>
+<PRE>
+        vbool <B>vfilechsrGetEntryCanWrite</B>(
+                vfilechsrEntry * entry);
+</PRE>
+
+<DL><DD>
+Returns whether the user has write access privileges for
+the specified file chooser entry <SAMP>entry</SAMP>. File
+chooser entries are passed to file chooser filter
+functions.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetEntryInfo"><HR><H4>vfilechsrGetEntryInfo</H4></A>
+<PRE>
+        const vfsInfo * <B>vfilechsrGetEntryInfo</B>(
+                vfilechsrEntry * entry);
+</PRE>
+
+<DL><DD>
+Returns file information for the file chooser entry
+<SAMP>entry</SAMP>. File chooser entries are passed to file
+chooser filter functions.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetEntryName"><HR><H4>vfilechsrGetEntryName</H4></A>
+<PRE>
+        const vchar * <B>vfilechsrGetEntryName</B>(
+                vfilechsrEntry * entry);
+</PRE>
+
+<DL><DD>
+Returns the name for the file chooser entry
+<SAMP>entry</SAMP>. File chooser entries are passed to file
+chooser filter functions.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetEntryPath"><HR><H4>vfilechsrGetEntryPath</H4></A>
+<PRE>
+        vfsPath * <B>vfilechsrGetEntryPath</B>(
+                vfilechsrEntry * entry);
+</PRE>
+
+<DL><DD>
+Returns the path for the file chooser entry
+<SAMP>entry</SAMP>. File chooser entries are passed to file
+chooser filter functions.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetHistoryListCopy"><HR><H4>vfilechsrGetHistoryListCopy</H4></A>
+<PRE>
+        vfsPath ** <B>vfilechsrGetHistoryListCopy</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns a <I>copy</I> of the current history list for the
+file chooser <SAMP>fileChooser</SAMP>. The list is
+allocated with <CODE><A HREF="vmem-x.html#vmemAlloc"><CODE>vmemAlloc</CODE></A></CODE> and contains a
+null-terminated list of <CODE><A HREF="vfs-x.html#vfsPath"><CODE>vfsPath</CODE></A></CODE>s. It is the
+caller's responsibility to properly dispose the list and
+its contents. It returns <SAMP>NULL</SAMP> if the history
+list is currently empty or disabled.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetMaxHistoryCount"><HR><H4>vfilechsrGetMaxHistoryCount</H4></A>
+<PRE>
+        short <B>vfilechsrGetMaxHistoryCount</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns the maximum number of history entries allowed for
+the file chooser <SAMP>fileChooser</SAMP>. This number is
+always at least
+<CODE>vfilechsrDEFAULT_MAX_HIST_LIST_ITEMS</CODE>. Once a
+file chooser's history list has reached its maximum, items
+are removed in a FIFO (first in first out) priority to make
+room for the new entries.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetMenuBar"><HR><H4>vfilechsrGetMenuBar</H4></A>
+<PRE>
+        vmenubar * <B>vfilechsrGetMenuBar</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns the menu bar used by the file chooser
+<SAMP>fileChooser</SAMP>. You can use this menu bar to
+append menus of your own to the file chooser. Note that the
+file chooser's menubar may not be supported by the native
+file choosers.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetMinListWidth"><HR><H4>vfilechsrGetMinListWidth</H4></A>
+<PRE>
+        int <B>vfilechsrGetMinListWidth</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns the minimum width for a file/directory list for the
+file chooser <SAMP>fileChooser</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetNthDirectory"><HR><H4>vfilechsrGetNthDirectory</H4></A>
+<PRE>
+        vfsPath * <B>vfilechsrGetNthDirectory</B>(
+                vfilechsr * fileChooser,
+                int index);
+</PRE>
+
+<DL><DD>
+Returns the path of the directory displayed in the nth
+directory list of the file chooser
+<SAMP>fileChooser</SAMP>, where <SAMP>index</SAMP>
+represents n. The leftmost directory list is at index zero.
+It returns <SAMP>NULL</SAMP> if the directory list at
+position <SAMP>index</SAMP> is not visible or is empty.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetOptions"><HR><H4>vfilechsrGetOptions</H4></A>
+<PRE>
+        unsigned int <B>vfilechsrGetOptions</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns the options passed to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrSetOptions"><CODE>vfilechsrSetOptions</CODE></A></CODE>. Unlike
+<CODE><A HREF="vfilechsr-x.html#vfilechsrGetChoiceOptions"><CODE>vfilechsrGetChoiceOptions</CODE></A></CODE>,
+<CODE>vfilechsrGetOptions</CODE> can be called at any time,
+not only when the file chooser's apply function is being
+called. Refer to <CODE><A HREF="vfilechsr-x.html#vfilechsrSetOptions"><CODE>vfilechsrSetOptions</CODE></A></CODE> for a
+complete listing of available options.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetSelectedDirectoryIndex"><HR><H4>vfilechsrGetSelectedDirectoryIndex</H4></A>
+<PRE>
+        int <B>vfilechsrGetSelectedDirectoryIndex</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns the index of the currently selected directory list
+in the file chooser <SAMP>fileChooser</SAMP>. The directory
+list is numbered from left to right, starting with zero.
+Note that the result of
+<CODE>vfilechsrGetSelectedDirectoryIndex</CODE> may be
+incorrect if a native file chooser is being used.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetSelection"><HR><H4>vfilechsrGetSelection</H4></A>
+<PRE>
+        int <B>vfilechsrGetSelection</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns the selection method for the file chooser
+<SAMP>fileChooser</SAMP>, which is either
+<CODE>vfilechsrSINGLE</CODE> or
+<CODE>vfilechsrMULTIPLE</CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetTextEntry"><HR><H4>vfilechsrGetTextEntry</H4></A>
+<PRE>
+        vtextitem * <B>vfilechsrGetTextEntry</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns the path text entry item in the file chooser.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGetType"><HR><H4>vfilechsrGetType</H4></A>
+<PRE>
+        int <B>vfilechsrGetType</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns the type of the file chooser
+<SAMP>fileChooser</SAMP>, which is either
+<CODE>vfilechsrGET</CODE> (choosing a file/directory) or
+<CODE>vfilechsrPUT</CODE> (choosing a place to put a file).
+</DD></DL>
+<P>
+<A NAME="vfilechsrHasFilter"><HR><H4>vfilechsrHasFilter</H4></A>
+<PRE>
+        unsigned <B>vfilechsrHasFilter</B>(
+                vfilechsr * fileChooser,
+                const vname * id);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>vTRUE</SAMP> if a file filter <SAMP>id</SAMP>
+is already associated with the file chooser
+<CODE>fileChooser</CODE>. Returns <SAMP>vFALSE</SAMP> if no
+filter matching <SAMP>id</SAMP> was found. Because the
+various filter addition functions do not check for
+duplicate filter ids, use <CODE>vfilechsrHasFilter</CODE>
+before adding a filter if there's a chance the filter is
+already present.
+</DD></DL>
+<P>
+<A NAME="vfilechsrIsConfirmOverwrite"><HR><H4>vfilechsrIsConfirmOverwrite</H4></A>
+<PRE>
+        vbool <B>vfilechsrIsConfirmOverwrite</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the file chooser
+<SAMP>fileChooser</SAMP> confirms saving on top of an
+existing file, <I>before</I> calling the apply function
+with that file, <SAMP>FALSE</SAMP> if not. This applies
+only to <I>put</I> type file choosers.
+</DD></DL>
+<P>
+<A NAME="vfilechsrMakeFilterSpecRootResource"><HR><H4>vfilechsrMakeFilterSpecRootResource</H4></A>
+<PRE>
+        void <B>vfilechsrMakeFilterSpecRootResource</B>(
+                vresource resource,
+                int clean);
+</PRE>
+
+<DL><DD>
+Creates a skeleton system filter types resource dictionary
+containing subdictionaries for all the platforms the File
+Chooser Manager recognizes for filtering. Refer to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrAddFilterBySystemType"><CODE>vfilechsrAddFilterBySystemType</CODE></A></CODE> for a
+description of adding filters by file type to a file
+chooser.
+</DD></DL>
+<P>
+<A NAME="vfilechsrOpen"><HR><H4>vfilechsrOpen</H4></A>
+<PRE>
+        void <B>vfilechsrOpen</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Opens the file chooser <SAMP>fileChooser</SAMP> so that it
+is visible at its current position and size on the screen.
+This function has no effect if <SAMP>fileChooser</SAMP> is
+already open.
+</DD></DL>
+<P>
+<A NAME="vfilechsrPlace"><HR><H4>vfilechsrPlace</H4></A>
+<PRE>
+        void <B>vfilechsrPlace</B>(
+                vfilechsr * fileChooser,
+                vdialog * base,
+                int modeX,
+                int modeY);
+</PRE>
+
+<DL><DD>
+Positions the file chooser <SAMP>fileChooser</SAMP>
+relative to the dialog <SAMP>base</SAMP>.
+<SAMP>modeX</SAMP> and <SAMP>modeY</SAMP> specify the
+relation of <SAMP>fileChooser</SAMP> to <SAMP>base</SAMP>
+on each coordinate axis. (Refer to the
+<CODE><A HREF="vrect-x.html#vrectPlace"><CODE>vrectPlace</CODE></A></CODE> for the legal values of
+<SAMP>modeX</SAMP> and <SAMP>modeY</SAMP>.) Note the visual
+effect of setting the chooser's position is platform
+dependent and not all native file choosers support this
+attribute. Pass <SAMP>NULL</SAMP> to position the chooser
+relative to the root window. Note that this may not work if
+the native file chooser is being used and is already
+opened.
+</DD></DL>
+<P>
+<A NAME="vfilechsrPrefersNative"><HR><H4>vfilechsrPrefersNative</H4></A>
+<PRE>
+        int <B>vfilechsrPrefersNative</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Returns whether the File Chooser Manager will try to map
+the file chooser <SAMP>fileChooser</SAMP> to a native
+equivalent. Note that a preference for the native chooser
+is not a guarantee that the Galaxy chooser will not be
+used. If for instance, <SAMP>fileChooser</SAMP> is an
+instance of a subclass of the default
+<CODE>vfilechsr</CODE> class, it may not be possible to use
+the native file chooser. Refer to the ``Standard Dialogs''
+chapter in the <I>Galaxy Application Environment
+Programmer's Guide</I> for a list of guidelines for
+supporting native file choosers.
+</DD></DL>
+<P>
+<A NAME="vfilechsrProcess"><HR><H4>vfilechsrProcess</H4></A>
+<PRE>
+        const vname * <B>vfilechsrProcess</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Opens a blocking file chooser <SAMP>fileChooser</SAMP> and
+waits until a confirmation button (OK or Cancel) is
+activated or the user closes the file chooser's window. It
+is important to note that the file chooser's apply function
+<I>is</I> called if the user selects the OK button. The
+file chooser's window is closed before
+<CODE>vfilechsrProcess</CODE> returns.
+</DD></DL>
+<P>
+<A NAME="vfilechsrRemoveFilter"><HR><H4>vfilechsrRemoveFilter</H4></A>
+<PRE>
+        void <B>vfilechsrRemoveFilter</B>(
+                vfilechsr * fileChooser,
+                const vname * id);
+</PRE>
+
+<DL><DD>
+Locates and removes the file filter <SAMP>id</SAMP> from
+the file chooser <CODE>fileChooser</CODE>'s active filter
+list. If the filter is not currently installed
+<CODE>vfilechsrRemoveFilter</CODE> does nothing. If the
+file chooser is currently open, its Filter menu is updated
+immediately. Note that the visual effect of removing a file
+filter is system-dependent and may not be work for all
+native file choosers.
+    <P>
+<CODE>vfilechsr</CODE><CODE>RemoveFilters</CODE> is a
+convenience function for removing more than one filter at a
+time. Pass in <SAMP>NULL</SAMP> for the <SAMP>id</SAMP> if
+you'd like all filters removed. (Note: removing all filters
+causes the entire Filter menu to be deleted.)
+</DD></DL>
+<P>
+<A NAME="vfilechsrRemoveFilters"><HR><H4>vfilechsrRemoveFilters</H4></A>
+<PRE>
+        void <B>vfilechsrRemoveFilters</B>(
+                vfilechsr * fileChooser,
+                const vname * id,
+                ... arg3);
+</PRE>
+
+<DL><DD>
+Removes previously installed file filters from the chooser.
+</DD></DL>
+<P>
+<A NAME="vfilechsrRemoveViewBy"><HR><H4>vfilechsrRemoveViewBy</H4></A>
+<PRE>
+        void <B>vfilechsrRemoveViewBy</B>(
+                vfilechsr * fileChooser,
+                const vchar * viewByName);
+</PRE>
+
+<DL><DD>
+Removes the view-by method <SAMP>viewName</SAMP> from the
+file chooser <SAMP>fileChooser</SAMP> with the name. Note
+the view-by method <SAMP>viewName</SAMP> must be present or
+an exception is generated.
+</DD></DL>
+<P>
+<A NAME="vfilechsrRescan"><HR><H4>vfilechsrRescan</H4></A>
+<PRE>
+        void <B>vfilechsrRescan</B>(
+                vfilechsr * fileChooser);
+</PRE>
+
+<DL><DD>
+Causes the file chooser <SAMP>fileChooser</SAMP> to flush
+all of its cached directories, and reread the directories
+it is displaying. The file chooser normally checks the
+timestamp on directories and automatically re-reads a
+directory when it is modified, but <I>only</I> when the
+user navigates the directories. Call this routine when you
+want the file chooser to update immediately (before the
+user navigates into a new directory).
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetActiveFilter"><HR><H4>vfilechsrSetActiveFilter</H4></A>
+<PRE>
+        void <B>vfilechsrSetActiveFilter</B>(
+                vfilechsr * fileChooser,
+                const vname * id);
+</PRE>
+
+<DL><DD>
+Make the filter with identifier <SAMP>id</SAMP> in the file
+chooser <SAMP>fileChooser</SAMP>'s Filter menu the active
+filter. The active filter determines which files and/or
+directories are displayed in the file chooser's directory
+lists. Note that this may not work if the native file
+chooser is being used and is already opened.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetApply"><HR><H4>vfilechsrSetApply</H4></A>
+<PRE>
+        void <B>vfilechsrSetApply</B>(
+                vfilechsr * fileChooser,
+                vfilechsrApplyFunc applyFunc);
+</PRE>
+
+<DL><DD>
+Changes the apply function for the file chooser
+<SAMP>fileChooser</SAMP> to <SAMP>applyFunc</SAMP>.
+Whenever a file or directory is chosen from the file
+chooser, the apply function is called specifying the
+<SAMP>path</SAMP> of the file or directory to be operated
+on (opened, saved, and so on). <SAMP>applyFunc</SAMP> can
+be <SAMP>NULL</SAMP>, in which case no apply notification
+is given.
+    <P>
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetCompletionKeystroke"><HR><H4>vfilechsrSetCompletionKeystroke</H4></A>
+<PRE>
+        void <B>vfilechsrSetCompletionKeystroke</B>(
+                vfilechsr * fileChooser,
+                int wantCompletion,
+                vkeyStroke keystroke);
+</PRE>
+
+<DL><DD>
+Defines the keystroke that triggers name completion on the
+file chooser <SAMP>fileChooser</SAMP>'s path entry text
+item contents, or, if <SAMP>wantCompletion</SAMP> is
+<SAMP>FALSE</SAMP>, will disable name completion
+altogether. Pass <CODE>vkeyNULL_STROKE</CODE> to use the
+File Chooser Manager's default keystroke binding. Note that
+the behavioral effect of setting the name completion
+attribute is platform-dependent and may not work with all
+native file choosers.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetConfirmOverwrite"><HR><H4>vfilechsrSetConfirmOverwrite</H4></A>
+<PRE>
+        void <B>vfilechsrSetConfirmOverwrite</B>(
+                vfilechsr * fileChooser,
+                int doConfirm);
+</PRE>
+
+<DL><DD>
+Sets whether or not the file chooser
+<SAMP>fileChooser</SAMP> confirms saving on top of an
+existing file, <I>before</I> calling the apply function
+with that file. This applies only to <I>put</I> type file
+choosers. By default, confirm overwrite is enabled.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetData"><HR><H4>vfilechsrSetData</H4></A>
+<PRE>
+        void <B>vfilechsrSetData</B>(
+                vfilechsr * fileChooser,
+                void * data);
+</PRE>
+
+<DL><DD>
+Sets a file chooser's generic data pointer to
+<SAMP>data</SAMP>. This can be a pointer to whatever
+information the client wants to attach to the file chooser;
+it is not used by the File Chooser. <SAMP>data</SAMP> can
+be <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetDefaultExtension"><HR><H4>vfilechsrSetDefaultExtension</H4></A>
+<PRE>
+        void <B>vfilechsrSetDefaultExtension</B>(
+                vfilechsr * fileChooser,
+                const vchar * extenion);
+</PRE>
+
+<DL><DD>
+Sets the file chooser <SAMP>fileChooser</SAMP>'s default
+extension to the string <SAMP>extension</SAMP> for any
+files selected in <I>Put</I> type file choosers or typed
+into the path entry field for <I>Get</I> type file
+choosers.
+    <P>
+This default extension is only used if the file chooser's
+active filter does not specify its own extension. Refer to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrAddFilterBySystemType"><CODE>vfilechsrAddFilterBySystemType</CODE></A></CODE> for an
+explanation of file chooser filters. Extensions are always
+appended to the item's name <I>before</I>
+<SAMP>fileChooser</SAMP>the s apply function is called.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetDefaultExtensionScribed"><HR><H4>vfilechsrSetDefaultExtensionScribed</H4></A>
+<PRE>
+        void <B>vfilechsrSetDefaultExtensionScribed</B>(
+                vfilechsr * fileChooser,
+                vscribe * extension);
+</PRE>
+
+<DL><DD>
+Sets the default extension to the string represented by the
+scribe <SAMP>extension</SAMP> for any files selected in
+``Put'' type file choosers or typed into the path entry
+field for ``Get'' type file choosers. Note the extension is
+appended before <SAMP>fileChooser'</SAMP>s apply function
+is called.
+    <P>
+The file chooser's default extension is used only if the
+file chooser's active filter does not specify its own
+extension. Refer to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrAddFilterBySystemType"><CODE>vfilechsrAddFilterBySystemType</CODE></A></CODE> for an
+explanation of file chooser filters.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetDirectory"><HR><H4>vfilechsrSetDirectory</H4></A>
+<PRE>
+        void <B>vfilechsrSetDirectory</B>(
+                vfilechsr * fileChooser,
+                const vfsPath * newPath);
+</PRE>
+
+<DL><DD>
+Changes the current directory of the file chooser pointed
+to by <SAMP>fileChooser</SAMP> to the directory specified
+by the path <SAMP>path</SAMP>.
+<CODE>vfilechsrSetDirectory</CODE> can be called before or
+after the file chooser has been opened. The default
+directory the file chooser displays if a directory is
+<I>not</I> set is the current working directory. If the
+file chooser is open, the change to the specified directory
+occurs immediately.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetDocumentName"><HR><H4>vfilechsrSetDocumentName</H4></A>
+<PRE>
+        void <B>vfilechsrSetDocumentName</B>(
+                vfilechsr * fileChooser,
+                const vchar * documentName);
+</PRE>
+
+<DL><DD>
+Changes the default text displayed in the file chooser
+<SAMP>fileChooser</SAMP>'s path entry text item to the
+string <SAMP>documentName</SAMP>. Usually only used for
+<I>Put</I> type file choosers. Unlike
+<CODE><A HREF="vfilechsr-x.html#vfilechsrSetFile"><CODE>vfilechsrSetFile</CODE></A></CODE>,
+<CODE>vfilechsrSetDocumentName</CODE> only changes the path
+entry text item; it does not affect the file chooser's
+current directory. Note the visual effect of setting the
+document name is platform dependent and may not work with
+all native file choosers.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetDocumentNameScribed"><HR><H4>vfilechsrSetDocumentNameScribed</H4></A>
+<PRE>
+        void <B>vfilechsrSetDocumentNameScribed</B>(
+                vfilechsr * fileChooser,
+                vscribe * documentName);
+</PRE>
+
+<DL><DD>
+Changes the default text displayed in the file chooser
+<SAMP>fileChooser</SAMP>'s path entry text item to the
+string represented by the scribe <SAMP>documentName</SAMP>.
+Usually only used for ``Put'' type file choosers. Unlike
+<CODE><A HREF="vfilechsr-x.html#vfilechsrSetFile"><CODE>vfilechsrSetFile</CODE></A></CODE>,
+<CODE>vfilechsrSetDocumentNameScribed</CODE> changes only
+the path entry text item; it does not affect the file
+chooser's current directory. TNote the visual effect of
+setting the document name is platform dependent and not all
+native file choosers support this feature.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetFile"><HR><H4>vfilechsrSetFile</H4></A>
+<PRE>
+        void <B>vfilechsrSetFile</B>(
+                vfilechsr * fileChooser,
+                const vfsPath * newFile);
+</PRE>
+
+<DL><DD>
+Changes the current directory of the file chooser
+<SAMP>fileChooser</SAMP> to the directory that contains the
+file <SAMP>newFile</SAMP>. The file <SAMP>newFile</SAMP> is
+also selected in the file/directory list and is entered in
+the path entry text item. <CODE>vfilechsrSetFile</CODE> is
+usually called before the file chooser is opened. The
+default directory the file chooser displays if a directory
+is <I>not</I> set is the current working directory. If the
+file chooser is open, the change to the specified file
+occurs immediately.
+    <P>
+If a directory has not been explicitly set, the file
+chooser uses the current working directory.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetFileIndex"><HR><H4>vfilechsrSetFileIndex</H4></A>
+<PRE>
+        void <B>vfilechsrSetFileIndex</B>(
+                vfilechsr * fileChooser,
+                int row);
+</PRE>
+
+<DL><DD>
+Changes the current directory list selection index of the
+file chooser <SAMP>fileChooser</SAMP> to <SAMP>row</SAMP>.
+This is useful for initializing the file chooser's
+selection before the file chooser is opened.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetLeader"><HR><H4>vfilechsrSetLeader</H4></A>
+<PRE>
+        void <B>vfilechsrSetLeader</B>(
+                vfilechsr * fileChooser,
+                vwindow * leader);
+</PRE>
+
+<DL><DD>
+Sets the leader of the file chooser
+<SAMP>fileChooser</SAMP> to the window <SAMP>leader</SAMP>.
+<SAMP>leader</SAMP> can be <SAMP>NULL</SAMP> in which case
+the root window is used as the chooser's leader. Refer to
+<CODE><A HREF="vwindow-x.html#vwindowGetRoot"><CODE>vwindowGetRoot</CODE></A></CODE> for a description of the root
+window.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetMaxHistoryCount"><HR><H4>vfilechsrSetMaxHistoryCount</H4></A>
+<PRE>
+        void <B>vfilechsrSetMaxHistoryCount</B>(
+                vfilechsr * fileChooser,
+                short historyCount);
+</PRE>
+
+<DL><DD>
+Sets the maximum number of entries allowed in the file
+chooser <SAMP>fileChooser</SAMP>'s History menu to
+<SAMP>historyCount</SAMP>. <SAMP>historyCount</SAMP> should
+be greater than or equal to
+<CODE>vfilechsrDEFAULT_MAX_HIST_LIST_ITEMS</CODE>. Once a
+file chooser's history list has reached its maximum, items
+are removed in a FIFO (first in first out) priority to make
+room for new entries.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetMinListWidth"><HR><H4>vfilechsrSetMinListWidth</H4></A>
+<PRE>
+        void <B>vfilechsrSetMinListWidth</B>(
+                vfilechsr * fileChooser,
+                int minListWidth);
+</PRE>
+
+<DL><DD>
+Sets the minimum file/directory list width for the file
+chooser<SAMP>fileChooser</SAMP> to
+<SAMP>minListWidth</SAMP>. The minimum list width is the
+smallest width in pixels that a file/directory list can be.
+This also determines how many file/directory lists can be
+displayed at one time. When the file chooser is resized, it
+determines the number of file/directory lists to display by
+taking the amount of available space (width) and dividing
+by the minimum list width.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetOptions"><HR><H4>vfilechsrSetOptions</H4></A>
+<PRE>
+        void <B>vfilechsrSetOptions</B>(
+                vfilechsr * fileChooser,
+                unsigned int options);
+</PRE>
+
+<DL><DD>
+Changes the file chooser <SAMP>fileChooser</SAMP>'s option
+flags to <SAMP>options</SAMP>. Note the visual effect of
+setting a particular option is platform dependent and not
+all native file choosers support the full range of options.
+<SAMP>options</SAMP> should be the bitwise OR
+(<SAMP>|</SAMP>) of one or more of the following constants:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><CODE>vfilechsrOPTION_SHOW_READONLY</CODE>
+<DD>Show the ``Read Only'' toggle 
+<DT><CODE>vfilechsrOPTION_DEFAULT_READONLY</CODE>
+<DD>The ``Read Only'' toggle is on by default 
+<DT><CODE>vfilechsrOPTION_CONFIRM_OVERWRITE</CODE>
+<DD>Confirm file over writes 
+<DT><CODE>vfilechsrOPTION_FILE_MUST_EXIST</CODE>
+<DD>Chosen item must already exist 
+<DT><CODE>vfilechsrOPTION_PATH_MUST_EXIST</CODE>
+<DD>The path leading to the item must exist 
+<DT><CODE>vfilechsrOPTION_HIDE_HIDDEN</CODE>
+<DD>Hide hidden items (refer to <CODE><A HREF="vfs-x.html#vfsIsHidden"><CODE>vfsIsHidden</CODE></A></CODE>) 
+<DT><CODE>vfilechsrOPTION_ONLY_DIRS</CODE>
+<DD>Want to select a directory 
+<DT><CODE>vfilechsrOPTION_MULTIPLE_ABANDON</CODE>
+<DD>If multiple selection, abandon apply calls if any one
+fails. 
+</DL>
+</BLOCKQUOTE>
+
+    <P>
+Note that <CODE><A HREF="vfilechsr-x.html#vfilechsrSetConfirmOverwrite"><CODE>vfilechsrSetConfirmOverwrite</CODE></A></CODE> is
+functionally equivalent to calling
+<CODE>vfilechsrSetOptions</CODE> with only the
+<CODE>vfilechsrOPTION_CONFIRM_OVERWRITE</CODE> constant.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetOverridePreferNative"><HR><H4>vfilechsrSetOverridePreferNative</H4></A>
+<PRE>
+        void <B>vfilechsrSetOverridePreferNative</B>(
+                vfilechsr * fileChooser,
+                int doNative);
+</PRE>
+
+<DL><DD>
+Sets whether the File Chooser Manager should try to map the
+file chooser <SAMP>fileChooser</SAMP> to a native
+equivalent. <CODE>vfilechsrSetOverridePreferNative</CODE>
+should be used for file choosers which are subclasses of
+the default <CODE>vfilechsr</CODE> class but which should
+be forced to be native choosers. Normally, the File Chooser
+Manager will not map instances of <CODE>vfilechsr</CODE>
+subclasses to native choosers. Refer to the ``Standard
+Dialogs'' chapter of the <I>Galaxy Application Environment
+Programmer's Guide</I> for a list of guidelines for
+supporting native file choosers. If <SAMP>doNative</SAMP>
+is <SAMP>FALSE</SAMP> the Galaxy file chooser is always
+displayed.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetPreferNative"><HR><H4>vfilechsrSetPreferNative</H4></A>
+<PRE>
+        void <B>vfilechsrSetPreferNative</B>(
+                vfilechsr * fileChooser,
+                int doNative);
+</PRE>
+
+<DL><DD>
+Sets whether the File Chooser Manager tries to map the file
+chooser <SAMP>fileChooser</SAMP> to a native equivalent.
+Note that a preference for a native chooser is not a
+guarantee that the Galaxy file chooser will not be used. If
+for instance, <SAMP>fileChooser</SAMP> is an instance of a
+subclass of the default <CODE>vfilechsr</CODE> class, it
+might not be possible to use the native file chooser. Refer
+to the ``Standard Dialogs'' chapter of the <I>Galaxy
+Application Environment Programmer's Guide</I> for a list
+of guidelines for supporting native file choosers. If
+<SAMP>doNative</SAMP> is <SAMP>FALSE</SAMP>, the Galaxy
+file chooser is always displayed.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetPromptName"><HR><H4>vfilechsrSetPromptName</H4></A>
+<PRE>
+        void <B>vfilechsrSetPromptName</B>(
+                vfilechsr * fileChooser,
+                const vchar * promptName);
+</PRE>
+
+<DL><DD>
+Changes the default label associated with the file chooser
+<SAMP>fileChooser</SAMP>'s path entry text item to the
+string <SAMP>promptName</SAMP>. Usually
+<CODE>vfilechsrSetPromptName</CODE> is used for <I>Put</I>
+type file choosers. Note that the visual effect of setting
+the prompt name is system-dependent and may not be work for
+all native file choosers.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetPromptNameScribed"><HR><H4>vfilechsrSetPromptNameScribed</H4></A>
+<PRE>
+        void <B>vfilechsrSetPromptNameScribed</B>(
+                vfilechsr * fileChooser,
+                vscribe * promptName);
+</PRE>
+
+<DL><DD>
+Changes the default label associated with the file Chooser
+<SAMP>fileChooser</SAMP>'s path entry text item to the
+string represented by the scribe <SAMP>promptName</SAMP>.
+Usually <CODE>vfilechsrSetPromptName</CODE> is used for
+``Put'' type file choosers. Note that the visual effect of
+setting the prompt name is system-dependent and not all
+native file choosers support this attribute.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetSelection"><HR><H4>vfilechsrSetSelection</H4></A>
+<PRE>
+        void <B>vfilechsrSetSelection</B>(
+                vfilechsr * fileChooser,
+                int selection);
+</PRE>
+
+<DL><DD>
+Sets the selection method for the file chooser
+<SAMP>fileChooser</SAMP> to <SAMP>selection</SAMP>. There
+are two selection methods:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><CODE>vfilechsrSINGLE</CODE>
+<DD>Only one file or directory can be selected from the
+file/directory list at a time. 
+<DT><CODE>vfilechsrMULTIPLE</CODE>
+<DD>More than one file can be selected from the
+file/directory list at a time. You can still select only
+one directory. 
+</DL>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetTitle"><HR><H4>vfilechsrSetTitle</H4></A>
+<PRE>
+        void <B>vfilechsrSetTitle</B>(
+                vfilechsr * fileChooser,
+                const vchar * title);
+</PRE>
+
+<DL><DD>
+Changes the title of the file chooser
+<SAMP>fileChooser</SAMP> to the string <SAMP>title</SAMP>.
+<SAMP>title</SAMP> can be <SAMP>NULL</SAMP> in which case
+the file chooser's default title is used. Note that the
+visual effect of setting the file chooser's title is
+platform-dependent and may not work for all native file
+choosers.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetTitleScribed"><HR><H4>vfilechsrSetTitleScribed</H4></A>
+<PRE>
+        void <B>vfilechsrSetTitleScribed</B>(
+                vfilechsr * fileChooser,
+                vscribe * title);
+</PRE>
+
+<DL><DD>
+Changes the title of the file chooser
+<SAMP>fileChooser</SAMP> to the text represented by the
+scribe <SAMP>title</SAMP>. <SAMP>title</SAMP> can be
+<SAMP>NULL</SAMP> in which case the file chooser's default
+title is used. Note the visual effect of setting the file
+chooser's title is platform dependent and not all native
+file choosers support this feature.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSetType"><HR><H4>vfilechsrSetType</H4></A>
+<PRE>
+        void <B>vfilechsrSetType</B>(
+                vfilechsr * fileChooser,
+                int type);
+</PRE>
+
+<DL><DD>
+Sets the type for the file chooser <SAMP>fileChooser</SAMP>
+to <SAMP>type</SAMP>. There are two types of file chooser:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><CODE>vfilechsrGET</CODE>
+<DD>The file chooser is used to <I>get</I> (choose) a file
+or directory to be operated on by the application. 
+<DT><CODE>vfilechsrPUT</CODE>
+<DD>The file chooser is used to <I>put</I> an application
+specified file or directory in a chosen directory with a
+chosen name. 
+</DL>
+</BLOCKQUOTE>
+
+    <P>
+The behavior of the file chooser is nearly identical for
+both types, with the following exception: for ``get''
+choosers, files in the file/directory list are disabled if
+the user does not have read access to a file; for ``put''
+choosers, files in the file/directory list are disabled if
+the user does not have write access to a file.
+</DD></DL>
+<P>
+<A NAME="vfilechsrShiftDirectory"><HR><H4>vfilechsrShiftDirectory</H4></A>
+<PRE>
+        void <B>vfilechsrShiftDirectory</B>(
+                vfilechsr * fileChooser,
+                int direction);
+</PRE>
+
+<DL><DD>
+Changes the current directory of the file chooser
+<SAMP>fileChooser</SAMP> to either the parent directory of
+the current directory or to the directory selected in the
+first list of files (if any). The direction to shift is
+specified by one of the following two constants:
+    <P>
+<BLOCKQUOTE>
+
+<DL>
+<DT><CODE>vfilechsrUP</CODE>
+<DD>Shift to the parent directory. 
+<DT><CODE>vfilechsrDOWN</CODE>
+<DD>Shift to the currently selected child of the parent
+directory. 
+</DL>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vfilechsrStartup"><HR><H4>vfilechsrStartup</H4></A>
+<PRE>
+        void <B>vfilechsrStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the Galaxy File Chooser module. You must do
+this before creating any file choosers.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vfilechsrADD_VIEW_BY"><HR><H4>vfilechsrADD_VIEW_BY</H4></A>
+<PRE>
+        &lt;<B>vfilechsrADD_VIEW_BY</B>&gt;
+</PRE>
+
+<DL><DD>
+Adds a view by method to the view menu of the file chooser
+<SAMP>fileChooser</SAMP>, using the name
+<SAMP>viewName</SAMP>. A view by method sorts the list of
+files and directories in a specified manner. When this view
+is used, the function <SAMP>compareFunc</SAMP> is called to
+sort the list of files and directories.
+</DD></DL>
+<P>
+<A NAME="vfilechsrCOMPARE_FOR_VIEW"><HR><H4>vfilechsrCOMPARE_FOR_VIEW</H4></A>
+<PRE>
+        &lt;<B>vfilechsrCOMPARE_FOR_VIEW</B>&gt;
+</PRE>
+
+<DL><DD>
+Compare message for sorting files in the file chooser. Subclasses
+wishing to control the sort order of files in the file chooser should
+override this message and return -1 if <SAMP>first</SAMP> should come
+before <SAMP>second</SAMP>, or 1 if <SAMP>first</SAMP> should come
+after <SAMP>second</SAMP.
+</DD></DL>
+<P>
+<A NAME="vfilechsrCOMPLETE"><HR><H4>vfilechsrCOMPLETE</H4></A>
+<PRE>
+        &lt;<B>vfilechsrCOMPLETE</B>&gt;
+</PRE>
+
+<DL><DD>
+Completes the text appearing in the path text item of the
+chooser. The file name appearing there is completed if
+possible. If there is no possible completion, the file
+chooser beeps. If there is more than one possible
+completion, the file is completed up to the first ambiguous
+character and then beeps.
+</DD></DL>
+<P>
+<A NAME="vfilechsrFILTER"><HR><H4>vfilechsrFILTER</H4></A>
+<PRE>
+        &lt;<B>vfilechsrFILTER</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the given file chooser entry
+can be displayed in a directory list; otherwise should
+return <SAMP>FALSE</SAMP>. This method is called by the
+file chooser whenever it reads a directory's contents. Note
+that the filter method is called <I>after</I> the active
+filter in the file chooser's Filter menu.
+</DD></DL>
+<P>
+<A NAME="vfilechsrFILTER_BY_NAME"><HR><H4>vfilechsrFILTER_BY_NAME</H4></A>
+<PRE>
+        &lt;<B>vfilechsrFILTER_BY_NAME</B>&gt;
+</PRE>
+
+<DL><DD>
+Returns whether a given entry name should be displayed in the file
+chooser's list. This method is invoked to perform filtering by the
+base implementation of <CODE>vfilechsrFILTER</CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrHOOK_APPLY_FILE"><HR><H4>vfilechsrHOOK_APPLY_FILE</H4></A>
+<PRE>
+        &lt;<B>vfilechsrHOOK_APPLY_FILE</B>&gt;
+</PRE>
+
+<DL><DD>
+Message sent when a file is selected in a file chooser to determine
+if the file indicated by <SAMP>path</SAMP> should be accepted. The
+default implementation for this method calls the
+<CODE><A HREF="vfilechsr-x.html#vfilechsrApplyFunc"><CODE>vfilechsrApplyFunc</CODE></A></CODE> if set by <CODE><A HREF="vfilechsr-x.html#vfilechsrSetApply"><CODE>vfilechsrSetApply</CODE></A></CODE>
+</DD></DL>
+<P>
+<A NAME="vfilechsrREMOVE_VIEW_BY"><HR><H4>vfilechsrREMOVE_VIEW_BY</H4></A>
+<PRE>
+        &lt;<B>vfilechsrREMOVE_VIEW_BY</B>&gt;
+</PRE>
+
+<DL><DD>
+Removes a view by method from the file chooser
+<SAMP>fileChooser</SAMP> with the name
+<SAMP>viewName</SAMP>. A view by method with this name must
+be present or an exception is generated.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSET_DIRECTORY"><HR><H4>vfilechsrSET_DIRECTORY</H4></A>
+<PRE>
+        &lt;<B>vfilechsrSET_DIRECTORY</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the current directory of the file chooser pointed
+to by <SAMP>fileChooser</SAMP> to the directory specified
+by the path <SAMP>path</SAMP>.
+<CODE><A HREF="vfilechsr-x.html#vfilechsrSetDirectory"><CODE>vfilechsrSetDirectory</CODE></A></CODE> can be called before or
+after the file chooser has been opened. The default
+directory the file chooser displays if a directory is
+<I>not</I> set is the current working directory. If the
+file chooser is open, the change to the specified directory
+occurs immediately.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSHIFT_DIRECTORY"><HR><H4>vfilechsrSHIFT_DIRECTORY</H4></A>
+<PRE>
+        &lt;<B>vfilechsrSHIFT_DIRECTORY</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the current directory of the file chooser
+<SAMP>fileChooser</SAMP> to either the parent directory of
+the current directory or to the directory selected in the
+first list of files (if any).
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vfilechsrCaseInsensitiveName"><HR><H4>vfilechsrCaseInsensitiveName</H4></A>
+<PRE>
+        <B>vfilechsrCaseInsensitiveName</B>
+</PRE>
+
+<DL><DD>
+File Chooser Manager's tag identifier used to locate ``case
+insensitive'' boolean override in a filter types resource
+dictionary. Refer to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrAddFilterBySystemType"><CODE>vfilechsrAddFilterBySystemType</CODE></A></CODE> for a
+description of adding file type filters to a file chooser.
+</DD></DL>
+<P>
+<A NAME="vfilechsrDEFAULT_MAX_HIST_LIST_ITEMS"><HR><H4>vfilechsrDEFAULT_MAX_HIST_LIST_ITEMS</H4></A>
+<PRE>
+        <B>vfilechsrDEFAULT_MAX_HIST_LIST_ITEMS</B>
+</PRE>
+
+<DL><DD>
+The default maximum number of entries allowed in a file
+chooser's History list.  Refer to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrGetMaxHistoryCount"><CODE>vfilechsrGetMaxHistoryCount</CODE></A></CODE> and
+<CODE><A HREF="vfilechsr-x.html#vfilechsrSetMaxHistoryCount"><CODE>vfilechsrSetMaxHistoryCount</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrDOSDictName"><HR><H4>vfilechsrDOSDictName</H4></A>
+<PRE>
+        <B>vfilechsrDOSDictName</B>
+</PRE>
+
+<DL><DD>
+File Chooser Manager's tag identifier used to locate IBM or
+Microsoft DOS filter information in a filter types resource
+dictionary. Refer to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrAddFilterBySystemType"><CODE>vfilechsrAddFilterBySystemType</CODE></A></CODE> for a
+description of adding file type filters to a file chooser.
+</DD></DL>
+<P>
+<A NAME="vfilechsrDelimiterName"><HR><H4>vfilechsrDelimiterName</H4></A>
+<PRE>
+        <B>vfilechsrDelimiterName</B>
+</PRE>
+
+<DL><DD>
+File Chooser Manager's tag identifier used to locate
+``separator'' character in a filter types resource
+dictionary. Refer to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrAddFilterBySystemType"><CODE>vfilechsrAddFilterBySystemType</CODE></A></CODE> for a
+description of adding file type filters to a file chooser.
+</DD></DL>
+<P>
+<A NAME="vfilechsrExtensionName"><HR><H4>vfilechsrExtensionName</H4></A>
+<PRE>
+        <B>vfilechsrExtensionName</B>
+</PRE>
+
+<DL><DD>
+File Chooser Manager's tag identifier used to locate the
+``default extensions'' string in a filter types resource
+dictionary. Refer to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrAddFilterBySystemType"><CODE>vfilechsrAddFilterBySystemType</CODE></A></CODE> for a
+description of adding file type filters to a file chooser.
+</DD></DL>
+<P>
+<A NAME="vfilechsrFileTypeRootDictName"><HR><H4>vfilechsrFileTypeRootDictName</H4></A>
+<PRE>
+        <B>vfilechsrFileTypeRootDictName</B>
+</PRE>
+
+<DL><DD>
+File Chooser Manager's default tag identifier used for
+filter types resource dictionary. Refer to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrAddFilterBySystemType"><CODE>vfilechsrAddFilterBySystemType</CODE></A></CODE> for a
+description of adding file type filters to a file chooser.
+</DD></DL>
+<P>
+<A NAME="vfilechsrFiltersMenuName"><HR><H4>vfilechsrFiltersMenuName</H4></A>
+<PRE>
+        <B>vfilechsrFiltersMenuName</B>
+</PRE>
+
+<DL><DD>
+The default title given to a file chooser's Filter menu.
+</DD></DL>
+<P>
+<A NAME="vfilechsrGET"><HR><H4>vfilechsrGET</H4></A>
+<PRE>
+        <B>vfilechsrGET</B>
+</PRE>
+
+<DL><DD>
+Sets up the file chooser to ``retrieve'' files or
+directories; for example, an ``Open'' command might use a
+<CODE>vfilechsrGET</CODE> type chooser to get the document.
+It is passed to <CODE><A HREF="vfilechsr-x.html#vfilechsrSetType"><CODE>vfilechsrSetType</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrINCLUDED"><HR><H4>vfilechsrINCLUDED</H4></A>
+<PRE>
+        <B>vfilechsrINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined to non-zero when the header file
+<SAMP>vfilechsr.h</SAMP> has been included.
+</DD></DL>
+<P>
+<A NAME="vfilechsrMAX_NUM_LISTS"><HR><H4>vfilechsrMAX_NUM_LISTS</H4></A>
+<PRE>
+        <B>vfilechsrMAX_NUM_LISTS</B>
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> The maximum number of directory list views allowed by a
+file chooser. The file chooser's directory views are
+numbered zero to <SAMP>vfilechsrMAX_NUM_LISTS-1</SAMP>,
+with the leftmost list view at value zero.
+    <P>
+This constant is deprecated. The recommended constant to
+use is <CODE>vfilechsrDEFAULT_MAX_HIST_LIST_ITEMS</CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrMULTIPLE"><HR><H4>vfilechsrMULTIPLE</H4></A>
+<PRE>
+        <B>vfilechsrMULTIPLE</B>
+</PRE>
+
+<DL><DD>
+Allows free or multiple selection in file chooser's
+directory lists. It is passed to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrSetSelection"><CODE>vfilechsrSetSelection</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrMacintoshDictName"><HR><H4>vfilechsrMacintoshDictName</H4></A>
+<PRE>
+        <B>vfilechsrMacintoshDictName</B>
+</PRE>
+
+<DL><DD>
+File Chooser Manager's tag identifier used to locate Apple
+Macintosh filter information in a filter types resource
+dictionary. Refer to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrAddFilterBySystemType"><CODE>vfilechsrAddFilterBySystemType</CODE></A></CODE> for a
+description of adding file type filters to a file chooser.
+</DD></DL>
+<P>
+<A NAME="vfilechsrOPTION_CONFIRM_OVERWRITE"><HR><H4>vfilechsrOPTION_CONFIRM_OVERWRITE</H4></A>
+<PRE>
+        <B>vfilechsrOPTION_CONFIRM_OVERWRITE</B>
+</PRE>
+
+<DL><DD>
+Confirm file overwrites before calling the apply function.
+It is passed to <CODE><A HREF="vfilechsr-x.html#vfilechsrSetOptions"><CODE>vfilechsrSetOptions</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrOPTION_DEFAULT_READONLY"><HR><H4>vfilechsrOPTION_DEFAULT_READONLY</H4></A>
+<PRE>
+        <B>vfilechsrOPTION_DEFAULT_READONLY</B>
+</PRE>
+
+<DL><DD>
+The ``Read Only'' toggle should be turned on by default. It
+is passed to <CODE><A HREF="vfilechsr-x.html#vfilechsrSetOptions"><CODE>vfilechsrSetOptions</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrOPTION_DIR"><HR><H4>vfilechsrOPTION_DIR</H4></A>
+<PRE>
+        <B>vfilechsrOPTION_DIR</B>
+</PRE>
+
+<DL><DD>
+The <CODE><A HREF="vfs-x.html#vfsPath"><CODE>vfsPath</CODE></A></CODE> passed to the apply function
+represents a directory. It is returned by
+<CODE><A HREF="vfilechsr-x.html#vfilechsrGetChoiceOptions"><CODE>vfilechsrGetChoiceOptions</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrOPTION_FILE_MUST_EXIST"><HR><H4>vfilechsrOPTION_FILE_MUST_EXIST</H4></A>
+<PRE>
+        <B>vfilechsrOPTION_FILE_MUST_EXIST</B>
+</PRE>
+
+<DL><DD>
+Confirms that the chosen item already exists before calling
+the apply function. It is passed to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrSetOptions"><CODE>vfilechsrSetOptions</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrOPTION_HIDE_HIDDEN"><HR><H4>vfilechsrOPTION_HIDE_HIDDEN</H4></A>
+<PRE>
+        <B>vfilechsrOPTION_HIDE_HIDDEN</B>
+</PRE>
+
+<DL><DD>
+Specifies not to display hidden items in directory lists
+(refer to <CODE><A HREF="vfs-x.html#vfsIsHidden"><CODE>vfsIsHidden</CODE></A></CODE>). It is passed to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrSetOptions"><CODE>vfilechsrSetOptions</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrOPTION_MULTIPLE_ABANDON"><HR><H4>vfilechsrOPTION_MULTIPLE_ABANDON</H4></A>
+<PRE>
+        <B>vfilechsrOPTION_MULTIPLE_ABANDON</B>
+</PRE>
+
+<DL><DD>
+If multiple selection, abandon calling the apply function
+if any one returns failure (<SAMP>FALSE</SAMP>). It is
+passed to <CODE><A HREF="vfilechsr-x.html#vfilechsrSetOptions"><CODE>vfilechsrSetOptions</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrOPTION_ONLY_DIRS"><HR><H4>vfilechsrOPTION_ONLY_DIRS</H4></A>
+<PRE>
+        <B>vfilechsrOPTION_ONLY_DIRS</B>
+</PRE>
+
+<DL><DD>
+Displays only directories for selection; usually used for
+selecting a directory. It is passed to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrSetOptions"><CODE>vfilechsrSetOptions</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrOPTION_OVERWRITE"><HR><H4>vfilechsrOPTION_OVERWRITE</H4></A>
+<PRE>
+        <B>vfilechsrOPTION_OVERWRITE</B>
+</PRE>
+
+<DL><DD>
+The <CODE><A HREF="vfs-x.html#vfsPath"><CODE>vfsPath</CODE></A></CODE> passed to the apply function
+refers to an existing item (file or directory). It is
+returned by <CODE><A HREF="vfilechsr-x.html#vfilechsrGetChoiceOptions"><CODE>vfilechsrGetChoiceOptions</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrOPTION_PATH_MUST_EXIST"><HR><H4>vfilechsrOPTION_PATH_MUST_EXIST</H4></A>
+<PRE>
+        <B>vfilechsrOPTION_PATH_MUST_EXIST</B>
+</PRE>
+
+<DL><DD>
+Confirms that the path leading to the chosen item already
+exists before calling the apply function. It is passed to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrSetOptions"><CODE>vfilechsrSetOptions</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrOPTION_READONLY"><HR><H4>vfilechsrOPTION_READONLY</H4></A>
+<PRE>
+        <B>vfilechsrOPTION_READONLY</B>
+</PRE>
+
+<DL><DD>
+Indicates that the user has turned on the ``Read Only''
+toggle. It is returned by
+<CODE><A HREF="vfilechsr-x.html#vfilechsrGetChoiceOptions"><CODE>vfilechsrGetChoiceOptions</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrOPTION_SHOW_READONLY"><HR><H4>vfilechsrOPTION_SHOW_READONLY</H4></A>
+<PRE>
+        <B>vfilechsrOPTION_SHOW_READONLY</B>
+</PRE>
+
+<DL><DD>
+Shows the ``Read Only'' toggle in the file chooser dialog.
+It is passed to <CODE><A HREF="vfilechsr-x.html#vfilechsrSetOptions"><CODE>vfilechsrSetOptions</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrOS2DictName"><HR><H4>vfilechsrOS2DictName</H4></A>
+<PRE>
+        <B>vfilechsrOS2DictName</B>
+</PRE>
+
+<DL><DD>
+File Chooser Manager's tag identifier used to locate OS/2 filter
+information in a filter types resource dictionary. Refer to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrAddFilterBySystemType"><CODE>vfilechsrAddFilterBySystemType</CODE></A></CODE> for a
+description of adding file type filters to a file chooser.
+</DD></DL>
+<P>
+<A NAME="vfilechsrPUT"><HR><H4>vfilechsrPUT</H4></A>
+<PRE>
+        <B>vfilechsrPUT</B>
+</PRE>
+
+<DL><DD>
+Sets up the file chooser to ``store'' files and/or
+directories; for example an ``Save'' command might use a
+<CODE>vfilechsrPUT</CODE> type chooser. It is passed to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrSetType"><CODE>vfilechsrSetType</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrPatternSupplement"><HR><H4>vfilechsrPatternSupplement</H4></A>
+<PRE>
+        <B>vfilechsrPatternSupplement</B>
+</PRE>
+
+<DL><DD>
+File Chooser Manager's tag identifier used to locate the
+``pattern supplement'' string in Macintosh filter types
+resource dictionary. Refer to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrAddFilterBySystemType"><CODE>vfilechsrAddFilterBySystemType</CODE></A></CODE> for a
+description of adding file type filters to a file chooser.
+    <P>
+A pattern supplement can be used with generic Macintosh
+file types (such as TEXT or PICT) to obtain more accurate
+filtering based on filename conventions. For example,
+including a ".+.c|.+.h" pattern supplement with the type
+TEXT filters out text files that do not conform to the
+standard naming convention for c source files.
+</DD></DL>
+<P>
+<A NAME="vfilechsrSINGLE"><HR><H4>vfilechsrSINGLE</H4></A>
+<PRE>
+        <B>vfilechsrSINGLE</B>
+</PRE>
+
+<DL><DD>
+Allows at most one selected item in file chooser's
+directory lists. It is passed to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrSetSelection"><CODE>vfilechsrSetSelection</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrUP"><HR><H4>vfilechsrUP</H4></A>
+<PRE>
+        <B>vfilechsrUP</B>
+</PRE>
+<A NAME="vfilechsrDOWN"><PRE>
+        <B>vfilechsrDOWN</B>
+</PRE>
+</A>
+
+<DL><DD>
+Shifts a file chooser's current directory ``Up'' or
+``Down'' one level. It is passed to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrShiftDirectory"><CODE>vfilechsrShiftDirectory</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vfilechsrUnixDictName"><HR><H4>vfilechsrUnixDictName</H4></A>
+<PRE>
+        <B>vfilechsrUnixDictName</B>
+</PRE>
+
+<DL><DD>
+File Chooser Manager's tag identifier used to locate UNIX
+filter information in a filter types resource dictionary.
+Refer to <CODE><A HREF="vfilechsr-x.html#vfilechsrAddFilterBySystemType"><CODE>vfilechsrAddFilterBySystemType</CODE></A></CODE> for a
+description of adding file type filters to a file chooser.
+</DD></DL>
+<P>
+<A NAME="vfilechsrVMSDictName"><HR><H4>vfilechsrVMSDictName</H4></A>
+<PRE>
+        <B>vfilechsrVMSDictName</B>
+</PRE>
+
+<DL><DD>
+File Chooser Manager's tag identifier used to locate VMS
+filter information in a filter types resource dictionary.
+Refer to <CODE><A HREF="vfilechsr-x.html#vfilechsrAddFilterBySystemType"><CODE>vfilechsrAddFilterBySystemType</CODE></A></CODE> for a
+description of adding file type filters to a file chooser.
+</DD></DL>
+<P>
+<A NAME="vfilechsrWindowsNTDictName"><HR><H4>vfilechsrWindowsNTDictName</H4></A>
+<PRE>
+        <B>vfilechsrWindowsNTDictName</B>
+</PRE>
+
+<DL><DD>
+File Chooser Manager's tag identifier used to locate
+Microsoft Windows/NT filter information in a filter types
+resource dictionary. Refer to
+<CODE><A HREF="vfilechsr-x.html#vfilechsrAddFilterBySystemType"><CODE>vfilechsrAddFilterBySystemType</CODE></A></CODE> for a
+description of adding file type filters to a file chooser.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vfilechsrCLASS"><HR><H4>vfilechsrCLASS</H4></A>
+<PRE>
+        #define <B>vfilechsrCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for file chooser
+classes. This macro expands to the contents of
+<CODE><A HREF="vfilechsr-x.html#vfilechsrClass"><CODE>vfilechsrClass</CODE></A></CODE>. <SAMP>SUPER</SAMP> is the type
+identifier of the class being declared (for example,
+<CODE><A HREF="vfilechsr-x.html#vfilechsrClass"><CODE>vfilechsrClass</CODE></A></CODE>). This type is used by the class's 
+subclasses to refer to it. <SAMP>FILECHSR</SAMP> is the type identifier of
+instances of the class being declared (for example,
+<CODE>vfilechsr</CODE>). <SAMP>NOTIFY</SAMP> is the type
+identifier of the instance notification function (for
+example, <CODE><A HREF="vconfirm-x.html#vconfirmHookProc"><CODE>vconfirmHookProc</CODE></A></CODE>). This macro should be used by
+file chooser subclasses to declare the contents of the file chooser
+class. This macro should come first in the subclass structure
+declaration.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

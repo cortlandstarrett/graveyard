@@ -1,0 +1,415 @@
+<HTML>
+<HEAD>
+<TITLE>Chapter 3. Hello Galaxy</TITLE>
+
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR BGCOLOR="#CCCC66">
+		<!-- Margin Banner -->
+		<TD><CENTER><BR><IMG SRC="../../graphics/logo.gif"><BR> <BR></CENTER>
+      </TD>
+
+      <!-- Title block: DOCUMENT TITLE GOES HERE -->
+      <TD VALIGN=TOP>
+          <BR>
+           <H1><A NAME="Top">Chapter 3. Hello Galaxy</A></H1>
+           <BR>
+      </TD>
+      
+   </TR>
+   </TABLE>
+ 		<P>
+
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="360"></A>
+This chapter discusses opening and manipulating dialogs.<P>
+<UL><LI>Concepts
+<LI>Dialog Manager
+<LI>Event Manager
+</UL><P>
+In the tradition of Kernighan and Ritchie we will write a simple "Hello World" program, but we have an entire Galaxy to explore so we'll change our greeting to "Hello Galaxy!"<P>
+<A NAME="370"><H1> Source Code</H1></A>
+The source for tut3a.c follows:<P>
+<PRE><UL>	/*
+	 * tut3a.c
+	 *
+	 * Our first attempt at 'Hello Galaxy'
+	 *
+	 * We will:
+	 * -  Create a dialog
+	 * -  Set the dialog's size
+	 * -  Create a label item
+	 * -  Add a title to it
+	 * -  Set its position
+	 * -  Open the dialog
+	 * -  Enter the event loop
+	 *
+	 */
+	
+	/* ANSI headers */
+	#include &lt;vstdlib.h&gt;    /* for exit(), EXIT_ codes */
+	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL><TT>(1)	/* Galaxy headers */
+</TT><TT>	#include &lt;vrect.h&gt;
+</TT><TT>	#include &lt;vchar.h&gt;
+</TT><TT>	#include &lt;vevent.h&gt;
+</TT><TT>	#include &lt;vwindow.h&gt;
+</TT><TT>	#include &lt;vdialog.h&gt;
+</TT><TT>	#include &lt;vstartup.h&gt;
+</TT></UL></PRE>
+</FONT><PRE><UL><TT>	
+</TT><TT>	int main (int argc, char **argv)
+</TT><TT>	
+</TT><TT>	{
+</TT>	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL><TT>(2)	  vdialog     *dialog;
+</TT><TT>	  vdialogItem *item;
+</TT><TT>	  vrect        rect;
+</TT></UL></PRE>
+</FONT><PRE><UL>
+	
+<TT>	 </TT> /* Initialize Galaxy */
+	  vstartup (argc, argv);
+	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(3)	  <TT>/* Create the dialog */
+</TT><TT>	  dialog = vdialogCreate ();
+</TT></UL></PRE>
+</FONT><PRE><UL>	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL><TT>(4)	  /* Position it relative to the root window */
+</TT><TT>	  rect.x = 200;
+</TT><TT>	  rect.y = 200;
+</TT><TT>	  rect.w = 300;
+</TT><TT>	  rect.h = 200;
+</TT><TT>	  vwindowSetRect (vdialogGetWindow (dialog), &amp;rect);
+</TT></UL></PRE>
+</FONT><PRE><UL>	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL><TT>(5)	  /* Create a dialog item */
+</TT><TT>	  item = vdialogCreateLabelItem ();
+</TT></UL></PRE>
+</FONT><PRE><UL>	  
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL><TT>(6)	  /* Add a title to it */
+</TT><TT>	  vdialogSetItemTitleScribed (
+</TT><TT>	    item,
+</TT><TT>	    vcharScribeLiteral ("Hello Galaxy!")
+</TT><TT>	  );
+</TT></UL></PRE>
+</FONT><PRE><UL>	
+	  /* Position it relative to the dialog */
+	  rect.x = 120;
+	  rect.y = 90;
+	  rect.w = 120;
+	  rect.h = 15;
+	  vdialogSetItemRect (item, &amp;rect);
+	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL><TT>(7)	  /* Add the item to the dialog */
+</TT><TT>	  vdialogAppendItem (dialog, item);
+</TT></UL></PRE>
+</FONT><PRE><UL>	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL><TT>(8)	  /* Open the dialog */
+</TT><TT>	  vdialogOpen (dialog);
+</TT></UL></PRE>
+</FONT><PRE><UL>	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL><TT>(9)	  /* Enter the event loop */
+</TT><TT>	  veventProcess ();
+</TT></UL></PRE>
+</FONT><PRE><UL>	
+	  exit (EXIT_SUCCESS);
+	  return EXIT_FAILURE;
+	
+	}
+</UL></PRE><P>
+Compile and link this program. Before we run it, let's look at the program in some detail.<P>
+<A NAME="452"><H1> Naming Conventions</H1></A>
+To make them easier to identify, all Galaxy-specific symbols and identifiers begin with the letter "v". For example, take a look at the above piece of sample code. You'll notice the identifiers <TT><B>vdialogAppendItem</B></TT> (a function entry point) and <TT><B>vrect</B></TT> (a data type) as well as <TT>#include</TT> statements for the header files such as <TT><B>vdialog.h</B></TT> and <TT><B>vrect.h</B></TT>. Other Galaxy objects which obey this naming convention are constants and exceptions. The converse, that any symbol beginning with the letter `v' must be a Galaxy symbol is, of course, false. <TT>vprintf</TT>, for instance is not a Galaxy symbol. <P>
+With the exception of <TT><B>vstartup</B></TT> which is not part of any Galaxy module, all Galaxy symbols begin with the letter `v' followed by the name of the module followed by the rest of the symbol. Examples are <TT><B>vdialogOpen</B></TT> and <TT><B>vlistitemGetRowCount</B></TT>. Since <TT>vprintf</TT> doesn't fit this rule you can be sure that it isn't a Galaxy symbol. The symbol dialogOpen wouldn't be a Galaxy symbol because it doesn't start with a `v'.<P>
+If you want to avoid potential naming conflicts, try to avoid using the letter `v' as the first letter of your symbols.<P>
+<A NAME="460"><H1> Classes and Modules</H1></A>
+Galaxy is divided up into <EM><B>classes</B></EM>. A class is a major section of Galaxy that is devoted to one particular function. The Dialog class is responsible for managing dialogs and their items. The Event class is responsible for dispatching events to the appropriate event handlers. There are more than forty classes in Galaxy.<P>
+Each class defines one or more <EM><B>modules</B></EM>. A module defines a data type and an an application programming interface, or API, to operate on it. The module name can always be determined from the function name by taking all of the name up to the first uppercase letter. So <TT><B>vdialogOpen</B></TT> is part of the vdialog module which is part of the Dialog class. Some managers export only one module, others such as the List class and Text class export several.<P>
+<A NAME="466"><H1> Looking at the Program</H1></A>
+These are the Galaxy specific headers that we will need:<P>
+<FONT COLOR="0000BB">
+<PRE><UL><TT>(1)	/* Galaxy headers */
+</TT><TT>	#include &lt;vrect.h&gt;
+</TT><TT>	#include &lt;vchar.h&gt;
+</TT><TT>	#include &lt;vevent.h&gt;
+</TT><TT>	#include &lt;vwindow.h&gt;
+</TT><TT>	#include &lt;vdialog.h&gt;
+</TT><TT>	#include &lt;vstartup.h&gt;
+</TT></UL></PRE>
+</FONT><P>
+You need to include the header for each module you reference. You also have the option of including just the header <TT>vgalaxy.h</TT> which will include all Galaxy header files. The disadvantage of this is it can increase the amount of time needed to compile your program since you usually only need a fraction of the headers that Galaxy provides.<P>
+Galaxy header files automatically include any headers they depend on and are protected against multiple inclusion.<P>
+<UL><B><I>Note:</I></B> Some C preprocessors have limits on how deeply nested headers can become. Due to the 
+complex nature of Galaxy, this limit can be exceeded depending on the order of the headers. 
+The <TT>vgalaxy.h</TT> header orders the inclusion from the bottom up to avoid nesting. This 
+tutorial will use that same ordering scheme to avoid potential problems.
+<P>
+</UL>In this next code fragment, we declare our variables. In this program all of our variables are of types defined by Galaxy. These types correspond to modules within Galaxy.<P>
+<FONT COLOR="0000BB">
+<PRE><UL><TT>(2)	  vdialog     *dialog;
+</TT><TT>	  vdialogItem *item;
+</TT><TT>	  vrect        rect;
+</TT></UL></PRE>
+</FONT><P>
+The <TT><B>vdialog</B></TT> type is provided by the Dialog class. It is used by Galaxy to implement dialogs. A dialog is a special kind of window in which user interface objects may be placed.<P>
+The <TT><B>vdialogItem</B></TT> type is also provided by the Dialog class. It is used to implement the basic user interface object.<P>
+The <TT><B>vrect</B></TT> type is provided by the Plane Geometry class. It represents a rectangle. It is one of the few types in Galaxy whose implementation is directly visible to the developer.<P>
+<FONT COLOR="0000BB">
+<PRE><UL><TT>(3)	  /* Create the dialog */
+</TT><TT>	  dialog = vdialogCreate ();
+</TT></UL></PRE>
+</FONT><P>
+We do our first real work here. The <TT><B>vdialogCreate</B></TT> function allocates a <TT><B>vdialog</B></TT>, initializes it, and returns a pointer to it. You will quickly come to associate <EM>vmodule</EM><TT>Create</TT> with the allocation and initialization of data within Galaxy.<P>
+<FONT COLOR="0000BB">
+<PRE><UL><TT>(4)	  /* Position it relative to the root window */
+</TT><TT>	  rect.x = 200;
+</TT><TT>	  rect.y = 200;
+</TT><TT>	  rect.w = 300;
+</TT><TT>	  rect.h = 200;
+</TT><TT>	  vwindowSe</TT>tRect (vdialogGetWindow (dialog), &amp;rect);
+</UL></PRE>
+</FONT><P>
+This section of code initializes the rectangle structure and tells the Window class to position our window at those coordinates. There are several important points to note. First, these coordinates are relative to the root window and the origin is in the lower left corner. Second, we must go below the dialog to its underlying layer, the <TT><B>vwindow</B></TT>. Galaxy is an object-oriented system, and the entire user interface system is implemented using object-oriented techniques. In this case it means that a <TT><B>vdialog</B></TT> is a subclass of a <TT><B>vwindow</B></TT>. As such, any <TT><B>vdialog</B></TT> can also be used with <TT><B>vwindow</B></TT> functions in addition to <TT><B>vdialog</B></TT> functions.<P>
+In practice, however, C does not allow us to pass a <TT><B>vdialog</B></TT> into a function expecting a <TT><B>vwindow</B></TT> since C knows nothing of subclassing. This is the purpose of the <TT><B>vdialogGetWindow</B></TT> function. It avoids the need for casting while highlighting the relationship of <TT><B>vdialog</B></TT> to <TT><B>vwindow</B></TT>.<P>
+<UL><B><I>Note:</I></B> If this explanation of subclassing and inheritance leaves you asking more questions than 
+before we started, don't worry. A full discussion of Galaxy's object-oriented nature is 
+included in a later chapter.
+<P>
+</UL>The <TT><B>vwindowSetRect</B></TT> call places the dialog according to the position and size specified in the rect variable.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(5)	  <TT>/* Create a dialog item */
+</TT><TT>	  item = vd</TT>ialogCreateLabelItem ();
+</UL></PRE>
+</FONT><P>
+Now we create the dialog item. The Dialog class exports three kinds of dialog items via three different entry points: <TT><B>vdialogCreateItem</B></TT>, <TT><B>vdialogCreateBoxItem</B></TT>, and<TT><B> vdialogCreateLabelItem</B></TT>. The first implements basic functionality common to all dialog items. The second adds the ability to draw a nice inset border around itself. The third is intended for putting text labels in a dialog. Note that all three functions return the same type, a <TT><B>vdialogItem</B></TT> pointer.<P>
+<FONT COLOR="0000BB">
+<PRE><UL><TT>(6)	  /* Add a title to it */
+</TT><TT>	  vdialogSetItemTitleScribed (
+</TT><TT>	    item,
+</TT><TT>	    vcharScribeLiteral ("Hello Galaxy!")
+</TT><TT>	  );
+</TT></UL></PRE>
+</FONT><P>
+This piece of code sets the title for the item. There is a <TT><B>vdialogSetItemTitle</B></TT> function that takes a <TT><B>vchar</B></TT> pointer, but we only have char pointer. Galaxy works internally with <TT><B>vchar</B></TT> pointers which could be any one of a number of character sets depending on your operating system. Therefore we need a method to get a string of one character set converted to the equivalent string in a possibly different character set. The scribed entry points accomplish this. The <TT><B>vcharScribeLiteral</B></TT> function takes a char pointer and returns a scribe, which, when used, generates the <TT><B>vchar</B></TT> pointer. This is discussed in more detail when we talk about the String Manager, but for now, whenever we need to use a literal string we will use <TT><B>vcharScribeLiteral</B></TT> to get that string into Galaxy.<P>
+<FONT COLOR="0000BB">
+<PRE><UL><TT>(7)	  /* Add the item to the dialog */
+</TT><TT>	  vdia</TT>logAppendItem (dialog, item);
+</UL></PRE>
+</FONT><P>
+Now we need to add the dialog item to the dialog with <TT><B>vdialogAppendItem</B></TT>. Any number of items can be added to the dialog, but each dialog item can be added to (at most) one dialog.<P>
+<FONT COLOR="0000BB">
+<PRE><UL><TT>(8)	  /* Open the dialog */
+</TT><TT>	  vdia</TT>logOpen (dialog);
+</UL></PRE>
+</FONT><P>
+This instructs the Dialog Manager to display the dialog. Up to this point, the dialog exists only in memory.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(9)	  /<TT>* Enter the event loop */
+</TT><TT>	  vev</TT>entProcess ();
+</UL></PRE>
+</FONT><P>
+This turns control of the program over to the Event class. Galaxy is an event driven system, meaning that all actions in Galaxy happen in response to some kind of event. An event can be something external to the program, such as the user clicking on a button, or it can be an internally generated event. All Galaxy programs must call <TT><B>veventProcess</B></TT>. This routine is the heartbeat of your Galaxy program. It handles the queue of events for your application and directs them to the appropriate event handler. It does not return until another routine, <TT><B>veventStopProcessing</B></TT>, is called.<P>
+You may be wondering where this <TT><B>veventStopProcessing</B></TT> routine gets called since our program never references it. The answer is that it doesn't.<P>
+Run <TT>tut3a</TT> now. It should open a dialog near the bottom left of the screen. The phrase "Hello Galaxy!" should be in the center of the dialog. Unfortunately, there is no graceful way to exit this program. We didn't provide a way out. Even if we use the window manager's close menu to force the window to close, the program still runs. The only way out is to ask the operating system to terminate the program (usually pressing Control - C is sufficient.)<P>
+<A NAME="5109"><I>Figure 2.  Hello Galaxy! dialog
+</I><P>
+<IMG SRC="Chapter_3.anc.gif"><P>
+<P>
+The easiest way to deal with this problem is to use a dialog notification function.<P>
+<PRE><UL>	/*
+	 * tut3b.c
+	 *
+	 * A better 'Hello Galaxy'
+	 *
+	 * We will:
+	 * -  Create a dialog
+	 * -  Set the dialog's size
+	 * -  Attach a notify function
+	 * -  Create a label item
+	 * -  Add a title to it
+	 * -  Set its position
+	 * -  Open the dialog
+	 * -  Enter the event loop
+	 *
+	 */
+	
+	/* ANSI headers */
+	#include &lt;vstdlib.h&gt;    /* for exit(), EXIT_ codes */
+	
+	/* Galaxy headers */
+	#include &lt;vrect.h&gt;
+	#include &lt;vchar.h&gt;
+	#include &lt;vevent.h&gt;
+	#include &lt;vwindow.h&gt;
+	#include &lt;vdialog.h&gt;
+	#include &lt;vstartup.h&gt;
+	
+	/* forward references */
+	static void dialogNoteProc (vdialog *dialog, vevent *event);
+	
+	int main (int argc, char **argv)
+	
+	{
+	
+	  vdialog     *dialog;
+	  vdialogItem *item;
+	  vrect        rect;
+	
+	  /* Initialize Galaxy */
+	  vstartup (argc, argv);
+	
+	  /* Create the dialog */
+	  dialog = vdialogCreate ();
+	
+	  /* Position it relative to the root window */
+	  rect.x = 200;
+	  rect.y = 200;
+	  rect.w = 300;
+	  rect.h = 200;
+	  vwindowSetRect (vdialogGetWindow (dialog), &amp;rect);
+	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(1)	  /* Set the notify function */
+	  vdialogSetNotify (dialog, dialogNoteProc);
+</UL></PRE>
+</FONT><PRE><UL>	
+	  /* Create a dialog item */
+	  item = vdialogCreateLabelItem ();
+	  
+	  /* Add a title to it */
+	  vdialogSetItemTitleScribed (
+	    item, 
+	    vcharScribeLiteral ("Hello Galaxy!")
+	  );
+	
+	  /* Position it relative to the dialog */
+	  rect.x = 120;
+	  rect.y = 90;
+	  rect.w = 120;
+	  rect.h = 15;
+	  vdialogSetItemRect (item, &amp;rect);
+	
+	  /* Add the item to the dialog */
+	  vdialogAppendItem (dialog, item);
+	
+	  /* Open the dialog */
+	  vdialogOpen (dialog);
+	
+	  /* Enter the event loop */
+	  veventProcess ();
+	
+	  exit (EXIT_SUCCESS);
+	  return EXIT_FAILURE;
+	
+	}
+
+	/*
+	 *  dialogNoteProc
+	 *
+	 *  The dialog notification procedure gets called whenever any
+	 *  major event applies to the dialog as a whole. We need to
+	 *  look for the event which tells us that the dialog has closed.
+	 *
+	 */
+	
+	static void dialogNoteProc (vdialog *dialog, vevent *event)
+	
+	{
+	
+	  int et;
+	
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(2)	  et = veventGetType (event);
+	  
+	  if (et == veventWINDOW_STATE &amp;&amp; veventIsClose (event))
+	    veventStopProcessing ();
+</UL></PRE>
+</FONT><PRE><UL>	
+	}
+</UL></PRE><P>
+The <TT>tut3b</TT> program contains only two changes from our tut3a. The first is the addition of the call to <TT><B>vdialogSetNotify</B></TT> in the main program. This attaches the specified function to the dialog. Whenever the dialog handles an event, the function <TT>dialogNoteProc</TT> is notified of the action. The <EM><B>notification function</B></EM> is simply an observer of the fact that the dialog handled an event. It is unable to affect the processing of the event in any way. If you want to have a function which can prevent the shutdown of the dialog, you must use <TT><B>vdialogSetCloseHook</B></TT>.<P>
+<FONT COLOR="0000BB">
+<PRE><UL>(2)	  et = veventGetType (event);
+	  
+	  if (et == veventWINDOW_STATE &amp;&amp; veventIsClose (event))
+	    veventStopProcessing ();
+</UL></PRE>
+</FONT><P>
+The second change is the new procedure. All notification procedures receive a pointer to the data (a pointer to the dialog in our case) that the notification applies to and the event which caused the notification. In order to use this event we must extract the type of the event. Event types are defined in <TT>event.h</TT> and the particular one we are concerned with is <TT><B>veventWINDOW_STATE</B></TT>. This type applies to several kinds of events which deal with a change in state of the dialog's window. Since there are many state events we must check for the specific one we are interested in with <TT><B>veventIsClose</B></TT>. If our event is a close event then we know the dialog has been closed and we should make arrangements to shutdown. This is what <TT><B>veventStopProcessing</B></TT> is for. This call will cause the event loop to exit and we will return to the main program after <TT><B>veventProcess</B></TT>.<P>
+Compile this program and run it. Exit the program through your window manager's close menu. When it exits you will see it generate some output. This is Galaxy warning us that our program has leaked memory. A memory leak occurs when we allocate memory and fail to free it. In this case no harm was done since the dialog was used for the life of the program anyway. Memory leaks are more serious when you create objects that are short lived relative to the life of the program and fail to free them when you are through with them. These can be annoying and difficult bugs to track down without help from your programming environment. Galaxy makes that chore a little easier.<P>
+<UL><B><I>Note:</I></B> Memory leaks are only reported with the debugging library.
+<P>
+</UL>In general it's best to clean up after ourselves so we will modify the program to clean up after itself. This can be done with a single change.<P>
+<PRE><UL>	  /* Enter the event loop */
+	  veventProcess ();
+
+</UL></PRE><FONT COLOR="0000BB">
+<PRE><UL>(1)	  /* Return the dialog's resources to the system */
+	  vdialogDestroy (dialog);
+</UL></PRE>
+</FONT><PRE><UL>
+	  exit (EXIT_SUCCESS);
+	  return EXIT_FAILURE;
+
+</UL></PRE><UL><B><I>Note:</I></B> This is an excerpt of <TT>tut3c.c</TT>.
+<P>
+</UL>The only change from <TT>tut3b</TT> is the addition of <TT><B>vdialogDestroy</B></TT>. This function destroys the dialog and any dialog items it contains. In general, if you allocate an object with <TT>v</TT><EM>module</EM><TT>Create</TT>, you will return it with <TT>v</TT><EM>module</EM><TT>Destroy</TT>.<P>
+If you compile and run this program you will see that the memory leak messages have been removed.<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+   <TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+   <TR BGCOLOR="#CCCC66">
+      <TD>
+      <CENTER>
+      <!-- These are the Navigation buttons -->
+      <A HREF="Chapter_2.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="../../graphics/left.gif"></A>
+      <A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="../../graphics/up.gif"></A>
+      <A HREF="Chapter_4.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="../../graphics/right.gif"></A><BR>
+</CENTER>
+</TD>
+
+      <TD>
+      <BR>
+      <FONT SIZE=-1>
+      <A HREF="Chapter_2.html">Previous Chapter</A> | 
+      <A HREF="Chapter_4.html">Next Chapter</A> <BR>
+      <A HREF="index.html">Tutorial Contents</A><BR>
+      <A HREF="../index.html">Switch to Another Document</A><BR>
+      <BR>
+      </FONT>
+      </TD><TD>
+      <BR>
+      <FONT SIZE=-1>
+      Need help? <a href="../../contact-visix.html">Contact Visix</a>.
+      <BR> <BR>
+      <A HREF="../../copyright.html">Copyright 1996-97</A>, <A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+      <BR>
+      </FONT>
+      </TD>
+   </TR>
+</TABLE>
+
+</BODY>
+</HTML>

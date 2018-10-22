@@ -1,0 +1,1008 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vpool prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vpool prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vpool-x.html#section_DataType">Types</A> [4]</TD>
+<TD><A HREF="vpool-x.html#section_Function">Functions</A> [45]</TD>
+<TD></TD>
+<TD><A HREF="vpool-x.html#section_Constant">Constants</A> [8]</TD>
+<TD></TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vpool"><HR><H4>vpool</H4></A>
+<PRE>
+        typedef ... <B>vpool</B>;
+</PRE>
+
+<DL><DD>
+Denotes a pool of memory blocks (elements), all of which
+are of the same size. The size of a pools elements is
+specified when a pool is initialized or created. Elements
+can be allocated from the pool more efficiently than the
+Memory class can allocate dynamic blocks of memory. You
+can create a pool with <CODE><A HREF="vpool-x.html#vpoolCreate"><CODE>vpoolCreate</CODE></A></CODE> or
+initialize one with <CODE><A HREF="vpool-x.html#vpoolInit"><CODE>vpoolInit</CODE></A></CODE>. A given pool
+can allocate as many elements as available memory allows.
+</DD></DL>
+<P>
+<A NAME="vpoolExpandProc"><HR><H4>vpoolExpandProc</H4></A>
+<PRE>
+        typedef ... <B>vpoolExpandProc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a pool expansion function. A pool's expansion
+function is called when the space allocated by a pool fills
+up and the pool needs to be expanded. <SAMP>pool</SAMP> is
+the pool that needs expansion, and <SAMP>size</SAMP> is the
+number of elements allocated during the last expansion. The
+expansion function should call <CODE>vpoolExpand</CODE>
+with a <SAMP>count</SAMP> argument of at least one. You can
+obtain different growth signatures by basing the expansion
+size on the previous expansion size, such as linear, geometric,
+exponential, for example. Refer to the section
+<CODE><A HREF="vpool-x.html#vpoolSetExpandProc"><CODE>vpoolSetExpandProc</CODE></A></CODE> for more information.
+</DD></DL>
+<P>
+<A NAME="vpoolMonitorEvent"><HR><H4>vpoolMonitorEvent</H4></A>
+<PRE>
+        typedef ... <B>vpoolMonitorEvent</B>;
+</PRE>
+
+<DL><DD>
+Describes the event sent to a <CODE><A HREF="vpool-x.html#vpoolMonitorProc"><CODE>vpoolMonitorProc</CODE></A></CODE>
+when there is activity within the debugging pool manager.
+This type is only defined when debugging is enabled.
+</DD></DL>
+<P>
+<A NAME="vpoolMonitorProc"><HR><H4>vpoolMonitorProc</H4></A>
+<PRE>
+        typedef ... <B>vpoolMonitorProc</B>;
+</PRE>
+
+<DL><DD>
+Function used to monitor activity in the debugging Pool
+class. This type is only defined when debugging is
+enabled.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vpoolAlloc"><HR><H4>vpoolAlloc</H4></A>
+<PRE>
+        void * <B>vpoolAlloc</B>(
+                vpool * pool);
+</PRE>
+
+<DL><DD>
+Allocates an element from the pool <SAMP>pool</SAMP> and
+returns a pointer to its contents. The contents of the
+element contain random values. This function expands the
+space allocated for the pool before allocating the element,
+if necessary. This function calls
+<CODE><A HREF="vpool-x.html#vpoolAllocDebug"><CODE>vpoolAllocDebug</CODE></A></CODE> (passing it the ``site'' of
+the allocation) when debugging is enabled.
+</DD></DL>
+<P>
+<A NAME="vpoolAllocDebug"><HR><H4>vpoolAllocDebug</H4></A>
+<PRE>
+        void * <B>vpoolAllocDebug</B>(
+                vpool * pool,
+                const char * tag,
+                const char * file,
+                int line);
+</PRE>
+
+<DL><DD>
+Allocates an element from the pool <SAMP>pool</SAMP> and
+returns a pointer to its contents. The contents of the
+element contain random values. This function expands the
+space allocated for the pool before allocating the element,
+if necessary. The arguments <SAMP>tag</SAMP>,
+<SAMP>file</SAMP>, and <SAMP>line</SAMP> specify the
+``site'' of the reallocation for debugging purposes.
+<SAMP>tag</SAMP> is the tag of the module reallocating the
+block (a <CODE>vmemTAG</CODE> from somewhere),
+<SAMP>file</SAMP> is the source file that contains the
+reallocation function call, and <SAMP>line</SAMP> is the
+line number of the function call within the source file.
+This function is not available when debugging is disabled.
+</DD></DL>
+<P>
+<A NAME="vpoolAllocUnsafe"><HR><H4>vpoolAllocUnsafe</H4></A>
+<PRE>
+        void * <B>vpoolAllocUnsafe</B>(
+                vpool * pool);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vpoolAllocUnsafeDebug"><HR><H4>vpoolAllocUnsafeDebug</H4></A>
+<PRE>
+        void * <B>vpoolAllocUnsafeDebug</B>(
+                vpool * pool,
+                const char * tag,
+                const char * file,
+                int line);
+</PRE>
+
+<DL><DD>
+Allocates an element from the pool <SAMP>pool</SAMP> and
+returns a pointer to its contents. The contents of the
+element contain random values. This function expands the
+space allocated for the pool before allocating the element,
+if necessary. The arguments <SAMP>tag</SAMP>,
+<SAMP>file</SAMP>, and <SAMP>line</SAMP> specify the
+``site'' of the reallocation for debugging purposes.
+<SAMP>tag</SAMP> is the tag of the module reallocating the
+block (a <CODE>vmemTAG</CODE> from somewhere),
+<SAMP>file</SAMP> is the source file that contains the
+reallocation function call, and <SAMP>line</SAMP> is the
+line number of the function call within the source file.
+This function is not available when debugging is disabled.
+<p>
+This function performs the same function as
+<code><A HREF="vpool-x.html#vpoolAllocDebug"><CODE>vpoolAllocDebug</CODE></A></code> except that any mutex set via
+<code><A HREF="vpool-x.html#vpoolSetMutex"><CODE>vpoolSetMutex</CODE></A></code> is not locked during the operation.
+</DD></DL>
+<P>
+<A NAME="vpoolCreate"><HR><H4>vpoolCreate</H4></A>
+<PRE>
+        vpool * <B>vpoolCreate</B>(
+                size_t elemSize);
+</PRE>
+
+<DL><DD>
+Creates an empty pool that dispenses elements of at least
+<SAMP>elemSize</SAMP> bytes and returns a pointer to the
+pool object. The pool is created with the default
+exponential expansion function. Storage for the pool object
+is allocated by the Pool Library. The Pool Library reclaims
+the storage occupied by the pool object when it is
+destroyed with <CODE><A HREF="vpool-x.html#vpoolDestroy"><CODE>vpoolDestroy</CODE></A></CODE>. A
+<CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> is generated if
+<SAMP>elemSize</SAMP> is zero. This function essentially
+allocates space for a new pool object and calls
+<CODE><A HREF="vpool-x.html#vpoolInit"><CODE>vpoolInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vpoolDestroy"><HR><H4>vpoolDestroy</H4></A>
+<PRE>
+        void <B>vpoolDestroy</B>(
+                vpool * pool);
+</PRE>
+
+<DL><DD>
+Destroys the pool represented by <SAMP>pool</SAMP>, which
+must have been created or initialized by a pool manager
+function. Use this function to reclaim the storage occupied
+by a pool and all its elements.The pool and its elements
+should not be referenced by any other object when it is
+destroyed. This function only attempts to free the storage
+occupied by <SAMP>pool</SAMP> if it was allocated by
+<CODE><A HREF="vpool-x.html#vpoolCreate"><CODE>vpoolCreate</CODE></A></CODE>. If memory balancing is enabled,
+this reports any elements that have been allocated but not
+freed by the pool.
+</DD></DL>
+<P>
+<A NAME="vpoolDestroyUnbalanced"><HR><H4>vpoolDestroyUnbalanced</H4></A>
+<PRE>
+        void <B>vpoolDestroyUnbalanced</B>(
+                vpool * pool);
+</PRE>
+
+<DL><DD>
+Destroys the pool represented by <SAMP>pool</SAMP>, which
+must have been created or initialized by a pool manager
+function. Use this function to reclaim the storage occupied
+by a pool and all its elements.The pool and its elements
+should not be referenced by any other object when it is
+destroyed. This function only attempts to free the storage
+occupied by <SAMP>pool</SAMP> if it was allocated by
+<CODE><A HREF="vpool-x.html#vpoolCreate"><CODE>vpoolCreate</CODE></A></CODE>. This function does <I>not</I>
+report unbalanced elements, even if memory balancing is
+enabled. You should only call this to destroy a pool if the
+pool elements are never freed with <CODE><A HREF="vpool-x.html#vpoolFree"><CODE>vpoolFree</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vpoolDump"><HR><H4>vpoolDump</H4></A>
+<PRE>
+        void <B>vpoolDump</B>(
+                vpool * pool,
+                FILE * stream);
+</PRE>
+
+<DL><DD>
+Prints the contents of the pool <SAMP>pool</SAMP> on the
+file stream <SAMP>stream</SAMP> in user-readable form when
+debugging is enabled. If <SAMP>stream</SAMP> is
+<SAMP>NULL</SAMP> then <CODE><A HREF="vdebug-x.html#vdebugGetInfoStream"><CODE>vdebugGetInfoStream</CODE></A></CODE> is
+used. No output is displayed when debugging is disabled.
+</DD></DL>
+<P>
+<A NAME="vpoolDumpAll"><HR><H4>vpoolDumpAll</H4></A>
+<PRE>
+        void <B>vpoolDumpAll</B>(
+                FILE * stream);
+</PRE>
+
+<DL><DD>
+Prints the contents of all active pools on the file stream
+<SAMP>stream</SAMP> in user-readable form. If
+<SAMP>stream</SAMP> is <SAMP>NULL</SAMP> then
+<CODE><A HREF="vdebug-x.html#vdebugGetInfoStream"><CODE>vdebugGetInfoStream</CODE></A></CODE> is used. This function
+essentially calls <CODE>vpoolDump</CODE> for each existing
+pool.
+</DD></DL>
+<P>
+<A NAME="vpoolExpand"><HR><H4>vpoolExpand</H4></A>
+<PRE>
+        void <B>vpoolExpand</B>(
+                vpool * pool,
+                size_t count);
+</PRE>
+
+<DL><DD>
+Allocates space for <SAMP>count</SAMP> elements to the pool
+<SAMP>pool</SAMP> but does not allocate the actual
+elements. This function can be used to improve the Pool
+Manager's memory allocation heuristics by calling it
+immediately before allocating a large number of elements.
+This function can also be used to set the initial space to
+allocate for an empty pool before any elements are
+allocated from the pool. The Pool class automatically
+calls this function when it is necessary to allocate an
+element. When <CODE>vpoolExpand</CODE> is automatically
+called, <SAMP>count</SAMP> is determined by the
+<CODE><A HREF="vpool-x.html#vpoolExpandProc"><CODE>vpoolExpandProc</CODE></A></CODE> returned by
+<CODE><A HREF="vpool-x.html#vpoolGetExpandProc"><CODE>vpoolGetExpandProc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vpoolExpandUnsafe"><HR><H4>vpoolExpandUnsafe</H4></A>
+<PRE>
+        void <B>vpoolExpandUnsafe</B>(
+                vpool * pool,
+                size_t count);
+</PRE>
+
+<DL><DD>
+Allocates space for <SAMP>count</SAMP> elements to the pool
+<SAMP>pool</SAMP> but does not allocate the actual
+elements. This function can be used to improve the Pool
+Manager's memory allocation heuristics by calling it
+immediately before allocating a large number of elements.
+This function can also be used to set the initial space to
+allocate for an empty pool before any elements are
+allocated from the pool. The Pool class automatically
+calls this function when it is necessary to allocate an
+element. When <CODE>vpoolExpand</CODE> is automatically
+called, <SAMP>count</SAMP> is determined by the
+<CODE><A HREF="vpool-x.html#vpoolExpandProc"><CODE>vpoolExpandProc</CODE></A></CODE> returned by
+<CODE><A HREF="vpool-x.html#vpoolGetExpandProc"><CODE>vpoolGetExpandProc</CODE></A></CODE>.
+<p>
+This function performs the same function as
+<code>vpoolExpand</code> except that any mutex set via
+<code><A HREF="vpool-x.html#vpoolSetMutex"><CODE>vpoolSetMutex</CODE></A></code> is not locked during the operation.
+</DD></DL>
+<P>
+<A NAME="vpoolFree"><HR><H4>vpoolFree</H4></A>
+<PRE>
+        void <B>vpoolFree</B>(
+                vpool * pool,
+                void * elem);
+</PRE>
+
+<DL><DD>
+Returns the pool element <SAMP>elem</SAMP> to the pool
+<SAMP>pool</SAMP>. The element can no longer be used for
+storage by clients. A <CODE><A HREF="vmem-x.html#vmemInvalidException"><CODE>vmemInvalidException</CODE></A></CODE> is
+generated if the element has not been allocated by the pool
+and <CODE><A HREF="vmem-x.html#vmemInvalidAlreadyFreedException"><CODE>vmemInvalidAlreadyFreedException</CODE></A></CODE> if the
+element has been allocated by the pool and freed. This
+function calls <CODE><A HREF="vpool-x.html#vpoolFreeDebug"><CODE>vpoolFreeDebug</CODE></A></CODE> (passing it the
+``site'' of the allocation) when debugging is enabled.
+</DD></DL>
+<P>
+<A NAME="vpoolFreeDebug"><HR><H4>vpoolFreeDebug</H4></A>
+<PRE>
+        void <B>vpoolFreeDebug</B>(
+                vpool * pool,
+                void * elem,
+                const char * tag,
+                const char * file,
+                int line);
+</PRE>
+
+<DL><DD>
+Returns the pool element <SAMP>elem</SAMP> to the pool
+<SAMP>pool</SAMP>. The element can no longer be used for
+storage by clients. The arguments <SAMP>tag</SAMP>,
+<SAMP>file</SAMP>, and <SAMP>line</SAMP> specify the
+``site'' of the reallocation for debugging purposes.
+<SAMP>tag</SAMP> is the tag of the module reallocating the
+block (a <CODE>vmemTAG</CODE> from somewhere),
+<SAMP>file</SAMP> is the source file that contains the
+reallocation function call, and <SAMP>line</SAMP> is the
+line number of the function call within the source file.
+<P>
+A <CODE><A HREF="vmem-x.html#vmemInvalidException"><CODE>vmemInvalidException</CODE></A></CODE> is generated if the
+element has not been allocated by the pool and
+<CODE><A HREF="vmem-x.html#vmemInvalidAlreadyFreedException"><CODE>vmemInvalidAlreadyFreedException</CODE></A></CODE> if the
+element has been allocated by the pool and freed. This
+function is not available when debugging is disabled.
+</DD></DL>
+<P>
+<A NAME="vpoolFreeUnsafe"><HR><H4>vpoolFreeUnsafe</H4></A>
+<PRE>
+        void <B>vpoolFreeUnsafe</B>(
+                vpool * pool,
+                void * elem);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vpoolFreeUnsafeDebug"><HR><H4>vpoolFreeUnsafeDebug</H4></A>
+<PRE>
+        void <B>vpoolFreeUnsafeDebug</B>(
+                vpool * pool,
+                void * elem,
+                const char * tag,
+                const char * file,
+                int line);
+</PRE>
+
+<DL><DD>
+Returns the pool element <SAMP>elem</SAMP> to the pool
+<SAMP>pool</SAMP>. The element can no longer be used for
+storage by clients. The arguments <SAMP>tag</SAMP>,
+<SAMP>file</SAMP>, and <SAMP>line</SAMP> specify the
+``site'' of the reallocation for debugging purposes.
+<SAMP>tag</SAMP> is the tag of the module reallocating the
+block (a <CODE>vmemTAG</CODE> from somewhere),
+<SAMP>file</SAMP> is the source file that contains the
+reallocation function call, and <SAMP>line</SAMP> is the
+line number of the function call within the source file.
+<p>
+This function performs the same function as
+<code><A HREF="vpool-x.html#vpoolFreeDebug"><CODE>vpoolFreeDebug</CODE></A></code> except that any mutex set via
+<code><A HREF="vpool-x.html#vpoolSetMutex"><CODE>vpoolSetMutex</CODE></A></code> is not locked during the operation.
+</DD></DL>
+<P>
+<A NAME="vpoolGetCount"><HR><H4>vpoolGetCount</H4></A>
+<PRE>
+        size_t <B>vpoolGetCount</B>(
+                vpool * pool);
+</PRE>
+
+<DL><DD>
+Returns the number of elements that have been allocated by
+the pool <SAMP>pool</SAMP>. This number may be zero and
+does not reflect the amount of storage that the pool
+currently occupies.
+</DD></DL>
+<P>
+<A NAME="vpoolGetElemSize"><HR><H4>vpoolGetElemSize</H4></A>
+<PRE>
+        size_t <B>vpoolGetElemSize</B>(
+                vpool * pool);
+</PRE>
+
+<DL><DD>
+Returns the size of the elements allocated by the pool
+<SAMP>pool</SAMP>, in bytes. The size is at least one.
+</DD></DL>
+<P>
+<A NAME="vpoolGetExpandProc"><HR><H4>vpoolGetExpandProc</H4></A>
+<PRE>
+        vpoolExpandProc <B>vpoolGetExpandProc</B>(
+                vpool * pool);
+</PRE>
+
+<DL><DD>
+Returns the expansion procedure for the pool
+<SAMP>pool</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vpoolGetGlobalEnable"><HR><H4>vpoolGetGlobalEnable</H4></A>
+<PRE>
+        int <B>vpoolGetGlobalEnable</B>();
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if pool-based memory management
+is enabled, or <SAMP>FALSE</SAMP> if all pool elements are
+allocated in their own blocks. The default value of the
+debugging library is derived from the environment variable
+<CODE>vpoolGLOBAL_ENABLE</CODE>, where an empty string is
+<SAMP>FALSE</SAMP>. If <CODE>vpoolGLOBAL_ENABLE</CODE> is
+not defined, or debugging is not available, the default
+value is <SAMP>TRUE</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vpoolGetMonitorEventElem"><HR><H4>vpoolGetMonitorEventElem</H4></A>
+<PRE>
+        void * <B>vpoolGetMonitorEventElem</B>(
+                vpoolMonitorEvent * event);
+</PRE>
+
+<DL><DD>
+Returns a pointer to the element that was operated on if
+the event code is <CODE>vpoolMONITOR_EVENT_ALLOC</CODE> or
+<CODE>vpoolMONITOR_EVENT_FREE</CODE> and the pointer to the
+block that was created if the event code was
+<CODE>vpoolMONITOR_EVENT_EXPAND</CODE>.
+</DD></DL>
+<P>
+<A NAME="vpoolGetMonitorEventFile"><HR><H4>vpoolGetMonitorEventFile</H4></A>
+<PRE>
+        const char * <B>vpoolGetMonitorEventFile</B>(
+                vpoolMonitorEvent * event);
+</PRE>
+
+<DL><DD>
+Returns name of the source file that called into the pool
+class, if the event code is one of:
+
+<ul>
+<li><CODE>vpoolMONITOR_EVENT_INIT</CODE>
+<li><CODE>vpoolMONITOR_EVENT_DESTROY</CODE>
+<li><CODE>vpoolMONITOR_EVENT_ALLOC</CODE>, or
+<li><CODE>vpoolMONITOR_EVENT_FREE</CODE>.
+</ul>
+</DD></DL>
+<P>
+<A NAME="vpoolGetMonitorEventLine"><HR><H4>vpoolGetMonitorEventLine</H4></A>
+<PRE>
+        int <B>vpoolGetMonitorEventLine</B>(
+                vpoolMonitorEvent * event);
+</PRE>
+
+<DL><DD>
+Returns line in source file that called into the Pool
+class, if the event code is one of:
+
+<ul>
+<li><CODE>vpoolMONITOR_EVENT_INIT</CODE>
+<li><CODE>vpoolMONITOR_EVENT_DESTROY</CODE>
+<li><CODE>vpoolMONITOR_EVENT_ALLOC</CODE>, or
+<li><CODE>vpoolMONITOR_EVENT_FREE</CODE>.
+</ul>
+</DD></DL>
+<P>
+<A NAME="vpoolGetMonitorEventPool"><HR><H4>vpoolGetMonitorEventPool</H4></A>
+<PRE>
+        vpool * <B>vpoolGetMonitorEventPool</B>(
+                vpoolMonitorEvent * event);
+</PRE>
+
+<DL><DD>
+Returns a pointer to the pool that was operated on, unless
+the event code is <CODE>vpoolMONITOR_EVENT_START</CODE>, or
+<CODE>vpoolMONITOR_EVENT_STOP</CODE>.
+</DD></DL>
+<P>
+<A NAME="vpoolGetMonitorEventTag"><HR><H4>vpoolGetMonitorEventTag</H4></A>
+<PRE>
+        const char * <B>vpoolGetMonitorEventTag</B>(
+                vpoolMonitorEvent * event);
+</PRE>
+
+<DL><DD>
+Returns the <SAMP>vmemTAG</SAMP> of the source file that
+caused the event to occur if the event code is:
+
+<ul>
+<li><CODE>vpoolMONITOR_EVENT_ALLOC</CODE>
+<li><CODE>vpoolMONITOR_EVENT_FREE</CODE>
+<li><CODE>vpoolMONITOR_EVENT_INIT</CODE>, or
+<li><CODE>vpoolMONITOR_EVENT_DESTROY</CODE>.
+</ul>
+</DD></DL>
+<P>
+<A NAME="vpoolGetMonitorEventType"><HR><H4>vpoolGetMonitorEventType</H4></A>
+<PRE>
+        int <B>vpoolGetMonitorEventType</B>(
+                vpoolMonitorEvent * event);
+</PRE>
+
+<DL><DD>
+Returns the <SAMP>MONITOR_EVENT</SAMP> constant for
+<SAMP>event</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vpoolGetMutex"><HR><H4>vpoolGetMutex</H4></A>
+<PRE>
+        vmutex * <B>vpoolGetMutex</B>(
+                vpool * pool);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vpoolGetSize"><HR><H4>vpoolGetSize</H4></A>
+<PRE>
+        size_t <B>vpoolGetSize</B>(
+                vpool * pool);
+</PRE>
+
+<DL><DD>
+Returns the number of elements that have had space
+allocated for them by the pool <SAMP>pool</SAMP>. This
+number may be zero and is always greater than or equal to
+the number of allocated elements. This number reflects the
+amount of storage that the pool currently occupies.
+</DD></DL>
+<P>
+<A NAME="vpoolInit"><HR><H4>vpoolInit</H4></A>
+<PRE>
+        void <B>vpoolInit</B>(
+                vpool * pool,
+                size_t elemSize);
+</PRE>
+
+<DL><DD>
+Initializes an empty pool that dispenses elements of at
+least <SAMP>elemSize</SAMP> bytes in the memory addressed
+by <SAMP>pool</SAMP>. The pool is created with the default
+exponential expansion function. The address can be used in
+other calls to the Pool Library as if it were created with
+<CODE><A HREF="vpool-x.html#vpoolCreate"><CODE>vpoolCreate</CODE></A></CODE>. A <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> is
+generated if <SAMP>elemSize</SAMP> is zero. A call to
+<CODE><A HREF="vpool-x.html#vpoolDestroy"><CODE>vpoolDestroy</CODE></A></CODE> frees any internal objects
+allocated by the pool manager but does <I>not</I> free the
+structure itself.
+</DD></DL>
+<P>
+<A NAME="vpoolIsElem"><HR><H4>vpoolIsElem</H4></A>
+<PRE>
+        int <B>vpoolIsElem</B>(
+                vpool * pool,
+                const void * elem);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the memory addressed by
+<SAMP>elem</SAMP> was allocated by the pool
+<SAMP>pool</SAMP>, <SAMP>FALSE</SAMP> if it came from any
+other source. This function tests only whether or not the
+element is located in the memory space allocated by the
+pool, <I>not</I> whether it is a currently allocated
+element. Use <CODE><A HREF="vpool-x.html#vpoolIsValidElem"><CODE>vpoolIsValidElem</CODE></A></CODE> to test for
+allocated elements.
+</DD></DL>
+<P>
+<A NAME="vpoolIsElemMarkedFree"><HR><H4>vpoolIsElemMarkedFree</H4></A>
+<PRE>
+        int <B>vpoolIsElemMarkedFree</B>(
+                vpool * pool,
+                const void * elem);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the memory addressed by
+<SAMP>elem</SAMP> has been marked as freed in the pool
+<SAMP>pool</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vpoolIsValid"><HR><H4>vpoolIsValid</H4></A>
+<PRE>
+        int <B>vpoolIsValid</B>(
+                vpool * pool);
+</PRE>
+
+<DL><DD>
+
+</DD></DL>
+<P>
+<A NAME="vpoolIsValidElem"><HR><H4>vpoolIsValidElem</H4></A>
+<PRE>
+        int <B>vpoolIsValidElem</B>(
+                vpool * pool,
+                const void * elem);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the memory addressed by
+<SAMP>elem</SAMP> is an allocated element of the pool
+<SAMP>pool</SAMP>, <SAMP>FALSE</SAMP> if the element is
+currently free but still occupies space in the pool,
+<SAMP>FALSE</SAMP> if the element is outside the memory
+space allocated by the pool.
+</DD></DL>
+<P>
+<A NAME="vpoolLock"><HR><H4>vpoolLock</H4></A>
+<PRE>
+        void <B>vpoolLock</B>(
+                vpool * pool);
+</PRE>
+
+<DL><DD>
+Locks the pool's mutex (if any).  A pool's mutex is set with
+<CODE><A HREF="vpool-x.html#vpoolSetMutex"><CODE>vpoolSetMutex</CODE></A></CODE>  This entry point, 
+paired with <CODE><A HREF="vpool-x.html#vpoolUnlock"><CODE>vpoolUnlock</CODE></A></CODE>, is used as the threadsafe
+implementation basis of vpool.  
+</DD></DL>
+<P>
+<A NAME="vpoolMarkFreed"><HR><H4>vpoolMarkFreed</H4></A>
+<PRE>
+        void <B>vpoolMarkFreed</B>(
+                vpool * pool,
+                void * elem);
+</PRE>
+
+<DL><DD>
+Marks the element <SAMP>elem</SAMP> of the pool <SAMP>pool</SAMP> 
+as unallocated (freed).
+</DD></DL>
+<P>
+<A NAME="vpoolMarkFreedDebug"><HR><H4>vpoolMarkFreedDebug</H4></A>
+<PRE>
+        void <B>vpoolMarkFreedDebug</B>(
+                vpool * pool,
+                void * elem,
+                const char * tag,
+                const char * file,
+                int line);
+</PRE>
+
+<DL><DD>
+Marks the element <SAMP>elem</SAMP> of the pool <SAMP>pool</SAMP> 
+as unallocated (freed).  The arguments <SAMP>tag</SAMP>, <SAMP>file</SAMP>, and
+<SAMP>line</SAMP> specify the ``site'' of the call to this function
+for debugging purposes. <SAMP>tag</SAMP> is the tag of the
+module where the element is being marked (a <CODE>vmemTAG</CODE>
+somewhere), <SAMP>file</SAMP> is the source file that
+contains the mark function call, and
+<SAMP>line</SAMP> is the line number of the function call
+within the source file. This function is not available when
+debugging is disabled.
+</DD></DL>
+<P>
+<A NAME="vpoolMarkFreedUnsafe"><HR><H4>vpoolMarkFreedUnsafe</H4></A>
+<PRE>
+        void <B>vpoolMarkFreedUnsafe</B>(
+                vpool * pool,
+                void * elem);
+</PRE>
+
+<DL><DD>
+Marks the element <SAMP>elem</SAMP> of the pool <SAMP>pool</SAMP> 
+as unallocated (freed).  This function performs the same function as
+<code>vpoolMarkFreed</code> except that any mutex set via
+<code><A HREF="vpool-x.html#vpoolSetMutex"><CODE>vpoolSetMutex</CODE></A></code> is not locked during the operation.
+</DD></DL>
+<P>
+<A NAME="vpoolMarkFreedUnsafeDebug"><HR><H4>vpoolMarkFreedUnsafeDebug</H4></A>
+<PRE>
+        void <B>vpoolMarkFreedUnsafeDebug</B>(
+                vpool * pool,
+                void * elem,
+                const char * tag,
+                const char * file,
+                int line);
+</PRE>
+
+<DL><DD>
+This function performs the same function as
+<code><A HREF="vpool-x.html#vpoolMarkFreedDebug"><CODE>vpoolMarkFreedDebug</CODE></A></code> except that any mutex set via
+<code><A HREF="vpool-x.html#vpoolSetMutex"><CODE>vpoolSetMutex</CODE></A></code> is not locked during the operation.
+The arguments <SAMP>tag</SAMP>, <SAMP>file</SAMP>, and
+<SAMP>line</SAMP> specify the ``site'' of the call to this function
+for debugging purposes. <SAMP>tag</SAMP> is the tag of the
+module where the element is being marked (a <CODE>vmemTAG</CODE>
+somewhere), <SAMP>file</SAMP> is the source file that
+contains the mark function call, and
+<SAMP>line</SAMP> is the line number of the function call
+within the source file. This
+</DD></DL>
+<P>
+<A NAME="vpoolRegisterMonitorProc"><HR><H4>vpoolRegisterMonitorProc</H4></A>
+<PRE>
+        void <B>vpoolRegisterMonitorProc</B>(
+                vpoolMonitorProc monitorProc);
+</PRE>
+
+<DL><DD>
+Adds <SAMP>monitorProc</SAMP> to a list of monitor
+functions to be called when there is activity within the
+debugging Pool class. Debugging flags do not have any
+effect on events sent to the monitor function.
+</DD></DL>
+<P>
+<A NAME="vpoolSetExpandProc"><HR><H4>vpoolSetExpandProc</H4></A>
+<PRE>
+        void <B>vpoolSetExpandProc</B>(
+                vpool * pool,
+                vpoolExpandProc expandProc);
+</PRE>
+
+<DL><DD>
+Changes the automatic expansion procedure for the pool
+<SAMP>pool</SAMP> to <SAMP>expandProc</SAMP>. This function
+is called when the allocated space for the pool is
+exhausted and <CODE><A HREF="vpool-x.html#vpoolAlloc"><CODE>vpoolAlloc</CODE></A></CODE> is called.
+<SAMP>expandProc</SAMP> <I>must</I> call
+<CODE><A HREF="vpool-x.html#vpoolExpand"><CODE>vpoolExpand</CODE></A></CODE> with a <SAMP>count</SAMP> argument
+of at least one to increase the amount of space allocated
+for the pool. The expansion procedure is passed the size of
+the last expansion so that adaptive algorithms can be
+implemented. The default pool expansion function
+successively doubles the size of the pool expansion from a
+starting size of eight elements.
+</DD></DL>
+<P>
+<A NAME="vpoolSetGlobalEnable"><HR><H4>vpoolSetGlobalEnable</H4></A>
+<PRE>
+        void <B>vpoolSetGlobalEnable</B>(
+                int flag);
+</PRE>
+
+<DL><DD>
+Enables pool-based memory management if <SAMP>flag</SAMP>
+is <SAMP>TRUE</SAMP>, disables it if flag is
+<SAMP>FALSE</SAMP> (all pool elements are allocated in
+their own blocks). This function must be called before any
+pools are created if the default value is to be changed.
+The default value is determined by the environment variable
+<CODE>vpoolGLOBAL_ENABLE</CODE>. If present and it contains
+an empty string, the default value is <SAMP>FALSE</SAMP>.
+Otherwise, present or not, the default value is
+<SAMP>TRUE</SAMP>. This function is only available when
+debugging is enabled.
+</DD></DL>
+<P>
+<A NAME="vpoolSetMutex"><HR><H4>vpoolSetMutex</H4></A>
+<PRE>
+        void <B>vpoolSetMutex</B>(
+                vpool * pool,
+                vmutex * mutex);
+</PRE>
+
+<DL><DD>
+Sets the mutex to lock in order to perform threadsafe pool operations.  No
+ownership of the mutex is taken -- the caller is responsible for destroying
+the mutex when the pool is destroyed.  Note that the mutex may be shared
+with other data structures, including other instances of
+<CODE>vpool</CODE>, if desired.  May be called with <CODE>NULL</CODE> if
+no locking is desired.
+</DD></DL>
+<P>
+<A NAME="vpoolStartup"><HR><H4>vpoolStartup</H4></A>
+<PRE>
+        void <B>vpoolStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the Pool Library. Has no effect if the Pool
+Library is already initialized.
+</DD></DL>
+<P>
+<A NAME="vpoolUnlock"><HR><H4>vpoolUnlock</H4></A>
+<PRE>
+        void <B>vpoolUnlock</B>(
+                vpool * pool);
+</PRE>
+
+<DL><DD>
+Unlocks the pool's mutex (if any).  This entry point, paired 
+with <CODE><A HREF="vpool-x.html#vpoolLock"><CODE>vpoolLock</CODE></A></CODE>, is used as the threadsafe
+implementation basis of vpool.
+</DD></DL>
+<P>
+<A NAME="vpoolUnregisterMonitorProc"><HR><H4>vpoolUnregisterMonitorProc</H4></A>
+<PRE>
+        void <B>vpoolUnregisterMonitorProc</B>(
+                vpoolMonitorProc monitorProc);
+</PRE>
+
+<DL><DD>
+Removes the function <SAMP>monitorProc</SAMP> from list of
+monitor functions to be called when there is activity
+within the debugging Pool class.
+</DD></DL>
+<P>
+<A NAME="vpoolValidate"><HR><H4>vpoolValidate</H4></A>
+<PRE>
+        void <B>vpoolValidate</B>(
+                vpool * pool);
+</PRE>
+
+<DL><DD>
+Verifies the contents of the pool <SAMP>pool</SAMP> for validity.  
+This function does nothing if the pool is indeed valid. This function
+generates <CODE><A HREF="vmem-x.html#vmemBoundsException"><CODE>vmemBoundsException</CODE></A></CODE> if the pool
+bounds have been overwritten, <CODE><A HREF="vmem-x.html#vmemInvalidException"><CODE>vmemInvalidException</CODE></A></CODE> 
+if the pool has not been allocated, and
+<CODE><A HREF="vmem-x.html#vmemInvalidAlreadyFreedException"><CODE>vmemInvalidAlreadyFreedException</CODE></A></CODE> if the pool
+has been allocated and freed. 
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vpoolINCLUDED"><HR><H4>vpoolINCLUDED</H4></A>
+<PRE>
+        <B>vpoolINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vpool.h</SAMP> is
+included.
+</DD></DL>
+<P>
+<A NAME="vpoolMONITOR_EVENT_ALLOC"><HR><H4>vpoolMONITOR_EVENT_ALLOC</H4></A>
+<PRE>
+        <B>vpoolMONITOR_EVENT_ALLOC</B>
+</PRE>
+
+<DL><DD>
+Denotes the code of the event sent to
+<CODE><A HREF="vpool-x.html#vpoolMonitorProc"><CODE>vpoolMonitorProc</CODE></A></CODE> after an element is allocated
+from a pool in <CODE><A HREF="vpool-x.html#vpoolAlloc"><CODE>vpoolAlloc</CODE></A></CODE> when debugging is
+enabled.
+</DD></DL>
+<P>
+<A NAME="vpoolMONITOR_EVENT_DESTROY"><HR><H4>vpoolMONITOR_EVENT_DESTROY</H4></A>
+<PRE>
+        <B>vpoolMONITOR_EVENT_DESTROY</B>
+</PRE>
+
+<DL><DD>
+Denotes the code of the event sent to
+<CODE><A HREF="vpool-x.html#vpoolMonitorProc"><CODE>vpoolMonitorProc</CODE></A></CODE> before a pool is destroyed in
+<CODE><A HREF="vpool-x.html#vpoolDestroy"><CODE>vpoolDestroy</CODE></A></CODE>, or
+<CODE><A HREF="vpool-x.html#vpoolDestroyUnbalanced"><CODE>vpoolDestroyUnbalanced</CODE></A></CODE> when debugging is
+enabled.
+</DD></DL>
+<P>
+<A NAME="vpoolMONITOR_EVENT_EXPAND"><HR><H4>vpoolMONITOR_EVENT_EXPAND</H4></A>
+<PRE>
+        <B>vpoolMONITOR_EVENT_EXPAND</B>
+</PRE>
+
+<DL><DD>
+Denotes the code of the event sent to
+<CODE><A HREF="vpool-x.html#vpoolMonitorProc"><CODE>vpoolMonitorProc</CODE></A></CODE> after a pool is expanded in
+<CODE>vpoolEXPAND</CODE> when debugging is enabled.
+</DD></DL>
+<P>
+<A NAME="vpoolMONITOR_EVENT_FREE"><HR><H4>vpoolMONITOR_EVENT_FREE</H4></A>
+<PRE>
+        <B>vpoolMONITOR_EVENT_FREE</B>
+</PRE>
+
+<DL><DD>
+Denotes the code of the event sent to
+<CODE><A HREF="vpool-x.html#vpoolMonitorProc"><CODE>vpoolMonitorProc</CODE></A></CODE> after an element is freed
+back to a pool in <CODE><A HREF="vpool-x.html#vpoolFree"><CODE>vpoolFree</CODE></A></CODE> when debugging is
+enabled.
+</DD></DL>
+<P>
+<A NAME="vpoolMONITOR_EVENT_INIT"><HR><H4>vpoolMONITOR_EVENT_INIT</H4></A>
+<PRE>
+        <B>vpoolMONITOR_EVENT_INIT</B>
+</PRE>
+
+<DL><DD>
+Denotes the code of the event sent to
+<CODE><A HREF="vpool-x.html#vpoolMonitorProc"><CODE>vpoolMonitorProc</CODE></A></CODE> after a pool is initialized
+when calling <CODE><A HREF="vpool-x.html#vpoolInit"><CODE>vpoolInit</CODE></A></CODE> or
+<CODE><A HREF="vpool-x.html#vpoolCreate"><CODE>vpoolCreate</CODE></A></CODE> when debugging is enabled.
+</DD></DL>
+<P>
+<A NAME="vpoolMONITOR_EVENT_START"><HR><H4>vpoolMONITOR_EVENT_START</H4></A>
+<PRE>
+        <B>vpoolMONITOR_EVENT_START</B>
+</PRE>
+
+<DL><DD>
+Denotes the code of the event sent to
+<CODE><A HREF="vpool-x.html#vpoolMonitorProc"><CODE>vpoolMonitorProc</CODE></A></CODE> when the monitor is
+registered with <CODE><A HREF="vpool-x.html#vpoolRegisterMonitorProc"><CODE>vpoolRegisterMonitorProc</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vpoolMONITOR_EVENT_STOP"><HR><H4>vpoolMONITOR_EVENT_STOP</H4></A>
+<PRE>
+        <B>vpoolMONITOR_EVENT_STOP</B>
+</PRE>
+
+<DL><DD>
+Denotes the code of the event sent to
+<CODE><A HREF="vpool-x.html#vpoolMonitorProc"><CODE>vpoolMonitorProc</CODE></A></CODE> when the monitoring is
+unregistered with <CODE><A HREF="vpool-x.html#vpoolUnregisterMonitorProc"><CODE>vpoolUnregisterMonitorProc</CODE></A></CODE>.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

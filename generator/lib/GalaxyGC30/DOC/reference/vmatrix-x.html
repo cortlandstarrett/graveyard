@@ -1,0 +1,478 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vmatrix prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vmatrix prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vmatrix-x.html#section_DataType">Types</A> [1]</TD>
+<TD><A HREF="vmatrix-x.html#section_Function">Functions</A> [14]</TD>
+<TD></TD>
+<TD><A HREF="vmatrix-x.html#section_Constant">Constants</A> [2]</TD>
+<TD></TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vmatrix"><HR><H4>vmatrix</H4></A>
+<PRE>
+        typedef ... <B>vmatrix</B>;
+</PRE>
+
+<DL><DD>
+Represents a 3x3 transformation matrix, three of whose
+elements are fixed by convention. A 3x3 transformation
+matrix is used to mathematically describe a transformation
+in two dimensions. The structure members of a matrix are
+visible to clients of the Matrix Library but their
+particular representation is not. The structure members
+<SAMP>a</SAMP>, <SAMP>b</SAMP>, <SAMP>c</SAMP>,
+<SAMP>d</SAMP>, <SAMP>tx</SAMP>, and <SAMP>ty</SAMP>
+correspond to the following elements of a 3x3
+transformation matrix:
+    <P>
+<BLOCKQUOTE>
+
+<TABLE BORDER>
+<TR>
+<TD><SAMP>a</SAMP></TD> <TD><SAMP>b</SAMP></TD>
+<TD><SAMP>0</SAMP></TD> 
+</TR>
+<TR>
+<TD><SAMP>c</SAMP></TD> <TD><SAMP>d</SAMP></TD>
+<TD><SAMP>0</SAMP></TD> 
+</TR>
+<TR>
+<TD><SAMP>tx</SAMP></TD> <TD><SAMP>ty</SAMP></TD>
+<TD><SAMP>1</SAMP></TD> 
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vmatrixCompareDABC"><HR><H4>vmatrixCompareDABC</H4></A>
+<PRE>
+        int <B>vmatrixCompareDABC</B>(
+                const vmatrix * mtx1,
+                const vmatrix * mtx2,
+                double * diff);
+</PRE>
+
+<DL><DD>
+Compares the matrix <SAMP>mtx1</SAMP> with
+<SAMP>mtx2</SAMP> and returns their relative ordering: a
+negative number if <SAMP>mtx1<mtx2</SAMP>, a positive
+number if <SAMP>mtx1>mtx2</SAMP>, or zero if the matrices
+are equal. Elements are compared in the order <I>d</I>,
+<I>a</I>, <I>b</I>, <I>c</I>, <I>tx</I>, <I>ty</I> (hence
+the function name). The magnitude of the returned integer
+reflects the degree of difference: 6 is returned if the
+<I>d</I> elements differ, 5 for the <I>a</I> elements, and
+so on. The comparison stops as soon as a difference is
+detected. Additionally, <SAMP>diff</SAMP> contains the
+difference between the element in <SAMP>mtx1</SAMP> and the
+element in <SAMP>mtx2</SAMP> that were found to be
+different. For example, if the <I>b</I> elements were found
+to be different, <SAMP>diff</SAMP> contains
+<SAMP>mtx1->b-mtx2->b</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmatrixConcat"><HR><H4>vmatrixConcat</H4></A>
+<PRE>
+        void <B>vmatrixConcat</B>(
+                const vmatrix * mtx1,
+                const vmatrix * mtx2,
+                vmatrix * rmtx);
+</PRE>
+
+<DL><DD>
+Concatenates the matrix <SAMP>mtx1</SAMP> with
+<SAMP>mtx2</SAMP> and stores the result in
+<SAMP>rmtx</SAMP>. The concatenation is computed by
+multiplying <SAMP>mtx1</SAMP> by <SAMP>mtx2</SAMP> and
+storing the result in <SAMP>rmtx</SAMP>. <SAMP>rmtx</SAMP>
+can be the same pointer as <SAMP>mtx1</SAMP>,
+<SAMP>mtx2</SAMP>, or both. For example, if
+<SAMP>mtx1</SAMP> represents a rotation of 30 degrees and
+<SAMP>mtx2</SAMP> represents a rotation of 20 degrees,
+concatenating them together produces an <SAMP>rmtx</SAMP>
+with a rotation of 50 degrees. Refer to the figure for more information.
+    <P>
+<BLOCKQUOTE>
+Figure: vmatrixConcat
+    <P>
+<IMG SRC="PlaneGeom.vmatrixConcat.gif">
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vmatrixDTransform"><HR><H4>vmatrixDTransform</H4></A>
+<PRE>
+        void <B>vmatrixDTransform</B>(
+                const vmatrix * mtx,
+                double x,
+                double y,
+                double * rx,
+                double * ry);
+</PRE>
+
+<DL><DD>
+Computes the delta transformation represented by the matrix
+<SAMP>mtx</SAMP> of <SAMP>x</SAMP> and <SAMP>y</SAMP> and
+stores the result in <SAMP>rx</SAMP> and <SAMP>ry</SAMP>.
+The delta transformation is the standard transformation
+without the translation component. The delta transformation
+is useful for transforming vectors or other
+position-independent objects from one coordinate system to
+another. Refer to the figure for more information.
+    <P>
+<BLOCKQUOTE>
+Figure: vmatrixDTransform
+    <P>
+<IMG SRC="PlaneGeom.vmatrixDTransform.gif"></BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vmatrixFromString"><HR><H4>vmatrixFromString</H4></A>
+<PRE>
+        void <B>vmatrixFromString</B>(
+                const vchar * str,
+                vmatrix * rmtx);
+</PRE>
+
+<DL><DD>
+Parses a matrix from the string <SAMP>str</SAMP> and stores
+the result in <SAMP>mtx</SAMP>. The string form of a matrix
+is ``<SAMP>[a b c d tx ty]</SAMP>''. The identity matrix,
+for example, would be represented as ``<SAMP>[1.0 0.0 0.0
+1.0 0.0 0.0]</SAMP>''. 
+<P>
+This function is used primarily by
+the Font class to parse font keys containing matrices.
+</DD></DL>
+<P>
+<A NAME="vmatrixIdent"><HR><H4>vmatrixIdent</H4></A>
+<PRE>
+        const vmatrix * <B>vmatrixIdent</B>();
+</PRE>
+
+<DL><DD>
+Returns a pointer to the identity transformation matrix.
+This pointer is valid throughout the lifetime of the
+process. The contents of the matrix should not be modified.
+The identity transformation matrix transforms any
+coordinate to itself. The identify transformation matrix
+is:
+    <P>
+<BLOCKQUOTE>
+
+<TABLE BORDER>
+<TR>
+<TD><SAMP>1</SAMP></TD> <TD><SAMP>0</SAMP></TD>
+<TD><SAMP>0</SAMP></TD> 
+</TR>
+<TR>
+<TD><SAMP>0</SAMP></TD> <TD><SAMP>1</SAMP></TD>
+<TD><SAMP>0</SAMP></TD> 
+</TR>
+<TR>
+<TD><SAMP>0</SAMP></TD> <TD><SAMP>0</SAMP></TD>
+<TD><SAMP>1</SAMP></TD> 
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vmatrixInvert"><HR><H4>vmatrixInvert</H4></A>
+<PRE>
+        void <B>vmatrixInvert</B>(
+                const vmatrix * mtx,
+                vmatrix * rmtx);
+</PRE>
+
+<DL><DD>
+Computes the inverse of the matrix <SAMP>mtx</SAMP> and
+stores the result in <SAMP>rmtx</SAMP>. A matrix multiplied
+by or concatenated with its inverse produces the identity
+matrix. This function can be used to transform an already
+transformed coordinate back to the original coordinate.
+<SAMP>rmtx</SAMP> can be the same pointer as
+<SAMP>mtx</SAMP>. Generates <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> if
+the matrix has no inverse.
+</DD></DL>
+<P>
+<A NAME="vmatrixIsEqual"><HR><H4>vmatrixIsEqual</H4></A>
+<PRE>
+        int <B>vmatrixIsEqual</B>(
+                const vmatrix * mtx1,
+                const vmatrix * mtx2);
+</PRE>
+
+<DL><DD>
+Compares the matrix <SAMP>mtx1</SAMP> and <SAMP>mtx2</SAMP>
+for equality and returns <SAMP>TRUE</SAMP> if they are
+equal, <SAMP>FALSE</SAMP> if they are not. Equality is
+determined by comparing individual elements
+(<SAMP>a</SAMP>, <SAMP>b</SAMP>, <SAMP>c</SAMP>,
+<SAMP>d</SAMP>, <SAMP>tx</SAMP>, and <SAMP>ty</SAMP>)
+within a small margin of error.
+</DD></DL>
+<P>
+<A NAME="vmatrixIsIdent"><HR><H4>vmatrixIsIdent</H4></A>
+<PRE>
+        int <B>vmatrixIsIdent</B>(
+                const vmatrix * mtx);
+</PRE>
+
+<DL><DD>
+Determines whether or not, within a small margin of error,
+the matrix <SAMP>mtx</SAMP> is the identity transformation matrix.
+This function returns <SAMP>TRUE</SAMP> if the
+matrix is the identity transformation matrix,
+<SAMP>FALSE</SAMP> if it is not.
+</DD></DL>
+<P>
+<A NAME="vmatrixRectTransform"><HR><H4>vmatrixRectTransform</H4></A>
+<PRE>
+        void <B>vmatrixRectTransform</B>(
+                const vmatrix * mtx,
+                const vrectFloat * rect,
+                vrectFloat * rrect);
+</PRE>
+
+<DL><DD>
+Computes the transformation represented by the matrix
+<SAMP>mtx</SAMP> of the rectangle <SAMP>rect</SAMP> and
+stores the bounding box of the resulting quadrilateral in
+<SAMP>rrect</SAMP>. Refer to the figure for more information.
+    <P>
+<BLOCKQUOTE>
+Figure: vmatrixRectTransform
+    <P>
+<IMG SRC="PlaneGeom.vmatrixRectTransform.gif">
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vmatrixRotate"><HR><H4>vmatrixRotate</H4></A>
+<PRE>
+        void <B>vmatrixRotate</B>(
+                const vmatrix * mtx,
+                double angle,
+                vmatrix * rmtx);
+</PRE>
+
+<DL><DD>
+Rotates the coordinate system represented by the matrix
+<SAMP>mtx</SAMP> <SAMP>angle</SAMP> degrees
+counter-clockwise (or <SAMP>-angle</SAMP> degrees
+clockwise) about its origin and stores the result in
+<SAMP>rmtx</SAMP>. <SAMP>rmtx</SAMP> can be the same
+pointer as the matrix <SAMP>mtx</SAMP>. Refer
+to the figure for more information.
+    <P>
+<BLOCKQUOTE>
+Figure: vmatrixRotate with rotation of 45^<CIRCLE>
+    <P>
+<IMG SRC="PlaneGeom.vmatrixRotate.gif">
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vmatrixScale"><HR><H4>vmatrixScale</H4></A>
+<PRE>
+        void <B>vmatrixScale</B>(
+                const vmatrix * mtx,
+                double x,
+                double y,
+                vmatrix * rmtx);
+</PRE>
+
+<DL><DD>
+Scales the coordinate system represented by the matrix
+<SAMP>mtx</SAMP> by <SAMP>x</SAMP> horizontally and
+<SAMP>y</SAMP> vertically and stores the result in
+<SAMP>rmtx</SAMP>. <SAMP>rmtx</SAMP> can be the same
+pointer as the matrix <SAMP>mtx</SAMP>. Refer
+to the figure for more information.
+    <P>
+<BLOCKQUOTE>
+Figure: vmatrixScale where the scale triples in size
+    <P>
+<IMG SRC="PlaneGeom.vmatrixscale.gif">
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vmatrixToString"><HR><H4>vmatrixToString</H4></A>
+<PRE>
+        void <B>vmatrixToString</B>(
+                const vmatrix * mtx,
+                vchar * rstr);
+</PRE>
+
+<DL><DD>
+Converts the matrix <SAMP>mtx</SAMP> to string form and
+stores the result in <SAMP>rstr</SAMP>. The string form of
+a matrix is ``<SAMP>[a b c d tx ty]</SAMP>''. The identity
+matrix, for example, would be represented as ``<SAMP>[1.0
+0.0 0.0 1.0 0.0 0.0]</SAMP>''. <SAMP>rstr</SAMP> should
+point to at least <CODE>vmatrixSTRING_MAX</CODE>
+characters. 
+<P>
+This function is used primarily by the Font
+class to generate font keys.
+</DD></DL>
+<P>
+<A NAME="vmatrixTransform"><HR><H4>vmatrixTransform</H4></A>
+<PRE>
+        void <B>vmatrixTransform</B>(
+                const vmatrix * mtx,
+                double x,
+                double y,
+                double * rx,
+                double * ry);
+</PRE>
+
+<DL><DD>
+Computes the transformation represented by the matrix
+<SAMP>mtx</SAMP> of <SAMP>x</SAMP> and <SAMP>y</SAMP> and
+stores the result in <SAMP>rx</SAMP> and <SAMP>ry</SAMP>.
+Refer to the figure for more information.
+    <P>
+<BLOCKQUOTE>
+Figure: vmatrixTransform
+    <P>
+<IMG SRC="PlaneGeom.vmatrixTransform.gif"></BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vmatrixTranslate"><HR><H4>vmatrixTranslate</H4></A>
+<PRE>
+        void <B>vmatrixTranslate</B>(
+                const vmatrix * mtx,
+                double x,
+                double y,
+                vmatrix * rmtx);
+</PRE>
+
+<DL><DD>
+Translates the coordinate system represented by the matrix
+<SAMP>mtx</SAMP> by <SAMP>x</SAMP> horizontally and
+<SAMP>y</SAMP> vertically and stores the result in
+<SAMP>rmtx</SAMP>. <SAMP>rmtx</SAMP> can be the same
+pointer as <SAMP>mtx</SAMP>. Refer to the figure 
+for more information.
+    <P>
+<BLOCKQUOTE>
+Figure: vmatrixTranslate with a translation of 6 in the x
+direction and 4 in the y direction
+    <P>
+<IMG SRC="PlaneGeom.vmatrixTranslate.gif"></BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vmatrixINCLUDED"><HR><H4>vmatrixINCLUDED</H4></A>
+<PRE>
+        <B>vmatrixINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vmatrix.h</SAMP> is
+included.
+</DD></DL>
+<P>
+<A NAME="vmatrixSTRING_MAX"><HR><H4>vmatrixSTRING_MAX</H4></A>
+<PRE>
+        <B>vmatrixSTRING_MAX</B>
+</PRE>
+
+<DL><DD>
+The maximum number of characters that a matrix can occupy
+when converted to a string. You can use this constant to
+declare a character array large enough to hold any matrix
+string. This constant has integral type.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

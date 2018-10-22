@@ -1,0 +1,280 @@
+<HTML>
+<HEAD>
+<TITLE>Help</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Help</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="FormItem.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Iconview.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The Galaxy <EM><B>Help</B></EM> system provides context-sensitive help to the end-user and allows the end-user to browse on-line documentation. The Help system is made up of several different components, some or all of which can be used for your on-line help system.<P>
+Your help system may include GUI items such as tooltips, status line messages, and help menus. These GUI components access information located in context sensitive help files and help information located in resource files. The information can then be displayed in Galaxy's Help Browser or a third-party HTML browser (such as Netscape or MS Explorer).<P>
+All of these aspects of your help system can be manipulated and controlled through the Galaxy Help classes.<P>
+To use the Help class correctly, you need to understand how the Help class uses the terms "context" and "concept." A <EM><B>context</B></EM> is the basis for context-sensitive help; it refers to one particular item. For example, if you had a dialog called "DrawDialog," "DrawDialog" could be considered a context. In the Galaxy API, the tag name of an item (in this case, the tag name of the dialog) is its context.<P>
+A<EM><B> concept</B></EM>, (also known as a keyword), refers to one or more items and is indexed by the author as a concept (keyword). For example, the author may decide to index all dialogs under the concept "dialog." This concept would include the "DrawDialog" from above, as well as any other dialogs the author wants to include under this concept.<P>
+<A NAME="4089"><H2> Tooltips</H2></A>
+Tooltips are short messages displayed for a GUI object, like a dialog item, located under the pointer. By default they appear in a tooltip window just below and to the right of the current pointer's location.<P>
+<A NAME="4091"><H2> Status Line</H2></A>
+The status line help is a longer message displayed on a status bar (usually located at the bottom of a dialog). The message can change depending on the location of the pointer in the dialog. Status line messages can be specified for individual items in a dialog, or for the context of current pointer location in the dialog.<P>
+<A NAME="4093"><H2> Context-sensitive Help Files</H2></A>
+Context-sensitive help is available by hitting:<P>
+<OL>
+<LI>F1: gives help for the item with the current focus.
+<BR>
+<LI>Shift-F1: invokes Help Cursor. Clicking on an item with the Help Cursor provides 
+help for that item.
+<BR>
+</OL>
+Help uses object tags to determine contexts. A tag is usually assigned to an item when it is created using the Visual Resource Builder. For more information on using tags and constructing your interface, refer to the <EM>Visual Resource Builder's Guide</EM>. For more information on the programmatic use of tags, refer to the Name chapter.<P>
+If help on an item is not available, help is given for the item's parent. This continues up the user interface hierarchy. For example, if the end-user tries to get help on a button located in a container, which in turn is located in a dialog called "Print," then the help system will first attempt to find help for the button. If that is not available, it will attempt to display the help for the container. If help is not available for the container, it will display the help for the dialog. Ultimately, unresolved help reverts to the top-level help for the application.<P>
+Context-sensitive help invokes the system's default browser (such as Netscape or MS Explorer). If there is no system default browser, then it opens a built-in Galaxy browser. You can specify a preference for Netscape or Explorer to be the default browser.<P>
+<A NAME="4100"><H2> Help Menu</H2></A>
+The Help Menu allows you to provide numerous menu items for accessing help for your application. For more information on creating a help menu, refer to the Menubar chapter.<P>
+<A NAME="4102"><H2> Help Objects</H2></A>
+At the root of the help system is the help object (<TT>vhelpobject</TT>). A help object is responsible for implementing a given type of help. Different types of help include proprietary context-sensitive, hypertext help; HTML browsers; tooltips; statusbars; and pop-up help. A different help object can be created to handle each of these kinds of help.<P>
+Help objects reside in Help dictionaries located in command spaces. When an object needs help of a certain type, it searches the interface hierarchy and finds an appropriate help object. Once found, the request for help is passed to the help object.<P>
+A help object is a very simple object which does nothing more than delegate its duties to two other objects: a help locator (<TT>vhelplocator</TT>) and a help display (<TT>vhelpdisplay</TT>). It is the job of a help locator to find and return either the actual information that is to be displayed or a reference to this information. References to information usually take the form of either a help context (from Galaxy 2.5) or a URL.<P>
+Once the help locator has found this help data, the help object passes that data to a help display. It is the job of a help display to take the help data and produce an appropriate visual representation. If the help data is the actual help information, it can be used as is. If the help data is a reference, it must first be resolved and then displayed.<P>
+Figure 1 illustrates the relationship between the help object and the help locator and display:<P>
+<PRE><UL>vhelpobject (gets request for help)
+        /              
+vhelplocator          vhelpdisplay
+(locates help)       (displays help)
+</UL></PRE>Help locators and help displays both use reference counts. They are referenced and unreferenced by help objects. When the reference count of a help locator or help display goes to zero, it destroys itself. This simplifies ownership issues involved in allowing multiple help object's to use the same help locator or help display.<P>
+By creating a help object and associating a help locator and a help display of a given type with the vhelpobject, the user can implement or modify the behavior of a given type of help with considerable ease.<P>
+Currently, Galaxy provides a mechanism for mapping help contexts to URLs for use with HTML browsers. In possible future versions, Galaxy may be exploring the possibility of using facilities like Netscape's NetHelp and similar facilities proposed by Microsoft for use with Internet Explorer.<P>
+<A NAME="4112"><H2> Help Locators</H2></A>
+The help locator (<TT>vhelplocator</TT>) is an abstract base class. Galaxy provides several subclasses which do the work of retrieving different kinds of help data. These are:<P>
+<UL><TT>vhelptextlocator</TT>	finds <TT>vhelptext</TT> objects
+<P><TT>vhelpreflocator</TT>	finds <TT>vhelpref</TT> objects (context strings)
+<P><TT>vhelphtmllocator</TT>	finds <TT>vhelpref</TT> objects (<TT>vurl</TT>'s)
+<P></UL>A help text locator (<TT>vhelptextlocator</TT>) searches for dictionaries which map an object's tag to some text. These dictionaries can exist either in the UI hierarchy or in the top level of the application resource file. Alternatively, the help text locator can just use the item's title at the help data.<P>
+A help HTML locator (<TT>vhelphtmllocator</TT>) works by mapping object context strings to URLs. It reads in a text file containing these mappings and stores them in a dictionary. The file may contain mappings to relative URLs. These are resolved against a base URL, usually derived from the location of the "doc" directory in a product installation.<P>
+<A NAME="4119"><H2> Help Displays</H2></A>
+The help display (<TT>vhelpdisplay</TT>) is also an abstract base class. Galaxy provides the following subclasses to display help data in different ways:<P>
+<UL><TT>vhelptooltip</TT>	displays tooltips
+<P><TT>vhelphypertext</TT>	base class for other hypertext help displays
+<P><TT>vhelpnetscape</TT>	displays help in Netscape Navigator
+<P><TT>vhelpexplorer</TT>	displays help in Internet Explorer
+<P><TT>vhelpdefault</TT>	displays help in the system default HTML browser
+<P><TT>vhelpgalaxy</TT>	displays help in the Galaxy Help Server
+<P><TT>vhelpwinhelp</TT>	displays help in WinHelp
+<P></UL><TT>vhelphypertext</TT> defines the API for a series of subclasses which implement different kinds of hypertext help. Most importantly, <TT>vhelphypertext</TT> introduces a notify function and calls to get and set an instance of <TT>vbrowser</TT>.<P>
+<A NAME="4123"><H2> Help Requests</H2></A>
+The encapsulation of a request for help is a represented by a help request (<TT>vhelprequest</TT>). It is the job of an entity outside of the help system to create a help request and pass it to a help object. The help object will pass the help request to the help locator and then to the help display. Help requests passed to a help object are never owned and are the responsibility of the entity that created them.<P>
+An instance of a basic help request may contain the following information:<P>
+<UL><LI>the name of the type of help request, such as, <TT>vname_Hypertext</TT>, <TT>vname_Phrase</TT>, etc.
+<LI>the help data, either the actual help text or a reference to it
+<LI>coordinates of the help request, relative to the containing object
+<LI>whether or not the help request should be attempted more than once
+<LI>whether or not the help request has been attempted at least once
+</UL>Different entities may provide this information, depending on the nature of the request. Usually the creating entity will supply the name and coordinates (if applicable). The help data is supplied by the help locator. The help object tracks the state of how many times the request has been attempted. <P>
+The actual type of the help data is a <TT>vinstance</TT>. This allows for the help data to easily be an instance of an existing Galaxy class (for example <TT>vtext</TT>). In practice, the help data is often an instance of either help text (<TT>vhelptext</TT>) or help reference (<TT>vhelpref</TT>). Help text encapsulates a string which is the actual help data. A help reference encapsulates a reference to help text. This reference usually takes the form of either a help context (Galaxy 2.5) or a URL. The help request may own the help data if necessary.<P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+Here's an example of what happens when help is invoked via a keystroke:<P>
+<OL>
+<LI>User hits a key.
+<BR>
+<LI>Keystroke generates a command.
+<BR>
+<LI>The command is handled by Galaxy.
+<BR>
+<LI>The command's issue function creates a vhelprequest and calls 
+<TT>vobjectDisplayHelp</TT> on the object issuing the request.
+<BR>
+<LI>A given subclass of vobject will:<br>
+a) Call <TT>vobjectDisplayHelp</TT> on some item that it contains (for example 
+<TT>vcontainer</TT>, <TT>vpalette</TT>, and so forth<br>
+b) Find a vhelpobject that can fulfill this request and pass the request to it by calling 
+<TT>vhelpobjectDisplayHelp</TT>.
+<BR>
+<LI>6) The vhelpobject will call <TT>vhelplocatorLocateHelp</TT> on its locator, passing it the 
+vhelprequest.
+<BR>
+<LI>7) The vhelplocator will find the help data or return <TT>vFALSE</TT>.
+<BR>
+<LI>8) If the vhelplocator found something, the vhelpobject will call 
+<TT>vhelpdisplayDisplayHelp</TT>, passing it the vhelprequest.
+<BR>
+<LI>9) The vhelpdisplay will examine the vhelprequest and do its best to display the help 
+data.
+<BR>
+</OL>
+Step 5b is accomplished by calling <TT>vhelpobjectFindDefaultHelpobjectByName</TT>. This call takes a <TT>vobject</TT> and a <TT>vname</TT>. The vobject is the object which is requesting help. The vname is the name of the type of help needed. This name is stored in the vhelprequest. Current names are:<P>
+<UL>General Name	Implemented As
+<P><TT>vname_Phrase</TT>	Tooltip
+<P><TT>vname_Hypertext</TT>	Context sensitive help, either HTML, Galaxy Help, or 
+WinHelp
+<P><TT>vname_Status</TT>	Statusbar
+<P></UL><TT>vhelpobjectFindDefaultHelpobjectByName</TT> will search the UI hierarchy for a dictionary named "Help" containing an entry bearing the name of the requested type of help object (<TT>vname_Hypertext</TT>, and so forth). If this search fails, it will look in a global registry of default vhelpobjects.<P>
+You can call help for any object by calling its <TT>DisplayHelp</TT> method, passing it the help request.<P>
+Be sure that <TT><B>vhelpSetApplicationName</B></TT> has been called so that the server will properly identify the client and look for the applicable documents. The documents to use and the order to search are determined by how the client is registered with the server. For more information on this, refer to "Galaxy Help Services" in Tools. <P>
+The user interface items in a dialog define their context by appending their tag name to the end of the tag name of the item they are contained in, up to the dialog's tag name. For example, the control with the tag "Control" in a group with the tag "Group" in the dialog with the tag "dialog" will have the context "dialogGroupControl." To change this behavior, the item class should be subclassed and the <TT>vobjectHELP</TT> method should be overridden, or catch the <TT>vobjectSELECT_HELP</TT> selector command. For more information, refer to the Dialog chapter.<P>
+Most of the interesting calls operate on a <TT>vhelpWindow</TT>. There is a special window that is global to all applications. The <TT><B>vhelpCreateWindow</B></TT> routine is called to create new windows, but a window pointer can be reused to change the current contents. If the window has been closed, it will automatically reopen. The global window common to all applications can be retrieved by calling <TT><B>vhelpGetGlobalWindow</B></TT>.<P>
+Each open window is automatically closed when the application terminates, and the Help class sends a <TT>vhelpEventCLOSED_WINDOW</TT> event to all the appropriate notification functions. The Help class also generates the event if the server terminates.<P>
+Examples <A HREF="Help.html#3867">76</A> and <A HREF="Help.html#3938">77</A> are two short help programs that illustrate these concepts.<P>
+<A NAME="3867"><I>Example 76.  Help notification
+</I><P>
+<PRE><UL>static void exampleHelpNotify(vhelpWindow *win, vhelpEvent event)
+{
+   char      *sArg   = (char *)vhelpGetWindowData(win);
+
+   switch (event)
+   {
+   case vhelpEventOPENED_WINDOW:
+      vdebugMInform(("Opened window "%s"n", sArg));
+      break;
+
+   case vhelpEventCLOSED_WINDOW:
+      vdebugMInform(("Closed window "%s"n", sArg));
+      vhelpDestroyWindow(win);
+      break;
+
+   case vhelpEventCANNOT_CONTACT_SERVER:
+      vdebugMInform(("Could not contact servern"));
+      break;
+
+   case vhelpEventREQUEST_FAILED:
+      vdebugMInform(("No help available for "%s"n",
+             sArg));
+      break;
+
+   default:
+      if (vhelpIsEventError(event))
+         vdebugMWarn(("Unrecognized error.0x%xn",
+               event));
+      break;
+    }
+
+}  /*  end  exampleHelpNotify  */
+
+</UL></PRE><A NAME="3938"><I>Example 77.  Help on miscellaneous items
+</I><P>
+<PRE><UL>exampleHelpOnRandomThings(void)
+{
+   vhelpWindow       *win;
+   vhelpWindow    *winGlobal;
+   vchar          *sContext;
+   vchar          *sConcept;
+   vchar          *arrayContext[4];
+   vrect           rectPlace;
+
+   /* Initializes pretend non-window variables */
+   ...
+   winGlobal      = vhelpGetGlobalWindow();
+   win      = vhelpCreateWindow();
+
+   /*  Opens a new window with context sContext
+    *  and sets up a notification function.
+    */
+   vhelpSetWindowNotify(win, exampleHelpNotify);
+   vhelpSetWindowData(win, (void *)sContext);
+   vhelpSwitchToContext(win, sContext, &amp;rectPlace);
+
+   /*  Opens a new window with concept sConcept 
+    *  but ignores notifications.
+    */
+   vhelpSwitchToConcept((vhelpWindow *)NULL, sConcept,
+            &amp;rectPlace);
+
+   /*  Replaces contents of global window with nested context
+    *  but doesn't use notification function. Let's the
+    *  Help class position the window.
+    */
+   vhelpSwitchToNestedConcept(winGlobal,
+               4, arrayContext,
+               (vrect *)NULL);
+
+   /*  Closing the windows right now would make opening them
+    *  irrelevant, but we'll do it for the sake of illustration.
+    *  The global window is intentionally being destroyed to
+    *  show that it is legal.
+    *
+    *  Notice that the notification function destroys the
+    *  window when it gets the vhelpEventCLOSED_WINDOW event.
+    */
+
+   vhelpWindowClose(win);
+   vhelpWindowDestroy(winGlobal);
+}
+
+</UL></PRE><P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="FormItem.html">Previous Chapter</A> | 
+		<A HREF="Iconview.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

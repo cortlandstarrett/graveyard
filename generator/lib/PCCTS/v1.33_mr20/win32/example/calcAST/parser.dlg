@@ -1,0 +1,89 @@
+<<
+/* parser.dlg -- DLG Description of scanner
+ *
+ * Generated from: calcex2.g
+ *
+ * Terence Parr, Will Cohen, and Hank Dietz: 1989-1999
+ * Purdue University Electrical Engineering
+ * With AHPCRC, University of Minnesota
+ * ANTLR Version 1.33MR21
+ */
+
+#define ANTLR_VERSION	13321
+#include "tokens.h"
+#include "AToken.h"
+#include "ASTBase.h"
+
+#include "p_symtbl.hh"
+>>
+
+<<%%parserclass P>>
+
+
+%%START
+
+@
+	<<
+		return Eof;
+	>>
+
+[.0-9]+{[dDfFlLeE]{\+\-}[0-9]+}
+	<<
+		double	d;
+		char *	endptr;
+		d=strtod(_lextext,&endptr);
+		if (*endptr != 0) {
+			return InvalidNumber;
+		};
+		return Number;
+	>>
+
+[\ \t]
+	<<
+		skip();
+		if (*_lextext=='\t') {
+			_endcol=((_endcol-1) & ~7) + 8;
+			// DLG will add 1 more because it
+			//   assumes \t is a printing character
+			// See wstabadjust.cpp for ws strings
+		};
+		return WS;
+	>>
+
+\n
+	<<
+		newline();set_endcol(0);  
+		return NL;
+	>>
+
+\+
+	<<
+		return (ANTLRTokenType)6;
+	>>
+
+\-
+	<<
+		return (ANTLRTokenType)7;
+	>>
+
+\*
+	<<
+		return (ANTLRTokenType)8;
+	>>
+
+\/
+	<<
+		return (ANTLRTokenType)9;
+	>>
+
+\(
+	<<
+		return (ANTLRTokenType)10;
+	>>
+
+\)
+	<<
+		return (ANTLRTokenType)11;
+	>>
+
+%%

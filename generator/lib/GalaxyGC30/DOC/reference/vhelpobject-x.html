@@ -1,0 +1,492 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vhelpobject prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vhelpobject prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vhelpobject-x.html#section_DataType">Types</A> [2]</TD>
+<TD><A HREF="vhelpobject-x.html#section_Function">Functions</A> [14]</TD>
+<TD><A HREF="vhelpobject-x.html#section_Message">Messages</A> [4]</TD>
+<TD><A HREF="vhelpobject-x.html#section_Constant">Constants</A> [1]</TD>
+<TD><A HREF="vhelpobject-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vhelpobject"><HR><H4>vhelpobject</H4></A>
+<PRE>
+        typedef ... <B>vhelpobject</B>;
+</PRE>
+
+<DL><DD>
+A <code>vhelpobject</code> is responsible for implementing a given type of help.
+Different types of help include:
+
+<ul>
+<li>proprietary context-sensitive, hypertext help
+<li>HTML browsers
+<li>tooltips
+<li>titletips 
+<li>statusbars
+<li>pop-up help
+</ul>
+
+A different <code>vhelpobject</code> can potentially be created to
+handle each of these kinds of help.
+<P>
+<code>vhelpobject</code>s may reside in Help dictionaries in command spaces, 
+or in a global registry. Refer to the section <CODE><A HREF="vhelpregistry-x.html#vhelpregistry"><CODE>vhelpregistry</CODE></A></CODE> 
+for more information on this topic. 
+When an object needs help of a certain type, it searches the interface
+hierarchy and finds an appropriate help object. It then passes its
+request for help to this vhelpobject.
+<P>
+A vhelpobject is a very simple object which does nothing more than
+delegate its duties to two other objects. These objects are a
+<code><A HREF="vhelplocator-x.html#vhelplocator"><CODE>vhelplocator</CODE></A></code> and a <code><A HREF="vhelpdisplay-x.html#vhelpdisplay"><CODE>vhelpdisplay</CODE></A></code>. 
+It is the job of a <code><A HREF="vhelplocator-x.html#vhelplocator"><CODE>vhelplocator</CODE></A></code> to
+find and return either the actual information that is to be displayed, 
+or a reference to this information. References to information usually
+take the form of either a help context (from Galaxy 2.5) or a 
+<CODE><A HREF="vurl-x.html#vurl"><CODE>vurl</CODE></A></CODE>.
+<P>
+Once the <code><A HREF="vhelplocator-x.html#vhelplocator"><CODE>vhelplocator</CODE></A></code> has found this help data, 
+the <code>vhelpobject</code> passes that data to a 
+<code><A HREF="vhelpdisplay-x.html#vhelpdisplay"><CODE>vhelpdisplay</CODE></A></code>. It is the job of a <code><A HREF="vhelpdisplay-x.html#vhelpdisplay"><CODE>vhelpdisplay</CODE></A></code> 
+to take the help data and produce a visual representation of the appropriate
+help. If the help data is the actual help information, it can be used
+as is. If the help data is a reference, it must first be resolved and
+then displayed.
+<P>
+Subclasses of <code>vhelpobject</code> are useful for modifying 
+the process of fulfilling a help request on a large scale. In general, 
+this is not necessary. By creating a <code>vhelpobject</code> and 
+associating a <code><A HREF="vhelplocator-x.html#vhelplocator"><CODE>vhelplocator</CODE></A></code> and a <code><A HREF="vhelpdisplay-x.html#vhelpdisplay"><CODE>vhelpdisplay</CODE></A></code> 
+of a given type with the <code>vhelpobject</code>, the user can
+implement or modify the behavior of a given type of help with
+considerable ease. <code><A HREF="vhelplocator-x.html#vhelplocator"><CODE>vhelplocator</CODE></A></code> and <code><A HREF="vhelpdisplay-x.html#vhelpdisplay"><CODE>vhelpdisplay</CODE></A></code> 
+subclasses help to separate the functionality involved in fulfilling a help request.
+This makes it easy to modify specific behaviors for a given type of
+request.
+<P>
+Default help objects reside in the global help registry. 
+To make changes to help behavior at a global level, developers can use 
+<CODE><A HREF="vhelpregistry-x.html#vhelpregistry"><CODE>vhelpregistry</CODE></A></CODE> to obtain a global help object. A
+developer can then replace the help display or help locator of 
+this object with an instance of an appropriate custom subclass.
+Refer to the section <CODE><A HREF="vhelpregistry-x.html#vhelpregistry"><CODE>vhelpregistry</CODE></A></CODE> for more 
+information.
+</DD></DL>
+<P>
+<A NAME="vhelpobjectClass"><HR><H4>vhelpobjectClass</H4></A>
+<PRE>
+        typedef ... <B>vhelpobjectClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variable bindings for objects of type
+<CODE>vhelpobject</CODE>. Classes declared with this type 
+contain the same set of methods and variables as the
+default Help Object class, but the behavior of methods and the
+contents of variables may vary. This class type is derived
+from <CODE><A HREF="vinstance-x.html#vinstanceClass"><CODE>vinstanceClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vhelpobjectCreate"><HR><H4>vhelpobjectCreate</H4></A>
+<PRE>
+        vhelpobject * <B>vhelpobjectCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates an instance of the default class of 
+<code>vhelpobject</code> and returns a pointer to its contents. 
+Space for the object is allocated dynamically. The Class class reclaims 
+the storage occupied by the object when it is destroyed with
+<CODE><A HREF="vhelpobject-x.html#vhelpobjectDestroy"><CODE>vhelpobjectDestroy</CODE></A></CODE>. Higher-level interfaces based
+on the core <code>vhelpobject</code> type can define a macro to this function
+for their <CODE>Create</CODE> function. This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vhelpobject-x.html#vhelpobjectInit"><CODE>vhelpobjectInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vhelpobjectCreateOfClass"><HR><H4>vhelpobjectCreateOfClass</H4></A>
+<PRE>
+        vhelpobject * <B>vhelpobjectCreateOfClass</B>(
+                vhelpobjectClass * helpobjectClass);
+</PRE>
+
+<DL><DD>
+Creates an instance of class <SAMP>helpobjectClass</SAMP> and returns
+a pointer to its contents. Space for the object is allocated 
+dynamically based on the object size of the class. The Class class 
+reclaims the storage occupied by the object when it is destroyed with
+<CODE><A HREF="vhelpobject-x.html#vhelpobjectDestroy"><CODE>vhelpobjectDestroy</CODE></A></CODE>. Higher-level interfaces based
+on the core vhelpobject type can define a macro to this function
+for their <samp>Create</samp> function. This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vhelpobject-x.html#vhelpobjectInitOfClass"><CODE>vhelpobjectInitOfClass</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vhelpobjectDestroy"><HR><H4>vhelpobjectDestroy</H4></A>
+<PRE>
+        vhelpobject * <B>vhelpobjectDestroy</B>(
+                vhelpobject * helpobject);
+</PRE>
+
+<DL><DD>
+Destroys the object <SAMP>helpobject</SAMP>, which must have
+been created or initialized by a Class class function.
+Interfaces based on the core object class can define a
+macro to this function for their <CODE>Destroy</CODE>
+function. This function is implemented by sending the
+message <CODE><A HREF="vinstance-x.html#vinstanceDESTROY"><CODE>vinstanceDESTROY</CODE></A></CODE> to <SAMP>helpobject</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vhelpobjectDisplayHelp"><HR><H4>vhelpobjectDisplayHelp</H4></A>
+<PRE>
+        vbool <B>vhelpobjectDisplayHelp</B>(
+                vhelpobject * helpobject,
+                vhelprequest * request);
+</PRE>
+
+<DL><DD>
+This call takes the <code><A HREF="vhelprequest-x.html#vhelprequest"><CODE>vhelprequest</CODE></A></code> and passes it to a 
+<code><A HREF="vhelplocator-x.html#vhelplocator"><CODE>vhelplocator</CODE></A></code>. If it can successfully locate help data, 
+the request is then passed to a <code><A HREF="vhelpdisplay-x.html#vhelpdisplay"><CODE>vhelpdisplay</CODE></A></code>. 
+<code>vhelpobjectDisplayHelp</code> returns <SAMP>vTRUE</SAMP> if the
+<code><A HREF="vhelpdisplay-x.html#vhelpdisplay"><CODE>vhelpdisplay</CODE></A></code> can successfully display the help data; otherwise it
+returns <SAMP>vFALSE</SAMP>.
+<P>
+This call also monitors whether or not the <code>vhelpobject</code> has 
+attempted to fulfill <SAMP>request</SAMP> once already. If it has and this request is
+only supposed to be attempted once, it will not process the request at
+all. Refer to the section <CODE><A HREF="vhelprequest-x.html#vhelprequestSetOneTry"><CODE>vhelprequestSetOneTry</CODE></A></CODE> for more information.
+<P>
+This function is implemented by sending the message 
+<CODE><A HREF="vhelpobject-x.html#vhelpobjectDISPLAY_HELP"><CODE>vhelpobjectDISPLAY_HELP</CODE></A></CODE> to the help object.
+</DD></DL>
+<P>
+<A NAME="vhelpobjectGetClass"><HR><H4>vhelpobjectGetClass</H4></A>
+<PRE>
+        vhelpobjectClass * <B>vhelpobjectGetClass</B>(
+                vhelpobject * helpobject);
+</PRE>
+
+<DL><DD>
+Returns the class of the object <SAMP>helpobject</SAMP>. This
+pointer can be cast to higher-level classes if it is known
+that it is of the appropriate type. Class types can be
+verified with <CODE><A HREF="vclass-x.html#vclassIsKindOf"><CODE>vclassIsKindOf</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vhelpobjectGetDefaultClass"><HR><H4>vhelpobjectGetDefaultClass</H4></A>
+<PRE>
+        vhelpobjectClass * <B>vhelpobjectGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+This class can be modified to alter the behavior
+of subclasses of vhelpobject. This function can be called to
+explicitly register the default dialog class with the Class
+class.
+</DD></DL>
+<P>
+<A NAME="vhelpobjectGetDisplay"><HR><H4>vhelpobjectGetDisplay</H4></A>
+<PRE>
+        vhelpdisplay * <B>vhelpobjectGetDisplay</B>(
+                vhelpobject * helpobject);
+</PRE>
+
+<DL><DD>
+Returns the <code><A HREF="vhelpdisplay-x.html#vhelpdisplay"><CODE>vhelpdisplay</CODE></A></code> to which the <code>vhelpobject</code> 
+delegates <code>vhelprequests</code>.
+</DD></DL>
+<P>
+<A NAME="vhelpobjectGetInstance"><HR><H4>vhelpobjectGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vhelpobjectGetInstance</B>(
+                vhelpobject * helpobject);
+</PRE>
+
+<DL><DD>
+Returns the instance upon which the help object 
+<SAMP>helpobject</SAMP> is built.
+</DD></DL>
+<P>
+<A NAME="vhelpobjectGetLocator"><HR><H4>vhelpobjectGetLocator</H4></A>
+<PRE>
+        vhelplocator * <B>vhelpobjectGetLocator</B>(
+                vhelpobject * helpobject);
+</PRE>
+
+<DL><DD>
+Returns the <code><A HREF="vhelplocator-x.html#vhelplocator"><CODE>vhelplocator</CODE></A></code> to which the <code>vhelpobject</code> 
+delegates <code>vhelprequests</code>.
+</DD></DL>
+<P>
+<A NAME="vhelpobjectInit"><HR><H4>vhelpobjectInit</H4></A>
+<PRE>
+        void <B>vhelpobjectInit</B>(
+                vhelpobject * helpobject);
+</PRE>
+
+<DL><DD>
+Initializes the memory addressed by <SAMP>helpobject</SAMP> in
+such a way that the resulting structure can be used to
+store any objects whose classes inherit from
+<CODE><A HREF="vhelpobject-x.html#vhelpobjectClass"><CODE>vhelpobjectClass</CODE></A></CODE>. 
+</DD></DL>
+<P>
+<A NAME="vhelpobjectInitOfClass"><HR><H4>vhelpobjectInitOfClass</H4></A>
+<PRE>
+        void <B>vhelpobjectInitOfClass</B>(
+                vhelpobject * helpobject,
+                vhelpobjectClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes an object of Class <SAMP>clas</SAMP> in the
+memory addressed by <SAMP>helpobject</SAMP>. Interfaces 
+based on the core object class can
+define a macro to this function for their <CODE>Init</CODE>
+function. This function simply stores the class in the
+class field of the object structure and sends it the
+message <CODE><A HREF="vinstance-x.html#vinstanceINIT"><CODE>vinstanceINIT</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vhelpobjectSetDisplay"><HR><H4>vhelpobjectSetDisplay</H4></A>
+<PRE>
+        void <B>vhelpobjectSetDisplay</B>(
+                vhelpobject * helpobject,
+                vhelpdisplay * helpdisplay);
+</PRE>
+
+<DL><DD>
+Sets the <code><A HREF="vhelpdisplay-x.html#vhelpdisplay"><CODE>vhelpdisplay</CODE></A></code> for this <code>vhelpobject</code>.
+The help object will unreference any display it is already using 
+and reference this new display. Refer to the section <CODE><A HREF="vhelpdisplay-x.html#vhelpdisplay"><CODE>vhelpdisplay</CODE></A></CODE> 
+for information on reference counts.
+<P>
+This function is implemented by sending the message 
+<CODE><A HREF="vhelpobject-x.html#vhelpobjectSET_DISPLAY"><CODE>vhelpobjectSET_DISPLAY</CODE></A></CODE> to the help object.
+</DD></DL>
+<P>
+<A NAME="vhelpobjectSetLocator"><HR><H4>vhelpobjectSetLocator</H4></A>
+<PRE>
+        void <B>vhelpobjectSetLocator</B>(
+                vhelpobject * helpobject,
+                vhelplocator * helplocator);
+</PRE>
+
+<DL><DD>
+Sets the <code><A HREF="vhelplocator-x.html#vhelplocator"><CODE>vhelplocator</CODE></A></code> for this <code>vhelpobject</code>. 
+The help object will unreference any locator it is already using and reference this new
+locator. Refer to the section <CODE><A HREF="vhelplocator-x.html#vhelplocator"><CODE>vhelplocator</CODE></A></CODE> for information on reference
+counts.
+<P>
+This function is implemented by sending the message 
+<CODE><A HREF="vhelpobject-x.html#vhelpobjectSET_LOCATOR"><CODE>vhelpobjectSET_LOCATOR</CODE></A></CODE> to the help object.
+</DD></DL>
+<P>
+<A NAME="vhelpobjectUndisplayHelp"><HR><H4>vhelpobjectUndisplayHelp</H4></A>
+<PRE>
+        void <B>vhelpobjectUndisplayHelp</B>(
+                vhelpobject * helpobject,
+                vhelprequest * request);
+</PRE>
+
+<DL><DD>
+This function calls the <code><A HREF="vhelpdisplay-x.html#vhelpdisplayUndisplayHelp"><CODE>vhelpdisplayUndisplayHelp</CODE></A></code> method of the
+<cpde><A HREF="vhelpdisplay-x.html#vhelpdisplay"><CODE>vhelpdisplay</CODE></A></code> the <code>vhelpobject</code> is using. This function 
+is rarely called because most forms of help allow the user to abort the display of help.
+<P>
+This function is implemented by sending the message 
+<CODE><A HREF="vhelpobject-x.html#vhelpobjectUNDISPLAY_HELP"><CODE>vhelpobjectUNDISPLAY_HELP</CODE></A></CODE> to the help object.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vhelpobjectDISPLAY_HELP"><HR><H4>vhelpobjectDISPLAY_HELP</H4></A>
+<PRE>
+        &lt;<B>vhelpobjectDISPLAY_HELP</B>&gt;
+</PRE>
+
+<DL><DD>
+This call takes the <code><A HREF="vhelprequest-x.html#vhelprequest"><CODE>vhelprequest</CODE></A></code> and passes it to a 
+<code><A HREF="vhelplocator-x.html#vhelplocator"><CODE>vhelplocator</CODE></A></code>. If it can successfully locate help data, 
+the request is then passed to a <code><A HREF="vhelpdisplay-x.html#vhelpdisplay"><CODE>vhelpdisplay</CODE></A></code>. 
+<code><A HREF="vhelpobject-x.html#vhelpobjectDisplayHelp"><CODE>vhelpobjectDisplayHelp</CODE></A></code> returns <SAMP>vTRUE</SAMP> if the
+<code><A HREF="vhelpdisplay-x.html#vhelpdisplay"><CODE>vhelpdisplay</CODE></A></code> can successfully display the help data; otherwise it
+returns <SAMP>vFALSE</SAMP>.
+<P>
+This call also monitors whether or not the <code>vhelpobject</code> has 
+attempted to fulfill <SAMP>request</SAMP> once already. If it has and this request is
+only supposed to be attempted once, it will not process the request at
+all. Refer to the section <CODE><A HREF="vhelprequest-x.html#vhelprequestSetOneTry"><CODE>vhelprequestSetOneTry</CODE></A></CODE> for more information.
+<P>
+This function is implemented by sending the message 
+<CODE>vhelpobjectDISPLAY_HELP</CODE> to the help object.
+</DD></DL>
+<P>
+<A NAME="vhelpobjectSET_DISPLAY"><HR><H4>vhelpobjectSET_DISPLAY</H4></A>
+<PRE>
+        &lt;<B>vhelpobjectSET_DISPLAY</B>&gt;
+</PRE>
+
+<DL><DD>
+The help object will unreference any display it is already using 
+and reference this new display. Refer to the section <CODE><A HREF="vhelpdisplay-x.html#vhelpdisplay"><CODE>vhelpdisplay</CODE></A></CODE> 
+for information on reference counts.
+<P>
+This function is implemented by sending the message 
+<CODE>vhelpobjectSET_DISPLAY</CODE> to the help object.
+Refer to the section <CODE><A HREF="vhelpdisplay-x.html#vhelpdisplay"><CODE>vhelpdisplay</CODE></A></CODE> for information on reference
+counts.
+</DD></DL>
+<P>
+<A NAME="vhelpobjectSET_LOCATOR"><HR><H4>vhelpobjectSET_LOCATOR</H4></A>
+<PRE>
+        &lt;<B>vhelpobjectSET_LOCATOR</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the <code><A HREF="vhelplocator-x.html#vhelplocator"><CODE>vhelplocator</CODE></A></code> for this <code>vhelpobject</code>. 
+The help object will unreference any locator it is already using and reference this new
+locator. Refer to the section <CODE><A HREF="vhelplocator-x.html#vhelplocator"><CODE>vhelplocator</CODE></A></CODE> for information on reference
+counts.
+<P>
+This function is implemented by sending the message 
+<CODE>vhelpobjectSET_LOCATOR</CODE> to the help object.
+</DD></DL>
+<P>
+<A NAME="vhelpobjectUNDISPLAY_HELP"><HR><H4>vhelpobjectUNDISPLAY_HELP</H4></A>
+<PRE>
+        &lt;<B>vhelpobjectUNDISPLAY_HELP</B>&gt;
+</PRE>
+
+<DL><DD>
+This function calls the <code><A HREF="vhelpdisplay-x.html#vhelpdisplayUndisplayHelp"><CODE>vhelpdisplayUndisplayHelp</CODE></A></code> method of the
+<code><A HREF="vhelpdisplay-x.html#vhelpdisplay"><CODE>vhelpdisplay</CODE></A></code> the <code>vhelpobject</code> is using. 
+This function is rarely called because most forms of help allow the 
+user to abort the display of help.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vhelpobjectINCLUDED"><HR><H4>vhelpobjectINCLUDED</H4></A>
+<PRE>
+        <B>vhelpobjectINCLUDED</B>
+</PRE>
+
+<DL><DD>
+This constant is intended to be used in this way when including header files:
+
+<BLOCKQUOTE>
+<PRE>
+#ifndef  vhelpobjectINCLUDED
+#include vhelpobjectHEADER
+#endif
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vhelpobjectCLASS"><HR><H4>vhelpobjectCLASS</H4></A>
+<PRE>
+        #define <B>vhelpobjectCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Use this macro to build subclasses of vhelpobject. Refer to the 
+<CODE><A HREF="vclass-x.html#vclass"><CODE>vclass</CODE></A></CODE> for more information on subclassing.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

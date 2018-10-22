@@ -1,0 +1,1274 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vmenubar prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vmenubar prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vmenubar-x.html#section_DataType">Types</A> [3]</TD>
+<TD><A HREF="vmenubar-x.html#section_Function">Functions</A> [42]</TD>
+<TD><A HREF="vmenubar-x.html#section_Message">Messages</A> [11]</TD>
+<TD><A HREF="vmenubar-x.html#section_Constant">Constants</A> [3]</TD>
+<TD><A HREF="vmenubar-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vmenubar"><HR><H4>vmenubar</H4></A>
+<PRE>
+        typedef ... <B>vmenubar</B>;
+</PRE>
+
+<DL><DD>
+Contains the information needed to represent a single menu
+bar---objects of this type have classes derived from
+<SAMP><A HREF="vmenubar-x.html#vmenubarClass"><CODE>vmenubarClass</CODE></A></SAMP>. Menu bars are referenced by a
+pointer to this type. Menu bars can be created dynamically
+with <CODE><A HREF="vmenubar-x.html#vmenubarCreate"><CODE>vmenubarCreate</CODE></A></CODE>, or initialized statically
+with <CODE><A HREF="vmenubar-x.html#vmenubarInit"><CODE>vmenubarInit</CODE></A></CODE>. A <SAMP>vmenubar</SAMP>
+contains a dialog item and a set of menu bar attributes.
+All object types with classes that directly inherit from
+<SAMP><A HREF="vmenubar-x.html#vmenubarClass"><CODE>vmenubarClass</CODE></A></SAMP> <I>must</I> declare a
+<SAMP>vmenubar</SAMP> as their first field so that
+<SAMP>vmenubar</SAMP> pointers can be interchanged with
+pointers to the new data type.
+    <P>
+A menu bar contains an ordered list of menus. A menu bar
+displays, inside the menu bar content area, the title of
+each of its menus. Clicking or key traversing a title opens
+the associated menu. A menu bar must be placed in a dialog
+to be operational.
+</DD></DL>
+<P>
+<A NAME="vmenubarClass"><HR><H4>vmenubarClass</H4></A>
+<PRE>
+        typedef ... <B>vmenubarClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variables bindings for objects of type
+<CODE>vmenubar</CODE>. Classes declared with this type
+contain the same set of methods and variables as the
+default menu bar class, but the behavior of methods and the
+contents of variables may vary. This class type is derived
+from <CODE><A HREF="vdialog-x.html#vdialogItemClass"><CODE>vdialogItemClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vmenubarNoteProc"><HR><H4>vmenubarNoteProc</H4></A>
+<PRE>
+        typedef ... <B>vmenubarNoteProc</B>;
+</PRE>
+
+<DL><DD>
+Denotes a notification function that is called when a menu
+bar is triggered by the user. <SAMP>menubar</SAMP> is the
+menu bar that was triggered, and <SAMP>event</SAMP> is the
+event that caused the menu bar to be triggered. Note that
+this function is <I>not</I> called for every event that is
+handled by the menu bar---if additional notification is
+required, you should override the appropriate event
+handler. Menu bars do not give any notification---you
+should attach a notification function to a menu or menu
+item instead. Refer to the ``Menu Manager'' chapter of the
+<I>Galaxy Application Environment Programmer's Guide</I>
+for more information.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vmenubarAppendMenu"><HR><H4>vmenubarAppendMenu</H4></A>
+<PRE>
+        void <B>vmenubarAppendMenu</B>(
+                vmenubar * menubar,
+                vmenu * menu);
+</PRE>
+
+<DL><DD>
+Appends the menu <SAMP>menu</SAMP> to the menu list of
+<SAMP>menubar</SAMP> and invalidates the content rectangle
+of the menu bar if the menu bar is open. The menu is drawn
+on the right-hand side of the menu bar. The menu is
+destroyed when the menu bar is destroyed unless it is
+removed first. This function calls
+<CODE><A HREF="vmenubar-x.html#vmenubarChangedMenu"><CODE>vmenubarChangedMenu</CODE></A></CODE> to ensure that the menu
+bar's metrics are updated correctly before it is opened.
+This function is implemented by sending the message
+<CODE><A HREF="vmenubar-x.html#vmenubarAPPEND_MENU"><CODE>vmenubarAPPEND_MENU</CODE></A></CODE> to <SAMP>menubar</SAMP>.
+    <P>
+</DD></DL>
+<P>
+<A NAME="vmenubarChangedMenu"><HR><H4>vmenubarChangedMenu</H4></A>
+<PRE>
+        void <B>vmenubarChangedMenu</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Indicates to the Menu Bar Manager that a menu owned by
+<SAMP>menubar</SAMP> has had its contents changed in some
+way, and that the menu bar's metrics should be recalculated
+to reflect the change. Functions that manipulate the menu
+bar's item list (such as <CODE><A HREF="vmenubar-x.html#vmenubarAppendMenu"><CODE>vmenubarAppendMenu</CODE></A></CODE>
+and <CODE><A HREF="vmenubar-x.html#vmenubarRemoveMenu"><CODE>vmenubarRemoveMenu</CODE></A></CODE>) call this function
+automatically. You should call this function if a menu is
+changed while it is in a menu bar. The menu bar will
+recalculate its menu title boundaries the next time it is
+opened. If the menu bar's dialog is open, the menu bar's
+bounding rectangle is invalidated and the menu bar is
+redrawn in a subsequent update event. This function is
+implemented by sending the message
+<CODE><A HREF="vmenubar-x.html#vmenubarCHANGED_MENU"><CODE>vmenubarCHANGED_MENU</CODE></A></CODE> to <SAMP>menubar</SAMP>.
+    <P>
+</DD></DL>
+<P>
+<A NAME="vmenubarClone"><HR><H4>vmenubarClone</H4></A>
+<PRE>
+        vmenubar * <B>vmenubarClone</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Creates a copy of the menu bar <SAMP>menubar</SAMP> and
+returns a pointer to its contents. Storage for the menu bar
+object is allocated by the Menu Bar Manager. The Menu Bar
+Manager reclaims the storage occupied by the menu bar when
+it is destroyed with <CODE><A HREF="vmenubar-x.html#vmenubarDestroy"><CODE>vmenubarDestroy</CODE></A></CODE>. All of
+the menu bar's menus are cloned. This function copies all
+the attributes of the menu bar except <CODE>Open</CODE>,
+<CODE>Focused</CODE> and <CODE>ItemList</CODE>---it clones
+any attribute objects that are owned by the menu bar. The
+menu bar to be cloned can be dynamic or static. This
+function essentially allocates space for a new menu bar and
+calls <CODE><A HREF="vmenubar-x.html#vmenubarCopyInit"><CODE>vmenubarCopyInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vmenubarCopy"><HR><H4>vmenubarCopy</H4></A>
+<PRE>
+        void <B>vmenubarCopy</B>(
+                vmenubar * menubar,
+                vmenubar * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>menubar</SAMP> into
+<SAMP>target</SAMP> so that the two menu bars represent
+equivalent objects. <SAMP>target</SAMP> must have been
+created or initialized by a Menu Bar Manager function.
+<SAMP>menubar</SAMP> and <SAMP>target</SAMP> must have
+compatible classes for this to work correctly. All of the
+menu bar's menus are cloned, and all menus in the target
+menu bar are destroyed. This function copies all the
+attributes of the menu bar except <CODE>Class</CODE>,
+<CODE>Open</CODE>, <CODE>Focused</CODE> and
+<CODE>ItemList</CODE>---it clones any attribute objects
+that are owned by the menu bar. This function destroys any
+objects allocated internally by <SAMP>target</SAMP>
+(including its owned attributes), but does <I>not </I>
+destroy <SAMP>target</SAMP> itself. The menu bars to be
+copied can be dynamic or static. This function is
+implemented by sending the message <CODE>vobjectCOPY</CODE>
+to <SAMP>menubar</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmenubarCopyInit"><HR><H4>vmenubarCopyInit</H4></A>
+<PRE>
+        void <B>vmenubarCopyInit</B>(
+                vmenubar * menubar,
+                vmenubar * target);
+</PRE>
+
+<DL><DD>
+Copies the information in <SAMP>menubar</SAMP> into
+<SAMP>target</SAMP> so the memory addressed by
+<SAMP>target</SAMP> is a menu bar equivalent to
+<SAMP>menubar</SAMP>. <SAMP>target</SAMP> should be a
+pointer to uninitialized memory---the Menu Bar Manager
+initializes it as part of the copy. All of the menu bar's
+menus are cloned. This function copies all the attributes
+of the menu bar except <CODE>Open</CODE>,
+<CODE>Focused</CODE> and <CODE>ItemList</CODE>---it clones
+any attribute objects that are owned by the menu bar. This
+function simply stores the class of <SAMP>menubar</SAMP> in
+<SAMP>target</SAMP> and sends the message
+<CODE>vobjectCOPY_INIT</CODE> to <SAMP>menubar</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmenubarCreate"><HR><H4>vmenubarCreate</H4></A>
+<PRE>
+        vmenubar * <B>vmenubarCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates a new menu bar of the default menu bar class and
+returns a pointer to its contents. The new menu bar has no
+menus. Storage for the menu bar object is allocated by the
+Menu Bar Manager. The Menu Bar Manager reclaims the storage
+occupied by the menu bar when it is destroyed with
+<CODE><A HREF="vmenubar-x.html#vmenubarDestroy"><CODE>vmenubarDestroy</CODE></A></CODE>. The new menu bar is created
+with a set of default attributes, as determined by the
+default menu bar class. The default attributes of the
+default menu bar class are documented in the ``Menu Bar
+Manager'' chapter the <I>Galaxy Application Environment
+Programmer's Guide</I>. This function essentially allocates
+space for a new menu bar and calls
+<CODE><A HREF="vmenubar-x.html#vmenubarInit"><CODE>vmenubarInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vmenubarCreateOfClass"><HR><H4>vmenubarCreateOfClass</H4></A>
+<PRE>
+        vmenubar * <B>vmenubarCreateOfClass</B>(
+                vmenubarClass * clas);
+</PRE>
+
+<DL><DD>
+Creates a new menu bar of class <SAMP>clas</SAMP> and
+returns a pointer to its contents. The new menu bar has no
+menus. Storage for the menu bar object is allocated by the
+Menu Bar Manager. The Menu Bar Manager reclaims the storage
+occupied by the menu bar when it is destroyed with
+<CODE><A HREF="vmenubar-x.html#vmenubarDestroy"><CODE>vmenubarDestroy</CODE></A></CODE>. The new menu bar is created
+with a set of default attributes, determined by the class.
+The default attributes of the default menu bar class are
+documented in the ``Menu Bar Manager'' chapter the
+<I>Galaxy Application Environment Programmer's Guide</I>.
+This function essentially allocates space for a new menu
+bar and calls <CODE><A HREF="vmenubar-x.html#vmenubarInitOfClass"><CODE>vmenubarInitOfClass</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vmenubarDeleteMenu"><HR><H4>vmenubarDeleteMenu</H4></A>
+<PRE>
+        void <B>vmenubarDeleteMenu</B>(
+                vmenubar * menubar,
+                vmenu * menu);
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Removes the menu <SAMP>menu</SAMP> from the menu list of
+<SAMP>menubar</SAMP> and invalidates the content rectangle
+of the menu bar if the menu bar is open. The menu is not
+destroyed. All menus following the removed menu have their
+indices decremented by one. This function calls
+<CODE><A HREF="vmenubar-x.html#vmenubarChangedMenu"><CODE>vmenubarChangedMenu</CODE></A></CODE> to insure that the menu
+bar's metrics are updated correctly before it is opened. It
+generates <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> if the menu is not
+in the menu list of <SAMP>menubar</SAMP>. This function is
+implemented by sending the message
+<CODE><A HREF="vmenubar-x.html#vmenubarDELETE_MENU"><CODE>vmenubarDELETE_MENU</CODE></A></CODE> to <SAMP>menubar</SAMP>.
+    <P>
+<P>
+This method has been deprecated; use <CODE><A HREF="vmenubar-x.html#vmenubarRemoveMenu"><CODE>vmenubarRemoveMenu</CODE></A></CODE>
+instead. 
+</DD></DL>
+<P>
+<A NAME="vmenubarDestroy"><HR><H4>vmenubarDestroy</H4></A>
+<PRE>
+        void <B>vmenubarDestroy</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Destroys the menu bar represented by <SAMP>menubar</SAMP>,
+which must have been created or initialized by a Menu Bar
+Manager function. Use this function to reclaim the storage
+occupied by a menu bar. The menu bar should not be
+referenced by any other object when it is destroyed. All of
+the menu bar's menus are destroyed by this function. This
+function only attempts to free the storage occupied by
+<SAMP>menubar</SAMP> if it was allocated by
+<CODE><A HREF="vmenubar-x.html#vmenubarCreate"><CODE>vmenubarCreate</CODE></A></CODE>,
+<CODE><A HREF="vmenubar-x.html#vmenubarCreateOfClass"><CODE>vmenubarCreateOfClass</CODE></A></CODE>,
+<CODE><A HREF="vmenubar-x.html#vmenubarClone"><CODE>vmenubarClone</CODE></A></CODE>, or <CODE><A HREF="vmenubar-x.html#vmenubarLoad"><CODE>vmenubarLoad</CODE></A></CODE>.
+This function will also destroy any attribute objects that
+are owned by the menu bar. This function is implemented by
+sending the message <CODE>vobjectDESTROY</CODE> to
+<SAMP>menubar</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmenubarFindMenu"><HR><H4>vmenubarFindMenu</H4></A>
+<PRE>
+        vmenu * <B>vmenubarFindMenu</B>(
+                vmenubar * menubar,
+                const vname * tag);
+</PRE>
+
+<DL><DD>
+Returns the menu with the tag <SAMP>tag</SAMP> in the menu
+list of <SAMP>menubar</SAMP>. It returns <SAMP>NULL</SAMP>
+if there is no such menu.
+</DD></DL>
+<P>
+<A NAME="vmenubarGetClass"><HR><H4>vmenubarGetClass</H4></A>
+<PRE>
+        vmenubarClass * <B>vmenubarGetClass</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Returns the class of the menu bar <SAMP>menubar</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmenubarGetData"><HR><H4>vmenubarGetData</H4></A>
+<PRE>
+        const void * <B>vmenubarGetData</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Returns the generic data pointer attached to the menu bar
+<SAMP>menubar</SAMP>, which may be <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmenubarGetDefaultClass"><HR><H4>vmenubarGetDefaultClass</H4></A>
+<PRE>
+        vmenubarClass * <B>vmenubarGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the class used to create menu bars by the
+<CODE><A HREF="vmenubar-x.html#vmenubarCreate"><CODE>vmenubarCreate</CODE></A></CODE> and <CODE><A HREF="vmenubar-x.html#vmenubarInit"><CODE>vmenubarInit</CODE></A></CODE>
+functions. This class can be modified to alter the behavior
+of all menu bars subsequently created by these functions.
+Changes to this class are not visible to any other
+applications in the same process or sharing the same
+display server. This function can be called to explicitly
+register the default menu bar class with the Class Manager.
+</DD></DL>
+<P>
+<A NAME="vmenubarGetItem"><HR><H4>vmenubarGetItem</H4></A>
+<PRE>
+        vdialogItem * <B>vmenubarGetItem</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Returns the dialog item upon which the menu bar
+<SAMP>menubar</SAMP> is constructed. All dialog item
+functions can be called on this pointer. For example, you
+can change the background color of the menu bar
+<SAMP>menubar</SAMP> to the color <SAMP>background</SAMP>
+with
+<SAMP><A HREF="vdialog-x.html#vdialogSetItemBackground"><CODE>vdialogSetItemBackground</CODE></A>(vmenubarGetItem(menubar),
+background)</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmenubarGetMenuAt"><HR><H4>vmenubarGetMenuAt</H4></A>
+<PRE>
+        vmenu * <B>vmenubarGetMenuAt</B>(
+                vmenubar * menubar,
+                int index);
+</PRE>
+
+<DL><DD>
+Returns the menu at position <SAMP>index</SAMP> in the menu
+list of <SAMP>menubar</SAMP>. Menus are numbered from zero
+to the number of menus in the menu list minus one. The
+debugging libraries generate
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> if the index is less than
+zero or greater than or equal to the number of menus in the
+list.
+    <P>
+<BLOCKQUOTE>
+Figure: Menu title indexes
+    <P>
+<IMG SRC="MenuBar.Menu_title_indexes.gif"></BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vmenubarGetMenuCount"><HR><H4>vmenubarGetMenuCount</H4></A>
+<PRE>
+        int <B>vmenubarGetMenuCount</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Returns the number of menus in the list of menus owned by
+the menu bar <SAMP>menubar</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmenubarGetMenuIndex"><HR><H4>vmenubarGetMenuIndex</H4></A>
+<PRE>
+        int <B>vmenubarGetMenuIndex</B>(
+                vmenubar * menubar,
+                vmenu * menu);
+</PRE>
+
+<DL><DD>
+Returns the index of the menu <SAMP>menu</SAMP> in the menu
+list of the menu bar <SAMP>menubar</SAMP>, or -1 if it is
+not in the menu list. Menus are numbered from zero to the
+number of menus in the menu list minus one.
+</DD></DL>
+<P>
+<A NAME="vmenubarGetNotify"><HR><H4>vmenubarGetNotify</H4></A>
+<PRE>
+        vmenubarNoteProc <B>vmenubarGetNotify</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Returns the notification procedure attached to the menu bar
+<SAMP>menubar</SAMP>, or returns <SAMP>NULL</SAMP> if no
+notification procedure is attached to <SAMP>menubar</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmenubarGetObject"><HR><H4>vmenubarGetObject</H4></A>
+<PRE>
+        vobjectAttributed * <B>vmenubarGetObject</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Returns the object upon which the menu bar
+<SAMP>menubar</SAMP> is constructed.
+</DD></DL>
+<P>
+<A NAME="vmenubarHilite"><HR><H4>vmenubarHilite</H4></A>
+<PRE>
+        void <B>vmenubarHilite</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Draws highlighting around the currently selected menu title
+of the menu bar <SAMP>menubar</SAMP> to indicate that it
+has been clicked or otherwise activated. This function sets
+the current drawing device to the menu bar's owning dialog
+and immediately draws the highlighting. This function is
+implemented by sending the message
+<CODE><A HREF="vmenubar-x.html#vmenubarHILITE"><CODE>vmenubarHILITE</CODE></A></CODE> to <SAMP>menubar</SAMP>.
+    <P>
+</DD></DL>
+<P>
+<A NAME="vmenubarInit"><HR><H4>vmenubarInit</H4></A>
+<PRE>
+        void <B>vmenubarInit</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Initializes a menu bar of the default menu bar class in the
+memory addressed by <SAMP>menubar</SAMP>. The new menu bar
+has no menus. The attributes of the menu bar are set to
+their default values, according to the default menu bar
+class. The default attributes of the default menu bar class
+are documented in the ``Menu Bar Manager'' chapter the
+<I>Galaxy Application Environment Programmer's Guide</I>.
+The address can be used in other calls to the Menu Bar
+Manager as if it were created with
+<CODE><A HREF="vmenubar-x.html#vmenubarCreate"><CODE>vmenubarCreate</CODE></A></CODE>. A call to
+<CODE><A HREF="vmenubar-x.html#vmenubarDestroy"><CODE>vmenubarDestroy</CODE></A></CODE> frees any internal objects
+allocated by the Menu Bar Manager but does <I>not</I> free
+the structure itself. This function simply stores the
+default class in the class field of the menu bar and sends
+it the message <CODE>vobjectINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vmenubarInitOfClass"><HR><H4>vmenubarInitOfClass</H4></A>
+<PRE>
+        void <B>vmenubarInitOfClass</B>(
+                vmenubar * menubar,
+                vmenubarClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes a menu bar of class <SAMP>clas</SAMP> in the
+memory addressed by <SAMP>menubar</SAMP>. The new menu bar
+has no menus. The attributes of the menu bar are set to
+their default values, according to the class. The default
+attributes of the default menu bar class are documented in
+the ``Menu Bar Manager'' chapter the <I>Galaxy Application
+Environment Programmer's Guide</I>. The address can be used
+in other calls to the Menu Bar Manager as if it were
+created with <CODE><A HREF="vmenubar-x.html#vmenubarCreateOfClass"><CODE>vmenubarCreateOfClass</CODE></A></CODE>. A call to
+<CODE><A HREF="vmenubar-x.html#vmenubarDestroy"><CODE>vmenubarDestroy</CODE></A></CODE> frees any internal objects
+allocated by the Menu Bar Manager but does <I>not</I> free
+the structure itself. This function simply stores the class
+in the class field of the menu bar and sends it the message
+<CODE>vobjectINIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vmenubarIsLocal"><HR><H4>vmenubarIsLocal</H4></A>
+<PRE>
+        int <B>vmenubarIsLocal</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the menu bar
+<SAMP>menubar</SAMP> will always remain in its containing
+dialog regardless of the defined look-and-feel behavior.
+</DD></DL>
+<P>
+<A NAME="vmenubarIsNativeDraw"><HR><H4>vmenubarIsNativeDraw</H4></A>
+<PRE>
+        int <B>vmenubarIsNativeDraw</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Tests whether the menu bar uses native drawing, i.e. whether the
+menu bar is drawn by the system rather than by Galaxy.  Currently only
+native menu bars on Microsoft Windows use native drawing.
+</DD></DL>
+<P>
+<A NAME="vmenubarIsOpenNative"><HR><H4>vmenubarIsOpenNative</H4></A>
+<PRE>
+        int <B>vmenubarIsOpenNative</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Tests whether the menu bar is an open native menu bar, that is to say
+whether the menu bar is native and has been opened.
+</DD></DL>
+<P>
+<A NAME="vmenubarLoad"><HR><H4>vmenubarLoad</H4></A>
+<PRE>
+        vmenubar * <B>vmenubarLoad</B>(
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a menu bar from the resource <SAMP>resource</SAMP>
+and returns a pointer to its contents. Storage for the menu
+bar object is allocated by the Menu Bar Manager. The menu
+bar's class is determined by the value of the ``Class''
+tag. It generates
+<CODE><A HREF="vobject-x.html#vobjectUndefinedClassException"><CODE>vobjectUndefinedClassException</CODE></A></CODE> if the name
+does not denote a class in the Class Manager registry. Note
+that this function creates an object based on the class of
+the resource, even if this class is not a menu bar class.
+The object pointer is cast to a menu bar pointer, even if
+the object represents a different data type. Attributes may
+be initialized based on the contents of the resource, or
+they may be set to default values, depending on the class.
+All of the menu bar's menus are read from the resource. The
+attributes of the default menu bar class which are stored
+in resources are documented in the ``Menu Bar Manager''
+chapter the <I>Galaxy Application Environment Programmer's
+Guide</I>. This function essentially allocates space for a
+new instance and calls <CODE><A HREF="vmenubar-x.html#vmenubarLoadInit"><CODE>vmenubarLoadInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vmenubarLoadInit"><HR><H4>vmenubarLoadInit</H4></A>
+<PRE>
+        void <B>vmenubarLoadInit</B>(
+                vmenubar * menubar,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Reads a menu bar from the resource <SAMP>resource</SAMP>
+and stores it in the uninitialized memory addressed by
+<SAMP>menubar</SAMP>. The menu bar's class is determined by
+the value of the ``Class'' tag. It generates
+<CODE><A HREF="vobject-x.html#vobjectUndefinedClassException"><CODE>vobjectUndefinedClassException</CODE></A></CODE> if the name
+does not denote a class in the Class Manager registry. Note
+that this function initializes an object based on the class
+of the resource, even if this class is not a menu bar
+class. The object attempts to initialize itself in the menu
+bar structure provided, even if it is not of the correct
+size. Attributes may be initialized based on the contents
+of the resource, or they may be set to default values,
+depending on the class. All of the menu bar's menus are
+read from the resource. The attributes of the default menu
+bar class which are stored in resources are documented in
+the ``Menu Bar Manager'' chapter the <I>Galaxy Application
+Environment Programmer's Guide</I>. This function stores
+the class specified by the resource in the class field of
+the menu bar structure and sends it the message
+<CODE>vobjectLOAD_INIT</CODE>.
+</DD></DL>
+<P>
+<A NAME="vmenubarMenuHasChanged"><HR><H4>vmenubarMenuHasChanged</H4></A>
+<PRE>
+        int <B>vmenubarMenuHasChanged</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the menu bar
+<SAMP>menubar</SAMP> needs to have its contents
+recalculated, <SAMP>FALSE</SAMP> if it does not.
+</DD></DL>
+<P>
+<A NAME="vmenubarMenuHasHelp"><HR><H4>vmenubarMenuHasHelp</H4></A>
+<PRE>
+        int <B>vmenubarMenuHasHelp</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Returns <SAMP>TRUE</SAMP> if the rightmost menu in the menu
+bar <SAMP>menubar</SAMP> is a help menu, <SAMP>FALSE</SAMP>
+if not.
+</DD></DL>
+<P>
+<A NAME="vmenubarNeedNativeDraw"><HR><H4>vmenubarNeedNativeDraw</H4></A>
+<PRE>
+        int <B>vmenubarNeedNativeDraw</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Tests whether the menu bar needs to have native draw, that is to say
+whether or not the menu bar needs to be drawn by the system rather than
+by Galaxy.
+<P>
+This function is implemented by sending the message
+<CODE><A HREF="vmenubar-x.html#vmenubarNEED_NATIVE_DRAW"><CODE>vmenubarNEED_NATIVE_DRAW</CODE></A></CODE> to the container.
+</DD></DL>
+<P>
+<A NAME="vmenubarPrefersNative"><HR><H4>vmenubarPrefersNative</H4></A>
+<PRE>
+        int <B>vmenubarPrefersNative</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Returns whether the menu bar prefers to be native rather than Galaxy.
+If the return value is <SAMP>TRUE</SAMP> then the menu bar will be
+handled as a native menu bar whenever possible, otherwise it will be a
+Galaxy menu bar.
+</DD></DL>
+<P>
+<A NAME="vmenubarRecalc"><HR><H4>vmenubarRecalc</H4></A>
+<PRE>
+        void <B>vmenubarRecalc</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Recalculates the positions of the titles of each of the
+menus in the menu bar <SAMP>menubar</SAMP>. The titles are
+left-justified within the menu bar. This function is called
+before a menu bar is opened if
+<CODE><A HREF="vmenubar-x.html#vmenubarChangedMenu"><CODE>vmenubarChangedMenu</CODE></A></CODE> has been called since the
+last recalculation. This function is implemented by sending
+the message <CODE><A HREF="vmenubar-x.html#vmenubarRECALC"><CODE>vmenubarRECALC</CODE></A></CODE> to
+<SAMP>menubar</SAMP>.
+    <P>
+</DD></DL>
+<P>
+<A NAME="vmenubarRemoveMenu"><HR><H4>vmenubarRemoveMenu</H4></A>
+<PRE>
+        vmenu * <B>vmenubarRemoveMenu</B>(
+                vmenubar * menubar,
+                vmenu * menu);
+</PRE>
+
+<DL><DD>
+Removes the menu <SAMP>menu</SAMP> from the menu list of
+<SAMP>menubar</SAMP> and invalidates the content rectangle
+of the menu bar if the menu bar is open. The menu is not
+destroyed. All menus following the removed menu have their
+indices decremented by one. This function calls
+<CODE><A HREF="vmenubar-x.html#vmenubarChangedMenu"><CODE>vmenubarChangedMenu</CODE></A></CODE> to insure that the menu
+bar's metrics are updated correctly before it is opened. It
+generates <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> if the menu is not
+in the menu list of <SAMP>menubar</SAMP>. This function is
+implemented by sending the message
+<CODE><A HREF="vmenubar-x.html#vmenubarREMOVE_MENU"><CODE>vmenubarREMOVE_MENU</CODE></A></CODE> to <SAMP>menubar</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmenubarSetData"><HR><H4>vmenubarSetData</H4></A>
+<PRE>
+        void <B>vmenubarSetData</B>(
+                vmenubar * menubar,
+                const void * data);
+</PRE>
+
+<DL><DD>
+Sets a menu bar's generic data pointer to
+<SAMP>data</SAMP>. This may be a pointer to whatever
+information that you want to attach to the menu bar---it is
+not used by the Menu Bar Manager. <SAMP>data</SAMP> may be
+<SAMP>NULL</SAMP>. <SAMP>data</SAMP> is declared
+<SAMP>const</SAMP> to indicate that the Menu Bar Manager
+will not modify its contents. This function is implemented
+by sending the message <CODE><A HREF="vdialog-x.html#vdialogSET_ITEM_DATA"><CODE>vdialogSET_ITEM_DATA</CODE></A></CODE> to
+<SAMP>menubar</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmenubarSetHelp"><HR><H4>vmenubarSetHelp</H4></A>
+<PRE>
+        void <B>vmenubarSetHelp</B>(
+                vmenubar * menubar,
+                int flag);
+</PRE>
+
+<DL><DD>
+Determines whether or not the rightmost menu in the menu
+bar <SAMP>menubar</SAMP> should be drawn right-justified in
+certain look-and-feels. <SAMP>flag</SAMP> should be
+<SAMP>TRUE</SAMP> or <SAMP>FALSE</SAMP>. This function is
+implemented by sending the message
+<CODE><A HREF="vmenubar-x.html#vmenubarSET_HELP"><CODE>vmenubarSET_HELP</CODE></A></CODE> to <SAMP>menubar</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmenubarSetLocal"><HR><H4>vmenubarSetLocal</H4></A>
+<PRE>
+        void <B>vmenubarSetLocal</B>(
+                vmenubar * menubar,
+                int flag);
+</PRE>
+
+<DL><DD>
+Sets whether or not the menu bar <SAMP>menubar</SAMP> will
+be restrained to its containing dialog regardless of the
+defined look-and-feel behavior.
+</DD></DL>
+<P>
+<A NAME="vmenubarSetMenuIndex"><HR><H4>vmenubarSetMenuIndex</H4></A>
+<PRE>
+        void <B>vmenubarSetMenuIndex</B>(
+                vmenubar * menubar,
+                vmenu * menu,
+                int index);
+</PRE>
+
+<DL><DD>
+Changes the position of the menu <SAMP>menu</SAMP> in the
+menu list of <SAMP>menubar</SAMP> and invalidates the
+content rectangle of the menu bar if the menu bar is open.
+Indices range from zero to the number of menus in the menu
+list minus one. The menu list is drawn in the menu bar from
+left to right. This function calls
+<CODE><A HREF="vmenubar-x.html#vmenubarChangedMenu"><CODE>vmenubarChangedMenu</CODE></A></CODE> to ensure that the menu
+bar's metrics are updated correctly before it is opened. It
+generates <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> if the menu is not
+in the menu list of <SAMP>menubar</SAMP>. It generates
+<CODE><A HREF="vex-x.html#vexArgRangeException"><CODE>vexArgRangeException</CODE></A></CODE> if <SAMP>index</SAMP> is
+less than zero or greater than or equal to the number of
+menus in the menu bar. This function is implemented by
+sending the message <CODE><A HREF="vmenubar-x.html#vmenubarSET_MENU_INDEX"><CODE>vmenubarSET_MENU_INDEX</CODE></A></CODE> to
+<SAMP>menubar</SAMP>.
+    <P>
+</DD></DL>
+<P>
+<A NAME="vmenubarSetNotify"><HR><H4>vmenubarSetNotify</H4></A>
+<PRE>
+        void <B>vmenubarSetNotify</B>(
+                vmenubar * menubar,
+                vmenubarNoteProc noteProc);
+</PRE>
+
+<DL><DD>
+Changes the instance notification procedure for the menu
+bar <SAMP>menubar</SAMP> to <SAMP>noteProc</SAMP>. This
+function is called by <CODE><A HREF="vdialog-x.html#vdialogNotifyItem"><CODE>vdialogNotifyItem</CODE></A></CODE> when
+the menu bar is triggered by the user. Note that this
+function is <I>not</I> called for every event that is
+handled by the menu bar---if additional notification is
+required, you should override the appropriate event
+handler. <SAMP>noteProc</SAMP> may be <SAMP>NULL</SAMP>, in
+which case no instance notification is given. Menu bars do
+not give any notification---you should attach a
+notification function to a menu or menu item instead. Refer
+to the ``Menu Manager'' chapter of the <I>Galaxy
+Application Environment Programmer's Guide</I> for more
+information. This function is implemented by sending the
+message <CODE><A HREF="vdialog-x.html#vdialogSET_ITEM_NOTIFY"><CODE>vdialogSET_ITEM_NOTIFY</CODE></A></CODE> to
+<SAMP>menubar</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vmenubarSetPreferNative"><HR><H4>vmenubarSetPreferNative</H4></A>
+<PRE>
+        void <B>vmenubarSetPreferNative</B>(
+                vmenubar * menubar,
+                int flag);
+</PRE>
+
+<DL><DD>
+Sets whether the menu bar prefers to be a native menu bar rather than
+a Galaxy menu bar.
+If <SAMP>flag</SAMP> is <SAMP>TRUE</SAMP> then the menu bar will be
+handled as a native menu bar whenever possible, otherwise it will be a
+Galaxy menu bar.  It may not be possible for the menu bar to be native
+because of lack of support for it in the look-and-feel or because the
+menu bar is not being used in a way consistent with the native usage
+under the look-and-feel (for instance, multiple native menu bars in one
+dialog).
+</DD></DL>
+<P>
+<A NAME="vmenubarStartup"><HR><H4>vmenubarStartup</H4></A>
+<PRE>
+        void <B>vmenubarStartup</B>();
+</PRE>
+
+<DL><DD>
+Initializes the Menu Bar Manager. Has no effect if the Menu
+Bar Manager is already initialized.
+</DD></DL>
+<P>
+<A NAME="vmenubarStore"><HR><H4>vmenubarStore</H4></A>
+<PRE>
+        void <B>vmenubarStore</B>(
+                vmenubar * menubar,
+                vresource resource);
+</PRE>
+
+<DL><DD>
+Writes the contents of the menu bar <SAMP>menubar</SAMP>
+into the resource <SAMP>resource</SAMP>. The menu bar can
+be recovered from the resource at a later time (perhaps by
+another program) with <CODE><A HREF="vmenubar-x.html#vmenubarLoad"><CODE>vmenubarLoad</CODE></A></CODE> or
+<CODE><A HREF="vmenubar-x.html#vmenubarLoadInit"><CODE>vmenubarLoadInit</CODE></A></CODE>. Note that not all of the
+menu bar's attributes are stored in the resource---the
+attributes of the default menu bar class which are stored
+in resources are documented in the ``Menu Bar Manager''
+chapter the <I>Galaxy Application Environment Programmer's
+Guide</I>. All of the menu bar's menus are stored in the
+resource. It generates
+<CODE><A HREF="vobject-x.html#vobjectUnnamedClassException"><CODE>vobjectUnnamedClassException</CODE></A></CODE> if the menu bar's
+class is not named. This function is implemented by sending
+the message <CODE>vobjectSTORE</CODE> to
+<SAMP>menubar</SAMP>.
+    <P>
+To store a menu bar in a resource, first call
+<CODE><A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A></CODE> to create an untyped resource in
+the desired location, then call <CODE>vmenubarStore</CODE>
+to write the menu bar into the resource. For example:
+    <P>
+<BLOCKQUOTE>
+
+
+<PRE>
+
+vmenubar *menubar;    /* contains a menu bar */
+<A HREF="vresource-x.html#vresource"><CODE>vresource</CODE></A> fileResource, menubarResource;
+
+fileResource    = <A HREF="vresource-x.html#vresourceOpenFile"><CODE>vresourceOpenFile</CODE></A>( ... );
+menubarResource = <A HREF="vresource-x.html#vresourceMake"><CODE>vresourceMake</CODE></A>(fileResource,
+                                <A HREF="vname-x.html#vnameInternGlobalLiteral"><CODE>vnameInternGlobalLiteral</CODE></A>("MyMenuBar"));
+
+vmenubarStore(menubar, menubarResource);
+<A HREF="vresource-x.html#vresourceCloseFile"><CODE>vresourceCloseFile</CODE></A>(fileResource);
+
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vmenubarUnhilite"><HR><H4>vmenubarUnhilite</H4></A>
+<PRE>
+        void <B>vmenubarUnhilite</B>(
+                vmenubar * menubar);
+</PRE>
+
+<DL><DD>
+Removes highlighting from the menu bar <SAMP>menubar</SAMP>
+to indicate that it is no longer activated. This function
+sets the current drawing device to the menu bar's owning
+dialog and immediately undraws its current highlighting.
+This function is implemented by sending the message
+<CODE><A HREF="vmenubar-x.html#vmenubarUNHILITE"><CODE>vmenubarUNHILITE</CODE></A></CODE> to <SAMP>menubar</SAMP>.
+    <P>
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vmenubarAPPEND_MENU"><HR><H4>vmenubarAPPEND_MENU</H4></A>
+<PRE>
+        &lt;<B>vmenubarAPPEND_MENU</B>&gt;
+</PRE>
+
+<DL><DD>
+Appends the menu <SAMP>menu</SAMP> to the menu list of
+<SAMP>menubar</SAMP> and invalidates the content rectangle
+of the menu bar if the menu bar is open. The menu is drawn
+on the right-hand side of the menu bar. The menu is
+destroyed when the menu bar is destroyed unless it is
+removed first. This message calls
+<CODE><A HREF="vmenubar-x.html#vmenubarChangedMenu"><CODE>vmenubarChangedMenu</CODE></A></CODE> to ensure that the menu
+bar's metrics are updated correctly before it is opened.
+The function entry point <CODE><A HREF="vmenubar-x.html#vmenubarAppendMenu"><CODE>vmenubarAppendMenu</CODE></A></CODE> is
+implemented by sending this message to the menu bar.
+    <P>
+The default method for the default menu bar class appends
+the menu to the menu bar's menu list and invalidates the
+menu bar. Subclasses that override this method should first
+call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to append the menu to the
+menu bar, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vmenubarCHANGED_MENU"><HR><H4>vmenubarCHANGED_MENU</H4></A>
+<PRE>
+        &lt;<B>vmenubarCHANGED_MENU</B>&gt;
+</PRE>
+
+<DL><DD>
+Indicates to the Menu Bar Manager that a menu owned by
+<SAMP>menubar</SAMP> has had its contents changed in some
+way, and that the menu bar's metrics should be recalculated
+to reflect the change. The menu bar recalculates its menu
+title boundaries the next time it is opened. If the menu
+bar's dialog is open, the menu bar's bounding rectangle is
+invalidated and the menu bar is redrawn in a subsequent
+update event. The function entry point
+<CODE><A HREF="vmenubar-x.html#vmenubarChangedMenu"><CODE>vmenubarChangedMenu</CODE></A></CODE> is implemented by sending
+this message to the menu bar.
+    <P>
+The default method for the default menu bar class sets the
+menu bar's menu dirty flag and invalidates the menu bar.
+Subclasses that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to set the menu bar menu dirty
+menu, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vmenubarDELETE_MENU"><HR><H4>vmenubarDELETE_MENU</H4></A>
+<PRE>
+        &lt;<B>vmenubarDELETE_MENU</B>&gt;
+</PRE>
+
+<DL><DD>
+<I><B>(Deprecated)</B></I> Removes the menu <SAMP>menu</SAMP> from the menu list of
+<SAMP>menubar</SAMP> and invalidates the content rectangle
+of the menu bar if the menu bar is open. The menu is not
+destroyed. All menus following the removed menu have their
+indices decremented by one. This message calls
+<CODE><A HREF="vmenubar-x.html#vmenubarChangedMenu"><CODE>vmenubarChangedMenu</CODE></A></CODE> to insure that the menu
+bar's metrics are updated correctly before it is opened. It
+generates <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> if the menu is not
+in the menu list of <SAMP>menubar</SAMP>. The function
+entry point <CODE><A HREF="vmenubar-x.html#vmenubarDeleteMenu"><CODE>vmenubarDeleteMenu</CODE></A></CODE> is implemented
+by sending this message to the menu bar.
+    <P>
+The default method for the default menu bar class removes
+the menu from the menu bar's menu list and invalidates the
+menu bar. Subclasses that override this method should first
+call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to remove the menu from
+the menu bar, then update any subclass-specific state.
+<P>
+This method has been deprecated; use <CODE><A HREF="vmenubar-x.html#vmenubarREMOVE_MENU"><CODE>vmenubarREMOVE_MENU</CODE></A></CODE>
+instead. 
+</DD></DL>
+<P>
+<A NAME="vmenubarHILITE"><HR><H4>vmenubarHILITE</H4></A>
+<PRE>
+        &lt;<B>vmenubarHILITE</B>&gt;
+</PRE>
+
+<DL><DD>
+Draws highlighting around the currently selected menu title
+of the menu bar <SAMP>menubar</SAMP> to indicate that it
+has been clicked or otherwise activated. This message sets
+the current drawing device to the menu bar's owning dialog
+and immediately draws the highlighting. The function entry
+point <CODE><A HREF="vmenubar-x.html#vmenubarHilite"><CODE>vmenubarHilite</CODE></A></CODE> is implemented by sending
+this message to the menu bar.
+    <P>
+The default method for the default menu bar class sets the
+current drawing device to the menu bar and immediately
+draws the highlighting. Subclasses that override this
+method should similarly change the current drawing device
+to the menu bar and draw any subclass-specific
+highlighting.
+</DD></DL>
+<P>
+<A NAME="vmenubarNEED_NATIVE_DRAW"><HR><H4>vmenubarNEED_NATIVE_DRAW</H4></A>
+<PRE>
+        &lt;<B>vmenubarNEED_NATIVE_DRAW</B>&gt;
+</PRE>
+
+<DL><DD>
+Tests whether the menu bar needs to have native draw, that is to say
+whether or not the menu bar needs to be drawn by the system rather than
+by Galaxy.
+<P>
+The function <CODE><A HREF="vmenubar-x.html#vmenubarNeedNativeDraw"><CODE>vmenubarNeedNativeDraw</CODE></A></CODE> is implemented by
+sending this message to the container.
+</DD></DL>
+<P>
+<A NAME="vmenubarRECALC"><HR><H4>vmenubarRECALC</H4></A>
+<PRE>
+        &lt;<B>vmenubarRECALC</B>&gt;
+</PRE>
+
+<DL><DD>
+Recalculates the positions of the titles of each of the
+menus in the menu bar <SAMP>menubar</SAMP>. The titles are
+left-justified within the menu bar. This message is sent
+before a menu bar is opened if
+<CODE><A HREF="vmenubar-x.html#vmenubarChangedMenu"><CODE>vmenubarChangedMenu</CODE></A></CODE> has been called since the
+last recalculation. The function entry point
+<CODE><A HREF="vmenubar-x.html#vmenubarRecalc"><CODE>vmenubarRecalc</CODE></A></CODE> is implemented by sending this
+message to the menu bar.
+    <P>
+The default method for the default menu bar class
+recalculates the internal metrics of the menu bar.
+Subclasses that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to recalculate the menu bar's
+contents, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vmenubarREMOVE_MENU"><HR><H4>vmenubarREMOVE_MENU</H4></A>
+<PRE>
+        &lt;<B>vmenubarREMOVE_MENU</B>&gt;
+</PRE>
+
+<DL><DD>
+Removes the menu <SAMP>menu</SAMP> from the menu list of
+<SAMP>menubar</SAMP> and invalidates the content rectangle
+of the menu bar if the menu bar is open. The menu is not
+destroyed. All menus following the removed menu have their
+indices decremented by one. This message calls
+<CODE><A HREF="vmenubar-x.html#vmenubarChangedMenu"><CODE>vmenubarChangedMenu</CODE></A></CODE> to insure that the menu
+bar's metrics are updated correctly before it is opened. It
+generates <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> if the menu is not
+in the menu list of <SAMP>menubar</SAMP>. The function
+entry point <CODE><A HREF="vmenubar-x.html#vmenubarRemoveMenu"><CODE>vmenubarRemoveMenu</CODE></A></CODE> is implemented
+by sending this message to the menu bar.
+    <P>
+The default method for the default menu bar class removes
+the menu from the menu bar's menu list and invalidates the
+menu bar. Subclasses that override this method should first
+call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to remove the menu from
+the menu bar, then update any subclass-specific state.
+
+</DD></DL>
+<P>
+<A NAME="vmenubarSET_HELP"><HR><H4>vmenubarSET_HELP</H4></A>
+<PRE>
+        &lt;<B>vmenubarSET_HELP</B>&gt;
+</PRE>
+
+<DL><DD>
+Determines whether or not the rightmost menu in the menu
+bar <SAMP>menubar</SAMP> should be drawn right-justified in
+certain look-and-feels. <SAMP>flag</SAMP> should be
+<SAMP>TRUE</SAMP> or <SAMP>FALSE</SAMP>. The function entry
+point <CODE><A HREF="vmenubar-x.html#vmenubarSetHelp"><CODE>vmenubarSetHelp</CODE></A></CODE> is implemented by
+sending this message to the menu bar.
+    <P>
+The default method for the default menu bar class sets the
+help flag in the menu bar and invalidates it. Subclasses
+that override this method should first call
+<CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to set the help flag in the
+menu bar, then update any subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vmenubarSET_LOCAL"><HR><H4>vmenubarSET_LOCAL</H4></A>
+<PRE>
+        &lt;<B>vmenubarSET_LOCAL</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets whether or not the menu bar <SAMP>menubar</SAMP> will
+be restrained to its containing dialog regardless of the
+defined look-and-feel behavior.
+</DD></DL>
+<P>
+<A NAME="vmenubarSET_MENU_INDEX"><HR><H4>vmenubarSET_MENU_INDEX</H4></A>
+<PRE>
+        &lt;<B>vmenubarSET_MENU_INDEX</B>&gt;
+</PRE>
+
+<DL><DD>
+Changes the position of the menu <SAMP>menu</SAMP> in the
+menu list of <SAMP>menubar</SAMP> and invalidates the
+content rectangle of the menu bar if the menu bar is open.
+Indices range from zero to the number of menus in the menu
+list minus one. The menu list is drawn in the menu bar from
+left to right. This message calls
+<CODE><A HREF="vmenubar-x.html#vmenubarChangedMenu"><CODE>vmenubarChangedMenu</CODE></A></CODE> to ensure that the menu
+bar's metrics are updated correctly before it is opened.
+Generates <CODE><A HREF="vex-x.html#vexArgException"><CODE>vexArgException</CODE></A></CODE> if the menu is not
+in the menu list of <SAMP>menubar</SAMP>. The function
+entry point <CODE><A HREF="vmenubar-x.html#vmenubarSetMenuIndex"><CODE>vmenubarSetMenuIndex</CODE></A></CODE> is
+implemented by sending this message to the menu bar.
+    <P>
+The default method for the default menu bar class changes
+the index of the menu in the menu bar's menu list and
+invalidates the menu bar. Subclasses that override this
+method should first call <CODE><A HREF="vclass-x.html#vclassSendSuper"><CODE>vclassSendSuper</CODE></A></CODE> to
+change the menu index in the menu bar, then update any
+subclass-specific state.
+</DD></DL>
+<P>
+<A NAME="vmenubarUNHILITE"><HR><H4>vmenubarUNHILITE</H4></A>
+<PRE>
+        &lt;<B>vmenubarUNHILITE</B>&gt;
+</PRE>
+
+<DL><DD>
+Removes highlighting from the menu bar <SAMP>menubar</SAMP>
+to indicate that it is no longer activated. This message
+sets the current drawing device to the menu bar's owning
+dialog and immediately undraws its current highlighting.
+The function entry point <CODE><A HREF="vmenubar-x.html#vmenubarUnhilite"><CODE>vmenubarUnhilite</CODE></A></CODE> is
+implemented by sending this message to the menu bar.
+    <P>
+The default method for the default menu bar class sets the
+current drawing device to the menu bar and immediately
+undraws the highlighting. Subclasses that override this
+method should similarly change the current drawing device
+to the menu bar and undraw any subclass-specific
+highlighting.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vmenubarINCLUDED"><HR><H4>vmenubarINCLUDED</H4></A>
+<PRE>
+        <B>vmenubarINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Defined when the header file <SAMP>vmenubar.h</SAMP> is
+included.
+</DD></DL>
+<P>
+<A NAME="vmenubarNEXT_ID_ATTRIBUTE"><HR><H4>vmenubarNEXT_ID_ATTRIBUTE</H4></A>
+<PRE>
+        <B>vmenubarNEXT_ID_ATTRIBUTE</B>
+</PRE>
+
+<DL><DD>
+Denotes the next available attribute ID for subclasses of
+the default menu bar class. This constant is provided so
+that attribute IDs defined by subclasses do not conflict
+with those defined by the Menu Bar Manager. Only attributes
+defined by overriding the methods 
+<CODE><A HREF="vobject-x.html#vobjectSET_ID_ATTRIBUTE"><CODE>vobjectSET_ID_ATTRIBUTE</CODE></A></CODE> and
+<CODE><A HREF="vobject-x.html#vobjectGET_ID_ATTRIBUTE"><CODE>vobjectGET_ID_ATTRIBUTE</CODE></A></CODE> need be concerned with
+the attribute IDs of their superclasses. Subclasses of
+<CODE><A HREF="vmenubar-x.html#vmenubarClass"><CODE>vmenubarClass</CODE></A></CODE> should begin their attribute IDs
+with this constant and increment by one for each attribute.
+Subclasses should also provide their own
+<CODE>NEXT_ID_ATTRIBUTE</CODE> constant for use by their
+subclasses. This constant has integral type.
+</DD></DL>
+<P>
+<A NAME="vmenubarNEXT_SELECT"><HR><H4>vmenubarNEXT_SELECT</H4></A>
+<PRE>
+        <B>vmenubarNEXT_SELECT</B>
+</PRE>
+
+<DL><DD>
+Denotes the first command selector available to subclasses
+of the default menu bar class. This constant is provided so
+that selector values defined by subclasses do not conflict
+with those defined by their superclasses. Only class-level
+commands (defined by overriding the methods
+<CODE><A HREF="vobject-x.html#vobjectISSUE_SELECTOR"><CODE>vobjectISSUE_SELECTOR</CODE></A></CODE> and
+<CODE><A HREF="vobject-x.html#vobjectQUERY_SELECTOR"><CODE>vobjectQUERY_SELECTOR</CODE></A></CODE>) need be concerned with
+the selector values of their superclasses. Subclasses of
+<CODE><A HREF="vmenubar-x.html#vmenubarClass"><CODE>vmenubarClass</CODE></A></CODE> should begin their command
+selectors with this constant and increment by one for each
+new command. In other words, if you add commands to the
+class-level command space of <CODE>vmenubar</CODE>, you put
+their implementations in your
+<CODE><A HREF="vobject-x.html#vobjectISSUE_SELECTOR"><CODE>vobjectISSUE_SELECTOR</CODE></A></CODE> override and start with
+the value of <CODE>vmenubarNEXT_SELECT</CODE> as the first
+selector value you handle. Subclasses should also provide
+their own <SAMP>NEXT_SELECT</SAMP> constant for use by
+their subclasses. This constant has integral type.
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vmenubarCLASS"><HR><H4>vmenubarCLASS</H4></A>
+<PRE>
+        #define <B>vmenubarCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Contains the method and variable declarations for menu bar
+classes. This macro expands to the contents of
+<CODE><A HREF="vmenubar-x.html#vmenubarClass"><CODE>vmenubarClass</CODE></A></CODE>. <SAMP>SUPER</SAMP> is the type
+identifier of the class being declared (for example,
+<CODE><A HREF="vmenubar-x.html#vmenubarClass"><CODE>vmenubarClass</CODE></A></CODE>). This type is used by the class's 
+subclasses to refer to it. 
+<SAMP>ITEM</SAMP> is the type identifier of instances of the class
+being declared (for example, <CODE>vmenubar</CODE>). 
+<SAMP>NOTIFY</SAMP> is the type identifier of the instance notification
+function (for example, <CODE><A HREF="vmenubar-x.html#vmenubarNoteProc"><CODE>vmenubarNoteProc</CODE></A></CODE>).
+This macro should be used by menu bar subclasses to
+declare the contents of the menu bar class. This macro should come
+first in the subclass structure declaration.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

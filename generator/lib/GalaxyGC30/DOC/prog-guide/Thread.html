@@ -1,0 +1,304 @@
+<HTML>
+<HEAD>
+<TITLE>Thread</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Thread</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Text_Ruler.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Timer.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The <EM><B>Thread</B></EM> class is used for creating and manipulating multiple threads within a Galaxy program. This class can be used to create a new thread, start the thread, suspend and resume the thread, and wait for the thread to terminate. This class also provides access to Thread Local Storage (TLS). <P>
+Thread synchronization is provided by the Condition and Mutex classes. In combination, these three classes provide everything necessary to develop a multithreaded Galaxy application.<P>
+The Thread class is only used by multithreaded Galaxy applications. If you do not want to build a multithreaded Galaxy application, you do not need to use the Thread class.<P>
+The Galaxy Thread class is based upon the standard POSIX multithreaded functions and concepts. A "thread" is an independent sequence of execution of program code within a process. A typical process has only one thread of execution. The Thread class is used to create more threads of execution within a process. All threads share the resources of the process (memory, open files, etc.) and are scheduled independently by the operating system.<P>
+If multiple threads need to access a shared resource, such as a common piece of memory or a file, then the threads will need to coordinate their efforts via the use of the Mutex class. By using a mutex object, multiple threads can ensure that they will not corrupt the shared resource by allowing only one thread access to the resource at a time.<P>
+It is beyond the scope of this Programmers Guide to discuss all of the issues, pitfalls, and details involved with multithreaded programming. Developing a robust multithreaded program is a complicated task that requires full understanding of not only the application being developed, but the underlying operating system, hardware, and software libraries being used.<P>
+Differences in thread scheduling between operating systems and differences in memory and cache coherency between computer systems <B>must</B> be taken into account to develop a properly working application. The Galaxy Thread class, as well as the Mutex and Condition classes, have been designed to provide consistent access to each operating system's implementation of threads. However, use of these classes alone will not result in an operational multithreaded application without a proper understanding of multithreaded programming beyond Galaxy.<P>
+Visix recommends the following books on multithreaded programming:<P>
+<OL>
+<LI><EM>Programming with POSIX Threads</EM>, David R. Butenhof, Addison Wesley, 1997, ISBN 0-
+201-63392-2
+<BR>
+<LI><EM>Multithreading Applications in Win32</EM>, Jim Beveridge and Robert Wiener, Addison 
+Wesley, 1997, ISBN 0-201-44234-5
+<BR>
+</OL>
+The Butenhof book discusses multithreaded programming in general, with specific examples using POSIX threads on UNIX. The Beveridge and Wiener book illustrates writing multithreaded programs under Win32. Each book has chapters on thread basics, thread synchronization, thread local storage, and priorities.<P>
+Combined with the proper understanding of multithreaded programming techniques, this Programmers Guide will describe in detail how to use these techniques in the development of a Galaxy application.<P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+The Thread class provides methods to create a thread, run it, stop it, wait for it to finish running, and to destroy a thread. At any given instant, a thread is in one of the seven states listed below:<P>
+<UL><EM><B>Inactive</B></EM>	The thread has been created but is not running.
+<P><EM><B>Activating</B></EM>	The <TT>Start</TT> method has been invoked on the thread, but 
+the thread is not actually running yet.
+<P><EM><B>Active</B></EM>	The thread is running.
+<P><EM><B>Suspend Requested</B></EM>	The <TT>RequestSuspend</TT> method has been invoked on the 
+thread, but the thread has not honored the suspension 
+request yet and is still running.
+<P><EM><B>Suspended</B></EM>	The thread has been suspended.
+<P><EM><B>Termination Requested</B></EM>	The <TT>RequestTermination</TT> method has been invoked on 
+the thread, but the thread has not honored the 
+termination request yet and is still running. 
+<P><EM><B>Terminated</B></EM>	The thread has stopped running and can be destroyed.
+<P></UL>The sections below will indicate which methods move a thread from one state to the next.<P>
+<A NAME="3623"><H3> Creating and Running a Thread</H3></A>
+To create a new thread object, call the <TT>Create</TT> method. The new thread is in the <TT>Inactive</TT> state. The thread is not automatically started nor operating system resources are allocated. Call the <TT>Start</TT> method to run the thread. When the <TT>Start</TT> method is called, the Thread class creates an operating system thread to support the Galaxy thread object and the thread transitions to the <TT>Activating</TT> state and the <TT>Start</TT> method returns. When the operating system schedules the thread, the Thread class will perform some basic housekeeping in the context of the new thread, transition the thread to the <TT>Active</TT> state, and call the thread's <TT>Run</TT> method.<P>
+One thread can wait for another thread to finish running by calling the <TT>WaitForTermination</TT> method on the other thread. <TT>WaitForTermination</TT> will block the current thread until either the other thread enters the Terminated state or until the timeout period specified in method invocation expires. The return value of <TT>WaitForTermination</TT> specifies whether or not the thread terminated. If <TT>WaitForTermination</TT> is called on a thread that has already terminated, it will return immediately indicating that the thread has indeed terminated.<P>
+Once a thread has terminated, it can be destroyed with the <TT>Destroy</TT> method. An attempt to destroy a thread that is still running will result in a <TT>StateActiveException</TT>.<P>
+<A NAME="3627"><H3> Making a Thread Perform Useful Work</H3></A>
+An thread object created from the base Thread class does nothing when it is run. It simply terminates immediately. Clearly, this is not very useful. There are two ways to cause a thread to take action when it is run: set a run procedure on a thread from the base class or subclass the Thread class and override the <TT>Run</TT> method.<P>
+Using the <TT>SetRunProc</TT> method to set a run procedure on a thread is the easiest way to have a thread perform useful work. The function set via <TT>SetRunProc</TT> will be executed in the context of the new thread when it is started via <TT>Start</TT>. When the run procedure returns the new thread will finish running and enter the <TT>Terminated</TT> state. Any threads waiting for the thread to terminate via <TT>WaitForTermination</TT> will be unblocked. <P>
+Subclassing the base Thread class and overriding the <TT>Run</TT> method is the second way to have a thread perform useful work. When a thread is started via the <TT>Start</TT> method, its <TT>Run</TT> method is invoked in the context of the new thread. The <TT>Run</TT> method on the base Thread class simply calls any run procedure set via <TT>SetRunProcedure</TT> then returns. If no run procedure is set, then the <TT>Run</TT> method returns immediately. By overriding the <TT>Run</TT> method in your own subclass of Thread you can have the thread perform useful work. <P>
+<A NAME="3631"><H3> Exiting a Thread</H3></A>
+There are three ways for a thread to finish running and terminate itself: <P>
+<OL>
+<LI>By returning from its <TT>Run</TT> method or run procedure.
+<BR>
+<LI>By calling the <TT>Exit</TT> method.
+<BR>
+<LI>By calling the ANSI <TT>exit()</TT> function.
+<BR>
+</OL>
+When a thread returns from is <TT>Run</TT> method, it is done working and enters the <TT>Terminated</TT> state. Any resources the thread holds when it returns from its <TT>Run</TT> method will not be reclaimed. This includes open files, locked mutexes, and any memory the thread may have allocated. Such resources should be cleaned up by the thread before returning from the <TT>Run</TT> method. <P>
+A thread may invoke the <TT>Exit</TT> method at any time during its execution. The <TT>Exit</TT> method causes the thread to terminate immediately, just as if it had returned from its <TT>Run</TT> method. Like returning from the <TT>Run</TT> method, any resources held by the thread are not reclaimed. <P>
+When a thread returns from its <TT>Run</TT> method or terminates via the <TT>Exit</TT> method, only that thread stops running. All other active threads in the application remain active and are unaffected.<P>
+However, when a thread calls the ANSI exit() function, the <EM>entire</EM> application is terminated. All other threads in the application are immediately terminated, without warning or a chance to cleanup allocated resources. Any mutexes held by the other threads will remain held by them after their termination. The thread that called ANSI <TT>exit()</TT> will then begin running any application exit handlers registered with <TT>vclientRegisterGlobalShutdown</TT>, <TT>vclientRegisterShutdown</TT>, or the ANSI <TT>atexit()</TT> function. When all the application exit handlers have been run, the application will terminate.<P>
+Terminating an application with ANSI <TT>exit()</TT> while multiple threads are active is not recommended. Since threads are not given a chance to cleanup any resources they hold, the application may not be able to terminate properly. For instance, if a thread holds a mutex and is terminated unexpectedly when another thread calls ANSI <TT>exit()</TT>, and the terminating thread needs to lock that mutex in order to complete application shutdown, then the application will deadlock because the mutex cannot be acquired. Application developers should ensure that all threads are terminated properly before application shutdown in order to provide deterministic shutdown behavior.<P>
+<A NAME="3641"><H3> The First Thread is Special</H3></A>
+When an application is started, execution begins with the <TT>main()</TT> function. At this time, there is only one thread in the application. You can think of <TT>main()</TT> as the thread procedure for the first thread in an application. However, ANSI C was developed before the advent of multithreading, and the ANSI standard dictates that returning from the function <TT>main()</TT> causes the entire application to terminate as if the ANSI <TT>exit()</TT> function had been called. Therefore, simply returning from <TT>main()</TT> is just like calling <TT>exit()</TT> at the end of <TT>main()</TT>. This has the same bad effect as calling ANSI <TT>exit()</TT> does with multiple active threads. <P>
+Therefore, if you want to terminate the main thread in your application without terminating the entire application, you must call the Exit method at the end of <TT>main()</TT> instead of returning from it. Calling the Exit method from the main thread will cause only that thread to terminate, leaving all other threads in your application unaffected.<P>
+<A NAME="3649"><H3> Determining the Current Thread Object</H3></A>
+You may, at any time, invoke the <TT>Determine</TT> method on the Thread class to get a pointer to the currently executing thread object.<P>
+<A NAME="3651"><H3> Putting a Thread to Sleep</H3></A>
+It may be necessary at times for a thread to suspend its execution for a specific period of time. This can be done with the <TT>Sleep</TT> method on the Thread class. The <TT>Sleep</TT> method will cause a thread to "sleep" for the given number of seconds and nanoseconds. The <TT>Sleep</TT> method will return when the time has expired and the thread will continue execution. While a thread sleeps, its state remains <TT>Active</TT>.<P>
+<A NAME="3653"><H3> Suspending a Thread</H3></A>
+Sometimes, rather than having a thread put itself to sleep for a specific period of time, you might want to have one thread tell another thread to suspend its execution indefinitely. Invoking the <TT>RequestSuspend</TT> method on a thread registers a suspension request with that thread. The thread transitions to the <TT>Suspend Requested</TT> state. The thread will continue running until it hits a suspension point in the Galaxy library. The suspension points built into Galaxy 3.0 are listed below: <P>
+<OL>
+<LI>Just before a thread calls it's <TT>Run</TT> method.
+<BR>
+<LI>After a thread calls <TT>Sleep</TT>.
+<BR>
+<LI>When a thread calls <TT>Yield</TT>.
+<BR>
+<LI>Before locking a recursive mutex with <TT>vmutexLock</TT>. 
+<BR>
+</OL>
+When a thread hits a suspension point and there is an outstanding suspension request on that thread, then the thread will stop executing and transition to the <TT>Suspended</TT> state. The thread will remain suspended until another thread invoked the <TT>Resume</TT> method on that thread. The <TT>Resume</TT> method will transition the thread to the <TT>Active</TT> state and the thread will resume execution where it left off.<P>
+A thread may be created with the <TT>Create</TT> method, then suspended via <TT>RequestSuspend</TT>, then started with the <TT>Start</TT> method. The thread will then be in the <TT>Suspended</TT> state before its <TT>Run</TT> method is called. When another thread calls <TT>Resume</TT> on the suspended thread, it will transition to the <TT>Active</TT> state and invoke its <TT>Run</TT> method. This is the correct method for creating a suspended thread.<P>
+Calling <TT>Resume</TT> on a thread multiple times, or on a thread that is not suspended, has no effect on the thread. Likewise, calling <TT>RequestSuspend</TT> on a thread multiple times does not register multiple suspension requests with a thread. <P>
+If a thread is in the <TT>Suspend Requested</TT> state and <TT>Resume</TT> is called on that thread, then the suspension request is simply removed and the thread will never be suspended.<P>
+If a thread invokes <TT>RequestSuspend</TT> on itself, the thread will transition to the <TT>Suspended</TT> state immediately and stop execution. Another thread may resume the thread as usual. Combining the <TT>IsSuspendRequested</TT> method with <TT>RequestSuspend</TT> in the same thread is one way to add additional suspension points to your application.<P>
+<A NAME="3664"><H3> Yielding the Processor to Other Threads</H3></A>
+On certain operating systems (described below in Additional Functionality) there will be times when you wish to have a thread explicitly give up the processor in order to let another thread execute. This is accomplished by invoking the <TT>Yield</TT> method. <TT>Yield</TT> is simply an indication to the operating system that the current thread is willing to give up the processor. The operating system will then determine which thread should be scheduled next. There is no guarantee that the next thread scheduled won't be the same thread that invoked <TT>Yield</TT>. For instance, if a high priority thread invokes <TT>Yield</TT>, and all other high priority threads are blocked or there are only lower priority threads in the system, then the thread that invoked <TT>Yield</TT> will get scheduled again and continue to run. <P>
+Since <TT>Yield</TT> has no other effect than to give another thread a chance to run, which would have happened sooner or later anyway, you can use <TT>Yield</TT> to add more suspension points to your application.<P>
+<A NAME="3667"><H3> Thread Priorities</H3></A>
+Every thread in an application has a thread priority. Thread priorities range from <TT>vthreadPRIORITY_MIN</TT> to <TT>vthreadPRIORITY_MAX</TT>, with the normal or default priority being halfway in between the minimum and maximum priority. Use the <TT>GetPriority</TT> method to determine a thread's current priority and the <TT>SetPriority</TT> method to alter a thread's priority.<P>
+Thread priorities are hints to the operating system. They indicate that one thread should be allocated more processor time than another thread. However, the operating system may choose to ignore the priorities that you set for threads in an application, and you cannot count on consistent behavior in this matter across operating systems.<P>
+<A NAME="3670"><H3> Thread Local Storage</H3></A>
+Thread local storage (TLS), sometimes referred to as thread specific data (TSD), is a method to define a variable that has a different value depending on what thread accesses the variable. This can be very useful if, for instance, you wish to develop a set of functions that keep different information for each different thread that uses the functions. In fact, thread local storage is used in the implementation of many of the Galaxy classes. <P>
+Each slot of thread local storage is large enough to hold one void pointer (void *). There are an unlimited number of TLS slots available for use in your application. To define a thread local variable, wrap the type specifier of a variable in <TT>vthreadLOCAL</TT> as follows:<P>
+<PRE><UL>   vthreadLOCAL(void *) tls_1;
+
+</UL></PRE>The variable <TT>tls_1</TT> will be a "thread local variable." Before the thread local variable can be used, it must be initialized. Initialize a thread local variable with the <TT>InitLocal</TT> method on the Thread class, passing the address of the variable as the argument. <P>
+<PRE><UL>   vthread::InitLocal(&amp;tls_1);
+
+</UL></PRE>A thread local variable should be initialized only once. It can be initialized by any thread in the application. After initialization, the thread local variable's value will be <TT>NULL</TT> in any thread currently existing or that will be created. A thread local variables value can be retrieved by invoking <TT>GetLocal</TT> with thread local variable as the argument as follows:<P>
+<PRE><UL>   void *my_value = vthread::GetLocal(tls_1);
+
+</UL></PRE>Conversely, a thread may set the value of a thread local variable with <TT>SetLocal</TT>, passing the address of the thread local variable as the first parameter and the new value as the second parameter:<P>
+<PRE><UL>   vthread::SetLocal(&amp;tls_1, my_value);
+
+</UL></PRE>If thread #1 calls <TT>SetLocal</TT> with value 23 and thread #2 calls <TT>SetLocal</TT> with value 72, then when thread #1 calls <TT>GetLocal</TT>, the return value will be 23. When thread #2 calls <TT>GetLocal</TT>, the return value will be 72. <P>
+If there is a large amount of data you wish to turn into thread local storage, you should make a structure to hold the data and use a single thread local variable. Each thread can then allocate memory for its own copy of the data structure and store the pointer to the structure in the same thread local variable. For example:<P>
+<PRE><UL>   struct my_data {
+      int a, b, c;
+      float d, e, f;
+   };
+
+   struct my_data *md = vmemAlloc(sizeof(my_data));
+
+   vthread::SetLocal(&amp;tls_1, (void *) md);
+
+</UL></PRE>Later, the data can be easily accessed:<P>
+<PRE><UL>   struct my_data *md = (struct my_data *) vthread::GetLocal(tls_1);
+
+   md-&gt;a = 4;
+
+</UL></PRE>Thread local storage is useful when you want to store per-thread data when you don't have access to the current thread object or you can't subclass the base thread object. However, thread local storage does not preserve type safety. A better practice is to subclass the base thread object and add data members to it. <P>
+<A NAME="3365"><H2> Additional Functionality</H2></A>
+<A NAME="3714"><H3> Thread Scheduling Scope and Concurrency Level</H3></A>
+In general, a thread is an independent sequence of execution of program code within a process that is scheduled processor time by the operating system. However, different operating systems schedule threads in different ways. Some operating systems schedule thread fully preemptively, while other operating systems schedule threads cooperatively, i.e., only when they explicitly yield the processor to other threads.<P>
+To characterize the different ways an operating system schedules its threads, two different "levels" of threads are defined:<P>
+<OL>
+<LI>Kernel-level threads. These are threads that are scheduled fully preemptively by the 
+operating system. Kernel-level threads are kernel objects and content for processor 
+time with all other kernel-level threads in all other process in the system.
+<BR>
+<LI>Process-level threads. These are threads that are scheduled cooperatively. A process-
+level thread must explicitly give up the processor to another thread in the 
+application. The application may be scheduled preemptively with other 
+applications in the system, or the application may be scheduled cooperatively, too. 
+<BR>
+</OL>
+When an operating system supports a mix of kernel-level and process-level threads, it is said to employ a two-level thread system. In a two-level thread system, all of the threads that are created by an application are process-level threads. The process-level threads are then assigned to a smaller number of kernel-level threads on which they run. When a process-level thread yields the processor, it is really yielding its position on a kernel-level thread to another process-level thread in the same application. Operating systems that use two-level thread systems also typically allow you to "tie" a process-level thread to a single kernel-level thread, forming a one-to-one relationship between the two threads. This effectively simulates a kernel-level thread in a two-level thread system.<P>
+Galaxy 3.0 supports the following operating systems with kernel-level threads only:<P>
+<OL>
+<LI>Windows 95 and Windows NT
+<BR>
+<LI>AIX 3.2.5 and earlier
+<BR>
+<LI>HP/UX 10.2 and earlier
+<BR>
+<LI>OS/2
+<BR>
+</OL>
+Galaxy 3.0 supports the following operating systems with process-level threads only:<P>
+<OL>
+<LI>Macintosh
+<BR>
+</OL>
+Galaxy 3.0 supports the following operating systems with a two-level thread system:<P>
+<OL>
+<LI>Solaris
+<BR>
+<LI>Digital Unix
+<BR>
+<LI>Irix
+<BR>
+<LI>AIX 4 and higher
+<BR>
+</OL>
+Galaxy allows you to specify which type of thread you would like to try to create. Use <TT>SetScope</TT> with <TT>vthreadSCOPE_PROCESS</TT> to specify a process-level thread and <TT>vthreadSCOPE_KERNEL</TT> to specify a kernel level thread. In an operating system with kernel-level thread only, the thread will always be a kernel-level thread. Likewise in an operating system with only process-level threads, the thread will always be a process-level thread. However, in two-level thread systems, the thread will be created properly. To see how the thread was actually created, call <TT>GetScope</TT> after the thread has transitioned to the <TT>Active</TT> state.<P>
+You can attempt to specify the mix of kernel-level to process-level threads in a two-level thread system with the <TT>SetConcurrencyLevel</TT> method. This method provides a hint to the operating system that indicates how many process-level thread you wish to execute concurrently. The operating system will then attempt to ensure there are enough kernel-level threads available to fulfill your request. Currently, the only operating system that provides such a feature is Solaris. <TT>SetConcurrencyLevel</TT> is silently ignored on other operating systems.<P>
+<A NAME="3734"><H3> Thread Stack Size</H3></A>
+Some operating systems allow you to specify the maximum size of a thread's call stack. Use <TT>SetStackSize</TT> to define the stack size of a thread before starting it. Some operating systems have a default stack size of one megabyte, while others have a much smaller stack size of perhaps twenty kilobytes. You may need to increase a thread's stack size if you make use of heavily recursive routines.<P>
+<A NAME="3736"><H3> Terminating One Thread from Another</H3></A>
+The <TT>RequestTermination</TT> method is used to register a termination request with a thread. A termination request is much like a suspension request. The thread will not honor the termination request until it reaches a termination point within the Galaxy library. Termination points are currently defined in the following locations:<P>
+<OL>
+<LI>Just before a thread calls it's <TT>Run</TT> method.
+<BR>
+<LI>Before and after a thread calls <TT>Sleep</TT>.
+<BR>
+<LI>When a thread calls <TT>Yield</TT>.
+<BR>
+</OL>
+When a thread honors a termination request, it throws <TT>ThreadTerminatedException</TT> from the termination point. You may choose to catch the <TT>ThreadTerminatedException</TT> and handle it, or simply let it propagate up and out of the thread's <TT>Run</TT> method. Unlike other exceptions in Galaxy, an uncaught <TT>ThreadTerminationException</TT> will only terminate the current thread, not the entire application.<P>
+You can add more termination points to your application by using the <TT>IsTerminationRequested</TT> method to check for a termination request and then throwing <TT>ThreadTerminatedException</TT>.<P>
+<A NAME="3743"><H3> Interrupting a Thread</H3></A>
+When a thread performs a long, blocking operation, sometimes it is necessary to have the thread stop blocking early. If a thread can perform many different blocking operations, it can be difficult to determine which one the thread is blocking on. To make these cases a little easier, Galaxy provides the <TT>Interrupt</TT> and <TT>RegisterInterruptProc</TT> methods in the Thread class.<P>
+Before a blocking operation, register a function that will cause the blocking operation to unblock via <TT>RegisterInterruptProc</TT>. After the blocking operation, use <TT>RegisterInterruptProc</TT> to register a <TT>NULL</TT> function to remove your interrupt procedure.<P>
+From another thread, invoke the <TT>Interrupt</TT> method on the blocked thread. The interrupt procedure registered by that thread with <TT>RegisterInterruptProc</TT> will be called in the context of the interrupting thread. This will cause the blocked thread to become unblocked.<P>
+By default, none of the blocking Galaxy operations have interrupt procedures registered except one. The <TT>Sleep</TT> method on the Thread class registers an interrupt procedure before going to sleep. Calling <TT>Interrupt</TT> on a thread that is in the middle of a <TT>Sleep</TT> call will cause the <TT>Sleep</TT> call to immediately throw <TT>ThreadInterruptedException</TT>. The exception can then be caught by the thread that called sleep and appropriate action taken.<P>
+<A NAME="3748"><H3> Thread Groups</H3></A>
+Galaxy provides thread groups to group together collections of thread object. There is a single, default thread group created when Galaxy is initialized, and the first thread in the application belongs to this default thread group.<P>
+You may create additional thread groups, place new threads and other threads in a thread group, and perform operations on thread groups. An operation performed on a thread group effects each individual thread in the group, as well as any sub-groups recursively. For instance, invoking the <TT>RequestSuspend</TT> method on a thread group causes the <TT>RequestSuspend</TT> method to be invoked on each thread within the group. <P>
+You may collectively perform the following actions on the threads in a thread group:<P>
+<OL>
+<LI><TT>RequestSuspend
+</TT><BR>
+<LI><TT>RequestTermination
+</TT><BR>
+<LI><TT>Resume
+</TT><BR>
+<LI><TT>SetPriority
+</TT><BR>
+<LI><TT>SetDestroyWhenTerminated
+</TT><BR>
+</OL>
+Thread groups also provide thread group local storage, which is just like thread local storage but each slot is specific to a particular thread group instead of being specific to a particular thread.<P>
+<A NAME="3392"><H2> Avoiding Pitfalls</H2></A>
+<A NAME="3767"><H3> Pitfalls with RequestTermination</H3></A>
+Asking a thread to terminate via the <TT>RequestTermination</TT> method causes an exception to be thrown from a possible arbitrary place in another thread's sequence of execution. If the exception propagates out of the thread's <TT>Run </TT>method uncaught, the thread will terminate. The thread will not, however, release any resources it may have acquired during its execution. Any allocated memory that is not released will be leaked. Any open files will remain open. And any mutexes held by the thread will remain held. In order to prevent this, you should place exception handlers appropriately to free resources close to where they were acquired and re-throw the <TT>ThreadTerminatedException</TT>.<P>
+It is easy to ensure mutexes get released in this case by simply using the <TT>WithHandling</TT> variants of the mutex functions. See the Mutex chapter for more information.<P>
+<A NAME="3770"><H3> Pitfalls on a Two-Level Thread System</H3></A>
+On two-level thread system, you have no control over which kernel-level threads a process-level thread runs upon. If your application involves threads that will perform long, compute bound operations that do not perform I/O or do not block then it is possible for one thread to starve other threads in the application by hogging a kernel-level thread. In order to prevent this, it is wise to populate such compute-intensive code with calls to <TT>Yield</TT> at strategic places. This will allow your compute-bound thread to periodically release the kernel-level thread it is using and give other threads in your application a chance to run. <P>
+If, for performance reasons, it is not possible to add <TT>Yield</TT> calls to your compute-bound thread, then create the thread as a kernel-level thread to form a one-to-one association between the compute-bound thread and a single kernel-level thread. The operating system will create another kernel-level thread to compensate to service the other threads in the application.<P>
+<A NAME="3372"><H2> Subclassing</H2></A>
+The best way to make use of the Thread class is to subclass the base thread class. Override the <TT>Run</TT> method to perform the task you wish the thread to do, and add data members to the subclass instead of using thread local storage. This has two advantages:<P>
+<OL>
+<LI>You can maintain type safety for thread local data instead of passing thread local 
+data through a void pointer when using the thread local methods.
+<BR>
+<LI>Accessing a data member of an object is faster than accessing thread local storage.
+<BR>
+</OL>
+Two samples are provided with Galaxy that illustrate subclassing the base thread class as described above. They are the <TT>Producer/Consumer</TT> example and the <TT>Worker</TT> example. Both examples are in the thread sample directory.<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Text_Ruler.html">Previous Chapter</A> | 
+		<A HREF="Timer.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

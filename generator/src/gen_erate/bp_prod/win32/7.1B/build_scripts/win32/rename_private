@@ -1,0 +1,132 @@
+#!/bin/sh
+#==========================================================================
+#
+# File:      $RCSfile: rename_private,v $
+# Version:   $Revision: 1.9 $
+# Modified:  $Date: 2013/01/10 23:42:54 $
+#
+# (c) Copyright 1992-2013 by Mentor Graphics Corp. All rights reserved.
+#
+#==========================================================================
+# This document contains information proprietary and confidential to
+# Mentor Graphics Corp., and is not for external distribution.
+#==========================================================================
+#
+# This script builds BridgePoint in the user's private area
+#
+# Parameters:
+#   $1 - Platform for which this build is intended
+#   $2 - Version for which this build is intended
+
+set -e
+set -u
+
+if [ $# -lt 2 ]; then
+  echo "Usage:
+   `basename $0` <platform> <version> <key_or_date>
+"
+  exit 2
+fi
+
+exesuf=".exe"
+libsuf=".dll"
+PLATFORM=$1
+export PLATFORM
+VERSION=$2
+export VERSION
+ds="_$3"
+shift
+shift
+shift
+
+# Include file with customizable build information
+this_path=`dirname $0`
+if [ "$this_path" = "." ]; then
+  this_path="`pwd`"
+fi
+
+# Go up a directory level.  This script is platform-dependent
+this_path=`dirname $this_path`
+
+HOST_INFO_INCLUDE=$this_path/get_host_platform.inc
+. $HOST_INFO_INCLUDE
+
+BUILD_INCLUDE=$this_path/build_vars.inc
+. $BUILD_INCLUDE
+
+exes="analyst \
+gen_file \
+gen_import \
+sim_ooa \
+support_password \
+ptgetenv \
+ptgetshe \
+pt_ver_data_get \
+pt_ver_info_get \
+pt_ver_num_highest_get \
+pt_get_latest \
+pt_get_ver_data \
+pt_get_ver_info \
+pt_get_branches \
+pt_get_versions \
+pt_un_check_out"
+
+set +xv
+cd $BUILD_DIR
+for file in $exes
+  do
+  source=$file$exesuf
+  dest=${file}$ds$exesuf
+  if [ -f $source ]; then
+    set -x
+    rm -f $dest
+    mv $source $dest
+    ls -al $dest
+    set +x
+  fi
+  done
+
+cd $SCHEMA_DIR
+for schema in ooa gen sim
+  do
+  source=$schema.app_schema
+  dest=$schema.app_schema$ds
+  if [ -f $source ]; then
+    set -x
+    rm -f $dest
+    mv $source $dest
+    ls -al $dest
+    set +x
+  fi
+  done
+
+cd $BUILD_DIR
+for vr in analyst sim_ooa
+  do
+  source=$vr.vr
+  dest=${vr}$ds.vr
+  if [ -f $source ]; then
+    set -x
+    rm -f $dest
+    mv $source $dest
+    ls -al $dest
+    set +x
+  fi
+  done
+
+cd $BUILD_DIR
+for lib in libREPB libTRANS
+  do
+  for suf in $libsuf .def .lib
+    do
+    source=$lib$suf
+    dest=${lib}$ds$suf
+    if [ -f $source ]; then
+      set -x
+      rm -f $dest
+      mv $source $dest
+      ls -al $dest
+      set +x
+    fi
+    done
+  done

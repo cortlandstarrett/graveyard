@@ -1,0 +1,145 @@
+<HTML>
+<HEAD>
+<TITLE>Condition</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Condition</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Communication.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Confirm.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3593"></A>
+The <EM><B>Condition</B></EM> class is used in conjunction with threading and provides the ability for threads to communicate information about the state of a shared resource. Condition objects can be created, destroyed, waited upon, and signaled by the Condition class.<P>
+Use the Condition class in conjunction with Thread and Mutex to provide more advanced synchronization mechanisms.The Thread class is used to create multiple threads within an application, while the Mutex class is used to provide mutual exclusion for a shared resource.<P>
+The Condition class provides condition variable objects, or simply condition variables. These are traditional condition variables with the same semantics as standard POSIX condition variables. When a thread holds a lock on a mutex in order to access a shared resource, it might find that the shared resource is not in the state the thread needs it to be in.<P>
+For example, consider a shared queue. A thread may wish to remove an element from the queue, so it obtains a lock on the mutex protecting the queue. But with the lock held, the thread finds out that there are no elements in the queue. The thread therefore wants to wait for an element to be added to the queue.<P>
+In this case, you should have the thread wait on a condition variable. This allows the mutex to be released while the thread is put to sleep waiting on the condition variable. When another thread adds an element to the queue (after obtaining the required lock), it signals the condition variable and releases its lock on the mutex. The waiting thread will then awaken, reacquire the lock on the condition variable, and be able to process the element in the queue.<P>
+It is beyond the scope of this Programmers Guide to discuss all of the issues, pitfalls, and details involved with multithreaded programming. Developing a robust multithreaded program is a complicated task that requires full understanding of not only the application being developed, but the underlying operating system, hardware, and software libraries being used.<P>
+Differences in thread scheduling between operating systems and differences in memory and cache coherency between computer systems <EM>must</EM> be taken into account to develop a properly working application. The Galaxy Condition class, as well as the Mutex and Thread classes, have been designed to provide consistent access to each operating system's implementation of threads. However, use of these classes alone will not result in an operational multithreaded application without a proper understanding of multithreaded programming beyond Galaxy.<P>
+Visix recommends the following books on multithreaded programming:<P>
+<OL>
+<LI><EM>Programming with POSIX Threads</EM>, David R. Butenhof, Addison Wesley, 1997, ISBN 0-
+201-63392-2
+<BR>
+<LI><EM>Multithreading Applications in Win32</EM>, Jim Beveridge and Robert Wiener, Addison 
+Wesley, 1997, ISBN 0-201-44234-5
+<BR>
+</OL>
+The Butenhof book discusses multithreaded programming in general, with specific examples using POSIX threads on UNIX. The Beveridge and Wiener book illustrates writing multithreaded programs under Win32. Each book has chapters on thread basics, thread synchronization, thread local storage, and priorities.<P>
+Combined with the proper understanding of multithreaded programming techniques, this Programmers Guide will describe in detail how to use these techniques in the development of a Galaxy application.<P>
+<A NAME="3358"><H2> Key Functionality</H2></A>
+<A NAME="3615"><H3> Creating, Waiting, Signaling, and Destroying</H3></A>
+A condition variable can be initialized by the Condition class via the <TT>Init</TT> method. A condition variable should only be initialized once.<P>
+To wait on a condition variable, the calling thread must hold a mutex and pass that mutex to the <TT>Wait</TT> method. The mutex will be released and the thread will be placed into the wait queue of the condition variable. The <TT>Wait</TT> method will return either when the condition variable is signaled by another thread, or when the timeout period specified expires. When the <TT>Wait</TT> call returns, the mutex that was released is automatically reacquired.<P>
+For example:<P>
+<PRE><UL>   vmutex m;
+   vcondition c;
+
+   vmutexLock(&amp;m);
+
+   while (queue_empty == TRUE) {
+     vconditionWait(&amp;c, &amp;m, 0, 0);
+   }
+
+   // process an element from the queue
+   vmutexUnlock(&amp;m);
+
+</UL></PRE>The above code will cause the thread to wait on the condition variable so long as the shared queue is empty. The timeout values of zero specify an infinite wait period, so the thread will wait until signaled by another thread that the state of the queue may have changed.<P>
+When a thread modifies a shared resource, such as the queue in our example, it signals other threads that may be waiting on a condition variable for the state to change. This is done with the <TT>Signal</TT> method as follows:<P>
+<PRE><UL>   vmutexLock(&amp;m);
+
+   // add an element to the queue
+   vconditionSignal(&amp;c);
+
+   vmutexUnlock(&amp;m);
+
+</UL></PRE>When a condition variable is no longer needed, its resources should be released with the <TT>Destroy</TT> method.<P>
+<A NAME="3641"><H3> Signal Versus SignalAll</H3></A>
+The <TT>Signal</TT> method is defined to wake up at least one thread waiting on a condition variable. The <TT>SignalAll</TT> method wakes up all threads waiting on a condition variable. Use <TT>Signal</TT> when awakening only one thread would be optimal, and use <TT>SignalAll</TT> when awakening all threads is necessary.<P>
+Clearly, <TT>SignalAll</TT> incurs much more overhead than <TT>Signal</TT>, since all threads waiting on a condition variable must be awakened and scheduled.<P>
+<A NAME="3644"><H3> Naming Condition Variables</H3></A>
+As a debugging aid, condition variables can be given names via the <TT>SetName</TT> or <TT>SetNameFormatted</TT> methods. In the debugging versions of the Galaxy library, if there is an error involving a condition variable its name as well as its address will be dumped. This can be helpful in tracking down problems with condition variable usage. <P>
+<A NAME="3392"><H2> Avoiding Pitfalls</H2></A>
+<A NAME="3647"><H3> Superfluous Signals</H3></A>
+Its important to note that <TT>Signal</TT> is defined as waking up <EM>at least one</EM> thread, not <EM>only one</EM> thread. Due to the implementation of <TT>Signal</TT> in some operating systems, <TT>Signal</TT> may wake up more than one thread, but not necessarily all or even an majority of the waiting threads. Therefore, you must code defensively by always wrapping a <TT>Wait</TT> call in a while loop. For the queue example, we want to wait until the queue is no longer empty. We do that by checking <TT>queue_empty</TT> in the while loop in the above example. Then, if the thread is the victim of a superfluous signal, it will simply see that the queue is still empty and go back to waiting for the real signal.<P>
+<A NAME="3368"><H1> Specialized Use</H1></A>
+<A NAME="3654"><H3> Wait Interruptible</H3></A>
+The <TT>WaitInterruptable</TT> method is a variation of the <TT>Wait</TT> method. It behaves exactly the same as the <TT>Wait</TT> method, except that it automatically installs a thread interrupt procedure before waiting on the condition variable. A call to the <TT>Interrupt</TT> method on the thread object waiting on the condition variable will cause the condition variable to get signaled as if <TT>Signal</TT> had been called on it. (See the Thread class for more details on <TT>Interrupt</TT> and thread interrupt procedures.)<P>
+<P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Communication.html">Previous Chapter</A> | 
+		<A HREF="Confirm.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>

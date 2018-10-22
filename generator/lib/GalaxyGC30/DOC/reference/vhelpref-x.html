@@ -1,0 +1,491 @@
+<HTML>
+  <HEAD>
+<!--[[HEADING]]-->
+<title>vhelpref prefix</title><!--[[/HEADING]]-->
+  </HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<A NAME="Top"><IMG SRC="../graphics/trans.gif" WIDTH=2 HEIGHT=2></A><BR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+
+		<TD>
+		<CENTER>
+		<A HREF="../index.html">
+		<IMG SRC="../graphics/logo.gif" BORDER=0></A>
+		</CENTER>
+		</TD>
+
+	        <TD VALIGN=TOP>
+	        <BR><H1>
+<!--[[TITLE]]-->
+vhelpref prefix<!--[[/TITLE]]-->
+	        </H1><BR>
+		</TD>
+      
+	</TR>
+
+</TABLE>
+
+<HR>
+
+<BR>
+
+<!--[[PREAMBLE]]-->
+<TABLE>
+<TR>
+<TD><A HREF="vhelpref-x.html#section_DataType">Types</A> [2]</TD>
+<TD><A HREF="vhelpref-x.html#section_Function">Functions</A> [15]</TD>
+<TD><A HREF="vhelpref-x.html#section_Message">Messages</A> [4]</TD>
+<TD><A HREF="vhelpref-x.html#section_Constant">Constants</A> [1]</TD>
+<TD><A HREF="vhelpref-x.html#section_Macro">Macros</A> [1]</TD>
+</TR>
+</TABLE>
+<!--[[/PREAMBLE]]-->
+
+<!--[[CONTENT]]-->
+
+<P>
+<A NAME="section_DataType"><HR>
+<CENTER><H2>Types</H2></CENTER></A><P>
+<A NAME="vhelpref"><HR><H4>vhelpref</H4></A>
+<PRE>
+        typedef ... <B>vhelpref</B>;
+</PRE>
+
+<DL><DD>
+A vhelpref can contain either a <CODE><A HREF="vurl-x.html#vurl"><CODE>vurl</CODE></A></CODE> or a help context.
+vhelpref's are located by <CODE><A HREF="vhelpreflocator-x.html#vhelpreflocator"><CODE>vhelpreflocator</CODE></A></CODE> and
+<CODE><A HREF="vhelphtmllocator-x.html#vhelphtmllocator"><CODE>vhelphtmllocator</CODE></A></CODE> and it is used by subclasses of
+<CODE><A HREF="vhelphypertext-x.html#vhelphypertext"><CODE>vhelphypertext</CODE></A></CODE> such as:
+<ul>
+<li><CODE><A HREF="vhelpgalaxy-x.html#vhelpgalaxy"><CODE>vhelpgalaxy</CODE></A></CODE>
+<li><CODE><A HREF="vhelpwinhelp-x.html#vhelpwinhelp"><CODE>vhelpwinhelp</CODE></A></CODE>
+<li><CODE><A HREF="vhelpnetscape-x.html#vhelpnetscape"><CODE>vhelpnetscape</CODE></A></CODE>
+<li><CODE><A HREF="vhelpexplorer-x.html#vhelpexplorer"><CODE>vhelpexplorer</CODE></A></CODE>
+<li><CODE><A HREF="vhelpdefault-x.html#vhelpdefault"><CODE>vhelpdefault</CODE></A></CODE>.
+</ul>
+vurls are useful for help displays that use HTML text.  Context
+strings are used by displays that map text to links in proprietary help
+text formats (for example, vhelpsrv, WinHelp).
+<p>
+Context strings are arrays of NULL terminated <A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A> strings.
+Normally, they describe the tags objects in the UI hierarchy.  For
+example, the context for a button in a dialog might be:
+<BLOCKQUOTE>
+<PRE>
+   DialogButton
+</PRE>
+</BLOCKQUOTE>
+Where "Dialog" is the tag of the dialog and "Button" is the tag of the
+button in the dialog.  In this case, the context's array length is 2.
+The first element is the button's tag and the second is the tag of the
+dialog.  If the button were in a container in a dialog, the context
+would then be:
+<BLOCKQUOTE>
+<PRE>
+   DialogContainerButton
+</PRE>
+</BLOCKQUOTE>
+A the array length would be 3.  These kinds of contexts are normally
+constructed by a call to <CODE><A HREF="vobject-x.html#vobjectBuildHelpContext"><CODE>vobjectBuildHelpContext</CODE></A></CODE>.
+<p>
+Note that the help context could contain other kinds of information.
+This information might be useful to custom help display subclasses.
+</DD></DL>
+<P>
+<A NAME="vhelprefClass"><HR><H4>vhelprefClass</H4></A>
+<PRE>
+        typedef ... <B>vhelprefClass</B>;
+</PRE>
+
+<DL><DD>
+Contains method and variable bindings for objects of type
+<CODE>vhelpref</CODE> . Classes declared with this type 
+contain the same set of methods and variables as the
+default help reference class, but the behavior of methods and the
+contents of variables may vary. This class type is derived
+from <CODE><A HREF="vinstance-x.html#vinstanceClass"><CODE>vinstanceClass</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="section_Function"><HR>
+<CENTER><H2>Functions</H2></CENTER></A><P>
+<A NAME="vhelprefCreate"><HR><H4>vhelprefCreate</H4></A>
+<PRE>
+        vhelpref * <B>vhelprefCreate</B>();
+</PRE>
+
+<DL><DD>
+Creates an instance of the default class of vhelpref and returns
+a pointer to its contents.  Space
+for the object is allocated dynamically.  The Class Manager reclaims 
+the storage occupied by the object when it is destroyed with
+<CODE><A HREF="vhelpref-x.html#vhelprefDestroy"><CODE>vhelprefDestroy</CODE></A></CODE>.  Higher-level interfaces based
+on the core vhelpref type can define a macro to this function
+for their <CODE>Create</CODE> function.  This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vhelpref-x.html#vhelprefInit"><CODE>vhelprefInit</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vhelprefCreateOfClass"><HR><H4>vhelprefCreateOfClass</H4></A>
+<PRE>
+        vhelpref * <B>vhelprefCreateOfClass</B>(
+                vhelprefClass * helprefClass);
+</PRE>
+
+<DL><DD>
+Creates an instance of class <SAMP>helprefClass</SAMP> and returns
+a pointer to its contents. Space
+for the object is allocated dynamically based on the object
+size of the class. The Class Manager reclaims the storage
+occupied by the object when it is destroyed with
+<CODE><A HREF="vhelpref-x.html#vhelprefDestroy"><CODE>vhelprefDestroy</CODE></A></CODE>. Higher-level interfaces based
+on the core vhelpref type can define a macro to this function
+for their <CODE>Create</CODE> function. This function
+essentially allocates space for a new instance and calls
+<CODE><A HREF="vhelpref-x.html#vhelprefInitOfClass"><CODE>vhelprefInitOfClass</CODE></A></CODE> on it.
+</DD></DL>
+<P>
+<A NAME="vhelprefDestroy"><HR><H4>vhelprefDestroy</H4></A>
+<PRE>
+        vhelpref * <B>vhelprefDestroy</B>(
+                vhelpref * helpref);
+</PRE>
+
+<DL><DD>
+Destroys the object <SAMP>helpref</SAMP>, which must have
+been created or initialized by a Class Manager function.
+Interfaces based on the core object class can define a
+macro to this function for their <CODE>Destroy</CODE>
+function. This function is implemented by sending the
+message <CODE><A HREF="vinstance-x.html#vinstanceDESTROY"><CODE>vinstanceDESTROY</CODE></A></CODE> to <SAMP>helpref</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vhelprefGetClass"><HR><H4>vhelprefGetClass</H4></A>
+<PRE>
+        vhelprefClass * <B>vhelprefGetClass</B>(
+                vhelpref * helpref);
+</PRE>
+
+<DL><DD>
+Returns the class of the object <SAMP>helpref</SAMP>. This
+pointer can be cast to higher-level classes if it is known
+that it is of the appropriate type. Class types can be
+verified with <CODE><A HREF="vclass-x.html#vclassIsKindOf"><CODE>vclassIsKindOf</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vhelprefGetContextString"><HR><H4>vhelprefGetContextString</H4></A>
+<PRE>
+        void <B>vhelprefGetContextString</B>(
+                vhelpref * helpref,
+                const vchar *** context,
+                int * count);
+</PRE>
+
+<DL><DD>
+Sets <SAMP>context</SAMP> to point to an array of <A HREF="vchar-x.html#vchar"><CODE>vchar</CODE></A> * and sets
+<SAMP>count</SAMP>'s value to the length of this array.
+If no help context is set, the length of the array is zero.
+</DD></DL>
+<P>
+<A NAME="vhelprefGetDefaultClass"><HR><H4>vhelprefGetDefaultClass</H4></A>
+<PRE>
+        vhelprefClass * <B>vhelprefGetDefaultClass</B>();
+</PRE>
+
+<DL><DD>
+Returns the class used to create help references by the
+<CODE><A HREF="vhelpref-x.html#vhelprefCreate"><CODE>vhelprefCreate</CODE></A></CODE> and <CODE><A HREF="vhelpref-x.html#vhelprefInit"><CODE>vhelprefInit</CODE></A></CODE> functions.
+This class can be modified to alter the behavior
+of subclasses of vhelpref.  This function can be called to
+explicitly register the default help reference class with the Class
+Manager.
+</DD></DL>
+<P>
+<A NAME="vhelprefGetInstance"><HR><H4>vhelprefGetInstance</H4></A>
+<PRE>
+        vinstance * <B>vhelprefGetInstance</B>(
+                vhelpref * helpref);
+</PRE>
+
+<DL><DD>
+Returns the instance on which the help reference <SAMP>helpref</SAMP> 
+is built.
+</DD></DL>
+<P>
+<A NAME="vhelprefGetURL"><HR><H4>vhelprefGetURL</H4></A>
+<PRE>
+        const vurl * <B>vhelprefGetURL</B>(
+                vhelpref * helpref);
+</PRE>
+
+<DL><DD>
+Returns the URL, if any, stored in this help reference.
+If this reference contains no URL, it returns <SAMP>NULL</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vhelprefInit"><HR><H4>vhelprefInit</H4></A>
+<PRE>
+        void <B>vhelprefInit</B>(
+                vhelpref * helpref);
+</PRE>
+
+<DL><DD>
+Initializes the memory addressed by <SAMP>helpref</SAMP> in
+such a way that the resulting structure can be used to
+store any objects whose classes inherit from
+<CODE><A HREF="vhelpref-x.html#vhelprefClass"><CODE>vhelprefClass</CODE></A></CODE>. 
+</DD></DL>
+<P>
+<A NAME="vhelprefInitOfClass"><HR><H4>vhelprefInitOfClass</H4></A>
+<PRE>
+        vhelpref * <B>vhelprefInitOfClass</B>(
+                vhelpref * helpref,
+                vhelprefClass * clas);
+</PRE>
+
+<DL><DD>
+Initializes an object of class <SAMP>clas</SAMP> in the
+memory addressed by <SAMP>helpref</SAMP>.  Interfaces 
+based on the core reference class can
+define a macro to this function for their <CODE>Init</CODE>
+function. This function simply stores the class in the
+class field of the object structure and sends it the
+message <CODE><A HREF="vinstance-x.html#vinstanceINIT"><CODE>vinstanceINIT</CODE></A></CODE>.
+</DD></DL>
+<P>
+<A NAME="vhelprefSetContextString"><HR><H4>vhelprefSetContextString</H4></A>
+<PRE>
+        void <B>vhelprefSetContextString</B>(
+                vhelpref * helpref,
+                const vchar * context);
+</PRE>
+
+<DL><DD>
+Sets a help context of a singular string for this help reference.
+This is equivalent to calling:
+<BLOCKQUOTE>
+<PRE>
+   vhelpref   *ref;
+
+   <A HREF="vhelpref-x.html#vhelprefSetNestedContextString"><CODE>vhelprefSetNestedContextString</CODE></A>(ref, context, 1);
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="vhelprefSetContextStringScribed"><HR><H4>vhelprefSetContextStringScribed</H4></A>
+<PRE>
+        void <B>vhelprefSetContextStringScribed</B>(
+                vhelpref * helpref,
+                vscribe * context);
+</PRE>
+
+<DL><DD>
+Sets a help context of a singular string for this help reference.
+This is analogous to calling:
+<BLOCKQUOTE>
+<PRE>
+   vhelpref   *ref;
+
+   <A HREF="vhelpref-x.html#vhelprefSetNestedContextString"><CODE>vhelprefSetNestedContextString</CODE></A>(ref, context, 1);
+</PRE>
+</BLOCKQUOTE>
+except that ownership issues are resolved though the scribe.
+<p>
+This function is implemented by sending the message
+<CODE><A HREF="vhelpref-x.html#vhelprefSET_CONTEXT_STRING_SCRIBED"><CODE>vhelprefSET_CONTEXT_STRING_SCRIBED</CODE></A></CODE> to
+<SAMP>helpref</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vhelprefSetNestedContextString"><HR><H4>vhelprefSetNestedContextString</H4></A>
+<PRE>
+        void <B>vhelprefSetNestedContextString</B>(
+                vhelpref * helpref,
+                const vchar ** context,
+                int count);
+</PRE>
+
+<DL><DD>
+Sets the help context of this help reference.
+The help reference does not own this context.  This means that when
+the help reference is destroyed it will destroy the <BOLD>array</BOLD>
+storage but not the strings pointed to by the array.
+<p>
+This function is implemented by sending the message
+<CODE><A HREF="vhelpref-x.html#vhelprefSET_NESTED_CONTEXT_STRING"><CODE>vhelprefSET_NESTED_CONTEXT_STRING</CODE></A></CODE> to
+<SAMP>helpref</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vhelprefSetNestedContextStringOwned"><HR><H4>vhelprefSetNestedContextStringOwned</H4></A>
+<PRE>
+        void <B>vhelprefSetNestedContextStringOwned</B>(
+                vhelpref * helpref,
+                vchar ** context,
+                int count);
+</PRE>
+
+<DL><DD>
+Sets the help context of this help reference.
+The help reference owns this context.  This means that when the help
+reference is destroyed it will destroy the array storage and all of
+the strings pointed to by the array.
+<p>
+This function is implemented by sending the message
+<CODE><A HREF="vhelpref-x.html#vhelprefSET_NESTED_CONTEXT_STRING_OWNED"><CODE>vhelprefSET_NESTED_CONTEXT_STRING_OWNED</CODE></A></CODE> to
+<SAMP>helpref</SAMP>.
+</DD></DL>
+<P>
+<A NAME="vhelprefSetURLOwned"><HR><H4>vhelprefSetURLOwned</H4></A>
+<PRE>
+        void <B>vhelprefSetURLOwned</B>(
+                vhelpref * helpref,
+                vurl * url);
+</PRE>
+
+<DL><DD>
+Sets the URL of this help reference.
+The help reference owns this URL so it will destroy the URL when
+it is destroyed.
+<p>
+This function is implemented by sending the message
+<CODE><A HREF="vhelpref-x.html#vhelprefSET_URL_OWNED"><CODE>vhelprefSET_URL_OWNED</CODE></A></CODE> to <SAMP>helpref</SAMP>.
+</DD></DL>
+<P>
+<A NAME="section_Message"><HR>
+<CENTER><H2>Messages</H2></CENTER></A><P>
+<A NAME="vhelprefSET_CONTEXT_STRING_SCRIBED"><HR><H4>vhelprefSET_CONTEXT_STRING_SCRIBED</H4></A>
+<PRE>
+        &lt;<B>vhelprefSET_CONTEXT_STRING_SCRIBED</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets a help context of a singular string for this help reference.
+This is analogous to calling:
+<BLOCKQUOTE>
+<PRE>
+   vhelpref   *ref;
+
+   <A HREF="vhelpref-x.html#vhelprefSetNestedContextString"><CODE>vhelprefSetNestedContextString</CODE></A>(ref, context, 1);
+</PRE>
+</BLOCKQUOTE>
+except that ownership issues are resolved though the scribe.
+</DD></DL>
+<P>
+<A NAME="vhelprefSET_NESTED_CONTEXT_STRING"><HR><H4>vhelprefSET_NESTED_CONTEXT_STRING</H4></A>
+<PRE>
+        &lt;<B>vhelprefSET_NESTED_CONTEXT_STRING</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the help context of this help reference.
+The help reference does not own this context.  This means that when
+the help reference is destroyed it will destroy the <BOLD>array</BOLD>
+storage but not the strings pointed to by the array.
+</DD></DL>
+<P>
+<A NAME="vhelprefSET_NESTED_CONTEXT_STRING_OWNED"><HR><H4>vhelprefSET_NESTED_CONTEXT_STRING_OWNED</H4></A>
+<PRE>
+        &lt;<B>vhelprefSET_NESTED_CONTEXT_STRING_OWNED</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the help context of this help reference.
+The help reference owns this context.  This means that when the help
+reference is destroyed it will destroy the array storage and all of
+the strings pointed to by the array.
+</DD></DL>
+<P>
+<A NAME="vhelprefSET_URL_OWNED"><HR><H4>vhelprefSET_URL_OWNED</H4></A>
+<PRE>
+        &lt;<B>vhelprefSET_URL_OWNED</B>&gt;
+</PRE>
+
+<DL><DD>
+Sets the URL of this help reference.
+The help reference owns this URL so it will destroy the URL when
+it is destroyed.
+</DD></DL>
+<P>
+<A NAME="section_Constant"><HR>
+<CENTER><H2>Constants</H2></CENTER></A><P>
+<A NAME="vhelprefINCLUDED"><HR><H4>vhelprefINCLUDED</H4></A>
+<PRE>
+        <B>vhelprefINCLUDED</B>
+</PRE>
+
+<DL><DD>
+Use this constant to protect against multiple inclusion of the vhelpref
+header file.
+This constant is intended to be used in this way when including header files:
+<BLOCKQUOTE>
+<PRE>
+#ifndef  vhelprefINCLUDED
+#include vhelprefHEADER
+#endif
+</PRE>
+</BLOCKQUOTE>
+</DD></DL>
+<P>
+<A NAME="section_Macro"><HR>
+<CENTER><H2>Macros</H2></CENTER></A><P>
+<A NAME="vhelprefCLASS"><HR><H4>vhelprefCLASS</H4></A>
+<PRE>
+        #define <B>vhelprefCLASS</B>(...) ...
+</PRE>
+
+<DL><DD>
+Use this macro to build subclasses of vhelpref.  Refer to
+<CODE><A HREF="vclass-x.html#vclass"><CODE>vclass</CODE></A></CODE> for more information on subclassing.
+</DD></DL>
+<P>
+
+<P>
+<!--[[/CONTENT]]-->
+
+<HR>
+
+<TABLE WIDTH=100% BORDER="0" CELLPADDING="0" CELLSPACING="0">
+
+	<TR BGCOLOR="#996666">
+		<TD>
+		<CENTER>
+<!--[[NAVIGATE_ICONIC]]-->
+<!--[[/NAVIGATE_ICONIC]]-->
+		</CENTER>
+		</TD>
+		    
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+	        <A HREF="#Top">Top of This Page</A> <BR>
+	        <A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Switch to Another Document</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+		<TD>
+		<BR>
+		<FONT SIZE=-1>
+		Need help?
+		<A HREF="../contact-visix.html">
+		Contact Visix</A>.
+		<BR> <BR>
+	        <A HREF="../copyright.html">Copyright &#169; 1996-97</A>,
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A><BR>
+		<BR>
+		</FONT>
+		</TD>
+
+	</TR>
+
+</TABLE>
+		
+</BODY>
+</HTML>
+
+
+

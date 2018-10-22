@@ -1,0 +1,192 @@
+<HTML>
+<HEAD>
+<TITLE>Drag</TITLE>
+</HEAD>
+
+<BODY background="graphics/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+	<TR>
+		<!-- Margin Banner -->
+		<TD WIDTH="130"><CENTER><IMG SRC="graphics/logo.gif">
+		<IMG WIDTH="130" SRC="graphics/trans.gif"></CENTER></TD>
+		<!-- Margin Spacer -->
+		<TD ROWSPAN="2" WIDTH="20">
+		<IMG WIDTH="20" SRC="graphics/trans.gif"><P></TD>
+	
+	
+		<!-- Title block: DOCUMENT TITLE GOES HERE -->
+		<TD VALIGN=TOP><BR>
+		     <H1>Drag</H1>
+		     <BR>
+		</TD>
+
+	</TR><TR>
+	
+		<!-- Navigation Icons & Related Topics -->
+		<TD WIDTH="130" VALIGN="TOP" ALIGN="LEFT"> 
+		
+		<CENTER>
+		<BR>
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		
+	
+  		<!-- These are the Navigation buttons -->
+		<A HREF="Domain.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/left.gif"></A>
+		<A HREF="index.html"><IMG WIDTH=22 HEIGHT=33 BORDER=0 SRC="graphics/up.gif"></A>
+		<A HREF="Drawing.html"><IMG WIDTH=24 HEIGHT=31 BORDER=0 SRC="graphics/right.gif"></A>
+
+		
+		<IMG WIDTH=6 HEIGHT=21 SRC="graphics/trans.gif">
+		<BR>
+  </CENTER>
+		</TD>
+	
+		<!-- Text Area -->
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<BR>
+			
+<!---------------------------------->
+<!-- Begin actual manual material -->
+<!---------------------------------->
+
+ 
+<A NAME="3204"></A>
+The <EM><B>Drag </B></EM>class provides a framework for implementing drag operations in Galaxy applications. A <EM><B>drag operation</B></EM> provides a graphical way to move one or more items from one screen location to another. A drag operation is initiated from a button down, drag, or detail event. The drag operation is completed by either a button up event or an application call to stop the drag. During the drag operation, an application-defined drawing function is repeatedly called to draw the items being dragged across the screen. Upon completion of a drag operation, a notification function is called to denote the window and location of the drop.<P>
+Note that the Drag class does not implement an interface to handle a drop operation, but a few suggestions follow. The destination window of a drop can be checked for a good drop site by looking at the window's class and/or its tag name. The type of item being dropped can be determined by either defining a name or constant to be associated with the type of drag.<P>
+<A NAME="3358"><H2>  Key Functionality</H2></A>
+To perform a drag operation, create a drag item and determine the bounding box that contains the largest area to be visible during the drag operation. The bounding box is the union of all rectangles representing items contained in the drag.<P>
+<PRE><UL>   vdrag   *drag = vdragCreate();
+   
+   vdragSetMaxSize(drag, width, height);
+
+</UL></PRE>Place the position of the pointer in the bounding box with <TT><B>SetOffset</B></TT>. The <TT>x</TT> and <TT>y</TT> coordinates, passed as parameters to this routine, position the pointer relative to the origin of the bounding box (located at the lower left corner of the bounding box). If you do not specify a position for the pointer, it is by default placed at the origin. <A HREF="Drag.html#4403">Figure 27</A> shows the offset for a bounding box containing two items to be dragged. The pointer is placed in the center of the bounding box.<P>
+<A NAME="4403"><I>Figure 27.  Bounding box with two items to be dragged
+</I><P>
+<IMG SRC="Drag.anc.gif"><P>
+To drag an item with the pointer placed in the center of the bounding box, set <TT>x</TT> to <TT>width/2</TT> and <TT>y</TT> to <TT>height/2</TT>.<P>
+<PRE><UL>   vdragSetOffset(drag, width/2, height/2);
+
+</UL></PRE><TT><B>SetDrawProc</B></TT> sets the drawing function that repeatedly draws the area inside the bounding box during the drag. The <TT>drawRect</TT> parameter to the drawing function specifies the location for drawing during the drag operation.<P>
+<PRE><UL>void dragDrawProc(vdrag *drag, vrect *drawRect)
+{
+   vimage *image;
+
+   image = (vimage *) vdragGetData(drag);
+   
+   vdrawMoveTo(drawRect-&gt;x, drawRect-&gt;y);
+
+   vdrawImageIdent(image);
+}
+
+</UL></PRE>The notify function for a drag operation is called after a button up event has signalled the end of the drag operation.<P>
+<PRE><UL>void dragNotify(vdrag *drag, vwindow *from,
+                vwindow *to, vevent *event)
+{
+   vdialog          *dialog;
+   vimage           *image;
+   vdialogItem      *item;
+   
+   /*
+    *  Check to see if drop is in the correct dialog
+    */
+   if (vwindowGetTag(to) == 
+       vnameInternGlobalLiteral("MyDropDialog"))
+   {
+      dialog = (vdialog *) to;
+      
+      /*
+       *  Check to see if mouse location is in the image item
+       */
+      item = vdialogFindItem(dialog, vname_Image);
+      if (vdialogItemContainsPoint(item,
+                                   veventGetPointerX(event),
+                                   veventGetPointerY(event)))
+      {
+         image = (vimage *) vdragGetData(drag);
+         vdialogSetItemImage(item, image);
+         return;
+      }
+   }
+   
+   /*
+    *  Beep since we did not get a good drop
+    */
+   vwindowBeep();
+}
+
+</UL></PRE>Use <TT><B>SetDetailProc</B></TT> to set the function that is called each time the pointer position changes during the tracking of a drag. The detail notify can be used to provide feedback to the user about a potential drop site. Note that the only feedback possible at this time is to change the cursor. (Drawing operations are not guaranteed to work properly here since offscreen drawing is used to make smooth drags.) Also note that the return value for the detail notify is reserved for future use and is currently ignored. To ensure future compatibility, return the value <TT>zero</TT>.<P>
+<PRE><UL>int detailNotify(vdrag *drag, vwindow *from,
+                 vwindow *to, vevent *event)
+{
+   vdialog       *dialog;
+   vdialogItem      *item;
+   
+   /*
+    *  Check to see if potential drop is in the correct dialog
+    */
+   if (vwindowGetTag(to) ==
+       vnameInternGlobalLiteral("MyDropDialog"))
+   {
+      dialog = (vdialog *) to;
+      
+      /*
+       *  Check to see if pointer location is in the image item
+       */
+      item = vdialogFindItem(dialog, vname_Image);
+      if (vdialogItemContainsPoint(item,
+                                   veventGetPointerX(event),
+                                   veventGetPointerY(event)))
+      {
+         
+         /*
+          *  This is a good drop site
+          */
+         vwindowSetCursor(from, goodDropCursor);
+         return(0);
+      }
+   }
+   
+   /*
+    *  This is not a good drop site
+    */
+   vwindowSetCursor(from, badDropCursor);
+   
+   return(0);
+}
+
+</UL></PRE><P>
+
+
+
+<!---------------------------------->
+<!--  End actual manual material  -->
+<!---------------------------------->
+			
+		</TD>
+		
+	</TR>
+	<TR>
+   		<!-- Textural Navigation Area -->	
+		<TD WIDTH="130" VALIGN="BOTTOM">
+	
+		<FONT SIZE=-1>
+
+  		<A HREF="Domain.html">Previous Chapter</A> | 
+		<A HREF="Drawing.html">Next Chapter</A> <BR>
+		<A HREF="index.html">Table of Contents</A> <BR>
+		<A HREF="../index.html">Help Map</A> <BR>
+
+		
+		<P>
+		Need help? <A HREF="../contact-visix.html">Contact Visix</A>.
+		<P>
+		<A HREF="../copyright.html">Copyright 1996-97</A>, <BR>
+		<A HREF="http://www.visix.com/">Visix Software Inc.</A>
+		</FONT>
+		</TD>
+	</TR>
+</TABLE>
+
+</BODY>
+</HTML>
